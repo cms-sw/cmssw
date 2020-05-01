@@ -788,9 +788,9 @@ bool HcalTriggerPrimitiveAlgo::needLegacyFG(const HcalTrigTowerDetId& id) const 
   return false;
 }
 
-bool HcalTriggerPrimitiveAlgo::needUpgradeFG(const HcalTrigTowerDetId& id, int depth) const {
+bool HcalTriggerPrimitiveAlgo::needUpgradeID(const HcalTrigTowerDetId& id, int depth) const {
 
-   // Depth 7 for ieta 26, 27, and 28 is not considered a fine grain depth.
+   // Depth 7 for TT 26, 27, and 28 is not considered a fine grain depth.
    // However, the trigger tower for these ieta should still be added to the fgUpgradeMap_
    // Otherwise, depth 7-only signal will not be analyzed.
    unsigned int aieta = id.ietaAbs();
@@ -807,7 +807,7 @@ void HcalTriggerPrimitiveAlgo::addUpgradeFG(const HcalTrigTowerDetId& id,
     if (needLegacyFG(id)) {
       std::vector<bool> pseudo(bits.size(), false);
       addFG(id, pseudo);
-    } else if (needUpgradeFG(id, depth)) {
+    } else if (needUpgradeID(id, depth)) {
 
        // If the tower id is not in the map yet
        // then for safety's sake add it, otherwise, no need
