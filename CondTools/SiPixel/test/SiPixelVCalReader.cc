@@ -7,6 +7,8 @@ SiPixelVCalReader::SiPixelVCalReader(const edm::ParameterSet& iConfig)
       useSimRcd_(iConfig.getParameter<bool>("useSimRcd")) {}
 
 SiPixelVCalReader::~SiPixelVCalReader() {}
+void SiPixelVCalReader::beginJob() {}
+void SiPixelVCalReader::endJob() {}
 
 void SiPixelVCalReader::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
   edm::ESHandle<SiPixelVCal> siPixelVCal;
@@ -24,6 +26,11 @@ void SiPixelVCalReader::analyze(const edm::Event& e, const edm::EventSetup& iSet
   edm::ESHandle<TrackerTopology> tTopoHandle;
   iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
+
+  // Retrieve old style tracker geometry from geometry
+  edm::ESHandle<TrackerGeometry> pDD;
+  iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
+  std::cout << " There are " << pDD->detUnits().size() << " detectors (old)" << std::endl;
 
   // Phase
   bool phase1 = true;
@@ -51,6 +58,8 @@ void SiPixelVCalReader::analyze(const edm::Event& e, const edm::EventSetup& iSet
   std::map<unsigned int,SiPixelVCal::VCal>::const_iterator it;
 
   // Fill histograms
+  std::cout << std::setw(12) << "detid" << std::setw(8) << "subdet" << std::setw(8) << "layer"
+            << std::setw(8) << "disk"   << std::setw(14) << "VCal slope" << std::setw(8) << "offset" << std::endl;
   for (it=vcal.begin(); it!=vcal.end(); it++) {
     detid  = it->first;
     slope  = it->second.slope;
@@ -63,10 +72,12 @@ void SiPixelVCalReader::analyze(const edm::Event& e, const edm::EventSetup& iSet
     side   = tTopo->pxfSide(detIdObj);   // 1, 2
     disk   = tTopo->pxfDisk(detIdObj);   // 1, 2, 3
     ring   = fpix.ringName();            // 1 (lower), 2 (upper)
-    std::cout  << "detid " << detid << ", subdet " << subdet << ", layer " << layer
-               << ", VCal slope " << slope << ", offset " << offset << std::endl;
-    edm::LogInfo("SiPixelVCalReader") << "detid " << detid << ", subdet " << subdet << ", layer " << layer
-                                      << ", VCal slope " << slope << ", offset " << offset;
+    std::cout << std::setw(12) << detid << std::setw(8) << subdet << std::setw(8) << layer
+              << std::setw(8) << disk   << std::setw(14) << slope << std::setw(8) << offset << std::endl;
+    //std::cout << "detid " << detid << ", subdet " << subdet << ", layer " << layer << ", disk " << disk
+    //          << ", VCal slope " << slope << ", offset " << offset << std::endl;
+    //edm::LogInfo("SiPixelVCalReader") << "detid " << detid << ", subdet " << subdet << ", layer " << layer
+    //                                  << ", VCal slope " << slope << ", offset " << offset;
     if (subdet==static_cast<int>(PixelSubdetector::PixelBarrel)) {
       slopeBPix_->Fill(slope);
       offsetBPix_->Fill(offset);

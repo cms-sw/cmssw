@@ -2,6 +2,7 @@
 #define SiPixelVCalReader_H
 
 #include <iostream>
+#include <iomanip> // std::setw
 #include <stdio.h>
 #include <sys/time.h>
 #include "TROOT.h"
@@ -34,18 +35,22 @@
 //#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
 class SiPixelVCalReader : public edm::EDAnalyzer {
-public:
-  explicit SiPixelVCalReader(const edm::ParameterSet&);
-  ~SiPixelVCalReader();
-  void analyze(const edm::Event&, const edm::EventSetup&);
 
-private:
-  bool printdebug_;
-  bool useSimRcd_;
-  TH1F* slopeBPix_;
-  TH1F* slopeFPix_;
-  TH1F* offsetBPix_;
-  TH1F* offsetFPix_;
+  public:
+    explicit SiPixelVCalReader(const edm::ParameterSet&);
+    ~SiPixelVCalReader();
+    virtual void beginJob();
+    virtual void endJob();
+    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+
+  private:
+    bool printdebug_;
+    bool useSimRcd_;
+    TH1F* slopeBPix_;
+    TH1F* slopeFPix_;
+    TH1F* offsetBPix_;
+    TH1F* offsetFPix_;
+
 };
 
 #endif

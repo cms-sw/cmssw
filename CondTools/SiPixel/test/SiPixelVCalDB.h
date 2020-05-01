@@ -25,21 +25,20 @@
 //#include "CondTools/SiPixel/test/SiPixelVCalPixelId.h"
 
 class SiPixelVCalDB : public edm::EDAnalyzer {
-public:
 
-  explicit SiPixelVCalDB(const edm::ParameterSet& conf);
-  explicit SiPixelVCalDB();
-  virtual ~SiPixelVCalDB();
-  virtual void beginJob();
-  virtual void endJob();
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+  public:
+    explicit SiPixelVCalDB(const edm::ParameterSet& conf);
+    explicit SiPixelVCalDB();
+    virtual ~SiPixelVCalDB();
+    virtual void beginJob();
+    virtual void endJob();
+    virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
-private:
-
-  std::string recordName_;
-  typedef std::vector<edm::ParameterSet> Parameters;
-  Parameters BPixParameters_;
-  Parameters FPixParameters_;
+  private:
+    std::string recordName_;
+    typedef std::vector<edm::ParameterSet> Parameters;
+    Parameters BPixParameters_;
+    Parameters FPixParameters_;
 
 };
 
