@@ -145,7 +145,7 @@ hgcal::association LayerClusterAssociatorByEnergyScoreImpl::makeConnections(
   std::unordered_map<DetId, std::vector<hgcal::detIdInfoInCluster>> detIdToLayerClusterId_Map;
   // this contains the ids of the caloparticles contributing with at least one
   // hit to the layer cluster and the reconstruction error. To be returned
-  // since this containts the information to compute the
+  // since this contains the information to compute the
   // LayerCluster-To-CaloParticle score.
   hgcal::layerClusterToCaloParticle cpsInLayerCluster;
   cpsInLayerCluster.resize(nLayerClusters);
@@ -360,7 +360,14 @@ hgcal::association LayerClusterAssociatorByEnergyScoreImpl::makeConnections(
       }
       continue;
     }
-    float invLayerClusterEnergyWeight = 1.f / (clusters[lcId].energy() * clusters[lcId].energy());
+
+    // Compute the correct normalization
+    float invLayerClusterEnergyWeight = 0.f;
+    for (auto const& haf : clusters[lcId].hitsAndFractions()) {
+      invLayerClusterEnergyWeight +=
+        (haf.second * hitMap_->at(haf.first)->energy()) * (haf.second * hitMap_->at(haf.first)->energy());
+    }
+    invLayerClusterEnergyWeight = 1.f / invLayerClusterEnergyWeight;
     for (unsigned int i = 0; i < numberOfHitsInLC; ++i) {
       DetId rh_detid = hits_and_fractions[i].first;
       float rhFraction = hits_and_fractions[i].second;
@@ -488,6 +495,8 @@ hgcal::RecoToSimCollection LayerClusterAssociatorByEnergyScoreImpl::associateRec
   const auto& links = makeConnections(cCCH, cPCH);
 
   const auto& cpsInLayerCluster = std::get<0>(links);
+//#define LogDebug(X) std::cout << X << " "
+//#define LogDebug(X) std::cout
   for (size_t lcId = 0; lcId < cpsInLayerCluster.size(); ++lcId) {
     for (auto& cpPair : cpsInLayerCluster[lcId]) {
       LogDebug("LayerClusterAssociatorByEnergyScoreImpl")
@@ -500,6 +509,7 @@ hgcal::RecoToSimCollection LayerClusterAssociatorByEnergyScoreImpl::associateRec
     }
   }
   return returnValue;
+//#define LogDebug(X) LogDebug(X)
 }
 
 hgcal::SimToRecoCollection LayerClusterAssociatorByEnergyScoreImpl::associateSimToReco(
