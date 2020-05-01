@@ -88,10 +88,9 @@ namespace edmtest {
 
   TestOutputModule::~TestOutputModule() {}
 
-  Trig TestOutputModule::getTriggerResults(EDGetTokenT<TriggerResults> const& token, EventForOutput const& e) const {
-    Trig result;
-    e.getByToken<TriggerResults>(token, result);
-    return result;
+  Trig TestOutputModule::getTriggerResults(EDGetTokenT<TriggerResults> const& token,
+                                           EventForOutput const& event) const {
+    return event.getHandle(token);
   }
 
   void TestOutputModule::write(edm::EventForOutput const& e) {
