@@ -15,6 +15,7 @@
 
 class MagBLayer;
 class MagESector;
+class MagneticFieldCache;
 class MagVolume;
 class MagVolume6Faces;
 template <class T>
@@ -42,9 +43,13 @@ public:
 
   /// Return field vector at the specified global point
   GlobalVector fieldInTesla(const GlobalPoint& gp) const;
+  /// Return field vector at the specified global point
+  GlobalVector fieldInTesla(const GlobalPoint& gp, MagneticFieldCache& cache) const;
 
   /// Find a volume
   MagVolume const* findVolume(const GlobalPoint& gp, double tolerance = 0.) const;
+  /// Find a volume
+  MagVolume const* findVolume(const GlobalPoint& gp, MagneticFieldCache& cache, double tolerance = 0.) const;
 
   // FIXME: only for temporary tests, should be removed.
   const std::vector<MagVolume6Faces const*>& barrelVolumes() const { return theBVolumes; }
@@ -55,6 +60,8 @@ private:
 
   // Linear search (for debug purposes only)
   MagVolume const* findVolume1(const GlobalPoint& gp, double tolerance = 0.) const;
+
+  MagVolume const* findVolumeImpl(const GlobalPoint& gp, double tolerance) const;
 
   bool inBarrel(const GlobalPoint& gp) const;
 

@@ -40,8 +40,10 @@ public:
   MagneticField* clone() const override;
 
   GlobalVector inTesla(const GlobalPoint& g) const override;
+  GlobalVector inTesla(const GlobalPoint& g, MagneticFieldCache& cache) const override;
 
   GlobalVector inTeslaUnchecked(const GlobalPoint& g) const override;
+  GlobalVector inTeslaUnchecked(const GlobalPoint& g, MagneticFieldCache& cache) const override;
 
   const MagVolume* findVolume(const GlobalPoint& gp) const;
 

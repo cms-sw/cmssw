@@ -9,6 +9,7 @@
 #include "MagneticField/VolumeGeometry/interface/MagVolume6Faces.h"
 #include "MagneticField/Layers/interface/MagBLayer.h"
 #include "MagneticField/Layers/interface/MagESector.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "Utilities/BinningTools/interface/PeriodicBinFinderInPhi.h"
 
@@ -126,6 +127,25 @@ GlobalVector MagGeometry::fieldInTesla(const GlobalPoint& gp) const {
   }
   return GlobalVector();
 }
+// Return field vector at the specified global point
+GlobalVector MagGeometry::fieldInTesla(const GlobalPoint& gp, MagneticFieldCache& cache) const {
+  MagVolume const* v = nullptr;
+
+  v = findVolume(gp, cache);
+  if (v != nullptr) {
+    return v->fieldInTesla(gp);
+  }
+
+  // Fall-back case: no volume found
+
+  if (edm::isNotFinite(gp.mag())) {
+    LogWarning("MagneticField") << "Input value invalid (not a number): " << gp << endl;
+
+  } else {
+    LogWarning("MagneticField") << "MagGeometry::fieldInTesla: failed to find volume for " << gp << endl;
+  }
+  return GlobalVector();
+}
 
 // Linear search implementation (just for testing)
 MagVolume const* MagGeometry::findVolume1(const GlobalPoint& gp, double tolerance) const {
@@ -176,6 +196,28 @@ MagVolume const* MagGeometry::findVolume(const GlobalPoint& gp, double tolerance
     return lastVolumeCheck;
   }
 
+  MagVolume const* result = findVolumeImpl(gp, tolerance);
+  if (cacheLastVolume)
+    lastVolume.store(result, std::memory_order_release);
+  return result;
+}
+
+// Use hierarchical structure for fast lookup.
+MagVolume const* MagGeometry::findVolume(const GlobalPoint& gp, MagneticFieldCache& cache, double tolerance) const {
+  // Check volume cache
+  auto lastVolumeCheck = cache.get<MagVolume>();
+  if (lastVolumeCheck != nullptr && lastVolumeCheck->inside(gp)) {
+    return lastVolumeCheck;
+  }
+
+  MagVolume const* result = findVolumeImpl(gp, tolerance);
+  if (cacheLastVolume)
+    cache.set(result);
+  return result;
+}
+
+// Use hierarchical structure for fast lookup.
+MagVolume const* MagGeometry::findVolumeImpl(const GlobalPoint& gp, double tolerance) const {
   MagVolume const* result = nullptr;
   if (inBarrel(gp)) {  // Barrel
     double aRsq = gp.perp2();
@@ -207,11 +249,8 @@ MagVolume const* MagGeometry::findVolume(const GlobalPoint& gp, double tolerance
     // This is a hack for thin gaps on air-iron boundaries,
     // which will not be present anymore once surfaces are matched.
     LogTrace("MagGeometry") << "Increasing the tolerance to 0.03" << endl;
-    result = findVolume(gp, 0.03);
+    result = findVolumeImpl(gp, 0.03);
   }
-
-  if (cacheLastVolume)
-    lastVolume.store(result, std::memory_order_release);
 
   return result;
 }
