@@ -12,6 +12,7 @@
 
 #include <vector>
 #include <memory>
+#include <cassert>
 
 class TkCloner;
 class TrajectoryStateOnSurface;
