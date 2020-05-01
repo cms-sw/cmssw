@@ -8,7 +8,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T15', '')
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
 process.source = cms.Source("PoolSource",
     # replace 'myfile.root' with the source file you want to use
@@ -18,6 +18,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.load("RecoHGCal.TICL.ticlDebugger_cfi")
+process.load("SimGeneral.Debugging.caloParticleDebugger_cfi")
 
-process.p = cms.Path(process.ticlDebugger)
+process.p = cms.Path(process.ticlDebugger+process.caloParticleDebugger)
 

@@ -25,21 +25,7 @@
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HGCalReco/interface/Trackster.h"
-#include "SimDataFormats/Track/interface/SimTrack.h"
-#include "SimDataFormats/Vertex/interface/SimVertex.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
-#include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
-#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
-#include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
-
-#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
-#include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
-#include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
-#include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
-#include "Geometry/CaloTopology/interface/HGCalTopology.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 
 //
 // class declaration
@@ -57,14 +43,18 @@ private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
 
-  edm::InputTag trackstersMerge_;
+  const edm::InputTag trackstersMerge_;
+  const edm::InputTag tracks_;
   edm::EDGetTokenT<std::vector<ticl::Trackster>> trackstersMergeToken_;
+  edm::EDGetTokenT<std::vector<reco::Track>> tracksToken_;
 };
 
 TiclDebugger::TiclDebugger(const edm::ParameterSet& iConfig)
-    : trackstersMerge_(iConfig.getParameter<edm::InputTag>("trackstersMerge")) {
+    : trackstersMerge_(iConfig.getParameter<edm::InputTag>("trackstersMerge")),
+      tracks_(iConfig.getParameter<edm::InputTag>("tracks")) {
   edm::ConsumesCollector&& iC = consumesCollector();
   trackstersMergeToken_ = iC.consumes<std::vector<ticl::Trackster>>(trackstersMerge_);
+  tracksToken_ = iC.consumes<std::vector<reco::Track>>(tracks_);
 }
 
 TiclDebugger::~TiclDebugger() {}
@@ -87,30 +77,41 @@ void TiclDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     return tracksters[i].raw_energy() > tracksters[j].raw_energy();
   });
 
-  for (auto const & t : sorted_tracksters_idx) {
-    auto const & trackster = tracksters[t];
-    auto const & probs = trackster.id_probabilities();
+  edm::Handle<std::vector<reco::Track>> tracksH;
+  iEvent.getByToken(tracksToken_, tracksH);
+  const auto & tracks = *tracksH.product();
+
+  for (auto const& t : sorted_tracksters_idx) {
+    auto const& trackster = tracksters[t];
+    auto const& probs = trackster.id_probabilities();
     // Sort probs in descending order
     std::vector<int> sorted_probs_idx(probs.size());
     iota(begin(sorted_probs_idx), end(sorted_probs_idx), 0);
-    sort(begin(sorted_probs_idx), end(sorted_probs_idx), [&probs](int i, int j) {
-      return probs[i] > probs[j];
-    });
+    sort(begin(sorted_probs_idx), end(sorted_probs_idx), [&probs](int i, int j) { return probs[i] > probs[j]; });
 
-    std::cout << "TrksIdx: " << t << "\n bary: " << trackster.barycenter()
-      << " baryEta: " << trackster.barycenter().eta()
-      << " baryPhi: " << trackster.barycenter().phi()
-      << "\n raw_energy: " << trackster.raw_energy()
-      << " raw_em_energy: " << trackster.raw_em_energy()
-      << "\n raw_pt: " << trackster.raw_pt()
-      << " raw_em_pt: " << trackster.raw_em_pt()
-      << "\n seedIdx: " << trackster.seedIndex()
-      << "\n Probs: ";
+    std::cout << "\nTrksIdx: " << t << "\n bary: " << trackster.barycenter()
+              << " baryEta: " << trackster.barycenter().eta() << " baryPhi: " << trackster.barycenter().phi()
+              << "\n raw_energy: " << trackster.raw_energy() << " raw_em_energy: " << trackster.raw_em_energy()
+              << "\n raw_pt: " << trackster.raw_pt() << " raw_em_pt: " << trackster.raw_em_pt()
+              << "\n seedIdx: " << trackster.seedIndex() << "\n Probs: ";
     for (auto p_idx : sorted_probs_idx) {
       std::cout << "(" << particle_kind[p_idx] << "):" << probs[p_idx] << " ";
     }
-    std::cout << "\n time: " << trackster.time() << "+/-" << trackster.timeError()
-      << std::endl;
+    std::cout << "\n time: " << trackster.time() << "+/-" << trackster.timeError() << std::endl
+      << " cells: " << trackster.vertices().size()
+      << " average usage: " << std::accumulate(
+          std::begin(trackster.vertex_multiplicity()),
+          std::end(trackster.vertex_multiplicity()),
+          0.) / trackster.vertex_multiplicity().size() << std::endl;
+    if (trackster.seedID().id() != 0) {
+      auto const & track = tracks[trackster.seedIndex()];
+      std::cout << " Seeding Track:" << std::endl;
+      std::cout << "   pt: " << track.pt() << " p: " << track.p()
+        << " eta: " << track.eta()
+        << " outerEta: " << track.outerEta() << " phi: " << track.phi()
+        << " outerPhi: " << track.outerPhi()
+        << std::endl;
+    }
   }
 }
 
