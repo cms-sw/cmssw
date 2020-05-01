@@ -100,8 +100,10 @@ GlobalPoint FlatHexagon::getPosition(const Pt3D& local) const {
 
 float FlatHexagon::etaSpan() const {
   assert(param() != nullptr);
-  float eta1 = -std::log(std::tan(0.5 * std::atan((m_global.perp() + param()[k_R]) / std::max(tolmin, std::abs(m_global.z())))));
-  float eta2 = -std::log(std::tan(0.5 * std::atan((m_global.perp() - param()[k_R]) / std::max(tolmin, std::abs(m_global.z())))));
+  float eta1 =
+      -std::log(std::tan(0.5 * std::atan((m_global.perp() + param()[k_R]) / std::max(tolmin, std::abs(m_global.z())))));
+  float eta2 =
+      -std::log(std::tan(0.5 * std::atan((m_global.perp() - param()[k_R]) / std::max(tolmin, std::abs(m_global.z())))));
   float dEta = std::abs(eta1 - eta2);
   return dEta;
 }
