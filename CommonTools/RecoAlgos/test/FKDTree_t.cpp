@@ -35,9 +35,9 @@ void TestFKDTree::test2D() {
     unsigned int id = 0;
 
     for (unsigned int i = 0; i < numberOfPointsInTheBox; ++i) {
-      float x = minX + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / std::fabs(maxX - minX)));
+      float x = minX + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX) / std::fabs(maxX - minX));
 
-      float y = minY + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / std::fabs(maxY - minY)));
+      float y = minY + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX) / std::fabs(maxY - minY));
 
       points.emplace_back(x, y, id);
       id++;
@@ -47,7 +47,7 @@ void TestFKDTree::test2D() {
       float x = static_cast<float>(rand()) / (static_cast<float>(RAND_MAX));
       float y;
       if (x <= maxX && x >= minX)
-        y = maxY + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / std::fabs(1.f - maxY)));
+        y = maxY + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX) / std::fabs(1.f - maxY));
 
       points.emplace_back(x, y, id);
       id++;
@@ -82,10 +82,10 @@ void TestFKDTree::test3D() {
     unsigned int id = 0;
 
     for (unsigned int i = 0; i < numberOfPointsInTheBox; ++i) {
-      float x = minX + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / std::fabs(maxX - minX)));
+      float x = minX + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX) / std::fabs(maxX - minX));
 
-      float y = minY + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / std::fabs(maxY - minY)));
-      float z = minZ + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / std::fabs(maxZ - minZ)));
+      float y = minY + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX) / std::fabs(maxY - minY));
+      float z = minZ + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX) / std::fabs(maxZ - minZ));
 
       points.emplace_back(x, y, z, id);
       id++;
@@ -95,8 +95,8 @@ void TestFKDTree::test3D() {
       float x = static_cast<float>(rand()) / (static_cast<float>(RAND_MAX));
       float y;
       if (x <= maxX && x >= minX)
-        y = maxY + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / std::fabs(1.f - maxY)));
-      float z = minZ + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / std::fabs(maxZ - minZ)));
+        y = maxY + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX) / std::fabs(1.f - maxY));
+      float z = minZ + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX) / std::fabs(maxZ - minZ));
 
       points.emplace_back(x, y, z, id);
       id++;
