@@ -1,24 +1,18 @@
 #! /usr/bin/env cmsRun
-# Author: Izaak Neutelings (March, 2020)
+# Author: Izaak Neutelings (March 2020)
 #from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
 
-# PROCESS
-run = 313000
+# SETTINGS
+run       = 313000
+era       = eras.Run2_2017
+verbose   = True and False
+threshold = 'INFO' if verbose else 'WARNING'
 print ">>> run = %s"%run
-process = cms.Process("SiPixelVCalReader",eras.Run2_2017)
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
-)
-process.source = cms.Source("EmptySource",
-    #lastRun = cms.untracked.uint32(1),
-    #timetype = cms.string('runnumber'),
-    #interval = cms.uint32(1),
-    firstRun = cms.untracked.uint32(run) # select the geometry for Phase-I pixels
-)
 
-# LOAD
+# LOAD PROCESS
+process = cms.Process("SiPixelVCalReader",era)
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.GeometryDB_cff")
 #process.load("Configuration.StandardSequences.GeometryIdeal_cff")
@@ -27,13 +21,32 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.load("CondTools.SiPixel.SiPixelGainCalibrationService_cfi")
 process.load("CondCore.CondDB.CondDB_cfi")
 
+# BASIC SETTINGS
+process.source = cms.Source("EmptyIOVSource",
+    firstValue = cms.uint64(1),
+    lastValue = cms.uint64(1),
+    timetype = cms.string('runnumber'),
+    interval = cms.uint64(1),
+    firstRun = cms.untracked.uint32(run), # select the geometry for Phase-I pixels
+    #lastRun = cms.untracked.uint32(1),
+)
+###process.source = cms.Source("EmptySource",
+###    #lastRun = cms.untracked.uint32(1),
+###    #timetype = cms.string('runnumber'),
+###    #interval = cms.uint32(1),
+###    firstRun = cms.untracked.uint32(run) # select the geometry for Phase-I pixels
+###)
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(1)
+)
+
 # GLOBAL TAG
 from Configuration.AlCa.GlobalTag import GlobalTag
 #from Configuration.AlCa.autoCond_condDBv2 import autoCond
 #process.GlobalTag.globaltag = "auto:run2_data'" #autoCond['run2_design']
 # In case you of conditions missing, or if you want to test a specific GT
 #process.GlobalTag.globaltag = 'PRE_DES72_V6'
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+process.GlobalTag = GlobalTag(process.GlobalTag,'auto:run2_data','')
 print ">>> globaltag = '%s'"%(process.GlobalTag.globaltag)
 
 # EXTRA
@@ -43,10 +56,8 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string(outfile)
 )
 process.MessageLogger = cms.Service("MessageLogger",
-    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('WARNING')
-    ),
-    destinations = cms.untracked.vstring('cout')
+    destinations = cms.untracked.vstring('cout'),
+    cout = cms.untracked.PSet(threshold = cms.untracked.string(threshold))
 )
 process.Timing = cms.Service("Timing")
 

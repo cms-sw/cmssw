@@ -1,23 +1,28 @@
 #! /usr/bin/env cmsRun
-# Author: Izaak Neutelings (March, 2020)
+# Author: Izaak Neutelings (March 2020)
 #from __future__ import print_function
 #import os
 import os, shlex, shutil, getpass
 #import subprocess
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
+
+# SETTINGS
+run       = 313000 # select the geometry for Phase-I pixels
+era       = eras.Run2_2017 
+verbose   = True and False
+threshold = 'INFO' if verbose else 'WARNING'
+print ">>> run = %s"%run
 
 # LOAD PROCESS
-process = cms.Process("SiPixelInclusiveBuilder")
+process = cms.Process("SiPixelVCalDB",eras.Run2_2017)
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.destinations = cms.untracked.vstring("cout")
-process.MessageLogger.cout = cms.untracked.PSet(threshold = cms.untracked.string("INFO"))
-#process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 #process.load("Configuration.StandardSequences.GeometryIdeal_cff")
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.load("Configuration.StandardSequences.GeometryDB_cff")
-#process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi") <----
 #process.load("CalibTracker.Configuration.TrackerAlignment.TrackerAlignment_Fake_cff")
+#process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 #process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 #process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("CondTools.SiPixel.SiPixelGainCalibrationService_cfi")
@@ -27,24 +32,33 @@ process.load("CondCore.CondDB.CondDB_cfi")
 # GLOBAL TAG
 from Configuration.AlCa.GlobalTag import GlobalTag
 #from Configuration.AlCa.autoCond_condDBv2 import autoCond
-#process.GlobalTag.globaltag = "auto:run2_data'" #autoCond['run2_design']
+#from Configuration.AlCa.autoCond import autoCond
+#process.GlobalTag.globaltag = "auto:run2_data" 
+#process.GlobalTag.globaltag = autoCond['run2_design']
 # In case you of conditions missing, or if you want to test a specific GT
 #process.GlobalTag.globaltag = 'PRE_DES72_V6'
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+process.GlobalTag = GlobalTag(process.GlobalTag,'auto:run2_data','')
+#process.GlobalTag = GlobalTag(process.GlobalTag,autoCond['run2_design'],'')
+#process.GlobalTag.globaltag = autoCond['run2_design']
 print ">>> globaltag = '%s'"%(process.GlobalTag.globaltag)
 
 # BASIC SETTING
 process.source = cms.Source("EmptyIOVSource",
-    firstValue = cms.uint64(1),
-    lastValue = cms.uint64(1),
+    firstValue = cms.uint64(run),
+    lastValue = cms.uint64(run),
+    #firstRun = cms.untracked.uint32(run),
     timetype = cms.string('runnumber'),
-    interval = cms.uint64(1)
+    interval = cms.uint64(1),
 )
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-# RUN AS USER
+# MESSAGER
+process.MessageLogger.destinations = cms.untracked.vstring('cout')
+process.MessageLogger.cout = cms.untracked.PSet(threshold = cms.untracked.string(threshold))
+
+# BACK UP DATABASE FILE
 user = getpass.getuser()
 #try:
 #    user = os.environ["USER"]
@@ -55,8 +69,6 @@ user = getpass.getuser()
 file = "siPixelVCal.db"
 sqlfile = "sqlite_file:" + file
 print ">>> Uploading as user %s into file %s, i.e. %s"%(user,file,sqlfile)
-
-# BACK UP DATABASE FILE
 if os.path.exists("siPixelVCal.db"):
   oldfile = file.replace(".db","_old.db")
   print ">>> Backing up locally existing '%s' -> '%s'"%(file,oldfile)
