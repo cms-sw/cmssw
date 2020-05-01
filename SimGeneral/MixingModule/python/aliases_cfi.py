@@ -79,21 +79,13 @@ from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 
 from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
 
-(premix_stage1 & phase2_hgcal).toModify(simHGCalUnsuppressedDigis,
-    mix = {
-        0 : dict(type = "PHGCSimAccumulator"),
-        1 : dict(type = "PHGCSimAccumulator"),
-        2 : dict(type = "PHGCSimAccumulator"),
-    }
-)
-
-(premix_stage1 & phase2_hgcal).toModify(simHGCalUnsuppressedDigis,
-                                        mix = simHGCalUnsuppressedDigis.mix + {
-                                            simHGCalUnsuppressedDigis.mix[0].clone(type = "PreMixHGCSimAccumulator"),
-                                            simHGCalUnsuppressedDigis.mix[1].clone(type = "PreMixHGCSimAccumulator"),
-                                            simHGCalUnsuppressedDigis.mix[2].clone(type = "PreMixHGCSimAccumulator"),
-                                        }
-)
+(premix_stage1 & phase2_hgcal).toModify(simHGCalUnsuppressedDigis,                                                                
+    mix = {                                                                                                                       
+        0 : dict(type = "PreMixHGCSimAccumulator"),                                                                               
+        1 : dict(type = "PreMixHGCSimAccumulator"),                                                                               
+        2 : dict(type = "PreMixHGCSimAccumulator"),                                                                               
+    }                                                                                                                             
+) 
 
 from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
 (~phase2_hfnose).toModify(simHFNoseUnsuppressedDigis, mix = None)
