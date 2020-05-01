@@ -9,9 +9,6 @@
 <use   name="CondFormats/Alignment"/>
 <use   name="DetectorDescription/Core"/>
 <use   name="DetectorDescription/DDCMS"/>
-<library   file="ecalBarrelCellParameterDump.cc" name="ecalBarrelCellParameterDump">
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="ecalEndcapCellParameterDump.cc" name="ecalEndcapCellParameterDump">
+<library   file="*.cc" name="EcalAlgoEcalCellParameterDump">
   <flags   EDM_PLUGIN="1"/>
 </library>
