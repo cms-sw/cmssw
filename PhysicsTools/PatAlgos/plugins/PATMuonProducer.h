@@ -175,6 +175,8 @@ namespace pat {
     bool embedDytMuon_;
     /// add combined inverse beta measurement into the muon
     bool addInverseBeta_;
+    /// switch on reading the dB information from the track
+    bool getdBFromTrack_;
     /// input tag for reading inverse beta
     edm::EDGetTokenT<edm::ValueMap<reco::MuonTimeExtra>> muonTimeExtraToken_;
     /// add generator match information
