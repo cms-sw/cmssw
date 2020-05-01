@@ -17,10 +17,10 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
     )
 
-process.Timing = cms.Service("Timing")
+process.CaloGeometryBuilder.SelectedCalos = ['EcalBarrel', 'EcalEndcap', 'EcalPreshower']
 
-process.demo1 = cms.EDAnalyzer("ecalBarrelCellParameterDump")
-process.demo2 = cms.EDAnalyzer("ecalEndcapCellParameterDump")
+process.demo1 = cms.EDAnalyzer("EcalBarrelCellParameterDump")
+process.demo2 = cms.EDAnalyzer("EcalEndcapCellParameterDump")
+process.demo3 = cms.EDAnalyzer("EcalPreshowerCellParameterDump")
 
-
-process.p1 = cms.Path(process.demo1 * process.demo2)
+process.p1 = cms.Path(process.demo1 * process.demo2 * process.demo3)

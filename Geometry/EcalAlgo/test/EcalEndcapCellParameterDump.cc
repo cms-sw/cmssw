@@ -1,19 +1,11 @@
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
-
-#include <Geometry/EcalMapping/interface/EcalElectronicsMapping.h>
-#include <Geometry/EcalMapping/interface/EcalMappingRcd.h>
-
-#include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/EZArrayFL.h"
@@ -23,42 +15,23 @@
 
 typedef EZArrayFL<GlobalPoint> CornersVec;
 
-class ecalEndcapCellParameterDump : public edm::one::EDAnalyzer<> {
+class EcalEndcapCellParameterDump : public edm::one::EDAnalyzer<> {
 public:
-  explicit ecalEndcapCellParameterDump(const edm::ParameterSet&);
-
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  explicit EcalEndcapCellParameterDump(const edm::ParameterSet&) {}
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
   void endJob() override {}
-
-private:
-  static const int detMax_ = 4;
-  int subdet_;
 };
 
-ecalEndcapCellParameterDump::ecalEndcapCellParameterDump(const edm::ParameterSet& iConfig) {
-  subdet_ = std::min(detMax_, std::max(iConfig.getParameter<int>("SubDetector"), 1));
-  subdet_ = std::min(detMax_, std::max(subdet_, 1));
-}
-
-void ecalEndcapCellParameterDump::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  edm::ParameterSetDescription desc;
-  desc.add<int>("SubDetector", 1);
-  descriptions.add("ecalEndcapCellParameterDump", desc);
-}
-
-void ecalEndcapCellParameterDump::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup) {
+void EcalEndcapCellParameterDump::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup) {
   edm::ESHandle<CaloGeometry> pG;
   iSetup.get<CaloGeometryRecord>().get(pG);
   const CaloGeometry* geo = pG.product();
   const CaloSubdetectorGeometry* ecalGeom =
       static_cast<const CaloSubdetectorGeometry*>(geo->getSubdetectorGeometry(DetId::Ecal, EcalEndcap));
 
-  std::string subdets[detMax_] = {"EE"};
-
-  std::cout << "\n\nStudy Detector = Ecal SubDetector = " << subdets[subdet_ - 1]
+  std::cout << "\n\nStudy Detector = Ecal SubDetector = EE"
             << "\n======================================\n\n";
   const std::vector<DetId>& ids = ecalGeom->getValidDetIds(DetId::Ecal, EcalEndcap);
   int nall(0);
@@ -83,4 +56,4 @@ void ecalEndcapCellParameterDump::analyze(const edm::Event& /*iEvent*/, const ed
   std::cout << "\n\nDumps a total of : " << nall << " cells of the detector\n" << std::endl;
 }
 
-DEFINE_FWK_MODULE(ecalEndcapCellParameterDump);
+DEFINE_FWK_MODULE(EcalEndcapCellParameterDump);
