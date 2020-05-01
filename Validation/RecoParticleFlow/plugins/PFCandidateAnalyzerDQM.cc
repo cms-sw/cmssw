@@ -75,14 +75,11 @@ void PFCandidateAnalyzerDQM::bookHistograms(DQMStore::IBooker& booker, edm::Run 
   TH1F* etaHist = new TH1F("AllCandidateEta", "AllCandidateEta", n, etabinArray);
   me["AllCandidateEta"] = booker.book1D("AllCandidateEta", etaHist);
 
-  me["AllCandidatePt(log GeV)"] = booker.book1D("AllCandidatePt(log GeV)", "AllCandidatePt(log GeV)", 120, -2, 4);
-  me["AllCandidatePt(log y)"] = booker.book1D("AllCandidatePt(log y)", "AllCandidatePt(log y)", 500, 0, 1000);
+  me["AllCandidateLog10Pt"] = booker.book1D("AllCandidateLog10Pt", "AllCandidateLog10Pt", 120, -2, 4);
   me["AllCandidatePhi"] = booker.book1D("AllCandidatePhi", "AllCandidatePhi", 72, -M_PI, M_PI);
   me["AllCandidateCharge"] = booker.book1D("AllCandidateCharge", "AllCandidateCharge", 3, -1.5, 1.5);
-
-
-  me["AllCandidatePt(2GeVBin)"] = booker.book1D("AllCandidatePt(2GeVBin)","AllCandidatePt(2GeVBin)", 500,0,1000);
-  me["AllCandidatePt(10GeVBin)"] = booker.book1D("AllCandidatePt(10GeVBin)","AllCandidatePt(10GeVBin)", 500,0,1000);
+  me["AllCandidatePtLow"] = booker.book1D("AllCandidatePtLow", "AllCandidatePtLow", 500, 0, 1000);
+  me["AllCandidatePtHigh"] = booker.book1D("AllCandidatePtHigh", "AllCandidatePtHigh", 500, 0, 1000);
 
   for (auto& pair : pdgMap) {
     booker.setCurrentFolder("ParticleFlow/PackedCandidates/" + pair.second);
@@ -92,17 +89,11 @@ void PFCandidateAnalyzerDQM::bookHistograms(DQMStore::IBooker& booker, edm::Run 
     TH1F* etaHist = new TH1F(etaHistName, etaHistName, n, etabinArray);
     me[pair.second + "Eta"] = booker.book1D(pair.second + "Eta", etaHist);
 
-    me[pair.second + "Pt(log GeV)"] = booker.book1D(pair.second + "Pt(log GeV)", pair.second + "Pt(log GeV)", 120, -2, 4);
-    me[pair.second + "Pt(log y)"] = booker.book1D(pair.second + "Pt(log y)", pair.second + "Pt(log y)", 500, 0, 1000);
+    me[pair.second + "Log10Pt"] = booker.book1D(pair.second + "Log10Pt", pair.second + "Log10Pt", 120, -2, 4);
     me[pair.second + "Phi"] = booker.book1D(pair.second + "Phi", pair.second + "Phi", 72, -M_PI, M_PI);
     me[pair.second + "Charge"] = booker.book1D(pair.second + "Charge", pair.second + "Charge", 3, -1.5, 1.5);
-
-
-
-    me[pair.second + "Pt(2GeVBin)"] = booker.book1D(pair.second + "Pt(2GeVBin)", pair.second + "Pt(2GeVBin)",500, 0, 1000);
-    me[pair.second + "Pt(10GeVBin)"] = booker.book1D(pair.second + "Pt(10GeVBin)", pair.second + "Pt(10GeVBin)",500, 0, 1000);
- 
-
+    me[pair.second + "PtLow"] = booker.book1D(pair.second + "PtLow", pair.second + "PtLow", 500, 0, 1000);
+    me[pair.second + "PtHigh"] = booker.book1D(pair.second + "PtHigh", pair.second + "PtHigh", 500, 0, 1000);
   }
 }
 
@@ -122,26 +113,21 @@ void PFCandidateAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventS
     for (unsigned int i = 0; i < pfHandle->size(); i++) {
       // Fill Histograms for Candidate Methods
       // all candidates
-      me["AllCandidatePt(log GeV)"]->Fill(log10(pfHandle->at(i).pt()));
-      me["AllCandidatePt(log y)"]->Fill(pfHandle->at(i).pt());
+      me["AllCandidateLog10Pt"]->Fill(log10(pfHandle->at(i).pt()));
       me["AllCandidateEta"]->Fill(pfHandle->at(i).eta());
       me["AllCandidatePhi"]->Fill(pfHandle->at(i).phi());
       me["AllCandidateCharge"]->Fill(pfHandle->at(i).charge());
-
-      me["AllCandidatePt(2GeVBin)"]->Fill(pfHandle->at(i).pt());
-      me["AllCandidatePt(10GeVBin)"]->Fill(pfHandle->at(i).pt()); 
+      me["AllCandidatePtLow"]->Fill(pfHandle->at(i).pt());
+      me["AllCandidatePtHigh"]->Fill(pfHandle->at(i).pt());
 
       int pdgId = abs(pfHandle->at(i).pdgId());
       if (pdgMap.find(pdgId) != pdgMap.end()) {
-        me[pdgMap[pdgId] + "Pt(log GeV)"]->Fill(log10(pfHandle->at(i).pt()));
-        me[pdgMap[pdgId] + "Pt(log y)"]->Fill(pfHandle->at(i).pt());
+        me[pdgMap[pdgId] + "Log10Pt"]->Fill(log10(pfHandle->at(i).pt()));
         me[pdgMap[pdgId] + "Eta"]->Fill(pfHandle->at(i).eta());
         me[pdgMap[pdgId] + "Phi"]->Fill(pfHandle->at(i).phi());
         me[pdgMap[pdgId] + "Charge"]->Fill(pfHandle->at(i).charge());
-
-
-	me[pdgMap[pdgId] + "Pt(2GeVBin)"]->Fill(pfHandle->at(i).pt());
-	me[pdgMap[pdgId] + "Pt(10GeVBin)"]->Fill(pfHandle->at(i).pt());
+        me[pdgMap[pdgId] + "PtLow"]->Fill(pfHandle->at(i).pt());
+        me[pdgMap[pdgId] + "PtHigh"]->Fill(pfHandle->at(i).pt());
       }
     }
   }

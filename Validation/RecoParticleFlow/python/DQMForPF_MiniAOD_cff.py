@@ -13,15 +13,17 @@ from Validation.RecoJets.JetValidation_cff import *
 DQMOfflinePF = cms.Sequence(
   pfJetAnalyzerDQM +
   pfPuppiJetAnalyzerDQM +
-  offsetAnalyzerDQM +
-#  pfCandAnalyzerDQM +
-# Extended ones from other POGs
-  METValidationMiniAOD +
-  JetValidationMiniAOD +
-  PFCandAnalyzerDQM
+  offsetAnalyzerDQM
 )
 
 DQMHarvestPF = cms.Sequence(
   pfJetDQMPostProcessor +
   offsetDQMPostProcessor
+)
+
+# MET, Jets & PFCand sequence
+DQMOfflinePFExtended = cms.Sequence(
+    METValidationMiniAOD +
+    JetValidationMiniAOD +
+    PFCandAnalyzerDQM
 )

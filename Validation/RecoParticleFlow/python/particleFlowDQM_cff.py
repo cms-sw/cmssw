@@ -100,8 +100,8 @@ pfJetDQMPostProcessor = cms.EDProducer("PFJetDQMPostProcessor",
 PFCandAnalyzerDQM = cms.EDProducer("PFCandidateAnalyzerDQM",
     PFCandType = cms.InputTag("packedPFCandidates"),
     etabins = cms.vdouble( default.etaBinsOffset ),
-    pdgKeys = cms.vuint32( default.candidateDict.keys() ),
-    pdgStrs = cms.vstring( default.candidateDict.values() )
+    pdgKeys = cms.vuint32( default.pdgIDDict.keys() ),
+    pdgStrs = cms.vstring( default.pdgIDDict.values() )
 )
 
 
