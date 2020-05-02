@@ -8,7 +8,7 @@
 //          Created:  29 Apr 2020 
 */
 
-#include "Geometry/GEMGeometryBuilder/src/ME0GeometryBuilderFromDDD.h"
+#include "Geometry/GEMGeometryBuilder/src/ME0GeometryBuilder.h"
 #include "Geometry/GEMGeometryBuilder/src/ME0GeometryBuilderFromCondDB.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -70,16 +70,16 @@ ME0GeometryESModule::~ME0GeometryESModule() {}
 std::unique_ptr<ME0Geometry> ME0GeometryESModule::produce(const MuonGeometryRecord& record) {
   LogTrace("ME0GeometryESModule") << "ME0GeometryESModule::produce with useDDD = " << useDDD_;
   if (useDDD_) {
-    LogTrace("ME0GeometryESModule") << "ME0GeometryESModule::produce :: ME0GeometryBuilderFromDDD builder";
+    LogTrace("ME0GeometryESModule") << "ME0GeometryESModule::produce :: ME0GeometryBuilder builder";
     auto cpv = record.getTransientHandle(cpvToken_);
     const auto& mdc = record.get(mdcToken_);
-    ME0GeometryBuilderFromDDD builder;
+    ME0GeometryBuilder builder;
     return std::unique_ptr<ME0Geometry>(builder.build(cpv.product(), mdc));
   } else if (useDD4hep_) {
-    LogTrace("ME0GeometryESModule") << "ME0GeometryESModule::produce :: ME0GeometryBuilderFromDDD builder DD4hep";
+    LogTrace("ME0GeometryESModule") << "ME0GeometryESModule::produce :: ME0GeometryBuilder builder DD4hep";
     auto cpv = record.getTransientHandle(dd4hepcpvToken_);
     const auto& mdc = record.get(dd4hepmdcToken_);
-    ME0GeometryBuilderFromDDD builder;
+    ME0GeometryBuilder builder;
     return std::unique_ptr<ME0Geometry>(builder.build(cpv.product(), mdc));
   } else {
     LogTrace("ME0GeometryESModule") << "ME0GeometryESModule::produce :: ME0GeometryBuilderFromCondDB builder";

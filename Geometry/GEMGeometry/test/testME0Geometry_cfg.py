@@ -14,7 +14,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 ###############################################################
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 # process.MessageLogger.categories.append("ME0GeometryESModule")
-# process.MessageLogger.categories.append("ME0GeometryBuilderFromDDD")
+# process.MessageLogger.categories.append("ME0GeometryBuilder")
 # process.MessageLogger.categories.append("ME0NumberingScheme")
 process.MessageLogger.debugModules = cms.untracked.vstring("*")
 process.MessageLogger.destinations = cms.untracked.vstring("cout","junk")
@@ -23,7 +23,7 @@ process.MessageLogger.cout = cms.untracked.PSet(
     default = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
     FwkReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
     # ME0GeometryESModule           = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
-    # ME0GeometryBuilderFromDDD   = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
+    # ME0GeometryBuilder   = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
     # ME0NumberingScheme          = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
 )
 

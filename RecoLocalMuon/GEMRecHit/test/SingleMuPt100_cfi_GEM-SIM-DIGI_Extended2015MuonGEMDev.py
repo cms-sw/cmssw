@@ -70,7 +70,7 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
 ##################################################################
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.categories.append("GEMGeometryBuilderFromDDD")
-process.MessageLogger.categories.append("ME0GeometryBuilderFromDDD")
+process.MessageLogger.categories.append("ME0GeometryBuilder")
 process.MessageLogger.categories.append("RPCGeometryBuilderFromDDD")
 process.MessageLogger.debugModules = cms.untracked.vstring("*")
 process.MessageLogger.destinations = cms.untracked.vstring("cout","junk")
@@ -79,7 +79,7 @@ process.MessageLogger.cout = cms.untracked.PSet(
     default = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
     FwkReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
     GEMGeometryBuilderFromDDD = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
-    ME0GeometryBuilderFromDDD = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
+    ME0GeometryBuilder = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
     RPCGeometryBuilderFromDDD = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
 )
 ##################################################################

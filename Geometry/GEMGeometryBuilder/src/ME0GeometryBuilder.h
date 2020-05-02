@@ -1,5 +1,5 @@
-#ifndef Geometry_GEMGeometry_ME0GeometryBuilderFromDDD_H
-#define Geometry_GEMGeometry_ME0GeometryBuilderFromDDD_H
+#ifndef Geometry_GEMGeometry_ME0GeometryBuilder_H
+#define Geometry_GEMGeometry_ME0GeometryBuilder_H
 /*
 //\class ME0GeometryBuilder
 
@@ -31,11 +31,11 @@ class ME0Layer;
 class ME0EtaPartition;
 class MuonDDDConstants;
 
-class ME0GeometryBuilderFromDDD {
+class ME0GeometryBuilder {
 public:
-  ME0GeometryBuilderFromDDD();
+  ME0GeometryBuilder();
 
-  ~ME0GeometryBuilderFromDDD();
+  ~ME0GeometryBuilder();
 
   ME0Geometry* build(const DDCompactView* cview, const MuonDDDConstants& muonConstants);
   //dd4hep
