@@ -15,7 +15,7 @@
 #include <sstream>
 
 // user include files
-#include "FWCore/Framework/interface/OutputModule.h"
+#include "FWCore/Framework/interface/one/OutputModule.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
@@ -29,7 +29,7 @@ namespace edm {
   class ModuleCallingContext;
   class ParameterSet;
 
-  class GetProductCheckerOutputModule : public OutputModule {
+  class GetProductCheckerOutputModule : public one::OutputModule<> {
   public:
     // We do not take ownership of passed stream.
     explicit GetProductCheckerOutputModule(ParameterSet const& pset);
@@ -53,7 +53,8 @@ namespace edm {
   //
   // constructors and destructor
   //
-  GetProductCheckerOutputModule::GetProductCheckerOutputModule(ParameterSet const& iPSet) : OutputModule(iPSet) {}
+  GetProductCheckerOutputModule::GetProductCheckerOutputModule(ParameterSet const& iPSet)
+      : one::OutputModuleBase(iPSet), one::OutputModule<>(iPSet) {}
 
   // GetProductCheckerOutputModule::GetProductCheckerOutputModule(GetProductCheckerOutputModule const& rhs) {
   //    // do actual copying here;
@@ -118,7 +119,7 @@ namespace edm {
 
   void GetProductCheckerOutputModule::fillDescriptions(ConfigurationDescriptions& descriptions) {
     ParameterSetDescription desc;
-    OutputModule::fillDescription(desc);
+    one::OutputModule<>::fillDescription(desc);
     descriptions.add("productChecker", desc);
   }
 }  // namespace edm
