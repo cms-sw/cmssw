@@ -228,108 +228,18 @@ void TrackFinder::process(const edm::Event& iEvent,
   }
 
   // ___________________________________________________________________________
-  // Check emulator input and output. They are printed in a way that is friendly
-  // for comparison with the firmware simulator.
-
   if (verbose_ > 0) {  // debug
     std::cout << "Run number: " << iEvent.id().run() << " pc_lut_ver: " << condition_helper_.get_pc_lut_version()
-              << " pt_lut_ver: " << condition_helper_.get_pt_lut_version() << ", "
-              << pt_assign_engine_->get_pt_lut_version() << " fw_ver: " << condition_helper_.get_fw_version()
-              << std::endl;
+              << " pt_lut_ver: " << condition_helper_.get_pt_lut_version()
+              << " pt_lut_ver in engine: " << pt_assign_engine_->get_pt_lut_version()
+              << " fw_ver: " << condition_helper_.get_fw_version() << std::endl;
+  }
 
-    for (int endcap = emtf::MIN_ENDCAP; endcap <= emtf::MAX_ENDCAP; ++endcap) {
-      for (int sector = emtf::MIN_TRIGSECTOR; sector <= emtf::MAX_TRIGSECTOR; ++sector) {
-        const int es = (endcap - emtf::MIN_ENDCAP) * (emtf::MAX_TRIGSECTOR - emtf::MIN_TRIGSECTOR + 1) +
-                       (sector - emtf::MIN_TRIGSECTOR);
-
-        // _____________________________________________________________________
-        // This prints the hits as raw text input to the firmware simulator
-        // "12345" is the BX separator
-
-        std::cout << "==== Endcap " << endcap << " Sector " << sector << " Hits ====" << std::endl;
-        std::cout << "bx e s ss st vf ql cp wg id bd hs" << std::endl;
-
-        bool empty_sector = true;
-        for (const auto& h : out_hits) {
-          if (h.Sector_idx() != es)
-            continue;
-          empty_sector = false;
-        }
-
-        for (int ibx = -3 - 5; (ibx < +3 + 5 + 5) && !empty_sector; ++ibx) {
-          for (const auto& h : out_hits) {
-            if (h.Subsystem() == TriggerPrimitive::kCSC) {
-              if (h.Sector_idx() != es)
-                continue;
-              if (h.BX() != ibx)
-                continue;
-
-              int bx = 1;
-              int endcap = (h.Endcap() == 1) ? 1 : 2;
-              int sector = h.PC_sector();
-              int station = (h.PC_station() == 0 && h.Subsector() == 1) ? 1 : h.PC_station();
-              int chamber = h.PC_chamber() + 1;
-              int strip = (h.Station() == 1 && h.Ring() == 4) ? h.Strip() + 128 : h.Strip();  // ME1/1a
-              int wire = h.Wire();
-              int valid = 1;
-              std::cout << bx << " " << endcap << " " << sector << " " << h.Subsector() << " " << station << " "
-                        << valid << " " << h.Quality() << " " << h.Pattern() << " " << wire << " " << chamber << " "
-                        << h.Bend() << " " << strip << std::endl;
-
-            } else if (h.Subsystem() == TriggerPrimitive::kRPC) {
-              if (h.Sector_idx() != es)
-                continue;
-              if (h.BX() + 6 != ibx)
-                continue;  // RPC hits should be supplied 6 BX later relative to CSC hits
-
-              // Assign RPC link index. Code taken from src/PrimitiveSelection.cc
-              int rpc_sub = -1;
-              int rpc_chm = -1;
-              if (!h.Neighbor()) {
-                rpc_sub = h.Subsector() - 1;
-              } else {
-                rpc_sub = 6;
-              }
-              if (h.Station() <= 2) {
-                rpc_chm = (h.Station() - 1);
-              } else {
-                rpc_chm = 2 + (h.Station() - 3) * 2 + (h.Ring() - 2);
-              }
-
-              int bx = 1;
-              int endcap = (h.Endcap() == 1) ? 1 : 2;
-              int sector = h.PC_sector();
-              int station = rpc_sub;
-              int chamber = rpc_chm + 1;
-              int strip = (h.Phi_fp() >> 2);
-              int wire = (h.Theta_fp() >> 2);
-              int valid = 2;  // this marks RPC stub
-              std::cout << bx << " " << endcap << " " << sector << " " << 0 << " " << station << " " << valid << " "
-                        << 0 << " " << 0 << " " << wire << " " << chamber << " " << 0 << " " << strip << std::endl;
-            }
-          }  // end loop over hits
-
-          std::cout << "12345" << std::endl;
-        }  // end loop over bx
-
-        // _____________________________________________________________________
-        // This prints the tracks as raw text output from the firmware simulator
-
-        std::cout << "==== Endcap " << endcap << " Sector " << sector << " Tracks ====" << std::endl;
-        std::cout << "bx e s a mo et ph cr q pt" << std::endl;
-
-        for (const auto& t : out_tracks) {
-          if (t.Sector_idx() != es)
-            continue;
-
-          std::cout << t.BX() << " " << (t.Endcap() == 1 ? 1 : 2) << " " << t.Sector() << " " << t.PtLUT().address
-                    << " " << t.Mode() << " " << (t.GMT_eta() >= 0 ? t.GMT_eta() : t.GMT_eta() + 512) << " "
-                    << t.GMT_phi() << " " << t.GMT_charge() << " " << t.GMT_quality() << " " << t.Pt() << std::endl;
-        }  // end loop over tracks
-
-      }  // end loop over sector
-    }    // end loop over endcap
-  }      // end debug
+  if (verbose_ > 1) {  // debug
+    // Check emulator input and output. They are printed as raw text that is
+    // used by the firmware simulator to do comparisons.
+    emtf::dump_fw_raw_input(out_hits, out_tracks);
+  }
 
   return;
 }
