@@ -174,7 +174,7 @@ def doMETPlots(files, plots):
 # does PFCandidate Plots
 def doPFCandPlots(files, plots):
     #we are going to hard code the end part of the histogram names because there's only 4
-    hist_list = ["Charge", "Eta", "Phi", "Log10Pt", "PtLow", "PtHigh"]
+    hist_list = ["Charge", "Eta", "Phi", "Log10Pt", "PtLow","PtMid", "PtHigh"]
     f = ROOT.TFile(files[0])
     d = f.Get("DQMData/Run 1/ParticleFlow/Run summary/PackedCandidates")
     #get the name of the folders, which can use to complete plot name as well probably
@@ -215,10 +215,8 @@ def addPlots(plotter, folder, name, section, histograms, opts, Offset=False):
         plotter.append("JetMET" + section, folders, PlotFolder(*plots, loopSubFolders=False, page="JetMET", section=section))
     if "PackedCandidates" in folder:
         for h in histograms:
-            if ("PtLow" in h):
-                plots = [PlotGroup(h, [Plot(h, xmin = 0, xmax = 200, ymin = pow(10,-1), ylog = True)])]
-            elif ("PtHigh" in h):
-                plots = [PlotGroup(h, [Plot(h, rebinX = 5, ymin = pow(10,-1), ylog = True)])]
+            if ("PtMid" in h or "PtHigh" in h):
+                plots = [PlotGroup(h, [Plot(h, ymin = pow(10,-1), ylog = True)])]
             else:
                 plots = [PlotGroup(h, [Plot(h, **opts)])]
 
