@@ -301,10 +301,14 @@ class UpgradeWorkflowPatatrack(UpgradeWorkflow):
 
 class UpgradeWorkflowPatatrack_PixelOnlyCPU(UpgradeWorkflowPatatrack):
     def setup_(self, step, stepName, stepDict, k, properties):
-        if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
-        elif 'HARVEST' in step: stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'}, stepDict[step][k]])
+        if 'Reco' in step:
+            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+        elif 'HARVEST' in step:
+            stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'}, stepDict[step][k]])
+
     def condition_(self, fragment, stepList, key, hasHarvest):
         return '2018' in key or '2021' in key
+
 upgradeWFs['PatatrackPixelOnlyCPU'] = UpgradeWorkflowPatatrack_PixelOnlyCPU(
     steps = [
         'RecoFull',
@@ -316,6 +320,7 @@ upgradeWFs['PatatrackPixelOnlyCPU'] = UpgradeWorkflowPatatrack_PixelOnlyCPU(
     suffix = 'Patatrack_PixelOnlyCPU',
     offset = 0.501,
 )
+
 upgradeWFs['PatatrackPixelOnlyCPU'].step3 = {
     '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM',
     '--datatier': 'GEN-SIM-RECO,DQMIO',
@@ -325,10 +330,14 @@ upgradeWFs['PatatrackPixelOnlyCPU'].step3 = {
 
 class UpgradeWorkflowPatatrack_PixelOnlyGPU(UpgradeWorkflowPatatrack):
     def setup_(self, step, stepName, stepDict, k, properties):
-        if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
-        elif 'HARVEST' in step: stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'}, stepDict[step][k]])
+        if 'Reco' in step:
+            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+        elif 'HARVEST' in step:
+            stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'}, stepDict[step][k]])
+
     def condition_(self, fragment, stepList, key, hasHarvest):
         return '2018' in key or '2021' in key
+
 upgradeWFs['PatatrackPixelOnlyGPU'] = UpgradeWorkflowPatatrack_PixelOnlyGPU(
     steps = [
         'RecoFull',
@@ -340,12 +349,71 @@ upgradeWFs['PatatrackPixelOnlyGPU'] = UpgradeWorkflowPatatrack_PixelOnlyGPU(
     suffix = 'Patatrack_PixelOnlyGPU',
     offset = 0.502,
 )
+
 upgradeWFs['PatatrackPixelOnlyGPU'].step3 = {
     '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM',
     '--datatier': 'GEN-SIM-RECO,DQMIO',
     '--eventcontent': 'RECOSIM,DQM',
     '--procModifiers': 'gpu'
 }
+
+class UpgradeWorkflowPatatrack_ECALOnlyCPU(UpgradeWorkflowPatatrack):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step:
+            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+        elif 'HARVEST' in step:
+            stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@ecalOnlyValidation+@ecal'}, stepDict[step][k]])
+
+    def condition_(self, fragment, stepList, key, hasHarvest):
+        return '2018' in key or '2021' in key
+
+upgradeWFs['PatatrackECALOnlyCPU'] = UpgradeWorkflowPatatrack_ECALOnlyCPU(
+    steps = [
+        'RecoFull',
+        'HARVESTFull',
+        'RecoFullGlobal',
+        'HARVESTFullGlobal',
+    ],
+    PU = [],
+    suffix = 'Patatrack_ECALOnlyCPU',
+    offset = 0.511,
+)
+
+upgradeWFs['PatatrackECALOnlyCPU'].step3 = {
+    '-s': 'RAW2DIGI:RawToDigi_ecalOnly,RECO:reconstruction_ecalOnly,VALIDATION:@ecalOnlyValidation,DQM:@ecalOnly',
+    '--datatier': 'GEN-SIM-RECO,DQMIO',
+    '--eventcontent': 'RECOSIM,DQM',
+}
+
+class UpgradeWorkflowPatatrack_ECALOnlyGPU(UpgradeWorkflowPatatrack):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step:
+            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+        elif 'HARVEST' in step:
+            stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@ecalOnlyValidation+@ecal'}, stepDict[step][k]])
+
+    def condition_(self, fragment, stepList, key, hasHarvest):
+        return '2018' in key or '2021' in key
+
+upgradeWFs['PatatrackECALOnlyGPU'] = UpgradeWorkflowPatatrack_ECALOnlyGPU(
+    steps = [
+        'RecoFull',
+        'HARVESTFull',
+        'RecoFullGlobal',
+        'HARVESTFullGlobal',
+    ],
+    PU = [],
+    suffix = 'Patatrack_ECALOnlyGPU',
+    offset = 0.512,
+)
+
+upgradeWFs['PatatrackECALOnlyGPU'].step3 = {
+    '-s': 'RAW2DIGI:RawToDigi_ecalOnly,RECO:reconstruction_ecalOnly,VALIDATION:@ecalOnlyValidation,DQM:@ecalOnly',
+    '--datatier': 'GEN-SIM-RECO,DQMIO',
+    '--eventcontent': 'RECOSIM,DQM',
+    '--procModifiers': 'gpu'
+}
+
 # end of Patatrack workflows
 
 class UpgradeWorkflow_ProdLike(UpgradeWorkflow):
