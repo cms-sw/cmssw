@@ -42,7 +42,7 @@ public:
   static void globalEndJob(TrackstersCache*);
 
 private:
-  std::string detector;
+  std::string detector_;
   std::unique_ptr<PatternRecognitionAlgoBaseT<TICLLayerTiles>> myAlgo_;
   std::unique_ptr<PatternRecognitionAlgoBaseT<TICLLayerTilesHFNose>> myAlgoHFNose_;
 
@@ -79,7 +79,7 @@ void TrackstersProducer::globalEndJob(TrackstersCache* cache) {
 }
 
 TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps, const TrackstersCache* cache)
-  : detector(ps.getParameter<std::string>("detector")),
+  : detector_(ps.getParameter<std::string>("detector")),
     myAlgo_(std::make_unique<PatternRecognitionbyCA<TICLLayerTiles>>(ps, cache)),
     myAlgoHFNose_(std::make_unique<PatternRecognitionbyCA<TICLLayerTilesHFNose>>(ps, cache)),
       clusters_token_(consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_clusters"))),
@@ -155,27 +155,35 @@ void TrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 
   edm::Handle<TICLLayerTiles> layer_clusters_tiles_h;
   edm::Handle<TICLLayerTilesHFNose> layer_clusters_tiles_hfnose_h;
-  if (detector == "HGCAL") evt.getByToken(layer_clusters_tiles_token_, layer_clusters_tiles_h);
-  else if (detector == "HFNose") evt.getByToken(layer_clusters_tiles_hfnose_token_, layer_clusters_tiles_hfnose_h);
+  if (detector_ == "HGCAL") evt.getByToken(layer_clusters_tiles_token_, layer_clusters_tiles_h);
+  else if (detector_ == "HFNose") evt.getByToken(layer_clusters_tiles_hfnose_token_, layer_clusters_tiles_hfnose_h);
   const auto& layer_clusters_tiles = *layer_clusters_tiles_h;
   const auto& layer_clusters_hfnose_tiles = *layer_clusters_tiles_hfnose_h;
-
-  const typename PatternRecognitionAlgoBaseT<TICLLayerTiles>::Inputs input(
-      evt, es, layerClusters, inputClusterMask, layerClustersTimes, layer_clusters_tiles, seeding_regions);
-  const typename PatternRecognitionAlgoBaseT<TICLLayerTilesHFNose>::Inputs inputHFNose(
-      evt, es, layerClusters, inputClusterMask, layerClustersTimes, layer_clusters_hfnose_tiles, seeding_regions);
 
   std::unordered_map<int, std::vector<int>> seedToTrackstersAssociation;
   // if it's regional iteration and there are seeding regions
   if (!seeding_regions.empty() and seeding_regions[0].index != -1) {
     auto numberOfSeedingRegions = seeding_regions.size();
-    std::cout << " TrackstersProducer::produce::   numberOfSeedingRegions " << numberOfSeedingRegions << std::endl;
     for (unsigned int i = 0; i < numberOfSeedingRegions; ++i) {
       seedToTrackstersAssociation.emplace(seeding_regions[i].index, 0);
     }
   }
-  if (detector == "HGCAL") myAlgo_->makeTracksters(input, *result, seedToTrackstersAssociation);
-  if (detector == "HFNose") myAlgoHFNose_->makeTracksters(inputHFNose, *result, seedToTrackstersAssociation);
+  if (detector_ == "HGCAL") {
+
+  const typename PatternRecognitionAlgoBaseT<TICLLayerTiles>::Inputs input(
+      evt, es, layerClusters, inputClusterMask, layerClustersTimes, layer_clusters_tiles, seeding_regions);
+
+  myAlgo_->makeTracksters(input, *result, seedToTrackstersAssociation);
+
+  }
+
+  if (detector_ == "HFNose") {
+  const typename PatternRecognitionAlgoBaseT<TICLLayerTilesHFNose>::Inputs inputHFNose(
+      evt, es, layerClusters, inputClusterMask, layerClustersTimes, layer_clusters_hfnose_tiles, seeding_regions);
+
+     myAlgoHFNose_->makeTracksters(inputHFNose, *result, seedToTrackstersAssociation);
+
+  }
 
   // Now update the global mask and put it into the event
   output_mask->reserve(original_layerclusters_mask_h->size());
