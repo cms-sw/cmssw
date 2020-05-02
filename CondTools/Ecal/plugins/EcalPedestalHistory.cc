@@ -10,7 +10,7 @@
 //
 //
 
-#include "CondTools/Ecal/interface/EcalPedestalHistory.h"
+#include "EcalPedestalHistory.h"
 
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
