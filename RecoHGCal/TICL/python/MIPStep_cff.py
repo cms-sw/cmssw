@@ -40,13 +40,25 @@ ticlMIPStepTask = cms.Task(ticlSeedingGlobal
     ,ticlTrackstersMIP
     ,ticlMultiClustersFromTrackstersMIP)
 
-##############
+hfnfilteredLayerClustersMIP = filteredLayerClustersMIP.clone(
+    LayerClusters = 'hgcalLayerClustersHFNose',
+    LayerClustersInputMask = cms.InputTag("hgcalLayerClustersHFNose","InitialLayerClustersMask"),
+    iteration_label = "MIPn",
+    algo_number = 9
+)
 
-hfnfilteredLayerClustersMIP = filteredLayerClustersMIP.clone()
-hfnfilteredLayerClustersMIP.HGCLayerClusters = 'hgcalLayerClustersHFNose'
-hfnfilteredLayerClustersMIP.LayerClustersInputMask = cms.InputTag("hgcalLayerClustersHFNose","InitialLayerClustersMask")
-hfnfilteredLayerClustersMIP.iteration_label = "MIPn"
+hfnticlTrackstersMIP = ticlTrackstersMIP.clone(
+    detector = "HFNose",
+    layer_clusters = "hgcalLayerClustersHFNose",
+    layer_clusters_hfnose_tiles = "hfnticlLayerTile",
+    original_mask = cms.InputTag("hgcalLayerClustersHFNose","InitialLayerClustersMask"),
+    filtered_mask = cms.InputTag("hfnfilteredLayerClustersMIP","MIPn"),
+    seeding_regions = "hfnticlSeedingGlobal",
+    time_layerclusters = cms.InputTag("hgcalLayerClustersHFNose","timeLayerCluster"),
+    min_clusters_per_ntuplet = 6
+)
 
 hfnticlMIPStepTask = cms.Task(hfnticlSeedingGlobal
                               ,hfnfilteredLayerClustersMIP
+                              ,hfnticlTrackstersMIP
 )
