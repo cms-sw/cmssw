@@ -1,5 +1,6 @@
 // Producer for particle flow candidates. Plots Eta, Phi, Charge, Pt (log freq, bin)
 // for different types of particles described in python/defaults_cfi.py
+// It actually uses packedCandidates so that we need only MINIAOD contents to run this DQMAnalyzer.
 // note: for pt, log freq is done in this producer, but log freq is done by running
 // compare.py
 // author: Chosila Sutantawibul, April 23, 2020
@@ -76,10 +77,17 @@ void PFCandidateAnalyzerDQM::bookHistograms(DQMStore::IBooker& booker, edm::Run 
   me["AllCandidateEta"] = booker.book1D("AllCandidateEta", etaHist);
 
   me["AllCandidateLog10Pt"] = booker.book1D("AllCandidateLog10Pt", "AllCandidateLog10Pt", 120, -2, 4);
-  me["AllCandidatePhi"] = booker.book1D("AllCandidatePhi", "AllCandidatePhi", 72, -M_PI, M_PI);
+
+  //for phi binnings
+  double nPhiBins = 73;
+  double phiBinWidth = M_PI / (nPhiBins - 1) * 2.;
+  me["AllCandidatePhi"] = booker.book1D(
+      "AllCandidatePhi", "AllCandidatePhi", nPhiBins, -M_PI - 0.25 * phiBinWidth, +M_PI + 0.75 * phiBinWidth);
+
   me["AllCandidateCharge"] = booker.book1D("AllCandidateCharge", "AllCandidateCharge", 3, -1.5, 1.5);
-  me["AllCandidatePtLow"] = booker.book1D("AllCandidatePtLow", "AllCandidatePtLow", 500, 0, 1000);
-  me["AllCandidatePtHigh"] = booker.book1D("AllCandidatePtHigh", "AllCandidatePtHigh", 500, 0, 1000);
+  me["AllCandidatePtLow"] = booker.book1D("AllCandidatePtLow", "AllCandidatePtLow", 100, 0., 5.);
+  me["AllCandidatePtMid"] = booker.book1D("AllCandidatePtMid", "AllCandidatePtMid", 100, 0., 200.);
+  me["AllCandidatePtHigh"] = booker.book1D("AllCandidatePtHigh", "AllCandidatePtHigh", 100, 0., 1000.);
 
   for (auto& pair : pdgMap) {
     booker.setCurrentFolder("ParticleFlow/PackedCandidates/" + pair.second);
@@ -90,10 +98,12 @@ void PFCandidateAnalyzerDQM::bookHistograms(DQMStore::IBooker& booker, edm::Run 
     me[pair.second + "Eta"] = booker.book1D(pair.second + "Eta", etaHist);
 
     me[pair.second + "Log10Pt"] = booker.book1D(pair.second + "Log10Pt", pair.second + "Log10Pt", 120, -2, 4);
-    me[pair.second + "Phi"] = booker.book1D(pair.second + "Phi", pair.second + "Phi", 72, -M_PI, M_PI);
+    me[pair.second + "Phi"] = booker.book1D(
+        pair.second + "Phi", pair.second + "Phi", nPhiBins, -M_PI - 0.25 * phiBinWidth, +M_PI + 0.75 * phiBinWidth);
     me[pair.second + "Charge"] = booker.book1D(pair.second + "Charge", pair.second + "Charge", 3, -1.5, 1.5);
-    me[pair.second + "PtLow"] = booker.book1D(pair.second + "PtLow", pair.second + "PtLow", 500, 0, 1000);
-    me[pair.second + "PtHigh"] = booker.book1D(pair.second + "PtHigh", pair.second + "PtHigh", 500, 0, 1000);
+    me[pair.second + "PtLow"] = booker.book1D(pair.second + "PtLow", pair.second + "PtLow", 100, 0., 5.);
+    me[pair.second + "PtMid"] = booker.book1D(pair.second + "PtMid", pair.second + "PtMid", 100, 0., 200.);
+    me[pair.second + "PtHigh"] = booker.book1D(pair.second + "PtHigh", pair.second + "PtHigh", 100, 0., 1000.);
   }
 }
 
@@ -118,6 +128,7 @@ void PFCandidateAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventS
       me["AllCandidatePhi"]->Fill(pfHandle->at(i).phi());
       me["AllCandidateCharge"]->Fill(pfHandle->at(i).charge());
       me["AllCandidatePtLow"]->Fill(pfHandle->at(i).pt());
+      me["AllCandidatePtMid"]->Fill(pfHandle->at(i).pt());
       me["AllCandidatePtHigh"]->Fill(pfHandle->at(i).pt());
 
       int pdgId = abs(pfHandle->at(i).pdgId());
@@ -127,6 +138,7 @@ void PFCandidateAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventS
         me[pdgMap[pdgId] + "Phi"]->Fill(pfHandle->at(i).phi());
         me[pdgMap[pdgId] + "Charge"]->Fill(pfHandle->at(i).charge());
         me[pdgMap[pdgId] + "PtLow"]->Fill(pfHandle->at(i).pt());
+        me[pdgMap[pdgId] + "PtMid"]->Fill(pfHandle->at(i).pt());
         me[pdgMap[pdgId] + "PtHigh"]->Fill(pfHandle->at(i).pt());
       }
     }
