@@ -62,14 +62,18 @@ void PatternRecognitionbyCA<TILE>::makeTracksters(const typename PatternRecognit
     LogDebug("HGCPatternRecoByCA") << "Making Tracksters with CA" << std::endl;
   }
 
+  int type = input.tiles[0].getTypeT() ;
+  int nEtaBin  = (type==1) ? ticl::TileConstantsHFNose::nEtaBins : ticl::TileConstants::nEtaBins;
+  int nPhiBin  = (type==1) ? ticl::TileConstantsHFNose::nEtaBins : ticl::TileConstants::nEtaBins;
+
   bool isRegionalIter = (input.regions[0].index != -1);
   std::vector<HGCDoublet::HGCntuplet> foundNtuplets;
   std::vector<int> seedIndices;
   std::vector<uint8_t> layer_cluster_usage(input.layerClusters.size(), 0);
   theGraph_->makeAndConnectDoublets(input.tiles,
                                     input.regions,
-                                    ticl::TileConstants::nEtaBins,
-                                    ticl::TileConstants::nPhiBins,
+                                    nEtaBin,
+                                    nPhiBin,
                                     input.layerClusters,
                                     input.mask,
                                     input.layerClustersTime,
@@ -79,7 +83,7 @@ void PatternRecognitionbyCA<TILE>::makeTracksters(const typename PatternRecognit
                                     min_cos_pointing_,
                                     etaLimitIncreaseWindow_,
                                     missing_layers_,
-                                    rhtools_.lastLayerFH(),
+                                    rhtools_.lastLayer(type),
                                     max_delta_time_);
 
   theGraph_->findNtuplets(foundNtuplets, seedIndices, min_clusters_per_ntuplet_, out_in_dfs_, max_out_in_hops_);
@@ -168,7 +172,7 @@ void PatternRecognitionbyCA<TILE>::makeTracksters(const typename PatternRecognit
     tmp.swap(result);
   }
 
-  ticl::assignPCAtoTracksters(result, input.layerClusters, rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z());
+  ticl::assignPCAtoTracksters(result, input.layerClusters, rhtools_.getPositionLayer(rhtools_.lastLayerEE(type)).z());
 
   // run energy regression and ID
   energyRegressionAndID(input.layerClusters, result);
