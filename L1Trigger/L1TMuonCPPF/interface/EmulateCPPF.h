@@ -7,7 +7,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 
-
 class EmulateCPPF {
 public:
   explicit EmulateCPPF(const edm::ParameterSet &iConfig, edm::ConsumesCollector &&iConsumes);

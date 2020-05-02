@@ -7,8 +7,8 @@
 #include "CPPFMaskReClusterizer.h"
 
 CPPFClusterContainer CPPFMaskReClusterizer::doAction(const RPCDetId& id,
-                                                   CPPFClusterContainer& initClusters,
-                                                   const CPPFRollMask& mask) const {
+                                                     CPPFClusterContainer& initClusters,
+                                                     const CPPFRollMask& mask) const {
   CPPFClusterContainer finClusters;
   if (initClusters.empty())
     return finClusters;

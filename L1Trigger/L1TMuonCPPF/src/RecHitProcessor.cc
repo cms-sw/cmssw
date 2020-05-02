@@ -7,7 +7,6 @@
 #include "L1Trigger/L1TMuonCPPF/src/CPPFMaskReClusterizer.h"
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 
-
 RecHitProcessor::RecHitProcessor() {}
 
 RecHitProcessor::~RecHitProcessor() {}
@@ -20,7 +19,6 @@ void RecHitProcessor::processLook(const edm::Event &iEvent,
                                   std::vector<RecHitProcessor::CppfItem> &CppfVec1,
                                   l1t::CPPFDigiCollection &cppfDigis,
                                   const int MaxClusterSize) const {
-
   edm::Handle<RPCRecHitCollection> recHits;
   iEvent.getByToken(recHitToken, recHits);
 
@@ -33,10 +31,11 @@ void RecHitProcessor::processLook(const edm::Event &iEvent,
   edm::ESHandle<RPCGeometry> rpcGeom;
   iSetup.get<MuonGeometryRecord>().get(rpcGeom);
 
-  for (const auto&& rpcdgIt : (*rpcDigis)) {
-    const RPCDetId& rpcId = rpcdgIt.first;
-    const RPCDigiCollection::Range& range = rpcdgIt.second;
-    if (rpcId.region()==0) continue;
+  for (const auto &&rpcdgIt : (*rpcDigis)) {
+    const RPCDetId &rpcId = rpcdgIt.first;
+    const RPCDigiCollection::Range &range = rpcdgIt.second;
+    if (rpcId.region() == 0)
+      continue;
 
     CPPFClusterizer clizer;
     CPPFClusterContainer tcls = clizer.doAction(range);
@@ -44,7 +43,7 @@ void RecHitProcessor::processLook(const edm::Event &iEvent,
     CPPFRollMask mask;
     CPPFClusterContainer cls = mrclizer.doAction(rpcId, tcls, mask);
 
-    for (auto cl : cls){
+    for (auto cl : cls) {
       int isValid = rpcDigis.isValid();
       int rawId = rpcId.rawId();
       int Bx = cl.bx();
@@ -59,7 +58,7 @@ void RecHitProcessor::processLook(const edm::Event &iEvent,
       const double y = cl.hasY() ? cl.y() : 0;
       LocalPoint lPos(centreOfCluster, y, 0);
       if (roll->id().region() != 0) {
-        const auto& topo = dynamic_cast<const TrapezoidalStripTopology&>(roll->topology());
+        const auto &topo = dynamic_cast<const TrapezoidalStripTopology &>(roll->topology());
         const double angle = topo.stripAngle((firststrip + laststrip) / 2.);
         const double x = centreOfCluster - y * std::tan(angle);
         lPos = LocalPoint(x, y, 0);
@@ -94,25 +93,21 @@ void RecHitProcessor::processLook(const edm::Event &iEvent,
       if ((global_phi > 15.) && (global_phi <= 16.3)) {
         EMTFsector1 = 1;
         EMTFsector2 = 6;
-      }
-      else if ((global_phi > 16.3) && (global_phi <= 53.)) {
+      } else if ((global_phi > 16.3) && (global_phi <= 53.)) {
         EMTFsector1 = 1;
         EMTFsector2 = 0;
-      }
-      else if ((global_phi > 53.) && (global_phi <= 75.)) {
+      } else if ((global_phi > 53.) && (global_phi <= 75.)) {
         EMTFsector1 = 1;
         EMTFsector2 = 2;
       }
-        // sector 2
+      // sector 2
       else if ((global_phi > 75.) && (global_phi <= 76.3)) {
         EMTFsector1 = 1;
         EMTFsector2 = 2;
-      }
-      else if ((global_phi > 76.3) && (global_phi <= 113.)) {
+      } else if ((global_phi > 76.3) && (global_phi <= 113.)) {
         EMTFsector1 = 2;
         EMTFsector2 = 0;
-      }
-      else if ((global_phi > 113.) && (global_phi <= 135.)) {
+      } else if ((global_phi > 113.) && (global_phi <= 135.)) {
         EMTFsector1 = 2;
         EMTFsector2 = 3;
       }
@@ -159,12 +154,10 @@ void RecHitProcessor::processLook(const edm::Event &iEvent,
       else if ((global_phi > -45.) && (global_phi <= -43.7)) {
         EMTFsector1 = 5;
         EMTFsector2 = 6;
-      }
-      else if ((global_phi > -43.7) && (global_phi <= -7.)) {
+      } else if ((global_phi > -43.7) && (global_phi <= -7.)) {
         EMTFsector1 = 6;
         EMTFsector2 = 0;
-      }
-      else if ((global_phi > -7.) && (global_phi <= 15.)) {
+      } else if ((global_phi > -7.) && (global_phi <= 15.)) {
         EMTFsector1 = 6;
         EMTFsector2 = 1;
       }
@@ -196,8 +189,7 @@ void RecHitProcessor::processLook(const edm::Event &iEvent,
                 cppf = (cppf1 - 1);
               else if (before > after)
                 cppf = (cppf1 + 1);
-            }
-            else if (firststrip > 1) {
+            } else if (firststrip > 1) {
               if (before < after)
                 cppf = (cppf1 + 1);
               else if (before > after)
@@ -235,12 +227,10 @@ void RecHitProcessor::processLook(const edm::Event &iEvent,
 
             if ((EMTFsector1 > 0) && (EMTFsector2 == 0)) {
               cppfDigis.push_back(*MainVariables1.get());
-            }
-            else if ((EMTFsector1 > 0) && (EMTFsector2 > 0)) {
+            } else if ((EMTFsector1 > 0) && (EMTFsector2 > 0)) {
               cppfDigis.push_back(*MainVariables1.get());
               cppfDigis.push_back(*MainVariables2.get());
-            }
-            else if ((EMTFsector1 == 0) && (EMTFsector2 == 0)) {
+            } else if ((EMTFsector1 == 0) && (EMTFsector2 == 0)) {
               continue;
             }
           }  // Geo is true
@@ -275,20 +265,18 @@ void RecHitProcessor::processLook(const edm::Event &iEvent,
                                                                             global_theta));
             if ((EMTFsector1 > 0) && (EMTFsector2 == 0)) {
               cppfDigis.push_back(*MainVariables1.get());
-            }
-            else if ((EMTFsector1 > 0) && (EMTFsector2 > 0)) {
+            } else if ((EMTFsector1 > 0) && (EMTFsector2 > 0)) {
               cppfDigis.push_back(*MainVariables1.get());
               cppfDigis.push_back(*MainVariables2.get());
-            }
-            else if ((EMTFsector1 == 0) && (EMTFsector2 == 0)) {
+            } else if ((EMTFsector1 == 0) && (EMTFsector2 == 0)) {
               continue;
             }
           }
         }  // Condition to save the CPPFDigi
-      }// Loop over the LUTVector
-    }//end loop over cludters
-  }//end loop over digis
-}//end processlook function
+      }    // Loop over the LUTVector
+    }      //end loop over cludters
+  }        //end loop over digis
+}  //end processlook function
 
 void RecHitProcessor::process(const edm::Event &iEvent,
                               const edm::EventSetup &iSetup,
@@ -296,7 +284,6 @@ void RecHitProcessor::process(const edm::Event &iEvent,
                               const edm::EDGetToken &rpcDigiToken,
                               const edm::EDGetToken &rpcDigiSimLinkToken,
                               l1t::CPPFDigiCollection &cppfDigis) const {
-
   // Get the RPC Geometry
   edm::ESHandle<RPCGeometry> rpcGeom;
   iSetup.get<MuonGeometryRecord>().get(rpcGeom);
@@ -308,10 +295,11 @@ void RecHitProcessor::process(const edm::Event &iEvent,
   edm::Handle<RPCRecHitCollection> recHits;
   iEvent.getByToken(recHitToken, recHits);
 
-  for (const auto&& rpcdgIt : (*rpcDigis)) {
-    const RPCDetId& rpcId = rpcdgIt.first;
-    const RPCDigiCollection::Range& range = rpcdgIt.second;
-    if (rpcId.region()==0) continue;
+  for (const auto &&rpcdgIt : (*rpcDigis)) {
+    const RPCDetId &rpcId = rpcdgIt.first;
+    const RPCDigiCollection::Range &range = rpcdgIt.second;
+    if (rpcId.region() == 0)
+      continue;
 
     CPPFClusterizer clizer;
     CPPFClusterContainer tcls = clizer.doAction(range);
@@ -319,10 +307,10 @@ void RecHitProcessor::process(const edm::Event &iEvent,
     CPPFRollMask mask;
     CPPFClusterContainer cls = mrclizer.doAction(rpcId, tcls, mask);
 
-    for (auto cl : cls){
+    for (auto cl : cls) {
       int region = rpcId.region();
       int isValid = rpcDigis.isValid();
-//      int rawId = rpcId.rawId();
+      //      int rawId = rpcId.rawId();
       int Bx = cl.bx();
       const int firststrip = cl.firstStrip();
       const int clustersize = cl.clusterSize();
@@ -335,7 +323,7 @@ void RecHitProcessor::process(const edm::Event &iEvent,
       const double y = cl.hasY() ? cl.y() : 0;
       LocalPoint lPos(centreOfCluster, y, 0);
       if (roll->id().region() != 0) {
-        const auto& topo = dynamic_cast<const TrapezoidalStripTopology&>(roll->topology());
+        const auto &topo = dynamic_cast<const TrapezoidalStripTopology &>(roll->topology());
         const double angle = topo.stripAngle((firststrip + laststrip) / 2.);
         const double x = centreOfCluster - y * std::tan(angle);
         lPos = LocalPoint(x, y, 0);
@@ -347,14 +335,14 @@ void RecHitProcessor::process(const edm::Event &iEvent,
 
       // Endcap region only
       if (region != 0) {
-        int int_theta = (region == -1 ? 180. * 32. / 36.5 : 0.) + (float)region * global_theta * 32. / 36.5 - 8.5 * 32 / 36.5;
+        int int_theta =
+            (region == -1 ? 180. * 32. / 36.5 : 0.) + (float)region * global_theta * 32. / 36.5 - 8.5 * 32 / 36.5;
         if (region == 1) {
           if (global_theta < 8.5)
             int_theta = 0;
           if (global_theta > 45.)
             int_theta = 31;
-        }
-        else if (region == -1) {
+        } else if (region == -1) {
           if (global_theta < 135.)
             int_theta = 31;
           if (global_theta > 171.5)
@@ -370,13 +358,11 @@ void RecHitProcessor::process(const edm::Event &iEvent,
           local_phi = global_phi - 15.;
           EMTFsector1 = 1;
           EMTFsector2 = 6;
-        }
-        else if ((global_phi > 16.3) && (global_phi <= 53.)) {
+        } else if ((global_phi > 16.3) && (global_phi <= 53.)) {
           local_phi = global_phi - 15.;
           EMTFsector1 = 1;
           EMTFsector2 = 0;
-        }
-        else if ((global_phi > 53.) && (global_phi <= 75.)) {
+        } else if ((global_phi > 53.) && (global_phi <= 75.)) {
           local_phi = global_phi - 15.;
           EMTFsector1 = 1;
           EMTFsector2 = 2;
@@ -386,13 +372,11 @@ void RecHitProcessor::process(const edm::Event &iEvent,
           local_phi = global_phi - 15.;
           EMTFsector1 = 1;
           EMTFsector2 = 2;
-        }
-        else if ((global_phi > 76.3) && (global_phi <= 113.)) {
+        } else if ((global_phi > 76.3) && (global_phi <= 113.)) {
           local_phi = global_phi - 75.;
           EMTFsector1 = 2;
           EMTFsector2 = 0;
-        }
-        else if ((global_phi > 113.) && (global_phi <= 135.)) {
+        } else if ((global_phi > 113.) && (global_phi <= 135.)) {
           local_phi = global_phi - 75.;
           EMTFsector1 = 2;
           EMTFsector2 = 3;
@@ -403,13 +387,11 @@ void RecHitProcessor::process(const edm::Event &iEvent,
           local_phi = global_phi - 75.;
           EMTFsector1 = 2;
           EMTFsector2 = 3;
-        }
-        else if ((global_phi > 136.3) && (global_phi <= 173.)) {
+        } else if ((global_phi > 136.3) && (global_phi <= 173.)) {
           local_phi = global_phi - 135.;
           EMTFsector1 = 3;
           EMTFsector2 = 0;
-        }
-        else if ((global_phi > 173.) && (global_phi <= 180.)) {
+        } else if ((global_phi > 173.) && (global_phi <= 180.)) {
           local_phi = global_phi - 135.;
           EMTFsector1 = 3;
           EMTFsector2 = 4;
@@ -425,13 +407,11 @@ void RecHitProcessor::process(const edm::Event &iEvent,
           local_phi = global_phi + 225.;
           EMTFsector1 = 3;
           EMTFsector2 = 4;
-        }
-        else if ((global_phi > -163.7) && (global_phi <= -127.)) {
+        } else if ((global_phi > -163.7) && (global_phi <= -127.)) {
           local_phi = global_phi + 165.;
           EMTFsector1 = 4;
           EMTFsector2 = 0;
-        }
-        else if ((global_phi > -127.) && (global_phi <= -105.)) {
+        } else if ((global_phi > -127.) && (global_phi <= -105.)) {
           local_phi = global_phi + 165.;
           EMTFsector1 = 4;
           EMTFsector2 = 5;
@@ -441,13 +421,11 @@ void RecHitProcessor::process(const edm::Event &iEvent,
           local_phi = global_phi + 165.;
           EMTFsector1 = 4;
           EMTFsector2 = 5;
-        }
-        else if ((global_phi > -103.7) && (global_phi <= -67.)) {
+        } else if ((global_phi > -103.7) && (global_phi <= -67.)) {
           local_phi = global_phi + 105.;
           EMTFsector1 = 5;
           EMTFsector2 = 0;
-        }
-        else if ((global_phi > -67.) && (global_phi <= -45.)) {
+        } else if ((global_phi > -67.) && (global_phi <= -45.)) {
           local_phi = global_phi + 105.;
           EMTFsector1 = 5;
           EMTFsector2 = 6;
@@ -457,13 +435,11 @@ void RecHitProcessor::process(const edm::Event &iEvent,
           local_phi = global_phi + 105.;
           EMTFsector1 = 5;
           EMTFsector2 = 6;
-        }
-        else if ((global_phi > -43.7) && (global_phi <= -7.)) {
+        } else if ((global_phi > -43.7) && (global_phi <= -7.)) {
           local_phi = global_phi + 45.;
           EMTFsector1 = 6;
           EMTFsector2 = 0;
-        }
-        else if ((global_phi > -7.) && (global_phi <= 15.)) {
+        } else if ((global_phi > -7.) && (global_phi <= 15.)) {
           local_phi = global_phi + 45.;
           EMTFsector1 = 6;
           EMTFsector2 = 1;
@@ -520,7 +496,7 @@ void RecHitProcessor::process(const edm::Event &iEvent,
         if ((EMTFsector1 == 0) && (EMTFsector2 == 0)) {
           continue;
         }
-      }// No barrel hits
-    }//end loop over clusters
-  }//end loop over digis
-}// End function: void RecHitProcessor::process()
+      }  // No barrel hits
+    }    //end loop over clusters
+  }      //end loop over digis
+}  // End function: void RecHitProcessor::process()

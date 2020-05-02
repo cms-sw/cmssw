@@ -39,5 +39,3 @@ CPPFClusterContainer CPPFClusterizer::doAction(const RPCDigiCollection::Range& d
 
   return finalCluster;
 }
-
-
