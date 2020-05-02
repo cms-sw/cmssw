@@ -35,20 +35,17 @@ iterTICLTask = cms.Task(ticlLayerTileTask
     ,ticlPFTask
     )
 
-####
-
-ticlLayerTileHFNoseProducer = ticlLayerTileProducer.clone(
+hfnticlLayerTile = ticlLayerTileProducer.clone(
     detector = 'HFNose'
 )
 
-hfnticlLayerTileTask = cms.Task(ticlLayerTileHFNoseProducer)
+hfnticlLayerTileTask = cms.Task(hfnticlLayerTile)
 
 hfniterTICLTask = cms.Task(
     hfnticlLayerTileTask,
-    hfnticlMIPStepTask
+    hfnticlMIPStepTask,
+    hfnticlEMStepTask
 )
-
-####
 
 def injectTICLintoPF(process):
     if getattr(process,'particleFlowTmp', None):
