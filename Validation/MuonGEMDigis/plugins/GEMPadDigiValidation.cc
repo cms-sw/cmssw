@@ -26,12 +26,27 @@ void GEMPadDigiValidation::bookHistograms(DQMStore::IBooker& booker,
 
       me_occ_det_[key2] = bookDetectorOccupancy(booker, key2, station, "pad", "Pad");
 
-      const GEMSuperChamber* super_chamber = station->superChambers().front();
+      const auto &superChamberVec = station->superChambers();
+      if (superChamberVec.empty()) {
+        edm::LogError(kLogCategory_) << "Super chambers missing.";
+        continue;
+      }
+      const GEMSuperChamber* super_chamber = superChamberVec.front();
+      if (super_chamber == nullptr) {
+        edm::LogError(kLogCategory_) << "Failed to find super chamber.";
+        continue;
+      }
+      // const GEMSuperChamber* super_chamber = station->superChambers().front();
       for (const auto& chamber : super_chamber->chambers()) {
         Int_t layer_id = chamber->id().layer();
         ME3IdsKey key3(region_id, station_id, layer_id);
 
-        Int_t num_pads = chamber->etaPartitions().front()->npads();
+        const auto &etaPartitionVec = chamber->etaPartitions();
+        if (etaPartitionVec.empty() || etaPartitionVec.front() == nullptr) {
+          edm::LogError(kLogCategory_) << "Eta partition missing or null.";
+          continue;
+        }
+        Int_t num_pads = etaPartitionVec.front()->npads();
 
         if (detail_plot_) {
           me_detail_occ_xy_[key3] = bookXYOccupancy(booker, key3, "pad", "Pad");
@@ -65,7 +80,16 @@ void GEMPadDigiValidation::bookHistograms(DQMStore::IBooker& booker,
       for (const auto& station : region->stations()) {
         Int_t station_id = station->station();
 
-        const GEMSuperChamber* super_chamber = station->superChambers().front();
+        const auto &superChamberVec = station->superChambers();
+        if (superChamberVec.empty()) {
+          edm::LogError(kLogCategory_) << "Super chambers missing.";
+          continue;
+        }
+        const GEMSuperChamber* super_chamber = superChamberVec.front();
+        if (super_chamber == nullptr) {
+          edm::LogError(kLogCategory_) << "Failed to find super chamber.";
+          continue;
+        }
         for (const auto& chamber : super_chamber->chambers()) {
           Int_t layer_id = chamber->id().layer();
           ME3IdsKey key3(region_id, station_id, layer_id);

@@ -26,7 +26,23 @@ void GEMCoPadDigiValidation::bookHistograms(DQMStore::IBooker& booker,
 
     for (const auto& station : region->stations()) {
       Int_t station_id = station->station();
-      Int_t num_pads = station->superChambers()[0]->chambers()[0]->etaPartitions()[0]->npads();
+      const auto &superChamberVec = station->superChambers();
+      if (superChamberVec.empty() || superChamberVec[0] == nullptr) {
+        edm::LogError(kLogCategory_) << "Super chambers missing or null.";
+        continue;
+      }
+      const auto &chamberVec = superChamberVec[0]->chambers();
+      if (chamberVec.empty() || chamberVec[0] == nullptr) {
+        edm::LogError(kLogCategory_) << "Chambers missing or null. ";
+        continue;
+      }
+      const auto &etaPartitionVec = chamberVec[0]->etaPartitions();
+      if (etaPartitionVec.empty() || etaPartitionVec[0] == nullptr) {
+        edm::LogError(kLogCategory_) << "Eta partition missing or null.";
+        continue;
+      }
+      // Int_t num_pads = station->superChambers()[0]->chambers()[0]->etaPartitions()[0]->npads();
+      Int_t num_pads = etaPartitionVec[0]->npads();
       ME2IdsKey key2{region_id, station_id};
 
       me_occ_det_[key2] = bookDetectorOccupancy(booker, key2, station, "copad", "CoPad");
@@ -112,7 +128,10 @@ void GEMCoPadDigiValidation::analyze(const edm::Event& event, const edm::EventSe
 
       const BoundPlane& surface = geom_det->surface();
       const GEMSuperChamber* super_chamber = gem->superChamber(super_chamber_id);
-
+      if (super_chamber == nullptr) {
+        edm::LogError(kLogCategory_) << "Super chamber is null.";
+        continue;
+      }
       Int_t pad1 = digi->pad(1);
       Int_t pad2 = digi->pad(2);
       Int_t bx1 = digi->bx(1);
@@ -124,11 +143,31 @@ void GEMCoPadDigiValidation::analyze(const edm::Event& event, const edm::EventSe
       if (bx2 < gem_bx_min_ or bx2 > gem_bx_max_)
         continue;
 
-      const LocalPoint& lp1 = super_chamber->chamber(1)->etaPartition(roll_id)->centreOfPad(pad1);
-      const LocalPoint& lp2 = super_chamber->chamber(2)->etaPartition(roll_id)->centreOfPad(pad2);
+      const Int_t padArray[] = {pad1, pad2};
+      LocalPoint lpArray[2];
+      int ptCounter = 0;
+      for (; ptCounter < 2; ++ptCounter) {
+        const GEMChamber *const chamber = super_chamber->chamber(ptCounter + 1);
+        if (chamber == nullptr) {
+          edm::LogError(kLogCategory_) << "Chamber " << (ptCounter + 1) << " is null.";
+          break;
+        }
+        const GEMEtaPartition *const etaPartition = chamber->etaPartition(roll_id);
+        if (etaPartition == nullptr) {
+          edm::LogError(kLogCategory_) << "Eta partition " << roll_id << " is null.";
+          break;
+        }
+        lpArray[ptCounter] = etaPartition->centreOfPad(padArray[ptCounter]);
+      } // end for
+      if (ptCounter < 2) {  // Broke out of "for" loop
+        edm::LogError(kLogCategory_) << "Skipping a digi after " << (ptCounter + 1) << " tries.";
+        continue;
+      }
+      // const LocalPoint& lp1 = super_chamber->chamber(1)->etaPartition(roll_id)->centreOfPad(pad1);
+      // const LocalPoint& lp2 = super_chamber->chamber(2)->etaPartition(roll_id)->centreOfPad(pad2);
 
-      const GlobalPoint& gp1 = surface.toGlobal(lp1);
-      const GlobalPoint& gp2 = surface.toGlobal(lp2);
+      const GlobalPoint& gp1 = surface.toGlobal(lpArray[0]);
+      const GlobalPoint& gp2 = surface.toGlobal(lpArray[1]);
 
       Float_t g_r1 = gp1.perp();
       Float_t g_r2 = gp2.perp();
