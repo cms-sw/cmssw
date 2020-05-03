@@ -15,27 +15,51 @@ GEMStripDigiValidation::GEMStripDigiValidation(const edm::ParameterSet& pset)
 void GEMStripDigiValidation::bookHistograms(DQMStore::IBooker& booker,
                                             edm::Run const& run,
                                             edm::EventSetup const& setup) {
+  edm::LogError(kLogCategory_) << "About to init geom";
   const GEMGeometry* gem = initGeometry(setup);
+  if (gem == nullptr) {
+    edm::LogError(kLogCategory_) << "Failed to initialize GEM geometry.";
+    return;
+  }
 
   // NOTE Bunch Crossing
   booker.setCurrentFolder("MuonGEMDigisV/GEMDigisTask/Strip/BunchCrossing");
 
   me_bx_ = booker.book1D("strip_bx", "Strip Digi Bunch Crossing", 5, -2.5, 2.5);
 
+  edm::LogError(kLogCategory_) << "before detail plot";
   if (detail_plot_) {
     for (const auto& region : gem->regions()) {
+      if (region == nullptr) {
+        edm::LogError(kLogCategory_) << "Null region";
+        continue;
+      }
       Int_t region_id = region->region();
       for (const auto& station : region->stations()) {
+        if (station == nullptr) {
+          edm::LogError(kLogCategory_) << "Null region";
+          continue;
+        }
         Int_t station_id = station->station();
 
-        const GEMSuperChamber* super_chamber = station->superChambers().front();
+        const auto &superChamberVec = station->superChambers();
+        if (superChamberVec.empty()) {
+          edm::LogError(kLogCategory_) << "Super chambers missing.";
+          continue;
+        }
+        const GEMSuperChamber* super_chamber = superChamberVec.front();
+        // const GEMSuperChamber* super_chamber = station->superChambers().front();
+        if (super_chamber == nullptr) {
+          edm::LogError(kLogCategory_) << "Failed to find super chamber.";
+          continue;
+        }
         for (const auto& chamber : super_chamber->chambers()) {
           Int_t layer_id = chamber->id().layer();
           ME3IdsKey key3(region_id, station_id, layer_id);
 
           me_detail_bx_[key3] =
               bookHist1D(booker, key3, "strip_bx", "Strip Digi Bunch Crossing", 5, -2.5, 2.5, "Bunch crossing");
-        }  // chamber loop
+        }// chamber loop
       }    // station loop
     }      // region loop
   }        // detail plot
@@ -43,6 +67,7 @@ void GEMStripDigiValidation::bookHistograms(DQMStore::IBooker& booker,
   // NOTE Occupancy
   booker.setCurrentFolder("MuonGEMDigisV/GEMDigisTask/Strip/Occupancy");
 
+  edm::LogError(kLogCategory_) << "before regions ";
   for (const auto& region : gem->regions()) {
     Int_t region_id = region->region();
 
@@ -67,11 +92,15 @@ void GEMStripDigiValidation::bookHistograms(DQMStore::IBooker& booker,
                                               eta_range_[1],
                                               "|#eta|");
 
+    edm::LogError(kLogCategory_) << "before stations ";
     for (const auto& station : region->stations()) {
       Int_t station_id = station->station();
       ME2IdsKey key2{region_id, station_id};
+      edm::LogError(kLogCategory_) << "region ID = " << region_id << ", station ID = " << station_id;
 
+      edm::LogError(kLogCategory_) << "before book detector occupancy for strip";
       me_occ_det_[key2] = bookDetectorOccupancy(booker, key2, station, "strip", "Strip Digi");
+      edm::LogError(kLogCategory_) << "after book detector occupancy for strip";
 
       me_simhit_occ_phi_[key2] =
           bookHist1D(booker, key2, "muon_simhit_occ_phi", "Muon SimHit Phi Occupancy", 51, -M_PI, M_PI, "#phi");
@@ -83,39 +112,63 @@ void GEMStripDigiValidation::bookHistograms(DQMStore::IBooker& booker,
 
       me_strip_occ_det_[key2] = bookDetectorOccupancy(booker, key2, station, "matched_strip", "Matched Strip Digi");
 
-      for (const auto& chamber : station->superChambers()[0]->chambers()) {
-        Int_t layer_id = chamber->id().layer();
-        ME3IdsKey key3{region_id, station_id, layer_id};
+      const auto &superChamberVec = station->superChambers();
+      if (superChamberVec.empty() || superChamberVec[0] == nullptr) {
+        edm::LogError(kLogCategory_) << "Super chambers missing or null.";
+      } else {
+        edm::LogError(kLogCategory_) << "before super chambers ";
+        // for (const auto& chamber : station->superChambers()[0]->chambers()) 
+        for (const auto& chamber : superChamberVec[0]->chambers()) {
+          if (chamber == nullptr) {
+            edm::LogError(kLogCategory_) << "Null chamber";
+            continue;
+          }
+          edm::LogError(kLogCategory_) << "got a chamber";
+          Int_t layer_id = chamber->id().layer();
+          ME3IdsKey key3{region_id, station_id, layer_id};
+          edm::LogError(kLogCategory_) << "region ID = " << region_id << ", station ID = " << station_id << ", layer ID = " << layer_id;
 
-        if (detail_plot_) {
-          Int_t num_strips = chamber->etaPartitions().front()->nstrips();
+          if (detail_plot_) {
+            edm::LogError(kLogCategory_) << "before eta partitions ";
+            const auto &etaPartitionsVec = chamber->etaPartitions();
+            if (etaPartitionsVec.empty() || etaPartitionsVec.front() == nullptr) {
+              edm::LogError(kLogCategory_) << "Eta partitions missing.";
+              continue;
+            }
+            Int_t num_strips = etaPartitionsVec.front()->nstrips();
+            // Int_t num_strips = chamber->etaPartitions().front()->nstrips();
+            edm::LogError(kLogCategory_) << "num strips = " << num_strips;
 
-          me_detail_occ_xy_[key3] = bookXYOccupancy(booker, key3, "strip", "Strip Digi");
+            edm::LogError(kLogCategory_) << "before book XYOcc";
+            me_detail_occ_xy_[key3] = bookXYOccupancy(booker, key3, "strip", "Strip Digi");
 
-          me_detail_occ_strip_[key3] = bookHist1D(booker,
-                                                  key3,
-                                                  "strip_occ_strip",
-                                                  "Strip Digi Occupancy per strip number",
-                                                  num_strips,
-                                                  0.5,
-                                                  num_strips + 0.5,
-                                                  "strip number");
+            edm::LogError(kLogCategory_) << "before book hist1d";
+            me_detail_occ_strip_[key3] = bookHist1D(booker,
+                                                    key3,
+                                                    "strip_occ_strip",
+                                                    "Strip Digi Occupancy per strip number",
+                                                    num_strips,
+                                                    0.5,
+                                                    num_strips + 0.5,
+                                                    "strip number");
 
-          me_detail_occ_phi_strip_[key3] = bookHist2D(booker,
-                                                      key3,
-                                                      "strip_occ_phi_strip",
-                                                      "Strip Digi Occupancy",
-                                                      280,
-                                                      -M_PI,
-                                                      M_PI,
-                                                      num_strips / 2,
-                                                      0,
-                                                      num_strips,
-                                                      "#phi [rad]",
-                                                      "strip number");
-
-        }  // detail plot
-      }    // chamber
+            edm::LogError(kLogCategory_) << "before book hist2d";
+            me_detail_occ_phi_strip_[key3] = bookHist2D(booker,
+                                                        key3,
+                                                        "strip_occ_phi_strip",
+                                                        "Strip Digi Occupancy",
+                                                        280,
+                                                        -M_PI,
+                                                        M_PI,
+                                                        num_strips / 2,
+                                                        0,
+                                                        num_strips,
+                                                        "#phi [rad]",
+                                                        "strip number");
+            edm::LogError(kLogCategory_) << "after book hist2d";
+          }  // detail plot
+        }   // chamber
+      }    // end else
     }      // station looop
   }        // region loop
 }
@@ -124,7 +177,10 @@ GEMStripDigiValidation::~GEMStripDigiValidation() {}
 
 void GEMStripDigiValidation::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   const GEMGeometry* gem = initGeometry(setup);
-
+  if (gem == nullptr) {
+    edm::LogError(kLogCategory_) << "Failed to initialize GEM geometry.";
+    return;
+  }
   edm::Handle<edm::PSimHitContainer> simhit_container;
   event.getByToken(simhit_token_, simhit_container);
   if (not simhit_container.isValid()) {
