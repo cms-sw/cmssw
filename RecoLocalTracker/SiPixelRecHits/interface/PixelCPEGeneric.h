@@ -125,6 +125,7 @@ private:
   bool TruncatePixelCharge_;
   bool IrradiationBiasCorrection_;
   bool isUpgrade_;
+  bool NoTemplateErrorsWhenNoTrkAngles_;
 
   float EdgeClusterErrorX_;
   float EdgeClusterErrorY_;
