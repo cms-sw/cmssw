@@ -105,6 +105,8 @@ namespace PixelRegions {
       int side = trackTopo->pxfSide(detId);  // 1 (-z), 2 for (+z)
       int disk = fpix.diskName();            //trackTopo->pxfDisk(detId); // 1, 2, 3
       int ring = fpix.ringName();            // 1 (lower), 2 (upper)
+      // ### FIXME ###
+      // ring numbering for phase-0 needs to be adjusted
       pixid = calculateFPixID(side, disk, ring);
     }
     PixelId pixID = static_cast<PixelId>(pixid);
@@ -264,7 +266,12 @@ namespace PixelRegions {
     void fill(const unsigned int detid, const float value) {
       // convert from detid to pixelid
       PixelRegions::PixelId myId = PixelRegions::detIdToPixelId(detid, m_trackerTopo, m_isPhase1);
-      m_theMap[myId]->Fill(value);
+      if (m_theMap.find(myId) != m_theMap.end()) {
+        m_theMap[myId]->Fill(value);
+      } else {
+        edm::LogError("PixelRegionContainers")
+            << detid << " :=> " << myId << " is not a recongnized PixelId enumerator!" << std::endl;
+      }
     }
 
     void draw(TCanvas& canv, bool isBarrel) {
@@ -283,11 +290,23 @@ namespace PixelRegions {
 
     void beautify() {
       for (const auto& plot : m_theMap) {
+        plot.second->SetTitle("");
         plot.second->GetYaxis()->SetRangeUser(0., plot.second->GetMaximum() * 1.30);
         plot.second->SetFillColor(kRed);
         plot.second->SetMarkerStyle(20);
         plot.second->SetMarkerSize(1);
         SiPixelPI::makeNicePlotStyle(plot.second.get());
+        plot.second->SetStats(true);
+      }
+    }
+
+    void stats() {
+      for (const auto& plot : m_theMap) {
+        TPaveStats* st = (TPaveStats*)plot.second->FindObject("stats");
+        if (st) {
+          st->SetTextSize(0.03);
+          SiPixelPI::adjustStats(st, 0.15, 0.83, 0.39, 0.93);
+        }
       }
     }
 

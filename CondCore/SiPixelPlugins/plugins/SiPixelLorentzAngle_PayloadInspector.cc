@@ -162,7 +162,7 @@ namespace {
       TrackerTopology tTopo =
           StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
-      auto myPlots = PixelRegions::PixelRegionContainers(&tTopo, true);
+      auto myPlots = PixelRegions::PixelRegionContainers(&tTopo, (LAMap_.size() == SiPixelPI::phase1size));
       myPlots.bookAll("SiPixel LA",
                       "SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T]",
                       "#modules",
@@ -176,13 +176,11 @@ namespace {
         myPlots.fill(element.first, element.second);
       }
 
-      //h1->SetStats(true);
-
       myPlots.beautify();
       myPlots.draw(canvas, isBarrel);
 
-      TLegend legend = TLegend(0.30, 0.88, 0.85, 0.90);
-      legend.SetHeader(("Payload hash: #bf{" + (std::get<1>(iov)) + "}").c_str(),
+      TLegend legend = TLegend(0.40, 0.88, 0.93, 0.90);
+      legend.SetHeader(("Hash: #bf{" + (std::get<1>(iov)) + "}").c_str(),
                        "C");  // option "C" allows to center the header
       //legend.AddEntry(h1.get(), ("IOV: " + std::to_string(std::get<0>(iov))).c_str(), "PL");
       legend.SetTextSize(0.025);
@@ -191,28 +189,26 @@ namespace {
       unsigned int maxPads = isBarrel ? 4 : 12;
       for (unsigned int c = 1; c <= maxPads; c++) {
         canvas.cd(c);
-        SiPixelPI::adjustCanvasMargins(canvas.cd(c), 0.07, 0.11, 0.12, 0.03);
+        SiPixelPI::adjustCanvasMargins(canvas.cd(c), 0.07, 0.12, 0.12, 0.05);
         legend.Draw("same");
+        canvas.cd(c)->Update();
       }
 
-      /*
-      TPaveStats *st = (TPaveStats *)h1->FindObject("stats");
-      st->SetTextSize(0.03);
-      SiPixelPI::adjustStats(st, 0.15, 0.83, 0.39, 0.93);
-      */
-
-      /*
-      canvas.cd(1);
+      myPlots.stats();
 
       auto ltx = TLatex();
       ltx.SetTextFont(62);
-      //ltx.SetTextColor(kBlue);
       ltx.SetTextSize(0.05);
       ltx.SetTextAlign(11);
-      ltx.DrawLatexNDC(gPad->GetLeftMargin(),
-                       1 - gPad->GetTopMargin() + 0.01,
-                       ("SiPixel Lorentz Angle IOV:" + std::to_string(std::get<0>(iov))).c_str());
-      */
+
+      for (unsigned int c = 1; c <= maxPads; c++) {
+        auto index = isBarrel ? c - 1 : c + 3;
+
+        canvas.cd(c);
+        ltx.DrawLatexNDC(gPad->GetLeftMargin(),
+                         1 - gPad->GetTopMargin() + 0.01,
+                         (PixelRegions::IDlabels.at(index) + ", IOV:" + std::to_string(std::get<0>(iov))).c_str());
+      }
 
       std::string fileName(m_imageFileName);
       canvas.SaveAs(fileName.c_str());
