@@ -46,9 +46,9 @@ allTags["SimLA"] = {
 }
 
 allTags["GenError"] = {
-    'T6'  : ( ','.join( [ 'SiPixelGenErrorDBObject_phase2_T6_v5_mc'  ,SiPixelGenErrorRecord,connectionString, "", "2020-03-04 23:00:00.000"] ), ),  # cell is 25um (local-x) x 100um (local-y) , VBias=350V
-    'T14' : ( ','.join( [ 'SiPixelGenErrorDBObject_phase2_T14_v5_mc' ,SiPixelGenErrorRecord,connectionString, "", "2020-03-04 23:00:00.000"] ), ),  # cell is 25um (local-x) x 100um (local-y) , VBias=350V
-    'T15' : ( ','.join( [ 'SiPixelGenErrorDBObject_phase2_T15_v5_mc' ,SiPixelGenErrorRecord,connectionString, "", "2020-03-04 23:00:00.000"] ), ),  # cell is 25um (local-x) x 100um (local-y) , VBias=350V
+    'T6'  : ( ','.join( [ 'SiPixelGenErrorDBObject_phase2_T6_v5_mc'  ,SiPixelGenErrorRecord,connectionString, "", "2020-05-02 23:00:00.000"] ), ),  # cell is 25um (local-x) x 100um (local-y) , VBias=350V
+    'T14' : ( ','.join( [ 'SiPixelGenErrorDBObject_phase2_T14_v5_mc' ,SiPixelGenErrorRecord,connectionString, "", "2020-05-02 23:00:00.000"] ), ),  # cell is 25um (local-x) x 100um (local-y) , VBias=350V
+    'T15' : ( ','.join( [ 'SiPixelGenErrorDBObject_phase2_T15_v5_mc' ,SiPixelGenErrorRecord,connectionString, "", "2020-05-02 23:00:00.000"] ), ),  # cell is 25um (local-x) x 100um (local-y) , VBias=350V
 }
 
 allTags["Template"] = {
