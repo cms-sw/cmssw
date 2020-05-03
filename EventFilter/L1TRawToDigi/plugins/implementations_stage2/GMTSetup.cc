@@ -6,6 +6,7 @@
 #include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
 
 #include "EventFilter/L1TRawToDigi/plugins/implementations_stage2/RegionalMuonGMTUnpacker.h"
+#include "EventFilter/L1TRawToDigi/plugins/implementations_stage2/MuonPacker.h"
 #include "EventFilter/L1TRawToDigi/plugins/implementations_stage2/MuonUnpacker.h"
 #include "EventFilter/L1TRawToDigi/plugins/implementations_stage2/IntermediateMuonUnpacker.h"
 
@@ -40,9 +41,13 @@ namespace l1t {
       PackerMap res;
       if (fed == 1402) {
         // Use amc_no and board id 1 for packing
+        auto gmt_out_packer =
+            static_pointer_cast<l1t::stage2::GMTMuonPacker>(PackerFactory::get()->make("stage2::GMTMuonPacker"));
+        gmt_out_packer->setFed(fed);
+        gmt_out_packer->setFwVersion(fw);
         res[{1, 1}] = {
             PackerFactory::get()->make("stage2::RegionalMuonGMTPacker"),
-            PackerFactory::get()->make("stage2::GMTMuonPacker"),
+            gmt_out_packer,
             PackerFactory::get()->make("stage2::IntermediateMuonPacker"),
         };
       }
