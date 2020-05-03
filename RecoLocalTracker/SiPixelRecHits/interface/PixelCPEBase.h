@@ -146,6 +146,8 @@ public:
     //std::cout<<" in PixelCPEBase:localParameters(all) - "<<nRecHitsTotal_<<std::endl;  //dk
 #endif
 
+    printf("det angle\n");
+
     DetParam const& theDetParam = detParam(det);
     std::unique_ptr<ClusterParam> theClusterParam = createClusterParam(cl);
     setTheClu(theDetParam, *theClusterParam);
@@ -171,6 +173,8 @@ public:
     nRecHitsTotal_++;
     //std::cout<<" in PixelCPEBase:localParameters(on track) - "<<nRecHitsTotal_<<std::endl;  //dk
 #endif
+
+    printf("track angle\n");
 
     DetParam const& theDetParam = detParam(det);
     std::unique_ptr<ClusterParam> theClusterParam = createClusterParam(cl);
