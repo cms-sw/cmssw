@@ -59,7 +59,7 @@ class MatrixInjector(object):
         self.batchTime = str(int(time.time()))
         if(opt.batchName):
             self.batchName = '__'+opt.batchName+'-'+self.batchTime
-
+        
         #wagemt stuff
         if not self.wmagent:
             self.wmagent=os.getenv('WMAGENT_REQMGR')
@@ -83,7 +83,8 @@ class MatrixInjector(object):
         self.speciallabel=''
         if opt.label:
             self.speciallabel= '_'+opt.label
-
+        self.countLongWFName = 0
+        self.longWFName = ''
 
         if not os.getenv('WMCORE_ROOT'):
             print('\n\twmclient is not setup properly. Will not be able to upload or submit requests.\n')
@@ -477,6 +478,11 @@ class MatrixInjector(object):
                     chainDict['RequestString']='RV'+chainDict['CMSSWVersion']+s[1].split('+')[0]
                     if processStrPrefix or thisLabel:
                         chainDict['RequestString']+='_'+processStrPrefix+thisLabel
+                    #check candidate WF name
+                    self.candidateWFName = self.user+'_'+chainDict['RequestString']
+                    if (len(self.candidateWFName)>81):
+                        self.countLongWFName+=1
+                        self.longWFName+=self.candidateWFName+' ('+str(len(self.candidateWFName))+' characters) \n'
 
 ### PrepID
                     chainDict['PrepID'] = chainDict['CMSSWVersion']+'__'+self.batchTime+'-'+s[1].split('+')[0]
@@ -647,6 +653,6 @@ class MatrixInjector(object):
                 workFlow=makeRequest(self.wmagent,d,encodeDict=True)
                 print("...........",n,"submitted")
                 random_sleep()
-            
-
-        
+        if self.testMode and self.countLongWFName>0:
+            print("\n*** FIX NEEDED BEFORE INJECTION: "+str(self.countLongWFName)+" candidate workflows have too long name (>81 characters) ***")
+            print(self.longWFName)
