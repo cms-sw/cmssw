@@ -171,22 +171,47 @@ void l1t::MuonRawDigiTranslator::generatePackedDataWords(const Muon& mu,
   if (abs_eta_at_vtx < 0) {
     abs_eta_at_vtx += (1 << (etaAtVtxSignShift_ - absEtaAtVtxShift_));
   }
-  raw_data_00_31 = (mu.hwPt() & ptMask_) << ptShift_ | (mu.hwQual() & qualMask_) << qualShift_ |
-                   (abs_eta_at_vtx & absEtaMask_) << absEtaAtVtxShift_ | (mu.hwEtaAtVtx() < 0) << etaAtVtxSignShift_ |
-                   (mu.hwPhiAtVtx() & phiMask_) << phiAtVtxShift_;
+  if ((fedID == 1402 && fwID < 0x4010000) || (fedID == 1404 && fwID < 0x10A6)) {
+    // For 2016 the non-extrapolated coordiantes were in the place that are now occupied by the extrapolated quantities.
+    raw_data_spare = 0;
+    raw_data_00_31 = (mu.hwPt() & ptMask_) << ptShift_ | (mu.hwQual() & qualMask_) << qualShift_ |
+                     (abs_eta & absEtaMask_) << absEtaAtVtxShift_ | (mu.hwEta() < 0) << etaAtVtxSignShift_ |
+                     (mu.hwPhi() & phiMask_) << phiAtVtxShift_;
+    raw_data_32_63 = mu.hwCharge() << chargeShift_ | mu.hwChargeValid() << chargeValidShift_ |
+                     (mu.tfMuonIndex() & tfMuonIndexMask_) << tfMuonIndexShift_ | (mu.hwIso() & isoMask_) << isoShift_;
+  } else if ((fedID == 1402 && fwID < 0x6000000) || (fedID == 1404 && fwID < 0x1120)) {
+    raw_data_spare = 0;
+    raw_data_00_31 = (mu.hwPt() & ptMask_) << ptShift_ | (mu.hwQual() & qualMask_) << qualShift_ |
+                     (abs_eta_at_vtx & absEtaMask_) << absEtaAtVtxShift_ | (mu.hwEtaAtVtx() < 0) << etaAtVtxSignShift_ |
+                     (mu.hwPhiAtVtx() & phiMask_) << phiAtVtxShift_;
 
-  raw_data_32_63 = mu.hwCharge() << chargeShift_ | mu.hwChargeValid() << chargeValidShift_ |
-                   (mu.tfMuonIndex() & tfMuonIndexMask_) << tfMuonIndexShift_ | (mu.hwIso() & isoMask_) << isoShift_ |
-                   (abs_eta & absEtaMask_) << absEtaShift_ | (mu.hwEta() < 0) << etaSignShift_ |
-                   (mu.hwPhi() & phiMask_) << phiShift_;
+    raw_data_32_63 = mu.hwCharge() << chargeShift_ | mu.hwChargeValid() << chargeValidShift_ |
+                     (mu.tfMuonIndex() & tfMuonIndexMask_) << tfMuonIndexShift_ | (mu.hwIso() & isoMask_) << isoShift_ |
+                     (abs_eta & absEtaMask_) << absEtaShift_ | (mu.hwEta() < 0) << etaSignShift_ |
+                     (mu.hwPhi() & phiMask_) << phiShift_;
+  } else {
+    int absEtaShiftRun3{0}, etaSignShiftRun3{0};
+    if (muInBx == 1) {
+      absEtaShiftRun3 = absEtaMu1Shift_;
+      etaSignShiftRun3 = etaMu1SignShift_;
+    } else if (muInBx == 2) {
+      absEtaShiftRun3 = absEtaMu2Shift_;
+      etaSignShiftRun3 = etaMu2SignShift_;
+    }
+    raw_data_spare = (abs_eta & absEtaMask_) << absEtaShiftRun3 | (mu.hwEta() < 0) << etaSignShiftRun3;
+    raw_data_00_31 = (mu.hwPt() & ptMask_) << ptShift_ | (mu.hwQual() & qualMask_) << qualShift_ |
+                     (abs_eta_at_vtx & absEtaMask_) << absEtaAtVtxShift_ | (mu.hwEtaAtVtx() < 0) << etaAtVtxSignShift_ |
+                     (mu.hwPhiAtVtx() & phiMask_) << phiAtVtxShift_;
+    raw_data_32_63 = mu.hwCharge() << chargeShift_ | mu.hwChargeValid() << chargeValidShift_ |
+                     (mu.tfMuonIndex() & tfMuonIndexMask_) << tfMuonIndexShift_ | (mu.hwIso() & isoMask_) << isoShift_ |
+                     (mu.hwPhi() & phiMask_) << phiShift_ |
+                     (mu.hwPtUnconstrained() & ptUnconstrainedMask_) << ptUnconstrainedShift_ |
+                     (mu.hwDXY() & dxyMask_) << dxyShift_;
+  }
 }
 
-void l1t::MuonRawDigiTranslator::generate64bitDataWord(const Muon& mu,
-                                                       uint32_t& raw_data_spare,
-                                                       uint64_t& dataword,
-                                                       int fedId,
-                                                       int fwId,
-                                                       int muInBx) {
+void l1t::MuonRawDigiTranslator::generate64bitDataWord(
+    const Muon& mu, uint32_t& raw_data_spare, uint64_t& dataword, int fedId, int fwId, int muInBx) {
   uint32_t lsw;
   uint32_t msw;
 
@@ -205,4 +230,3 @@ int l1t::MuonRawDigiTranslator::calcHwEta(const uint32_t& raw,
     return abs_eta;
   }
 }
-

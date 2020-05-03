@@ -8,8 +8,15 @@ namespace l1t {
   public:
     static void fillMuon(Muon&, uint32_t, uint32_t, int, unsigned int);
     static void fillMuon(Muon&, uint64_t, int, unsigned int);
-    static void generatePackedDataWords(const Muon& mu, uint32_t& raw_data_spare, uint32_t& raw_data_00_31, uint32_t& raw_data_32_63, int fedId, int fwId, int muInBx);
-    static void generate64bitDataWord(const Muon& mu, uint32_t& raw_data_spare, uint64_t& dataword, int fedId, int fwId, int muInBx);
+    static void generatePackedDataWords(const Muon& mu,
+                                        uint32_t& raw_data_spare,
+                                        uint32_t& raw_data_00_31,
+                                        uint32_t& raw_data_32_63,
+                                        int fedId,
+                                        int fwId,
+                                        int muInBx);
+    static void generate64bitDataWord(
+        const Muon& mu, uint32_t& raw_data_spare, uint64_t& dataword, int fedId, int fwId, int muInBx);
     static int calcHwEta(const uint32_t&, const unsigned, const unsigned);
 
     static constexpr unsigned ptMask_ = 0x1FF;
@@ -39,16 +46,7 @@ namespace l1t {
     static constexpr unsigned etaMu1SignShift_ = 20;  // For Run-3
     static constexpr unsigned absEtaMu2Shift_ = 21;   // For Run-3
     static constexpr unsigned etaMu2SignShift_ = 29;  // For Run-3
-
-  private:
-    static void fillMuonStableQuantities(Muon& mu, uint32_t raw_data_00_31, uint32_t raw_data_32_63);
-    static void fillMuonCoordinates2016(Muon& mu, uint32_t raw_data_00_31, uint32_t raw_data_32_63);
-    static void fillMuonCoordinatesFrom2017(Muon& mu, uint32_t raw_data_00_31, uint32_t raw_data_32_63);
-    static void fillMuonQuantitiesRun3(
-        Muon& mu, uint32_t raw_data_spare, uint32_t raw_data_00_31, uint32_t raw_data_32_63, int muInBx);
-    static void fillIntermediateMuonQuantitiesRun3(Muon& mu, uint32_t raw_data_00_31, uint32_t raw_data_32_63);
   };
 }  // namespace l1t
 
 #endif
-
