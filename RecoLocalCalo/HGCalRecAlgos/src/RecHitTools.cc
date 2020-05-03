@@ -364,6 +364,7 @@ unsigned int RecHitTools::getLayerWithOffset(const DetId& id) const {
   } else if (id.det() == DetId::Hcal && id.subdetId() == HcalEndcap) {
     layer += bhOffset_;
   }
+  // no need to add offset for HFnose
   return layer;
 }
 
@@ -420,10 +421,14 @@ bool RecHitTools::isSilicon(const DetId& id) const {
   bool issilicon = false;
   if (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi)
     issilicon = true;
+  if (id.det() == DetId::Forward && id.subdetId() == static_cast<int>(HFNose)) {
+    issilicon = true;
+  }
   return issilicon;
 }
 
 bool RecHitTools::isOnlySilicon(const unsigned int layer) const {
+  // HFnose TODO
   bool isonlysilicon = (layer % bhLastLayer_) < bhOffset_;
   return isonlysilicon;
 }
