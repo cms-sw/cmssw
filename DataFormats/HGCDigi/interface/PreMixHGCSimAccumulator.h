@@ -4,7 +4,6 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include <iostream>
 #include <vector>
-#include <cassert>
 
 class PreMixHGCSimAccumulator {
 public:
