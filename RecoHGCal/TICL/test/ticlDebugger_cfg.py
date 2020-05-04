@@ -19,6 +19,8 @@ process.source = cms.Source("PoolSource",
 
 process.load("RecoHGCal.TICL.ticlDebugger_cfi")
 process.load("SimGeneral.Debugging.caloParticleDebugger_cfi")
+process.caloParticleDebugger.printTrackingP = True
+process.caloParticleDebugger.printSimTracks = True
 
 process.p = cms.Path(process.ticlDebugger+process.caloParticleDebugger)
 
