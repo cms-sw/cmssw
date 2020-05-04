@@ -109,6 +109,10 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
                      'PostDQMOffline',
                      'DQMHarvestEcal+DQMCertEcal'],
 
+            'ecalOnly': ['DQMOfflineEcalOnly',
+                         'PostDQMOffline',
+                         'DQMHarvestEcal+DQMCertEcal'],
+
             'egamma': ['DQMOfflineEGamma',
                        'PostDQMOffline',
                        'DQMHarvestEGamma+DQMCertEGamma'],
