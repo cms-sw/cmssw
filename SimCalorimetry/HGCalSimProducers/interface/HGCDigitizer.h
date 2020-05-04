@@ -101,7 +101,6 @@ public:
   constexpr static unsigned sampleMask = 0xf;
   constexpr static unsigned dataOffset = 0;
   constexpr static unsigned dataMask = 0x7ff;
-  int event_counter;
 
 private:
   uint32_t getType() const;
