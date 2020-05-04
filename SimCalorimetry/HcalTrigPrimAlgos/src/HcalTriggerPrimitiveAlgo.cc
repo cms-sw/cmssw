@@ -789,16 +789,14 @@ bool HcalTriggerPrimitiveAlgo::needLegacyFG(const HcalTrigTowerDetId& id) const 
 }
 
 bool HcalTriggerPrimitiveAlgo::needUpgradeID(const HcalTrigTowerDetId& id, int depth) const {
-
-   // Depth 7 for TT 26, 27, and 28 is not considered a fine grain depth.
-   // However, the trigger tower for these ieta should still be added to the fgUpgradeMap_
-   // Otherwise, depth 7-only signal will not be analyzed.
-   unsigned int aieta = id.ietaAbs();
-   if (aieta >= FIRST_DEPTH7_TOWER and aieta <= LAST_FINEGRAIN_TOWER and depth > LAST_FINEGRAIN_DEPTH)
-      return true;
-   return false;
+  // Depth 7 for TT 26, 27, and 28 is not considered a fine grain depth.
+  // However, the trigger tower for these ieta should still be added to the fgUpgradeMap_
+  // Otherwise, depth 7-only signal will not be analyzed.
+  unsigned int aieta = id.ietaAbs();
+  if (aieta >= FIRST_DEPTH7_TOWER and aieta <= LAST_FINEGRAIN_TOWER and depth > LAST_FINEGRAIN_DEPTH)
+    return true;
+  return false;
 }
-
 
 void HcalTriggerPrimitiveAlgo::addUpgradeFG(const HcalTrigTowerDetId& id,
                                             int depth,
@@ -808,16 +806,15 @@ void HcalTriggerPrimitiveAlgo::addUpgradeFG(const HcalTrigTowerDetId& id,
       std::vector<bool> pseudo(bits.size(), false);
       addFG(id, pseudo);
     } else if (needUpgradeID(id, depth)) {
-
-       // If the tower id is not in the map yet
-       // then for safety's sake add it, otherwise, no need
-       // Likewise, we're here with non-fg depth 7 so the bits are not to be added
-       auto it = fgUpgradeMap_.find(id);
-       if (it == fgUpgradeMap_.end()) {
-          FGUpgradeContainer element;
-          element.resize(bits.size());
-          fgUpgradeMap_.insert(std::make_pair(id, element)).first;
-       }
+      // If the tower id is not in the map yet
+      // then for safety's sake add it, otherwise, no need
+      // Likewise, we're here with non-fg depth 7 so the bits are not to be added
+      auto it = fgUpgradeMap_.find(id);
+      if (it == fgUpgradeMap_.end()) {
+        FGUpgradeContainer element;
+        element.resize(bits.size());
+        fgUpgradeMap_.insert(std::make_pair(id, element)).first;
+      }
     }
 
     return;
