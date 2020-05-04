@@ -405,8 +405,8 @@ hgcal::association LayerClusterAssociatorByEnergyScoreImpl::makeConnections(
   // Compute the CaloParticle-To-LayerCluster score
   for (const auto& cpId : cPIndices) {
     for (unsigned int layerId = 0; layerId < layers_ * 2; ++layerId) {
-      unsigned int CPNumberOfHits = cPOnLayer[cpId][layerId].hits_and_fractions.size();
       float CPenergy = cPOnLayer[cpId][layerId].energy;
+      unsigned int CPNumberOfHits = cPOnLayer[cpId][layerId].hits_and_fractions.size();
       if (CPNumberOfHits == 0)
         continue;
 #ifdef MRDEBUG
@@ -433,7 +433,13 @@ hgcal::association LayerClusterAssociatorByEnergyScoreImpl::makeConnections(
           << CPNumberOfHits << "\t" << std::setw(18) << lcWithMaxEnergyInCP << "\t" << std::setw(15) << maxEnergyLCinCP
           << "\t" << std::setw(20) << CPEnergyFractionInLC << "\n";
 #endif
-
+      // Compute the correct normalization
+      float invCPEnergyWeight = 0.f;
+      for (auto const& haf : cPOnLayer[cpId][layerId].hits_and_fractions) {
+        invCPEnergyWeight +=
+            (haf.second * hitMap_->at(haf.first)->energy()) * (haf.second * hitMap_->at(haf.first)->energy());
+      }
+      invCPEnergyWeight = 1.f / invCPEnergyWeight;
       for (unsigned int i = 0; i < CPNumberOfHits; ++i) {
         auto& cp_hitDetId = cPOnLayer[cpId][layerId].hits_and_fractions[i].first;
         auto& cpFraction = cPOnLayer[cpId][layerId].hits_and_fractions[i].second;
@@ -447,7 +453,6 @@ hgcal::association LayerClusterAssociatorByEnergyScoreImpl::makeConnections(
         auto itcheck = hitMap_->find(cp_hitDetId);
         const HGCRecHit* hit = itcheck->second;
         float hitEnergyWeight = hit->energy() * hit->energy();
-        float invCPEnergyWeight = 1.f / (CPenergy * CPenergy);
         for (auto& lcPair : cPOnLayer[cpId][layerId].layerClusterIdToEnergyAndScore) {
           unsigned int layerClusterId = lcPair.first;
           float lcFraction = 0.f;
