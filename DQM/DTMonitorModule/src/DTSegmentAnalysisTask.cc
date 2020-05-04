@@ -10,6 +10,7 @@
 // Framework
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -26,15 +27,13 @@
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 
-
 #include <iterator>
 #include <TMath.h>
 
 using namespace edm;
 using namespace std;
 
-DTSegmentAnalysisTask::DTSegmentAnalysisTask(const edm::ParameterSet& pset)
-    : nevents(0) {
+DTSegmentAnalysisTask::DTSegmentAnalysisTask(const edm::ParameterSet& pset){
   edm::LogVerbatim("DTDQM|DTMonitorModule|DTSegmentAnalysisTask") << "[DTSegmentAnalysisTask] Constructor called!";
 
   // switch for detailed analysis
@@ -48,8 +47,6 @@ DTSegmentAnalysisTask::DTSegmentAnalysisTask(const edm::ParameterSet& pset)
 
   // top folder for the histograms in DQMStore
   topHistoFolder = pset.getUntrackedParameter<string>("topHistoFolder", "DT/02-Segments");
-  // hlt DQM mode
-  hltDQMMode = pset.getUntrackedParameter<bool>("hltDQMMode", false);
 }
 
 DTSegmentAnalysisTask::~DTSegmentAnalysisTask() {
@@ -65,11 +62,6 @@ void DTSegmentAnalysisTask::dqmBeginRun(const Run& run, const edm::EventSetup& c
 void DTSegmentAnalysisTask::bookHistograms(DQMStore::IBooker& ibooker,
                                            edm::Run const& iRun,
                                            edm::EventSetup const& context) {
-  if (!hltDQMMode) {
-    ibooker.setCurrentFolder("DT/EventInfo/Counters");
-    nEventMonitor = ibooker.bookFloat("nProcessedEventsSegment");
-  }
-
   for (int wh = -2; wh <= 2; wh++) {
     stringstream wheel;
     wheel << wh;
@@ -106,8 +98,6 @@ void DTSegmentAnalysisTask::bookHistograms(DQMStore::IBooker& ibooker,
 }
 
 void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSetup& setup) {
-  nevents++;
-  nEventMonitor->Fill(nevents);
 
   edm::LogVerbatim("DTDQM|DTMonitorModule|DTSegmentAnalysisTask")
       << "[DTSegmentAnalysisTask] Analyze #Run: " << event.id().run() << " #Event: " << event.id().event();

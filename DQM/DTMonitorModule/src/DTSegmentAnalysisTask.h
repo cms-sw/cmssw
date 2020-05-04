@@ -35,7 +35,7 @@
 
 class DTGeometry;
 
-class DTSegmentAnalysisTask : public DQMEDAnalyzer{
+class DTSegmentAnalysisTask : public DQMEDAnalyzer {
 public:
   /// Constructor
   DTSegmentAnalysisTask(const edm::ParameterSet& pset);
@@ -57,16 +57,14 @@ private:
   // Switch for detailed analysis
   bool detailedAnalysis;
 
-  // Get the DT Geometry
+ // Get the DT Geometry
   edm::ESHandle<DTGeometry> dtGeom;
 
-  // Lable of 4D segments in the event
+  // Label of 4D segments in the event
   edm::EDGetTokenT<DTRecSegment4DCollection> recHits4DToken_;
 
   // Get the map of noisy channels
   bool checkNoisyChannels;
-
-  edm::ParameterSet parameters;
 
   // book the histos
   void bookHistos(DQMStore::IBooker& ibooker, DTChamberId chamberId);
@@ -77,19 +75,13 @@ private:
   std::map<DTChamberId, std::vector<MonitorElement*> > histosPerCh;
   std::map<int, MonitorElement*> summaryHistos;
 
-  int nevents;
-  int nEventsInLS;
-
   // top folder for the histograms in DQMStore
   std::string topHistoFolder;
-  // hlt DQM mode
-  bool hltDQMMode;
   // max phi angle of reconstructed segments
   double phiSegmCut;
   // min # hits of segment used to validate a segment in WB+-2/SecX/MB1
   int nhitsCut;
 
-  MonitorElement* nEventMonitor;
 };
 #endif
 
