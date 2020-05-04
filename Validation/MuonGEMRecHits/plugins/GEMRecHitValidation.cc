@@ -36,9 +36,9 @@ void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
 
         const auto &superChamberVec = station->superChambers();
         if (superChamberVec.empty() || superChamberVec[0] == nullptr) {
-          edm::LogError(kLogCategory_) << "Super chambers missing or null.";
+          edm::LogError(kLogCategory_) << "Super chambers missing or null for region = " << region_id
+            << " and station = " << station_id;
         } else {
-          // for (const auto& chamber : station->superChambers()[0]->chambers()) 
           for (const auto& chamber : superChamberVec[0]->chambers()) {
             Int_t layer_id = chamber->id().layer();
             ME3IdsKey key3{region_id, station_id, layer_id};
