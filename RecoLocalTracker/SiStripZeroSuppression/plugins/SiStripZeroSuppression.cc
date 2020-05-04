@@ -62,9 +62,13 @@ SiStripZeroSuppression::SiStripZeroSuppression(edm::ParameterSet const& conf)
     throw cms::Exception("Invalid option") << "When producing data in the hybrid format, the APV restorer must be "
                                               "configured with APVInspectMode='HybridEmulation'";
 
+  if ((!hybridInputs.empty()) && produceRawDigis) {
+    edm::LogWarning("SiStripZeroSuppression") << "Raw digis will not be saved for hybrid inputs";
+  }
+
   if (!(rawInputs.empty() && hybridInputs.empty())) {
     output_base.reserve(16000);
-    if (produceRawDigis)
+    if (produceRawDigis && !rawInputs.empty())
       output_base_raw.reserve(16000);
     if (storeCM)
       output_apvcm.reserve(16000);
@@ -106,7 +110,7 @@ inline void SiStripZeroSuppression::clearOutputs() {
 }
 inline void SiStripZeroSuppression::putOutputs(edm::Event& evt, const std::string& tagName) {
   evt.put(std::make_unique<edm::DetSetVector<SiStripDigi>>(output_base), tagName);
-  if (produceRawDigis)
+  if (produceRawDigis && !rawInputs.empty())
     evt.put(std::make_unique<edm::DetSetVector<SiStripRawDigi>>(output_base_raw), tagName);
   if (produceCalculatedBaseline)
     evt.put(std::make_unique<edm::DetSetVector<SiStripProcessedRawDigi>>(output_baseline), "BADAPVBASELINE" + tagName);
@@ -147,22 +151,16 @@ inline void SiStripZeroSuppression::processHybrid(const edm::DetSetVector<SiStri
   for (const auto& inDigis : input) {
     edm::DetSet<SiStripDigi> suppressedDigis(inDigis.id);
 
-    std::vector<int16_t> rawDigis;
     uint16_t nAPVflagged = 0;
     if (fasterHybridZS) {
       nAPVflagged = algorithms->suppressHybridData_faster(inDigis, suppressedDigis);
     } else {
-      nAPVflagged = algorithms->suppressHybridData(inDigis, suppressedDigis, rawDigis);
+      nAPVflagged = algorithms->suppressHybridData(inDigis, suppressedDigis);
     }
 
     storeExtraOutput(inDigis.id, nAPVflagged);
     if (!suppressedDigis.empty())
       output_base.push_back(std::move(suppressedDigis));
-
-    // TODO implement full raw output with fasterHybridZS (if needed)
-    if (produceRawDigis && nAPVflagged > 0 && (!fasterHybridZS)) {
-      output_base_raw.push_back(formatRawDigis(inDigis.id, rawDigis));
-    }
   }
 }
 
