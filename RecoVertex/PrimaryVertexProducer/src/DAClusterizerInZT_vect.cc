@@ -366,7 +366,7 @@ double DAClusterizerInZT_vect::update(double beta, track_t& gtracks, vertex_t& g
 
   // define kernels
 
-  auto kernel_calc_exp_arg_range = [beta, nv](const unsigned int itrack,
+  auto kernel_calc_exp_arg_range = [beta](const unsigned int itrack,
                                               track_t const& tracks,
                                               vertex_t const& vertices,
                                               const unsigned int kmin,
@@ -389,7 +389,7 @@ double DAClusterizerInZT_vect::update(double beta, track_t& gtracks, vertex_t& g
     }
   };
 
-  auto kernel_add_Z_range = [nv, Z_init](
+  auto kernel_add_Z_range = [Z_init](
                                 vertex_t const& vertices, const unsigned int kmin, const unsigned int kmax) -> double {
     double ZTemp = Z_init;
     for (unsigned int ivertex = kmin; ivertex < kmax; ++ivertex) {
@@ -398,7 +398,7 @@ double DAClusterizerInZT_vect::update(double beta, track_t& gtracks, vertex_t& g
     return ZTemp;
   };
 
-  auto kernel_calc_normalization_range = [beta, nv](const unsigned int track_num,
+  auto kernel_calc_normalization_range = [beta](const unsigned int track_num,
                                                     track_t& tks_vec,
                                                     vertex_t& y_vec,
                                                     const unsigned int kmin,
