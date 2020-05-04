@@ -619,7 +619,7 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau, const reco::Gsf
       float phi = thePFTau.phi();
       bool success = false;
       reco::Candidate::Point aPos = positionAtECalEntrance_(signalCand, success);
-      if ( success ) {
+      if (success) {
         phi = aPos.Phi();
       }
       sumPhiTimesEnergy += phi * signalCand->energy();
@@ -836,7 +836,7 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau) {
       float phi = thePFTau.phi();
       bool success = false;
       reco::Candidate::Point aPos = positionAtECalEntrance_(signalCand, success);
-      if ( success ) {
+      if (success) {
         phi = aPos.Phi();
       }
       sumPhiTimesEnergy += phi * signalCand->energy();
@@ -980,7 +980,7 @@ double AntiElectronIDMVA6::MVAValue(const pat::Tau& theTau, const pat::Electron&
       float phi = theTau.phi();
       bool success = false;
       reco::Candidate::Point aPos = positionAtECalEntrance_(signalCand, success);
-      if ( success ) {
+      if (success) {
         phi = aPos.Phi();
       }
       sumPhiTimesEnergy += phi * signalCand->energy();
@@ -1173,7 +1173,7 @@ double AntiElectronIDMVA6::MVAValue(const pat::Tau& theTau) {
       float phi = theTau.phi();
       bool success = false;
       reco::Candidate::Point aPos = positionAtECalEntrance_(signalCand, success);
-      if ( success ) {
+      if (success) {
         phi = aPos.Phi();
       }
       sumPhiTimesEnergy += phi * signalCand->energy();

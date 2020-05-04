@@ -27,9 +27,8 @@
 #include <vector>
 #include <string>
 
-class AntiElectronDeadECAL
-{
- public:
+class AntiElectronDeadECAL {
+public:
   explicit AntiElectronDeadECAL(const edm::ParameterSet&);
   ~AntiElectronDeadECAL();
 
@@ -37,7 +36,7 @@ class AntiElectronDeadECAL
 
   bool operator()(const reco::Candidate* tau) const;
 
- private:
+private:
   unsigned minStatus_;
   double dR_;
   int verbosity_;
@@ -47,15 +46,9 @@ class AntiElectronDeadECAL
 
   void updateBadTowers(const edm::EventSetup&);
 
-  struct towerInfo
-  {
+  struct towerInfo {
     towerInfo(uint32_t id, unsigned nBad, unsigned maxStatus, double eta, double phi)
-      : id_(id),
-	nBad_(nBad),
-	maxStatus_(maxStatus),
-	eta_(eta),
-	phi_(phi)
-    {}
+        : id_(id), nBad_(nBad), maxStatus_(maxStatus), eta_(eta), phi_(phi) {}
     uint32_t id_;
     unsigned nBad_;
     unsigned maxStatus_;
@@ -73,4 +66,4 @@ class AntiElectronDeadECAL
   bool isFirstEvent_;
 };
 
-#endif // RecoTauTag_RecoTau_AntiElectronDeadECAL_h
+#endif  // RecoTauTag_RecoTau_AntiElectronDeadECAL_h
