@@ -221,7 +221,7 @@ namespace {
               } else if (p_time == hitRefs_bx0[detId].back().second) {
                 hitRefs_bx0[detId].back().first += p_charge;
               } else if (p_time > hitRefs_bx0[detId].back().second) {
-                hitRefs_bx0[detId].emplace_back(std::make_pair(hitRefs_bx0[detId].back().first + p_charge, p_time));
+                hitRefs_bx0[detId].emplace_back(hitRefs_bx0[detId].back().first + p_charge, p_time);
               }
             }
           }
