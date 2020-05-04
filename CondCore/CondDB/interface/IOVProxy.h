@@ -111,6 +111,8 @@ namespace cond {
                            const cond::Time_t& end,
                            const boost::posix_time::ptime& snapshottime);
 
+      bool selectRange(const cond::Time_t& begin, const cond::Time_t& end, IOVContainer& destination);
+
       cond::Tag_t tagInfo() const;
 
       cond::TagInfo_t iovSequenceInfo() const;

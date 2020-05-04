@@ -178,7 +178,7 @@ namespace cond {
     IOVArray IOVProxy::selectAll(const boost::posix_time::ptime& snapshottime) {
       if (!m_data.get())
         throwException("No tag has been loaded.", "IOVProxy::selectAll");
-      checkTransaction("IOVProxy::load");
+      checkTransaction("IOVProxy::selectAll");
       IOVArray ret;
       ret.m_tagInfo = m_data->tagInfo;
       m_session->iovSchema().iovTable().select(
@@ -197,15 +197,25 @@ namespace cond {
       if (!m_data.get())
         throwException("No tag has been loaded.", "IOVProxy::selectRange");
 
-      // clear
-      reset();
-
-      checkTransaction("IOVProxy::loadRange");
+      checkTransaction("IOVProxy::selectRange");
 
       IOVArray ret;
       ret.m_tagInfo = m_data->tagInfo;
       m_session->iovSchema().iovTable().getRange(m_data->tagInfo.name, begin, end, snapshotTime, *ret.m_array);
       return ret;
+    }
+
+    bool IOVProxy::selectRange(const cond::Time_t& begin, const cond::Time_t& end, IOVContainer& destination) {
+      if (!m_data.get())
+        throwException("No tag has been loaded.", "IOVProxy::selectRange");
+
+      checkTransaction("IOVProxy::selectRange");
+
+      boost::posix_time::ptime no_time;
+      size_t prevSize = destination.size();
+      m_session->iovSchema().iovTable().getRange(m_data->tagInfo.name, begin, end, no_time, destination);
+      size_t niov = destination.size() - prevSize;
+      return niov > 0;
     }
 
     //void IOVProxy::reload(){

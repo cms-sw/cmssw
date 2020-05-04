@@ -66,28 +66,6 @@ namespace cond {
 
     std::string PlotBase::data() const { return m_data; }
 
-    /**
-    bool PlotBase::process(const std::string& connectionString, const boost::python::list& tagsWithTimeBoundaries) {
-      size_t nt = boost::python::len(tagsWithTimeBoundaries);
-      bool ret = false;
-      if (nt) {
-	std::vector<std::tuple<std::string,cond::Time_t,cond::Time_t > > tags;
-	tags.resize( nt );
-	for ( size_t i=0; i<nt; i++ ) {
-          boost::python::tuple tag = boost::python::extract<boost::python::tuple>(tagsWithTimeBoundaries[i]);
-          std::string tagName = boost::python::extract<std::string>(tag[0]);
-	  std::string time0s = boost::python::extract<std::string>(tag[1]);
-	  std::string time1s = boost::python::extract<std::string>(tag[2]);
-          cond::Time_t time0 = boost::lexical_cast<cond::Time_t>(time0s);
-          cond::Time_t time1 = boost::lexical_cast<cond::Time_t>(time1s);
-	  tags[i] = std::make_tuple( tagName, time0, time1 );
-	}
-	ret = exec_process( connectionString, tags );
-      }
-      return ret;
-    }
-    **/
-
     bool PlotBase::process(const std::string& connectionString, const boost::python::list& tagsWithTimeBoundaries) {
       size_t nt = boost::python::len(tagsWithTimeBoundaries);
       bool ret = false;
@@ -139,7 +117,9 @@ namespace cond {
           cond::Time_t time1 = std::get<2>(tagsWithTimeBoundaries[i]);
           m_tagNames[i] = tagName;
           m_tagBoundaries[i] = std::make_pair(time0, time1);
-          m_dbSession.getIovRange(tagName, time0, time1, m_tagIovs[i]);
+          auto proxy = m_dbSession.readIov(tagName);
+          proxy.selectRange(time0, time1, m_tagIovs[i]);
+          //m_dbSession.getIovRange(tagName, time0, time1, m_tagIovs[i]);
         }
         m_data = processData();
         m_dbSession.transaction().commit();
