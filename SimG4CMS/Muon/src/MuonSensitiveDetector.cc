@@ -246,7 +246,7 @@ void MuonSensitiveDetector::createHit(const G4Step* aStep) {
     sss += " POST PROCESS: " + p->GetProcessName();
   if (p2)
     sss += ";  PRE  PROCESS: " + p2->GetProcessName();
-  if ("" != sss)
+  if (!sss.empty())
     edm::LogVerbatim("MuonSim") << sss;
   edm::LogVerbatim("MuonSim") << " theta= " << theThetaAtEntry << " phi= " << thePhiAtEntry << " Pabs(GeV/c)  "
                                    << thePabs << " Eloss(GeV)= " << theEnergyLoss << " Tof(ns)=  " << theTof
@@ -288,7 +288,7 @@ void MuonSensitiveDetector::updateHit(const G4Step* aStep) {
     sss += " POST PROCESS: " + p->GetProcessName();
   if (p2)
     sss += ";  PRE  PROCESS: " + p2->GetProcessName();
-  if ("" != sss)
+  if (!sss.empty())
     edm::LogVerbatim("MuonSim") << sss;
   edm::LogVerbatim("MuonSim") << " delEloss(GeV)= " << theEnergyLoss << " Tof(ns)=  " << aStep->GetPreStepPoint()->GetGlobalTime() / CLHEP::nanosecond << " trackID= " << theTrackID << " detID= " << theDetUnitId << " exit " << theExitPoint;
 #endif
