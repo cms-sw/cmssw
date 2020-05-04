@@ -27,7 +27,6 @@
 #include "TProfile.h"
 
 // user include files
-#include "FWCore/Framework/interface/OutputModule.h"
 #include "FWCore/Framework/interface/one/OutputModule.h"
 #include "FWCore/Framework/interface/RunForOutput.h"
 #include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
@@ -565,7 +564,7 @@ void DQMRootOutputModule::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.addOptionalUntracked<int>("splitLevel", 99)
       ->setComment("UNUSED Only here to allow older configurations written for PoolOutputModule to work.");
   const std::vector<std::string> keep = {"drop *", "keep DQMToken_*_*_*"};
-  edm::OutputModule::fillDescription(desc, keep);
+  edm::one::OutputModule<>::fillDescription(desc, keep);
 
   edm::ParameterSetDescription dataSet;
   dataSet.setAllowAnything();

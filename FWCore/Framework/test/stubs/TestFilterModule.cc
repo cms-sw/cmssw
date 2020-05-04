@@ -2,7 +2,6 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/one/EDFilter.h"
 #include "FWCore/Framework/interface/one/OutputModule.h"
-#include "FWCore/Framework/interface/OutputModule.h"
 #include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -199,7 +198,7 @@ namespace edmtest {
     desc.setComment("Tracks number of times the write method is called.");
     desc.add<std::string>("name")->setComment("name used in printout");
     desc.add<int>("shouldPass")->setComment("number of times write should be called");
-    edm::OutputModule::fillDescription(desc, std::vector<std::string>(1U, std::string("drop *")));
+    edm::one::OutputModule<>::fillDescription(desc, std::vector<std::string>(1U, std::string("drop *")));
     descriptions.add("sewerModule", desc);
   }
 

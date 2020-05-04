@@ -9,7 +9,6 @@
 namespace edm {
   class ActivityRegistry;
   class MergeableRunProductMetadata;
-  class OutputModule;
   class ThinnedAssociationsHelper;
 
   namespace one {
@@ -23,7 +22,6 @@ namespace edm {
   }
   namespace impl {
     std::unique_ptr<edm::OutputModuleCommunicator> createCommunicatorIfNeeded(void*);
-    std::unique_ptr<edm::OutputModuleCommunicator> createCommunicatorIfNeeded(::edm::OutputModule*);
     std::unique_ptr<edm::OutputModuleCommunicator> createCommunicatorIfNeeded(::edm::one::OutputModuleBase*);
     std::unique_ptr<edm::OutputModuleCommunicator> createCommunicatorIfNeeded(::edm::global::OutputModuleBase*);
     std::unique_ptr<edm::OutputModuleCommunicator> createCommunicatorIfNeeded(::edm::limited::OutputModuleBase*);
