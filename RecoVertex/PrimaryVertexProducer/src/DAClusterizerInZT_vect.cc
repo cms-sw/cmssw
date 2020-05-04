@@ -367,10 +367,10 @@ double DAClusterizerInZT_vect::update(double beta, track_t& gtracks, vertex_t& g
   // define kernels
 
   auto kernel_calc_exp_arg_range = [beta](const unsigned int itrack,
-                                              track_t const& tracks,
-                                              vertex_t const& vertices,
-                                              const unsigned int kmin,
-                                              const unsigned int kmax) {
+                                          track_t const& tracks,
+                                          vertex_t const& vertices,
+                                          const unsigned int kmin,
+                                          const unsigned int kmax) {
     const auto track_z = tracks._z[itrack];
     const auto track_t = tracks._t[itrack];
     const auto botrack_dz2 = -beta * tracks._dz2[itrack];
@@ -399,10 +399,10 @@ double DAClusterizerInZT_vect::update(double beta, track_t& gtracks, vertex_t& g
   };
 
   auto kernel_calc_normalization_range = [beta](const unsigned int track_num,
-                                                    track_t& tks_vec,
-                                                    vertex_t& y_vec,
-                                                    const unsigned int kmin,
-                                                    const unsigned int kmax) {
+                                                track_t& tks_vec,
+                                                vertex_t& y_vec,
+                                                const unsigned int kmin,
+                                                const unsigned int kmax) {
     auto tmp_trk_pi = tks_vec._pi[track_num];
     auto o_trk_Z_sum = 1. / tks_vec._Z_sum[track_num];
     auto o_trk_err_z = tks_vec._dz2[track_num];
