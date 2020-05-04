@@ -57,8 +57,8 @@ public:
       //std::cout<<chargeArray_[0]<<"\t"<<sampleOffset<<std::endl;
       return (chargeArray_[0] >> sampleOffset) & sampleMask;
     }
-    std::vector<unsigned short> chargeArray() const { return chargeArray_; }
-    std::vector<unsigned short> timeArray() const { return timeArray_; }
+    const std::vector<unsigned short>& chargeArray() const { return chargeArray_; }
+    const std::vector<unsigned short>& timeArray() const { return timeArray_; }
 
   private:
     unsigned int nhits_;
