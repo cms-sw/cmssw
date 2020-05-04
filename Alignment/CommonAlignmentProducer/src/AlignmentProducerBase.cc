@@ -25,7 +25,7 @@
 
 #include "Geometry/CSCGeometryBuilder/src/CSCGeometryBuilderFromDDD.h"
 #include "Geometry/DTGeometryBuilder/src/DTGeometryBuilderFromDDD.h"
-#include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
@@ -428,8 +428,8 @@ void AlignmentProducerBase::createGeometries(const edm::EventSetup& iSetup, cons
   if (doMuon_) {
     edm::ESTransientHandle<DDCompactView> cpv;
     iSetup.get<IdealGeometryRecord>().get(cpv);
-    edm::ESHandle<MuonDDDConstants> mdc;
-    iSetup.get<MuonNumberingRecord>().get(mdc);
+    edm::ESHandle<MuonGeometryConstants> mdc;
+    iSetup.get<IdealGeometryRecord>().get(mdc);
     DTGeometryBuilderFromDDD DTGeometryBuilder;
     CSCGeometryBuilderFromDDD CSCGeometryBuilder;
     muonDTGeometry_ = std::make_shared<DTGeometry>();

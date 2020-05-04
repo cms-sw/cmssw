@@ -18,11 +18,11 @@
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 
 class MuonBaseNumber;
-class MuonDDDConstants;
+class MuonGeometryConstants;
 
 class MuonDDDNumbering {
 public:
-  MuonDDDNumbering(const MuonDDDConstants& muonConstants);
+  MuonDDDNumbering(const MuonGeometryConstants& muonConstants);
   ~MuonDDDNumbering(){};
 
   MuonBaseNumber geoHistoryToBaseNumber(const DDGeoHistory& history);
