@@ -4,7 +4,7 @@
 #include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#define LOCAL_DEBUG
+//#define LOCAL_DEBUG
 
 CSCNumberingScheme::CSCNumberingScheme(const MuonGeometryConstants& muonConstants) { initMe(muonConstants); }
 
