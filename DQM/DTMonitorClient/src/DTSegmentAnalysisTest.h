@@ -54,7 +54,6 @@ public:
   /// Perform client diagnostic operations
   void performClientDiagnostic(DQMStore::IGetter &);
 
-
 protected:
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
   void dqmEndLuminosityBlock(DQMStore::IBooker &,
@@ -62,7 +61,7 @@ protected:
                              edm::LuminosityBlock const &,
                              edm::EventSetup const &) override;
 
-  void dqmBeginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const&);
+  void dqmBeginLuminosityBlock(edm::LuminosityBlock const &lumiSeg, edm::EventSetup const &);
 
 private:
   int nLSs;

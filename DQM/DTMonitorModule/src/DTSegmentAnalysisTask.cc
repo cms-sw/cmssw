@@ -33,7 +33,7 @@
 using namespace edm;
 using namespace std;
 
-DTSegmentAnalysisTask::DTSegmentAnalysisTask(const edm::ParameterSet& pset){
+DTSegmentAnalysisTask::DTSegmentAnalysisTask(const edm::ParameterSet& pset) {
   edm::LogVerbatim("DTDQM|DTMonitorModule|DTSegmentAnalysisTask") << "[DTSegmentAnalysisTask] Constructor called!";
 
   // switch for detailed analysis
@@ -98,7 +98,6 @@ void DTSegmentAnalysisTask::bookHistograms(DQMStore::IBooker& ibooker,
 }
 
 void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSetup& setup) {
-
   edm::LogVerbatim("DTDQM|DTMonitorModule|DTSegmentAnalysisTask")
       << "[DTSegmentAnalysisTask] Analyze #Run: " << event.id().run() << " #Event: " << event.id().event();
   if (!(event.id().event() % 1000))

@@ -25,7 +25,8 @@ using namespace std;
 using namespace edm;
 
 DTDataIntegrityUrosOffline::DTDataIntegrityUrosOffline(const edm::ParameterSet& ps) : nevents(0) {
-  LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityUrosOffline") << "[DTDataIntegrityUrosOffline]: Constructor" << endl;
+  LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityUrosOffline")
+      << "[DTDataIntegrityUrosOffline]: Constructor" << endl;
 
   fedToken = consumes<DTuROSFEDDataCollection>(ps.getParameter<InputTag>("dtFEDlabel"));
   FEDIDmin = FEDNumbering::MINDTUROSFEDID;
@@ -35,7 +36,6 @@ DTDataIntegrityUrosOffline::DTDataIntegrityUrosOffline(const edm::ParameterSet& 
   neventsuROS = 0;
 
   fedIntegrityFolder = ps.getUntrackedParameter<string>("fedIntegrityFolder", "DT/FEDIntegrity");
-
 }
 
 DTDataIntegrityUrosOffline::~DTDataIntegrityUrosOffline() {
@@ -55,9 +55,10 @@ DTDataIntegrityUrosOffline::~DTDataIntegrityUrosOffline() {
 */
 
 void DTDataIntegrityUrosOffline::bookHistograms(DQMStore::IBooker& ibooker,
-                                         edm::Run const& iRun,
-                                         edm::EventSetup const& iSetup) {
-  LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityUrosOffline") << "[DTDataIntegrityUrosOffline]: postBeginJob" << endl;
+                                                edm::Run const& iRun,
+                                                edm::EventSetup const& iSetup) {
+  LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityUrosOffline")
+      << "[DTDataIntegrityUrosOffline]: postBeginJob" << endl;
 
   LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityUrosOffline")
       << "[DTDataIntegrityUrosOffline] Get DQMStore service" << endl;
@@ -70,24 +71,24 @@ void DTDataIntegrityUrosOffline::bookHistograms(DQMStore::IBooker& ibooker,
   // book FED integrity histos
   bookHistos(ibooker, FEDIDmin, FEDIDmax);
 
-    // static booking of the histograms
+  // static booking of the histograms
 
-      for (int fed = FEDIDmin; fed <= FEDIDmax; ++fed) {  // loop over the FEDs in the readout
+  for (int fed = FEDIDmin; fed <= FEDIDmax; ++fed) {  // loop over the FEDs in the readout
 
-        bookHistos(ibooker, string("FED"), fed);
+    bookHistos(ibooker, string("FED"), fed);
 
-        bookHistos(ibooker, string("CRATE"), fed);
+    bookHistos(ibooker, string("CRATE"), fed);
 
-        for (int uRos = 1; uRos <= NuROS; ++uRos) {  // loop over all ROS
-          bookHistosuROS(ibooker, fed, uRos);
-        }
-      }
+    for (int uRos = 1; uRos <= NuROS; ++uRos) {  // loop over all ROS
+      bookHistosuROS(ibooker, fed, uRos);
+    }
+  }
 
-      for (int wheel = -2; wheel < 3; ++wheel) {
-        for (int ros = 1; ros <= NuROS; ++ros) {  // loop over all ROS
-          bookHistosROS(ibooker, wheel, ros);
-        }
-      }
+  for (int wheel = -2; wheel < 3; ++wheel) {
+    for (int ros = 1; ros <= NuROS; ++ros) {  // loop over all ROS
+      bookHistosROS(ibooker, wheel, ros);
+    }
+  }
 }
 
 void DTDataIntegrityUrosOffline::bookHistos(DQMStore::IBooker& ibooker, const int fedMin, const int fedMax) {
@@ -101,45 +102,45 @@ void DTDataIntegrityUrosOffline::bookHistos(DQMStore::IBooker& ibooker, const in
 
   hFEDEntry = ibooker.book1D("FEDEntries", "# entries per DT FED", nFED, fedMin, fedMax + 1);
 
-    string histoType = "ROSSummary";
-    for (int wheel = -2; wheel < 3; ++wheel) {
-      string wheel_s = to_string(wheel);
-      string histoName = "ROSSummary_W" + wheel_s;
-      string fed_s = to_string(FEDIDmin + 1);  //3 FEDs from 2018 onwards
-      if (wheel < 0)
-        fed_s = to_string(FEDIDmin);
-      else if (wheel > 0)
-        fed_s = to_string(FEDIDmax);
-      string histoTitle = "Summary Wheel" + wheel_s + " (FED " + fed_s + ")";
+  string histoType = "ROSSummary";
+  for (int wheel = -2; wheel < 3; ++wheel) {
+    string wheel_s = to_string(wheel);
+    string histoName = "ROSSummary_W" + wheel_s;
+    string fed_s = to_string(FEDIDmin + 1);  //3 FEDs from 2018 onwards
+    if (wheel < 0)
+      fed_s = to_string(FEDIDmin);
+    else if (wheel > 0)
+      fed_s = to_string(FEDIDmax);
+    string histoTitle = "Summary Wheel" + wheel_s + " (FED " + fed_s + ")";
 
-      ((summaryHistos[histoType])[wheel]) = ibooker.book2D(histoName, histoTitle, 11, 0, 11, 12, 1, 13);
-      MonitorElement* histo = ((summaryHistos[histoType])[wheel]);
-      histo->setBinLabel(1, "Error 1", 1);
-      histo->setBinLabel(2, "Error 2", 1);
-      histo->setBinLabel(3, "Error 3", 1);
-      histo->setBinLabel(4, "Error 4", 1);
-      histo->setBinLabel(5, "Not OKflag", 1);
-      // TDC error bins
-      histo->setBinLabel(6, "TDC Fatal", 1);
-      histo->setBinLabel(7, "TDC RO FIFO ov.", 1);
-      histo->setBinLabel(8, "TDC L1 buf. ov.", 1);
-      histo->setBinLabel(9, "TDC L1A FIFO ov.", 1);
-      histo->setBinLabel(10, "TDC hit err.", 1);
-      histo->setBinLabel(11, "TDC hit rej.", 1);
+    ((summaryHistos[histoType])[wheel]) = ibooker.book2D(histoName, histoTitle, 11, 0, 11, 12, 1, 13);
+    MonitorElement* histo = ((summaryHistos[histoType])[wheel]);
+    histo->setBinLabel(1, "Error 1", 1);
+    histo->setBinLabel(2, "Error 2", 1);
+    histo->setBinLabel(3, "Error 3", 1);
+    histo->setBinLabel(4, "Error 4", 1);
+    histo->setBinLabel(5, "Not OKflag", 1);
+    // TDC error bins
+    histo->setBinLabel(6, "TDC Fatal", 1);
+    histo->setBinLabel(7, "TDC RO FIFO ov.", 1);
+    histo->setBinLabel(8, "TDC L1 buf. ov.", 1);
+    histo->setBinLabel(9, "TDC L1A FIFO ov.", 1);
+    histo->setBinLabel(10, "TDC hit err.", 1);
+    histo->setBinLabel(11, "TDC hit rej.", 1);
 
-      histo->setBinLabel(1, "ROS1", 2);
-      histo->setBinLabel(2, "ROS2", 2);
-      histo->setBinLabel(3, "ROS3", 2);
-      histo->setBinLabel(4, "ROS4", 2);
-      histo->setBinLabel(5, "ROS5", 2);
-      histo->setBinLabel(6, "ROS6", 2);
-      histo->setBinLabel(7, "ROS7", 2);
-      histo->setBinLabel(8, "ROS8", 2);
-      histo->setBinLabel(9, "ROS9", 2);
-      histo->setBinLabel(10, "ROS10", 2);
-      histo->setBinLabel(11, "ROS11", 2);
-      histo->setBinLabel(12, "ROS12", 2);
-    }
+    histo->setBinLabel(1, "ROS1", 2);
+    histo->setBinLabel(2, "ROS2", 2);
+    histo->setBinLabel(3, "ROS3", 2);
+    histo->setBinLabel(4, "ROS4", 2);
+    histo->setBinLabel(5, "ROS5", 2);
+    histo->setBinLabel(6, "ROS6", 2);
+    histo->setBinLabel(7, "ROS7", 2);
+    histo->setBinLabel(8, "ROS8", 2);
+    histo->setBinLabel(9, "ROS9", 2);
+    histo->setBinLabel(10, "ROS10", 2);
+    histo->setBinLabel(11, "ROS11", 2);
+    histo->setBinLabel(12, "ROS12", 2);
+  }
 }
 
 void DTDataIntegrityUrosOffline::bookHistos(DQMStore::IBooker& ibooker, string folder, const int fed) {
@@ -196,7 +197,6 @@ void DTDataIntegrityUrosOffline::bookHistos(DQMStore::IBooker& ibooker, string f
     histo->setBinLabel(10, "uROS 10", 2);
     histo->setBinLabel(11, "uROS 11", 2);
     histo->setBinLabel(12, "uROS 12", 2);
-
   }
 
   // uROS Histograms
@@ -276,7 +276,7 @@ void DTDataIntegrityUrosOffline::bookHistosuROS(DQMStore::IBooker& ibooker, cons
 }
 
 void DTDataIntegrityUrosOffline::processuROS(DTuROSROSData& data, int fed, int uRos) {
-  neventsuROS++; 
+  neventsuROS++;
 
   LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityUrosOffline")
       << "[DTDataIntegrityUrosOffline]: " << neventsuROS << " events analyzed by processuROS" << endl;
@@ -309,68 +309,68 @@ void DTDataIntegrityUrosOffline::processuROS(DTuROSROSData& data, int fed, int u
 
   int errorX[5][12] = {{0}};  //5th is notOK flag
 
-    if (uRos > 2) {  //sectors 1-12
+  if (uRos > 2) {  //sectors 1-12
 
-      uROSError0 = urosHistos[(uROSError)*1000 + (wheel + 2) * 100 + (ros - 1)];  //links 0-23
-      uROSError1 = urosHistos[(uROSError)*1000 + (wheel + 2) * 100 + (ros)];      //links 24-47
-      uROSError2 = urosHistos[(uROSError)*1000 + (wheel + 2) * 100 + (ros + 1)];  //links 48-71
+    uROSError0 = urosHistos[(uROSError)*1000 + (wheel + 2) * 100 + (ros - 1)];  //links 0-23
+    uROSError1 = urosHistos[(uROSError)*1000 + (wheel + 2) * 100 + (ros)];      //links 24-47
+    uROSError2 = urosHistos[(uROSError)*1000 + (wheel + 2) * 100 + (ros + 1)];  //links 48-71
 
-      if ((!uROSError2) || (!uROSError1) || (!uROSError0)) {
-        LogError("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityUrosOffline")
-            << "Trying to access non existing ME at uROS " << uRos << std::endl;
-        return;
-      }
+    if ((!uROSError2) || (!uROSError1) || (!uROSError0)) {
+      LogError("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityUrosOffline")
+          << "Trying to access non existing ME at uROS " << uRos << std::endl;
+      return;
+    }
 
-      // uROS errors
-      for (unsigned int link = 0; link < 72; ++link) {
-        for (unsigned int flag = 0; flag < 5; ++flag) {
-          if ((data.getokxflag(link) >> flag) & 0x1) {  // Undefined Flag 1-4 64bits word for each MTP (12 channels)
-            int value = flag;
-            if (flag == 0)
-              value = 5;  //move it to the 5th bin
+    // uROS errors
+    for (unsigned int link = 0; link < 72; ++link) {
+      for (unsigned int flag = 0; flag < 5; ++flag) {
+        if ((data.getokxflag(link) >> flag) & 0x1) {  // Undefined Flag 1-4 64bits word for each MTP (12 channels)
+          int value = flag;
+          if (flag == 0)
+            value = 5;  //move it to the 5th bin
 
-            if (value > 0) {
-              if (link < 24) {
-                errorX[value - 1][ros - 1] += 1;
-                uROSError0->Fill(value - 1, link);  //bins start at 0 despite labelin
-              } else if (link < 48) {
-                errorX[value - 1][ros] += 1;
-                uROSError1->Fill(value - 1, link - 23);
-              } else if (link < 72) {
-                errorX[value - 1][ros + 1] += 1;
-                uROSError2->Fill(value - 1, link - 47);
-              }
-            }  //value>0
-          }    //flag value
-        }      //loop on flags
-      }        //loop on links
-    }          //uROS>2
-
-    else {  //uRos<3
-
-      for (unsigned int link = 0; link < 12; ++link) {
-        for (unsigned int flag = 0; flag < 5; ++flag) {
-          if ((data.getokxflag(link) >> flag) & 0x1) {  // Undefined Flag 1-4 64bits word for each MTP (12 channels)
-            int value = flag;
-            int sc = 24;
-            if (flag == 0)
-              value = 5;  //move it to the 5th bin
-
-            if (value > 0) {
-              unsigned int keyHisto = (uROSError)*1000 + (wheel + 2) * 100 + link;  //ros -1 = link in this case
-              uROSError0 = urosHistos[keyHisto];
-              if (!uROSError0) {
-                LogError("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityUrosOffline")
-                    << "Trying to access non existing ME at uROS " << uRos << std::endl;
-                return;
-              }
-              errorX[value - 1][link] += 1;     // ros-1=link in this case
-              uROSError0->Fill(value - 1, sc);  //bins start at 0 despite labeling, this is the old SC
+          if (value > 0) {
+            if (link < 24) {
+              errorX[value - 1][ros - 1] += 1;
+              uROSError0->Fill(value - 1, link);  //bins start at 0 despite labelin
+            } else if (link < 48) {
+              errorX[value - 1][ros] += 1;
+              uROSError1->Fill(value - 1, link - 23);
+            } else if (link < 72) {
+              errorX[value - 1][ros + 1] += 1;
+              uROSError2->Fill(value - 1, link - 47);
             }
-          }  //flag values
-        }    //loop on flags
-      }      //loop on links
-    }        //else uRos<3
+          }  //value>0
+        }    //flag value
+      }      //loop on flags
+    }        //loop on links
+  }          //uROS>2
+
+  else {  //uRos<3
+
+    for (unsigned int link = 0; link < 12; ++link) {
+      for (unsigned int flag = 0; flag < 5; ++flag) {
+        if ((data.getokxflag(link) >> flag) & 0x1) {  // Undefined Flag 1-4 64bits word for each MTP (12 channels)
+          int value = flag;
+          int sc = 24;
+          if (flag == 0)
+            value = 5;  //move it to the 5th bin
+
+          if (value > 0) {
+            unsigned int keyHisto = (uROSError)*1000 + (wheel + 2) * 100 + link;  //ros -1 = link in this case
+            uROSError0 = urosHistos[keyHisto];
+            if (!uROSError0) {
+              LogError("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityUrosOffline")
+                  << "Trying to access non existing ME at uROS " << uRos << std::endl;
+              return;
+            }
+            errorX[value - 1][link] += 1;     // ros-1=link in this case
+            uROSError0->Fill(value - 1, sc);  //bins start at 0 despite labeling, this is the old SC
+          }
+        }  //flag values
+      }    //loop on flags
+    }      //loop on links
+  }        //else uRos<3
 
   // Fill the ROSSummary (1 per wheel) histo
   for (unsigned int iros = 0; iros < 12; ++iros) {
@@ -445,23 +445,21 @@ void DTDataIntegrityUrosOffline::processuROS(DTuROSROSData& data, int fed, int u
     if (uRos < 3) {
       ROSSummary->Fill(tdcError_ROSSummary, link + 1);  //link 0 = ROS 1
       int sc = 24;
-        urosHistos[(uROSError)*1000 + (wheel + 2) * 100 + (link)]->Fill(tdcError_ROSError, sc);
-    }                                                                          //uRos<3
-    else {                                                                     //uRos>2
-      if (link < 24){
+      urosHistos[(uROSError)*1000 + (wheel + 2) * 100 + (link)]->Fill(tdcError_ROSError, sc);
+    }       //uRos<3
+    else {  //uRos>2
+      if (link < 24) {
         ROSSummary->Fill(tdcError_ROSSummary, ros);
         uROSError0->Fill(tdcError_ROSError, link);
-      }
-      else if (link < 48){
+      } else if (link < 48) {
         ROSSummary->Fill(tdcError_ROSSummary, ros + 1);
         uROSError1->Fill(tdcError_ROSError, link - 23);
-      }
-      else if (link < 72){
+      } else if (link < 72) {
         ROSSummary->Fill(tdcError_ROSSummary, ros + 2);
         uROSError2->Fill(tdcError_ROSError, link - 47);
       }
-    }      //uROS>2
-  }        //loop on errors
+    }  //uROS>2
+  }    //loop on errors
 }
 
 void DTDataIntegrityUrosOffline::processFED(DTuROSFEDData& data, int fed) {
@@ -479,11 +477,10 @@ void DTDataIntegrityUrosOffline::processFED(DTuROSFEDData& data, int fed) {
   int fedEvtLength = data.getevtlgth() * 8;  //1 word = 8 bytes
   //   if(fedEvtLength > 16000) fedEvtLength = 16000; // overflow bin
   fedHistos["EventLength"][fed]->Fill(fedEvtLength);
-
 }
 
 std::string DTDataIntegrityUrosOffline::topFolder(bool isFEDIntegrity) const {
-  string folder = "DT/00-DataIntegrity/";  
+  string folder = "DT/00-DataIntegrity/";
 
   return folder;
 }
@@ -492,33 +489,34 @@ void DTDataIntegrityUrosOffline::analyze(const edm::Event& e, const edm::EventSe
   nevents++;
   nEventMonitor->Fill(nevents);
 
-  LogTrace("DTRawToDigi|TDQM|DTMonitorModule|DTDataIntegrityUrosOffline") << "[DTDataIntegrityUrosOffline]: preProcessEvent" << endl;
+  LogTrace("DTRawToDigi|TDQM|DTMonitorModule|DTDataIntegrityUrosOffline")
+      << "[DTDataIntegrityUrosOffline]: preProcessEvent" << endl;
 
-    // Digi collection
-    edm::Handle<DTuROSFEDDataCollection> fedCol;
-    e.getByToken(fedToken, fedCol);
-    DTuROSFEDData fedData;
-    DTuROSROSData urosData;
+  // Digi collection
+  edm::Handle<DTuROSFEDDataCollection> fedCol;
+  e.getByToken(fedToken, fedCol);
+  DTuROSFEDData fedData;
+  DTuROSROSData urosData;
 
-    if (fedCol.isValid()) {
-      for (unsigned int j = 0; j < fedCol->size(); ++j) {
-        fedData = fedCol->at(j);
-        int fed = fedData.getfed();  //argument should be void
-        if (fed > FEDIDmax || fed < FEDIDmin) {
-          LogError("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityUrosOffline")
-              << "[DTDataIntegrityUrosOffline]: analyze, FED ID " << fed << " not expected." << endl;
+  if (fedCol.isValid()) {
+    for (unsigned int j = 0; j < fedCol->size(); ++j) {
+      fedData = fedCol->at(j);
+      int fed = fedData.getfed();  //argument should be void
+      if (fed > FEDIDmax || fed < FEDIDmin) {
+        LogError("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityUrosOffline")
+            << "[DTDataIntegrityUrosOffline]: analyze, FED ID " << fed << " not expected." << endl;
+        continue;
+      }
+      processFED(fedData, fed);
+
+      for (int slot = 1; slot <= DOCESLOTS; ++slot) {
+        urosData = fedData.getuROS(slot);
+        if (fedData.getslotsize(slot) == 0 || urosData.getslot() == -1)
           continue;
-        }
-        processFED(fedData, fed);
-
-        for (int slot = 1; slot <= DOCESLOTS; ++slot) {
-          urosData = fedData.getuROS(slot);
-          if (fedData.getslotsize(slot) == 0 || urosData.getslot() == -1)
-            continue;
-          processuROS(urosData, fed, slot);
-        }
+        processuROS(urosData, fed, slot);
       }
     }
+  }
 }
 
 // Conversions
