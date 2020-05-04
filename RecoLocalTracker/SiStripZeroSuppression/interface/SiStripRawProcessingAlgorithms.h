@@ -24,8 +24,7 @@ public:
   uint16_t suppressHybridData_faster(const edm::DetSet<SiStripDigi>& inDigis,
                                      edm::DetSet<SiStripDigi>& suppressedDigis);
   uint16_t suppressHybridData(const edm::DetSet<SiStripDigi>& inDigis,
-                              edm::DetSet<SiStripDigi>& suppressedDigis,
-                              digivector_t& rawDigis);
+                              edm::DetSet<SiStripDigi>& suppressedDigis);
   uint16_t suppressHybridData(uint32_t detId,
                               uint16_t firstAPV,
                               digivector_t& processedRawDigis,

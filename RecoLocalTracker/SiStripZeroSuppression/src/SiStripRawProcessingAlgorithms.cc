@@ -140,8 +140,8 @@ uint16_t SiStripRawProcessingAlgorithms::suppressHybridData_faster(const edm::De
 }
 
 uint16_t SiStripRawProcessingAlgorithms::suppressHybridData(const edm::DetSet<SiStripDigi>& hybridDigis,
-                                                            edm::DetSet<SiStripDigi>& suppressedDigis,
-                                                            digivector_t& rawDigis) {
+                                                            edm::DetSet<SiStripDigi>& suppressedDigis) {
+  std::vector<int16_t> rawDigis;
   convertHybridDigiToRawDigiVector(hybridDigis, rawDigis);
   return suppressHybridData(hybridDigis.id, 0, rawDigis, suppressedDigis);
 }
