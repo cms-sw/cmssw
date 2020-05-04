@@ -172,8 +172,8 @@ namespace {
       hitOrder_monitor[detId] = false;
       if (nhits > 0) {
         unsigned short iSample = detIdIndexHitInfo.sampleIndex();
-        std::vector<unsigned short> unsigned_charge_array = detIdIndexHitInfo.chargeArray();
-        std::vector<unsigned short> unsigned_time_array = detIdIndexHitInfo.timeArray();
+        const std::vector<unsigned short>& unsigned_charge_array = detIdIndexHitInfo.chargeArray();
+        const std::vector<unsigned short>& unsigned_time_array = detIdIndexHitInfo.timeArray();
         std::vector<float> Acc_charge_array = puhit_info[0][iSample];
         std::vector<float> timing_hit_array = puhit_info[1][iSample];
 
