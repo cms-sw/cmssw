@@ -15,7 +15,7 @@
 #include "DataFormats/ForwardDetId/interface/BTLDetId.h"
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 class DDNameFilter : public DDFilter {
 public:
@@ -178,11 +178,13 @@ std::unique_ptr<GeometricTimingDet> DDDCmsMTDConstruction::construct(const DDCom
   if (layer.size() == 3) {
     subdet[1]->addComponent(layer[1]);
     subdet[2]->addComponent(layer[2]);
-  } else {
+  } else if (layer.size() == 5) {
     subdet[1]->addComponent(layer[1]);
     subdet[1]->addComponent(layer[2]);
     subdet[2]->addComponent(layer[3]);
     subdet[2]->addComponent(layer[4]);
+  } else {
+      throw cms::Exception("DD4hep_MTDNumbering") << "Wrong number of layers: " << layer.size();
   }
 
   // Add subdetectors to MTD
@@ -254,6 +256,7 @@ std::unique_ptr<GeometricTimingDet> DDDCmsMTDConstruction::construct(const cms::
         theCmsMTDStringToEnum.type(nodeName.substr(0, CmsMTDStringToEnum::kModStrLen));
 
 #ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("MTDNumbering") << fv.path();
     edm::LogVerbatim("MTDNumbering") << "Module = " << fv.name() << " fullNode = " << fullNode
                                      << " thisNode = " << thisNode;
 #endif
@@ -311,11 +314,13 @@ std::unique_ptr<GeometricTimingDet> DDDCmsMTDConstruction::construct(const cms::
   if (layer.size() == 3) {
     subdet[1]->addComponent(layer[1]);
     subdet[2]->addComponent(layer[2]);
-  } else {
+  } else if ( layer.size() == 5) {
     subdet[1]->addComponent(layer[1]);
     subdet[1]->addComponent(layer[2]);
     subdet[2]->addComponent(layer[3]);
     subdet[2]->addComponent(layer[4]);
+  } else {
+      throw cms::Exception("DD4hep_MTDNumbering") << "Wrong number of layers: " << layer.size();
   }
 
   // Add subdetectors to MTD
