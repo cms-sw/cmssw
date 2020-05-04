@@ -12,7 +12,8 @@ process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
-process.load('SimG4CMS.Calo.PythiaMinBias_cfi')
+process.load('Configuration.Generator.MinBias_14TeV_pythia8_TuneCUETP8M1_cfi')
+#process.load('SimG4CMS.Calo.PythiaMinBias_cfi')
 process.load('SimG4Core.PhysicsLists.physicsQGSP_FTFP_BERT_G4106_cfi')
 #process.load('SimG4Core.PhysicsLists.physicsQGSP_FTFP_BERT_G4104_cfi')
 #process.load('SimG4Core.PhysicsLists.physicsQGSP_BERT_G4104_cfi')
@@ -39,8 +40,8 @@ process.rndmStore = cms.EDProducer("RandomEngineStateProducer")
 process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)
 
-process.generator.pythiaHepMCVerbosity = False
-process.generator.pythiaPylistVerbosity = 0
+#process.generator.pythiaHepMCVerbosity = False
+#process.generator.pythiaPylistVerbosity = 0
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EMM'
 
 # Schedule definition                                                          
