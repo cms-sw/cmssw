@@ -160,7 +160,7 @@ namespace cond {
     }
 
     struct ModuleVersion {
-      static constexpr const char* const label = "1.0";
+      static constexpr const char* const label = "2.0";
     };
 
     struct TagReference {

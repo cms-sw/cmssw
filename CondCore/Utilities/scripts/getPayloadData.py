@@ -61,7 +61,7 @@ def supress_output( f ):
     return decorated
 
 @supress_output
-def deserialize_iovs(db, plugin_name, plot_name, tags, input_params):
+def deserialize_iovs(db, plugin_name, plot_name, tags, time_type, input_params):
     ''' Deserializes given iovs data and returns plot coordinates '''
     #print "Starting to deserialize iovs:"
     #print 'First Iovs',iovs
@@ -72,7 +72,7 @@ def deserialize_iovs(db, plugin_name, plot_name, tags, input_params):
     output('plot name: ', plot_name)
     output('tags: ', tags)
     #output('tagtwo name: ', tagtwo)
-    #output('tag time type: ', time_type)
+    output('tag time type: ', time_type)
     #output('iovs: ', iovs)
     #output('iovstwo: ', iovstwo)
   
@@ -97,8 +97,17 @@ def deserialize_iovs(db, plugin_name, plot_name, tags, input_params):
 
     if input_params is not None:
         plot.setInputParamValues( input_params )
+
+    modv = getattr(plugin_base,'ModuleVersion')
+    print('#### Module vers %s' %(modv.label ) )
     
-    success = plot.process(db_name, tags)
+    if modv.label == '1.0':
+        if len(tags)==1:
+            success = plot.process(db_name, tags[0][0], time_type, int(tags[0][1]), int(tags[0][2]) )
+        elif len(tags)==2:
+            success = plot.processTwoTags(db_name, tags[0][0], tags[1][0], int(tags[0][1]),int(tags[1][1]) )
+    elif modv.label == '2.0':
+        success = plot.process(db_name, tags)
     #print "All good",success
     output('plot processed data successfully: ', success)
     if not success:
@@ -263,13 +272,13 @@ if __name__ == '__main__':
             tags.append( (args.tag, iovDict['start_iov'], iovDict['end_iov'] ) )
         if args.tagtwo:
             iovDict = yaml.safe_load( args.iovstwo )
-            tags.append( (args.tagTwo, iovDict['start_iov'], iovDict['end_iov'] ) )
+            tags.append( (args.tagtwo, iovDict['start_iov'], iovDict['end_iov'] ) )
         
     # Return a plot if iovs are provided
     #print '* getiovs: ',args.iovs
     #print '* getiovstwo: ',args.iovstwo
 
-    result = deserialize_iovs(args.db, args.plugin, args.plot, tags, input_params)
+    result = deserialize_iovs(args.db, args.plugin, args.plot, tags, args.time_type, input_params)
         # If test -> output the result as formatted json
     if args.test:
         os.write( 1, json.dumps( json.loads( result ), indent=4 ))
