@@ -18,7 +18,6 @@
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
 #include "DataFormats/Math/interface/liblogintpack.h"
-#include <fstream>
 #include <algorithm>
 #include <boost/foreach.hpp>
 #include "FWCore/Utilities/interface/transform.h"
