@@ -35,7 +35,7 @@
 
 #include <iostream>
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 MuonSensitiveDetector::MuonSensitiveDetector(const std::string& name,
                                              const edm::EventSetup& es,

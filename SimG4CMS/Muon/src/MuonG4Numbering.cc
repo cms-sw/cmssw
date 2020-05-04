@@ -9,7 +9,7 @@
 
 #include <iostream>
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 MuonG4Numbering::MuonG4Numbering(const MuonGeometryConstants& muonConstants) {
   theLevelPart = muonConstants.getValue("level");
