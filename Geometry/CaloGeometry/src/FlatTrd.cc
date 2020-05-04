@@ -18,6 +18,7 @@ typedef HepGeom::Vector3D<double> DVec3D;
 typedef HepGeom::Plane3D<double> DPlane3D;
 typedef HepGeom::Point3D<double> DPt3D;
 
+static const float tolmin = 1.e-12;
 //----------------------------------------------------------------------
 
 FlatTrd::FlatTrd()
@@ -94,6 +95,22 @@ GlobalPoint FlatTrd::getPosition(const Pt3D& local) const {
                                    << ":" << m_tr.dx() << ":" << m_tr.dy() << ":" << m_tr.dz();
 #endif
   return GlobalPoint(glb.x(), glb.y(), glb.z());
+}
+
+float FlatTrd::etaSpan() const {
+  assert(param() != nullptr);
+  float eta1 = -std::log(
+      std::tan(0.5 * std::atan((m_global.perp() + param()[k_dY1]) / std::max(tolmin, std::abs(m_global.z())))));
+  float eta2 = -std::log(
+      std::tan(0.5 * std::atan((m_global.perp() - param()[k_dY1]) / std::max(tolmin, std::abs(m_global.z())))));
+  float dEta = std::abs(eta1 - eta2);
+  return dEta;
+}
+
+float FlatTrd::phiSpan() const {
+  assert(param() != nullptr);
+  float dPhi = 2.0 * std::atan(0.5 * (param()[k_dX1] + param()[k_dX2]) / std::max(tolmin, m_global.perp()));
+  return dPhi;
 }
 
 Pt3D FlatTrd::getLocal(const GlobalPoint& global) const {
