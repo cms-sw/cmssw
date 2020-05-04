@@ -85,7 +85,7 @@ public:
     if (detIdSize_.empty() || detIdSize_.back().detId() != detId) {
       detIdSize_.emplace_back(detId);
     }
-    simhitCollection_.emplace_back(SimHitCollection(sampleIndex, accCharge, timing));
+    simhitCollection_.emplace_back(sampleIndex, accCharge, timing);
     detIdSize_.back().increaseSize();
   }
 
