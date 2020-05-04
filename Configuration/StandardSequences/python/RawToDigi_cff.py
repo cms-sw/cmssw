@@ -67,6 +67,9 @@ RawToDigi_noTk = cms.Sequence(RawToDigiTask_noTk)
 RawToDigiTask_pixelOnly = cms.Task(siPixelDigis)
 RawToDigi_pixelOnly = cms.Sequence(RawToDigiTask_pixelOnly)
 
+RawToDigiTask_ecalOnly = cms.Task(ecalDigis, ecalPreshowerDigis, scalersRawToDigi)
+RawToDigi_ecalOnly = cms.Sequence(RawToDigiTask_ecalOnly)
+
 scalersRawToDigi.scalersInputTag = 'rawDataCollector'
 siPixelDigis.InputLabel = 'rawDataCollector'
 #false by default anyways ecalDigis.DoRegional = False
