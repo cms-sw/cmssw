@@ -172,7 +172,7 @@ def customiseFor2017DtUnpacking(process):
 
 def customiseFor29512(process):
     """Refresh configuration of ElectronNHitSeedProducer instances.
-    
+
     Loops over some parameters of ElectronNHitSeedProducer instances and changes their type from string to ESInputTag.
 
     For PR https://github.com/cms-sw/cmssw/pull/29512 "ElectronNHitSeedProducer modernization"
@@ -216,5 +216,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # process = customiseFor12718(process)
     process = customiseFor29512(process)
     process = customiseFor29658(process)
+    process = customiseFor29617(process)
 
     return process
