@@ -169,6 +169,7 @@ namespace {
       hitOrder_monitor[detId] = false;
       if (nhits > 0) {
         unsigned short iSample = detIdIndexHitInfo.sampleIndex();
+
         const auto& unsigned_charge_array = detIdIndexHitInfo.chargeArray();
         const auto& unsigned_time_array = detIdIndexHitInfo.timeArray();
 
@@ -180,6 +181,7 @@ namespace {
           unsigned_time = (unsigned_time_array[ihit] & PreMixHGCSimAccumulator::SimHitCollection::dataMask);
           p_time = logintpack::unpack16log(unsigned_time, minPackChargeLog, maxPackChargeLog, base);
           p_charge = logintpack::unpack16log(unsigned_charge, minPackChargeLog, maxPackChargeLog, base);
+
           (simIt->second).hit_info[0][iSample] += p_charge;
           if (iSample == 9) {
             if (hitRefs_bx0[detId].empty()) {
