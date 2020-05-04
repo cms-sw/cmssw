@@ -29,13 +29,6 @@
    <class name="edm::SortedCollection<HGCDataFrame<HcalDetId,HGCSample>, edm::StrictWeakOrdering<HGCDataFrame<HcalDetId,HGCSample> > >"/>
    <class name="edm::Wrapper<edm::SortedCollection<HGCDataFrame<HcalDetId,HGCSample>,edm::StrictWeakOrdering<HGCDataFrame<HcalDetId,HGCSample> > > >" />
 
-   <class name="PHGCSimAccumulator"/>
-   <class name="PHGCSimAccumulator::Data"/>
-   <class name="PHGCSimAccumulator::DetIdSize"/>
-   <class name="std::vector<PHGCSimAccumulator::Data>"/>
-   <class name="std::vector<PHGCSimAccumulator::DetIdSize>"/>
-   <class name="edm::Wrapper<PHGCSimAccumulator>"/>
-
    <class name="PreMixHGCSimAccumulator"/>
    <class name="PreMixHGCSimAccumulator::DetIdSize"/>
    <class name="PreMixHGCSimAccumulator::SimHitCollection"/>

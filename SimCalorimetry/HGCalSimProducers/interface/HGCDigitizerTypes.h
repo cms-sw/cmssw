@@ -15,20 +15,18 @@ namespace hgc_digi {
   typedef float HGCSimData_t;
 
   typedef std::array<HGCSimData_t, nSamples> HGCSimHitData;
-  //typedef std::array<HGCSimData_t, npreHits> PUSimHitData;// to keep 30 hits while incoming hits shape up to signal
-  //typedef std::array<PUSimHitData, nSamples> PUSimHitContainer;// Container of RawSimHitData
 
-  typedef std::vector<HGCSimData_t> vec;
-  typedef std::array<vec, nSamples> PUSimHitData;
+  typedef std::vector<HGCSimData_t> HGCSimDataCollection;
+  typedef std::array<HGCSimDataCollection, nSamples> PUSimHitData;
 
-  typedef std::vector<std::pair<float, float> > hitsRecordData;
-  typedef std::array<hitsRecordData, nSamples> hitsRecordForMultipleBxs;
+  typedef std::vector<std::pair<float, float> > HitsRecordData;
+  typedef std::array<HitsRecordData, nSamples> HitsRecordForMultipleBxs;
 
   struct HGCCellHitInfo {
     std::array<PUSimHitData, 2> PUhit_info;
     int thickness;
     double size;
-    hitsRecordForMultipleBxs hitsRecord;
+    HitsRecordForMultipleBxs hitsRecord;
   };
   struct HGCCellInfo {
     //1st array=energy, 2nd array=energy weighted time-of-flight

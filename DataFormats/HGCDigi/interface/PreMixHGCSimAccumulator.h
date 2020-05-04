@@ -4,7 +4,6 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include <iostream>
 #include <vector>
-#include <cassert>
 
 class PreMixHGCSimAccumulator {
 public:
@@ -36,7 +35,6 @@ public:
                      const std::vector<unsigned short>& accCharge,
                      const std::vector<unsigned short>& time)
         : nhits_(accCharge.size()) {
-      //std::cout<<"### printing from PreMix "<<nhits_<<std::endl;
       chargeArray_.reserve(nhits_);
       timeArray_.reserve(nhits_);
       for (size_t i = 0; i < nhits_; ++i) {
@@ -52,17 +50,12 @@ public:
         timeArray_.emplace_back(data);
       }
     }
-    SimHitCollection(const SimHitCollection& simhitcollection)
-        : nhits_(simhitcollection.nhits_),
-          chargeArray_(simhitcollection.chargeArray_),
-          timeArray_(simhitcollection.timeArray_) {}
+    SimHitCollection(const SimHitCollection& simhitcollection) = default;
+
     unsigned int nhits() const { return nhits_; }
-    unsigned int sampleIndex() const {
-      //std::cout<<chargeArray_[0]<<"\t"<<sampleOffset<<std::endl;
-      return (chargeArray_[0] >> sampleOffset) & sampleMask;
-    }
-    std::vector<unsigned short> chargeArray() const { return chargeArray_; }
-    std::vector<unsigned short> timeArray() const { return timeArray_; }
+    unsigned int sampleIndex() const { return (chargeArray_[0] >> sampleOffset) & sampleMask; }
+    const std::vector<unsigned short>& chargeArray() const { return chargeArray_; }
+    const std::vector<unsigned short>& timeArray() const { return timeArray_; }
 
   private:
     unsigned int nhits_;
@@ -89,7 +82,7 @@ public:
     if (detIdSize_.empty() || detIdSize_.back().detId() != detId) {
       detIdSize_.emplace_back(detId);
     }
-    simhitCollection_.emplace_back(SimHitCollection(sampleIndex, accCharge, timing));
+    simhitCollection_.emplace_back(sampleIndex, accCharge, timing);
     detIdSize_.back().increaseSize();
   }
 
@@ -149,10 +142,6 @@ public:
   const_iterator begin() const { return cbegin(); }
   const_iterator cend() const { return const_iterator(this, detIdSize_.size(), simhitCollection_.size()); }
   const_iterator end() const { return cend(); }
-  void print_stuff() const {
-    std::cout << detIdSize_.size() << std::endl;
-    std::cout << simhitCollection_.size() << std::endl;
-  }
 
 private:
   std::vector<DetIdSize> detIdSize_;

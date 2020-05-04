@@ -18,7 +18,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
-#include <iostream>
 
 #include <vector>
 #include <map>
@@ -70,11 +69,9 @@ public:
                             int bxCrossing,
                             const GEOM* geom,
                             CLHEP::HepRandomEngine* hre);
-  // for premixing
-  //void accumulate(const PHGCSimAccumulator& simAccumulator);
+
   void accumulate(const PHGCSimAccumulator& simAccumulator);
-  void accumulate_forPreMix(const PreMixHGCSimAccumulator& simAccumulator,
-                            const bool& minbiasFlag);  //, const GEOM* geom);
+  void accumulate_forPreMix(const PreMixHGCSimAccumulator& simAccumulator, const bool minbiasFlag);
   /**
      @short actions at the start/end of event
    */
@@ -95,19 +92,12 @@ public:
    */
   void beginRun(const edm::EventSetup& es);
   void endRun();
-  constexpr static unsigned energyOffset = 15;
-  constexpr static unsigned energyMask = 0x1;
-  constexpr static unsigned sampleOffset = 11;
-  constexpr static unsigned sampleMask = 0xf;
-  constexpr static unsigned dataOffset = 0;
-  constexpr static unsigned dataMask = 0x7ff;
-  int event_counter;
 
 private:
   uint32_t getType() const;
   bool getWeight(std::array<float, 3>& tdcForToAOnset, float& keV2fC) const;
   std::string hitCollection_, digiCollection_;
-  //TH1F* toa_hist_, charge_hist_;
+
   //geometry type (0 pre-TDR; 1 TDR)
   int geometryType_;
 
@@ -116,7 +106,6 @@ private:
 
   // if true, we're running mixing in premixing stage1 and have to produce the output differently
   bool premixStage1_;
-  ////// new flags for premix timing
 
   // Minimum charge threshold for premixing stage1
   double premixStage1MinCharge_;
