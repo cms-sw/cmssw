@@ -750,7 +750,7 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const& hits,
   }
   hitRefs.clear();
 }
-void HGCDigitizer::accumulate_forPreMix(const PreMixHGCSimAccumulator& simAccumulator, const bool& minbiasFlag) {
+void HGCDigitizer::accumulate_forPreMix(const PreMixHGCSimAccumulator& simAccumulator, const bool minbiasFlag) {
   //configuration to apply for the computation of time-of-flight
   std::array<float, 3> tdcForToAOnset{{0.f, 0.f, 0.f}};
   float keV2fC(0.f);
