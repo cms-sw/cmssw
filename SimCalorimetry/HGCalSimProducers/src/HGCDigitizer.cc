@@ -197,7 +197,7 @@ namespace {
 
                 itr insertedPos = findPos;
                 if (findPos == hitRefs_bx0[detId].begin()) {
-                  insertedPos = hitRefs_bx0[detId].insert(insertedPos, std::make_pair(p_charge, p_time));
+                  insertedPos = hitRefs_bx0[detId].emplace(insertedPos, p_charge, p_time);
                 } else {
                   itr prevPos = findPos - 1;
                   if (prevPos->second == p_time) {
