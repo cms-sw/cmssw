@@ -219,8 +219,12 @@ reconstruction_pixelTrackingOnly = cms.Sequence(reconstruction_pixelTrackingOnly
 
 reconstruction_ecalOnlyTask = cms.Task(
     bunchSpacingProducer,
+    offlineBeamSpot,
     ecalLocalRecoTask,
-    ecalClustersNoPFBoxTask
+    ecalClustersNoPFBoxTask,
+    pfClusteringPSTask,
+    pfClusteringECALTask,
+    particleFlowSuperClusterECALHLT
 )
 reconstruction_ecalOnly = cms.Sequence(reconstruction_ecalOnlyTask)
 
