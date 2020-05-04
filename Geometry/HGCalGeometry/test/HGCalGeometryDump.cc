@@ -58,20 +58,20 @@ void HGCalGeometryDump::analyze(const edm::Event& /*iEvent*/, const edm::EventSe
         HGCSiliconDetId hid(id);
         std::cout << "[" << nall << "] " << hid << " Reference " << std::setprecision(4) << cell->getPosition()
                   << " Back " << cell->getBackPoint() << " [r,eta,phi] (" << cell->rhoPos() << ", " << cell->etaPos()
-                  << ", " << cell->phiPos() << ")\n";
+                  << ":" << cell->etaSpan() << ", " << cell->phiPos() << ":" << cell->phiSpan() << ")\n";
       } else if (types_[k] == 1) {
         HGCScintillatorDetId hid(id);
         std::cout << "[" << nall << "] " << hid << " Reference " << std::setprecision(4) << cell->getPosition()
                   << " Back " << cell->getBackPoint() << " [r,eta,phi] (" << cell->rhoPos() << ", " << cell->etaPos()
-                  << ", " << cell->phiPos() << ")\n";
+                  << ":" << cell->etaSpan() << ", " << cell->phiPos() << ":" << cell->phiSpan() << ")\n";
       } else {
         HFNoseDetId hid(id);
         std::cout << "[" << nall << "] " << hid << " Reference " << std::setprecision(4) << cell->getPosition()
                   << " Back " << cell->getBackPoint() << " [r,eta,phi] (" << cell->rhoPos() << ", " << cell->etaPos()
-                  << "," << cell->phiPos() << ")\n";
+                  << ":" << cell->etaSpan() << ", " << cell->phiPos() << ":" << cell->phiSpan() << ")\n";
       }
     }
-    std::cout << "\n\nDumps" << nall << " cells of the detector\n" << std::endl;
+    std::cout << "\n\nDumps " << nall << " cells of the detector\n" << std::endl;
   }
 }
 
