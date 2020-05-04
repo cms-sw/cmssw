@@ -26,26 +26,27 @@ void GEMPadDigiClusterValidation::bookHistograms(DQMStore::IBooker& booker,
 
       me_occ_det_[key2] = bookDetectorOccupancy(booker, key2, station, "pad", "Pad Cluster");
 
-      const auto &superChamberVec = station->superChambers();
+      const auto& superChamberVec = station->superChambers();
       if (superChamberVec.empty()) {
         edm::LogError(kLogCategory_) << "Super chambers missing for region = " << region_id
-          << " and station = " << station_id;
+                                     << " and station = " << station_id;
         continue;
       }
       const GEMSuperChamber* super_chamber = superChamberVec.front();
       if (super_chamber == nullptr) {
         edm::LogError(kLogCategory_) << "Failed to find super chamber for region = " << region_id
-          << " and station = " << station_id;
+                                     << " and station = " << station_id;
         continue;
       }
       for (const auto& chamber : super_chamber->chambers()) {
         Int_t layer_id = chamber->id().layer();
         ME3IdsKey key3{region_id, station_id, layer_id};
 
-        const auto &etaPartitionVec = chamber->etaPartitions();
+        const auto& etaPartitionVec = chamber->etaPartitions();
         if (etaPartitionVec.empty() || etaPartitionVec.front() == nullptr) {
-        edm::LogError(kLogCategory_) << "Eta partition missing or null for region, station, super chamber, chamber = (" <<
-          region_id << ", " << station_id << ", " <<  super_chamber->id() << ", " << chamber->id() << ")";
+          edm::LogError(kLogCategory_)
+              << "Eta partition missing or null for region, station, super chamber, chamber = (" << region_id << ", "
+              << station_id << ", " << super_chamber->id() << ", " << chamber->id() << ")";
           continue;
         }
         Int_t num_pads = etaPartitionVec.front()->npads();
@@ -82,16 +83,16 @@ void GEMPadDigiClusterValidation::bookHistograms(DQMStore::IBooker& booker,
       for (const auto& station : region->stations()) {
         Int_t station_id = station->station();
 
-        const auto &superChamberVec = station->superChambers();
+        const auto& superChamberVec = station->superChambers();
         if (superChamberVec.empty()) {
           edm::LogError(kLogCategory_) << "Super chambers missing for region = " << region_id
-            << " and station = " << station_id;
+                                       << " and station = " << station_id;
           continue;
         }
         const GEMSuperChamber* super_chamber = superChamberVec.front();
         if (super_chamber == nullptr) {
           edm::LogError(kLogCategory_) << "Failed to find super chamber for region = " << region_id
-            << " and station = " << station_id;
+                                       << " and station = " << station_id;
           continue;
         }
         for (const auto& chamber : super_chamber->chambers()) {
@@ -140,7 +141,7 @@ void GEMPadDigiClusterValidation::analyze(const edm::Event& event, const edm::Ev
     ME3IdsKey key3(region_id, station_id, layer_id);
 
     for (auto digi = range.first; digi != range.second; ++digi) {
-      const auto &padsVec = digi->pads();
+      const auto& padsVec = digi->pads();
       if (padsVec.empty()) {
         edm::LogError(kLogCategory_) << "Pads missing for digi from GEM ID = " << gemid;
         continue;

@@ -40,16 +40,16 @@ void GEMStripDigiValidation::bookHistograms(DQMStore::IBooker& booker,
         }
         Int_t station_id = station->station();
 
-        const auto &superChamberVec = station->superChambers();
+        const auto& superChamberVec = station->superChambers();
         if (superChamberVec.empty()) {
           edm::LogError(kLogCategory_) << "Super chambers missing for region = " << region_id
-            << " and station = " << station_id;
+                                       << " and station = " << station_id;
           continue;
         }
         const GEMSuperChamber* super_chamber = superChamberVec.front();
         if (super_chamber == nullptr) {
           edm::LogError(kLogCategory_) << "Failed to find super chamber for region = " << region_id
-            << " and station = " << station_id;
+                                       << " and station = " << station_id;
           continue;
         }
         for (const auto& chamber : super_chamber->chambers()) {
@@ -105,25 +105,26 @@ void GEMStripDigiValidation::bookHistograms(DQMStore::IBooker& booker,
 
       me_strip_occ_det_[key2] = bookDetectorOccupancy(booker, key2, station, "matched_strip", "Matched Strip Digi");
 
-      const auto &superChamberVec = station->superChambers();
+      const auto& superChamberVec = station->superChambers();
       if (superChamberVec.empty() || superChamberVec[0] == nullptr) {
         edm::LogError(kLogCategory_) << "Super chambers missing or null for region = " << region_id
-          << " and station = " << station_id;
+                                     << " and station = " << station_id;
       } else {
         for (const auto& chamber : superChamberVec[0]->chambers()) {
           if (chamber == nullptr) {
-            edm::LogError(kLogCategory_) << "Null chamber for region, station, super chamber = (" <<
-              region_id << ", " << station_id << ", " <<  superChamberVec[0]->id() << ")";
+            edm::LogError(kLogCategory_) << "Null chamber for region, station, super chamber = (" << region_id << ", "
+                                         << station_id << ", " << superChamberVec[0]->id() << ")";
             continue;
           }
           Int_t layer_id = chamber->id().layer();
           ME3IdsKey key3{region_id, station_id, layer_id};
 
           if (detail_plot_) {
-            const auto &etaPartitionsVec = chamber->etaPartitions();
+            const auto& etaPartitionsVec = chamber->etaPartitions();
             if (etaPartitionsVec.empty() || etaPartitionsVec.front() == nullptr) {
-              edm::LogError(kLogCategory_) << "Eta partition missing or null for region, station, super chamber, chamber = (" <<
-                region_id << ", " << station_id << ", " <<  superChamberVec[0]->id() << ", " << chamber->id() << ")";
+              edm::LogError(kLogCategory_)
+                  << "Eta partition missing or null for region, station, super chamber, chamber = (" << region_id
+                  << ", " << station_id << ", " << superChamberVec[0]->id() << ", " << chamber->id() << ")";
               continue;
             }
             Int_t num_strips = etaPartitionsVec.front()->nstrips();
@@ -152,10 +153,10 @@ void GEMStripDigiValidation::bookHistograms(DQMStore::IBooker& booker,
                                                         "#phi [rad]",
                                                         "strip number");
           }  // detail plot
-        }   // chamber
-      }    // end else
-    }      // station looop
-  }        // region loop
+        }    // chamber
+      }      // end else
+    }        // station looop
+  }          // region loop
 }
 
 GEMStripDigiValidation::~GEMStripDigiValidation() {}
