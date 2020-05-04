@@ -104,22 +104,19 @@ namespace cond {
       size_t nt = tagsWithTimeBoundaries.size();
       if (nt) {
         cond::persistency::ConnectionPool connection;
-        //connection.setMessageVerbosity(coral::Debug);
-        //connection.configure();
         m_dbSession = connection.createSession(connectionString);
         m_dbSession.transaction().start();
         m_tagNames.resize(nt);
         m_tagBoundaries.resize(nt);
         m_tagIovs.resize(nt);
         for (size_t i = 0; i < nt; i++) {
-          std::string tagName = std::get<0>(tagsWithTimeBoundaries[i]);
+          const std::string& tagName = std::get<0>(tagsWithTimeBoundaries[i]);
           cond::Time_t time0 = std::get<1>(tagsWithTimeBoundaries[i]);
           cond::Time_t time1 = std::get<2>(tagsWithTimeBoundaries[i]);
           m_tagNames[i] = tagName;
           m_tagBoundaries[i] = std::make_pair(time0, time1);
           auto proxy = m_dbSession.readIov(tagName);
           proxy.selectRange(time0, time1, m_tagIovs[i]);
-          //m_dbSession.getIovRange(tagName, time0, time1, m_tagIovs[i]);
         }
         m_data = processData();
         m_dbSession.transaction().commit();
@@ -130,25 +127,12 @@ namespace cond {
 
     void PlotBase::init() {}
 
-    //std::string PlotBase::processData(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) { return ""; }
     std::string PlotBase::processData() { return ""; }
-
-    //void PlotBase::setSingleIov(bool flag) { m_plotAnnotations.singleIov = flag; }
-
-    //void PlotBase::setTwoTags(bool flag) {
-    //  m_plotAnnotations.twoTags = flag;
-    //  if (flag)
-    //    m_plotAnnotations.singleIov = flag;
-    //}
 
     cond::Tag_t PlotBase::getTagInfo(const std::string& tag) {
       cond::Tag_t info = m_dbSession.readIov(tag).tagInfo();
       return info;
     }
-
-    //const std::map<std::string, std::vector<std::tuple<cond::Time_t, cond::Hash> > > PlotBase::loadedTags() const {
-    //  return m_tagIovs;
-    //}
 
     const std::map<std::string, std::string>& PlotBase::inputParamValues() const { return m_inputParamValues; }
 

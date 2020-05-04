@@ -207,24 +207,11 @@ namespace cond {
       std::string data() const;
 
       // triggers the processing producing the plot
-      //bool process(const std::string& connectionString, const boost::python::list& tagsWithTimeBoundaries);
-
-      // triggers the processing producing the plot
       bool process(const std::string& connectionString, const boost::python::list& tagsWithTimeBoundaries);
 
       // called by the above method - to be used in C++ unit tests...
       bool exec_process(const std::string& connectionString,
                         const std::vector<std::tuple<std::string, cond::Time_t, cond::Time_t>>& tagsWithTimeBoundaries);
-      //             const boost::python::list& tags,
-      //             cond::Time_t begin,
-      //             cond::Time_t end);
-      //bool process( const std::string& connectionString, const std::string& tag, cond::Time_t begin, cond::Time_t end );
-
-      //bool processTwoTags(const std::string& connectionString,
-      //                    const std::string& tag0,
-      //                    const std::string& tag1,
-      //                    cond::Time_t time0,
-      //                    cond::Time_t time1);
 
       // not exposed in python:
       // called internally in process()
@@ -235,11 +222,7 @@ namespace cond {
       //virtual std::string processData(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs);
       virtual std::string processData();
 
-      // to be set in order to limit the iov selection ( and processing ) to 1 iov
-      //void setSingleIov(bool flag);
-
-      //void setTwoTags(bool flag);
-
+      //
       void addInputParam(const std::string& paramName);
 
       // access to the fetch function of the configured reader, to be used in the processData implementations
@@ -272,8 +255,6 @@ namespace cond {
       std::vector<std::pair<cond::Time_t, cond::Time_t>> m_tagBoundaries;
       std::vector<std::vector<std::tuple<cond::Time_t, cond::Hash>>> m_tagIovs;
       std::map<std::string, std::string> m_inputParamValues;
-      // TOBRem
-      //std::string m_tag0, m_tag1;
 
     private:
       // this stuff should not be modified...
@@ -300,14 +281,13 @@ namespace cond {
       ~PlotImpl() override = default;
 
       virtual std::string serializeData() = 0;
-      //std::string processData(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+
       std::string processData() override {
         fill();
         return serializeData();
       }
 
       virtual bool fill() = 0;
-      //virtual bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) = 0;
     };
 
     // specialisations
@@ -320,7 +300,7 @@ namespace cond {
       ~PlotImpl() override = default;
 
       virtual std::string serializeData() = 0;
-      //std::string processData(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+
       std::string processData() override {
         fill();
         return serializeData();
@@ -340,7 +320,7 @@ namespace cond {
       ~PlotImpl() override = default;
 
       virtual std::string serializeData() = 0;
-      //std::string processData(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+
       std::string processData() override {
         fill();
         return serializeData();
@@ -365,7 +345,7 @@ namespace cond {
       ~PlotImpl() override = default;
 
       virtual std::string serializeData() = 0;
-      //std::string processData(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+
       std::string processData() override {
         fill();
         return serializeData();
@@ -390,7 +370,7 @@ namespace cond {
       ~PlotImpl() override = default;
 
       virtual std::string serializeData() = 0;
-      //std::string processData(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+
       std::string processData() override {
         fill();
         return serializeData();
@@ -431,7 +411,7 @@ namespace cond {
       ~PlotImpl() override = default;
 
       virtual std::string serializeData() = 0;
-      //std::string processData(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+
       std::string processData() override {
         fill();
         return serializeData();
@@ -463,25 +443,16 @@ namespace cond {
       typedef PlotImpl<IOV_M, NTAGS> Base;
       Plot2D(const std::string& type, const std::string& title, const std::string xLabel, const std::string& yLabel)
           : Base(type, title), m_plotData() {
-        //m_plotAnnotations.m[PlotAnnotations::PLOT_TYPE_K] = type;
-        //m_plotAnnotations.m[PlotAnnotations::TITLE_K] = title;
         Base::m_plotAnnotations.m[PlotAnnotations::XAXIS_K] = xLabel;
         Base::m_plotAnnotations.m[PlotAnnotations::YAXIS_K] = yLabel;
         Base::m_plotAnnotations.m[PlotAnnotations::PAYLOAD_TYPE_K] = cond::demangledName(typeid(PayloadType));
       }
       ~Plot2D() override = default;
-      std::string serializeData() { return serialize(Base::m_plotAnnotations, m_plotData); }
-
-      //std::string processData(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      //  fill(iovs);
-      //  return serializeData();
-      //}
+      std::string serializeData() override { return serialize(Base::m_plotAnnotations, m_plotData); }
 
       std::shared_ptr<PayloadType> fetchPayload(const cond::Hash& payloadHash) {
         return PlotBase::fetchPayload<PayloadType>(payloadHash);
       }
-
-      //virtual bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) = 0;
 
     protected:
       std::vector<std::tuple<X, Y>> m_plotData;
@@ -502,26 +473,17 @@ namespace cond {
              const std::string& yLabel,
              const std::string& zLabel)
           : Base(type, title), m_plotData() {
-        //m_plotAnnotations.m[PlotAnnotations::PLOT_TYPE_K] = type;
-        //m_plotAnnotations.m[PlotAnnotations::TITLE_K] = title;
         Base::m_plotAnnotations.m[PlotAnnotations::XAXIS_K] = xLabel;
         Base::m_plotAnnotations.m[PlotAnnotations::YAXIS_K] = yLabel;
         Base::m_plotAnnotations.m[PlotAnnotations::ZAXIS_K] = zLabel;
         Base::m_plotAnnotations.m[PlotAnnotations::PAYLOAD_TYPE_K] = cond::demangledName(typeid(PayloadType));
       }
       ~Plot3D() override = default;
-      std::string serializeData() { return serialize(Base::m_plotAnnotations, m_plotData); }
-
-      //std::string processData(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      //  fill(iovs);
-      //  return serializeData();
-      //}
+      std::string serializeData() override { return serialize(Base::m_plotAnnotations, m_plotData); }
 
       std::shared_ptr<PayloadType> fetchPayload(const cond::Hash& payloadHash) {
         return PlotBase::fetchPayload<PayloadType>(payloadHash);
       }
-
-      //virtual bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) = 0;
 
     protected:
       std::vector<std::tuple<X, Y, Z>> m_plotData;
@@ -533,8 +495,9 @@ namespace cond {
       typedef Plot2D<PayloadType, unsigned long long, Y, MULTI_IOV, 1> Base;
 
       HistoryPlot(const std::string& title, const std::string& yLabel) : Base("History", title, "iov_since", yLabel) {}
+
       ~HistoryPlot() override = default;
-      //bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+
       bool fill() override {
         auto tag = PlotBase::getTag<0>();
         for (auto iov : tag.iovs) {
@@ -557,13 +520,14 @@ namespace cond {
 
       RunHistoryPlot(const std::string& title, const std::string& yLabel)
           : Base("RunHistory", title, "iov_since", yLabel) {}
+
       ~RunHistoryPlot() override = default;
-      //bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+
       bool fill() override {
         auto tag = PlotBase::getTag<0>();
         // for the lumi iovs we need to count the number of lumisections in every runs
         std::map<cond::Time_t, unsigned int> runs;
-        //cond::Tag_t tagInfo = Base::getTagInfo(Base::m_tag0);
+
         cond::Tag_t tagInfo = Base::getTagInfo(tag.name);
         if (tagInfo.timeType == cond::lumiid) {
           for (auto iov : tag.iovs) {
@@ -631,11 +595,11 @@ namespace cond {
       TimeHistoryPlot(const std::string& title, const std::string& yLabel)
           : Base("TimeHistory", title, "iov_since", yLabel) {}
       ~TimeHistoryPlot() override = default;
-      //bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+
       bool fill() override {
         auto tag = PlotBase::getTag<0>();
         cond::persistency::RunInfoProxy runInfo;
-        //cond::Tag_t tagInfo = Base::getTagInfo(Base::m_tag0);
+
         cond::Tag_t tagInfo = Base::getTagInfo(tag.name);
         if (tagInfo.timeType == cond::lumiid || tagInfo.timeType == cond::runnumber) {
           cond::Time_t min = std::get<0>(tag.iovs.front());
@@ -690,7 +654,7 @@ namespace cond {
       ScatterPlot(const std::string& title, const std::string& xLabel, const std::string& yLabel)
           : Base("Scatter", title, xLabel, yLabel) {}
       ~ScatterPlot() override = default;
-      //bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+
       bool fill() override {
         auto tag = PlotBase::getTag<0>();
         for (auto iov : tag.iovs) {
@@ -720,7 +684,6 @@ namespace cond {
                   const std::string& yLabel = "entries")
           : Base("Histo1D", title, xLabel, yLabel), m_nbins(nbins), m_min(min), m_max(max) {}
 
-      //~Histogram1D() override = default;
       //
       void init() override {
         Base::m_plotData.clear();
@@ -751,7 +714,6 @@ namespace cond {
       }
 
       // this one can ( and in general should ) be overridden - the implementation should use fillWithValue
-      //bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
       bool fill() override {
         auto tag = PlotBase::getTag<0>();
         for (auto iov : tag.iovs) {
@@ -797,7 +759,6 @@ namespace cond {
             m_ymin(ymin),
             m_ymax(ymax) {}
 
-      //~Histogram2D() override = default;
       //
       void init() override {
         Base::m_plotData.clear();
@@ -826,7 +787,6 @@ namespace cond {
       }
 
       // this one can ( and in general should ) be overridden - the implementation should use fillWithValue
-      //bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
       bool fill() override {
         auto tag = PlotBase::getTag<0>();
         for (auto iov : tag.iovs) {
@@ -863,25 +823,16 @@ namespace cond {
     public:
       typedef PlotImpl<IOV_M, NTAGS> Base;
       explicit PlotImage(const std::string& title) : Base("Image", title) {
-        //m_plotAnnotations.m[PlotAnnotations::PLOT_TYPE_K] = "Image";
-        //m_plotAnnotations.m[PlotAnnotations::TITLE_K] = title;
         std::string payloadTypeName = cond::demangledName(typeid(PayloadType));
         Base::m_plotAnnotations.m[PlotAnnotations::PAYLOAD_TYPE_K] = payloadTypeName;
         m_imageFileName = boost::lexical_cast<std::string>((boost::uuids::random_generator())()) + ".png";
       }
 
-      std::string serializeData() { return serialize(Base::m_plotAnnotations, m_imageFileName); }
-
-      //std::string processData(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      //  fill(iovs);
-      //  return serializeData();
-      //}
+      std::string serializeData() override { return serialize(Base::m_plotAnnotations, m_imageFileName); }
 
       std::shared_ptr<PayloadType> fetchPayload(const cond::Hash& payloadHash) {
         return PlotBase::fetchPayload<PayloadType>(payloadHash);
       }
-
-      //virtual bool fill() = 0;
 
     protected:
       std::string m_imageFileName;
