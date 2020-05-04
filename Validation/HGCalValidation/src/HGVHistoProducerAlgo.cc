@@ -1165,11 +1165,11 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
       histograms.h_score_layercl2caloparticle_perlayer.at(lcLayerId)->Fill(cpPair->second);
       //auto const cp_linked = cPOnLayerV_[cpPair->first.index()][lcLayerId];
       auto const cp_linked = cPOnLayerMap[cpPair->first][lcId];
-      LogDebug("HGCalValidator") << "cpPair: \t" << cpPair->first.index() << "\t lcId: \t" << lcId << "\t cp_linked: \t" << cp_linked.second << "\t clusters[lcId].energy(): \t" << clusters[lcId].energy() << "\n";
+      LogDebug("HGCalValidator") << "cpPair: \t" << cpPair->first.index() << "\t lcId: \t" << lcId << "\t cp_linked: \t" << cp_linked.first << "\t clusters[lcId].energy(): \t" << clusters[lcId].energy() << "\n";
        histograms.h_sharedenergy_layercl2caloparticle_perlayer.at(lcLayerId)->Fill(
-          cp_linked.second / clusters[lcId].energy(), clusters[lcId].energy());
+          cp_linked.first / clusters[lcId].energy(), clusters[lcId].energy());
       histograms.h_energy_vs_score_layercl2caloparticle_perlayer.at(lcLayerId)->Fill(
-          cpPair->second, cp_linked.second / clusters[lcId].energy());
+          cpPair->second, cp_linked.first / clusters[lcId].energy());
 
     }
     /*
