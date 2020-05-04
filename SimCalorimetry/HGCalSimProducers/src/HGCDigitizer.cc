@@ -239,7 +239,7 @@ namespace {
         const bool orderChanged = hitOrder_monitor[detectorId];
         int waferThickness = getCellThickness(geom, detectorId);
         float cell_threshold = tdcForToAOnset[waferThickness - 1];
-        std::vector<std::pair<float, float>> hitRec = hitmapIterator.second;
+        const std::vector<std::pair<float, float>>& hitRec = hitmapIterator.second;
         float accChargeForToA(0.f), fireTDC(0.f);
         itr aboveThrPos = std::upper_bound(
             hitRec.begin(), hitRec.end(), std::make_pair(cell_threshold, 0.f), [](const auto& i, const auto& j) {
