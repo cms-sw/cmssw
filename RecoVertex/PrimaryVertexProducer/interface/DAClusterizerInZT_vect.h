@@ -33,27 +33,29 @@ public:
 
       pi.push_back(new_pi);  // track weight
       Z_sum.push_back(1.0);  // Z[i]   for DA clustering, initial value as done in ::fill
+      kmin.push_back(0);
+      kmax.push_back(1);
     }
 
     unsigned int getSize() const { return z.size(); }
 
     // has to be called everytime the items are modified
     void extractRaw() {
-      z_ = &z.front();
-      t_ = &t.front();
-      dz2_ = &dz2.front();
-      dt2_ = &dt2.front();
-      Z_sum_ = &Z_sum.front();
-      pi_ = &pi.front();
+      _z = &z.front();
+      _t = &t.front();
+      _dz2 = &dz2.front();
+      _dt2 = &dt2.front();
+      _pi = &pi.front();
+      _Z_sum = &Z_sum.front();
     }
 
-    double *z_;   // z-coordinate at point of closest approach to the beamline
-    double *t_;   // t-coordinate at point of closest approach to the beamline
-    double *pi_;  // track weight
+    double *_z;   // z-coordinate at point of closest approach to the beamline
+    double *_t;   // t-coordinate at point of closest approach to the beamline
+    double *_pi;  // track weight
 
-    double *dz2_;    // square of the error of z(pca)
-    double *dt2_;    // square of the error of t(pca)
-    double *Z_sum_;  // Z[i]   for DA clustering
+    double *_dz2;    // square of the error of z(pca)
+    double *_dt2;    // square of the error of t(pca)
+    double *_Z_sum;  // Z[i]   for DA clustering
 
     std::vector<double> z;                         // z-coordinate at point of closest approach to the beamline
     std::vector<double> t;                         // t-coordinate at point of closest approach to the beamline
@@ -61,9 +63,12 @@ public:
     std::vector<double> dt2;                       // square of the error of t(pca)
     std::vector<double> Z_sum;                     // Z[i]   for DA clustering
     std::vector<double> pi;                        // track weight
+    std::vector<unsigned int> kmin;
+    std::vector<unsigned int> kmax;
     std::vector<const reco::TransientTrack *> tt;  // a pointer to the Transient Track
   };
 
+  
   struct vertex_t {
     void addItem(double new_z, double new_t, double new_pk) {
       z.push_back(new_z);
@@ -81,6 +86,9 @@ public:
       stt.push_back(0.0);
       szt.push_back(0.0);
 
+      dt2.push_back(0.0);
+      sumw.push_back(0.0);
+
       extractRaw();
     }
 
@@ -88,71 +96,138 @@ public:
 
     // has to be called everytime the items are modified
     void extractRaw() {
-      z_ = &z.front();
-      t_ = &t.front();
-      pk_ = &pk.front();
+      _z = &z.front();
+      _t = &t.front();
+      _pk = &pk.front();
+      _dt2 = &dt2.front();
+      _sumw = &sumw.front();
 
-      ei_ = &ei.front();
-      swz_ = &swz.front();
-      swt_ = &swt.front();
-      se_ = &se.front();
-      nuz_ = &nuz.front();
-      nut_ = &nut.front();
-      szz_ = &szz.front();
-      stt_ = &stt.front();
-      szt_ = &szt.front();
+      _ei = &ei.front();
+      _swz = &swz.front();
+      _swt = &swt.front();
+      _se = &se.front();
+      _nuz = &nuz.front();
+      _nut = &nut.front();
+      _szz = &szz.front();
+      _stt = &stt.front();
+      _szt = &szt.front();
 
-      ei_cache_ = &ei_cache.front();
+      _ei_cache = &ei_cache.front();
     }
 
-    void insertItem(unsigned int i, double new_z, double new_t, double new_pk) {
-      z.insert(z.begin() + i, new_z);
-      t.insert(t.begin() + i, new_t);
-      pk.insert(pk.begin() + i, new_pk);
+    void insertItem(unsigned int k, double new_z, double new_t, double new_pk) {
+      z.insert(z.begin() + k, new_z);
+      t.insert(t.begin() + k, new_t);
+      pk.insert(pk.begin() + k, new_pk);
 
-      ei_cache.insert(ei_cache.begin() + i, 0.0);
-      ei.insert(ei.begin() + i, 0.0);
-      swz.insert(swz.begin() + i, 0.0);
-      swt.insert(swt.begin() + i, 0.0);
-      se.insert(se.begin() + i, 0.0);
+      ei_cache.insert(ei_cache.begin() + k, 0.0);
+      ei.insert(ei.begin() + k, 0.0);
+      swz.insert(swz.begin() + k, 0.0);
+      swt.insert(swt.begin() + k, 0.0);
+      se.insert(se.begin() + k, 0.0);
 
-      nuz.insert(nuz.begin() + i, 0.0);
-      nut.insert(nut.begin() + i, 0.0);
-      szz.insert(szz.begin() + i, 0.0);
-      stt.insert(stt.begin() + i, 0.0);
-      szt.insert(szt.begin() + i, 0.0);
-      extractRaw();
-    }
+      nuz.insert(nuz.begin() + k, 0.0);
+      nut.insert(nut.begin() + k, 0.0);
+      szz.insert(szz.begin() + k, 0.0);
+      stt.insert(stt.begin() + k, 0.0);
+      szt.insert(szt.begin() + k, 0.0);
 
-    void removeItem(unsigned int i) {
-      z.erase(z.begin() + i);
-      t.erase(t.begin() + i);
-      pk.erase(pk.begin() + i);
-
-      ei_cache.erase(ei_cache.begin() + i);
-      ei.erase(ei.begin() + i);
-      swz.erase(swz.begin() + i);
-      swt.erase(swt.begin() + i);
-      se.erase(se.begin() + i);
-
-      nuz.erase(nuz.begin() + i);
-      nut.erase(nut.begin() + i);
-      szz.erase(szz.begin() + i);
-      stt.erase(stt.begin() + i);
-      szt.erase(szt.begin() + i);
+      dt2.insert(dt2.begin() + k, 0);
+      sumw.insert(sumw.begin() + k, 0);
 
       extractRaw();
     }
 
-    unsigned int insertOrdered(double z, double t, double pk) {
+    void insertItem(unsigned int k, double new_z, double new_t, double new_pk, track_t & tks) {
+      z.insert(z.begin() + k, new_z);
+      t.insert(t.begin() + k, new_t);
+      pk.insert(pk.begin() + k, new_pk);
+      dt2.insert(dt2.begin() + k, 0.0);
+      sumw.insert(sumw.begin() + k, 0.0);
+
+      ei_cache.insert(ei_cache.begin() + k, 0.0);
+      ei.insert(ei.begin() + k, 0.0);
+      swz.insert(swz.begin() + k, 0.0);
+      swt.insert(swt.begin() + k, 0.0);
+      se.insert(se.begin() + k, 0.0);
+
+      nuz.insert(nuz.begin() + k, 0.0);
+      nut.insert(nut.begin() + k, 0.0);
+      szz.insert(szz.begin() + k, 0.0);
+      stt.insert(stt.begin() + k, 0.0);
+      szt.insert(szt.begin() + k, 0.0);
+
+      // adjust vertex lists of tracks
+      for(unsigned int i = 0; i < tks.getSize(); i++)
+	{
+	  if (tks.kmin[i] > k) { tks.kmin[i]++; }
+	  if ((tks.kmax[i] > k) || (tks.kmax[i] == tks.kmin[i])) { tks.kmax[i]++; }
+	}
+	
+      extractRaw();
+    }
+
+    void removeItem(unsigned int k) {
+      z.erase(z.begin() + k);
+      t.erase(t.begin() + k);
+      pk.erase(pk.begin() + k);
+      dt2.erase(dt2.begin() + k);
+      sumw.erase(sumw.begin() + k);
+
+      ei_cache.erase(ei_cache.begin() + k);
+      ei.erase(ei.begin() + k);
+      swz.erase(swz.begin() + k);
+      swt.erase(swt.begin() + k);
+      se.erase(se.begin() + k);
+
+      nuz.erase(nuz.begin() + k);
+      nut.erase(nut.begin() + k);
+      szz.erase(szz.begin() + k);
+      stt.erase(stt.begin() + k);
+      szt.erase(szt.begin() + k);
+
+      extractRaw();
+    }
+
+
+    void removeItem(unsigned int k, track_t & tks) {
+      z.erase(z.begin() + k);
+      t.erase(t.begin() + k);
+      pk.erase(pk.begin() + k);
+      dt2.erase(dt2.begin() + k);
+      sumw.erase(sumw.begin() + k);
+
+      ei_cache.erase(ei_cache.begin() + k);
+      ei.erase(ei.begin() + k);
+      swz.erase(swz.begin() + k);
+      swt.erase(swt.begin() + k);
+      se.erase(se.begin() + k);
+
+      nuz.erase(nuz.begin() + k);
+      nut.erase(nut.begin() + k);
+      szz.erase(szz.begin() + k);
+      stt.erase(stt.begin() + k);
+      szt.erase(szt.begin() + k);
+
+      // adjust vertex lists of tracks
+      for(unsigned int i = 0; i < tks.getSize(); i++)
+	{
+	  if (tks.kmin[i] > k) { tks.kmin[i]--; }
+	  if ((tks.kmax[i] > k) && (tks.kmax[i] > (tks.kmin[i]+1))) { tks.kmax[i]--; }
+	}
+
+      extractRaw();
+    }
+
+    unsigned int insertOrdered(double z, double t, double pk, track_t& tks) {
       // insert a new cluster according to it's z-position, return the index at which it was inserted
 
       unsigned int k = 0;
       for (; k < getSize(); k++) {
-        if (z < z_[k])
+        if (z < _z[k])
           break;
       }
-      insertItem(k, z, t, pk);
+      insertItem(k, z, t, pk, tks);
       return k;
     }
 
@@ -160,28 +235,32 @@ public:
       std::cout << "vertex_t size: " << getSize() << std::endl;
 
       for (unsigned int i = 0; i < getSize(); ++i) {
-        std::cout << " z = " << z_[i] << " t = " << t_[i] << " pk = " << pk_[i] << std::endl;
+        std::cout << " z = " << _z[i] << " t = " << _t[i] << " pk = " << _pk[i] << std::endl;
       }
     }
 
-    std::vector<double> z;   //           z coordinate
-    std::vector<double> t;   //           t coordinate
+    std::vector<double> z;   //          z coordinate
+    std::vector<double> t;   //          t coordinate
     std::vector<double> pk;  //          vertex weight for "constrained" clustering
+    std::vector<double> dt2; // experimental
+    std::vector<double> sumw; // experimental
+    
+    double *_z;
+    double *_t;
+    double *_pk;
+    double *_dt2;    //experimental
+    double *_sumw;   //experimental
 
-    double *z_;
-    double *t_;
-    double *pk_;
-
-    double *ei_cache_;
-    double *ei_;
-    double *swz_;
-    double *swt_;
-    double *se_;
-    double *szz_;
-    double *stt_;
-    double *szt_;
-    double *nuz_;
-    double *nut_;
+    double *_ei_cache;
+    double *_ei;
+    double *_swz;
+    double *_swt;
+    double *_se;
+    double *_szz;
+    double *_stt;
+    double *_szt;
+    double *_nuz;
+    double *_nut;
 
     // --- temporary numbers, used during update
     std::vector<double> ei_cache;
@@ -194,30 +273,41 @@ public:
     std::vector<double> szz;
     std::vector<double> stt;
     std::vector<double> szt;
+
+    // copy made at the beginning of thermalize
+    std::vector<double> z0; //           z coordinate at last vtx range fixing
   };
 
   DAClusterizerInZT_vect(const edm::ParameterSet &conf);
 
-  std::vector<std::vector<reco::TransientTrack> > clusterize(
-      const std::vector<reco::TransientTrack> &tracks) const override;
+  std::vector<std::vector<reco::TransientTrack> >
+  clusterize(const std::vector<reco::TransientTrack> &tracks) const override;
 
-  std::vector<TransientVertex> vertices(const std::vector<reco::TransientTrack> &tracks, const int verbosity = 0) const;
+  std::vector<TransientVertex>
+  vertices(const std::vector<reco::TransientTrack> &tracks, const int verbosity = 0) const;
 
   track_t fill(const std::vector<reco::TransientTrack> &tracks) const;
 
-  double update(double beta, track_t &gtracks, vertex_t &gvertices, bool useRho0, const double &rho0) const;
+  void set_vtx_range(double beta, track_t & gtracks, vertex_t & gvertices) const;
+
+  void clear_vtx_range(track_t & gtracks,
+		vertex_t & gvertices) const;
+
+  unsigned int thermalize(double beta, track_t & gtracks, vertex_t & gvertices, const double delta_max, const double rho0=0.) const;
+
+  double update(double beta, track_t &gtracks, vertex_t &gvertices, const double rho0 = 0) const;
 
   void dump(const double beta, const vertex_t &y, const track_t &tks, const int verbosity = 0) const;
-  void zorder(vertex_t &y) const;
+  bool zorder(vertex_t &y) const;
   bool find_nearest(double z, double t, vertex_t &y, unsigned int &k_min, double dz, double dt) const;
-  bool merge(vertex_t &y, double &beta) const;
+  bool merge(vertex_t &, track_t &, double &beta) const;
   bool purge(vertex_t &, track_t &, double &, const double) const;
-  void splitAll(vertex_t &y) const;
   bool split(const double beta, track_t &t, vertex_t &y, double threshold = 1.) const;
 
   double beta0(const double betamax, track_t const &tks, vertex_t const &y) const;
 
   double get_Tc(const vertex_t &y, int k) const;
+  void verify(const vertex_t &v, const track_t &tks, unsigned int nv=999999, unsigned int nt=999999) const;
 
 private:
   bool verbose_;
@@ -226,7 +316,7 @@ private:
 
   double vertexSize_;
   double vertexSizeTime_;
-  int maxIterations_;
+  unsigned int maxIterations_;
   double coolingFactor_;
   double betamax_;
   double betastop_;
@@ -234,14 +324,20 @@ private:
   double d0CutOff_;
   double dtCutOff_;
   double t0Max_;
-  bool useTc_;
 
   double mintrkweight_;
   double uniquetrkweight_;
   double zmerge_;
   double tmerge_;
   double betapurge_;
+  
+  unsigned int convergence_mode_;
+  double delta_highT_;
+  double delta_lowT_;
+
+  double sel_zrange_;
+  const double zrange_min_ = 0.1;  // smallest z-range to be included in a tracks cluster list
 };
 
-//#ifndef DAClusterizerInZT_new_h
+//#ifndef DAClusterizerInZT_vect_h
 #endif
