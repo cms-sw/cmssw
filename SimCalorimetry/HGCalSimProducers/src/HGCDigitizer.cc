@@ -185,7 +185,7 @@ namespace {
           unsigned_time = (unsigned_time_array[ihit] & HGCDigitizer::dataMask);
           p_time = logintpack::unpack16log(unsigned_time, minPackChargeLog, maxPackChargeLog, base);
           p_charge = logintpack::unpack16log(unsigned_charge, minPackChargeLog, maxPackChargeLog, base);
-          const std::pair<float, float> charge_time_pair = std::make_pair(p_charge, p_time);
+          const auto charge_time_pair = std::make_pair(p_charge, p_time);
           (simIt->second).hit_info[0][iSample] += p_charge;
           if (iSample == 9) {
             if (hitRefs_bx0[detId].empty()) {
