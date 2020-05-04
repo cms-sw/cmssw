@@ -34,7 +34,9 @@ MuonG4Numbering::MuonG4Numbering(const MuonGeometryConstants& muonConstants) {
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("MuonSim") << "StartCopyNo = " << theStartCopyNo;
-  edm::LogVerbatim("MuonSim") << "MuonG4Numbering configured with" << "Level = " << theLevelPart << " Super = " << theSuperPart << " Base = " << theBasePart << " StartCopyNo = " << theStartCopyNo;
+  edm::LogVerbatim("MuonSim") << "MuonG4Numbering configured with"
+                              << "Level = " << theLevelPart << " Super = " << theSuperPart << " Base = " << theBasePart
+                              << " StartCopyNo = " << theStartCopyNo;
 #endif
 }
 
@@ -47,13 +49,14 @@ MuonBaseNumber MuonG4Numbering::PhysicalVolumeToBaseNumber(const G4Step* aStep) 
     int copyno = vol->GetCopyNo();
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("MuonSim") << "MuonG4Numbering: " << vol->GetName() << " " << copyno << std::endl
-              << "Split " << copyNoRelevant(copyno) << ":" << theLevelPart << ":" << theSuperPart << " ";
+                                << "Split " << copyNoRelevant(copyno) << ":" << theLevelPart << ":" << theSuperPart
+                                << " ";
 #endif
     if (copyNoRelevant(copyno)) {
       num.addBase(getCopyNoLevel(copyno), getCopyNoSuperNo(copyno), getCopyNoBaseNo(copyno) - theStartCopyNo);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("MuonSim") << " NoLevel " << getCopyNoLevel(copyno) << " Super " << getCopyNoSuperNo(copyno) << " Base "
-                << getCopyNoBaseNo(copyno) << " Start " << theStartCopyNo;
+      edm::LogVerbatim("MuonSim") << " NoLevel " << getCopyNoLevel(copyno) << " Super " << getCopyNoSuperNo(copyno)
+                                  << " Base " << getCopyNoBaseNo(copyno) << " Start " << theStartCopyNo;
 #endif
     }
   }

@@ -41,7 +41,9 @@ public:
 
 private:
   /// create the chamber
-  DTChamber* buildChamber(DDFilteredView& fv, const std::string& type, const MuonGeometryConstants& muonConstants) const;
+  DTChamber* buildChamber(DDFilteredView& fv,
+                          const std::string& type,
+                          const MuonGeometryConstants& muonConstants) const;
 
   /// create the SL
   DTSuperLayer* buildSuperLayer(DDFilteredView& fv,

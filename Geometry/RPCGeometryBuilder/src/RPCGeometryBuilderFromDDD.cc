@@ -63,7 +63,8 @@ RPCGeometry* RPCGeometryBuilderFromDDD::build(const cms::DDCompactView* cview,
   return this->buildGeometry(fview, muonConstants);
 }
 // for DDD
-RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, const MuonGeometryConstants& muonConstants) {
+RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview,
+                                                      const MuonGeometryConstants& muonConstants) {
   LogDebug("RPCGeometryBuilderFromDDD") << "Building the geometry service";
   RPCGeometry* geometry = new RPCGeometry();
   LogDebug("RPCGeometryBuilderFromDDD") << "About to run through the RPC structure\n"
