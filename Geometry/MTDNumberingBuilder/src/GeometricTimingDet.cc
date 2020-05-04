@@ -96,7 +96,6 @@ GeometricTimingDet::GeometricTimingDet(cms::DDFilteredView* fv, GeometricTimingE
     : trans_(fv->translation()),
       rot_(fv->rotation()),
       shape_(DDSolidShape(static_cast<int>(fv->shape()))),
-      ddd_(fv->navPos()),
       ddname_(fv->name()),
       type_(type),
       params_(fv->parameters()),
@@ -114,6 +113,8 @@ GeometricTimingDet::GeometricTimingDet(cms::DDFilteredView* fv, GeometricTimingE
   trans_.SetCoordinates(convertCmToMm(trans_.X()), convertCmToMm(trans_.Y()), convertCmToMm(trans_.Z()));
   phi_ = trans_.Phi();
   rho_ = trans_.Rho();
+  const DDFilteredView::nav_type& nt = fv->copyNos();
+  ddd_ = nav_type(nt.rbegin(), nt.rend());
 }
 
 // PGeometricTimingDet is persistent version... make it... then come back here and make the
