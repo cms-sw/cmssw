@@ -1191,11 +1191,12 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
                                    std::end(cpsInLayerClusterMap[lcRef]),
                                    [](const auto& obj1, const auto& obj2) { return obj1.second < obj2.second; });
       //auto const& best_cp_linked = cPOnLayerV_[best->first.index()][lcLayerId];
-      auto const& best_cp_linked = cPOnLayerMap[best->first][lcLayerId];
+      //auto const& best_cp_linked = cPOnLayerMap[best->first][lcId];
+      auto const best_cp_linked = cPOnLayer[best->first.index()][lcLayerId].layerClusterIdToEnergyAndScore[lcId];
       histograms.h_sharedenergy_layercl2caloparticle_vs_eta_perlayer.at(lcLayerId)->Fill(
-          clusters[lcId].eta(), best_cp_linked.second / clusters[lcId].energy());
+          clusters[lcId].eta(), best_cp_linked.first / clusters[lcId].energy());
       histograms.h_sharedenergy_layercl2caloparticle_vs_phi_perlayer.at(lcLayerId)->Fill(
-          clusters[lcId].phi(), best_cp_linked.second / clusters[lcId].energy());
+          clusters[lcId].phi(), best_cp_linked.first / clusters[lcId].energy());
     }
     histograms.h_denom_layercl_eta_perlayer.at(lcLayerId)->Fill(clusters[lcId].eta());
     histograms.h_denom_layercl_phi_perlayer.at(lcLayerId)->Fill(clusters[lcId].phi());
