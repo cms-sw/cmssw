@@ -103,8 +103,7 @@ namespace {
                                        const hgc::HGCPUSimHitDataAccumulator& simData,
                                        const std::unordered_set<DetId>& validIds,
                                        const float minCharge,
-                                       const float maxCharge,
-                                       const bool premixStage1) {
+                                       const float maxCharge) {
     constexpr auto nEnergies = std::tuple_size<decltype(hgc_digi::HGCCellHitInfo().PUhit_info)>::value;
     static_assert(nEnergies <= PreMixHGCSimAccumulator::SimHitCollection::energyMask + 1,
                   "PreMixHGCSimAccumulator bit pattern needs to updated");
