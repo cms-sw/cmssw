@@ -6,7 +6,7 @@
  *
  * Adopted from RecoTauTag/RecoTau/plugins/PFRecoTauDiscriminationAgainstElectronDeadECAL.cc
  * to enable computation of the discriminator on MiniAOD
- * 
+ *
  * The motivation for this flag is this presentation:
  *   https://indico.cern.ch/getFile.py/access?contribId=0&resId=0&materialId=slides&confId=177223
  *
@@ -32,23 +32,30 @@ class PATTauDiscriminationAgainstElectronDeadECAL : public PATTauDiscriminationP
   explicit PATTauDiscriminationAgainstElectronDeadECAL(const edm::ParameterSet& cfg)
       : PATTauDiscriminationProducerBase(cfg),
         moduleLabel_(cfg.getParameter<std::string>("@module_label")),
-        antiElectronDeadECAL_(cfg) 
+        verbosity_(cfg.getParameter<int>("verbosity")),
+        antiElectronDeadECAL_(cfg)
   {}
-  ~PATTauDiscriminationAgainstElectronDeadECAL() override 
+  ~PATTauDiscriminationAgainstElectronDeadECAL() override
   {}
 
-  void beginEvent(const edm::Event& evt, const edm::EventSetup& es) override 
-  { 
-    antiElectronDeadECAL_.beginEvent(es); 
+  void beginEvent(const edm::Event& evt, const edm::EventSetup& es) override
+  {
+    antiElectronDeadECAL_.beginEvent(es);
   }
 
-  double discriminate(const TauRef& tau) const override 
+  double discriminate(const TauRef& tau) const override
   {
+    if (verbosity_) {
+      edm::LogPrint("PATTauAgainstEleDeadECAL") << "<PATTauDiscriminationAgainstElectronDeadECAL::discriminate>:";
+      edm::LogPrint("PATTauAgainstEleDeadECAL") << " moduleLabel = " << moduleLabel_;
+      edm::LogPrint("PATTauAgainstEleDeadECAL") << " tau: Pt = " << tau->pt() << ", eta = " << tau->eta() << ", phi = " << tau->phi();
+    }
     double discriminator = 1.;
-    if ( tau->leadChargedHadrCand().isNonnull() ) {
-      if ( antiElectronDeadECAL_(tau->leadChargedHadrCand().get()) ) {
-        discriminator = 0.;
-      }
+    if ( antiElectronDeadECAL_(tau.get()) ) {
+      discriminator = 0.;
+    }
+    if (verbosity_) {
+      edm::LogPrint("PATTauAgainstEleDeadECAL") << "--> discriminator = " << discriminator;
     }
     return discriminator;
   }
@@ -57,17 +64,19 @@ class PATTauDiscriminationAgainstElectronDeadECAL : public PATTauDiscriminationP
 
  private:
   std::string moduleLabel_;
+  int verbosity_;
 
   AntiElectronDeadECAL antiElectronDeadECAL_;
 };
 
-void PATTauDiscriminationAgainstElectronDeadECAL::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
+void PATTauDiscriminationAgainstElectronDeadECAL::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 {
   // patTauDiscriminationAgainstElectronDeadECAL
   edm::ParameterSetDescription desc;
-  
+
   desc.add<double>("dR", 0.08);
   desc.add<unsigned int>("minStatus", 12);
+  desc.add<bool>("extrapolateToECalEntrance", true);
   desc.add<int>("verbosity", 0);
 
   fillProducerDescriptions(desc); // inherited from the base-class

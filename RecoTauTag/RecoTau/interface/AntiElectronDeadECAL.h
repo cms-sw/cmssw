@@ -35,24 +35,26 @@ class AntiElectronDeadECAL
 
   void beginEvent(const edm::EventSetup&);
 
-  bool operator()(const reco::Candidate* leadPFChargedHadron) const;
+  bool operator()(const reco::Candidate* tau) const;
 
  private:
   unsigned minStatus_;
   double dR_;
+  int verbosity_;
+  bool extrapolateToECalEntrance_;
 
   PositionAtECalEntrance positionAtECalEntrance_;
 
   void updateBadTowers(const edm::EventSetup&);
-  
-  struct towerInfo 
+
+  struct towerInfo
   {
     towerInfo(uint32_t id, unsigned nBad, unsigned maxStatus, double eta, double phi)
-      : id_(id), 
-	nBad_(nBad), 
-	maxStatus_(maxStatus), 
-	eta_(eta), 
-	phi_(phi) 
+      : id_(id),
+	nBad_(nBad),
+	maxStatus_(maxStatus),
+	eta_(eta),
+	phi_(phi)
     {}
     uint32_t id_;
     unsigned nBad_;

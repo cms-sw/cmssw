@@ -16,7 +16,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
-class PositionAtECalEntrance 
+class PositionAtECalEntrance
 {
  public:
   PositionAtECalEntrance();

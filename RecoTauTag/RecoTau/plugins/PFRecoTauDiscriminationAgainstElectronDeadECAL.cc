@@ -23,29 +23,36 @@
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 #include "RecoTauTag/RecoTau/interface/AntiElectronDeadECAL.h"
 
-class PFRecoTauDiscriminationAgainstElectronDeadECAL : public PFTauDiscriminationProducerBase 
+class PFRecoTauDiscriminationAgainstElectronDeadECAL : public PFTauDiscriminationProducerBase
 {
  public:
   explicit PFRecoTauDiscriminationAgainstElectronDeadECAL(const edm::ParameterSet& cfg)
       : PFTauDiscriminationProducerBase(cfg),
         moduleLabel_(cfg.getParameter<std::string>("@module_label")),
-        antiElectronDeadECAL_(cfg) 
+        verbosity_(cfg.getParameter<int>("verbosity")),
+        antiElectronDeadECAL_(cfg)
   {}
-  ~PFRecoTauDiscriminationAgainstElectronDeadECAL() override 
+  ~PFRecoTauDiscriminationAgainstElectronDeadECAL() override
   {}
 
-  void beginEvent(const edm::Event& evt, const edm::EventSetup& es) override 
-  { 
-    antiElectronDeadECAL_.beginEvent(es); 
+  void beginEvent(const edm::Event& evt, const edm::EventSetup& es) override
+  {
+    antiElectronDeadECAL_.beginEvent(es);
   }
 
-  double discriminate(const reco::PFTauRef& tau) const override 
+  double discriminate(const reco::PFTauRef& tau) const override
   {
+    if (verbosity_) {
+      edm::LogPrint("PFTauAgainstEleDeadECAL") << "<PFRecoTauDiscriminationAgainstElectronDeadECAL::discriminate>:";
+      edm::LogPrint("PFTauAgainstEleDeadECAL") << " moduleLabel = " << moduleLabel_;
+      edm::LogPrint("PFTauAgainstEleDeadECAL") << " tau: Pt = " << tau->pt() << ", eta = " << tau->eta() << ", phi = " << tau->phi();
+    }
     double discriminator = 1.;
-    if ( tau->leadChargedHadrCand().isNonnull() ) {
-      if ( antiElectronDeadECAL_(tau->leadChargedHadrCand().get()) ) {
-        discriminator = 0.;
-      }
+    if ( antiElectronDeadECAL_(tau.get()) ) {
+      discriminator = 0.;
+    }
+    if (verbosity_) {
+      edm::LogPrint("PFTauAgainstEleDeadECAL") << "--> discriminator = " << discriminator;
     }
     return discriminator;
   }
@@ -54,17 +61,19 @@ class PFRecoTauDiscriminationAgainstElectronDeadECAL : public PFTauDiscriminatio
 
  private:
   std::string moduleLabel_;
+  int verbosity_;
 
   AntiElectronDeadECAL antiElectronDeadECAL_;
 };
 
-void PFRecoTauDiscriminationAgainstElectronDeadECAL::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
+void PFRecoTauDiscriminationAgainstElectronDeadECAL::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 {
   // pfRecoTauDiscriminationAgainstElectronDeadECAL
   edm::ParameterSetDescription desc;
 
   desc.add<double>("dR", 0.08);
   desc.add<unsigned int>("minStatus", 12);
+  desc.add<bool>("extrapolateToECalEntrance", true);
   desc.add<int>("verbosity", 0);
 
   fillProducerDescriptions(desc); // inherited from the base-class
