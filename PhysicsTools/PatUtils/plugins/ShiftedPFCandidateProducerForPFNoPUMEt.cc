@@ -74,11 +74,13 @@ void ShiftedPFCandidateProducerForPFNoPUMEt::produce(edm::Event& evt, const edm:
     const reco::PFJet* jet_matched = nullptr;
     for (auto jet : selectedJets) {
       for (auto jetc : jet->getPFConstituents()) {
-        if (jet_matched)
-          break;
-        if (deltaR2(originalPFCandidate->p4(), jetc->p4()) < dR2Match)
+        if (deltaR2(originalPFCandidate->p4(), jetc->p4()) < dR2Match) {
           jet_matched = jet;
+          break;
+        }
       }
+      if (jet_matched)
+        break;
     }
 
     double shift = 0.;
