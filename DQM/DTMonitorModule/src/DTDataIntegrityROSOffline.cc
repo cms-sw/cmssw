@@ -27,12 +27,13 @@ using namespace std;
 using namespace edm;
 
 DTDataIntegrityROSOffline::DTDataIntegrityROSOffline(const edm::ParameterSet& ps) : nevents(0) {
-  LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityROSOffline") << "[DTDataIntegrityROSOffline]: Constructor" << endl;
+  LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityROSOffline")
+      << "[DTDataIntegrityROSOffline]: Constructor" << endl;
 
-    dduToken = consumes<DTDDUCollection>(ps.getParameter<InputTag>("dtDDULabel"));
-    ros25Token = consumes<DTROS25Collection>(ps.getParameter<InputTag>("dtROS25Label"));
-    FEDIDmin = FEDNumbering::MINDTFEDID;
-    FEDIDmax = FEDNumbering::MAXDTFEDID;
+  dduToken = consumes<DTDDUCollection>(ps.getParameter<InputTag>("dtDDULabel"));
+  ros25Token = consumes<DTROS25Collection>(ps.getParameter<InputTag>("dtROS25Label"));
+  FEDIDmin = FEDNumbering::MINDTFEDID;
+  FEDIDmax = FEDNumbering::MAXDTFEDID;
 
   neventsFED = 0;
 
@@ -40,7 +41,6 @@ DTDataIntegrityROSOffline::DTDataIntegrityROSOffline(const edm::ParameterSet& ps
   getSCInfo = ps.getUntrackedParameter<bool>("getSCInfo", false);
 
   fedIntegrityFolder = ps.getUntrackedParameter<string>("fedIntegrityFolder", "DT/FEDIntegrity");
-
 }
 
 DTDataIntegrityROSOffline::~DTDataIntegrityROSOffline() {
@@ -60,9 +60,10 @@ DTDataIntegrityROSOffline::~DTDataIntegrityROSOffline() {
 */
 
 void DTDataIntegrityROSOffline::bookHistograms(DQMStore::IBooker& ibooker,
-                                         edm::Run const& iRun,
-                                         edm::EventSetup const& iSetup) {
-  LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityROSOffline") << "[DTDataIntegrityROSOffline]: postBeginJob" << endl;
+                                               edm::Run const& iRun,
+                                               edm::EventSetup const& iSetup) {
+  LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityROSOffline")
+      << "[DTDataIntegrityROSOffline]: postBeginJob" << endl;
 
   LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityROSOffline")
       << "[DTDataIntegrityROSOffline] Get DQMStore service" << endl;
@@ -77,20 +78,20 @@ void DTDataIntegrityROSOffline::bookHistograms(DQMStore::IBooker& ibooker,
 
   //Legacy ROS
 
-      // static booking of the histograms
+  // static booking of the histograms
 
-      for (int fed = FEDIDmin; fed <= FEDIDmax; ++fed) {  // loop over the FEDs in the readout
-        DTROChainCoding code;
-        code.setDDU(fed);
-        bookHistos(ibooker, string("ROS_S"), code);
+  for (int fed = FEDIDmin; fed <= FEDIDmax; ++fed) {  // loop over the FEDs in the readout
+    DTROChainCoding code;
+    code.setDDU(fed);
+    bookHistos(ibooker, string("ROS_S"), code);
 
-        bookHistos(ibooker, string("DDU"), code);
+    bookHistos(ibooker, string("DDU"), code);
 
-        for (int ros = 1; ros <= nROS; ++ros) {  // loop over all ROS
-          code.setROS(ros);
-          bookHistosROS25(ibooker, code);
-        }
-      }
+    for (int ros = 1; ros <= nROS; ++ros) {  // loop over all ROS
+      code.setROS(ros);
+      bookHistosROS25(ibooker, code);
+    }
+  }
 }
 
 void DTDataIntegrityROSOffline::bookHistos(DQMStore::IBooker& ibooker, const int fedMin, const int fedMax) {
@@ -104,34 +105,34 @@ void DTDataIntegrityROSOffline::bookHistos(DQMStore::IBooker& ibooker, const int
 
   hFEDEntry = ibooker.book1D("FEDEntries", "# entries per DT FED", nFED, fedMin, fedMax + 1);
 
-    hFEDFatal = ibooker.book1D("FEDFatal", "# fatal errors DT FED", nFED, fedMin, fedMax + 1);
-    hFEDNonFatal = ibooker.book1D("FEDNonFatal", "# NON fatal errors DT FED", nFED, fedMin, fedMax + 1);
+  hFEDFatal = ibooker.book1D("FEDFatal", "# fatal errors DT FED", nFED, fedMin, fedMax + 1);
+  hFEDNonFatal = ibooker.book1D("FEDNonFatal", "# NON fatal errors DT FED", nFED, fedMin, fedMax + 1);
 
-    ibooker.setCurrentFolder(topFolder(false));
-    hTTSSummary = ibooker.book2D("TTSSummary", "Summary Status TTS", nFED, fedMin, fedMax + 1, 9, 1, 10);
-    hTTSSummary->setAxisTitle("FED", 1);
-    hTTSSummary->setBinLabel(1, "ROS PAF", 2);
-    hTTSSummary->setBinLabel(2, "DDU PAF", 2);
-    hTTSSummary->setBinLabel(3, "ROS PAF", 2);
-    hTTSSummary->setBinLabel(4, "DDU PAF", 2);
-    hTTSSummary->setBinLabel(5, "DDU Full", 2);
-    hTTSSummary->setBinLabel(6, "L1A Mism.", 2);
-    hTTSSummary->setBinLabel(7, "ROS Error", 2);
-    hTTSSummary->setBinLabel(8, "BX Mism.", 2);
-    hTTSSummary->setBinLabel(9, "DDU Logic Err.", 2);
+  ibooker.setCurrentFolder(topFolder(false));
+  hTTSSummary = ibooker.book2D("TTSSummary", "Summary Status TTS", nFED, fedMin, fedMax + 1, 9, 1, 10);
+  hTTSSummary->setAxisTitle("FED", 1);
+  hTTSSummary->setBinLabel(1, "ROS PAF", 2);
+  hTTSSummary->setBinLabel(2, "DDU PAF", 2);
+  hTTSSummary->setBinLabel(3, "ROS PAF", 2);
+  hTTSSummary->setBinLabel(4, "DDU PAF", 2);
+  hTTSSummary->setBinLabel(5, "DDU Full", 2);
+  hTTSSummary->setBinLabel(6, "L1A Mism.", 2);
+  hTTSSummary->setBinLabel(7, "ROS Error", 2);
+  hTTSSummary->setBinLabel(8, "BX Mism.", 2);
+  hTTSSummary->setBinLabel(9, "DDU Logic Err.", 2);
 
-    // bookkeeping of the histos
-    hCorruptionSummary =
-        ibooker.book2D("DataCorruptionSummary", "Data Corruption Sources", nFED, fedMin, fedMax + 1, 8, 1, 9);
-    hCorruptionSummary->setAxisTitle("FED", 1);
-    hCorruptionSummary->setBinLabel(1, "Miss Ch.", 2);
-    hCorruptionSummary->setBinLabel(2, "ROS BX mism", 2);
-    hCorruptionSummary->setBinLabel(3, "DDU BX mism", 2);
-    hCorruptionSummary->setBinLabel(4, "ROS L1A mism", 2);
-    hCorruptionSummary->setBinLabel(5, "Miss Payload", 2);
-    hCorruptionSummary->setBinLabel(6, "FCRC bit", 2);
-    hCorruptionSummary->setBinLabel(7, "Header check", 2);
-    hCorruptionSummary->setBinLabel(8, "Trailer Check", 2);
+  // bookkeeping of the histos
+  hCorruptionSummary =
+      ibooker.book2D("DataCorruptionSummary", "Data Corruption Sources", nFED, fedMin, fedMax + 1, 8, 1, 9);
+  hCorruptionSummary->setAxisTitle("FED", 1);
+  hCorruptionSummary->setBinLabel(1, "Miss Ch.", 2);
+  hCorruptionSummary->setBinLabel(2, "ROS BX mism", 2);
+  hCorruptionSummary->setBinLabel(3, "DDU BX mism", 2);
+  hCorruptionSummary->setBinLabel(4, "ROS L1A mism", 2);
+  hCorruptionSummary->setBinLabel(5, "Miss Payload", 2);
+  hCorruptionSummary->setBinLabel(6, "FCRC bit", 2);
+  hCorruptionSummary->setBinLabel(7, "Header check", 2);
+  hCorruptionSummary->setBinLabel(8, "Trailer Check", 2);
 }
 
 void DTDataIntegrityROSOffline::bookHistos(DQMStore::IBooker& ibooker, string folder, DTROChainCoding code) {
@@ -188,7 +189,6 @@ void DTDataIntegrityROSOffline::bookHistos(DQMStore::IBooker& ibooker, string fo
     histo->setBinLabel(10, "ROS 10", 2);
     histo->setBinLabel(11, "ROS 11", 2);
     histo->setBinLabel(12, "ROS 12", 2);
-
   }
 
   // ROS Histograms
@@ -286,7 +286,6 @@ void DTDataIntegrityROSOffline::bookHistos(DQMStore::IBooker& ibooker, string fo
     histo->setBinLabel(24, "ROB23", 2);
     histo->setBinLabel(25, "ROB24", 2);
     histo->setBinLabel(26, "SC", 2);
-
   }
 
   // SC Histograms
@@ -307,9 +306,8 @@ void DTDataIntegrityROSOffline::bookHistosROS25(DQMStore::IBooker& ibooker, DTRO
   bookHistos(ibooker, string("ROS"), code);
 }
 
-
 void DTDataIntegrityROSOffline::processROS25(DTROS25Data& data, int ddu, int ros) {
-  neventsROS++;  
+  neventsROS++;
 
   LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityROSOffline")
       << "[DTDataIntegrityROSOffline]: " << neventsROS << " events analyzed by processROS25" << endl;
@@ -323,7 +321,7 @@ void DTDataIntegrityROSOffline::processROS25(DTROS25Data& data, int ddu, int ros
 
   // Summary of all ROB errors
   MonitorElement* ROSError = nullptr;
-    ROSError = rosHistos["ROSError"][code.getROSID()];
+  ROSError = rosHistos["ROSError"][code.getROSID()];
 
   if ((!ROSError)) {
     LogError("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityROSOffline")
@@ -338,7 +336,8 @@ void DTDataIntegrityROSOffline::processROS25(DTROS25Data& data, int ddu, int ros
 
   // check for TPX errors
   if (data.getROSTrailer().TPX() != 0) {
-    LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityROSOffline") << " TXP error en ROS " << code.getROS() << endl;
+    LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityROSOffline")
+        << " TXP error en ROS " << code.getROS() << endl;
     ROSSummary->Fill(9, code.getROS());
   }
 
@@ -361,18 +360,18 @@ void DTDataIntegrityROSOffline::processROS25(DTROS25Data& data, int ddu, int ros
       eventErrorFlag = true;
     }
 
-      // Fill the ROB Summary (1 per ROS) histo
-      if ((*error_it).robID() != 31) {
-        ROSError->Fill((*error_it).errorType(), (*error_it).robID());
-      } else if ((*error_it).errorType() == 4) {
-        vector<int> channelBins;
-        channelsInROS((*error_it).cerosID(), channelBins);
-        vector<int>::const_iterator channelIt = channelBins.begin();
-        vector<int>::const_iterator channelEnd = channelBins.end();
-        for (; channelIt != channelEnd; ++channelIt) {
-          ROSError->Fill(4, (*channelIt));
-        }
+    // Fill the ROB Summary (1 per ROS) histo
+    if ((*error_it).robID() != 31) {
+      ROSError->Fill((*error_it).errorType(), (*error_it).robID());
+    } else if ((*error_it).errorType() == 4) {
+      vector<int> channelBins;
+      channelsInROS((*error_it).cerosID(), channelBins);
+      vector<int>::const_iterator channelIt = channelBins.begin();
+      vector<int>::const_iterator channelEnd = channelBins.end();
+      for (; channelIt != channelEnd; ++channelIt) {
+        ROSError->Fill(4, (*channelIt));
       }
+    }
   }
 
   int ROSDebug_BunchNumber = -1;
@@ -413,20 +412,20 @@ void DTDataIntegrityROSOffline::processROS25(DTROS25Data& data, int ddu, int ros
 
     if (debugROSSummary) {
       ROSSummary->Fill(debugROSSummary, code.getROS());
-        vector<int>::const_iterator channelIt = debugBins.begin();
-        vector<int>::const_iterator channelEnd = debugBins.end();
-        for (; channelIt != channelEnd; ++channelIt) {
-          ROSError->Fill(debugROSError, (*channelIt));
-        }
+      vector<int>::const_iterator channelIt = debugBins.begin();
+      vector<int>::const_iterator channelEnd = debugBins.end();
+      for (; channelIt != channelEnd; ++channelIt) {
+        ROSError->Fill(debugROSError, (*channelIt));
+      }
     }
 
     if (hasEvIdMis) {
       ROSSummary->Fill(12, code.getROS());
-        vector<int>::const_iterator channelIt = evIdMisBins.begin();
-        vector<int>::const_iterator channelEnd = evIdMisBins.end();
-        for (; channelIt != channelEnd; ++channelIt) {
-          ROSError->Fill(9, (*channelIt));
-        }
+      vector<int>::const_iterator channelIt = evIdMisBins.begin();
+      vector<int>::const_iterator channelEnd = evIdMisBins.end();
+      for (; channelIt != channelEnd; ++channelIt) {
+        ROSError->Fill(9, (*channelIt));
+      }
     }
   }
 
@@ -446,7 +445,7 @@ void DTDataIntegrityROSOffline::processROS25(DTROS25Data& data, int ddu, int ros
       eventErrorFlag = true;
 
       // fill ROB Summary plot for that particular ROS
-        ROSError->Fill(7, robheader.robID());
+      ROSError->Fill(7, robheader.robID());
     }
   }
 
@@ -465,7 +464,7 @@ void DTDataIntegrityROSOffline::processROS25(DTROS25Data& data, int ddu, int ros
       eventErrorFlag = true;
 
       // fill ROB Summary plot for that particular ROS
-        ROSError->Fill(6, (*tdc_it).first);
+      ROSError->Fill(6, (*tdc_it).first);
     }
   }
 
@@ -537,9 +536,8 @@ void DTDataIntegrityROSOffline::processROS25(DTROS25Data& data, int ddu, int ros
       eventErrorFlag = true;
     }
 
-      ROSError->Fill(tdcError_ROSError, (*tdc_it).first);
+    ROSError->Fill(tdcError_ROSError, (*tdc_it).first);
   }
-
 }
 
 void DTDataIntegrityROSOffline::processFED(DTDDUData& data, const std::vector<DTROS25Data>& rosData, int ddu) {
@@ -600,14 +598,14 @@ void DTDataIntegrityROSOffline::processFED(DTDDUData& data, const std::vector<DT
        fsw_it != data.getFirstStatusWord().end();
        fsw_it++) {
     // assuming association one-to-one between DDU channel and ROS
-      hROSStatus->Fill(0, channel, (*fsw_it).channelEnabled());
-      hROSStatus->Fill(1, channel, (*fsw_it).timeout());
-      hROSStatus->Fill(2, channel, (*fsw_it).eventTrailerLost());
-      hROSStatus->Fill(3, channel, (*fsw_it).opticalFiberSignalLost());
-      hROSStatus->Fill(4, channel, (*fsw_it).tlkPropagationError());
-      hROSStatus->Fill(5, channel, (*fsw_it).tlkPatternError());
-      hROSStatus->Fill(6, channel, (*fsw_it).tlkSignalLost());
-      hROSStatus->Fill(7, channel, (*fsw_it).errorFromROS());
+    hROSStatus->Fill(0, channel, (*fsw_it).channelEnabled());
+    hROSStatus->Fill(1, channel, (*fsw_it).timeout());
+    hROSStatus->Fill(2, channel, (*fsw_it).eventTrailerLost());
+    hROSStatus->Fill(3, channel, (*fsw_it).opticalFiberSignalLost());
+    hROSStatus->Fill(4, channel, (*fsw_it).tlkPropagationError());
+    hROSStatus->Fill(5, channel, (*fsw_it).tlkPatternError());
+    hROSStatus->Fill(6, channel, (*fsw_it).tlkSignalLost());
+    hROSStatus->Fill(7, channel, (*fsw_it).errorFromROS());
     // check that the enabled channel was also in the read-out
     if ((*fsw_it).channelEnabled() == 1 && rosPositions.find(channel) == rosPositions.end()) {
       hROSStatus->Fill(9, channel, 1);
@@ -632,7 +630,7 @@ void DTDataIntegrityROSOffline::processFED(DTDDUData& data, const std::vector<DT
         if ((*debug_it).debugType() == 0 && (*debug_it).debugMessage() != header.bxID()) {  // check the BX
           int ros = (*rosControlData).getROSID();
           // fill the error bin
-            hROSStatus->Fill(11, ros - 1);
+          hROSStatus->Fill(11, ros - 1);
           // error code 2
           hFEDFatal->Fill(code.getDDUID());
           hCorruptionSummary->Fill(code.getDDUID(), 2);
@@ -675,7 +673,6 @@ void DTDataIntegrityROSOffline::processFED(DTDDUData& data, const std::vector<DT
   int fedEvtLength = trailer.fragmentLength() * 8;
   //   if(fedEvtLength > 16000) fedEvtLength = 16000; // overflow bin
   fedHistos["EventLength"][code.getDDUID()]->Fill(fedEvtLength);
-
 }
 
 // log number of times the payload of each fed is unpacked
@@ -688,7 +685,7 @@ void DTDataIntegrityROSOffline::fedFatal(int dduID) { hFEDFatal->Fill(dduID); }
 void DTDataIntegrityROSOffline::fedNonFatal(int dduID) { hFEDNonFatal->Fill(dduID); }
 
 std::string DTDataIntegrityROSOffline::topFolder(bool isFEDIntegrity) const {
-  string folder = "DT/00-DataIntegrity/";  
+  string folder = "DT/00-DataIntegrity/";
 
   return folder;
 }
@@ -717,49 +714,49 @@ void DTDataIntegrityROSOffline::analyze(const edm::Event& e, const edm::EventSet
   nevents++;
   nEventMonitor->Fill(nevents);
 
-  LogTrace("DTRawToDigi|TDQM|DTMonitorModule|DTDataIntegrityROSOffline") << "[DTDataIntegrityROSOffline]: preProcessEvent" << endl;
+  LogTrace("DTRawToDigi|TDQM|DTMonitorModule|DTDataIntegrityROSOffline")
+      << "[DTDataIntegrityROSOffline]: preProcessEvent" << endl;
 
   //Legacy ROS
-    // clear the set of BXids from the ROSs
-    for (map<int, set<int> >::iterator rosBxIds = rosBxIdsPerFED.begin(); rosBxIds != rosBxIdsPerFED.end();
-         ++rosBxIds) {
-      (*rosBxIds).second.clear();
-    }
+  // clear the set of BXids from the ROSs
+  for (map<int, set<int> >::iterator rosBxIds = rosBxIdsPerFED.begin(); rosBxIds != rosBxIdsPerFED.end(); ++rosBxIds) {
+    (*rosBxIds).second.clear();
+  }
 
-    fedBXIds.clear();
+  fedBXIds.clear();
 
-    for (map<int, set<int> >::iterator rosL1AIds = rosL1AIdsPerFED.begin(); rosL1AIds != rosL1AIdsPerFED.end();
-         ++rosL1AIds) {
-      (*rosL1AIds).second.clear();
-    }
+  for (map<int, set<int> >::iterator rosL1AIds = rosL1AIdsPerFED.begin(); rosL1AIds != rosL1AIdsPerFED.end();
+       ++rosL1AIds) {
+    (*rosL1AIds).second.clear();
+  }
 
-    // reset the error flag
-    eventErrorFlag = false;
+  // reset the error flag
+  eventErrorFlag = false;
 
-    // Digi collection
-    edm::Handle<DTDDUCollection> dduProduct;
-    e.getByToken(dduToken, dduProduct);
-    edm::Handle<DTROS25Collection> ros25Product;
-    e.getByToken(ros25Token, ros25Product);
+  // Digi collection
+  edm::Handle<DTDDUCollection> dduProduct;
+  e.getByToken(dduToken, dduProduct);
+  edm::Handle<DTROS25Collection> ros25Product;
+  e.getByToken(ros25Token, ros25Product);
 
-    DTDDUData dduData;
-    std::vector<DTROS25Data> ros25Data;
-    if (dduProduct.isValid() && ros25Product.isValid()) {
-      for (unsigned int i = 0; i < dduProduct->size(); ++i) {
-        dduData = dduProduct->at(i);
-        ros25Data = ros25Product->at(i);
-        FEDHeader header = dduData.getDDUHeader();
-        int id = header.sourceID();
-        if (id > FEDIDmax || id < FEDIDmin)
-          continue;  //SIM uses extra FEDs not monitored
+  DTDDUData dduData;
+  std::vector<DTROS25Data> ros25Data;
+  if (dduProduct.isValid() && ros25Product.isValid()) {
+    for (unsigned int i = 0; i < dduProduct->size(); ++i) {
+      dduData = dduProduct->at(i);
+      ros25Data = ros25Product->at(i);
+      FEDHeader header = dduData.getDDUHeader();
+      int id = header.sourceID();
+      if (id > FEDIDmax || id < FEDIDmin)
+        continue;  //SIM uses extra FEDs not monitored
 
-        processFED(dduData, ros25Data, id);
-        for (unsigned int j = 0; j < ros25Data.size(); ++j) {
-          int rosid = j + 1;
-          processROS25(ros25Data[j], id, rosid);
-        }
+      processFED(dduData, ros25Data, id);
+      for (unsigned int j = 0; j < ros25Data.size(); ++j) {
+        int rosid = j + 1;
+        processROS25(ros25Data[j], id, rosid);
       }
     }
+  }
 }
 
 // Local Variables:

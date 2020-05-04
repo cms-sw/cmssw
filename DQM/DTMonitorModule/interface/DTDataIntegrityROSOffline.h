@@ -107,7 +107,6 @@ private:
   edm::EDGetTokenT<DTDDUCollection> dduToken;
 
   edm::EDGetTokenT<DTROS25Collection> ros25Token;
-
 };
 
 #endif

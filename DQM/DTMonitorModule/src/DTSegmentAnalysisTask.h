@@ -57,7 +57,7 @@ private:
   // Switch for detailed analysis
   bool detailedAnalysis;
 
- // Get the DT Geometry
+  // Get the DT Geometry
   edm::ESHandle<DTGeometry> dtGeom;
 
   // Label of 4D segments in the event
@@ -81,7 +81,6 @@ private:
   double phiSegmCut;
   // min # hits of segment used to validate a segment in WB+-2/SecX/MB1
   int nhitsCut;
-
 };
 #endif
 

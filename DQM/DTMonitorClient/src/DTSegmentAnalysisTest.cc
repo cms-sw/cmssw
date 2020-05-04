@@ -64,9 +64,10 @@ void DTSegmentAnalysisTest::beginRun(const Run& run, const EventSetup& context) 
   context.get<MuonGeometryRecord>().get(muonGeom);
 }
 
-void DTSegmentAnalysisTest::dqmBeginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& ){
+void DTSegmentAnalysisTest::dqmBeginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const&) {
   nLSs++;
-  LogTrace("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << "DTSegmentAnalysisTest: analyzing LS" << lumiSeg.id().luminosityBlock() << " of " << nLSs <<endl; 
+  LogTrace("DTDQM|DTMonitorClient|DTSegmentAnalysisTest")
+      << "DTSegmentAnalysisTest: analyzing LS" << lumiSeg.id().luminosityBlock() << " of " << nLSs << endl;
 }
 
 void DTSegmentAnalysisTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,

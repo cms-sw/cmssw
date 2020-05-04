@@ -57,7 +57,6 @@ private:
   void bookHistosuROS(DQMStore::IBooker&, const int fed, const int uRos);
   void bookHistosROS(DQMStore::IBooker&, const int wheel, const int ros);
 
-
   std::string topFolder(bool isFEDIntegrity) const;
 
   //conversions
