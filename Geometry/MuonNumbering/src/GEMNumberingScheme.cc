@@ -61,34 +61,34 @@ int GEMNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
   ring = 1;
 
   // GE0 has the layer encoded in the ring level
-  if (num.getBaseNo(theRingLevel) == 0) { // 0 => GE1/1, GE2/1
+  if (num.getBaseNo(theRingLevel) == 0) {  // 0 => GE1/1, GE2/1
     station = num.getSuperNo(theStationLevel);
 #ifdef LOCAL_DEBUG
-    edm::LogVerbatim("GEMNumberingScheme") << "GEMNumbering: Ring " << ring << " Station "
-					   << num.getSuperNo(theStationLevel) << ":" << station;
+    edm::LogVerbatim("GEMNumberingScheme")
+        << "GEMNumbering: Ring " << ring << " Station " << num.getSuperNo(theStationLevel) << ":" << station;
 #endif
-    
+
     roll = num.getBaseNo(theRollLevel) + 1;
     const int copyno = num.getBaseNo(theSectorLevel) + 1;
     if (copyno < 50) {
       if (copyno % 2 == 0) {
-	layer = 2;
-	chamber = copyno - 1;
+        layer = 2;
+        chamber = copyno - 1;
       } else {
-	layer = 1;
-	chamber = copyno;
+        layer = 1;
+        chamber = copyno;
       }
     } else {
       int copynp = copyno - 50;
       if (copynp % 2 != 0) {
-	layer = 2;
-	chamber = copynp - 1;
+        layer = 2;
+        chamber = copynp - 1;
       } else {
-	layer = 1;
-	chamber = copynp;
+        layer = 1;
+        chamber = copynp;
       }
     }
-  } else { // GE0 encodes the layer
+  } else {  // GE0 encodes the layer
     station = 0;
     layer = num.getBaseNo(theRingLevel);
     chamber = num.getBaseNo(theSectorLevel) + 1;

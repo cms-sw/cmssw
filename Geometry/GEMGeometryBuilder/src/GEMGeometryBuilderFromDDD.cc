@@ -83,11 +83,12 @@ void GEMGeometryBuilderFromDDD::build(GEMGeometry& theGeometry,
     // only 2 chambers are present separated by a gap.
     // making superchamber out of the first chamber layer including the gap between chambers
     if (detIdCh.layer() == 1) {  // only make superChambers when doing layer 1
-           GEMSuperChamber* gemSuperChamber = buildSuperChamber(fv, detIdCh);
-           superChambers.push_back(gemSuperChamber);
+      GEMSuperChamber* gemSuperChamber = buildSuperChamber(fv, detIdCh);
+      superChambers.push_back(gemSuperChamber);
     }
     GEMChamber* gemChamber = nullptr;
-    if (detIdCh.station() != 0) gemChamber = buildChamber(fv, detIdCh);
+    if (detIdCh.station() != 0)
+      gemChamber = buildChamber(fv, detIdCh);
 
     // loop over chambers
     // only 1 chamber
@@ -96,7 +97,7 @@ void GEMGeometryBuilderFromDDD::build(GEMGeometry& theGeometry,
 
     while (doChambers) {
       loopExecuted = true;
-      
+
       if (detIdCh.station() == 0) {
         fv.firstChild();
         MuonDDDNumbering mdddnum(muonConstants);
@@ -105,7 +106,7 @@ void GEMGeometryBuilderFromDDD::build(GEMGeometry& theGeometry,
         GEMDetId detId = GEMDetId(rawId);
         fv.parent();
 
-        gemChamber = buildChamber(fv, detId);        
+        gemChamber = buildChamber(fv, detId);
       }
 
       // loop over GEMEtaPartitions
@@ -152,10 +153,10 @@ void GEMGeometryBuilderFromDDD::build(GEMGeometry& theGeometry,
           const GEMDetId detId(superChamber->id());
           if (detId.region() != re || detId.station() != st || detId.ring() != ri)
             continue;
-          
+
           foundSuperChamber = true;
           int nstation = (st == 0) ? 6 : 2;
-          
+
           for (int la = 1; la <= nstation; ++la) {
             GEMDetId chId(detId.region(), detId.ring(), detId.station(), la, detId.chamber(), 0);
             auto chamber = theGeometry.chamber(chId);
@@ -170,7 +171,7 @@ void GEMGeometryBuilderFromDDD::build(GEMGeometry& theGeometry,
                                                 << "re " << re << " st " << st << " ri " << ri << std::endl;
         }
         LogDebug("GEMGeometryBuilderFromDDD") << "Adding ring " << ri << " to station "
-          << "re " << re << " st " << st << std::endl;
+                                              << "re " << re << " st " << st << std::endl;
         if (!foundSuperChamber) {
           delete ring;
         } else {
@@ -208,14 +209,14 @@ GEMSuperChamber* GEMGeometryBuilderFromDDD::buildSuperChamber(DDFilteredView& fv
   if (detId.station() != 0) {
     const int nch = 2;
     const double chgap = 2.105;
-    
+
     dpar = solid.solidB().parameters();
-    
+
     dz += geant_units::operators::convertMmToCm(dpar[3]);  // chamber thickness
     dz *= nch;                                             // 2 chambers in superchamber
     dz += chgap;                                           // gap between chambers
   }
-  
+
   bool isOdd = detId.chamber() % 2;
   RCPBoundPlane surf(boundPlane(fv, new TrapezoidalPlaneBounds(dx1, dx2, dy, dz), isOdd));
 
@@ -241,7 +242,7 @@ GEMChamber* GEMGeometryBuilderFromDDD::buildChamber(DDFilteredView& fv, GEMDetId
     dpar = solid.solidB().parameters();
     dz += geant_units::operators::convertMmToCm(dpar[3]);  // chamber thickness
   }
-  
+
   bool isOdd = (detId.station() == 0) ? false : detId.chamber() % 2;
 
   RCPBoundPlane surf(boundPlane(fv, new TrapezoidalPlaneBounds(dx1, dx2, dy, dz), isOdd));
