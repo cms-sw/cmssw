@@ -155,7 +155,7 @@ namespace {
                                        const float maxCharge,
                                        bool setIfZero,
                                        const std::array<float, 3>& tdcForToAOnset,
-                                       const bool& minbiasFlag,
+                                       const bool minbiasFlag,
                                        std::map<uint32_t, bool>& hitOrder_monitor) {
     std::cout << hitOrder_monitor.size() << std::endl;
     const float minPackChargeLog = minCharge > 0.f ? std::log(minCharge) : -2;
