@@ -103,8 +103,7 @@ private:
   const float phiMax2B_;
   const float phiMax2F_;
 
-  PixelHitMatcher electronMatcher_;
-  PixelHitMatcher positronMatcher_;
+  PixelHitMatcher matcher_;
 };
 
 #endif  // ElectronSeedGenerator_H
