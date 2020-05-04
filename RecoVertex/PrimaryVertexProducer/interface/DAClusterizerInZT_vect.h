@@ -57,18 +57,17 @@ public:
     double *_dt2;    // square of the error of t(pca)
     double *_Z_sum;  // Z[i]   for DA clustering
 
-    std::vector<double> z;                         // z-coordinate at point of closest approach to the beamline
-    std::vector<double> t;                         // t-coordinate at point of closest approach to the beamline
-    std::vector<double> dz2;                       // square of the error of z(pca)
-    std::vector<double> dt2;                       // square of the error of t(pca)
-    std::vector<double> Z_sum;                     // Z[i]   for DA clustering
-    std::vector<double> pi;                        // track weight
+    std::vector<double> z;      // z-coordinate at point of closest approach to the beamline
+    std::vector<double> t;      // t-coordinate at point of closest approach to the beamline
+    std::vector<double> dz2;    // square of the error of z(pca)
+    std::vector<double> dt2;    // square of the error of t(pca)
+    std::vector<double> Z_sum;  // Z[i]   for DA clustering
+    std::vector<double> pi;     // track weight
     std::vector<unsigned int> kmin;
     std::vector<unsigned int> kmax;
     std::vector<const reco::TransientTrack *> tt;  // a pointer to the Transient Track
   };
 
-  
   struct vertex_t {
     void addItem(double new_z, double new_t, double new_pk) {
       z.push_back(new_z);
@@ -138,7 +137,7 @@ public:
       extractRaw();
     }
 
-    void insertItem(unsigned int k, double new_z, double new_t, double new_pk, track_t & tks) {
+    void insertItem(unsigned int k, double new_z, double new_t, double new_pk, track_t &tks) {
       z.insert(z.begin() + k, new_z);
       t.insert(t.begin() + k, new_t);
       pk.insert(pk.begin() + k, new_pk);
@@ -158,12 +157,15 @@ public:
       szt.insert(szt.begin() + k, 0.0);
 
       // adjust vertex lists of tracks
-      for(unsigned int i = 0; i < tks.getSize(); i++)
-	{
-	  if (tks.kmin[i] > k) { tks.kmin[i]++; }
-	  if ((tks.kmax[i] > k) || (tks.kmax[i] == tks.kmin[i])) { tks.kmax[i]++; }
-	}
-	
+      for (unsigned int i = 0; i < tks.getSize(); i++) {
+        if (tks.kmin[i] > k) {
+          tks.kmin[i]++;
+        }
+        if ((tks.kmax[i] > k) || (tks.kmax[i] == tks.kmin[i])) {
+          tks.kmax[i]++;
+        }
+      }
+
       extractRaw();
     }
 
@@ -189,8 +191,7 @@ public:
       extractRaw();
     }
 
-
-    void removeItem(unsigned int k, track_t & tks) {
+    void removeItem(unsigned int k, track_t &tks) {
       z.erase(z.begin() + k);
       t.erase(t.begin() + k);
       pk.erase(pk.begin() + k);
@@ -210,16 +211,19 @@ public:
       szt.erase(szt.begin() + k);
 
       // adjust vertex lists of tracks
-      for(unsigned int i = 0; i < tks.getSize(); i++)
-	{
-	  if (tks.kmin[i] > k) { tks.kmin[i]--; }
-	  if ((tks.kmax[i] > k) && (tks.kmax[i] > (tks.kmin[i]+1))) { tks.kmax[i]--; }
-	}
+      for (unsigned int i = 0; i < tks.getSize(); i++) {
+        if (tks.kmin[i] > k) {
+          tks.kmin[i]--;
+        }
+        if ((tks.kmax[i] > k) && (tks.kmax[i] > (tks.kmin[i] + 1))) {
+          tks.kmax[i]--;
+        }
+      }
 
       extractRaw();
     }
 
-    unsigned int insertOrdered(double z, double t, double pk, track_t& tks) {
+    unsigned int insertOrdered(double z, double t, double pk, track_t &tks) {
       // insert a new cluster according to it's z-position, return the index at which it was inserted
 
       unsigned int k = 0;
@@ -239,17 +243,17 @@ public:
       }
     }
 
-    std::vector<double> z;   //          z coordinate
-    std::vector<double> t;   //          t coordinate
-    std::vector<double> pk;  //          vertex weight for "constrained" clustering
-    std::vector<double> dt2; // experimental
-    std::vector<double> sumw; // experimental
-    
+    std::vector<double> z;     //          z coordinate
+    std::vector<double> t;     //          t coordinate
+    std::vector<double> pk;    //          vertex weight for "constrained" clustering
+    std::vector<double> dt2;   // experimental
+    std::vector<double> sumw;  // experimental
+
     double *_z;
     double *_t;
     double *_pk;
-    double *_dt2;    //experimental
-    double *_sumw;   //experimental
+    double *_dt2;   //experimental
+    double *_sumw;  //experimental
 
     double *_ei_cache;
     double *_ei;
@@ -275,25 +279,24 @@ public:
     std::vector<double> szt;
 
     // copy made at the beginning of thermalize
-    std::vector<double> z0; //           z coordinate at last vtx range fixing
+    std::vector<double> z0;  //           z coordinate at last vtx range fixing
   };
 
   DAClusterizerInZT_vect(const edm::ParameterSet &conf);
 
-  std::vector<std::vector<reco::TransientTrack> >
-  clusterize(const std::vector<reco::TransientTrack> &tracks) const override;
+  std::vector<std::vector<reco::TransientTrack> > clusterize(
+      const std::vector<reco::TransientTrack> &tracks) const override;
 
-  std::vector<TransientVertex>
-  vertices(const std::vector<reco::TransientTrack> &tracks, const int verbosity = 0) const;
+  std::vector<TransientVertex> vertices(const std::vector<reco::TransientTrack> &tracks, const int verbosity = 0) const;
 
   track_t fill(const std::vector<reco::TransientTrack> &tracks) const;
 
-  void set_vtx_range(double beta, track_t & gtracks, vertex_t & gvertices) const;
+  void set_vtx_range(double beta, track_t &gtracks, vertex_t &gvertices) const;
 
-  void clear_vtx_range(track_t & gtracks,
-		vertex_t & gvertices) const;
+  void clear_vtx_range(track_t &gtracks, vertex_t &gvertices) const;
 
-  unsigned int thermalize(double beta, track_t & gtracks, vertex_t & gvertices, const double delta_max, const double rho0=0.) const;
+  unsigned int thermalize(
+      double beta, track_t &gtracks, vertex_t &gvertices, const double delta_max, const double rho0 = 0.) const;
 
   double update(double beta, track_t &gtracks, vertex_t &gvertices, const double rho0 = 0) const;
 
@@ -307,7 +310,7 @@ public:
   double beta0(const double betamax, track_t const &tks, vertex_t const &y) const;
 
   double get_Tc(const vertex_t &y, int k) const;
-  void verify(const vertex_t &v, const track_t &tks, unsigned int nv=999999, unsigned int nt=999999) const;
+  void verify(const vertex_t &v, const track_t &tks, unsigned int nv = 999999, unsigned int nt = 999999) const;
 
 private:
   bool verbose_;
@@ -330,7 +333,7 @@ private:
   double zmerge_;
   double tmerge_;
   double betapurge_;
-  
+
   unsigned int convergence_mode_;
   double delta_highT_;
   double delta_lowT_;
