@@ -28,22 +28,24 @@ void GEMPadDigiValidation::bookHistograms(DQMStore::IBooker& booker,
 
       const auto &superChamberVec = station->superChambers();
       if (superChamberVec.empty()) {
-        edm::LogError(kLogCategory_) << "Super chambers missing.";
+        edm::LogError(kLogCategory_) << "Super chambers missing for region = " << region_id
+          << " and station = " << station_id;
         continue;
       }
       const GEMSuperChamber* super_chamber = superChamberVec.front();
       if (super_chamber == nullptr) {
-        edm::LogError(kLogCategory_) << "Failed to find super chamber.";
+        edm::LogError(kLogCategory_) << "Failed to find super chamber for region = " << region_id
+          << " and station = " << station_id;
         continue;
       }
-      // const GEMSuperChamber* super_chamber = station->superChambers().front();
       for (const auto& chamber : super_chamber->chambers()) {
         Int_t layer_id = chamber->id().layer();
         ME3IdsKey key3(region_id, station_id, layer_id);
 
         const auto &etaPartitionVec = chamber->etaPartitions();
         if (etaPartitionVec.empty() || etaPartitionVec.front() == nullptr) {
-          edm::LogError(kLogCategory_) << "Eta partition missing or null.";
+          edm::LogError(kLogCategory_) << "Eta partition missing or null for region, station, super chamber, chamber = (" <<
+            region_id << ", " << station_id << ", " <<  super_chamber->id() << ", " << chamber->id() << ")";
           continue;
         }
         Int_t num_pads = etaPartitionVec.front()->npads();
@@ -82,12 +84,14 @@ void GEMPadDigiValidation::bookHistograms(DQMStore::IBooker& booker,
 
         const auto &superChamberVec = station->superChambers();
         if (superChamberVec.empty()) {
-          edm::LogError(kLogCategory_) << "Super chambers missing.";
+          edm::LogError(kLogCategory_) << "Super chambers missing for region = " << region_id
+            << " and station = " << station_id;
           continue;
         }
         const GEMSuperChamber* super_chamber = superChamberVec.front();
         if (super_chamber == nullptr) {
-          edm::LogError(kLogCategory_) << "Failed to find super chamber.";
+          edm::LogError(kLogCategory_) << "Failed to find super chamber for region = " << region_id
+            << " and station = " << station_id;
           continue;
         }
         for (const auto& chamber : super_chamber->chambers()) {

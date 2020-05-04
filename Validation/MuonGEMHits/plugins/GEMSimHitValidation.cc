@@ -48,7 +48,8 @@ void GEMSimHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
         const auto [tof_min, tof_max] = getTOFRange(station_id);
         const auto &superChamberVec = station->superChambers();
         if (superChamberVec.empty() || superChamberVec.front() == nullptr) {
-          edm::LogError(kLogCategory_) << "Super chambers missing or null.";
+          edm::LogError(kLogCategory_) << "Super chambers missing or null for region = " << region_id
+            << " and station = " << station_id;
         } else {
           const GEMSuperChamber* super_chamber = superChamberVec.front();
 
@@ -90,7 +91,8 @@ void GEMSimHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
         Int_t station_id = station->station();
         const auto &superChamberVec = station->superChambers();
         if (superChamberVec.empty() || superChamberVec.front() == nullptr) {
-          edm::LogError(kLogCategory_) << "Super chambers missing or null.";
+          edm::LogError(kLogCategory_) << "Super chambers missing or null for region = " << region_id
+            << " and station = " << station_id;
         } else {
           for (const auto& chamber : superChamberVec.front()->chambers()) {
             Int_t layer_id = chamber->id().layer();
@@ -124,7 +126,8 @@ void GEMSimHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
 
       const auto &superChamberVec = station->superChambers();
       if (superChamberVec.empty() || superChamberVec.front() == nullptr) {
-        edm::LogError(kLogCategory_) << "Super chambers missing or null.";
+        edm::LogError(kLogCategory_) << "Super chambers missing or null for region = " << region_id
+          << " and station = " << station_id;
       } else {
         const GEMSuperChamber* super_chamber = superChamberVec.front();
         for (const auto& chamber : super_chamber->chambers()) {
