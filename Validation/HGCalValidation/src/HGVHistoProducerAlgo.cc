@@ -1103,12 +1103,12 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
   }
     cPOnLayer[cpIndex].resize(layers * 2);
   */
-  std::cout << "cPOnLayer.size(): " << cPOnLayer.size() << std::endl ;
-  std::cout << "cpsInLayerCluster.size(): " << cpsInLayerCluster.size() << std::endl ;
+  //std::cout << "cPOnLayer.size(): " << cPOnLayer.size() << std::endl ;
+  //std::cout << "cpsInLayerCluster.size(): " << cpsInLayerCluster.size() << std::endl ;
   hgcal::SimToRecoCollection cPOnLayerMap = LCAssocByEnergyScoreHandle->associateSimToReco(clusterHandle, caloParticleHandle);
   hgcal::RecoToSimCollection cpsInLayerClusterMap = LCAssocByEnergyScoreHandle->associateRecoToSim(clusterHandle, caloParticleHandle);
-  std::cout << "cPOnLayer_.size(): " << cPOnLayerMap.keys().size() << std::endl ;
-  std::cout << "cpsInLayerClusterMap.keys().size(): " << cpsInLayerClusterMap.size() << std::endl ;
+  //std::cout << "cPOnLayer_.size(): " << cPOnLayerMap.keys().size() << std::endl ;
+  //std::cout << "cpsInLayerClusterMap.keys().size(): " << cpsInLayerClusterMap.size() << std::endl ;
   /*
   typedef edm::AssociationMap<
       edm::OneToManyWithQualityGeneric<CaloParticleCollection, reco::CaloClusterCollection, float>>
@@ -1164,8 +1164,8 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
                                  << cpPair->second << "\n";
       histograms.h_score_layercl2caloparticle_perlayer.at(lcLayerId)->Fill(cpPair->second);
       //auto const cp_linked = cPOnLayerV_[cpPair->first.index()][lcLayerId];
-      auto const cp_linked = cPOnLayerMap[cpPair->first][lcLayerId];
-      LogDebug("HGCalValidator") << "cp_linked.second: \t" << cp_linked.second << "\t clusters[lcId].energy(): \t" << clusters[lcId].energy() << "\n";
+      auto const cp_linked = cPOnLayerMap[cpPair->first][lcId];
+      LogDebug("HGCalValidator") << "cpPair: \t" << cpPair->first.index() << "\t lcId: \t" << lcId << "\t cp_linked: \t" << cp_linked.second << "\t clusters[lcId].energy(): \t" << clusters[lcId].energy() << "\n";
        histograms.h_sharedenergy_layercl2caloparticle_perlayer.at(lcLayerId)->Fill(
           cp_linked.second / clusters[lcId].energy(), clusters[lcId].energy());
       histograms.h_energy_vs_score_layercl2caloparticle_perlayer.at(lcLayerId)->Fill(
@@ -1200,6 +1200,7 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
     histograms.h_denom_layercl_eta_perlayer.at(lcLayerId)->Fill(clusters[lcId].eta());
     histograms.h_denom_layercl_phi_perlayer.at(lcLayerId)->Fill(clusters[lcId].phi());
   }  // End of loop over LayerClusters
+#define LogDebug(id) true ? edm::Suppress_LogDebug_() : edm::Suppress_LogDebug_()
 
   // Here we do fill the plots to compute the different metrics linked to
   // gen-level, namely efficiency and duplicate. In this loop we should restrict
