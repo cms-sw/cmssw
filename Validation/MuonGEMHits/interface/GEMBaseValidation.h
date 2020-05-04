@@ -182,7 +182,7 @@ dqm::impl::MonitorElement* GEMBaseValidation::bookDetectorOccupancy(DQMStore::IB
   Int_t nbinsx = num_superchambers * num_chambers;
 
   if (nbinsx <= 0)
-    nbinsx = 20; // Ensure histogram is not zero size
+    nbinsx = 20;  // Ensure histogram is not zero size
   if (nbinsy <= 0)
     nbinsy = 20;
   auto hist = new TH2F(name, title, nbinsx, 1 - 0.5, nbinsx + 0.5, nbinsy, 1 - 0.5, nbinsy + 0.5);
