@@ -75,12 +75,17 @@ private:
   std::map<DTChamberId, std::vector<MonitorElement*> > histosPerCh;
   std::map<int, MonitorElement*> summaryHistos;
 
+  int nevents;
   // top folder for the histograms in DQMStore
   std::string topHistoFolder;
+  // hlt DQM mode
+  bool hltDQMMode;
   // max phi angle of reconstructed segments
   double phiSegmCut;
   // min # hits of segment used to validate a segment in WB+-2/SecX/MB1
   int nhitsCut;
+
+  MonitorElement* nEventMonitor;
 };
 #endif
 
