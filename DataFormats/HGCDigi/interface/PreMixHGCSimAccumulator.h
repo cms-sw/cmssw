@@ -51,10 +51,7 @@ public:
         timeArray_.emplace_back(data);
       }
     }
-    SimHitCollection(const SimHitCollection& simhitcollection)
-        : nhits_(simhitcollection.nhits_),
-          chargeArray_(simhitcollection.chargeArray_),
-          timeArray_(simhitcollection.timeArray_) {}
+    SimHitCollection(const SimHitCollection& simhitcollection) = default;
     unsigned int nhits() const { return nhits_; }
     unsigned int sampleIndex() const {
       //std::cout<<chargeArray_[0]<<"\t"<<sampleOffset<<std::endl;
