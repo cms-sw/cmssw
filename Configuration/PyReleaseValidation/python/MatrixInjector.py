@@ -7,6 +7,8 @@ import multiprocessing
 import time
 import re
 
+MAXWORKFLOWLENGTH = 81
+
 def performInjectionOptionTest(opt):
     if opt.show:
         print('Not injecting to wmagent in --show mode. Need to run the worklfows.')
@@ -59,7 +61,7 @@ class MatrixInjector(object):
         self.batchTime = str(int(time.time()))
         if(opt.batchName):
             self.batchName = '__'+opt.batchName+'-'+self.batchTime
-        
+
         #wagemt stuff
         if not self.wmagent:
             self.wmagent=os.getenv('WMAGENT_REQMGR')
@@ -83,8 +85,7 @@ class MatrixInjector(object):
         self.speciallabel=''
         if opt.label:
             self.speciallabel= '_'+opt.label
-        self.countLongWFName = 0
-        self.longWFName = ''
+        self.longWFName = []
 
         if not os.getenv('WMCORE_ROOT'):
             print('\n\twmclient is not setup properly. Will not be able to upload or submit requests.\n')
@@ -480,9 +481,8 @@ class MatrixInjector(object):
                         chainDict['RequestString']+='_'+processStrPrefix+thisLabel
                     #check candidate WF name
                     self.candidateWFName = self.user+'_'+chainDict['RequestString']
-                    if (len(self.candidateWFName)>81):
-                        self.countLongWFName+=1
-                        self.longWFName+=self.candidateWFName+' ('+str(len(self.candidateWFName))+' characters) \n'
+                    if (len(self.candidateWFName)>MAXWORKFLOWLENGTH):
+                        self.longWFName.append(self.candidateWFName)
 
 ### PrepID
                     chainDict['PrepID'] = chainDict['CMSSWVersion']+'__'+self.batchTime+'-'+s[1].split('+')[0]
@@ -653,6 +653,6 @@ class MatrixInjector(object):
                 workFlow=makeRequest(self.wmagent,d,encodeDict=True)
                 print("...........",n,"submitted")
                 random_sleep()
-        if self.testMode and self.countLongWFName>0:
-            print("\n*** FIX NEEDED BEFORE INJECTION: "+str(self.countLongWFName)+" candidate workflows have too long name (>81 characters) ***")
-            print(self.longWFName)
+        if self.testMode and len(self.longWFName)>0:
+            print("\n*** WARNING: "+str(len(self.longWFName))+" workflows have too long names for submission (>"+str(MAXWORKFLOWLENGTH)+ "characters) ***")
+            print('\n'.join(self.longWFName))
