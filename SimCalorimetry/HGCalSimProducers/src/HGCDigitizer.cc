@@ -190,7 +190,7 @@ namespace {
               hitRefs_bx0[detId].emplace_back(charge_time_pair);
             } else {
               if (p_time < hitRefs_bx0[detId].back().second) {
-                itr findPos = std::upper_bound(hitRefs_bx0[detId].begin(),
+                auto findPos = std::upper_bound(hitRefs_bx0[detId].begin(),
                                                hitRefs_bx0[detId].end(),
                                                std::make_pair(0.f, p_time),
                                                [](const auto& i, const auto& j) { return i.second < j.second; });
