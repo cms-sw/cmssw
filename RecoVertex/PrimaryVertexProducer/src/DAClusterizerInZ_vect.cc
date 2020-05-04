@@ -101,7 +101,7 @@ namespace {
       arg_out[i] = vdt::fast_exp(arg_inp[i]);
   }
   */
-  
+
   inline void local_exp_list_range(double const* __restrict__ arg_inp,
                                    double* __restrict__ arg_out,
                                    const unsigned int kmin,
@@ -299,10 +299,10 @@ double DAClusterizerInZ_vect::update(double beta, track_t& gtracks, vertex_t& gv
 
   // define kernels
   auto kernel_calc_exp_arg_range = [beta](const unsigned int itrack,
-                                              track_t const& tracks,
-                                              vertex_t const& vertices,
-                                              const unsigned int kmin,
-                                              const unsigned int kmax) {
+                                          track_t const& tracks,
+                                          vertex_t const& vertices,
+                                          const unsigned int kmin,
+                                          const unsigned int kmax) {
     const double track_z = tracks._z[itrack];
     const double botrack_dz2 = -beta * tracks._dz2[itrack];
 
@@ -323,10 +323,10 @@ double DAClusterizerInZ_vect::update(double beta, track_t& gtracks, vertex_t& gv
   };
 
   auto kernel_calc_normalization_range = [beta](const unsigned int track_num,
-                                                    track_t& tks_vec,
-                                                    vertex_t& y_vec,
-                                                    const unsigned int kmin,
-                                                    const unsigned int kmax) {
+                                                track_t& tks_vec,
+                                                vertex_t& y_vec,
+                                                const unsigned int kmin,
+                                                const unsigned int kmax) {
     auto tmp_trk_pi = tks_vec._pi[track_num];
     auto o_trk_Z_sum = 1. / tks_vec._Z_sum[track_num];
     auto o_trk_dz2 = tks_vec._dz2[track_num];
@@ -436,10 +436,10 @@ double DAClusterizerInZ_vect::updateTc(double beta, track_t& gtracks, vertex_t& 
   };
 
   auto kernel_calc_normalization_range = [beta](const unsigned int track_num,
-                                                    track_t& tks_vec,
-                                                    vertex_t& y_vec,
-                                                    const unsigned int kmin,
-                                                    const unsigned int kmax) {
+                                                track_t& tks_vec,
+                                                vertex_t& y_vec,
+                                                const unsigned int kmin,
+                                                const unsigned int kmax) {
     auto tmp_trk_pi = tks_vec._pi[track_num];
     auto o_trk_Z_sum = 1. / tks_vec._Z_sum[track_num];
     auto o_trk_dz2 = tks_vec._dz2[track_num];
