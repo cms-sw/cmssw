@@ -251,6 +251,13 @@ struct HGCalEEAlgo {
                                    pgonZ,
                                    pgonRin,
                                    pgonRout);
+#ifdef EDM_ML_DEBUG
+            edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo: z " << (zz - hthick) << ":" << (zz + hthick) << " with "
+                                          << pgonZ.size() << " palnes";
+            for (unsigned int isec = 0; isec < pgonZ.size(); ++isec)
+              edm::LogVerbatim("HGCalGeom")
+                  << "[" << isec << "] z " << pgonZ[isec] << " R " << pgonRin[isec] << ":" << pgonRout[isec];
+#endif
             for (unsigned int isec = 0; isec < pgonZ.size(); ++isec) {
               pgonZ[isec] -= zz;
               pgonRout[isec] = pgonRout[isec] * cosAlpha_ - tol;
