@@ -23,32 +23,26 @@
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 #include "RecoTauTag/RecoTau/interface/AntiElectronDeadECAL.h"
 
-class PFRecoTauDiscriminationAgainstElectronDeadECAL : public PFTauDiscriminationProducerBase
-{
- public:
+class PFRecoTauDiscriminationAgainstElectronDeadECAL : public PFTauDiscriminationProducerBase {
+public:
   explicit PFRecoTauDiscriminationAgainstElectronDeadECAL(const edm::ParameterSet& cfg)
       : PFTauDiscriminationProducerBase(cfg),
         moduleLabel_(cfg.getParameter<std::string>("@module_label")),
         verbosity_(cfg.getParameter<int>("verbosity")),
-        antiElectronDeadECAL_(cfg)
-  {}
-  ~PFRecoTauDiscriminationAgainstElectronDeadECAL() override
-  {}
+        antiElectronDeadECAL_(cfg) {}
+  ~PFRecoTauDiscriminationAgainstElectronDeadECAL() override {}
 
-  void beginEvent(const edm::Event& evt, const edm::EventSetup& es) override
-  {
-    antiElectronDeadECAL_.beginEvent(es);
-  }
+  void beginEvent(const edm::Event& evt, const edm::EventSetup& es) override { antiElectronDeadECAL_.beginEvent(es); }
 
-  double discriminate(const reco::PFTauRef& tau) const override
-  {
+  double discriminate(const reco::PFTauRef& tau) const override {
     if (verbosity_) {
       edm::LogPrint("PFTauAgainstEleDeadECAL") << "<PFRecoTauDiscriminationAgainstElectronDeadECAL::discriminate>:";
       edm::LogPrint("PFTauAgainstEleDeadECAL") << " moduleLabel = " << moduleLabel_;
-      edm::LogPrint("PFTauAgainstEleDeadECAL") << " tau: Pt = " << tau->pt() << ", eta = " << tau->eta() << ", phi = " << tau->phi();
+      edm::LogPrint("PFTauAgainstEleDeadECAL")
+          << " tau: Pt = " << tau->pt() << ", eta = " << tau->eta() << ", phi = " << tau->phi();
     }
     double discriminator = 1.;
-    if ( antiElectronDeadECAL_(tau.get()) ) {
+    if (antiElectronDeadECAL_(tau.get())) {
       discriminator = 0.;
     }
     if (verbosity_) {
@@ -59,15 +53,14 @@ class PFRecoTauDiscriminationAgainstElectronDeadECAL : public PFTauDiscriminatio
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
- private:
+private:
   std::string moduleLabel_;
   int verbosity_;
 
   AntiElectronDeadECAL antiElectronDeadECAL_;
 };
 
-void PFRecoTauDiscriminationAgainstElectronDeadECAL::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
-{
+void PFRecoTauDiscriminationAgainstElectronDeadECAL::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // pfRecoTauDiscriminationAgainstElectronDeadECAL
   edm::ParameterSetDescription desc;
 
@@ -76,7 +69,7 @@ void PFRecoTauDiscriminationAgainstElectronDeadECAL::fillDescriptions(edm::Confi
   desc.add<bool>("extrapolateToECalEntrance", true);
   desc.add<int>("verbosity", 0);
 
-  fillProducerDescriptions(desc); // inherited from the base-class
+  fillProducerDescriptions(desc);  // inherited from the base-class
 
   descriptions.add("pfRecoTauDiscriminationAgainstElectronDeadECAL", desc);
 }

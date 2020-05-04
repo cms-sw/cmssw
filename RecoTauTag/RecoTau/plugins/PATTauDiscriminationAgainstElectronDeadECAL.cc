@@ -26,32 +26,26 @@
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 #include "RecoTauTag/RecoTau/interface/AntiElectronDeadECAL.h"
 
-class PATTauDiscriminationAgainstElectronDeadECAL : public PATTauDiscriminationProducerBase
-{
- public:
+class PATTauDiscriminationAgainstElectronDeadECAL : public PATTauDiscriminationProducerBase {
+public:
   explicit PATTauDiscriminationAgainstElectronDeadECAL(const edm::ParameterSet& cfg)
       : PATTauDiscriminationProducerBase(cfg),
         moduleLabel_(cfg.getParameter<std::string>("@module_label")),
         verbosity_(cfg.getParameter<int>("verbosity")),
-        antiElectronDeadECAL_(cfg)
-  {}
-  ~PATTauDiscriminationAgainstElectronDeadECAL() override
-  {}
+        antiElectronDeadECAL_(cfg) {}
+  ~PATTauDiscriminationAgainstElectronDeadECAL() override {}
 
-  void beginEvent(const edm::Event& evt, const edm::EventSetup& es) override
-  {
-    antiElectronDeadECAL_.beginEvent(es);
-  }
+  void beginEvent(const edm::Event& evt, const edm::EventSetup& es) override { antiElectronDeadECAL_.beginEvent(es); }
 
-  double discriminate(const TauRef& tau) const override
-  {
+  double discriminate(const TauRef& tau) const override {
     if (verbosity_) {
       edm::LogPrint("PATTauAgainstEleDeadECAL") << "<PATTauDiscriminationAgainstElectronDeadECAL::discriminate>:";
       edm::LogPrint("PATTauAgainstEleDeadECAL") << " moduleLabel = " << moduleLabel_;
-      edm::LogPrint("PATTauAgainstEleDeadECAL") << " tau: Pt = " << tau->pt() << ", eta = " << tau->eta() << ", phi = " << tau->phi();
+      edm::LogPrint("PATTauAgainstEleDeadECAL")
+          << " tau: Pt = " << tau->pt() << ", eta = " << tau->eta() << ", phi = " << tau->phi();
     }
     double discriminator = 1.;
-    if ( antiElectronDeadECAL_(tau.get()) ) {
+    if (antiElectronDeadECAL_(tau.get())) {
       discriminator = 0.;
     }
     if (verbosity_) {
@@ -62,15 +56,14 @@ class PATTauDiscriminationAgainstElectronDeadECAL : public PATTauDiscriminationP
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
- private:
+private:
   std::string moduleLabel_;
   int verbosity_;
 
   AntiElectronDeadECAL antiElectronDeadECAL_;
 };
 
-void PATTauDiscriminationAgainstElectronDeadECAL::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
-{
+void PATTauDiscriminationAgainstElectronDeadECAL::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // patTauDiscriminationAgainstElectronDeadECAL
   edm::ParameterSetDescription desc;
 
@@ -79,7 +72,7 @@ void PATTauDiscriminationAgainstElectronDeadECAL::fillDescriptions(edm::Configur
   desc.add<bool>("extrapolateToECalEntrance", true);
   desc.add<int>("verbosity", 0);
 
-  fillProducerDescriptions(desc); // inherited from the base-class
+  fillProducerDescriptions(desc);  // inherited from the base-class
 
   descriptions.add("patTauDiscriminationAgainstElectronDeadECAL", desc);
 }
