@@ -126,8 +126,6 @@ const RotationMatrix DDFilteredView::rotation() const {
     return RotationMatrix();
   }
 
-  LogVerbatim("DDFilteredView") << "Rotation matrix components (1st 3) = " << rotation[0] << ", " << rotation[1] << ", "
-                                << rotation[2];
   RotationMatrix rotMatrix;
   rotMatrix.SetComponents(rotation[0],
                           rotation[1],
@@ -147,8 +145,6 @@ void DDFilteredView::rot(dd4hep::Rotation3D& matrixOut) const {
     LogError("DDFilteredView") << "Current node has no valid rotation matrix.";
     return;
   }
-  LogVerbatim("DDFilteredView") << "Rotation matrix components (1st 3) = " << rotation[0] << ", " << rotation[1] << ", "
-                                << rotation[2];
   matrixOut.SetComponents(rotation[0],
                           rotation[1],
                           rotation[2],
