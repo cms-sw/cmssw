@@ -18,7 +18,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
-#include <iostream>
 
 #include <vector>
 #include <map>
