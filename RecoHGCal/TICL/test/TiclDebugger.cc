@@ -26,7 +26,9 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HGCalReco/interface/Trackster.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
+#include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
 //
 // class declaration
 //
@@ -45,16 +47,20 @@ private:
 
   const edm::InputTag trackstersMerge_;
   const edm::InputTag tracks_;
+  const edm::InputTag caloParticles_;
   edm::EDGetTokenT<std::vector<ticl::Trackster>> trackstersMergeToken_;
   edm::EDGetTokenT<std::vector<reco::Track>> tracksToken_;
+  edm::EDGetTokenT<std::vector<CaloParticle>> caloParticlesToken_;
 };
 
 TiclDebugger::TiclDebugger(const edm::ParameterSet& iConfig)
     : trackstersMerge_(iConfig.getParameter<edm::InputTag>("trackstersMerge")),
-      tracks_(iConfig.getParameter<edm::InputTag>("tracks")) {
+      tracks_(iConfig.getParameter<edm::InputTag>("tracks")),
+      caloParticles_(iConfig.getParameter<edm::InputTag>("caloParticles")) {
   edm::ConsumesCollector&& iC = consumesCollector();
   trackstersMergeToken_ = iC.consumes<std::vector<ticl::Trackster>>(trackstersMerge_);
   tracksToken_ = iC.consumes<std::vector<reco::Track>>(tracks_);
+  caloParticlesToken_ = iC.consumes<std::vector<CaloParticle>>(caloParticles_);
 }
 
 TiclDebugger::~TiclDebugger() {}
@@ -79,7 +85,25 @@ void TiclDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
   edm::Handle<std::vector<reco::Track>> tracksH;
   iEvent.getByToken(tracksToken_, tracksH);
-  const auto & tracks = *tracksH.product();
+  const auto& tracks = *tracksH.product();
+
+  edm::Handle<std::vector<CaloParticle>> caloParticlesH;
+  iEvent.getByToken(caloParticlesToken_, caloParticlesH);
+  auto const& caloParticles = *caloParticlesH.product();
+  std::vector<std::pair<int, float>> bestCPMatches;
+
+  auto bestCaloParticleMatches = [&](const ticl::Trackster& t) -> void {
+    bestCPMatches.clear();
+    auto idx = 0;
+    auto separation = 0.;
+    for (auto const& cp : caloParticles) {
+      separation = reco::deltaR2(t.barycenter(), cp.momentum());
+      if (separation < 0.05) {
+        bestCPMatches.push_back(std::make_pair(idx, separation));
+      }
+      ++idx;
+    }
+  };
 
   for (auto const& t : sorted_tracksters_idx) {
     auto const& trackster = tracksters[t];
@@ -98,19 +122,29 @@ void TiclDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       std::cout << "(" << particle_kind[p_idx] << "):" << probs[p_idx] << " ";
     }
     std::cout << "\n time: " << trackster.time() << "+/-" << trackster.timeError() << std::endl
-      << " cells: " << trackster.vertices().size()
-      << " average usage: " << std::accumulate(
-          std::begin(trackster.vertex_multiplicity()),
-          std::end(trackster.vertex_multiplicity()),
-          0.) / trackster.vertex_multiplicity().size() << std::endl;
+              << " cells: " << trackster.vertices().size() << " average usage: "
+              << std::accumulate(
+                     std::begin(trackster.vertex_multiplicity()), std::end(trackster.vertex_multiplicity()), 0.) /
+                     trackster.vertex_multiplicity().size()
+              << std::endl;
     if (trackster.seedID().id() != 0) {
-      auto const & track = tracks[trackster.seedIndex()];
+      auto const& track = tracks[trackster.seedIndex()];
       std::cout << " Seeding Track:" << std::endl;
-      std::cout << "   pt: " << track.pt() << " p: " << track.p()
-        << " eta: " << track.eta()
-        << " outerEta: " << track.outerEta() << " phi: " << track.phi()
-        << " outerPhi: " << track.outerPhi()
-        << std::endl;
+      std::cout << "   p: " << track.p() << " pt: " << track.pt()
+                << " charge: " << track.charge() << " eta: " << track.eta()
+                << " outerEta: " << track.outerEta() << " phi: " << track.phi() << " outerPhi: " << track.outerPhi()
+                << std::endl;
+    }
+    bestCaloParticleMatches(trackster);
+    if (!bestCPMatches.empty()) {
+      std::cout << " Best CaloParticles Matches:" << std::endl;;
+      for (auto const& i : bestCPMatches) {
+        auto const & cp = caloParticles[i.first];
+        std::cout << "   " << i.first << "(" << i.second << "):" << cp.pdgId() << "|"
+                  << cp.simClusters().size() << "|"
+                  << cp.energy() << "|" << cp.pt() << "  " << std::endl;
+      }
+      std::cout << std::endl;
     }
   }
 }
@@ -124,6 +158,7 @@ void TiclDebugger::fillDescriptions(edm::ConfigurationDescriptions& descriptions
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("trackstersMerge", edm::InputTag("ticlTrackstersMerge"));
   desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
+  desc.add<edm::InputTag>("caloParticles", edm::InputTag("mix", "MergedCaloTruth"));
   descriptions.add("ticlDebugger", desc);
 }
 
