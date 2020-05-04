@@ -174,8 +174,6 @@ namespace {
         unsigned short iSample = detIdIndexHitInfo.sampleIndex();
         const std::vector<unsigned short>& unsigned_charge_array = detIdIndexHitInfo.chargeArray();
         const std::vector<unsigned short>& unsigned_time_array = detIdIndexHitInfo.timeArray();
-        std::vector<float> Acc_charge_array = puhit_info[0][iSample];
-        std::vector<float> timing_hit_array = puhit_info[1][iSample];
 
         float p_charge, p_time;
         unsigned short unsigned_charge, unsigned_time;
