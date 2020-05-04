@@ -25,7 +25,8 @@ bool TrackFilterForPVFinding::operator()(const reco::TransientTrack& tk) const {
   if (!tk.stateAtBeamLine().isValid())
     return false;
   bool IPSigCut = (tk.stateAtBeamLine().transverseImpactParameter().significance() < maxD0Sig_) &&
-                  (tk.stateAtBeamLine().transverseImpactParameter().error() < maxD0Error_) && (tk.track().dzError() < maxDzError_);
+                  (tk.stateAtBeamLine().transverseImpactParameter().error() < maxD0Error_) &&
+                  (tk.track().dzError() < maxDzError_);
   bool pTCut = tk.impactPointState().globalMomentum().transverse() > minPt_;
   bool etaCut = std::fabs(tk.impactPointState().globalMomentum().eta()) < maxEta_;
   bool normChi2Cut = tk.normalizedChi2() < maxNormChi2_;
