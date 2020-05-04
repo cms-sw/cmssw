@@ -111,7 +111,6 @@ uint16_t SiStripRawProcessingAlgorithms::suppressHybridData_faster(const edm::De
   const std::size_t nStrips = stripModuleGeom->specificTopology().nstrips();
   const std::size_t nAPVs = nStrips / 128;
 
-  std::vector<bool> apvFlags(nAPVs, false);
 
   uint16_t nAPVFlagged = 0;
   auto beginAPV = std::cbegin(hybridDigis);
@@ -121,14 +120,11 @@ uint16_t SiStripRawProcessingAlgorithms::suppressHybridData_faster(const edm::De
                             : std::cend(hybridDigis);
     const auto nDigisInAPV = std::distance(beginAPV, endAPV);
     if (nDigisInAPV > 64) {
-      apvFlags[iAPV] = true;
       digivector_t procRawDigis(128, -1024);
       for (auto it = beginAPV; it != endAPV; ++it) {
         procRawDigis[it->strip() - 128 * iAPV] = it->adc() * 2 - 1024;
       }
-      // hybrid reusing previous code - my be able to sve a bit more
-      const auto nFlag = suppressHybridData(hybridDigis.id, iAPV, procRawDigis, suppressedDigis);
-      nAPVFlagged += nFlag;
+      nAPVFlagged += suppressHybridData(hybridDigis.id, iAPV, procRawDigis, suppressedDigis);
     } else {  // already zero-suppressed, copy and truncate
       std::transform(beginAPV, endAPV, std::back_inserter(suppressedDigis), [this](const SiStripDigi inDigi) {
         return SiStripDigi(inDigi.strip(), suppressor->truncate(inDigi.adc()));
