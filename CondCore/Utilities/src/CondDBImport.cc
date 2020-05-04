@@ -54,6 +54,7 @@ namespace cond {
         IMPORT_PAYLOAD_CASE(Alignments)
         IMPORT_PAYLOAD_CASE(AlignPCLThresholds)
         IMPORT_PAYLOAD_CASE(BeamSpotObjects)
+        IMPORT_PAYLOAD_CASE(BeamSpotOnlineObjects)
         IMPORT_PAYLOAD_CASE(CSCBadChambers)
         IMPORT_PAYLOAD_CASE(CSCBadStrips)
         IMPORT_PAYLOAD_CASE(CSCBadWires)
