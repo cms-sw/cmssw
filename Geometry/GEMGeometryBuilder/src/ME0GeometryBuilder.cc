@@ -51,8 +51,7 @@ ME0Geometry* ME0GeometryBuilder::build(const DDCompactView* cview, const MuonDDD
 }
 
 // for DD4hep
-ME0Geometry* ME0GeometryBuilder::build(const cms::DDCompactView* cview,
-                                              const cms::MuonNumbering& muonConstants) {
+ME0Geometry* ME0GeometryBuilder::build(const cms::DDCompactView* cview, const cms::MuonNumbering& muonConstants) {
   std::string attribute = "MuStructure";
   std::string value = "MuonEndCapME0";
   cms::DDFilteredView fview(cview->detector(), cview->detector()->worldVolume());
@@ -68,7 +67,7 @@ ME0Geometry* ME0GeometryBuilder::buildGeometry(DDFilteredView& fv, const MuonDDD
 
   LogTrace("ME0GeometryBuilder") << "Building the geometry service";
   LogTrace("ME0GeometryBuilder") << "About to run through the ME0 structure\n"
-                                        << "Top level logical part: " << fv.logicalPart().name().name();
+                                 << "Top level logical part: " << fv.logicalPart().name().name();
 
 // ==========================================
 // ===  Test to understand the structure  ===
@@ -79,24 +78,23 @@ ME0Geometry* ME0GeometryBuilder::buildGeometry(DDFilteredView& fv, const MuonDDD
 
   while (testChambers) {
     // to etapartitions
-    LogTrace("ME0GeometryBuilder")
-        << "to layer " << fv.firstChild();  // commented out in case only looping over sensitive volumes
-    LogTrace("ME0GeometryBuilder")
-        << "to etapt " << fv.firstChild();  // commented out in case only looping over sensitive volumes
+    LogTrace("ME0GeometryBuilder") << "to layer "
+                                   << fv.firstChild();  // commented out in case only looping over sensitive volumes
+    LogTrace("ME0GeometryBuilder") << "to etapt "
+                                   << fv.firstChild();  // commented out in case only looping over sensitive volumes
     MuonDDDNumbering mdddnum(muonConstants);
     ME0NumberingScheme me0Num(muonConstants);
     int rawId = me0Num.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
     ME0DetId detId = ME0DetId(rawId);
     ME0DetId detIdCh = detId.chamberId();
     // back to chambers
-    LogTrace("ME0GeometryBuilder")
-        << "back to layer " << fv.parent();  // commented out in case only looping over sensitive volumes
-    LogTrace("ME0GeometryBuilder")
-        << "back to chamb " << fv.parent();  // commented out in case only looping over sensitive volumes
+    LogTrace("ME0GeometryBuilder") << "back to layer "
+                                   << fv.parent();  // commented out in case only looping over sensitive volumes
+    LogTrace("ME0GeometryBuilder") << "back to chamb "
+                                   << fv.parent();  // commented out in case only looping over sensitive volumes
     // ok lets get started ...
-    LogTrace("ME0GeometryBuilder")
-        << "In DoChambers Loop :: ME0DetId " << detId << " = " << detId.rawId() << " (which belongs to ME0Chamber "
-        << detIdCh << " = " << detIdCh.rawId() << ")";
+    LogTrace("ME0GeometryBuilder") << "In DoChambers Loop :: ME0DetId " << detId << " = " << detId.rawId()
+                                   << " (which belongs to ME0Chamber " << detIdCh << " = " << detIdCh.rawId() << ")";
     LogTrace("ME0GeometryBuilder") << "Second level logical part: " << fv.logicalPart().name().name();
     DDBooleanSolid solid2 = (DDBooleanSolid)(fv.logicalPart().solid());
     std::vector<double> dpar2 = solid2.parameters();
@@ -104,27 +102,26 @@ ME0Geometry* ME0GeometryBuilder::buildGeometry(DDFilteredView& fv, const MuonDDD
     for (unsigned int i = 0; i < dpar2.size(); ++i) {
       parameters2 << " dpar[" << i << "]=" << dpar2[i] / 10 << "cm ";
     }
-    LogTrace("ME0GeometryBuilder")
-        << "Second level parameters: vector with size = " << dpar2.size() << " and elements " << parameters2.str();
+    LogTrace("ME0GeometryBuilder") << "Second level parameters: vector with size = " << dpar2.size() << " and elements "
+                                   << parameters2.str();
 
     bool doLayers = fv.firstChild();
 
     LogTrace("ME0GeometryBuilder") << "doLayer = fv.firstChild() = " << doLayers;
     while (doLayers) {
       // to etapartitions
-      LogTrace("ME0GeometryBuilder")
-          << "to etapt " << fv.firstChild();  // commented out in case only looping over sensitive volumes
+      LogTrace("ME0GeometryBuilder") << "to etapt "
+                                     << fv.firstChild();  // commented out in case only looping over sensitive volumes
       MuonDDDNumbering mdddnum(muonConstants);
       ME0NumberingScheme me0Num(muonConstants);
       int rawId = me0Num.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
       ME0DetId detId = ME0DetId(rawId);
       ME0DetId detIdLa = detId.layerId();
       // back to layers
-      LogTrace("ME0GeometryBuilder")
-          << "back to layer " << fv.parent();  // commented out in case only looping over sensitive volumes
-      LogTrace("ME0GeometryBuilder")
-          << "In DoLayers Loop :: ME0DetId " << detId << " = " << detId.rawId() << " (which belongs to ME0Layer "
-          << detIdLa << " = " << detIdLa.rawId() << ")";
+      LogTrace("ME0GeometryBuilder") << "back to layer "
+                                     << fv.parent();  // commented out in case only looping over sensitive volumes
+      LogTrace("ME0GeometryBuilder") << "In DoLayers Loop :: ME0DetId " << detId << " = " << detId.rawId()
+                                     << " (which belongs to ME0Layer " << detIdLa << " = " << detIdLa.rawId() << ")";
       LogTrace("ME0GeometryBuilder") << "Third level logical part: " << fv.logicalPart().name().name();
       DDBooleanSolid solid3 = (DDBooleanSolid)(fv.logicalPart().solid());
       std::vector<double> dpar3 = solid3.parameters();
@@ -132,8 +129,8 @@ ME0Geometry* ME0GeometryBuilder::buildGeometry(DDFilteredView& fv, const MuonDDD
       for (unsigned int i = 0; i < dpar3.size(); ++i) {
         parameters3 << " dpar[" << i << "]=" << dpar3[i] / 10 << "cm ";
       }
-      LogTrace("ME0GeometryBuilder")
-          << "Third level parameters: vector with size = " << dpar3.size() << " and elements " << parameters3.str();
+      LogTrace("ME0GeometryBuilder") << "Third level parameters: vector with size = " << dpar3.size()
+                                     << " and elements " << parameters3.str();
       bool doEtaParts = fv.firstChild();
 
       LogTrace("ME0GeometryBuilder") << "doEtaPart = fv.firstChild() = " << doEtaParts;
@@ -146,21 +143,21 @@ ME0Geometry* ME0GeometryBuilder::buildGeometry(DDFilteredView& fv, const MuonDDD
         for (unsigned int i = 0; i < dpar4.size(); ++i) {
           parameters4 << " dpar[" << i << "]=" << dpar4[i] / 10 << "cm ";
         }
-        LogTrace("ME0GeometryBuilder")
-            << "Fourth level parameters: vector with size = " << dpar4.size() << " and elements " << parameters4.str();
+        LogTrace("ME0GeometryBuilder") << "Fourth level parameters: vector with size = " << dpar4.size()
+                                       << " and elements " << parameters4.str();
 
         doEtaParts = fv.nextSibling();
         LogTrace("ME0GeometryBuilder") << "doEtaPart = fv.nextSibling() = " << doEtaParts;
       }
       fv.parent();  // commented out in case only looping over sensitive volumes
-      LogTrace("ME0GeometryBuilder")
-          << "went back to parent :: name = " << fv.logicalPart().name().name() << " will now ask for nextSibling";
+      LogTrace("ME0GeometryBuilder") << "went back to parent :: name = " << fv.logicalPart().name().name()
+                                     << " will now ask for nextSibling";
       doLayers = fv.nextSibling();
       LogTrace("ME0GeometryBuilder") << "doLayer = fv.nextSibling() = " << doLayers;
     }
     fv.parent();  // commented out in case only looping over sensitive volumes
-    LogTrace("ME0GeometryBuilder")
-        << "went back to parent :: name = " << fv.logicalPart().name().name() << " will now ask for nextSibling";
+    LogTrace("ME0GeometryBuilder") << "went back to parent :: name = " << fv.logicalPart().name().name()
+                                   << " will now ask for nextSibling";
     testChambers = fv.nextSibling();
     LogTrace("ME0GeometryBuilder") << "doChamber = fv.nextSibling() = " << testChambers;
   }
@@ -236,8 +233,7 @@ ME0Geometry* ME0GeometryBuilder::buildGeometry(DDFilteredView& fv, const MuonDDD
 }
 
 ME0Chamber* ME0GeometryBuilder::buildChamber(DDFilteredView& fv, ME0DetId detId) const {
-  LogTrace("ME0GeometryBuilder") << "buildChamber " << fv.logicalPart().name().name() << " " << detId
-                                        << std::endl;
+  LogTrace("ME0GeometryBuilder") << "buildChamber " << fv.logicalPart().name().name() << " " << detId << std::endl;
   DDBooleanSolid solid = (DDBooleanSolid)(fv.logicalPart().solid());
   // std::vector<double> dpar = solid.solidA().parameters();
   std::vector<double> dpar = solid.parameters();
@@ -253,8 +249,8 @@ ME0Chamber* ME0GeometryBuilder::buildChamber(DDFilteredView& fv, ME0DetId detId)
   for (unsigned int i = 0; i < dpar.size(); ++i) {
     LogTrace("ME0GeometryBuilder") << " dpar [" << i << "] = " << dpar[i] / 10 << " cm " << std::endl;
   }
-  LogTrace("ME0GeometryBuilder") << "size  b: " << b << "cm, B: " << B << "cm,  L: " << L << "cm, T: " << T
-                                        << "cm " << std::endl;
+  LogTrace("ME0GeometryBuilder") << "size  b: " << b << "cm, B: " << B << "cm,  L: " << L << "cm, T: " << T << "cm "
+                                 << std::endl;
 #endif
 
   bool isOdd = false;  // detId.chamber()%2;
@@ -283,8 +279,8 @@ ME0Layer* ME0GeometryBuilder::buildLayer(DDFilteredView& fv, ME0DetId detId) con
   for (unsigned int i = 0; i < dpar.size(); ++i) {
     LogTrace("ME0GeometryBuilder") << " dpar [" << i << "] = " << dpar[i] / 10 << " cm " << std::endl;
   }
-  LogTrace("ME0GeometryBuilder") << "size  b: " << b << "cm, B: " << B << "cm,  L: " << L << "cm, t: " << t
-                                        << "cm " << std::endl;
+  LogTrace("ME0GeometryBuilder") << "size  b: " << b << "cm, B: " << B << "cm,  L: " << L << "cm, t: " << t << "cm "
+                                 << std::endl;
 #endif
 
   bool isOdd = false;  // detId.chamber()%2;
@@ -294,8 +290,7 @@ ME0Layer* ME0GeometryBuilder::buildLayer(DDFilteredView& fv, ME0DetId detId) con
 }
 
 ME0EtaPartition* ME0GeometryBuilder::buildEtaPartition(DDFilteredView& fv, ME0DetId detId) const {
-  LogTrace("ME0GeometryBuilder") << "buildEtaPartition " << fv.logicalPart().name().name() << " " << detId
-                                        << std::endl;
+  LogTrace("ME0GeometryBuilder") << "buildEtaPartition " << fv.logicalPart().name().name() << " " << detId << std::endl;
 
   // EtaPartition specific parameter (nstrips and npads)
   DDValue numbOfStrips("nStrips");
@@ -310,9 +305,9 @@ ME0EtaPartition* ME0GeometryBuilder::buildEtaPartition(DDFilteredView& fv, ME0De
       nPads = numbOfPads.doubles()[0];
   }
   LogTrace("ME0GeometryBuilder") << ((nStrips == 0.) ? ("No nStrips found!!")
-                                                            : ("Number of strips: " + std::to_string(nStrips)));
+                                                     : ("Number of strips: " + std::to_string(nStrips)));
   LogTrace("ME0GeometryBuilder") << ((nPads == 0.) ? ("No nPads found!!")
-                                                          : ("Number of pads: " + std::to_string(nPads)));
+                                                   : ("Number of pads: " + std::to_string(nPads)));
 
   // EtaPartition specific parameter (size)
   std::vector<double> dpar = fv.logicalPart().solid().parameters();
@@ -327,8 +322,8 @@ ME0EtaPartition* ME0GeometryBuilder::buildEtaPartition(DDFilteredView& fv, ME0De
   for (unsigned int i = 0; i < dpar.size(); ++i) {
     LogTrace("ME0GeometryBuilder") << " dpar [" << i << "] = " << dpar[i] / 10 << " cm " << std::endl;
   }
-  LogTrace("ME0GeometryBuilder") << "size  b: " << b << "cm, B: " << B << "cm,  L: " << L << "cm, t: " << t
-                                        << "cm " << std::endl;
+  LogTrace("ME0GeometryBuilder") << "size  b: " << b << "cm, B: " << B << "cm,  L: " << L << "cm, t: " << t << "cm "
+                                 << std::endl;
 #endif
 
   std::vector<float> pars;
@@ -349,8 +344,8 @@ ME0EtaPartition* ME0GeometryBuilder::buildEtaPartition(DDFilteredView& fv, ME0De
 }
 
 ME0GeometryBuilder::ME0BoundPlane ME0GeometryBuilder::boundPlane(const DDFilteredView& fv,
-                                                                               Bounds* bounds,
-                                                                               bool isOddChamber) const {
+                                                                 Bounds* bounds,
+                                                                 bool isOddChamber) const {
   // extract the position
   const DDTranslation& trans(fv.translation());
   const Surface::PositionType posResult(float(trans.x() / cm), float(trans.y() / cm), float(trans.z() / cm));
@@ -394,8 +389,7 @@ ME0GeometryBuilder::ME0BoundPlane ME0GeometryBuilder::boundPlane(const DDFiltere
 
 // dd4hep
 
-ME0Geometry* ME0GeometryBuilder::buildGeometry(cms::DDFilteredView& fv,
-                                                      const cms::MuonNumbering& muonConstants) {
+ME0Geometry* ME0GeometryBuilder::buildGeometry(cms::DDFilteredView& fv, const cms::MuonNumbering& muonConstants) {
   ME0Geometry* geometry = new ME0Geometry();
 
   bool doChambers = fv.firstChild();
@@ -517,8 +511,8 @@ ME0EtaPartition* ME0GeometryBuilder::buildEtaPartition(cms::DDFilteredView& fv, 
 }
 
 ME0GeometryBuilder::ME0BoundPlane ME0GeometryBuilder::boundPlane(const cms::DDFilteredView& fv,
-                                                                               Bounds* bounds,
-                                                                               bool isOddChamber) const {
+                                                                 Bounds* bounds,
+                                                                 bool isOddChamber) const {
   // extract the position
   const Double_t* trans = fv.trans();
   Surface::PositionType posResult(trans[0], trans[1], trans[2]);
