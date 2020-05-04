@@ -96,7 +96,9 @@ namespace edm {
       SelectedProductsForBranchType const& keptProducts() const { return keptProducts_; }
       std::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const { return hasNewlyDroppedBranch_; }
 
-      static void fillDescription(ParameterSetDescription& desc);
+      static void fillDescription(
+          ParameterSetDescription& desc,
+          std::vector<std::string> const& iDefaultOutputCommands = ProductSelectorRules::defaultSelectionStrings());
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
       static const std::string& baseType();
       static void prevalidate(ConfigurationDescriptions&);
