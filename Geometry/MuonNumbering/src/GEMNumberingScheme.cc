@@ -1,19 +1,14 @@
 #include "Geometry/MuonNumbering/interface/GEMNumberingScheme.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
-#include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //#define LOCAL_DEBUG
 
-GEMNumberingScheme::GEMNumberingScheme(const MuonDDDConstants& muonConstants) { initMe(muonConstants); }
+GEMNumberingScheme::GEMNumberingScheme(const MuonGeometryConstants& muonConstants) { initMe(muonConstants); }
 
-GEMNumberingScheme::GEMNumberingScheme(const DDCompactView& cpv) {
-  MuonDDDConstants muonConstants(cpv);
-  initMe(muonConstants);
-}
-
-void GEMNumberingScheme::initMe(const MuonDDDConstants& muonConstants) {
+void GEMNumberingScheme::initMe(const MuonGeometryConstants& muonConstants) {
   int theLevelPart = muonConstants.getValue("level");
   theRegionLevel = muonConstants.getValue("mg_region") / theLevelPart;
   theStationLevel = muonConstants.getValue("mg_station") / theLevelPart;

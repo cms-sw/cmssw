@@ -806,6 +806,9 @@ muonDict = {
         4 : [
             'Geometry/MuonSimData/data/PhaseII/muonProdCuts.xml',
         ],
+        "sim" : [
+            'from Geometry.MuonNumbering.muonGeometryConstants_cff import *',
+        ],
         "reco" : [
             'from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *',
             'from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *',
@@ -847,6 +850,9 @@ muonDict = {
         ],
         4 : [
             'Geometry/MuonSimData/data/PhaseII/muonProdCuts.xml',
+        ],
+        "sim" : [
+            'from Geometry.MuonNumbering.muonGeometryConstants_cff import *',
         ],
         "reco" : [
             'from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *',
@@ -893,6 +899,9 @@ muonDict = {
         4 : [
             'Geometry/MuonSimData/data/PhaseII/muonProdCuts.xml',
         ],
+        "sim" : [
+            'from Geometry.MuonNumbering.muonGeometryConstants_cff import *',
+        ],
         "reco" : [
             'from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *',
             'from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *',
@@ -937,6 +946,9 @@ muonDict = {
         ],
         4 : [
             'Geometry/MuonSimData/data/PhaseII/muonProdCuts.xml',
+        ],
+        "sim" : [
+            'from Geometry.MuonNumbering.muonGeometryConstants_cff import *',
         ],
         "reco" : [
             'from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *',

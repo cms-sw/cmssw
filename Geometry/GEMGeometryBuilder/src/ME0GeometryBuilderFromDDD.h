@@ -13,7 +13,7 @@ class ME0DetId;
 class ME0Chamber;
 class ME0Layer;
 class ME0EtaPartition;
-class MuonDDDConstants;
+class MuonGeometryConstants;
 
 class ME0GeometryBuilderFromDDD {
 public:
@@ -21,10 +21,10 @@ public:
 
   ~ME0GeometryBuilderFromDDD();
 
-  ME0Geometry* build(const DDCompactView* cview, const MuonDDDConstants& muonConstants);
+  ME0Geometry* build(const DDCompactView* cview, const MuonGeometryConstants& muonConstants);
 
 private:
-  ME0Geometry* buildGeometry(DDFilteredView& fview, const MuonDDDConstants& muonConstants);
+  ME0Geometry* buildGeometry(DDFilteredView& fview, const MuonGeometryConstants& muonConstants);
   std::map<ME0DetId, std::vector<ME0DetId>> chids;
 
   typedef ReferenceCountingPointer<BoundPlane> ME0BoundPlane;

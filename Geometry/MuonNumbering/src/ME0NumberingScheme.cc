@@ -1,20 +1,15 @@
 #include "Geometry/MuonNumbering/interface/ME0NumberingScheme.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
-#include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "DataFormats/MuonDetId/interface/ME0DetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 //#define LOCAL_DEBUG
 
-ME0NumberingScheme::ME0NumberingScheme(const MuonDDDConstants& muonConstants) { initMe(muonConstants); }
+ME0NumberingScheme::ME0NumberingScheme(const MuonGeometryConstants& muonConstants) { initMe(muonConstants); }
 
-ME0NumberingScheme::ME0NumberingScheme(const DDCompactView& cpv) {
-  MuonDDDConstants muonConstants(cpv);
-  initMe(muonConstants);
-}
-
-void ME0NumberingScheme::initMe(const MuonDDDConstants& muonConstants) {
+void ME0NumberingScheme::initMe(const MuonGeometryConstants& muonConstants) {
   int theLevelPart = muonConstants.getValue("level");
   theRegionLevel = muonConstants.getValue("m0_region") / theLevelPart;
   theLayerLevel = muonConstants.getValue("m0_layer") / theLevelPart;

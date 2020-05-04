@@ -4,20 +4,18 @@
 #include "Geometry/MuonNumbering/interface/MuonNumberingScheme.h"
 
 class MuonBaseNumber;
-class DDCompactView;
-class MuonDDDConstants;
+class MuonGeometryConstants;
 
 class GEMNumberingScheme : public MuonNumberingScheme {
 public:
-  GEMNumberingScheme(const DDCompactView& cpv);
-  GEMNumberingScheme(const MuonDDDConstants& muonConstants);
+  GEMNumberingScheme(const MuonGeometryConstants& muonConstants);
 
   ~GEMNumberingScheme() override{};
 
   int baseNumberToUnitNumber(const MuonBaseNumber&) override;
 
 private:
-  void initMe(const MuonDDDConstants& muonConstants);
+  void initMe(const MuonGeometryConstants& muonConstants);
 
   int theRegionLevel;
   int theStationLevel;

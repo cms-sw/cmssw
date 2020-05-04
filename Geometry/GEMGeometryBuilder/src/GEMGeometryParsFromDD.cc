@@ -26,7 +26,7 @@ GEMGeometryParsFromDD::GEMGeometryParsFromDD() {}
 GEMGeometryParsFromDD::~GEMGeometryParsFromDD() {}
 
 void GEMGeometryParsFromDD::build(const DDCompactView* cview,
-                                  const MuonDDDConstants& muonConstants,
+                                  const MuonGeometryConstants& muonConstants,
                                   RecoIdealGeometry& rgeo) {
   std::string attribute = "MuStructure";
   std::string value = "MuonEndCapGEM";
@@ -39,7 +39,7 @@ void GEMGeometryParsFromDD::build(const DDCompactView* cview,
 }
 
 void GEMGeometryParsFromDD::buildGeometry(DDFilteredView& fv,
-                                          const MuonDDDConstants& muonConstants,
+                                          const MuonGeometryConstants& muonConstants,
                                           RecoIdealGeometry& rgeo) {
   LogDebug("GEMGeometryParsFromDD") << "Building the geometry service";
   LogDebug("GEMGeometryParsFromDD") << "About to run through the GEM structure\n"

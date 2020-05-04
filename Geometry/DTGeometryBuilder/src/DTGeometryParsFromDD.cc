@@ -31,7 +31,7 @@ DTGeometryParsFromDD::DTGeometryParsFromDD() {}
 DTGeometryParsFromDD::~DTGeometryParsFromDD() {}
 
 void DTGeometryParsFromDD::build(const DDCompactView* cview,
-                                 const MuonDDDConstants& muonConstants,
+                                 const MuonGeometryConstants& muonConstants,
                                  RecoIdealGeometry& rig) {
   //  cout << "DTGeometryParsFromDD::build" << endl;
   //   static const string t0 = "DTGeometryParsFromDD::build";
@@ -48,7 +48,7 @@ void DTGeometryParsFromDD::build(const DDCompactView* cview,
 }
 
 void DTGeometryParsFromDD::buildGeometry(DDFilteredView& fv,
-                                         const MuonDDDConstants& muonConstants,
+                                         const MuonGeometryConstants& muonConstants,
                                          RecoIdealGeometry& rig) const {
   // static const string t0 = "DTGeometryParsFromDD::buildGeometry";
   // TimeMe timer(t0,true);
@@ -100,7 +100,7 @@ void DTGeometryParsFromDD::buildGeometry(DDFilteredView& fv,
 
 void DTGeometryParsFromDD::insertChamber(DDFilteredView& fv,
                                          const string& type,
-                                         const MuonDDDConstants& muonConstants,
+                                         const MuonGeometryConstants& muonConstants,
                                          RecoIdealGeometry& rig) const {
   MuonDDDNumbering mdddnum(muonConstants);
   DTNumberingScheme dtnum(muonConstants);
@@ -126,7 +126,7 @@ void DTGeometryParsFromDD::insertChamber(DDFilteredView& fv,
 
 void DTGeometryParsFromDD::insertSuperLayer(DDFilteredView& fv,
                                             const std::string& type,
-                                            const MuonDDDConstants& muonConstants,
+                                            const MuonGeometryConstants& muonConstants,
                                             RecoIdealGeometry& rig) const {
   MuonDDDNumbering mdddnum(muonConstants);
   DTNumberingScheme dtnum(muonConstants);
@@ -148,7 +148,7 @@ void DTGeometryParsFromDD::insertSuperLayer(DDFilteredView& fv,
 
 void DTGeometryParsFromDD::insertLayer(DDFilteredView& fv,
                                        const std::string& type,
-                                       const MuonDDDConstants& muonConstants,
+                                       const MuonGeometryConstants& muonConstants,
                                        RecoIdealGeometry& rig) const {
   MuonDDDNumbering mdddnum(muonConstants);
   DTNumberingScheme dtnum(muonConstants);

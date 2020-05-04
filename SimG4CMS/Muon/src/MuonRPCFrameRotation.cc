@@ -1,11 +1,11 @@
 #include "SimG4CMS/Muon/interface/MuonRPCFrameRotation.h"
 #include "SimG4CMS/Muon/interface/MuonG4Numbering.h"
-#include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 
 #include "G4Step.hh"
 
-MuonRPCFrameRotation::MuonRPCFrameRotation(const MuonDDDConstants& muonConstants)
+MuonRPCFrameRotation::MuonRPCFrameRotation(const MuonGeometryConstants& muonConstants)
     : MuonFrameRotation::MuonFrameRotation() {
   g4numbering = new MuonG4Numbering(muonConstants);
   int theLevelPart = muonConstants.getValue("level");
