@@ -1,59 +1,89 @@
+import os
+import time
 import socket
 import struct
 import asyncio
 import tempfile
 import subprocess
 
+from DQMServices.DQMGUI import nanoroot
+from storage import EfficiencyFlag, ScalarValue, QTest
+
 class DQMRenderer:
     rendering_contexts = []
     semaphore = None
 
     @staticmethod
-    def initialize(workers=8):
+    async def initialize(workers=8):
         """Starts the renderers and configures the pool"""
 
-        if len(DQMRenderer.rendering_contexts)  != 0:
+        if len(DQMRenderer.rendering_contexts) != 0:
             print('DQM rendering sub processes already initialized')
             return
         
         print('Initializing %s DQM rendering sub processes...' % workers)
 
-        DQMRenderer.rendering_contexts = [DQMRenderingContext() for _ in range(workers)]
-
+        DQMRenderer.rendering_contexts = [await DQMRenderingContext.create() for _ in range(workers)]
         DQMRenderer.semaphore = asyncio.Semaphore(workers)
-            
-    async def get_context(self):
-        """Will get one of the free DQMRenderingContexts.
-        If none are available, will block till a context frees up."""
 
-        # Lock will be released inside DQMRenderingContext.__exit__
+    @staticmethod
+    async def render(th1, refth1s=[], name='', spec='', efficiency=False, width=600, height=400, streamerfile=b''):
+        if isinstance(th1, QTest) or isinstance(th1, EfficiencyFlag):
+            raise Exception('Only ScalarValue and TH* can be rendered.')
+
         await DQMRenderer.semaphore.acquire()
 
-        context = DQMRenderer.rendering_contexts.pop()
-        return context
+        try:
+            context = DQMRenderer.rendering_contexts.pop()
+            if isinstance(th1, ScalarValue):
+                return await context.render_scalar(th1.value, width, height)
+            elif isinstance(th1, str):
+                return await context.render_scalar(th1, width, height)
+            elif isinstance(th1, bytes):
+                return await context.render_histo(th1, refth1s, name, spec, efficiency, width, height, streamerfile)
+            else:
+                return await context.render_scalar('Unknown ME type', width, height)
+        finally:
+            DQMRenderer.rendering_contexts.append(context)
+            DQMRenderer.semaphore.release()
 
 class DQMRenderingContext:
     def __init__(self):
+        pass
+        # self.working_dir = tempfile.mkdtemp()
+        # self.render_process = subprocess.Popen(
+        #         f"dqmRender --state-directory {self.working_dir}/ > {self.working_dir}/render.log 2>&1", 
+        #         shell=True, stdout=subprocess.PIPE)
+
+        # # Wait for renderer to be ready to accept connections.
+        # # This is done before web server starts up so we can block
+        # while not os.path.exists(f'{self.working_dir}/socket'):
+        #     time.sleep(0.2)
+
+        # self.client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        # self.client.connect(f"{self.working_dir}/socket")
+
+    async def create():
+        self = DQMRenderingContext()
         self.working_dir = tempfile.mkdtemp()
         self.render_process = subprocess.Popen(
                 f"dqmRender --state-directory {self.working_dir}/ > {self.working_dir}/render.log 2>&1", 
                 shell=True, stdout=subprocess.PIPE)
 
-        import time
-        time.sleep(1)
+        while not os.path.exists(f'{self.working_dir}/socket'):
+            await asyncio.sleep(0.2)
 
-        self.client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        self.client.connect(f"{self.working_dir}/socket")
+        self.reader, self.writer = await asyncio.open_unix_connection(f'{self.working_dir}/socket')
 
-    def __enter__(self):
         return self
 
-    def __exit__(self, exc_type, exc, tb):
-        # Push rendering context back to the list of ready to use contexts and release the lock
-        DQMRenderer.rendering_contexts.append(self)
-        DQMRenderer.semaphore.release()
 
-    def render_histo(self, th1, refth1s, name = "", spec="", efficiency=False, width=600, height=400, streamerfile=b''):
+    async def render_scalar(self, text, width=600, height=400):
+        flags = 0
+        data = str(text).encode("utf-8")
+        return await self.render_basic(width, height, flags=flags, data=data)
+
+    async def render_histo(self, th1, refth1s, name = "", spec="", efficiency=False, width=600, height=400, streamerfile=b''):
         DQM_PROP_TYPE_SCALAR = 0x0000000f;
         flags = DQM_PROP_TYPE_SCALAR + 1 # real type is not needed.
         if efficiency:
@@ -63,13 +93,13 @@ class DQMRenderingContext:
             if isinstance(o, bytes):
                 buf = o
             else:
-                buf = tobuffer(o)
+                buf = self.tobuffer(o)
             data += struct.pack("=i", len(buf)) + buf
         numobjs = len(refth1s) + 1
         nameb = name.encode("utf-8")
-        return self.render_basic(width, height, flags, numobjs, nameb, spec, data, streamerfile)
+        return await self.render_basic(width, height, flags, numobjs, nameb, spec, data, streamerfile)
     
-    def render_basic(self, width, height, flags = 0, numobjs = 1, name = b'', spec = '', data = b'', streamerfile = b''):
+    async def render_basic(self, width, height, flags = 0, numobjs = 1, name = b'', spec = '', data = b'', streamerfile = b''):
         mtype = 4 # DQM_MSG_GET_IMAGE_DATA
         # flags
         vlow = 0
@@ -88,12 +118,18 @@ class DQMRenderingContext:
         msg += streamerfile + name + specb + data
         msg = struct.pack('=i', len(msg) + 4) + msg
         try:
-            self.client.send(msg)
-            lenbuf = self.client.recv(8)
+            # start = time.time()
+            # print(self.working_dir)
+            # reader, writer = await asyncio.open_unix_connection(f'{self.working_dir}/socket')
+            
+            self.writer.write(msg)
+            await self.writer.drain()
+            lenbuf = await self.reader.read(8)
+            
             errorcode, length = struct.unpack("=ii", lenbuf)
             buf = b''
             while length > 0:
-                recvd = self.client.recv(length)
+                recvd = await self.reader.read(length)
                 length -= len(recvd)
                 buf += recvd
             return buf, errorcode
@@ -101,3 +137,21 @@ class DQMRenderingContext:
             # looks like our renderer died.
             self.dead = True
             return b'', -1
+        finally:
+            pass
+            # print(time.time() - start)
+        #     writer.close()
+        #     await writer.wait_closed()
+            
+            
+
+
+    def tobuffer(self, th1):
+        # avoid importing ROOT is not needed.
+        import ROOT
+        # 24bytes/bin for a TProfile, plus 10K of extra space
+        b = array.array("B", b' ' * (th1.GetNcells() * 24 + 10*1024))
+        bf = ROOT.TBufferFile(ROOT.TBufferFile.kWrite)
+        bf.SetBuffer(b,len(b),False)
+        bf.WriteObject(th1)
+        return bytes(b[:bf.Length()])

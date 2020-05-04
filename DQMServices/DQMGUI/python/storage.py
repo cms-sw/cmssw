@@ -1,11 +1,15 @@
 import re
 import time
-import uproot
+import zlib
 import struct
 import socket
 import sqlite3
 import tempfile
 import subprocess
+
+from collections import namedtuple, defaultdict
+
+from DQMServices.DQMGUI import nanoroot
 
 DBNAME = '../data/directory.sqlite'
 
@@ -20,25 +24,32 @@ CREATE TABLE IF NOT EXISTS meoffsets(meoffsetsid INTEGER PRIMARY KEY, meoffsetsb
 COMMIT;
 """
 
+EfficiencyFlag = namedtuple("EfficiencyFlag", ["name"])
+ScalarValue = namedtuple("ScalarValue", ["name", "value", "type"])
+QTest = namedtuple("QTest", ["name", "qtestname", "status", "result", "algorithm", "message"])
+
 with sqlite3.connect(DBNAME) as db:
     db.executescript(DBSCHEMA)
 
 class DQMDataStore:
 
-    def __init__(self):
-        self.db = sqlite3.connect(DBNAME)
+    db = sqlite3.connect(DBNAME)
+    db.executescript(DBSCHEMA)
 
-    def __del__(self):
-        self.db.close()
+    # TODO: Close connection at some point!
+    # def __del__(self):
+        # DQMDataStore.db.close()
 
-    def __execute(self, sql, args=None):
-        c = self.db.cursor()
+    @staticmethod
+    def __execute(sql, args=None):
+        c = DQMDataStore.db.cursor()
         if args:
             return  c.execute(sql, args)
         else:
             return c.execute(sql)
 
-    def get_samples(self, run, dataset):
+    @staticmethod
+    def get_samples(run, dataset):
         if run:
             run = '%%%s%%' % run
         if dataset:
@@ -49,18 +60,19 @@ class DQMDataStore:
         if run == dataset == None:
             return samples
         elif run != None and dataset != None:
-            sql = 'SELECT run, dataset FROM samples WHERE dataset LIKE ? AND run LIKE ?'
-            results = self.__execute(sql, (dataset, run))
+            sql = 'SELECT DISTINCT run, dataset FROM samples WHERE dataset LIKE ? AND run LIKE ?'
+            results = DQMDataStore.__execute(sql, (dataset, run))
         elif run != None:
-            sql = 'SELECT run, dataset FROM samples WHERE run LIKE ?'
-            results = self.__execute(sql, (run,))
+            sql = 'SELECT DISTINCT run, dataset FROM samples WHERE run LIKE ?'
+            results = DQMDataStore.__execute(sql, (run,))
         elif dataset != None:
-            sql = 'SELECT run, dataset FROM samples WHERE dataset LIKE ?'
-            results = self.__execute(sql, (dataset,))
+            sql = 'SELECT DISTINCT run, dataset FROM samples WHERE dataset LIKE ?'
+            results = DQMDataStore.__execute(sql, (dataset,))
 
         return results
-    
-    def get_me_list_blob(self, run, dataset):
+
+    @staticmethod
+    def get_me_list_blob(run, dataset):
         """
         # One me is represented as a multiple of 2 lines in a list
         # First line contains and ME path and secnod line contains secondary string:
@@ -77,7 +89,7 @@ class DQMDataStore:
         """
         # For now adding a LIMIT 1 because there might be multiple version of the same file.
         sql = 'SELECT menameblob FROM samples JOIN menames ON samples.menamesid = menames.menamesid WHERE run = ? AND dataset = ? LIMIT 1;'
-        blob = self.__execute(sql, (int(run), dataset))
+        blob = DQMDataStore.__execute(sql, (int(run), dataset))
         blob = list(blob)[0][0]
         return blob
 
@@ -88,7 +100,8 @@ class DQMDataStore:
     #     blob = list(blob)[0][0]
     #     return blob
 
-    def get_blobs_and_filename(self, run, dataset):
+    @staticmethod
+    def get_blobs_and_filename(run, dataset):
         # For now adding a LIMIT 1 because there might be multiple version of the same file.
         sql = '''
         SELECT
@@ -105,7 +118,7 @@ class DQMDataStore:
             dataset = ?
         LIMIT 1;
         '''
-        cur = self.__execute(sql, (int(run), dataset))
+        cur = DQMDataStore.__execute(sql, (int(run), dataset))
         cur = list(cur)
 
         filename = cur[0][0]
@@ -115,116 +128,173 @@ class DQMDataStore:
         return (filename, list_blob, offsets_blob)
 
 
-    def get_rendered_image(self, run, dataset, path, width=200, height=200):
-        print(run, dataset, path)
+    @staticmethod
+    def meoffsetsfromblob(offsetblob):
+        return MEInfo.blobtolist(offsetblob)
 
-        width = int(width)
-        height = int(height)
-
-        filename, list_blob, offsets_blob = self.get_blobs_and_filename(run, dataset)
-        list_buf = zlib.decompress(list_blob)
-        list_lines = list_buf.split(b'\n')
-        offsets_buf = zlib.decompress(offsets_blob)
-        # offsets_lines = offsets_buf.split(b'\n')
-
-        # Find the index of run/dataset/me in me list blob. 
-        # The index in me list will correspond to the index in offsets list.
-        # TODO: use binary search or smth!!!
-        index = -1
-        for i in range(0, len(list_lines), 2):
-            line = list_lines[i]
-            # For now replace double slash. This should not occur normally.
-            if line.decode("utf-8").replace('//', '/') == path:
-                index = i
-                break
-        
-        if index == -1:
-            raise Exception('Offset not found')
-
-        # ME and secondary string are identified by the same index so we divide by 2
-        index = int(index / 2)
-
-        # Read 4 bytes (32bit int) that is the offset in a ROOT file
-        offset = int.from_bytes(offsets_buf[index:index + 4], byteorder='little')
-        # 57491238
-        offset = 57491238
-        
-        print('Offset: %s' % offset)
-
-        root_obj = self.read_root_object(filename, '', offset)
-
-        # ===================== Connect to rendering process ===================== #
-
-        self.wd = tempfile.mkdtemp()
-
-        print(self.wd)
-
-        self.renderprocess = subprocess.Popen(
-            f"dqmRender --state-directory {self.wd}/ > {self.wd}/render.log 2>&1", 
-            shell=True, stdout=subprocess.PIPE)
-        
-        time.sleep(2)
-
-        self.client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        self.client.connect(f"{self.wd}/socket")
-        
-        # , streamerfile = filename.encode("utf-8")
-        png, error = self.renderhisto(root_obj, [], name = path, spec='', width=width, height=height, efficiency = bool(False))
-
-        print(error)
-
-        return png        
+    @staticmethod
+    def melistfromblob(namesblob):
+        return zlib.decompress(namesblob).splitlines()
 
 
-    def renderhisto(self, th1, refth1s, name = "", spec="", efficiency=False, width=600, height=400, streamerfile=b''):
-        DQM_PROP_TYPE_SCALAR = 0x0000000f;
-        flags = DQM_PROP_TYPE_SCALAR + 1 # real type is not needed.
-        if efficiency:
-            flags |= 0x00200000 # SUMMARY_PROP_EFFICIENCY_PLOT
-        data = b''
-        for o in [th1] + refth1s:
-            if isinstance(o, bytes):
-                buf = o
-            else:
-                buf = tobuffer(o)
-            data += struct.pack("=i", len(buf)) + buf
-        numobjs = len(refth1s) + 1
-        nameb = name.encode("utf-8")
-        return self.renderbasic(width, height, flags, numobjs, nameb, spec, data, streamerfile)
+# This class represents a ME in storage. It needs to be very small, since we 
+# will store billions of these in DB. For example, it does not know it's name.
+# It does store the offsets into the ROOT file and everything else needed to
+# read the data from the ROOT file.
+class MEInfo:
+    idtotype = {
+      # these match the DQMIO encoding where possible. But they don't really need to.
+      0: b"Int",
+      1: b"Float",
+      2: b"String",
+      3: b"TH1F",
+      4: b"TH1S",
+      5: b"TH1D",
+      6: b"TH2F",
+      7: b"TH2S",
+      8: b"TH2D",
+      9: b"TH3F",
+      10: b"TProfile",
+      11: b"TProfile2D",
+      20: b"Flag",
+      21: b"QTest",
+      22: b"XMLString", # For string type in TDirectory
+    }
+    typetoid = {v: k for k, v in idtotype.items()}
+
+    # These are used to store the MEInfo into a blob. The scalar
+    # version stores the value directly. They are all the
+    # same size to allow direct indexing.
+    normalformat = struct.Struct("<qiihh")
+    # This is a bit of a hack: the deltaencode below needs all topmost bits to be unused.
+    # so we spread the double and int64 values for scalars with a bit of padding to keep them free.
+    scalarformat = struct.Struct("<xBBBBBBxxBBxxxxxHxx") 
+    intformat    = struct.Struct("<q")
+    floatformat  = struct.Struct("<d")
     
-    def renderbasic(self, width, height, flags = 0, numobjs = 1, name = b'', spec = '', data = b'', streamerfile = b''):
-        mtype = 4 # DQM_MSG_GET_IMAGE_DATA
-        # flags
-        vlow = 0
-        vhigh = 0
-        # numobjs
-        # name
-        filelen = len(streamerfile)
-        namelen = len(name)
-        sep = ';' if spec else ''
-        specb = f"h={height:d};w={width:d}{sep}{spec}".encode("utf-8")
-        speclen = len(specb)
-        # data
-        datalen = len(data)
-        qlen = 0
-        msg = struct.pack("=iiiiiiiiii", mtype, flags, vlow, vhigh, numobjs, filelen, namelen, speclen, datalen, qlen)
-        msg += streamerfile + name + specb + data
-        msg = struct.pack('=i', len(msg) + 4) + msg
-        try:
-            self.client.send(msg)
-            lenbuf = self.client.recv(8)
-            errorcode, length = struct.unpack("=ii", lenbuf)
-            buf = b''
-            while length > 0:
-                recvd = self.client.recv(length)
-                length -= len(recvd)
-                buf += recvd
-            return buf, errorcode
-        except BrokenPipeError:
-            # looks like our renderer died.
-            self.dead = True
-            return b'', -1
-
-
-
+    @staticmethod
+    def listtoblob(meinfos):
+        # For the meinfos, Zlib compression is not very effective: there is
+        # little repetition for the LZ77 and the Huffmann coder struggles with the
+        # large numbers.
+        # But, since the list is roughly increasing in order, delta coding makes most
+        # values small. Then, the Huffmann coder in Zlib compresses well.
+        # Decreases output size about 4x.
+        words = MEInfo.normalformat
+        def deltacode(a):
+            prev = [0,0,0,0,0]
+            for x in a:
+                new = words.unpack(x)
+                yield words.pack(*[a-b for a, b in zip(new, prev)])
+                prev = new
+        delta = deltacode(i.pack() for i in meinfos)
+        buf = b''.join(delta)
+        infoblob = zlib.compress(buf)
+        print (f"MEInfo: compression {len(buf)/len(infoblob)}, total {len(buf)}")
+        return infoblob
     
+    @staticmethod
+    def blobtopacked(infoblob):
+        words = MEInfo.normalformat
+        def deltadecode(d):
+            prev = [0,0,0,0,0]
+            for x in d:
+                new = [a+b for a, b in zip(prev, words.unpack(x))]
+                yield words.pack(*new)
+                prev = new
+        buf = zlib.decompress(infoblob)
+        packed = deltadecode(buf[i:i+words.size] for i in range(0, len(buf), words.size))
+        return list(packed)
+    
+    @staticmethod
+    def blobtolist(infoblob):
+        packed = MEInfo.blobtopacked(infoblob)
+        return [MEInfo.unpack(x) for x in packed]
+    
+    def __init__(self, metype, seekkey = 0, offset = 0, size = -1, value = None, qteststatus = 0):
+        self.metype = metype
+        self.seekkey = seekkey
+        self.offset = offset
+        self.size = size
+        self.value = value
+        self.qteststatus = qteststatus
+        
+    def __repr__(self):
+        print('ASASASASA')
+        return (f"MEInfo(metype={repr(self.metype)}" +
+            f"{', seekkey=%d' % self.seekkey if self.seekkey else ''}" +
+            f"{', offset=%d' % self.offset if self.offset else ''}" +    
+            f"{', size=%d' % self.size if self.size > 0 else ''}" +
+            f"{', value=%s' % repr(self.value) if self.value else ''}" +
+            f"{', qteststatus=%d' % self.qteststatus if self.qteststatus else ''}" +
+            ")")
+    
+    def __lt__(self, other):
+        return (self.metype, self.seekkey, self.offset) <  (other.metype, other.seekkey, other.offset)
+    
+    def pack(self):
+        if self.metype == b'Int':
+            buf = MEInfo.intformat.pack(self.value)
+            return MEInfo.scalarformat.pack(*buf, MEInfo.typetoid[self.metype])
+        if self.metype == b'Float':
+            buf = MEInfo.floatformat.pack(self.value)
+            return MEInfo.scalarformat.pack(*buf, MEInfo.typetoid[self.metype])
+        return MEInfo.normalformat.pack(self.seekkey, self.offset, self.size, 
+                                        MEInfo.typetoid[self.metype], self.qteststatus)
+    @staticmethod
+    def unpack(buf):
+        k, o, s, t, st = MEInfo.normalformat.unpack(buf)
+        metype = MEInfo.idtotype[t]
+        if metype == b'Int':
+            buf = MEInfo.scalarformat.unpack(buf)
+            v, = MEInfo.intformat.unpack(bytes(buf[:-1])) # last is metype again
+            return MEInfo(metype, value = v)
+        if metype == b'Float':
+            buf = MEInfo.scalarformat.unpack(buf)
+            v, = MEInfo.floatformat.unpack(bytes(buf[:-1])) # last is metype again
+            return MEInfo(metype, value = v)
+        return MEInfo(metype, seekkey = k, offset = o, size = s, qteststatus = st)
+    
+    def read(self, rootfile):
+        if self.value != None:
+            return ScalarValue(b'', self.value, b'') # TODO: do sth. better.
+        key = nanoroot.TKey(rootfile, self.seekkey)
+        data = key.objdata()
+        if self.metype == b'QTest':
+            # TODO: this won't work for DQMIO, but we don't have QTests there anyways...
+            return parsestringentry(key.objname())
+        if self.metype == b'XMLString':
+            return parsestringentry(key.objname())
+        if self.offset == 0 and self.size == -1:
+            obj = data
+        else:
+            obj = data[self.offset : self.offset + self.size]
+        if self.metype == b'String':
+            s = nanoroot.String.unpack(obj, 0, len(obj), None)
+            return ScalarValue(b'', s, b's')
+        # else
+        classversion = 3 #TODO: we need to have a better guess here...
+        # metype doubles as root class name here.
+        return nanoroot.TBufferFile(obj, self.metype, classversion) 
+
+
+@staticmethod
+def parsestringentry(val):
+    # non-object data is stored in fake-XML stings in the TDirectory.
+    # This decodes these strings into an object of correct type.
+    assert val[0] == b'<'[0]
+    name = val[1:].split(b'>', 1)[0]
+    value = val[1+len(name)+1:].split(b'<', 1)[0]
+    if value == b"e=1": # efficiency flag on this ME
+        return EfficiencyFlag(name)
+    elif len(value) >= 2 and value[1] == b'='[0]:
+        return ScalarValue(name, value[2:], value[0:1])
+    else: # should be a qtest in this case
+        assert value.startswith(b'qr=')
+        assert b'.' in name
+        mename, qtestname = name.split(b'.', 1)
+        parts = value[3:].split(b':', 4)
+        assert len(parts) == 5, "Expect 5 parts, not " + repr(parts)
+        x, status, result, algorithm, message = parts
+        assert x == b'st'
+        return QTest(mename, qtestname, status, result, algorithm, message)
