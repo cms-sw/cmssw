@@ -205,7 +205,7 @@ namespace {
                     insertedPos = prevPos;
                   } else if (prevPos->second < p_time) {
                     insertedPos =
-                        hitRefs_bx0[detId].insert(findPos, std::make_pair((prevPos)->first + p_charge, p_time));
+                        hitRefs_bx0[detId].emplace(findPos, (prevPos)->first + p_charge, p_time);
                   }
                 }
 
