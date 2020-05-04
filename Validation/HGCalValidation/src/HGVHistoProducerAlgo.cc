@@ -2338,7 +2338,7 @@ void HGVHistoProducerAlgo::fill_multi_cluster_histos(const Histograms& histogram
   histograms.h_contmulticlusternum[count]->Fill(tncontmclpz + tncontmclmz);
   histograms.h_noncontmulticlusternum[count]->Fill(tnnoncontmclpz + tnnoncontmclmz);
 
-  //multiClusters_to_CaloParticles(histograms, count, multiClusters, cP, cPIndices, cPSelectedIndices, hitMap, layers);
+  multiClusters_to_CaloParticles(histograms, count, multiClusters, cP, cPIndices, cPSelectedIndices, hitMap, layers);
 }
 
 double HGVHistoProducerAlgo::distance2(const double x1,
