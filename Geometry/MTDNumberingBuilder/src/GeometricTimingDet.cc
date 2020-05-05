@@ -113,8 +113,7 @@ GeometricTimingDet::GeometricTimingDet(cms::DDFilteredView* fv, GeometricTimingE
   trans_.SetCoordinates(convertCmToMm(trans_.X()), convertCmToMm(trans_.Y()), convertCmToMm(trans_.Z()));
   phi_ = trans_.Phi();
   rho_ = trans_.Rho();
-  const DDFilteredView::nav_type& nt = fv->copyNos();
-  ddd_ = nav_type(nt.rbegin(), nt.rend());
+  ddd_ = nav_type(fv->copyNos().size(), 0);
 }
 
 // PGeometricTimingDet is persistent version... make it... then come back here and make the
@@ -220,7 +219,7 @@ void GeometricTimingDet::addComponent(GeometricTimingDet* det) { container_.empl
 
 namespace {
   struct Deleter {
-    void operator()(GeometricTimingDet const* det) const { delete const_cast<GeometricTimingDet*>(det); }
+    void operator()(GeometricTimingDet const* det) const { delete const_cast<GeometricTimingDet*>(det); } 
   };
 }  // namespace
 

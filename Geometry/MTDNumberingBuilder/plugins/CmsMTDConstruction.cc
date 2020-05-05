@@ -157,9 +157,9 @@ void CmsMTDConstruction<cms::DDFilteredView>::buildETLModule(cms::DDFilteredView
       new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(nodeName.substr(0, CmsMTDStringToEnum::kModStrLen)));
 
   baseNumber_.reset();
-  baseNumber_.setSize(fv.navPos().size());
+  baseNumber_.setSize(fv.copyNos().size());
 
-  for (uint i = 0; i < fv.navPos().size(); i++) {
+  for (uint i = 0; i < fv.copyNos().size(); i++) {
     std::string name((fv.geoHistory()[i])->GetName());
     name.assign(name.erase(name.rfind('_')));
     int copyN(fv.copyNos()[i]);

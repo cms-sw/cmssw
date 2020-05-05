@@ -98,8 +98,6 @@ std::unique_ptr<GeometricTimingDet> DDDCmsMTDConstruction::construct(const DDCom
     size_t num = fv.geoHistory().size();
 
 #ifdef EDM_ML_DEBUG
-    //edm::LogVerbatim("MTDNumbering") << "Module level = " << limit << " current node level = " << num << " "
-    //<< fv.name() << " fullNode = " << fullNode << " thisNode = " << thisNode;
     edm::LogVerbatim("MTDNumbering") << "Module = " << fv.name() << " fullNode = " << fullNode
                                      << " thisNode = " << thisNode;
 #endif
@@ -113,6 +111,9 @@ std::unique_ptr<GeometricTimingDet> DDDCmsMTDConstruction::construct(const DDCom
     }
     if (fullNode == GeometricTimingDet::BTLLayer || fullNode == GeometricTimingDet::ETLDisc) {
       layer.emplace_back(theCmsMTDConstruction.buildLayer(fv));
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("DD4hep_MTDNumbering") << "Number of layers: " << layer.size();
+#endif
     }
     //
     // the level chosen corresponds to wafers for D50 and previous scenarios
@@ -184,7 +185,7 @@ std::unique_ptr<GeometricTimingDet> DDDCmsMTDConstruction::construct(const DDCom
     subdet[2]->addComponent(layer[3]);
     subdet[2]->addComponent(layer[4]);
   } else {
-      throw cms::Exception("DD4hep_MTDNumbering") << "Wrong number of layers: " << layer.size();
+    throw cms::Exception("DD4hep_MTDNumbering") << "Wrong number of layers: " << layer.size();
   }
 
   // Add subdetectors to MTD
@@ -264,10 +265,13 @@ std::unique_ptr<GeometricTimingDet> DDDCmsMTDConstruction::construct(const cms::
     if (fullNode == GeometricTimingDet::BTL || fullNode == GeometricTimingDet::ETL) {
       // define subdetectors as GeometricTimingDet components
 
-      subdet.push_back(theCmsMTDConstruction.buildSubdet(fv));
+      subdet.emplace_back(theCmsMTDConstruction.buildSubdet(fv));
     }
     if (fullNode == GeometricTimingDet::BTLLayer || fullNode == GeometricTimingDet::ETLDisc) {
-      layer.push_back(theCmsMTDConstruction.buildLayer(fv));
+      layer.emplace_back(theCmsMTDConstruction.buildLayer(fv));
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("DD4hep_MTDNumbering") << "Number of layers: " << layer.size();
+#endif
     }
     if (thisNode == GeometricTimingDet::BTLModule) {
 #ifdef EDM_ML_DEBUG
@@ -314,13 +318,13 @@ std::unique_ptr<GeometricTimingDet> DDDCmsMTDConstruction::construct(const cms::
   if (layer.size() == 3) {
     subdet[1]->addComponent(layer[1]);
     subdet[2]->addComponent(layer[2]);
-  } else if ( layer.size() == 5) {
+  } else if (layer.size() == 5) {
     subdet[1]->addComponent(layer[1]);
     subdet[1]->addComponent(layer[2]);
     subdet[2]->addComponent(layer[3]);
     subdet[2]->addComponent(layer[4]);
   } else {
-      throw cms::Exception("DD4hep_MTDNumbering") << "Wrong number of layers: " << layer.size();
+    throw cms::Exception("DD4hep_MTDNumbering") << "Wrong number of layers: " << layer.size();
   }
 
   // Add subdetectors to MTD
