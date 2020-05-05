@@ -133,7 +133,6 @@ patTaus = cms.EDProducer("PATTauProducer",
         againstElectronMediumMVA6 = cms.InputTag("hpsPFTauDiscriminationByMVA6MediumElectronRejection"),
         againstElectronTightMVA6 = cms.InputTag("hpsPFTauDiscriminationByMVA6TightElectronRejection"),
         againstElectronVTightMVA6 = cms.InputTag("hpsPFTauDiscriminationByMVA6VTightElectronRejection"),
-        againstElectronDeadECAL = cms.InputTag("hpsPFTauDiscriminationByDeadECALElectronRejection"),
     ),
     skipMissingTauID = cms.bool(False), #Allow to skip a tau ID variable when not present in the event"
     # mc matching configurables
