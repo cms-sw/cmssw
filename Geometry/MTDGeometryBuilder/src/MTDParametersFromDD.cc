@@ -5,6 +5,8 @@
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDVectorGetter.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
+#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 
 using namespace MTDTopologyMode;
 
@@ -47,6 +49,49 @@ bool MTDParametersFromDD::build(const DDCompactView* cvp, PMTDParameters& ptp) {
   if (ok) {
     DDsvalues_type sv(fv1.mergedSpecifics());
     int topoMode = getMTDTopologyMode("TopologyMode", sv);
+    ptp.topologyMode_ = topoMode;
+  } else {
+    throw cms::Exception("MTDParametersFromDD") << "Not found " << attribute.c_str() << " but needed.";
+  }
+
+  return true;
+}
+
+bool MTDParametersFromDD::build(const cms::DDCompactView* cvp, PMTDParameters& ptp) {
+  cms::DDVectorsMap vmap = cvp->detector()->vectors();
+
+  std::array<std::string, 2> mtdSubdet{{"BTL", "ETL"}};
+  int subdet(0);
+  for (const auto& name : mtdSubdet) {
+    subdet += 1;
+    for (auto const& it : vmap) {
+      if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), name)) {
+        std::vector<int> subdetPars;
+        for (const auto& i : it.second)
+          subdetPars.emplace_back(std::round(i));
+        putOne(subdet, subdetPars, ptp);
+      }
+    }
+  }
+
+  auto it = vmap.find("vPars");
+  if (it != end(vmap)) {
+    std::vector<int> tmpVec;
+    for (const auto& i : it->second)
+      tmpVec.emplace_back(std::round(i));
+    ptp.vpars_ = tmpVec;
+  }
+
+  cms::DDSpecParRefs ref;
+  const cms::DDSpecParRegistry& mypar = cvp->specpars();
+  std::string attribute = "OnlyForMTDRecNumbering";
+  mypar.filter(ref, attribute, "MTD");
+
+  std::string topoModeS(mypar.specPar("mtdNumbering")->strValue("TopologyMode"));
+  if (!topoModeS.empty()) {
+    int topoMode(-1);
+    MTDTopologyMode::Mode eparser = MTDTopologyMode::MTDStringToEnumParser(topoModeS);
+    topoMode = static_cast<int>(eparser);
     ptp.topologyMode_ = topoMode;
   } else {
     throw cms::Exception("MTDParametersFromDD") << "Not found " << attribute.c_str() << " but needed.";
