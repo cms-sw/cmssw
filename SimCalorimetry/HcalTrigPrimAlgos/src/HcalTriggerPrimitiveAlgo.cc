@@ -813,7 +813,7 @@ void HcalTriggerPrimitiveAlgo::addUpgradeFG(const HcalTrigTowerDetId& id,
       if (it == fgUpgradeMap_.end()) {
         FGUpgradeContainer element;
         element.resize(bits.size());
-        fgUpgradeMap_.insert(std::make_pair(id, element)).first;
+        fgUpgradeMap_.insert(std::make_pair(id, element));
       }
     }
 
