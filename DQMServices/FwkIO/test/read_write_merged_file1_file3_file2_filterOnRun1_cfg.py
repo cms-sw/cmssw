@@ -12,5 +12,5 @@ process.out = cms.OutputModule("DQMRootOutputModule",
 
 process.e = cms.EndPath(process.out)
 
-process.add_(cms.Service("DQMStore", forceResetOnBeginLumi = cms.untracked.bool(True)))
+process.add_(cms.Service("DQMStore"))
 
