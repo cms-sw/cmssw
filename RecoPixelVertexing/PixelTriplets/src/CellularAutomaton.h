@@ -16,15 +16,15 @@ public:
   std::vector<CACell>& getAllCells() { return allCells; }
 
   void createAndConnectCells(
-      const std::vector<const HitDoublets*>&, const TrackingRegion&, const float, const float, const float);
+      const std::vector<const HitDoublets*>&, const TrackingRegion&, const CACut&, const CACut&, const float);
 
   void evolve(const unsigned int);
   void findNtuplets(std::vector<CACell::CAntuplet>&, const unsigned int);
   void findTriplets(const std::vector<const HitDoublets*>& hitDoublets,
                     std::vector<CACell::CAntuplet>& foundTriplets,
                     const TrackingRegion& region,
-                    const float thetaCut,
-                    const float phiCut,
+                    const CACut& thetaCut,
+                    const CACut& phiCut,
                     const float hardPtCut);
 
 private:
