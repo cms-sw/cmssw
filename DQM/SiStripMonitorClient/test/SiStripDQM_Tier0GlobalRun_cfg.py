@@ -33,7 +33,6 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(2000))
 # DQM Environment
 #-----------------------------
 process.load("DQMServices.Core.DQM_cfg")
-#process.DQMStore.referenceFileName = '/home/dqmdevlocal/reference/sistrip_reference.root'
 
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 

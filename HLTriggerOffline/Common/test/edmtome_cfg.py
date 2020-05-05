@@ -31,6 +31,5 @@ process.out = cms.OutputModule("PoolOutputModule",
 
 process.p = cms.Path(process.EDMtoMEConverter*process.dqmSaver)
 process.outpath = cms.EndPath(process.out)
-process.DQMStore.referenceFileName = ''
 process.dqmSaver.convention = 'RelVal'
 process.dqmSaver.workflow = '/ConverterTester/Test/RECO'

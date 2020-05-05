@@ -32,7 +32,6 @@ process.dqmSaver.referenceHandling = cms.untracked.string('all')
 
 process.DQMStore.collateHistograms = False
 process.DQMStore.verbose=0
-process.DQMStore.referenceFileName = "hltReference.root"
 #"/build/nuno/test/CMSSW_3_1_X_2009-02-05-0000/src/HltReference.root"
 
 

@@ -56,7 +56,6 @@ process.load("DQM.SiStripMonitorClient.RecoForDQM_Cosmic_cff")
 # DQM
 #--------------------------
 process.load("DQM.SiStripMonitorClient.SiStripDQMOnline_cff")
-process.DQMStore.referenceFileName = ''
 
 process.SiStripMonitorCluster.TH1ClusterPos.moduleswitchon = cms.bool(True)
 process.SiStripMonitorCluster.TH1nClusters.layerswitchon  = cms.bool(True)

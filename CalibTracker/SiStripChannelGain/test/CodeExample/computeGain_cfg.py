@@ -78,7 +78,6 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 )
 
 #process.load("DQM.SiStripMonitorClient.SiStripDQMOnline_cff")
-#process.DQMStore.referenceFileName = ''
 
 process.TFileService = cms.Service("TFileService",
         fileName = cms.string('XXX_LOCALPATH_XXX/Gains_Tree.root')  

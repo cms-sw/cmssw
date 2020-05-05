@@ -37,7 +37,6 @@ process.maxEvents.input = -1
 
 process.source.processingMode = "RunsAndLumis"
 
-process.DQMStore.referenceFileName = ''
 process.dqmSaver.convention = 'Online'
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 process.dqmEnvTr = DQMEDAnalyzer('DQMEventInfo',

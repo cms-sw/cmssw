@@ -19,7 +19,6 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring("file:validationEDM.root")
 )
 
-process.DQMStore.referenceFileName = ""
 process.DQMStore.collateHistograms = False
 
 process.dqmSaver.convention = "Offline"

@@ -93,7 +93,6 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 
 process.DQMStore = cms.Service("DQMStore")
 #,
-#    referenceFileName = cms.untracked.string(''),
 #    verbose = cms.untracked.int32(0),
 #    collateHistograms = cms.untracked.bool(False)
 #)

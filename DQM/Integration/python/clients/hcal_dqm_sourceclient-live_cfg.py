@@ -51,8 +51,6 @@ process.load('DQM.Integration.config.environment_cfi')
 #-------------------------------------
 process.dqmEnv.subSystemFolder = subsystem
 process.dqmSaver.tag = subsystem
-referenceFileName = '/dqmdata/dqm/reference/hcal_reference.root'
-process.DQMStore.referenceFileName = referenceFileName
 process = customise(process)
 process.DQMStore.verbose = 0
 if not useFileInput and not unitTest:
