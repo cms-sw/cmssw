@@ -2,7 +2,6 @@
 <use name="FWCore/ParameterSet"/>
 <use name="SimDataFormats/GeneratorProducts"/>
 <use name="boost"/>
-
 <library file="*.cc" name="SimMuonNeutronPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
