@@ -9,9 +9,7 @@
 #include <cfloat>
 #include <cinttypes>
 
-#if !WITHOUT_CMS_FRAMEWORK
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#endif
 
 namespace dqm::impl {
 
