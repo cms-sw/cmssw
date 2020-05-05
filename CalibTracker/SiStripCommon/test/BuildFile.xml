@@ -1,6 +1,7 @@
 <environment>
-  <bin   file="testCalibTrackerSiStripCommon.cpp">
-    <flags   TEST_RUNNER_ARGS=" /bin/bash CalibTracker/SiStripCommon/test test_all.sh"/>
-		<use   name="FWCore/Utilities"/>
+  <bin file="testCalibTrackerSiStripCommon.cpp">
+    <flags TEST_RUNNER_ARGS=" /bin/bash CalibTracker/SiStripCommon/test test_all.sh"/>
+    <use name="FWCore/Utilities"/>
   </bin>
+
 </environment>
