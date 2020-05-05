@@ -1,16 +1,4 @@
-<!--use name="CommonTools/UtilAlgos"/-->
-<!--use name="DataFormats/Common"/-->
-<!--use name="DataFormats/Math"/-->
-<!--use name="DataFormats/L1TrackTrigger"/-->
-<!--use name="FWCore/Framework"/-->
-<!--use name="FWCore/ParameterSet"/-->
-<!--use name="FWCore/ServiceRegistry"/-->
-<!--use name="FWCore/Utilities"/-->
-<!--use name="Geometry/Records"/-->
-<!--use name="Geometry/TrackerGeometryBuilder"/-->
-<!--use name="MagneticField/Engine"/-->
-<!--use name="MagneticField/Records"/-->
-<!--use name="SimDataFormats/EncodedEventId"/-->
+<use name="CommonTools/UtilAlgos"/>
 <use name="CondFormats/SiPhase2TrackerObjects"/>
 <use name="L1Trigger/TrackTrigger"/>
 <export>

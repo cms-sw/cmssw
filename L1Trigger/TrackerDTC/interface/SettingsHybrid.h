@@ -36,9 +36,9 @@ namespace trackerDTC {
     int widthZ(SensorType type) const { return widthsZ_[type]; }
     int widthAlpha(SensorType type) const { return widthsAlpha_[type]; }
     int widthBend(SensorType type) const { return widthsBend_[type]; }
-    std::vector<int> numRingsPS() const { return numRingsPS_; }
-    std::vector<double> layerRs() const { return layerRs_; }
-    std::vector<double> diskZs() const { return diskZs_; }
+    const std::vector<int>& numRingsPS() const { return numRingsPS_; }
+    const std::vector<double>& layerRs() const { return layerRs_; }
+    const std::vector<double>& diskZs() const { return diskZs_; }
 
     // derived format specific parameter
 
@@ -50,16 +50,16 @@ namespace trackerDTC {
 
     // derived TTStubalgo parameter
 
-    std::vector<double> numTiltedLayerRings() const { return numTiltedLayerRings_; }
-    std::vector<double> windowSizeBarrelLayers() const { return windowSizeBarrelLayers_; }
-    std::vector<std::vector<double> > windowSizeTiltedLayerRings() const { return windowSizeTiltedLayerRings_; }
-    std::vector<std::vector<double> > windowSizeEndcapDisksRings() const { return windowSizeEndcapDisksRings_; }
+    const std::vector<double>& numTiltedLayerRings() const { return numTiltedLayerRings_; }
+    const std::vector<double>& windowSizeBarrelLayers() const { return windowSizeBarrelLayers_; }
+    const std::vector<std::vector<double>>& windowSizeTiltedLayerRings() const { return windowSizeTiltedLayerRings_; }
+    const std::vector<std::vector<double>>& windowSizeEndcapDisksRings() const { return windowSizeEndcapDisksRings_; }
 
     // Hybrid specific encodings
 
-    std::vector<std::vector<int> > layerIdEncodings() const { return layerIdEncodings_; }
-    std::vector<std::vector<double> > bendEncodingsPS() const { return bendEncodingsPS_; }
-    std::vector<std::vector<double> > bendEncodings2S() const { return bendEncodings2S_; }
+    const std::vector<std::vector<int>>& layerIdEncodings() const { return layerIdEncodings_; }
+    const std::vector<std::vector<double>>& bendEncodingsPS() const { return bendEncodingsPS_; }
+    const std::vector<std::vector<double>>& bendEncodings2S() const { return bendEncodings2S_; }
     double disk2SR(int disk, int index) const { return disk2SRs_.at(disk).at(index); }
 
   private:
@@ -119,23 +119,23 @@ namespace trackerDTC {
     // number of padded 0s in output data format for (barrelPS, barrel2S, diskPS, disk2S)
     std::vector<int> numsUnusedBits_;
     // center radius of outer tracker endcap 2S diks strips
-    std::vector<std::vector<double> > disk2SRs_;
+    std::vector<std::vector<double>> disk2SRs_;
 
     // derived TTStubalgo parameter
 
     std::vector<double> numTiltedLayerRings_;
     std::vector<double> windowSizeBarrelLayers_;
-    std::vector<std::vector<double> > windowSizeTiltedLayerRings_;
-    std::vector<std::vector<double> > windowSizeEndcapDisksRings_;
+    std::vector<std::vector<double>> windowSizeTiltedLayerRings_;
+    std::vector<std::vector<double>> windowSizeEndcapDisksRings_;
 
     // Hybrid specific encodings
 
     // outer index = dtc id, inner index = encoded layer id, value = decoded layer id
-    std::vector<std::vector<int> > layerIdEncodings_;
+    std::vector<std::vector<int>> layerIdEncodings_;
     // outer index = max window size in half strip units, inner index = decoded bend, value = encoded bend for PS modules
-    std::vector<std::vector<double> > bendEncodingsPS_;
+    std::vector<std::vector<double>> bendEncodingsPS_;
     // outer index = max window size in half strip units, inner index = decoded bend, value = encoded bend for 2S modules
-    std::vector<std::vector<double> > bendEncodings2S_;
+    std::vector<std::vector<double>> bendEncodings2S_;
   };
 
 }  // namespace trackerDTC

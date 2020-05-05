@@ -14,7 +14,8 @@
 #include <set>
 #include <vector>
 #include <memory>
-#include <iterator>
+#include <unordered_map>
+#include <utility>
 
 using namespace std;
 using namespace edm;
@@ -29,6 +30,8 @@ namespace trackerDTC {
         paramsTracker_(iConfig.getParameter<ParameterSet>("ParamsTracker")),
         paramsFW_(iConfig.getParameter<ParameterSet>("ParamsFW")),
         paramsFormat_(iConfig.getParameter<ParameterSet>("ParamsFormat")),
+        paramsAnalyzer_(iConfig.getParameter<ParameterSet>("ParamsAnalyzer")),
+        paramsTP_(iConfig.getParameter<ParameterSet>("ParamsTP")),
         // ED parameter
         inputTagTTStubDetSetVec_(paramsED_.getParameter<InputTag>("InputTagTTStubDetSetVec")),
         inputTagMagneticField_(paramsED_.getParameter<ESInputTag>("InputTagMagneticField")),
@@ -41,7 +44,8 @@ namespace trackerDTC {
         supportedTrackerXMLPath_(paramsED_.getParameter<string>("SupportedTrackerXMLPath")),
         supportedTrackerXMLFile_(paramsED_.getParameter<string>("SupportedTrackerXMLFile")),
         supportedTrackerXMLVersions_(paramsED_.getParameter<vector<string>>("SupportedTrackerXMLVersions")),
-        productBranch_(paramsED_.getParameter<string>("ProductBranch")),
+        productBranchAccepted_(paramsED_.getParameter<string>("ProductBranchAccepted")),
+        productBranchLost_(paramsED_.getParameter<string>("ProductBranchLost")),
         dataFormat_(paramsED_.getParameter<string>("DataFormat")),
         offsetDetIdDSV_(paramsED_.getParameter<int>("OffsetDetIdDSV")),
         offsetDetIdTP_(paramsED_.getParameter<int>("OffsetDetIdTP")),
@@ -85,9 +89,22 @@ namespace trackerDTC {
         maxEta_(paramsFormat_.getParameter<double>("MaxEta")),
         minPt_(paramsFormat_.getParameter<double>("MinPt")),
         chosenRofPhi_(paramsFormat_.getParameter<double>("ChosenRofPhi")),
-        numLayers_(paramsFormat_.getParameter<int>("NumLayers")) {
+        numLayers_(paramsFormat_.getParameter<int>("NumLayers")),
+        // Analyzer
+        useMCTruth_(paramsAnalyzer_.getParameter<bool>("UseMCTruth")),
+        inputTagTTClusterAssMap_(paramsAnalyzer_.getParameter<InputTag>("InputTagTTClusterAssMap")),
+        producerLabel_(paramsAnalyzer_.getParameter<string>("ProducerLabel")),
+        // TP
+        tpMinPt_(paramsTP_.getParameter<double>("MinPt")),
+        tpMaxEta_(paramsTP_.getParameter<double>("MaxEta")),
+        tpMaxVertR_(paramsTP_.getParameter<double>("MaxVertR")),
+        tpMaxVertZ_(paramsTP_.getParameter<double>("MaxVertZ")),
+        tpMaxD0_(paramsTP_.getParameter<double>("MaxD0")),
+        tpMinLayers_(paramsTP_.getParameter<int>("MinLayers")),
+        tpMinLayersPS_(paramsTP_.getParameter<int>("MinLayersPS")) {
     // derived Router parameter
     numDTCs_ = numRegions_ * numDTCsPerRegion_;
+    numDTCsPerTFP_ = numDTCsPerRegion_ * numOverlappingRegions_;
     numModules_ = numRegions_ * numDTCsPerRegion_ * numModulesPerDTC_;
     numModulesPerRoutingBlock_ = numModulesPerDTC_ / numRoutingBlocks_;
 
@@ -98,7 +115,8 @@ namespace trackerDTC {
     numMergedRows_ = pow(2, widthRow_ - widthRowLUT_);
     maxCot_ = sinh(maxEta_);
 
-    rangeQoverPt_ = speedOfLight_ * bField_ / minPt_ / 1000.;
+    invPtToDphi_ = speedOfLight_ * bField_ / 2000.;
+    rangeQoverPt_ = 2. * invPtToDphi_ / minPt_;
 
     widthLayer_ = ceil(log2(numLayers_));
 
@@ -135,8 +153,7 @@ namespace trackerDTC {
     trackerTopology_ = nullptr;
     magneticField_ = nullptr;
     // derived event setup
-    cablingMap_ = vector<DetId>(numModules_);
-    dtcModules_ = vector<vector<Module*>>(numDTCs_, vector<Module*>(numModulesPerDTC_, nullptr));
+    dtcModules_ = vector<vector<Module*>>(numDTCs_);
     configurationSupported_ = true;
   }
 
@@ -228,16 +245,9 @@ namespace trackerDTC {
       hybrid_->checkConfiguration(this);
   }
 
-  // convert data fromat specific stuff
+  // convert ES Products into handy objects
   void Settings::beginRun() {
-    if (dataFormat_ == "Hybrid") {
-      hybrid_->createEncodingsBend(this);
-      hybrid_->createEncodingsLayer(this);
-    }
-  }
-
-  // convert cabling map
-  void Settings::convertCablingMap() {
+    // convert cabling map
     // DTC product used to convert between different dtc id schemes
     TTDTC ttDTC(numRegions_, numOverlappingRegions_, numDTCsPerRegion_);
     // module counter for each DTC
@@ -259,33 +269,43 @@ namespace trackerDTC {
       // track trigger module id [0-15551]
       const int ModId = dtcId * numModulesPerDTC_ + modId;
       // store connection between global module id and detId
-      cablingMap_[ModId] = detId;
+      cablingMap_.emplace(detId, ModId);
       // check configuration
-      if (modId++ == numModulesPerDTC_) {
+      if (modId++ > numModulesPerDTC_) {
         cms::Exception exception("overflow");
-        exception << "Cabling map connects more than " << numModulesPerDTC_ << " modules to DTC " << dtcId << ".";
+        exception << "Cabling map connects more than " << numModulesPerDTC_ << " modules to a DTC.";
         exception.addContext("trackerDTC::Settings::convertCablingMap");
         throw exception;
       }
     }
-  }
-
-  // set converted  tracker geometry
-  void Settings::setModules(std::vector<Module>& modules) {
-    for (Module& module : modules)
-      dtcModules_[module.dtcId()][module.dtcChannelId()] = &module;
+    // hybrid specific conversions
+    if (dataFormat_ == "Hybrid") {
+      hybrid_->createEncodingsBend(this);
+      hybrid_->createEncodingsLayer(this);
+    }
+    //convert tracker geometry
+    for (int dtcId = 0; dtcId < numDTCs_; dtcId++)
+      dtcModules_[dtcId] = vector<Module*>(modIds.at(dtcId), nullptr);
+    modules_.reserve(cablingMap_.size());
+    for (const pair<DetId, int>& map : cablingMap_) {
+      const int dtcId = map.second / numModulesPerDTC_;
+      const int modId = map.second % numModulesPerDTC_;
+      modules_.emplace_back(this, map.first, dtcId);
+      dtcModules_[dtcId][modId] = &modules_.back();
+    }
   }
 
   // convert DetId to module id [0:15551]
   int Settings::modId(const DetId& detId) const {
-    const int modId = distance(cablingMap_.begin(), find(cablingMap_.begin(), cablingMap_.end(), detId));
-    if (modId == numModules_) {
-      cms::Exception exception("LogicError", "Unknown DetID received from TTStub.");
+    unordered_map<DetId, int>::const_iterator it = cablingMap_.find(detId);
+    if (it == cablingMap_.end()) {
+      cms::Exception exception("LogicError");
+      exception << "Unknown DetID (" << detId << ") received from TTStub.";
       exception.addAdditionalInfo("Please check consistency between chosen cabling map and chosen tracker geometry.");
       exception.addContext("trackerDTC::Settings::modId");
       throw exception;
     }
-    return modId;
+    return it->second;
   }
 
   // collection of modules connected to a specific dtc
