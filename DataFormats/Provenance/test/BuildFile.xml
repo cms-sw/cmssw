@@ -1,15 +1,19 @@
-<use   name="cppunit"/>
-<use   name="DataFormats/Provenance"/>
-<bin   name="testDataFormatsProvenance" file="testRunner.cpp,eventid_t.cppunit.cc,timestamp_t.cppunit.cc,parametersetid_t.cppunit.cc,indexIntoFile_t.cppunit.cc,indexIntoFile1_t.cppunit.cc,indexIntoFile2_t.cppunit.cc,indexIntoFile3_t.cppunit.cc,indexIntoFile4_t.cppunit.cc,indexIntoFile5_t.cppunit.cc,lumirange_t.cppunit.cc,eventrange_t.cppunit.cc">
+<use name="cppunit"/>
+<use name="DataFormats/Provenance"/>
+<bin name="testDataFormatsProvenance" file="testRunner.cpp,eventid_t.cppunit.cc,timestamp_t.cppunit.cc,parametersetid_t.cppunit.cc,indexIntoFile_t.cppunit.cc,indexIntoFile1_t.cppunit.cc,indexIntoFile2_t.cppunit.cc,indexIntoFile3_t.cppunit.cc,indexIntoFile4_t.cppunit.cc,indexIntoFile5_t.cppunit.cc,lumirange_t.cppunit.cc,eventrange_t.cppunit.cc">
 </bin>
-<bin   file="EntryDescription_t.cpp">
+
+<bin file="EntryDescription_t.cpp">
 </bin>
-<bin   file="ElementID_t.cpp">
+
+<bin file="ElementID_t.cpp">
   <use name="catch2"/>
 </bin>
-<bin   name="testProductResolverIndexHelper" file="testRunner.cpp productResolverIndexHelper_t.cppunit.cc">
+
+<bin name="testProductResolverIndexHelper" file="testRunner.cpp productResolverIndexHelper_t.cppunit.cc">
   <use name="DataFormats/TestObjects"/>
 </bin>
-<bin   name="productResolverIndexHelperTest" file="productResolverIndexHelperTest.cc">
+
+<bin name="productResolverIndexHelperTest" file="productResolverIndexHelperTest.cc">
   <flags NO_TESTRUN="1"/>
 </bin>

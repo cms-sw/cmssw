@@ -3,6 +3,7 @@
   <use name="DataFormats/Common"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+
 <use name="rootmath"/>
 <use name="rootgraphics"/>
 <use name="DataFormats/Math"/>
@@ -34,9 +35,9 @@
 
 <release name="!.*ICC_X.*">
   <bin file="ExtVec_t.cpp" name="DataFormatsExtVec_t">
-  </bin>
-</release>
+</bin>
 
+</release>
 <bin file="SSEVec_t.cpp" name="DataFormatsSSEVec_t">
 </bin>
 
@@ -95,35 +96,34 @@
 </bin>
 
 <iftool name="cuda-gcc-support">
+  <bin file="cudaAtan2Test.cu" name="DFM_Atan2">
+    <use name="cuda"/>
+    <use name="vdt_headers"/>
+    <use name="HeterogeneousCore/CUDAUtilities"/>
+    <flags CUDA_FLAGS="--expt-relaxed-constexpr"/>
+    <flags CXXFLAGS="-O3 -fwrapv"/>
+  </bin>
 
-<bin file="cudaAtan2Test.cu" name="DFM_Atan2">
-  <use name="cuda"/>
-  <use name="vdt_headers"/>
-  <use name="HeterogeneousCore/CUDAUtilities"/>
-  <flags CUDA_FLAGS="--expt-relaxed-constexpr"/>
-  <flags CXXFLAGS="-O3 -fwrapv"/>
-</bin>
+  <bin file="cudaMathTest.cu" name="DFM_Math">
+    <use name="cuda"/>
+    <use name="vdt_headers"/>
+    <use name="HeterogeneousCore/CUDAUtilities"/>
+    <flags CUDA_FLAGS="--expt-relaxed-constexpr"/>
+    <flags CXXFLAGS="-O3 -fwrapv"/>
+  </bin>
 
-<bin file="cudaMathTest.cu" name="DFM_Math">
-  <use name="cuda"/>
-  <use name="vdt_headers"/>
-  <use name="HeterogeneousCore/CUDAUtilities"/>
-  <flags CUDA_FLAGS="--expt-relaxed-constexpr"/>
-  <flags CXXFLAGS="-O3 -fwrapv"/>
-</bin>
+  <bin file="cudaMathTest.cu" name="DFM_MathRepr">
+    <use name="cuda"/>
+    <use name="vdt_headers"/>
+    <use name="HeterogeneousCore/CUDAUtilities"/>
+    <flags CUDA_FLAGS="--expt-relaxed-constexpr -fmad=false -ftz=false -prec-div=true -prec-sqrt=true"/>
+    <flags CXXFLAGS="-ffp-contract=off"/>
+  </bin>
 
-<bin file="cudaMathTest.cu" name="DFM_MathRepr">
-  <use name="cuda"/>
-  <use name="vdt_headers"/>
-  <use name="HeterogeneousCore/CUDAUtilities"/>
-  <flags CUDA_FLAGS="--expt-relaxed-constexpr -fmad=false -ftz=false -prec-div=true -prec-sqrt=true"/>
-  <flags CXXFLAGS="-ffp-contract=off"/>
-</bin>
-
-<bin file="CholeskyInvert_t.cu" name="CholeskyInvertOnGPU_t">
-  <use name="cuda"/>
-  <use name="HeterogeneousCore/CUDAUtilities"/>
-  <flags CUDA_FLAGS="-w"/>
-</bin>
+  <bin file="CholeskyInvert_t.cu" name="CholeskyInvertOnGPU_t">
+    <use name="cuda"/>
+    <use name="HeterogeneousCore/CUDAUtilities"/>
+    <flags CUDA_FLAGS="-w"/>
+  </bin>
 
 </iftool>

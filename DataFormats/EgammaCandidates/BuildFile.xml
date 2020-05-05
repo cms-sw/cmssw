@@ -1,19 +1,18 @@
-<use   name="DataFormats/Candidate"/>
-<use   name="DataFormats/CLHEP"/>
-<use   name="DataFormats/Common"/>
-<use   name="DataFormats/EgammaReco"/>
-<use   name="DataFormats/CaloRecHit"/>
-<use   name="DataFormats/CaloTowers"/>
-<use   name="DataFormats/Math"/>
-<use   name="DataFormats/RecoCandidate"/>
-<use   name="DataFormats/TrackReco"/>
-<use   name="DataFormats/TrackerRecHit2D"/>
-<use   name="DataFormats/TrackingRecHit"/>
-<use   name="DataFormats/VertexReco"/>
-<use   name="DataFormats/GsfTrackReco"/>
-<use   name="DataFormats/GeometryCommonDetAlgo"/>
-<use   name="FWCore/MessageLogger"/>
-
+<use name="DataFormats/Candidate"/>
+<use name="DataFormats/CLHEP"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/EgammaReco"/>
+<use name="DataFormats/CaloRecHit"/>
+<use name="DataFormats/CaloTowers"/>
+<use name="DataFormats/Math"/>
+<use name="DataFormats/RecoCandidate"/>
+<use name="DataFormats/TrackReco"/>
+<use name="DataFormats/TrackerRecHit2D"/>
+<use name="DataFormats/TrackingRecHit"/>
+<use name="DataFormats/VertexReco"/>
+<use name="DataFormats/GsfTrackReco"/>
+<use name="DataFormats/GeometryCommonDetAlgo"/>
+<use name="FWCore/MessageLogger"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>
