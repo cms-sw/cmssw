@@ -1,11 +1,11 @@
-<use   name="TrackPropagation/SteppingHelixPropagator"/>
-<use   name="TrackingTools/Records"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="MagneticField/Engine"/>
-<use   name="MagneticField/VolumeBasedEngine"/>
-<use   name="MagneticField/Records"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<library   file="*.cc" name="TrackPropagationSteppingHelixPropagatorPlugins">
-  <flags   EDM_PLUGIN="1"/>
+<use name="TrackPropagation/SteppingHelixPropagator"/>
+<use name="TrackingTools/Records"/>
+<use name="FWCore/MessageLogger"/>
+<use name="MagneticField/Engine"/>
+<use name="MagneticField/VolumeBasedEngine"/>
+<use name="MagneticField/Records"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<library file="*.cc" name="TrackPropagationSteppingHelixPropagatorPlugins">
+  <flags EDM_PLUGIN="1"/>
 </library>
