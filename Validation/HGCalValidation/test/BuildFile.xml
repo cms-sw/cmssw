@@ -17,5 +17,5 @@
 <use name="clhep"/>
 <use name="hepmc"/>
 <flags EDM_PLUGIN="1"/>
-<library   file="*.cc" name="testValidationHGCalValidation">
+<library file="*.cc" name="testValidationHGCalValidation">
 </library>

@@ -1,12 +1,12 @@
-<use   name="DataFormats/CSCDigi"/>
-<use   name="DataFormats/Common"/>
-<use   name="DQMServices/Core"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="Geometry/CSCGeometry"/>
-<use   name="SimMuon/MCTruth"/>
-<use   name="Validation/MuonGEMDigis"/>
-<use   name="Validation/MuonHits"/>
+<use name="DataFormats/CSCDigi"/>
+<use name="DataFormats/Common"/>
+<use name="DQMServices/Core"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="Geometry/CSCGeometry"/>
+<use name="SimMuon/MCTruth"/>
+<use name="Validation/MuonGEMDigis"/>
+<use name="Validation/MuonHits"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>
