@@ -8,7 +8,6 @@
 <use name="CondFormats/PPSObjects"/>
 <use name="DataFormats/CTPPSDetId"/>
 <use name="CommonTools/Utils"/>
-
 <export>
   <lib name="1"/>
 </export>
