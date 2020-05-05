@@ -1,3 +1,2 @@
-<use   name="CalibTracker/SiStripChannelGain"/>
-<flags   EDM_PLUGIN="1"/>
-
+<use name="CalibTracker/SiStripChannelGain"/>
+<flags EDM_PLUGIN="1"/>

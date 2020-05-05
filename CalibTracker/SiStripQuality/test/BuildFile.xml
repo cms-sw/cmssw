@@ -1,5 +1,4 @@
-<bin   name="test_SiStripQualityStatistics" file="test_SiStripQualityStatistics.cpp">
-  <flags TEST_RUNNER_ARGS="/bin/bash 
-  CalibTracker/SiStripQuality/test test_SiStripQualityStatistics.sh"/>
-  <use   name="FWCore/Utilities"/>
+<bin name="test_SiStripQualityStatistics" file="test_SiStripQualityStatistics.cpp">
+  <flags TEST_RUNNER_ARGS="/bin/bash CalibTracker/SiStripQuality/test test_SiStripQualityStatistics.sh"/>
+  <use name="FWCore/Utilities"/>
 </bin>
