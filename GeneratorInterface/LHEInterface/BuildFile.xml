@@ -14,10 +14,10 @@
 <use name="fastjet"/>
 <use name="xz"/>
 <export>
-	<use name="FWCore/ParameterSet"/>
-	<use name="FWCore/PluginManager"/>
-	<use name="boost"/>
-	<use name="sigcpp"/>
-	<use name="hepmc"/>
-	<lib name="GeneratorInterfaceLHEInterface"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="boost"/>
+  <use name="sigcpp"/>
+  <use name="hepmc"/>
+  <lib name="GeneratorInterfaceLHEInterface"/>
 </export>
