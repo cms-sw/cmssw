@@ -37,8 +37,6 @@ ootPhotons.isolationSumsCalculatorSet.trackProducer = cms.InputTag("hiGeneralTra
 
 from RecoParticleFlow.Configuration.RecoParticleFlow_cff import *
 
-particleFlowClusterECAL.energyCorrector.verticesLabel = cms.InputTag('hiPixelAdaptiveVertex')
-
 mvaElectrons.vertexTag = cms.InputTag("hiSelectedVertex")
 
 particleFlowBlock.elementImporters = cms.VPSet(
