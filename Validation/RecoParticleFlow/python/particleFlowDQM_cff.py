@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+import Validation.RecoParticleFlow.defaults_cfi as default
 from Validation.RecoParticleFlow.defaults_cfi import ptbins, etabins, response_distribution_name, genjet_distribution_name,jetResponseDir,genjetDir
 
 #----- ----- ----- ----- ----- ----- ----- -----
@@ -94,12 +95,14 @@ pfJetDQMPostProcessor = cms.EDProducer("PFJetDQMPostProcessor",
 
 )
 
-#----- ----- ----- ----- ----- ----- ----- -----
-#
-# Sequence
-# if you add things here, you also have to fix DQMForPF_MiniAOD_cff.py
 
-pfDQM = cms.Sequence(
-    pfJetAnalyzerDQM *
-    pfPuppiJetAnalyzerDQM
+# PFCandidates
+PFCandAnalyzerDQM = cms.EDProducer("PFCandidateAnalyzerDQM",
+    PFCandType = cms.InputTag("packedPFCandidates"),
+    etabins = cms.vdouble( default.etaBinsOffset ),
+    pdgKeys = cms.vuint32( default.pdgIDDict.keys() ),
+    pdgStrs = cms.vstring( default.pdgIDDict.values() )
 )
+
+
+#----- ----- ----- ----- ----- ----- ----- -----
