@@ -3,6 +3,7 @@
 <use   name="CondFormats/Serialization"/>
 <use   name="DataFormats/StdDictionaries"/>
 <use   name="DataFormats/EcalDetId"/>
+<use   name="DataFormats/EcalDigi"/>
 <use   name="DataFormats/Math"/>
 <use   name="boost"/>
 <use   name="boost_serialization"/>
