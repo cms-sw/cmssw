@@ -1,4 +1,3 @@
-<use   name="DQMServices/Components"/>
 <use   name="DQMServices/Core"/>
 <use   name="Geometry/Records"/>
 <use   name="Geometry/CaloGeometry"/>
@@ -12,14 +11,12 @@
 <use   name="DataFormats/HcalIsolatedTrack"/>
 <use   name="DataFormats/Math"/>
 <use   name="DataFormats/RecoCandidate"/>
-<use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/FEDRawData"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="Geometry/CaloTopology"/>
 <use   name="EventFilter/HcalRawToDigi"/>
-<use   name="HLTrigger/HLTcore"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="rootphysics"/>
 <export>

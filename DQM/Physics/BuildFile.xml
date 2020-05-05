@@ -2,7 +2,6 @@
 <use   name="FWCore/Framework"/>
 <use   name="DataFormats/MuonReco"/>
 <use   name="DataFormats/EgammaCandidates"/>
-<use   name="DataFormats/EgammaReco"/>
 <use   name="DataFormats/BTauReco"/>
 <use   name="DataFormats/TauReco"/>
 <use   name="DataFormats/JetReco"/>
@@ -17,7 +16,6 @@
 <use   name="JetMETCorrections/JetCorrector"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="DataFormats/EcalRecHit"/>
-<use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/EcalObjects"/>
 <use   name="RecoJets/JetProducers"/>
 <use   name="RecoJets/JetAlgorithms"/>
