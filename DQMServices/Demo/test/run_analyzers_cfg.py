@@ -37,6 +37,7 @@ parser.register('firstEvent',           1, one, int, "See EmptySource.")
 parser.register('firstRun',             1, one, int, "See EmptySource.")
 parser.register('numberEventsInRun',    100, one, int, "See EmptySource.")
 parser.register('numberEventsInLuminosityBlock', 20, one, int, "See EmptySource.")
+parser.register('processingMode',       'RunsLumisAndEvents', one, string, "See EmptySource.")
 parser.register('nEvents',              100, one, int, "Total number of events.")
 parser.register('nThreads',             1, one, int, "Number of threads and streams.")
 parser.register('nConcurrent',          1, one, int, "Number of concurrent runs/lumis.")
@@ -50,7 +51,8 @@ process.source = cms.Source("EmptySource", numberEventsInRun = cms.untracked.uin
                             numberEventsInLuminosityBlock = cms.untracked.uint32(args.numberEventsInLuminosityBlock),
                             firstLuminosityBlock = cms.untracked.uint32(args.firstLuminosityBlock),
                             firstEvent = cms.untracked.uint32(args.firstEvent),
-                            firstRun = cms.untracked.uint32(args.firstRun))
+                            firstRun = cms.untracked.uint32(args.firstRun),
+                            processingMode = cms.untracked.string(args.processingMode))
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(args.nEvents) )
 
