@@ -219,7 +219,7 @@ void GeometricTimingDet::addComponent(GeometricTimingDet* det) { container_.empl
 
 namespace {
   struct Deleter {
-    void operator()(GeometricTimingDet const* det) const { delete const_cast<GeometricTimingDet*>(det); } 
+    void operator()(GeometricTimingDet const* det) const { delete const_cast<GeometricTimingDet*>(det); }
   };
 }  // namespace
 
