@@ -1,14 +1,14 @@
-<use   name="Geometry/CommonDetUnit"/>
-<use   name="Geometry/TrackerGeometryBuilder"/>
-<use   name="Geometry/MTDGeometryBuilder"/>
-<use   name="Geometry/Records"/>
-<use   name="Geometry/GEMGeometry"/>
-<use   name="Geometry/RPCGeometry"/>
-<use   name="Geometry/DTGeometry"/>
-<use   name="Geometry/CSCGeometry"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="rootcore"/>
-<library   file="GlobalTrackingGeometryTest.cc" name="testGlobalTrackingGeometry">
-  <flags   EDM_PLUGIN="1"/>
+<use name="Geometry/CommonDetUnit"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
+<use name="Geometry/MTDGeometryBuilder"/>
+<use name="Geometry/Records"/>
+<use name="Geometry/GEMGeometry"/>
+<use name="Geometry/RPCGeometry"/>
+<use name="Geometry/DTGeometry"/>
+<use name="Geometry/CSCGeometry"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="rootcore"/>
+<library file="GlobalTrackingGeometryTest.cc" name="testGlobalTrackingGeometry">
+  <flags EDM_PLUGIN="1"/>
 </library>

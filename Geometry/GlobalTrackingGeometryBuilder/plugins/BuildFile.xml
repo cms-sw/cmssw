@@ -1,11 +1,11 @@
-<library   file="*.cc" name="GeometryGlobalTrackingGeometryBuilderPlugin">
- <use   name="Geometry/MuonNumbering"/>
- <use   name="Geometry/Records"/>
- <use   name="Geometry/TrackerGeometryBuilder"/>
- <use   name="Geometry/MTDGeometryBuilder"/>
- <use   name="Geometry/CSCGeometry"/>
- <use   name="Geometry/DTGeometry"/>
- <use   name="Geometry/RPCGeometry"/>
- <use   name="Geometry/GEMGeometry"/>
- <flags   EDM_PLUGIN="1"/>
+<library file="*.cc" name="GeometryGlobalTrackingGeometryBuilderPlugin">
+  <use name="Geometry/MuonNumbering"/>
+  <use name="Geometry/Records"/>
+  <use name="Geometry/TrackerGeometryBuilder"/>
+  <use name="Geometry/MTDGeometryBuilder"/>
+  <use name="Geometry/CSCGeometry"/>
+  <use name="Geometry/DTGeometry"/>
+  <use name="Geometry/RPCGeometry"/>
+  <use name="Geometry/GEMGeometry"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
