@@ -650,8 +650,7 @@ bool DAClusterizerInZ_vect::purge(vertex_t& y, track_t& tks, double& rho0, const
     for (unsigned int i = 0; i < nt; i++) {
       //if (tks.tt[i]->track().pt() < 0.0) continue; // TEST count only pt>0.3 in nunique
       if (tks.Z_sum_ptr[i] > 1.e-100) {
-        double p =
-            y.pk_ptr[k] * local_exp(-beta * Eik(tks.z_ptr[i], y.z_ptr[k], tks.dz2_ptr[i])) / tks.Z_sum_ptr[i];
+        double p = y.pk_ptr[k] * local_exp(-beta * Eik(tks.z_ptr[i], y.z_ptr[k], tks.dz2_ptr[i])) / tks.Z_sum_ptr[i];
         //double p = tks.pi_ptr[i] * y.pk_ptr[k] * local_exp(-beta * Eik(tks.z_ptr[i], y.z_ptr[k], tks.dz2_ptr[i])) / tks.Z_sum_ptr[i];
         sump += p;
         if ((p > uniquetrkweight_ * pmax) && (tks.pi_ptr[i] > 0)) {
@@ -778,8 +777,8 @@ bool DAClusterizerInZ_vect::split(const double beta, track_t& tks, vertex_t& y, 
           tr = 1 / (t + 1.);
         }
 
-        double p = y.pk_ptr[k] * tks.pi_ptr[i] *
-                   local_exp(-beta * Eik(tks.z_ptr[i], y.z_ptr[k], tks.dz2_ptr[i])) / tks.Z_sum_ptr[i];
+        double p = y.pk_ptr[k] * tks.pi_ptr[i] * local_exp(-beta * Eik(tks.z_ptr[i], y.z_ptr[k], tks.dz2_ptr[i])) /
+                   tks.Z_sum_ptr[i];
         double w = p * tks.dz2_ptr[i];
         p1 += p * tl;
         z1 += w * tl * tks.z_ptr[i];
@@ -1034,8 +1033,7 @@ vector<TransientVertex> DAClusterizerInZ_vect::vertices(const vector<reco::Trans
     vector<reco::TransientTrack> vertexTracks;
     for (unsigned int i = 0; i < nt; i++) {
       if (tks.Z_sum_ptr[i] > 1e-100) {
-        double p =
-            y.pk_ptr[k] * local_exp(-beta * Eik(tks.z_ptr[i], y.z_ptr[k], tks.dz2_ptr[i])) / tks.Z_sum_ptr[i];
+        double p = y.pk_ptr[k] * local_exp(-beta * Eik(tks.z_ptr[i], y.z_ptr[k], tks.dz2_ptr[i])) / tks.Z_sum_ptr[i];
         if ((tks.pi_ptr[i] > 0) && (p > mintrkweight_)) {
           vertexTracks.push_back(*(tks.tt[i]));
           tks.Z_sum_ptr[i] = 0;  // setting Z=0 excludes double assignment
@@ -1203,8 +1201,8 @@ void DAClusterizerInZ_vect::dump(const double beta, const vertex_t& y, const tra
 
         if ((tks.pi_ptr[i] > 0) && (tks.Z_sum_ptr[i] > 0)) {
           //double p=pik(beta,tks[i],*k);
-          double p = y.pk_ptr[ivertex] * exp(-beta * Eik(tks.z_ptr[i], y.z_ptr[ivertex], tks.dz2_ptr[i])) /
-                     tks.Z_sum_ptr[i];
+          double p =
+              y.pk_ptr[ivertex] * exp(-beta * Eik(tks.z_ptr[i], y.z_ptr[ivertex], tks.dz2_ptr[i])) / tks.Z_sum_ptr[i];
           if (p > 0.0001) {
             std::cout << setw(8) << setprecision(3) << p;
           } else {
