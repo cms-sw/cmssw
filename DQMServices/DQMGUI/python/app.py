@@ -1,14 +1,18 @@
 import time
 import asyncio
 
-from rendering import DQMRenderer
-from service import DQMService
+from rendering import GUIRenderer
+from helpers import MEDescription
+from service import GUIService
 from aiohttp import web
 
-service = DQMService()
+
+service = GUIService()
+
 
 async def index(request):
     return web.FileResponse('../data/index.html')
+
 
 async def samples(request):
     """Returns a list of matching run/dataset pairs based on provided regex search."""
@@ -18,6 +22,7 @@ async def samples(request):
 
     data = service.get_samples(run, dataset)
     return web.json_response(data)
+
 
 async def archive(request):
     """Returns a directory listing for provided run/dataset/path combination."""
@@ -34,24 +39,51 @@ async def archive(request):
     data = service.get_archive(run, dataset, path, search)
     return web.json_response(data)
 
+
 async def render(request):
     """Returns a PNG image for provided run/dataset/path combination"""
 
-    start = time.time()
-
     run = request.match_info['run']
     full_path = request.match_info['path']
-    width = int(request.rel_url.query.get('w', 200))
+    width = int(request.rel_url.query.get('w', 266))
     height = int(request.rel_url.query.get('h', 200))
+    # TODO: Standartize these arguments
+    stats = int(request.rel_url.query.get('showstats', 1)) == 1
+    normalize = str(request.rel_url.query.get('norm', 'True')) == 'True'
+    error_bars = int(request.rel_url.query.get('showerrbars', 0)) == 1
 
     # Separate dataset and a path within the root file
     parts = full_path.split('/')
     dataset = '/' + '/'.join(parts[0:3])
     path = '/'.join(parts[3:])
 
-    data = await service.get_rendered_image(run, dataset, path, width, height)
+    me_description = MEDescription(run, dataset, path)
 
-    print(time.time() - start)
+    data = await service.get_rendered_image([me_description], width, height, stats, normalize, error_bars)
+
+    return web.Response(body=data, content_type="image/png")
+
+
+async def render_overlay(request):
+    """Returns a PNG image for provided run/dataset/path combination"""
+
+    width = int(request.rel_url.query.get('w', 200))
+    height = int(request.rel_url.query.get('h', 200))
+    stats = int(request.rel_url.query.get('showstats', 1)) == 1
+    normalize = str(request.rel_url.query.get('norm', 'True')) == 'True'
+    error_bars = int(request.rel_url.query.get('showerrbars', 0)) == 1
+
+    me_descriptions = []
+    for obj in request.rel_url.query.getall('obj', []):
+        parts = obj.split('/')
+        run = int(parts[1])
+        dataset = '/' + '/'.join(parts[2:5])
+        path = '/'.join(parts[5:])
+
+        me_description = MEDescription(run, dataset, path)
+        me_descriptions.append(me_description)
+
+    data = await service.get_rendered_image(me_descriptions, width, height, stats, normalize, error_bars)
 
     return web.Response(body=data, content_type="image/png")
 
@@ -64,12 +96,14 @@ def config_and_start_webserver():
     app.add_routes([web.get('/', index),
                     web.get('/data/json/samples', samples),
                     web.get(r'/data/json/archive/{run}/{path:.+}', archive),
-                    web.get(r'/plotfairy/archive/{run}/{path:.+}', render)])
+                    web.get(r'/plotfairy/archive/{run}/{path:.+}', render),
+                    web.get(r'/plotfairy/overlay', render_overlay)])
     app.add_routes([web.static('/', '../data/', show_index=True)])
 
     # Start aiohttp!
     web.run_app(app, port='8889')
 
+
 if __name__ == '__main__':
-    app = asyncio.get_event_loop().run_until_complete(DQMRenderer.initialize(workers=10))
+    app = asyncio.get_event_loop().run_until_complete(GUIRenderer.initialize(workers=2))
     config_and_start_webserver()

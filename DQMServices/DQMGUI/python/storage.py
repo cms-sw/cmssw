@@ -7,6 +7,7 @@ import sqlite3
 import tempfile
 import subprocess
 
+from functools import lru_cache
 from collections import namedtuple, defaultdict
 
 from DQMServices.DQMGUI import nanoroot
@@ -28,28 +29,24 @@ EfficiencyFlag = namedtuple("EfficiencyFlag", ["name"])
 ScalarValue = namedtuple("ScalarValue", ["name", "value", "type"])
 QTest = namedtuple("QTest", ["name", "qtestname", "status", "result", "algorithm", "message"])
 
-with sqlite3.connect(DBNAME) as db:
-    db.executescript(DBSCHEMA)
 
-class DQMDataStore:
+class GUIDataStore:
 
     db = sqlite3.connect(DBNAME)
     db.executescript(DBSCHEMA)
 
     # TODO: Close connection at some point!
-    # def __del__(self):
-        # DQMDataStore.db.close()
 
-    @staticmethod
-    def __execute(sql, args=None):
-        c = DQMDataStore.db.cursor()
+    @classmethod
+    def __execute(cls, sql, args=None):
+        c = cls.db.cursor()
         if args:
             return  c.execute(sql, args)
         else:
             return c.execute(sql)
 
-    @staticmethod
-    def get_samples(run, dataset):
+    @classmethod
+    def get_samples(cls, run, dataset):
         if run:
             run = '%%%s%%' % run
         if dataset:
@@ -61,18 +58,19 @@ class DQMDataStore:
             return samples
         elif run != None and dataset != None:
             sql = 'SELECT DISTINCT run, dataset FROM samples WHERE dataset LIKE ? AND run LIKE ?'
-            results = DQMDataStore.__execute(sql, (dataset, run))
+            results = cls.__execute(sql, (dataset, run))
         elif run != None:
             sql = 'SELECT DISTINCT run, dataset FROM samples WHERE run LIKE ?'
-            results = DQMDataStore.__execute(sql, (run,))
+            results = cls.__execute(sql, (run,))
         elif dataset != None:
             sql = 'SELECT DISTINCT run, dataset FROM samples WHERE dataset LIKE ?'
-            results = DQMDataStore.__execute(sql, (dataset,))
+            results = cls.__execute(sql, (dataset,))
 
         return results
 
-    @staticmethod
-    def get_me_list_blob(run, dataset):
+    @classmethod
+    @lru_cache(10)
+    def get_me_list_blob(cls, run, dataset):
         """
         # One me is represented as a multiple of 2 lines in a list
         # First line contains and ME path and secnod line contains secondary string:
@@ -89,19 +87,12 @@ class DQMDataStore:
         """
         # For now adding a LIMIT 1 because there might be multiple version of the same file.
         sql = 'SELECT menameblob FROM samples JOIN menames ON samples.menamesid = menames.menamesid WHERE run = ? AND dataset = ? LIMIT 1;'
-        blob = DQMDataStore.__execute(sql, (int(run), dataset))
+        blob = cls.__execute(sql, (int(run), dataset))
         blob = list(blob)[0][0]
         return blob
 
-    # def get_me_offsets_blob(self, run, dataset):
-    #     # For now adding a LIMIT 1 because there might be multiple version of the same file.
-    #     sql = 'SELECT meoffsetsblob FROM samples JOIN meoffsets ON samples.meoffsetsid = meoffsets.meoffsetsid WHERE run = ? AND dataset = ? LIMIT 1;'
-    #     blob = self.__execute(sql, (int(run), dataset))
-    #     blob = list(blob)[0][0]
-    #     return blob
-
-    @staticmethod
-    def get_blobs_and_filename(run, dataset):
+    @classmethod
+    def get_blobs_and_filename(cls, run, dataset):
         # For now adding a LIMIT 1 because there might be multiple version of the same file.
         sql = '''
         SELECT
@@ -118,7 +109,7 @@ class DQMDataStore:
             dataset = ?
         LIMIT 1;
         '''
-        cur = DQMDataStore.__execute(sql, (int(run), dataset))
+        cur = cls.__execute(sql, (int(run), dataset))
         cur = list(cur)
 
         filename = cur[0][0]
@@ -128,12 +119,12 @@ class DQMDataStore:
         return (filename, list_blob, offsets_blob)
 
 
-    @staticmethod
-    def meoffsetsfromblob(offsetblob):
+    @classmethod
+    def meoffsetsfromblob(cls, offsetblob):
         return MEInfo.blobtolist(offsetblob)
 
-    @staticmethod
-    def melistfromblob(namesblob):
+    @classmethod
+    def melistfromblob(cls, namesblob):
         return zlib.decompress(namesblob).splitlines()
 
 

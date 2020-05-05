@@ -1,28 +1,28 @@
-import mmap
 import zlib
 import time
 import struct
 
 from functools import lru_cache
 
-from rendering import DQMRenderer
-from  DQMServices.DQMGUI import nanoroot
-from storage import DQMDataStore, MEInfo
+from rendering import GUIRenderer
+from DQMServices.DQMGUI import nanoroot
+from storage import GUIDataStore, MEInfo
+from helpers import MERenderingInfo
 
-class DQMService:
+class GUIService:
 
-    store = DQMDataStore()
-    renderer = DQMRenderer()
+    store = GUIDataStore()
+    renderer = GUIRenderer()
 
-    @staticmethod
+    @classmethod
     @lru_cache(10)
-    def get_samples(run, dataset):
+    def get_samples(cls, run, dataset):
         if run == '':
             run = None
         if dataset == '':
             dataset = None
         
-        results = DQMService.store.get_samples(run, dataset)
+        results = cls.store.get_samples(run, dataset)
 
         # TODO: offline_data should probably be removed. No GUI flavor distinction is required.
         samples = {
@@ -37,9 +37,8 @@ class DQMService:
 
         return samples
 
-    @staticmethod
-    @lru_cache(10)
-    def get_archive(run, dataset, path, search):
+    @classmethod
+    def get_archive(cls, run, dataset, path, search):
 
         def get_subitem(full_path, current_dir):
             """Returns a closest sub item of full_path inside current_dir
@@ -72,7 +71,7 @@ class DQMService:
         # ME/Path/mename\0.qtest1
         # ME/Path/mename\0.qtest2
         # ME/Path/mename\0e=1
-        blob = DQMService.store.get_me_list_blob(run, dataset)
+        blob = cls.store.get_me_list_blob(run, dataset)
         buf = zlib.decompress(blob)
         lines = buf.split(b'\n')
 
@@ -87,6 +86,9 @@ class DQMService:
             if subitem:
                 if regex and not regex.match(line.split('/')[-1]):
                     continue # Regex is provided and ME name doesn't match it
+                
+                if '\0' in line:
+                    continue # This is a secondary item, not a main ME name
 
                 if subitem[1]:
                     objs.add(subitem[0])
@@ -103,46 +105,45 @@ class DQMService:
 
         return data
 
-    @staticmethod
+
+    @classmethod
+    async def get_rendered_image(cls, me_descriptions, width=266, height=200, stats=True, normalize=True, error_bars=False):
+        efficiency = False
+        rendering_infos = []
+
+        for me in me_descriptions:
+            filename, melist, offsets = cls.__get_filename_melist_offsets(me.run, me.dataset)
+
+            # Find the index of run/dataset/me in me list blob. 
+            # The index in me list will correspond to the index in offsets list.
+            # TODO: use binary search or smth!!!
+            meinfo = None
+            for i in range(len(melist)):
+                line = melist[i].decode("utf-8")
+                if line == me.path:
+                    meinfo = offsets[i]
+                    break
+            else: # We will end up here if we finish the loop without breaking out
+                continue
+            
+            # If efficiency flag is set for at least one of the MEs, it will be set for an overlay
+            if not efficiency:
+                efficiency = bytes('%s\0e=1' % me.path, 'utf-8') in melist
+
+            rendering_infos.append(MERenderingInfo(filename=filename, path=me.path, meinfo=meinfo))
+
+        if not rendering_infos: # No MEs were found
+            return await cls.renderer.render_string('ME not found', width=width, height=height)
+
+        # Render
+        return await cls.renderer.render(rendering_infos, width, height, efficiency, stats, normalize, error_bars)
+
+
+    @classmethod
     @lru_cache(10)
-    def __get_filename_melist_offets(run, dataset):
-        filename, list_blob, offsets_blob = DQMService.store.get_blobs_and_filename(run, dataset)
-        melist = DQMService.store.melistfromblob(list_blob)
-        offsets = DQMService.store.meoffsetsfromblob(offsets_blob)
+    def __get_filename_melist_offsets(cls, run, dataset):
+        filename, list_blob, offsets_blob = cls.store.get_blobs_and_filename(run, dataset)
+        melist = cls.store.melistfromblob(list_blob)
+        offsets = cls.store.meoffsetsfromblob(offsets_blob)
 
         return filename, melist, offsets
-
-
-    @staticmethod
-    async def get_rendered_image(run, dataset, path, width=200, height=200):
-        filename, melist, offsets = DQMService.__get_filename_melist_offets(run, dataset)
-
-        # Find the index of run/dataset/me in me list blob. 
-        # The index in me list will correspond to the index in offsets list.
-        # TODO: use binary search or smth!!!
-        meinfo = None
-        for i in range(len(melist)):
-            line = melist[i].decode("utf-8")
-            # For now replace double slash. This should not occur normally.
-            if line == path:
-                meinfo = offsets[i]
-                break
-        else: # We will end up here if we finish the loop without breaking out
-            png, error = await DQMService.renderer.render('ME not found', width=width, height=height)
-            return png
-        
-        # Check if efficiency flag is set for this ME
-        efficiency = bytes('%s\0e=1' % path, 'utf-8') in melist
-
-        # TODO: cache files
-        with open(filename, 'rb') as root_file:
-            mm = mmap.mmap(root_file.fileno(), 0, prot=mmap.PROT_READ)
-
-            # Possible return values: ScalarValue, EfficiencyFlag, QTest, nanoroot.TBufferFile (bytes), 
-            obj = meinfo.read(mm)
-
-            png, error = await DQMService.renderer.render(obj, [], name=path, spec='', width=width, height=height, efficiency=efficiency)
-            if error == 1: # Missing streamer file - provide it!
-                png, error = await DQMService.renderer.render(obj, [], name=path, spec='', width=width, height=height, efficiency=efficiency, streamerfile=filename.encode('utf-8'))
-            
-            return png

@@ -1,4 +1,5 @@
 import os
+import mmap
 import time
 import socket
 import struct
@@ -9,149 +10,185 @@ import subprocess
 from DQMServices.DQMGUI import nanoroot
 from storage import EfficiencyFlag, ScalarValue, QTest
 
-class DQMRenderer:
+
+class GUIRenderer:
     rendering_contexts = []
     semaphore = None
 
-    @staticmethod
-    async def initialize(workers=8):
+
+    @classmethod
+    async def initialize(cls, workers=8):
         """Starts the renderers and configures the pool"""
 
-        if len(DQMRenderer.rendering_contexts) != 0:
+        if len(cls.rendering_contexts) != 0:
             print('DQM rendering sub processes already initialized')
             return
         
         print('Initializing %s DQM rendering sub processes...' % workers)
 
-        DQMRenderer.rendering_contexts = [await DQMRenderingContext.create() for _ in range(workers)]
-        DQMRenderer.semaphore = asyncio.Semaphore(workers)
+        cls.rendering_contexts = [await GUIRenderingContext.create() for _ in range(workers)]
+        cls.semaphore = asyncio.Semaphore(workers)
 
-    @staticmethod
-    async def render(th1, refth1s=[], name='', spec='', efficiency=False, width=600, height=400, streamerfile=b''):
-        if isinstance(th1, QTest) or isinstance(th1, EfficiencyFlag):
+
+    @classmethod
+    async def render(cls, rendering_infos, width=600, height=400, efficiency=False, stats=True, normalize=True, error_bars=False):
+        # Construct spec string. Sample: showstats=0;showerrbars=1;norm=False
+        spec = ''
+        if not stats:
+            spec += 'showstats=0;'
+        if not normalize:
+            spec += 'norm=False;'
+        if error_bars:
+            spec += 'showerrbars=1;'
+
+        if spec.endswith(';'):
+            spec = spec[:-1]
+
+        for info in rendering_infos:
+            with open(info.filename, 'rb') as root_file:
+                mm = mmap.mmap(root_file.fileno(), 0, prot=mmap.PROT_READ)
+
+                # Possible return values: ScalarValue, EfficiencyFlag, QTest, nanoroot.TBufferFile (bytes), 
+                info.root_object = info.meinfo.read(mm)
+
+        png, error = await cls.__render(rendering_infos, width, height, spec, efficiency)
+        if error == 1: # Missing streamer file - provide it
+            png, error = await cls.__render(rendering_infos, width, height, spec, efficiency, True)
+        
+        return png
+
+
+    @classmethod
+    async def render_string(cls, string, width=600, height=400):
+        png, error = await cls.__render(string, width=width, height=height)
+        return png
+
+
+    @classmethod
+    async def __render(cls, rendering_infos, width=266, height=200, spec='', efficiency=False, use_streamerfile=False):
+        # Determine the type of histogram by the first in the list.
+        # Only the same type of histograms can be overlayed.
+        if isinstance(rendering_infos, str):
+            root_object = rendering_infos
+        else:
+            root_object = rendering_infos[0].root_object
+
+        if isinstance(root_object, QTest) or isinstance(root_object, EfficiencyFlag):
             raise Exception('Only ScalarValue and TH* can be rendered.')
 
-        await DQMRenderer.semaphore.acquire()
+        await cls.semaphore.acquire()
 
         try:
-            context = DQMRenderer.rendering_contexts.pop()
-            if isinstance(th1, ScalarValue):
-                return await context.render_scalar(th1.value, width, height)
-            elif isinstance(th1, str):
-                return await context.render_scalar(th1, width, height)
-            elif isinstance(th1, bytes):
-                return await context.render_histo(th1, refth1s, name, spec, efficiency, width, height, streamerfile)
+            context = cls.rendering_contexts.pop()
+            if isinstance(root_object, ScalarValue):
+                return await context.render_scalar(root_object.value, width, height)
+            elif isinstance(root_object, str):
+                return await context.render_scalar(root_object, width, height)
+            elif isinstance(root_object, bytes):
+                return await context.render_histogram(rendering_infos, width, height, spec, efficiency, use_streamerfile)
             else:
                 return await context.render_scalar('Unknown ME type', width, height)
         finally:
-            DQMRenderer.rendering_contexts.append(context)
-            DQMRenderer.semaphore.release()
+            cls.rendering_contexts.append(context)
+            cls.semaphore.release()
 
-class DQMRenderingContext:
-    def __init__(self):
-        pass
-        # self.working_dir = tempfile.mkdtemp()
-        # self.render_process = subprocess.Popen(
-        #         f"dqmRender --state-directory {self.working_dir}/ > {self.working_dir}/render.log 2>&1", 
-        #         shell=True, stdout=subprocess.PIPE)
 
-        # # Wait for renderer to be ready to accept connections.
-        # # This is done before web server starts up so we can block
-        # while not os.path.exists(f'{self.working_dir}/socket'):
-        #     time.sleep(0.2)
-
-        # self.client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        # self.client.connect(f"{self.working_dir}/socket")
+class GUIRenderingContext:
 
     async def create():
-        self = DQMRenderingContext()
+        self = GUIRenderingContext()
+        await self.__start_rendering_process()
+        await self.__open_socket_connectin()
+        return self
+
+
+    async def render_scalar(self, text, width=266, height=200):
+        data = str(text).encode("utf-8")
+        return await self.__render_internal(data, width, height)
+
+
+    async def render_histogram(self, rendering_infos, width=266, height=200, spec='', efficiency=False, use_streamerfile=False):
+        DQM_PROP_TYPE_SCALAR = 0x0000000f
+        # Real type is not needed. It's enough to know that ME is not scalar.
+        flags = DQM_PROP_TYPE_SCALAR + 1
+
+        if efficiency:
+            flags |= 0x00200000
+        
+        data = b''
+        for info in rendering_infos:
+            data += struct.pack('=i', len(info.root_object)) + info.root_object
+        
+        num_objs = len(rendering_infos)
+        name = rendering_infos[0].path.encode('utf-8') # to bytes
+        # TODO: Probably we will need to provide a streamer file of every ME in overlay
+        streamerfile = rendering_infos[0].filename.encode("utf-8") if use_streamerfile else b''
+
+        return await self.__render_internal(data, width, height, name, flags, spec, num_objs, streamerfile)
+
+    
+    async def __render_internal(self, data, width=266, height=200, name=b'', flags=0, spec='', num_objs=1, streamerfile=b''):
+        # Pack the message for the renderer
+        mtype = 4 # DQM_MSG_GET_IMAGE_DATA
+        vlow = 0
+        vhigh = 0
+        q_length = 0
+
+        separator = ';' if spec else ''
+        spec = f'h={height:d};w={width:d}{separator}{spec}'.encode('utf-8')
+
+        file_length = len(streamerfile)
+        name_length = len(name)
+        spec_length = len(spec)
+        data_length = len(data)
+        
+        message = struct.pack('=iiiiiiiiii', mtype, flags, vlow, vhigh, num_objs, file_length, name_length, spec_length, data_length, q_length)
+        message += streamerfile + name + spec + data
+        message = struct.pack('=i', len(message) + 4) + message
+
+        try:
+            self.writer.write(message)
+            await self.writer.drain()
+            error_and_length = await self.reader.read(8)
+            
+            errorcode, length = struct.unpack("=ii", error_and_length)
+            buffer = b''
+            while length > 0:
+                received = await self.reader.read(length)
+                length -= len(received)
+                buffer += received
+            return buffer, errorcode
+
+        except Exception as e:
+            # Looks like our renderer died.
+            print(e)
+            await self.__restart_renderer()
+            return b'', -1
+
+
+    async def __start_rendering_process(self):
         self.working_dir = tempfile.mkdtemp()
         self.render_process = subprocess.Popen(
                 f"dqmRender --state-directory {self.working_dir}/ > {self.working_dir}/render.log 2>&1", 
                 shell=True, stdout=subprocess.PIPE)
-
+        
+        # Wait for the socket to initialise and be ready to accept connections
         while not os.path.exists(f'{self.working_dir}/socket'):
             await asyncio.sleep(0.2)
 
+
+    async def __open_socket_connectin(self):
         self.reader, self.writer = await asyncio.open_unix_connection(f'{self.working_dir}/socket')
 
-        return self
-
-
-    async def render_scalar(self, text, width=600, height=400):
-        flags = 0
-        data = str(text).encode("utf-8")
-        return await self.render_basic(width, height, flags=flags, data=data)
-
-    async def render_histo(self, th1, refth1s, name = "", spec="", efficiency=False, width=600, height=400, streamerfile=b''):
-        DQM_PROP_TYPE_SCALAR = 0x0000000f;
-        flags = DQM_PROP_TYPE_SCALAR + 1 # real type is not needed.
-        if efficiency:
-            flags |= 0x00200000 # SUMMARY_PROP_EFFICIENCY_PLOT
-        data = b''
-        for o in [th1] + refth1s:
-            if isinstance(o, bytes):
-                buf = o
-            else:
-                buf = self.tobuffer(o)
-            data += struct.pack("=i", len(buf)) + buf
-        numobjs = len(refth1s) + 1
-        nameb = name.encode("utf-8")
-        return await self.render_basic(width, height, flags, numobjs, nameb, spec, data, streamerfile)
     
-    async def render_basic(self, width, height, flags = 0, numobjs = 1, name = b'', spec = '', data = b'', streamerfile = b''):
-        mtype = 4 # DQM_MSG_GET_IMAGE_DATA
-        # flags
-        vlow = 0
-        vhigh = 0
-        # numobjs
-        # name
-        filelen = len(streamerfile)
-        namelen = len(name)
-        sep = ';' if spec else ''
-        specb = f"h={height:d};w={width:d}{sep}{spec}".encode("utf-8")
-        speclen = len(specb)
-        # data
-        datalen = len(data)
-        qlen = 0
-        msg = struct.pack("=iiiiiiiiii", mtype, flags, vlow, vhigh, numobjs, filelen, namelen, speclen, datalen, qlen)
-        msg += streamerfile + name + specb + data
-        msg = struct.pack('=i', len(msg) + 4) + msg
-        try:
-            # start = time.time()
-            # print(self.working_dir)
-            # reader, writer = await asyncio.open_unix_connection(f'{self.working_dir}/socket')
-            
-            self.writer.write(msg)
-            await self.writer.drain()
-            lenbuf = await self.reader.read(8)
-            
-            errorcode, length = struct.unpack("=ii", lenbuf)
-            buf = b''
-            while length > 0:
-                recvd = await self.reader.read(length)
-                length -= len(recvd)
-                buf += recvd
-            return buf, errorcode
-        except BrokenPipeError:
-            # looks like our renderer died.
-            self.dead = True
-            return b'', -1
-        finally:
-            pass
-            # print(time.time() - start)
-        #     writer.close()
-        #     await writer.wait_closed()
-            
-            
+    async def __restart_renderer(self):
+        """Rendering processes might crash. 
+        This method will attempt to kill the old renderer process (if it is still running), 
+        start a new one and will establish a socket connetion to it.
+        """
 
+        # Kill the shell process that started the renderer. -P will kill the child process (the renderer itself) too
+        subprocess.Popen('pkill -P %d' % self.render_process.pid, shell=True)
 
-    def tobuffer(self, th1):
-        # avoid importing ROOT is not needed.
-        import ROOT
-        # 24bytes/bin for a TProfile, plus 10K of extra space
-        b = array.array("B", b' ' * (th1.GetNcells() * 24 + 10*1024))
-        bf = ROOT.TBufferFile(ROOT.TBufferFile.kWrite)
-        bf.SetBuffer(b,len(b),False)
-        bf.WriteObject(th1)
-        return bytes(b[:bf.Length()])
+        await self.__start_rendering_process()
+        await self.__open_socket_connectin()
