@@ -480,7 +480,7 @@ namespace dqm::implementation {
         assert(anyme && checkScope(anyme->getScope()) == false);
         continue;
       }
-      assert(target != targetset.end()); // initLumi should have taken care of this.
+      assert(target != targetset.end());  // initLumi should have taken care of this.
       // now we have the proper global ME in the right place, point the local there.
       // This is only safe if the name is exactly the same -- else it might corrupt
       // the tree structure of the set!
