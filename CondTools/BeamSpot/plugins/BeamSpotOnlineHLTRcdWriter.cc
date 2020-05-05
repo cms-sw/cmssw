@@ -45,15 +45,15 @@
 class BeamSpotOnlineHLTRcdWriter : public edm::one::EDAnalyzer<>  {
    public:
       explicit BeamSpotOnlineHLTRcdWriter(const edm::ParameterSet&);
-      ~BeamSpotOnlineHLTRcdWriter();
+      ~BeamSpotOnlineHLTRcdWriter() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
       cond::Time_t pack(uint32_t, uint32_t);
 
    private:
-      virtual void beginJob() override;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override;
+      void beginJob() override;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override;
 
       std::ifstream fasciiFile;
       std::string fasciiFileName;
