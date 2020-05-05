@@ -41,21 +41,21 @@ public:
 
     // has to be called everytime the items are modified
     void extractRaw() {
-      _z = &z.front();
-      _t = &t.front();
-      _dz2 = &dz2.front();
-      _dt2 = &dt2.front();
-      _pi = &pi.front();
-      _Z_sum = &Z_sum.front();
+      z_array = &z.front();
+      t_array = &t.front();
+      dz2_array = &dz2.front();
+      dt2_array = &dt2.front();
+      pi_array = &pi.front();
+      Z_sum_array = &Z_sum.front();
     }
 
-    double *_z;   // z-coordinate at point of closest approach to the beamline
-    double *_t;   // t-coordinate at point of closest approach to the beamline
-    double *_pi;  // track weight
+    double *z_array;   // z-coordinate at point of closest approach to the beamline
+    double *t_array;   // t-coordinate at point of closest approach to the beamline
+    double *pi_array;  // track weight
 
-    double *_dz2;    // square of the error of z(pca)
-    double *_dt2;    // square of the error of t(pca)
-    double *_Z_sum;  // Z[i]   for DA clustering
+    double *dz2_array;    // square of the error of z(pca)
+    double *dt2_array;    // square of the error of t(pca)
+    double *Z_sum_array;  // Z[i]   for DA clustering
 
     std::vector<double> z;      // z-coordinate at point of closest approach to the beamline
     std::vector<double> t;      // t-coordinate at point of closest approach to the beamline
@@ -95,23 +95,23 @@ public:
 
     // has to be called everytime the items are modified
     void extractRaw() {
-      _z = &z.front();
-      _t = &t.front();
-      _pk = &pk.front();
-      _dt2 = &dt2.front();
-      _sumw = &sumw.front();
+      z_array = &z.front();
+      t_array = &t.front();
+      pk_array = &pk.front();
+      dt2_array = &dt2.front();
+      sumw_array = &sumw.front();
 
-      _ei = &ei.front();
-      _swz = &swz.front();
-      _swt = &swt.front();
-      _se = &se.front();
-      _nuz = &nuz.front();
-      _nut = &nut.front();
-      _szz = &szz.front();
-      _stt = &stt.front();
-      _szt = &szt.front();
+      ei_array = &ei.front();
+      swz_array = &swz.front();
+      swt_array = &swt.front();
+      se_array = &se.front();
+      nuz_array = &nuz.front();
+      nut_array = &nut.front();
+      szz_array = &szz.front();
+      stt_array = &stt.front();
+      szt_array = &szt.front();
 
-      _ei_cache = &ei_cache.front();
+      ei_cache_array = &ei_cache.front();
     }
 
     void insertItem(unsigned int k, double new_z, double new_t, double new_pk) {
@@ -228,7 +228,7 @@ public:
 
       unsigned int k = 0;
       for (; k < getSize(); k++) {
-        if (z < _z[k])
+        if (z < z_array[k])
           break;
       }
       insertItem(k, z, t, pk, tks);
@@ -239,32 +239,32 @@ public:
       std::cout << "vertex_t size: " << getSize() << std::endl;
 
       for (unsigned int i = 0; i < getSize(); ++i) {
-        std::cout << " z = " << _z[i] << " t = " << _t[i] << " pk = " << _pk[i] << std::endl;
+        std::cout << " z = " << z_array[i] << " t = " << t_array[i] << " pk = " << pk_array[i] << std::endl;
       }
     }
 
-    std::vector<double> z;     //          z coordinate
-    std::vector<double> t;     //          t coordinate
-    std::vector<double> pk;    //          vertex weight for "constrained" clustering
-    std::vector<double> dt2;   // experimental
-    std::vector<double> sumw;  // experimental
+    std::vector<double> z;     // z coordinate
+    std::vector<double> t;     // t coordinate
+    std::vector<double> pk;    // vertex weight for "constrained" clustering
+    std::vector<double> dt2;   // only used with vertex time uncertainties
+    std::vector<double> sumw;  // only used with vertex time uncertainties
 
-    double *_z;
-    double *_t;
-    double *_pk;
-    double *_dt2;   //experimental
-    double *_sumw;  //experimental
+    double *z_array;
+    double *t_array;
+    double *pk_array;
+    double *dt2_array;
+    double *sumw_array;
 
-    double *_ei_cache;
-    double *_ei;
-    double *_swz;
-    double *_swt;
-    double *_se;
-    double *_szz;
-    double *_stt;
-    double *_szt;
-    double *_nuz;
-    double *_nut;
+    double *ei_cache_array;
+    double *ei_array;
+    double *swz_array;
+    double *swt_array;
+    double *se_array;
+    double *szz_array;
+    double *stt_array;
+    double *szt_array;
+    double *nuz_array;
+    double *nut_array;
 
     // --- temporary numbers, used during update
     std::vector<double> ei_cache;
