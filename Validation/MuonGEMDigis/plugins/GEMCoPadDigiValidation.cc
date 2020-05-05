@@ -165,7 +165,7 @@ void GEMCoPadDigiValidation::analyze(const edm::Event& event, const edm::EventSe
         lpArray[ptCounter] = etaPartition->centreOfPad(padArray[ptCounter]);
       }                     // end for
       if (ptCounter < 2) {  // Broke out of "for" loop
-        edm::LogError(kLogCategory_) << "Skipping a digi after " << (ptCounter + 1) << " tries.";
+        edm::LogError(kLogCategory_) << "Skipping a digi due to bad chamber " << (ptCounter + 1);
         continue;
       }
       const GlobalPoint& gp1 = surface.toGlobal(lpArray[0]);

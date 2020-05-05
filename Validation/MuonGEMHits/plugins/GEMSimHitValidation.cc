@@ -28,7 +28,6 @@ void GEMSimHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
     return;
   } else {
     for (const auto& station : regionsVec[0]->stations()) {
-      // for (const auto& station : gem->regions()[0]->stations())
       Int_t station_id = station->station();
       const auto [tof_min, tof_max] = getTOFRange(station_id);
       auto tof_name = TString::Format("tof_muon_st%d", station_id);
