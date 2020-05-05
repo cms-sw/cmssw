@@ -63,7 +63,6 @@ bool MTDParametersFromDD::build(const cms::DDCompactView* cvp, PMTDParameters& p
   std::array<std::string, 2> mtdSubdet{{"BTL", "ETL"}};
   int subdet(0);
   for (const auto& name : mtdSubdet) {
-    std::vector<double> tmpPars;
     subdet += 1;
     for (auto const& it : vmap) {
       if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), name)) {
