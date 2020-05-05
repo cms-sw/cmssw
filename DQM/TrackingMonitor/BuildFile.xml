@@ -10,11 +10,9 @@
 <use   name="DataFormats/PatCandidates"/>
 <use   name="TrackingTools/TransientTrackingRecHit"/>
 <use   name="TrackingTools/TransientTrack"/>
-<use   name="TrackingTools/DetLayers"/>
 <use   name="TrackingTools/IPTools"/>
 <use   name="TrackPropagation/SteppingHelixPropagator"/>
 <use   name="DataFormats/MuonReco"/>
-<use   name="DataFormats/SiPixelDetId"/>
 <use   name="Geometry/RPCGeometry"/>
 <use   name="RecoMuon/GlobalTrackingTools"/>
 <use   name="RecoVertex/AdaptiveVertexFit"/>

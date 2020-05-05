@@ -1,4 +1,3 @@
-<use   name="DQMServices/Core"/>
 <use   name="FWCore/Framework"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="DataFormats/Common"/>

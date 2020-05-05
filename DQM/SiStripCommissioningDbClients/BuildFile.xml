@@ -5,10 +5,7 @@
 <use   name="DataFormats/SiStripCommon"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="DQM/SiStripCommissioningClients"/>
-<use   name="DQMServices/Core"/>
 <use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="FWCore/ServiceRegistry"/>
 <use   name="Geometry/CommonDetUnit"/>
 <use   name="Geometry/CommonTopologies"/>
 <use   name="Geometry/Records"/>
