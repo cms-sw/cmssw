@@ -75,8 +75,6 @@ process.options = cms.untracked.PSet(
 
 #process.load('Configuration/StandardSequences/EDMtoMEAtRunEnd_cff')
 ##process.EDMtoMEConverter.convertOnEndLumi = False
-#process.dqmSaver.referenceHandling = cms.untracked.string('all')
-## Don't do this: process.dqmSaver.enableMultiThread = cms.untracked.bool(True)
 
 cmssw_version = os.environ.get('CMSSW_VERSION','CMSSW_X_Y_Z')
 Workflow = '/HcalValidation/'+'Harvesting/'+str(cmssw_version)
