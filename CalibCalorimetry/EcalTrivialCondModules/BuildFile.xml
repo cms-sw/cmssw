@@ -10,4 +10,5 @@
 <use   name="CondFormats/ESObjects"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="DataFormats/EcalDetId"/>
+<use   name="DataFormats/EcalDigi"/>
 <use   name="clhep"/>
