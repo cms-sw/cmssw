@@ -24,14 +24,12 @@ namespace trackerDTC {
     bool valid() const { return valid_; }
     // stub bend in quarter pitch units
     int bend() const { return bend_; }
-    // outer tracker dtc routing block id [0-1]
-    int blockId() const;
-    // outer tracker dtc routing block channel id [0-35]
-    int channelId() const;
     // bit accurate representation of Stub
     TTDTC::BV frame(int region) const;
     // checks stubs region assignment
     bool inRegion(int region) const;
+    double r() const { return r_; }
+    double phi() const { return phi_; }
 
   private:
     // truncates double precision to f/w integer equivalent

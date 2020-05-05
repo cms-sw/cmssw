@@ -1,3 +1,4 @@
-<use name="L1Trigger/TrackerDTC"/>
-<flags EDM_PLUGIN="1"/>
-
+<library file="*.cc" name="TrackerDTCPlugins">
+    <use name="L1Trigger/TrackerDTC"/>
+    <flags EDM_PLUGIN="1"/>
+</library>
