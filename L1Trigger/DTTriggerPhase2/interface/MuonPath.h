@@ -1,9 +1,8 @@
-#ifndef L1Trigger_DTTriggerPhase2_muonpath_h
-#define L1Trigger_DTTriggerPhase2_muonpath_h
+#ifndef L1Trigger_DTTriggerPhase2_MuonPath_h
+#define L1Trigger_DTTriggerPhase2_MuonPath_h
 #include <iostream>
-#include "analtypedefs.h"
 
-#include "L1Trigger/DTTriggerPhase2/interface/dtprimitive.h"
+#include "L1Trigger/DTTriggerPhase2/interface/DTprimitive.h"
 
 class MuonPath {
 public:

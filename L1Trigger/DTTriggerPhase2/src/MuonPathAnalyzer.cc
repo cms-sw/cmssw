@@ -8,7 +8,7 @@ using namespace std;
 // ============================================================================
 MuonPathAnalyzer::MuonPathAnalyzer(const ParameterSet& pset) {
   // Obtention of parameters
-  debug = pset.getUntrackedParameter<Bool_t>("debug");
+  debug = pset.getUntrackedParameter<bool>("debug");
   if (debug)
     cout << "MuonPathAnalyzer: constructor" << endl;
 }

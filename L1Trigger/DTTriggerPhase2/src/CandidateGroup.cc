@@ -4,7 +4,7 @@
 //------------------------------------------------------------------
 //--- Constructores y destructores
 //------------------------------------------------------------------
-CandidateGroup::CandidateGroup(Pattern* p) {
+CandidateGroup::CandidateGroup(DTPattern* p) {
   nhits_ = 0;
   nLayerhits_ = 0;
   nisGood_ = 0;

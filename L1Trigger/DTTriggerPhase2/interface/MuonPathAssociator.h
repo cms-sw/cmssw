@@ -20,8 +20,7 @@
 //#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
 //#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThDigi.h"
 //
-#include "L1Trigger/DTTriggerPhase2/interface/muonpath.h"
-#include "L1Trigger/DTTriggerPhase2/interface/analtypedefs.h"
+#include "L1Trigger/DTTriggerPhase2/interface/MuonPath.h"
 #include "L1Trigger/DTTriggerPhase2/interface/constants.h"
 
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
@@ -43,7 +42,7 @@ class MuonPathAssociator {
 public:
   // Constructors and destructor
   MuonPathAssociator(const edm::ParameterSet &pset);
-  virtual ~MuonPathAssociator();
+  ~MuonPathAssociator();
 
   // Main methods
   void initialise(const edm::EventSetup &iEventSetup);
@@ -79,16 +78,16 @@ private:
   bool hasPosRF(int wh, int sec) { return wh > 0 || (wh == 0 && sec % 4 > 1); }
 
   // Private attributes
-  Bool_t debug;
-  Bool_t clean_chi2_correlation;
-  Bool_t useBX_correlation;
-  Bool_t allow_confirmation;
+  bool debug;
+  bool clean_chi2_correlation;
+  bool useBX_correlation;
+  bool allow_confirmation;
   double dT0_correlate_TP;
   double dBX_correlate_TP;
   double dTanPsi_correlate_TP;
   double minx_match_2digis;
   double chi2corTh;
-  Bool_t use_LSB;
+  bool use_LSB;
   double tanPsi_precision;
   double x_precision;
 

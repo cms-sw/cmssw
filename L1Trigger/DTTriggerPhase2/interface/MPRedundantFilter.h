@@ -16,8 +16,7 @@
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 
-#include "L1Trigger/DTTriggerPhase2/interface/muonpath.h"
-#include "L1Trigger/DTTriggerPhase2/interface/analtypedefs.h"
+#include "L1Trigger/DTTriggerPhase2/interface/MuonPath.h"
 #include "L1Trigger/DTTriggerPhase2/interface/constants.h"
 #include "L1Trigger/DTTriggerPhase2/interface/MPFilter.h"
 
@@ -68,7 +67,7 @@ private:
   bool isInBuffer(MuonPath* mpath);
 
   // Private attributes
-  Bool_t debug;
+  bool debug;
   unsigned int MaxBufferSize;
   std::deque<MuonPath*> buffer;
 };

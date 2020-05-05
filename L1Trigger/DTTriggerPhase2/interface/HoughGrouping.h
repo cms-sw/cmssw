@@ -88,8 +88,8 @@
 #include "TMath.h"
 
 // Other headers
-#include "L1Trigger/DTTriggerPhase2/interface/muonpath.h"
-#include "L1Trigger/DTTriggerPhase2/interface/dtprimitive.h"
+#include "L1Trigger/DTTriggerPhase2/interface/MuonPath.h"
+#include "L1Trigger/DTTriggerPhase2/interface/DTprimitive.h"
 #include "L1Trigger/DTTriggerPhase2/interface/MotherGrouping.h"
 
 // ===============================================================================
@@ -97,7 +97,7 @@
 // ===============================================================================
 // Namespaces
 using namespace edm;
-using namespace cms;
+using namespace cmsdt;
 
 // ===============================================================================
 // Class declarations
@@ -112,7 +112,7 @@ public:
   void initialise(const edm::EventSetup& iEventSetup) override;
   void run(edm::Event& iEvent,
            const edm::EventSetup& iEventSetup,
-           DTDigiCollection digis,
+           const DTDigiCollection& digis,
            std::vector<MuonPath*>* outMpath) override;
   void finish() override;
 
@@ -129,52 +129,52 @@ private:
 
   void DoHoughTransform();
 
-  std::vector<std::pair<Double_t, Double_t>> GetMaximaVector();
-  std::vector<std::pair<Double_t, Double_t>> FindTheMaxima(
-      std::vector<std::tuple<Double_t, Double_t, UShort_t>> inputvec);
+  std::vector<std::pair<double, double>> GetMaximaVector();
+  std::vector<std::pair<double, double>> FindTheMaxima(
+      std::vector<std::tuple<double, double, unsigned short int>> inputvec);
 
-  std::pair<Double_t, Double_t> GetTwoDelta(std::tuple<Double_t, Double_t, UShort_t> pair1,
-                                            std::tuple<Double_t, Double_t, UShort_t> pair2);
-  std::pair<Double_t, Double_t> GetAveragePoint(std::vector<std::tuple<Double_t, Double_t, UShort_t>> inputvec,
-                                                UShort_t firstindex,
-                                                std::vector<UShort_t> indexlist);
-  std::pair<Double_t, Double_t> TransformPair(std::pair<Double_t, Double_t> inputpair);
+  std::pair<double, double> GetTwoDelta(std::tuple<double, double, unsigned short int> pair1,
+                                            std::tuple<double, double, unsigned short int> pair2);
+  std::pair<double, double> GetAveragePoint(std::vector<std::tuple<double, double, unsigned short int>> inputvec,
+                                                unsigned short int firstindex,
+                                                std::vector<unsigned short int> indexlist);
+  std::pair<double, double> TransformPair(std::pair<double, double> inputpair);
 
-  std::tuple<UShort_t, Bool_t*, Bool_t*, UShort_t, Double_t*, DTPrimitive*> AssociateHits(const DTChamber* thechamb,
-                                                                                          Double_t m,
-                                                                                          Double_t n);
+  std::tuple<unsigned short int, bool*, bool*, unsigned short int, double*, DTPrimitive*> AssociateHits(const DTChamber* thechamb,
+                                                                                          double m,
+                                                                                          double n);
 
-  void OrderAndFilter(std::vector<std::tuple<UShort_t, Bool_t*, Bool_t*, UShort_t, Double_t*, DTPrimitive*>>& invector,
+  void OrderAndFilter(std::vector<std::tuple<unsigned short int, bool*, bool*, unsigned short int, double*, DTPrimitive*>>& invector,
                       std::vector<MuonPath*>*& outMuonPath);
 
-  void SetDifferenceBetweenSL(std::tuple<UShort_t, Bool_t*, Bool_t*, UShort_t, Double_t*, DTPrimitive*>& tupl);
-  Bool_t AreThereEnoughHits(std::tuple<UShort_t, Bool_t*, Bool_t*, UShort_t, Double_t*, DTPrimitive*> tupl);
+  void SetDifferenceBetweenSL(std::tuple<unsigned short int, bool*, bool*, unsigned short int, double*, DTPrimitive*>& tupl);
+  bool AreThereEnoughHits(std::tuple<unsigned short int, bool*, bool*, unsigned short int, double*, DTPrimitive*> tupl);
 
   // Private attributes
-  Bool_t debug, allowUncorrelatedPatterns;
-  UShort_t minNLayerHits, minSingleSLHitsMax, minSingleSLHitsMin, minUncorrelatedHits, UpperNumber, LowerNumber;
-  Double_t angletan, anglebinwidth, posbinwidth, maxdeltaAngDeg, maxdeltaPos, MaxDistanceToWire;
+  bool debug, allowUncorrelatedPatterns;
+  unsigned short int minNLayerHits, minSingleSLHitsMax, minSingleSLHitsMin, minUncorrelatedHits, UpperNumber, LowerNumber;
+  double angletan, anglebinwidth, posbinwidth, maxdeltaAngDeg, maxdeltaPos, MaxDistanceToWire;
 
   edm::ESHandle<DTGeometry> dtGeomH;
   DTChamberId TheChambId;
 
-  Double_t maxrads, minangle, oneanglebin;
-  Double_t xlowlim, xhighlim, zlowlim, zhighlim;
-  Double_t maxdeltaAng;
+  double maxrads, minangle, oneanglebin;
+  double xlowlim, xhighlim, zlowlim, zhighlim;
+  double maxdeltaAng;
 
-  UShort_t anglebins, halfanglebins, spacebins;
-  UShort_t idigi, nhits;
-  UShort_t thestation, thesector;
-  Short_t thewheel;
+  unsigned short int anglebins, halfanglebins, spacebins;
+  unsigned short int idigi, nhits;
+  unsigned short int thestation, thesector;
+  short int thewheel;
 
-  UShort_t** linespace;
+  unsigned short int** linespace;
 
-  std::map<UShort_t, Double_t> anglemap;
-  std::map<UShort_t, Double_t> posmap;
-  std::map<UShort_t, DTPrimitive> digimap[8];
+  std::map<unsigned short int, double> anglemap;
+  std::map<unsigned short int, double> posmap;
+  std::map<unsigned short int, DTPrimitive> digimap[8];
 
-  std::vector<std::pair<Double_t, Double_t>> maxima;
-  std::vector<std::pair<Double_t, Double_t>> hitvec;
+  std::vector<std::pair<double, double>> maxima;
+  std::vector<std::pair<double, double>> hitvec;
 };
 
 #endif

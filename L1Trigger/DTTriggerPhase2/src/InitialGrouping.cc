@@ -2,20 +2,20 @@
 
 using namespace edm;
 using namespace std;
-
+using namespace cmsdt;
 // ============================================================================
 // Constructors and destructor
 // ============================================================================
 InitialGrouping::InitialGrouping(const ParameterSet &pset)
     : MotherGrouping(pset), chInDummy({DTPrimitive()}), currentBaseChannel(-1) {
   // Obtention of parameters
-  debug = pset.getUntrackedParameter<Bool_t>("debug");
+  debug = pset.getUntrackedParameter<bool>("debug");
   if (debug)
     cout << "InitialGrouping: constructor" << endl;
 
   // Initialisation of channelIn array
-  for (Int_t lay = 0; lay < NUM_LAYERS; lay++) {
-    for (Int_t ch = 0; ch < NUM_CH_PER_LAYER; ch++) {
+  for (int lay = 0; lay < NUM_LAYERS; lay++) {
+    for (int ch = 0; ch < NUM_CH_PER_LAYER; ch++) {
       channelIn[lay][ch] = {chInDummy};
       channelIn[lay][ch].clear();
     }
@@ -37,7 +37,7 @@ void InitialGrouping::initialise(const edm::EventSetup &iEventSetup) {
 
 void InitialGrouping::run(Event &iEvent,
                           const EventSetup &iEventSetup,
-                          DTDigiCollection digis,
+                          const DTDigiCollection& digis,
                           std::vector<MuonPath *> *mpaths) {
   if (debug)
     cout << "InitialGrouping: run" << endl;
@@ -66,12 +66,12 @@ void InitialGrouping::run(Event &iEvent,
   //   This function returns the analyzable mpath collection back to the the main function
   //   so it can be fitted. This is in fact doing the so-called grouping.
 
-  for (Int_t supLayer = 0; supLayer < NUM_SUPERLAYERS; supLayer++) {  // for each SL:
+  for (int supLayer = 0; supLayer < NUM_SUPERLAYERS; supLayer++) {  // for each SL:
     if (debug)
       cout << "InitialGrouping::run Reading SL" << supLayer << endl;
     setInChannels(&digis, supLayer);
 
-    for (Int_t baseCh = 0; baseCh < TOTAL_BTI; baseCh++) {
+    for (int baseCh = 0; baseCh < TOTAL_BTI; baseCh++) {
       currentBaseChannel = baseCh;
       selectInChannels(currentBaseChannel);  //map a number of wires for a given base channel
       if (notEnoughDataInChannels())
@@ -79,7 +79,7 @@ void InitialGrouping::run(Event &iEvent,
 
       if (debug)
         cout << "InitialGrouping::run --> now check pathId" << endl;
-      for (Int_t pathId = 0; pathId < 8; pathId++) {
+      for (int pathId = 0; pathId < 8; pathId++) {
         resetPrvTDCTStamp();
         mixChannels(supLayer, pathId, mpaths);
       }
@@ -92,10 +92,10 @@ void InitialGrouping::finish() { return; };
 // ============================================================================
 // Other methods
 // ============================================================================
-void InitialGrouping::setInChannels(DTDigiCollection *digis, Int_t sl) {
+void InitialGrouping::setInChannels(const DTDigiCollection *digis, int sl) {
   //   before setting channels we need to clear
-  for (Int_t lay = 0; lay < NUM_LAYERS; lay++) {
-    for (Int_t ch = 0; ch < NUM_CH_PER_LAYER; ch++) {
+  for (int lay = 0; lay < NUM_LAYERS; lay++) {
+    for (int ch = 0; ch < NUM_CH_PER_LAYER; ch++) {
       //       if (debug) cout << "DTp2::setInChannels --> emptying L" << lay << " Ch" << ch  << " with content " << channelIn[lay][ch].size() << endl;
       channelIn[lay][ch].clear();
     }
@@ -112,10 +112,10 @@ void InitialGrouping::setInChannels(DTDigiCollection *digis, Int_t sl) {
     for (DTDigiCollection::const_iterator digiIt = ((*dtLayerId_It).second).first;
          digiIt != ((*dtLayerId_It).second).second;
          ++digiIt) {
-      Int_t layer = dtLId.layer() - 1;
-      Int_t wire = (*digiIt).wire() - 1;
-      Int_t digiTIME = (*digiIt).time();
-      Int_t digiTIMEPhase2 = digiTIME;
+      int layer = dtLId.layer() - 1;
+      int wire = (*digiIt).wire() - 1;
+      int digiTIME = (*digiIt).time();
+      int digiTIMEPhase2 = digiTIME;
 
       // if (debug) cout << "DTp2::setInChannels --> reading digis in L"<<layer << " Ch" << wire << endl;
 
@@ -130,7 +130,7 @@ void InitialGrouping::setInChannels(DTDigiCollection *digis, Int_t sl) {
   }
 }
 
-void InitialGrouping::selectInChannels(Int_t baseChannel) {
+void InitialGrouping::selectInChannels(int baseChannel) {
   // Channels are labeled following next schema:
   // Input Muxer Indexes
   // ---------------------------------
@@ -188,9 +188,9 @@ void InitialGrouping::selectInChannels(Int_t baseChannel) {
     muxInChannels[9] = chInDummy;
 }
 
-Bool_t InitialGrouping::notEnoughDataInChannels(void) {
+bool InitialGrouping::notEnoughDataInChannels(void) {
   // Empty layer indicators
-  Bool_t lEmpty[4];
+  bool lEmpty[4];
 
   lEmpty[0] = muxInChannels[0].empty();
 
@@ -218,13 +218,13 @@ void InitialGrouping::resetPrvTDCTStamp(void) {
     prevTDCTimeStamps[i] = -1;
 }
 
-Bool_t InitialGrouping::isEqualComb2Previous(DTPrimitive *dtPrims[4]) {
-  Bool_t answer = true;
+bool InitialGrouping::isEqualComb2Previous(DTPrimitive *dtPrims[4]) {
+  bool answer = true;
 
-  for (Int_t i = 0; i <= 3; i++) {
+  for (int i = 0; i <= 3; i++) {
     if (prevTDCTimeStamps[i] != dtPrims[i]->tdcTimeStamp()) {
       answer = false;
-      for (Int_t j = 0; j <= 3; j++) {
+      for (int j = 0; j <= 3; j++) {
         prevTDCTimeStamps[j] = dtPrims[j]->tdcTimeStamp();
       }
       break;
@@ -233,22 +233,22 @@ Bool_t InitialGrouping::isEqualComb2Previous(DTPrimitive *dtPrims[4]) {
   return answer;
 }
 
-void InitialGrouping::mixChannels(Int_t supLayer, Int_t pathId, std::vector<MuonPath *> *outMuonPath) {
+void InitialGrouping::mixChannels(int supLayer, int pathId, std::vector<MuonPath *> *outMuonPath) {
   //  if (debug) cout << "DTp2::mixChannels("<<supLayer<<","<<pathId<<")" << endl;
   //    std::vector<DTPrimitive*> data[4];
   std::vector<DTPrimitive> data[4];
 
-  Int_t horizLayout[4];
-  memcpy(horizLayout, CELL_HORIZONTAL_LAYOUTS[pathId], 4 * sizeof(Int_t));
+  int horizLayout[4];
+  memcpy(horizLayout, CELL_HORIZONTAL_LAYOUTS[pathId], 4 * sizeof(int));
 
-  Int_t chIdxForPath[4];
-  memcpy(chIdxForPath, CHANNELS_PATH_ARRANGEMENTS[pathId], 4 * sizeof(Int_t));
+  int chIdxForPath[4];
+  memcpy(chIdxForPath, CHANNELS_PATH_ARRANGEMENTS[pathId], 4 * sizeof(int));
 
   // Real amount of values extracted from each channel.
-  Int_t numPrimsPerLayer[4] = {0, 0, 0, 0};
-  UInt_t canal;
-  Int_t channelEmptyCnt = 0;
-  for (Int_t layer = 0; layer <= 3; layer++) {
+  int numPrimsPerLayer[4] = {0, 0, 0, 0};
+  unsigned int canal;
+  int channelEmptyCnt = 0;
+  for (int layer = 0; layer <= 3; layer++) {
     canal = CHANNELS_PATH_ARRANGEMENTS[pathId][layer];
     if (muxInChannels[canal].empty())
       channelEmptyCnt++;
@@ -261,9 +261,9 @@ void InitialGrouping::mixChannels(Int_t supLayer, Int_t pathId, std::vector<Muon
   //if (debug) cout << "DTp2::mixChannels --> no more than two empty channels" << endl;
 
   // We extract the number of elements necesary from each channel as the combination requires
-  for (Int_t layer = 0; layer <= 3; layer++) {
+  for (int layer = 0; layer <= 3; layer++) {
     canal = CHANNELS_PATH_ARRANGEMENTS[pathId][layer];
-    UInt_t maxPrimsToBeRetrieved = muxInChannels[canal].size();
+    unsigned int maxPrimsToBeRetrieved = muxInChannels[canal].size();
     //    if (debug) cout << "DTp2::mixChannels --> maxPrimsToBeRetrieved " <<maxPrimsToBeRetrieved << endl;
     /*
     If the number of primitives is zero, in order to avoid that only one
@@ -277,7 +277,7 @@ void InitialGrouping::mixChannels(Int_t supLayer, Int_t pathId, std::vector<Muon
     if (maxPrimsToBeRetrieved == 0)
       maxPrimsToBeRetrieved = 1;
 
-    for (UInt_t items = 0; items < maxPrimsToBeRetrieved; items++) {
+    for (unsigned int items = 0; items < maxPrimsToBeRetrieved; items++) {
       //RMPTR DTPrimitive *dtpAux = new DTPrimitive();
       DTPrimitive dtpAux = DTPrimitive();
       if (muxInChannels[canal].size() != 0) {
@@ -316,7 +316,7 @@ void InitialGrouping::mixChannels(Int_t supLayer, Int_t pathId, std::vector<Muon
 
   DTPrimitive *ptrPrimitive[4];
   // Here we do the different combinations and send them to the output FIFO.
-  Int_t chIdx[4];
+  int chIdx[4];
   //  if (debug) cout << "DTp2::mixChannels --> doing combinations with "
   //		     <<  numPrimsPerLayer[0] << " , "
   //		     <<  numPrimsPerLayer[1] << " , "
@@ -330,7 +330,7 @@ void InitialGrouping::mixChannels(Int_t supLayer, Int_t pathId, std::vector<Muon
           // in each thread of the process independently, allowing us also to
           // delete them whenever it is necessary, without relying upon a
           // unique reference all over the code.
-          for (Int_t i = 0; i <= 3; i++) {
+          for (int i = 0; i <= 3; i++) {
             ptrPrimitive[i] = new DTPrimitive((data[i])[chIdx[i]]);
           }
 
@@ -373,10 +373,10 @@ void InitialGrouping::mixChannels(Int_t supLayer, Int_t pathId, std::vector<Muon
       }
     }
   }
-  for (Int_t layer = 0; layer <= 3; layer++) {
+  for (int layer = 0; layer <= 3; layer++) {
     //uncomenting this causes a seg fault
-    //RMPTR      Int_t numData = data[layer].size();
-    //RMPTR      for (Int_t i = 0; i < numData; i++) {
+    //RMPTR      int numData = data[layer].size();
+    //RMPTR      for (int i = 0; i < numData; i++) {
     //RMPTR	data[layer][i] = (DTPrimitive*) (NULL);
     //RMPTR	delete data[layer][i];
     //RMPTR      }

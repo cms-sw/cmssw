@@ -16,8 +16,7 @@
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 
-#include "L1Trigger/DTTriggerPhase2/interface/muonpath.h"
-#include "L1Trigger/DTTriggerPhase2/interface/analtypedefs.h"
+#include "L1Trigger/DTTriggerPhase2/interface/MuonPath.h"
 #include "L1Trigger/DTTriggerPhase2/interface/constants.h"
 
 #include "L1Trigger/DTTriggerPhase2/interface/MotherGrouping.h"
@@ -55,12 +54,12 @@
 */
 
 /* Cell's combination, following previous labeling, to obtain every possible  muon's path. Others cells combinations imply non straight paths */
-const Int_t CHANNELS_PATH_ARRANGEMENTS[8][4] = {
+constexpr int CHANNELS_PATH_ARRANGEMENTS[8][4] = {
     {0, 1, 3, 6}, {0, 1, 3, 7}, {0, 1, 4, 7}, {0, 1, 4, 8}, {0, 2, 4, 7}, {0, 2, 4, 8}, {0, 2, 5, 8}, {0, 2, 5, 9}};
 
 /* For each of the previous cell's combinations, this array stores the associated cell's displacement, relative to lower layer cell, measured in semi-cell length units */
 
-const Int_t CELL_HORIZONTAL_LAYOUTS[8][4] = {{0, -1, -2, -3},
+constexpr int CELL_HORIZONTAL_LAYOUTS[8][4] = {{0, -1, -2, -3},
                                              {0, -1, -2, -1},
                                              {0, -1, 0, -1},
                                              {0, -1, 0, 1},
@@ -87,7 +86,7 @@ public:
   void initialise(const edm::EventSetup& iEventSetup) override;
   void run(edm::Event& iEvent,
            const edm::EventSetup& iEventSetup,
-           DTDigiCollection digis,
+           const DTDigiCollection& digis,
            std::vector<MuonPath*>* outMpath) override;
   void finish() override;
 
@@ -97,23 +96,23 @@ public:
 
 private:
   // Private methods
-  void setInChannels(DTDigiCollection* digi, Int_t sl);
-  void selectInChannels(Int_t baseCh);
+  void setInChannels(const DTDigiCollection* digi, int sl);
+  void selectInChannels(int baseCh);
   void resetPrvTDCTStamp(void);
-  void mixChannels(Int_t sl, Int_t pathId, std::vector<MuonPath*>* outMpath);
-  Bool_t notEnoughDataInChannels(void);
-  Bool_t isEqualComb2Previous(DTPrimitive* ptr[4]);
+  void mixChannels(int sl, int pathId, std::vector<MuonPath*>* outMpath);
+  bool notEnoughDataInChannels(void);
+  bool isEqualComb2Previous(DTPrimitive* ptr[4]);
 
   // Private attributes
-  Bool_t debug;
+  bool debug;
   std::string ttrig_filename;
-  std::map<Int_t, Float_t> ttriginfo;
+  std::map<int, float> ttriginfo;
 
   std::vector<DTPrimitive> muxInChannels[NUM_CELLS_PER_BLOCK];
   std::vector<DTPrimitive> channelIn[NUM_LAYERS][NUM_CH_PER_LAYER];
   std::vector<DTPrimitive> chInDummy;
-  Int_t prevTDCTimeStamps[4];
-  Int_t currentBaseChannel;
+  int prevTDCTimeStamps[4];
+  int currentBaseChannel;
 };
 
 #endif

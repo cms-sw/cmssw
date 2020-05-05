@@ -32,6 +32,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+
 #include "CalibMuon/DTDigiSync/interface/DTTTrigSyncFactory.h"
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
@@ -58,26 +59,21 @@ public:
   explicit CalibratedDigis(const edm::ParameterSet&);
   ~CalibratedDigis();
 
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-
+ 
 private:
   int timeOffset_;
   int flat_calib_;
   int scenario;
 
-  virtual void beginStream(edm::StreamID) override;
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endStream() override;
 
   std::unique_ptr<DTTTrigBaseSync> theSync;
-
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
   //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
   // ----------member data ---------------------------
   edm::EDGetTokenT<DTDigiCollection> dtDigisToken;
+  //  edm::ESGetToken<DTDigiCollection> dtDigisToken;
   edm::Handle<DTDigiCollection> DTDigiHandle;
   edm::ESHandle<DTGeometry> DTGeometryHandle;
   edm::InputTag dtDigiTag;
@@ -106,7 +102,6 @@ CalibratedDigis::CalibratedDigis(const edm::ParameterSet& iConfig) {
    produces<ExampleData2,InRun>();
 */
   dtDigiTag = iConfig.getParameter<InputTag>("dtDigiTag");
-  std::cout << "dtDigiTag found:" << dtDigiTag << std::endl;
   dtDigisToken = consumes<DTDigiCollection>(dtDigiTag);
 
   theSync = DTTTrigSyncFactory::get()->create(iConfig.getParameter<string>("tTrigMode"),
@@ -132,12 +127,12 @@ CalibratedDigis::~CalibratedDigis() {
 
 // ------------ method called to produce the data  ------------
 void CalibratedDigis::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  //std::cout<<"Step0"<<std::endl;std::cout.flush();
+  //  auto cc = setWhatProduced(this);
+  
   using namespace edm;
-  theSync->setES(iSetup);
-  //edm::Handle< DTDigiCollection > DTDigiHandle;
-
+  theSync->setES(iSetup);  
   iEvent.getByToken(dtDigisToken, DTDigiHandle);
+
   ESHandle<DTGeometry> dtGeom;
   iSetup.get<MuonGeometryRecord>().get(dtGeom);
   DTDigiCollection mydigis;
@@ -173,17 +168,13 @@ void CalibratedDigis::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 // ------------ method called once each stream before processing any runs, lumis or events  ------------
-void CalibratedDigis::beginStream(edm::StreamID) {}
 
 // ------------ method called once each stream after processing all runs, lumis and events  ------------
-void CalibratedDigis::endStream() {}
 
 // ------------ method called when starting to processes a run  ------------
-void CalibratedDigis::beginRun(edm::Run const&, edm::EventSetup const&) {}
 
 // ------------ method called when ending the processing of a run  ------------
 
-void CalibratedDigis::endRun(edm::Run const&, edm::EventSetup const&) {}
 
 // ------------ method called when starting to processes a luminosity block  ------------
 /*
@@ -202,13 +193,6 @@ CalibratedDigis::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup
 */
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void CalibratedDigis::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
-  edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
-}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(CalibratedDigis);

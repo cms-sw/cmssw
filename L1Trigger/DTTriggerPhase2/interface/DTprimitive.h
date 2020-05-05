@@ -1,19 +1,9 @@
-#ifndef L1Trigger_DTTriggerPhase2_dtprimitive_h
-#define L1Trigger_DTTriggerPhase2_dtprimitive_h
-/*
- * Bit mask to get BX counter part from TDC Time-Stamp
- * It's assumend that TDC value is 32 bits in length, and comprises two parts:
- *    Coarse counter -> bits [31:5]
- *    Fine part      -> bits [4:0]
- *
- * Coarse part is reseted periodically with BX Reset signal, so it represents
- * BX counter value.
- */
-#define TDC_TIME_COARSE_MASK 0xFFFFFFE0
-#define TDC_TIME_FINE_MASK 0x1F
+#ifndef L1Trigger_DTTriggerPhase2_DTprimitive_h
+#define L1Trigger_DTTriggerPhase2_DTprimitive_h
 
-#include "constants.h"
-#include "analtypedefs.h"
+#include "L1Trigger/DTTriggerPhase2/interface/constants.h"
+
+using namespace cmsdt;
 
 class DTPrimitive {
 public:

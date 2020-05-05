@@ -8,7 +8,7 @@ using namespace std;
 // ============================================================================
 MPQualityEnhancerFilter::MPQualityEnhancerFilter(const ParameterSet &pset) : MPFilter(pset) {
   // Obtention of parameters
-  debug = pset.getUntrackedParameter<Bool_t>("debug");
+  debug = pset.getUntrackedParameter<bool>("debug");
   filter_cousins = pset.getUntrackedParameter<bool>("filter_cousins");
   if (debug)
     cout << "MPQualityEnhancerFilter: constructor" << endl;

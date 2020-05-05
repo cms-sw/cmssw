@@ -8,7 +8,7 @@ using namespace std;
 // ============================================================================
 MPRedundantFilter::MPRedundantFilter(const ParameterSet& pset) : MPFilter(pset), MaxBufferSize(8) {
   // Obtention of parameters
-  debug = pset.getUntrackedParameter<Bool_t>("debug");
+  debug = pset.getUntrackedParameter<bool>("debug");
   if (debug)
     cout << "MPRedundantFilter: constructor" << endl;
 }

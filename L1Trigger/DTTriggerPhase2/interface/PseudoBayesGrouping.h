@@ -20,8 +20,7 @@
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThDigi.h"
 
-#include "L1Trigger/DTTriggerPhase2/interface/muonpath.h"
-#include "L1Trigger/DTTriggerPhase2/interface/analtypedefs.h"
+#include "L1Trigger/DTTriggerPhase2/interface/MuonPath.h"
 #include "L1Trigger/DTTriggerPhase2/interface/constants.h"
 
 #include "L1Trigger/DTTriggerPhase2/interface/MotherGrouping.h"
@@ -42,12 +41,11 @@
 #include <iostream>
 #include <fstream>
 
-#include "L1Trigger/DTTriggerPhase2/interface/Pattern.h"
+#include "L1Trigger/DTTriggerPhase2/interface/DTPattern.h"
 #include "L1Trigger/DTTriggerPhase2/interface/CandidateGroup.h"
 #include "TFile.h"
 #include "TString.h"
 
-#include "L1Trigger/DTTriggerPhase2/interface/analtypedefs.h"
 
 // ===============================================================================
 // Class declarations
@@ -63,7 +61,7 @@ public:
   void initialise(const edm::EventSetup& iEventSetup) override;
   void run(edm::Event& iEvent,
            const edm::EventSetup& iEventSetup,
-           DTDigiCollection digis,
+           const DTDigiCollection& digis,
            std::vector<MuonPath*>* outMpath) override;
   void finish() override;
 
@@ -74,12 +72,12 @@ public:
 private:
   // Private methods
   void LoadPattern(std::vector<std::vector<std::vector<int> > >::iterator itPattern);
-  void FillDigisByLayer(DTDigiCollection* digis);
+  void FillDigisByLayer(const DTDigiCollection* digis);
   void CleanDigisByLayer();
   void RecognisePatternsByLayerPairs();
   void RecognisePatterns(std::vector<DTPrimitive> digisinLDown,
                          std::vector<DTPrimitive> digisinLUp,
-                         std::vector<Pattern*> patterns);
+                         std::vector<DTPattern*> patterns);
   void ReCleanPatternsAndDigis();
   void FillMuonPaths(std::vector<MuonPath*>* mpaths);
 
@@ -90,7 +88,7 @@ private:
 
   // Private attributes
   // Config variables
-  Bool_t debug;
+  bool debug;
   std::string pattern_filename;
   int pidx;
   int minNLayerHits;
@@ -122,42 +120,42 @@ private:
 
   //Pattern related info
   int nPatterns;
-  std::vector<Pattern*> allPatterns;
+  std::vector<DTPattern*> allPatterns;
 
-  std::vector<Pattern*> L0L7Patterns;
-  std::vector<Pattern*> L1L7Patterns;
-  std::vector<Pattern*> L2L7Patterns;
-  std::vector<Pattern*> L3L7Patterns;
-  std::vector<Pattern*> L4L7Patterns;
-  std::vector<Pattern*> L5L7Patterns;
-  std::vector<Pattern*> L6L7Patterns;
+  std::vector<DTPattern*> L0L7Patterns;
+  std::vector<DTPattern*> L1L7Patterns;
+  std::vector<DTPattern*> L2L7Patterns;
+  std::vector<DTPattern*> L3L7Patterns;
+  std::vector<DTPattern*> L4L7Patterns;
+  std::vector<DTPattern*> L5L7Patterns;
+  std::vector<DTPattern*> L6L7Patterns;
 
-  std::vector<Pattern*> L0L6Patterns;
-  std::vector<Pattern*> L1L6Patterns;
-  std::vector<Pattern*> L2L6Patterns;
-  std::vector<Pattern*> L3L6Patterns;
-  std::vector<Pattern*> L4L6Patterns;
-  std::vector<Pattern*> L5L6Patterns;
+  std::vector<DTPattern*> L0L6Patterns;
+  std::vector<DTPattern*> L1L6Patterns;
+  std::vector<DTPattern*> L2L6Patterns;
+  std::vector<DTPattern*> L3L6Patterns;
+  std::vector<DTPattern*> L4L6Patterns;
+  std::vector<DTPattern*> L5L6Patterns;
 
-  std::vector<Pattern*> L0L5Patterns;
-  std::vector<Pattern*> L1L5Patterns;
-  std::vector<Pattern*> L2L5Patterns;
-  std::vector<Pattern*> L3L5Patterns;
-  std::vector<Pattern*> L4L5Patterns;
+  std::vector<DTPattern*> L0L5Patterns;
+  std::vector<DTPattern*> L1L5Patterns;
+  std::vector<DTPattern*> L2L5Patterns;
+  std::vector<DTPattern*> L3L5Patterns;
+  std::vector<DTPattern*> L4L5Patterns;
 
-  std::vector<Pattern*> L0L4Patterns;
-  std::vector<Pattern*> L1L4Patterns;
-  std::vector<Pattern*> L2L4Patterns;
-  std::vector<Pattern*> L3L4Patterns;
+  std::vector<DTPattern*> L0L4Patterns;
+  std::vector<DTPattern*> L1L4Patterns;
+  std::vector<DTPattern*> L2L4Patterns;
+  std::vector<DTPattern*> L3L4Patterns;
 
-  std::vector<Pattern*> L0L3Patterns;
-  std::vector<Pattern*> L1L3Patterns;
-  std::vector<Pattern*> L2L3Patterns;
+  std::vector<DTPattern*> L0L3Patterns;
+  std::vector<DTPattern*> L1L3Patterns;
+  std::vector<DTPattern*> L2L3Patterns;
 
-  std::vector<Pattern*> L0L2Patterns;
-  std::vector<Pattern*> L1L2Patterns;
+  std::vector<DTPattern*> L0L2Patterns;
+  std::vector<DTPattern*> L1L2Patterns;
 
-  std::vector<Pattern*> L0L1Patterns;
+  std::vector<DTPattern*> L0L1Patterns;
 
   CandidateGroup* cand;
 };

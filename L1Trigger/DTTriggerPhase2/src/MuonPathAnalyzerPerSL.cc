@@ -3,7 +3,7 @@
 
 using namespace edm;
 using namespace std;
-
+using namespace cmsdt;
 // ============================================================================
 // Constructors and destructor
 // ============================================================================
@@ -12,10 +12,10 @@ MuonPathAnalyzerPerSL::MuonPathAnalyzerPerSL(const ParameterSet &pset)
       bxTolerance_(30),
       minQuality_(LOWQGHOST),
       chiSquareThreshold_(50),
-      debug_(pset.getUntrackedParameter<Bool_t>("debug")),
+      debug_(pset.getUntrackedParameter<bool>("debug")),
       chi2Th_(pset.getUntrackedParameter<double>("chi2Th")),
       tanPhiTh_(pset.getUntrackedParameter<double>("tanPhiTh")),
-      use_LSB_(pset.getUntrackedParameter<Bool_t>("use_LSB")),
+      use_LSB_(pset.getUntrackedParameter<bool>("use_LSB")),
       tanPsi_precision_(pset.getUntrackedParameter<double>("tanPsi_precision")),
       x_precision_(pset.getUntrackedParameter<double>("x_precision")) {
   if (debug_)

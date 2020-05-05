@@ -8,17 +8,17 @@ using namespace std;
 // ============================================================================
 PseudoBayesGrouping::PseudoBayesGrouping(const ParameterSet& pset) : MotherGrouping(pset) {
   // Obtention of parameters
-  debug = pset.getUntrackedParameter<Bool_t>("debug");
+  debug = pset.getUntrackedParameter<bool>("debug");
   pattern_filename = pset.getUntrackedParameter<edm::FileInPath>("pattern_filename").fullPath();
-  minNLayerHits = pset.getUntrackedParameter<Int_t>("minNLayerHits");
-  minSingleSLHitsMax = pset.getUntrackedParameter<Int_t>("minSingleSLHitsMax");
-  minSingleSLHitsMin = pset.getUntrackedParameter<Int_t>("minSingleSLHitsMin");
-  allowedVariance = pset.getUntrackedParameter<Int_t>("allowedVariance");
-  allowDuplicates = pset.getUntrackedParameter<Bool_t>("allowDuplicates");
-  allowUncorrelatedPatterns = pset.getUntrackedParameter<Bool_t>("allowUncorrelatedPatterns");
-  minUncorrelatedHits = pset.getUntrackedParameter<Int_t>("minUncorrelatedHits");
-  saveOnPlace = pset.getUntrackedParameter<Bool_t>("saveOnPlace");
-  setLateralities = pset.getUntrackedParameter<Bool_t>("setLateralities");
+  minNLayerHits = pset.getUntrackedParameter<int>("minNLayerHits");
+  minSingleSLHitsMax = pset.getUntrackedParameter<int>("minSingleSLHitsMax");
+  minSingleSLHitsMin = pset.getUntrackedParameter<int>("minSingleSLHitsMin");
+  allowedVariance = pset.getUntrackedParameter<int>("allowedVariance");
+  allowDuplicates = pset.getUntrackedParameter<bool>("allowDuplicates");
+  allowUncorrelatedPatterns = pset.getUntrackedParameter<bool>("allowUncorrelatedPatterns");
+  minUncorrelatedHits = pset.getUntrackedParameter<int>("minUncorrelatedHits");
+  saveOnPlace = pset.getUntrackedParameter<bool>("saveOnPlace");
+  setLateralities = pset.getUntrackedParameter<bool>("setLateralities");
   if (debug)
     cout << "PseudoBayesGrouping:: constructor" << endl;
 }
@@ -29,7 +29,7 @@ PseudoBayesGrouping::~PseudoBayesGrouping() {
   delete prelimMatches;
   delete allMatches;
   delete finalMatches;
-  for (std::vector<Pattern*>::iterator pat_it = allPatterns.begin(); pat_it != allPatterns.end(); pat_it++) {
+  for (std::vector<DTPattern*>::iterator pat_it = allPatterns.begin(); pat_it != allPatterns.end(); pat_it++) {
     delete (*pat_it);
   }
 }
@@ -66,11 +66,11 @@ void PseudoBayesGrouping::LoadPattern(std::vector<std::vector<std::vector<int>>>
   if (debug)
     cout << "PseudoBayesGrouping::LoadPattern Loading patterns seeded by: " << itPattern->at(0).at(0) << ", "
          << itPattern->at(0).at(1) << ", " << itPattern->at(0).at(2) << ", " << endl;
-  Pattern* p;
+  DTPattern* p;
   for (std::vector<std::vector<int>>::iterator itHits = itPattern->begin(); itHits != itPattern->end(); ++itHits) {
     //First entry is the seeding information
     if (itHits == itPattern->begin()) {
-      p = new Pattern(itHits->at(0), itHits->at(1), itHits->at(2));
+      p = new DTPattern(itHits->at(0), itHits->at(1), itHits->at(2));
     }
     //Other entries are the hits information
     else {
@@ -164,7 +164,7 @@ void PseudoBayesGrouping::LoadPattern(std::vector<std::vector<std::vector<int>>>
 
 void PseudoBayesGrouping::run(Event& iEvent,
                               const EventSetup& iEventSetup,
-                              DTDigiCollection digis,
+                              const DTDigiCollection& digis,
                               std::vector<MuonPath*>* mpaths) {
   //Takes dt digis collection and does the grouping for correlated hits, it is saved in a vector of up to 8 (or 4) correlated hits
   if (debug)
@@ -298,16 +298,16 @@ void PseudoBayesGrouping::RecognisePatternsByLayerPairs() {
 
 void PseudoBayesGrouping::RecognisePatterns(std::vector<DTPrimitive> digisinLDown,
                                             std::vector<DTPrimitive> digisinLUp,
-                                            std::vector<Pattern*> patterns) {
+                                            std::vector<DTPattern*> patterns) {
   //Loop over all hits and search for matching patterns (there will be four amongst ~60, accounting for possible lateralities)
-  for (std::vector<DTPrimitive>::iterator dtPD_it = digisinLDown.begin(); dtPD_it != digisinLDown.end(); dtPD_it++) {
+  for (auto dtPD_it = digisinLDown.begin(); dtPD_it != digisinLDown.end(); dtPD_it++) {
     int LDown = dtPD_it->layerId();
     int wireDown = dtPD_it->channelId();
-    for (std::vector<DTPrimitive>::iterator dtPU_it = digisinLUp.begin(); dtPU_it != digisinLUp.end(); dtPU_it++) {
+    for (auto dtPU_it = digisinLUp.begin(); dtPU_it != digisinLUp.end(); dtPU_it++) {
       int LUp = dtPU_it->layerId();
       int wireUp = dtPU_it->channelId();
       int diff = wireUp - wireDown;
-      for (std::vector<Pattern*>::iterator pat_it = patterns.begin(); pat_it != patterns.end(); pat_it++) {
+      for (auto pat_it = patterns.begin(); pat_it != patterns.end(); pat_it++) {
         //For each pair of hits in the layers search for the seeded patterns
         if ((*pat_it)->SL1() != (LDown) || (*pat_it)->SL2() != (LUp) || (*pat_it)->Diff() != diff)
           continue;
@@ -316,7 +316,7 @@ void PseudoBayesGrouping::RecognisePatterns(std::vector<DTPrimitive> digisinLDow
         //if (debug) cout << *(*pat_it) << endl;
         (*pat_it)->setHitDown(wireDown);
         cand = new CandidateGroup(*pat_it);
-        for (std::vector<DTPrimitive>::iterator dtTest_it = alldigis.begin(); dtTest_it != alldigis.end();
+        for (auto dtTest_it = alldigis.begin(); dtTest_it != alldigis.end();
              dtTest_it++) {
           //Find hits matching to the pattern
           //if (debug) cout << "Hit in " << dtTest_it->layerId() << " , " << dtTest_it->channelId();
@@ -350,19 +350,19 @@ void PseudoBayesGrouping::RecognisePatterns(std::vector<DTPrimitive> digisinLDow
   }
 }
 
-void PseudoBayesGrouping::FillDigisByLayer(DTDigiCollection* digis) {
+void PseudoBayesGrouping::FillDigisByLayer(const DTDigiCollection* digis) {
   //First we need to have separated lists of digis by layer
   if (debug)
     cout << "PseudoBayesGrouping::FillDigisByLayer Classifying digis by layer" << endl;
-  for (DTDigiCollection::DigiRangeIterator dtDigi_It = digis->begin(); dtDigi_It != digis->end(); dtDigi_It++) {
+  for (auto dtDigi_It = digis->begin(); dtDigi_It != digis->end(); dtDigi_It++) {
     const DTLayerId dtLId = (*dtDigi_It).first;
     //Skip digis in SL theta which we are not interested on for the grouping
-    for (DTDigiCollection::const_iterator digiIt = ((*dtDigi_It).second).first; digiIt != ((*dtDigi_It).second).second;
+    for (auto digiIt = ((*dtDigi_It).second).first; digiIt != ((*dtDigi_It).second).second;
          digiIt++) {
       //Need to change notation slightly here
       if (dtLId.superlayer() == 2)
         continue;
-      Int_t layer = dtLId.layer() - 1;
+      int layer = dtLId.layer() - 1;
       if (dtLId.superlayer() == 3)
         layer += 4;
       //Use the same format as for InitialGrouping to avoid tons of replicating classes, we will have some not used variables

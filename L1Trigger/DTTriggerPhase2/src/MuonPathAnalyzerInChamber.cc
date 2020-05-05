@@ -9,7 +9,7 @@ using namespace std;
 // ============================================================================
 MuonPathAnalyzerInChamber::MuonPathAnalyzerInChamber(const ParameterSet &pset)
     : MuonPathAnalyzer(pset),
-      debug_(pset.getUntrackedParameter<Bool_t>("debug")),
+      debug_(pset.getUntrackedParameter<bool>("debug")),
       chi2Th_(pset.getUntrackedParameter<double>("chi2Th")),
       z_filename_(pset.getParameter<edm::FileInPath>("z_filename")),
       shift_filename_(pset.getParameter<edm::FileInPath>("shift_filename")),

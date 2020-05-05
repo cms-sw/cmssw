@@ -14,12 +14,7 @@
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 
-#include "TFile.h"
-#include "TH1F.h"
-#include "TH2F.h"
-
-#include "L1Trigger/DTTriggerPhase2/interface/muonpath.h"
-#include "L1Trigger/DTTriggerPhase2/interface/analtypedefs.h"
+#include "L1Trigger/DTTriggerPhase2/interface/MuonPath.h"
 #include "L1Trigger/DTTriggerPhase2/interface/constants.h"
 
 #include "L1Trigger/DTTriggerPhase2/interface/MotherGrouping.h"
@@ -134,7 +129,7 @@ private:
   edm::EDGetTokenT<RPCRecHitCollection> rpcRecHitsLabel_;
 
   // Grouping attributes and methods
-  Int_t grcode_;  // Grouping code
+  int grcode_;  // Grouping code
   MotherGrouping* grouping_obj_;
   MuonPathAnalyzer* mpathanalyzer_;
   MPFilter* mpathqualityenhancer_;
@@ -142,9 +137,9 @@ private:
   MuonPathAssociator* mpathassociator_;
 
   // Buffering
-  Bool_t activateBuffer_;
-  Int_t superCellhalfspacewidth_;
-  Float_t superCelltimewidth_;
+  bool activateBuffer_;
+  int superCellhalfspacewidth_;
+  float superCelltimewidth_;
   std::vector<DTDigiCollection*> distribDigis(std::queue<std::pair<DTLayerId*, DTDigi*>>& inQ);
   void processDigi(std::queue<std::pair<DTLayerId*, DTDigi*>>& inQ,
                    std::vector<std::queue<std::pair<DTLayerId*, DTDigi*>>*>& vec);

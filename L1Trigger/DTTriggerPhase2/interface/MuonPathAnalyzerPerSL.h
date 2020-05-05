@@ -16,8 +16,7 @@
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 
-#include "L1Trigger/DTTriggerPhase2/interface/muonpath.h"
-#include "L1Trigger/DTTriggerPhase2/interface/analtypedefs.h"
+#include "L1Trigger/DTTriggerPhase2/interface/MuonPath.h"
 #include "L1Trigger/DTTriggerPhase2/interface/constants.h"
 #include "L1Trigger/DTTriggerPhase2/interface/MuonPathAnalyzer.h"
 
@@ -158,12 +157,12 @@ private:
   int bxTolerance_;
   MP_QUALITY minQuality_;
   float chiSquareThreshold_;
-  Bool_t debug_;
+  bool debug_;
   double chi2Th_;
   double chi2corTh_;
   double tanPhiTh_;
   int cellLayout_[4];
-  Bool_t use_LSB_;
+  bool use_LSB_;
   double tanPsi_precision_;
   double x_precision_;
 };

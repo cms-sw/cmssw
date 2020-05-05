@@ -9,7 +9,7 @@ typedef vector<DTSectCollThSegm> SectCollThetaColl;
 typedef SectCollThetaColl::const_iterator SectCollThetaColl_iterator;
 
 struct {
-  Bool_t operator()(std::pair<DTLayerId*, DTDigi*> a, std::pair<DTLayerId*, DTDigi*> b) const {
+  bool operator()(std::pair<DTLayerId*, DTDigi*> a, std::pair<DTLayerId*, DTDigi*> b) const {
     return (a.second->time() < b.second->time());
   }
 } DigiTimeOrdering;
@@ -87,9 +87,9 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset) {
   }
 
   // Getting buffer option
-  activateBuffer_ = pset.getUntrackedParameter<Bool_t>("activateBuffer");
-  superCellhalfspacewidth_ = pset.getUntrackedParameter<Int_t>("superCellspacewidth") / 2;
-  superCelltimewidth_ = pset.getUntrackedParameter<Double_t>("superCelltimewidth");
+  activateBuffer_ = pset.getUntrackedParameter<bool>("activateBuffer");
+  superCellhalfspacewidth_ = pset.getUntrackedParameter<int>("superCellspacewidth") / 2;
+  superCelltimewidth_ = pset.getUntrackedParameter<double>("superCelltimewidth");
 
   mpathqualityenhancer_ = new MPQualityEnhancerFilter(pset);
   mpathredundantfilter_ = new MPRedundantFilter(pset);
@@ -631,7 +631,7 @@ std::vector<DTDigiCollection*> DTTrigPhase2Prod::distribDigis(std::queue<std::pa
 
 void DTTrigPhase2Prod::processDigi(std::queue<std::pair<DTLayerId*, DTDigi*>>& inQ,
                                    std::vector<std::queue<std::pair<DTLayerId*, DTDigi*>>*>& vec) {
-  Bool_t classified = false;
+  bool classified = false;
   if (vec.size() != 0) {
     for (auto& sC : vec) {  // Conditions for entering a super cell.
       if ((sC->front().second->time() + superCelltimewidth_) > inQ.front().second->time()) {  // Time requirement
@@ -658,3 +658,5 @@ void DTTrigPhase2Prod::processDigi(std::queue<std::pair<DTLayerId*, DTDigi*>>& i
   vec.push_back(std::move(newQueue));
   return;
 }
+
+DEFINE_FWK_MODULE(DTTrigPhase2Prod);

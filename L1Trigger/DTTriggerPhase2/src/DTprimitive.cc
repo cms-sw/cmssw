@@ -1,4 +1,4 @@
-#include "L1Trigger/DTTriggerPhase2/interface/dtprimitive.h"
+#include "L1Trigger/DTTriggerPhase2/interface/DTprimitive.h"
 #include "L1Trigger/DTTriggerPhase2/interface/constants.h"
 #include <iostream>
 

@@ -10,13 +10,13 @@ using namespace std;
 // ============================================================================
 MuonPathAssociator::MuonPathAssociator(const ParameterSet &pset) {
   // Obtention of parameters
-  debug = pset.getUntrackedParameter<Bool_t>("debug");
-  clean_chi2_correlation = pset.getUntrackedParameter<Bool_t>("clean_chi2_correlation");
-  use_LSB = pset.getUntrackedParameter<Bool_t>("use_LSB");
+  debug = pset.getUntrackedParameter<bool>("debug");
+  clean_chi2_correlation = pset.getUntrackedParameter<bool>("clean_chi2_correlation");
+  use_LSB = pset.getUntrackedParameter<bool>("use_LSB");
   tanPsi_precision = pset.getUntrackedParameter<double>("tanPsi_precision");
   x_precision = pset.getUntrackedParameter<double>("x_precision");
-  useBX_correlation = pset.getUntrackedParameter<Bool_t>("useBX_correlation");
-  allow_confirmation = pset.getUntrackedParameter<Bool_t>("allow_confirmation");
+  useBX_correlation = pset.getUntrackedParameter<bool>("useBX_correlation");
+  allow_confirmation = pset.getUntrackedParameter<bool>("allow_confirmation");
   dT0_correlate_TP = pset.getUntrackedParameter<double>("dT0_correlate_TP");
   dBX_correlate_TP = pset.getUntrackedParameter<int>("dBX_correlate_TP");
   dTanPsi_correlate_TP = pset.getUntrackedParameter<double>("dTanPsi_correlate_TP");
