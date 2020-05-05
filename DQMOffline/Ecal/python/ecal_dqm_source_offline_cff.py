@@ -27,7 +27,6 @@ ecalOnly_dqm_source_offline = cms.Sequence(
     dqmInfoEcal +
     ecalMonitorTaskEcalOnly +
     ecalFEDMonitor +
-    ecalPreshowerRecoSummary +
     ecalzmasstask
 )
 
