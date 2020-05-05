@@ -69,7 +69,6 @@ process.load( "DQM.SiStripMonitorClient.SiStripDQMOfflineGlobalRunCAF_cff" )
 ### Output ###
 
 # DQM store #
-# process.DQMStore.referenceFileName = ''
 # process.DQMStore.collateHistograms = False
 # process.DQMStore.verbose           = 1
 

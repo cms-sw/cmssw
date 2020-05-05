@@ -228,7 +228,6 @@ if (process.runType.getRunType() == process.runType.cosmic_run or process.runTyp
     # event selection for cosmic data
     if ((process.runType.getRunType() == process.runType.cosmic_run) and live): process.source.SelectEvents = cms.untracked.vstring('HLT*SingleMu*','HLT_L1*')
     # Reference run for cosmic
-    process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/sistrip_reference_cosmic.root'
     # Source config for cosmic data
     process.SiStripSources_TrkReco_cosmic = cms.Sequence(process.SiStripMonitorTrack_ckf*process.TrackMon_ckf)
     # Client config for cosmic data
@@ -297,7 +296,6 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
             'HLT_PAAK*'
             )
 
-    process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/sistrip_reference_pp.root'
     # Source and Client config for pp collisions
 
     process.SiStripMonitorDigi.UseDCSFiltering = cms.bool(False)
@@ -406,7 +404,6 @@ if (process.runType.getRunType() == process.runType.hpu_run):
 
  #        process.DQMEventStreamerReader.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('HLT_600Tower*','HLT_L1*','HLT_Jet*','HLT_HT*','HLT_MinBias_*','HLT_Physics*', 'HLT_ZeroBias*'))
 #
-    process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/sistrip_reference_pp.root'
 
     process.SiStripMonitorDigi.UseDCSFiltering = cms.bool(False)
     process.SiStripMonitorClusterReal.UseDCSFiltering = cms.bool(False)
@@ -526,7 +523,6 @@ if (process.runType.getRunType() == process.runType.hi_run):
             'HLT_HIPhysics*'
             )
 
-    process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/sistrip_reference_pp.root'
 
 
     process.SiStripMonitorDigi.UseDCSFiltering = cms.bool(False)

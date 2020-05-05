@@ -5,7 +5,6 @@ ModuleWebRegistry = cms.Service("ModuleWebRegistry")
 
 # DQM services
 from DQMServices.Core.DQM_cfg import *
-DQMStore.referenceFileName = 'Reference.root'
 
 #  DQM Online Environment #####
 # use include file for dqmEnv dqmSaver

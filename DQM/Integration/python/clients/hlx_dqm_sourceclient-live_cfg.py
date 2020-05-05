@@ -26,7 +26,6 @@ process.dqmEnv.subSystemFolder    = "HLX"
 process.dqmSaver.tag= "HLX"
 
 ## Lumi reference file
-process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/hlx_reference.root'
 
 from DQMServices.Core.DQMQualityTester import DQMQualityTester
 process.hlxQualityTester = DQMQualityTester(

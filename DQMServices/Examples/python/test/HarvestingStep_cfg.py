@@ -22,7 +22,6 @@ process.qTester = cms.EDFilter("QualityTester",
 )
 
 process.p1 = cms.Path(process.EDMtoMEConverter*process.harvestinganalyzer*process.qTester*process.harvestingdatacertification*process.dqmSaver)
-process.DQMStore.referenceFileName = ''
 process.dqmSaver.convention = 'Offline'
 process.dqmSaver.workflow = '/ConverterTester/Test/RECO'
 process.dqmSaver.saveByRun = -1

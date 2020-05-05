@@ -142,7 +142,6 @@ process.streamD = cms.OutputModule("EventStreamFileWriter",
 process.hltJson = cms.EDAnalyzer("HLTriggerJSONMonitoring")
 
 process.DQMStore = cms.Service( "DQMStore",
-    referenceFileName = cms.untracked.string( "" ),
     verbose = cms.untracked.int32( 0 ),
     saveByLumi = cms.untracked.bool( False ),
 )

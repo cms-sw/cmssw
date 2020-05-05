@@ -69,8 +69,6 @@ process.DQMStore.verbose = 0
 #process.DQM.collectorHost = 'srv-c2d05-12'
 process.DQM.collectorHost = 'lxplus255'
 process.DQM.collectorPort = 9190
-#process.DQMStore.referenceFileName = "ReferencePlot_test.root"
-#process.DQMStore.referenceFileName = "ReferencePlotsforQT_byCRAFT.root"
 
 process.dqmSaver.dirName = '.'
 process.dqmSaver.producer = 'Playback'

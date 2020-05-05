@@ -28,7 +28,6 @@ process.source = cms.Source("PoolSource",
 
 process.source.processingMode = "RunsAndLumis"
 
-process.DQMStore.referenceFileName = ''
 process.dqmSaver.convention = 'Offline'
 process.dqmSaver.workflow = '/StreamExpress/BeamCommissioning09-v8/DQMOffline'
 

@@ -45,8 +45,6 @@ process.source.streamLabel = cms.untracked.string("streamDQMCalibration")
 process.source.SelectEvents = cms.untracked.vstring("*HcalCalibration*")
 process.dqmEnv.subSystemFolder = subsystem
 process.dqmSaver.tag = subsystem
-referenceFileName = '/dqmdata/dqm/reference/hcal_reference.root'
-process.DQMStore.referenceFileName = referenceFileName
 process = customise(process)
 if not useFileInput:
 	process.source.minEventsPerLumi=100

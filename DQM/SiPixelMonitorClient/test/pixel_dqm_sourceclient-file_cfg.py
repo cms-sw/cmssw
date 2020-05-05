@@ -26,7 +26,6 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 
 ##----## Central DQM:
 process.load("DQMServices.Core.DQM_cfg")
-#process.DQMStore.referenceFileName = 'tmp/pixel_reference.root'
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.DQM.collectorHost = ''
 process.dqmSaver.convention = 'Online'

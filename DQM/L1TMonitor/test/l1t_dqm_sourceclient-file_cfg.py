@@ -82,7 +82,6 @@ process.dqmEnv.subSystemFolder = 'L1T'
 
 if l1DqmEnv == 'live' :
     process.load("DQM.Integration.test.environment_cfi")
-    process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/l1t_reference.root"
 
     #
     # load and configure modules via Global Tag

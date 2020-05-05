@@ -65,7 +65,6 @@ process.maxEvents.input = -1
 
 process.source.processingMode = "RunsAndLumis"
 
-process.DQMStore.referenceFileName = ''
 process.dqmSaver.convention = 'Offline'
 process.dqmSaver.workflow = '/Cosmics/CMSSW_2_2_X-Testing/RECO'
 
