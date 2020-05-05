@@ -155,4 +155,15 @@ cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py outfile=empty.root nEvents=0
 cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py outfile=empty.root howmany=0
 cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py outfile=empty.root howmany=0 legacyoutput=True
 cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py outfile=empty.root howmany=0 protobufoutput=True
+# also try empty lumisections. EmptySource does not really support 'no events' mode (never terminates), so, a bit of a hack here.
+cmsRun $LOCAL_TEST_DIR/run_analyzers_cfg.py outfile=noevents.root processingMode='RunsAndLumis' &
+PID=$!
+sleep 5
+kill -INT $PID
+wait
+[ 66 = $(dqmiolistmes.py noevents.root -r 1 | wc -l) ]
+[ 66 = $(dqmiolistmes.py noevents.root -r 1 -l 1 | wc -l) ]
+[ 66 = $(dqmiolistmes.py noevents.root -r 2 | wc -l) ]
+[ 66 = $(dqmiolistmes.py noevents.root -r 2 -l 2 | wc -l) ]
+
 
