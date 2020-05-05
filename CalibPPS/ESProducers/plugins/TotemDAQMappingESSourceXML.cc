@@ -246,7 +246,7 @@ TotemDAQMappingESSourceXML::TotemDAQMappingESSourceXML(const edm::ParameterSet &
       subSystemName(conf.getUntrackedParameter<string>("subSystem")),
       currentBlock(0),
       currentBlockValid(false) {
-  for (const auto it : conf.getParameter<vector<ParameterSet>>("configuration")) {
+  for (const auto &it : conf.getParameter<vector<ParameterSet>>("configuration")) {
     ConfigBlock b;
     b.validityRange = it.getParameter<EventRange>("validityRange");
     b.mappingFileNames = it.getParameter<vector<string>>("mappingFileNames");
