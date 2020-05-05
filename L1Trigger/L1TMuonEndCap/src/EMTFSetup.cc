@@ -10,7 +10,10 @@ EMTFSetup::EMTFSetup(const edm::ParameterSet& iConfig)
       condition_helper_(),
       version_control_(iConfig),
       sector_processor_lut_(),
-      pt_assign_engine_(nullptr) {
+      pt_assign_engine_(nullptr),
+      fw_ver_(0),
+      pt_lut_ver_(0),
+      pc_lut_ver_(0) {
   // Set pt assignment engine according to Era
   if (era() == "Run2_2016") {
     pt_assign_engine_.reset(new PtAssignmentEngine2016());
@@ -34,18 +37,24 @@ void EMTFSetup::reload(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
   // Get the conditions, primarily the firmware version and the BDT forests
   condition_helper_.checkAndUpdateConditions(iEvent, iSetup);
 
-  // Do run-dependent configuration. This may overwrite the configurables passed by the python config file
-  version_control_.configure_by_fw_version(condition_helper_.get_fw_version());
+  // Set version numbers
+  fw_ver_ = condition_helper_.get_fw_version();
+  pt_lut_ver_ = condition_helper_.get_pt_lut_version();
+  pc_lut_ver_ = condition_helper_.get_pc_lut_version();
 
-  // Decide the best pc_lut_ver & pt_lut_ver
-  unsigned pc_lut_ver = condition_helper_.get_pc_lut_version();  //TODO - check this
-  unsigned pt_lut_ver = condition_helper_.get_pt_lut_version();  //TODO - check this
+  if (!useO2O()) {
+    // Currently, do not modify fw_ver_ and pt_lut_ver_
+    pc_lut_ver_ = condition_helper_.get_pc_lut_version_unchecked();
+  }
+
+  // Do run-dependent configuration. This may overwrite the configurables passed by the python config file
+  version_control_.configure_by_fw_version(get_fw_version());
 
   // Reload primitive conversion LUTs if necessary
-  sector_processor_lut_.read(iEvent.isRealData(), pc_lut_ver);
+  sector_processor_lut_.read(iEvent.isRealData(), get_pc_lut_version());
 
   // Reload pT LUT if necessary
-  pt_assign_engine_->load(pt_lut_ver, &(condition_helper_.getForest()));
+  pt_assign_engine_->load(get_pt_lut_version(), condition_helper_.getForest());
 
   return;
 }

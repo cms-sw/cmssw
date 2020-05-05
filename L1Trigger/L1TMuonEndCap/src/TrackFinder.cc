@@ -36,12 +36,15 @@ void TrackFinder::process(const edm::Event& iEvent,
   auto tp_geom_ = &(setup_.getGeometryTranslator());
 
   // Check versions
-  if (verbose_ > 0) {                      // debug
-    std::cout << "Event: " << iEvent.id()  //TODO - check this
-              << " pc_lut_ver: " << setup_.getConditionHelper().get_pc_lut_version()
-              << " pt_lut_ver: " << setup_.getConditionHelper().get_pt_lut_version()
+  if (verbose_ > 0) {  // debug
+    std::cout << "Event: " << iEvent.id() << " isData: " << iEvent.isRealData() << " useO2O: " << setup_.useO2O()
+              << " era: " << setup_.era() << " fw_ver: " << setup_.get_fw_version()
+              << " pt_lut_ver: " << setup_.get_pt_lut_version()
               << " pt_lut_ver in engine: " << setup_.getPtAssignmentEngine()->get_pt_lut_version()
-              << " fw_ver: " << setup_.getConditionHelper().get_fw_version() << std::endl;
+              << " pc_lut_ver: " << setup_.get_pc_lut_version()
+              << " pc_lut_ver in cond (i): " << setup_.getConditionHelper().get_pc_lut_version()
+              << " pc_lut_ver in cond (ii): " << setup_.getConditionHelper().get_pc_lut_version_unchecked()
+              << std::endl;
   }
 
   // ___________________________________________________________________________

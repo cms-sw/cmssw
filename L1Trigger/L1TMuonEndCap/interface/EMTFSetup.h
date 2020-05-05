@@ -35,6 +35,16 @@ public:
 
   PtAssignmentEngine* getPtAssignmentEngine() const { return pt_assign_engine_.get(); }
 
+  // Setters
+  //void set_fw_version(unsigned version) { fw_ver_ = version; }
+  //void set_pt_lut_version(unsigned version) { pt_lut_ver_ = version; }
+  //void set_pc_lut_version(unsigned version) { pc_lut_ver_ = version; }
+
+  // Getters
+  unsigned get_fw_version() const { return fw_ver_; }
+  unsigned get_pt_lut_version() const { return pt_lut_ver_; }
+  unsigned get_pc_lut_version() const { return pc_lut_ver_; }
+
   // VersionControl getters
   const edm::ParameterSet& getConfig() const { return version_control_.getConfig(); }
   int verbose() const { return version_control_.verbose(); }
@@ -52,6 +62,11 @@ private:
 
   // Polymorphic class
   std::unique_ptr<PtAssignmentEngine> pt_assign_engine_;
+
+  // Version numbers. Note: may be different from those in ConditionHelper
+  unsigned fw_ver_;
+  unsigned pt_lut_ver_;
+  unsigned pc_lut_ver_;
 };
 
 #endif
