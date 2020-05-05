@@ -29,7 +29,7 @@ public:
     lastAnalyzedFill_ = 0;
   }
 
-  virtual ~BeamSpotOnlineObjects() {}
+  ~BeamSpotOnlineObjects() override {}
 
 
   /// Setters Methods
