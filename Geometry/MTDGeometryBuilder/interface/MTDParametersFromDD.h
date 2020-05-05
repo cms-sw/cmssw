@@ -6,6 +6,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class DDCompactView;
+namespace cms {
+  class DDCompactView;
+}
 class PMTDParameters;
 
 class MTDParametersFromDD {
@@ -14,6 +17,7 @@ public:
   virtual ~MTDParametersFromDD() {}
 
   bool build(const DDCompactView*, PMTDParameters&);
+  bool build(const cms::DDCompactView*, PMTDParameters&);
 
 private:
   void putOne(int, std::vector<int>&, PMTDParameters&);
