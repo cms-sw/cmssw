@@ -1,9 +1,8 @@
-<library file="EveServicePlugin.cc"
-         name="FireworksEveEveServicePlugin">
-        <use name="Fireworks/Eve"/>
-        <use name="rooteve"/>
-        <use name="rootgeom"/>
-	<flags EDM_PLUGIN="1"/>
+<library file="EveServicePlugin.cc" name="FireworksEveEveServicePlugin">
+  <use name="Fireworks/Eve"/>
+  <use name="rooteve"/>
+  <use name="rootgeom"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
 
 <library file="DummyEvelyser.cc" name="FireworksEveDummyEvelyserPlugin">
