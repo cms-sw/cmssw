@@ -10,6 +10,7 @@
 #include "TStyle.h"
 #include "TClass.h"
 #include "TLegend.h"
+#include "TObjString.h"
 #include <string>
 #include <iomanip>
 #include "TPaveText.h"
