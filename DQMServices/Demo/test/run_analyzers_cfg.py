@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
-process.DQMStore = cms.Service("DQMStore", forceResetOnBeginLumi = cms.untracked.bool(True))
+process.DQMStore = cms.Service("DQMStore")
 process.MessageLogger = cms.Service("MessageLogger")
 
 process.load("DQMServices.Demo.test_cfi")
