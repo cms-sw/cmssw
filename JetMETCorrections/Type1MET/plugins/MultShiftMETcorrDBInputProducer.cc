@@ -41,8 +41,12 @@ MultShiftMETcorrDBInputProducer::MultShiftMETcorrDBInputProducer(const edm::Para
   mSampleType = (cfg.exists("sampleType")) ? cfg.getParameter<std::string>("sampleType") : "MC";
   mIsData = cfg.getParameter<bool>("isData");
 
-  pflow_ = consumes<edm::View<reco::Candidate> >(cfg.getParameter<edm::InputTag>("srcPFlow"));
-  vertices_ = consumes<edm::View<reco::Vertex> >(cfg.getParameter<edm::InputTag>("vertexCollection"));
+  pflow_ = consumes<edm::View<reco::Candidate>>(cfg.getParameter<edm::InputTag>("srcPFlow"));
+  vertices_ = consumes<edm::View<reco::Vertex>>(cfg.getParameter<edm::InputTag>("vertexCollection"));
+
+  edm::InputTag srcWeights = cfg.getParameter<edm::InputTag>("srcWeights");
+  if (!srcWeights.label().empty())
+    weightsToken_ = consumes<edm::ValueMap<float>>(srcWeights);
 
   etaMin_.clear();
   etaMax_.clear();
@@ -63,7 +67,7 @@ void MultShiftMETcorrDBInputProducer::produce(edm::Event& evt, const edm::EventS
   MEtXYcorParaColl->validKeys(keys);
 
   //get primary vertices
-  edm::Handle<edm::View<reco::Vertex> > hpv;
+  edm::Handle<edm::View<reco::Vertex>> hpv;
   evt.getByToken(vertices_, hpv);
   if (!hpv.isValid()) {
     edm::LogError("MultShiftMETcorrDBInputProducer::produce") << "could not find vertex collection ";
@@ -75,8 +79,12 @@ void MultShiftMETcorrDBInputProducer::produce(edm::Event& evt, const edm::EventS
   }
   int ngoodVertices = goodVertices.size();
 
-  edm::Handle<edm::View<reco::Candidate> > particleFlow;
+  edm::Handle<edm::View<reco::Candidate>> particleFlow;
   evt.getByToken(pflow_, particleFlow);
+
+  edm::Handle<edm::ValueMap<float>> weights;
+  if (!weightsToken_.isUninitialized())
+    evt.getByToken(weightsToken_, weights);
 
   //loop over all constituent types and sum each correction
   //std::unique_ptr<CorrMETData> metCorr(new CorrMETData());
@@ -130,8 +138,9 @@ void MultShiftMETcorrDBInputProducer::produce(edm::Event& evt, const edm::EventS
       if (abs(c.pdgId()) ==
           translateTypeToAbsPdgId(reco::PFCandidate::ParticleType(MEtXYcorParams.definitions().PtclType()))) {
         if ((c.eta() > MEtXYcorParams.record(0).xMin(0)) and (c.eta() < MEtXYcorParams.record(0).xMax(0))) {
-          counts_ += 1;
-          sumPt_ += c.pt();
+          float weight = (!weightsToken_.isUninitialized()) ? (*weights)[particleFlow->ptrAt(i)] : 1.0;
+          counts_ += (weight > 0);
+          sumPt_ += c.pt() * weight;
           continue;
         }
       }
