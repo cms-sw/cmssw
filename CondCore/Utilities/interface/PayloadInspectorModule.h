@@ -16,5 +16,3 @@
       .def("isSingleIov", &cond::payloadInspector::PlotBase::isSingleIov)                     \
       .def("isTwoTags", &cond::payloadInspector::PlotBase::isTwoTags)                         \
       .def("data", &cond::payloadInspector::PlotBase::data);
-
-//      .def("processTwoTags", &cond::payloadInspector::PlotBase::processTwoTags)

@@ -45,7 +45,9 @@ namespace cond {
 
     bool PlotBase::isSingleIov() const { return m_plotAnnotations.singleIov; }
 
-    bool PlotBase::isTwoTags() const { return m_plotAnnotations.twoTags; }
+    unsigned int PlotBase::ntags() const { return m_plotAnnotations.ntags; }
+
+    bool PlotBase::isTwoTags() const { return m_plotAnnotations.ntags == 2; }
 
     boost::python::list PlotBase::inputParams() const {
       boost::python::list tmp;

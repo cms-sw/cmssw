@@ -9,9 +9,9 @@
 #include <string>
 #include <tuple>
 #include <vector>
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
+
+#include "FWCore/Utilities/interface/GlobalIdentifier.h"
+
 #include <boost/python/list.hpp>
 #include <boost/python/dict.hpp>
 #include <boost/python/tuple.hpp>
@@ -825,7 +825,7 @@ namespace cond {
       explicit PlotImage(const std::string& title) : Base("Image", title) {
         std::string payloadTypeName = cond::demangledName(typeid(PayloadType));
         Base::m_plotAnnotations.m[PlotAnnotations::PAYLOAD_TYPE_K] = payloadTypeName;
-        m_imageFileName = boost::lexical_cast<std::string>((boost::uuids::random_generator())()) + ".png";
+        m_imageFileName = edm::createGlobalIdentifier() + ".png";
       }
 
       std::string serializeData() override { return serialize(Base::m_plotAnnotations, m_imageFileName); }
