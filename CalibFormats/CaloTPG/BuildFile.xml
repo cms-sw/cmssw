@@ -1,12 +1,12 @@
-<use   name="DataFormats/HcalDetId"/>
-<use   name="DataFormats/HcalDigi"/>
-<use   name="DataFormats/EcalDetId"/>
-<use   name="DataFormats/EcalDigi"/>
-<use   name="CalibFormats/CaloObjects"/>
-<use   name="FWCore/Framework"/>
-<use   name="Geometry/Records"/>
-<use   name="CondFormats/DataRecord"/>
-<use   name="boost"/>
+<use name="DataFormats/HcalDetId"/>
+<use name="DataFormats/HcalDigi"/>
+<use name="DataFormats/EcalDetId"/>
+<use name="DataFormats/EcalDigi"/>
+<use name="CalibFormats/CaloObjects"/>
+<use name="FWCore/Framework"/>
+<use name="Geometry/Records"/>
+<use name="CondFormats/DataRecord"/>
+<use name="boost"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>
