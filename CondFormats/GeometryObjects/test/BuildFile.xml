@@ -1,3 +1,3 @@
 <bin file="testSerializationGeometryObjects.cpp">
-    <use   name="CondFormats/GeometryObjects"/>
+  <use name="CondFormats/GeometryObjects"/>
 </bin>

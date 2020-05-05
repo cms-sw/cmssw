@@ -1,9 +1,8 @@
-<use   name="DataFormats/MuonDetId"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/ParameterSet"/>
-
-<use   name="CondFormats/Serialization"/>
-<use   name="boost_serialization"/>
+<use name="DataFormats/MuonDetId"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="CondFormats/Serialization"/>
+<use name="boost_serialization"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>
