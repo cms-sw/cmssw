@@ -3,6 +3,5 @@
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>
-
