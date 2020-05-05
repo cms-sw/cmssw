@@ -8,7 +8,7 @@ class SectorProcessorLUT;
 class PrimitiveConversion {
 public:
   void configure(const GeometryTranslator* tp_geom,
-                 const SectorProcessorLUT* lut,
+                 const SectorProcessorLUT* pc_lut,
                  int verbose,
                  int endcap,
                  int sector,
@@ -27,7 +27,7 @@ public:
 
   void process(const std::map<int, TriggerPrimitiveCollection>& selected_prim_map, EMTFHitCollection& conv_hits) const;
 
-  const SectorProcessorLUT& lut() const { return *lut_; }
+  const SectorProcessorLUT& pc_lut() const { return *pc_lut_; }
 
   // CSC functions
   void convert_csc(int pc_sector,
@@ -93,7 +93,7 @@ public:
 private:
   const GeometryTranslator* tp_geom_;
 
-  const SectorProcessorLUT* lut_;
+  const SectorProcessorLUT* pc_lut_;
 
   int verbose_, endcap_, sector_, bx_;
 

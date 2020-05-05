@@ -5,7 +5,7 @@
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"  // for special treatments for iRPC
 
 void PrimitiveConversion::configure(const GeometryTranslator* tp_geom,
-                                    const SectorProcessorLUT* lut,
+                                    const SectorProcessorLUT* pc_lut,
                                     int verbose,
                                     int endcap,
                                     int sector,
@@ -22,10 +22,10 @@ void PrimitiveConversion::configure(const GeometryTranslator* tp_geom,
                                     bool fixME11Edges,
                                     bool bugME11Dupes) {
   emtf_assert(tp_geom != nullptr);
-  emtf_assert(lut != nullptr);
+  emtf_assert(pc_lut != nullptr);
 
   tp_geom_ = tp_geom;
-  lut_ = lut;
+  pc_lut_ = pc_lut;
 
   verbose_ = verbose;
   endcap_ = endcap;  // 1 for ME+, 2 for ME-
@@ -262,11 +262,11 @@ void PrimitiveConversion::convert_csc_details(EMTFHit& conv_hit) const {
   if (verbose_ > 1) {  // debug
     std::cout << "pc_station: " << pc_station << " pc_chamber: " << pc_chamber << " fw_station: " << fw_station
               << " fw_cscid: " << fw_cscid << " lut_id: " << pc_lut_id
-              << " ph_init: " << lut().get_ph_init(fw_endcap, fw_sector, pc_lut_id)
-              << " ph_disp: " << lut().get_ph_disp(fw_endcap, fw_sector, pc_lut_id)
-              << " th_init: " << lut().get_th_init(fw_endcap, fw_sector, pc_lut_id)
-              << " th_disp: " << lut().get_th_disp(fw_endcap, fw_sector, pc_lut_id)
-              << " ph_init_hard: " << lut().get_ph_init_hard(fw_station, fw_cscid) << std::endl;
+              << " ph_init: " << pc_lut().get_ph_init(fw_endcap, fw_sector, pc_lut_id)
+              << " ph_disp: " << pc_lut().get_ph_disp(fw_endcap, fw_sector, pc_lut_id)
+              << " th_init: " << pc_lut().get_th_init(fw_endcap, fw_sector, pc_lut_id)
+              << " th_disp: " << pc_lut().get_th_disp(fw_endcap, fw_sector, pc_lut_id)
+              << " ph_init_hard: " << pc_lut().get_ph_init_hard(fw_station, fw_cscid) << std::endl;
   }
 
   // ___________________________________________________________________________
@@ -276,8 +276,8 @@ void PrimitiveConversion::convert_csc_details(EMTFHit& conv_hit) const {
   int eighth_strip = 0;
 
   // Apply phi correction from CLCT pattern number (from src/SectorProcessorLUT.cc)
-  int clct_pat_corr = lut().get_ph_patt_corr(conv_hit.Pattern());
-  int clct_pat_corr_sign = (lut().get_ph_patt_corr_sign(conv_hit.Pattern()) == 0) ? 1 : -1;
+  int clct_pat_corr = pc_lut().get_ph_patt_corr(conv_hit.Pattern());
+  int clct_pat_corr_sign = (pc_lut().get_ph_patt_corr_sign(conv_hit.Pattern()) == 0) ? 1 : -1;
 
   // At strip number 0, protect against negative correction
   bool bugStrip0BeforeFW48200 = false;
@@ -319,27 +319,27 @@ void PrimitiveConversion::convert_csc_details(EMTFHit& conv_hit) const {
   int ph_tmp = (eighth_strip * factor) >> 10;
   int ph_tmp_sign = (ph_reverse == 0) ? 1 : -1;
 
-  int fph = lut().get_ph_init(fw_endcap, fw_sector, pc_lut_id);
+  int fph = pc_lut().get_ph_init(fw_endcap, fw_sector, pc_lut_id);
   fph = fph + ph_tmp_sign * ph_tmp;
 
-  int ph_hit = lut().get_ph_disp(fw_endcap, fw_sector, pc_lut_id);
+  int ph_hit = pc_lut().get_ph_disp(fw_endcap, fw_sector, pc_lut_id);
   ph_hit = (ph_hit >> 1) + ph_tmp_sign * (ph_tmp >> 5) + ph_coverage;
 
   // Full phi +16 to put the rounded value into the middle of error range
   // Divide full phi by 32, subtract chamber start
-  int ph_hit_fixed = -1 * lut().get_ph_init_hard(fw_station, fw_cscid);
+  int ph_hit_fixed = -1 * pc_lut().get_ph_init_hard(fw_station, fw_cscid);
   ph_hit_fixed = ph_hit_fixed + ((fph + (1 << 4)) >> 5);
 
   if (fixZonePhi_)
     ph_hit = ph_hit_fixed;
 
   // Zone phi
-  int zone_hit = lut().get_ph_zone_offset(pc_station, pc_chamber);
+  int zone_hit = pc_lut().get_ph_zone_offset(pc_station, pc_chamber);
   zone_hit += ph_hit;
 
-  int zone_hit_fixed = lut().get_ph_init_hard(fw_station, fw_cscid);
+  int zone_hit_fixed = pc_lut().get_ph_init_hard(fw_station, fw_cscid);
   zone_hit_fixed += ph_hit_fixed;
-  // Since ph_hit_fixed = ((fph + (1<<4)) >> 5) - lut().get_ph_init_hard(), the following is equivalent:
+  // Since ph_hit_fixed = ((fph + (1<<4)) >> 5) - pc_lut().get_ph_init_hard(), the following is equivalent:
   //zone_hit_fixed = ((fph + (1<<4)) >> 5);
 
   if (fixZonePhi_)
@@ -353,7 +353,7 @@ void PrimitiveConversion::convert_csc_details(EMTFHit& conv_hit) const {
 
   // th_tmp is theta local to chamber
   int pc_wire_id = (fw_wire & 0x7f);  // 7-bit
-  int th_tmp = lut().get_th_lut(fw_endcap, fw_sector, pc_lut_id, pc_wire_id);
+  int th_tmp = pc_lut().get_th_lut(fw_endcap, fw_sector, pc_lut_id, pc_wire_id);
 
   // For ME1/1 with tilted wires, add theta correction as a function of (wire,strip) index
   if (!fixME11Edges_ && (is_me11a || is_me11b)) {
@@ -371,7 +371,7 @@ void PrimitiveConversion::convert_csc_details(EMTFHit& conv_hit) const {
       }
     }
 
-    int th_corr = lut().get_th_corr_lut(fw_endcap, fw_sector, pc_lut_id, pc_wire_strip_id);
+    int th_corr = pc_lut().get_th_corr_lut(fw_endcap, fw_sector, pc_lut_id, pc_wire_strip_id);
     int th_corr_sign = (ph_reverse == 0) ? 1 : -1;
 
     th_tmp = th_tmp + th_corr_sign * th_corr;
@@ -390,7 +390,7 @@ void PrimitiveConversion::convert_csc_details(EMTFHit& conv_hit) const {
     if (is_me11a)
       pc_wire_strip_id = (((fw_wire >> 4) & 0x3) << 5) | ((((eighth_strip * 341) >> 8) >> 4) &
                                                           0x1f);  // correct for ME1/1a strip number (341/256 =~ 1.333)
-    int th_corr = lut().get_th_corr_lut(fw_endcap, fw_sector, pc_lut_id, pc_wire_strip_id);
+    int th_corr = pc_lut().get_th_corr_lut(fw_endcap, fw_sector, pc_lut_id, pc_wire_strip_id);
 
     th_tmp = th_tmp + th_corr;
 
@@ -404,7 +404,7 @@ void PrimitiveConversion::convert_csc_details(EMTFHit& conv_hit) const {
 
   // theta precision: (36.5/128) deg
   // theta starts at 8.5 deg: {1, 127} <--> {8.785, 44.715}
-  int th = lut().get_th_init(fw_endcap, fw_sector, pc_lut_id);
+  int th = pc_lut().get_th_init(fw_endcap, fw_sector, pc_lut_id);
   th = th + th_tmp;
 
   emtf_assert(0 <= th && th < 128);
@@ -626,20 +626,20 @@ void PrimitiveConversion::convert_rpc_details(EMTFHit& conv_hit, bool isCPPF) co
     int halfstrip = (conv_hit.Strip_low() + conv_hit.Strip_hi() - 1);
     emtf_assert(1 <= halfstrip && halfstrip <= 64);
 
-    int fph2 = lut().get_cppf_ph_lut(conv_hit.Endcap(),
-                                     conv_hit.Sector_RPC(),
-                                     conv_hit.Station(),
-                                     conv_hit.Ring(),
-                                     conv_hit.Subsector_RPC(),
-                                     conv_hit.Roll(),
-                                     halfstrip,
-                                     is_neighbor);
-    int th2 = lut().get_cppf_th_lut(conv_hit.Endcap(),
-                                    conv_hit.Sector_RPC(),
-                                    conv_hit.Station(),
-                                    conv_hit.Ring(),
-                                    conv_hit.Subsector_RPC(),
-                                    conv_hit.Roll());
+    int fph2 = pc_lut().get_cppf_ph_lut(conv_hit.Endcap(),
+                                        conv_hit.Sector_RPC(),
+                                        conv_hit.Station(),
+                                        conv_hit.Ring(),
+                                        conv_hit.Subsector_RPC(),
+                                        conv_hit.Roll(),
+                                        halfstrip,
+                                        is_neighbor);
+    int th2 = pc_lut().get_cppf_th_lut(conv_hit.Endcap(),
+                                       conv_hit.Sector_RPC(),
+                                       conv_hit.Station(),
+                                       conv_hit.Ring(),
+                                       conv_hit.Subsector_RPC(),
+                                       conv_hit.Roll());
     //emtf_assert(abs((fph>>2) - fph2) <= 4); // arbitrary tolerance
     //emtf_assert(abs((th>>2) - th2) <= 1);   // arbitrary tolerance
     fph = fph2;
