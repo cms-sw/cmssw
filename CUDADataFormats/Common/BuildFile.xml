@@ -1,7 +1,6 @@
 <iftool name="cuda-gcc-support">
-<use name="HeterogeneousCore/CUDAUtilities"/>
-
-<export>
+  <use name="HeterogeneousCore/CUDAUtilities"/>
+  <export>
     <lib name="1"/>
-</export>
+  </export>
 </iftool>
