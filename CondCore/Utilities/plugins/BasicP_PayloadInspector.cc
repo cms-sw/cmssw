@@ -83,8 +83,9 @@ namespace {
     }
     ~BasicPayload_data4() override = default;
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      for (auto iov : iovs) {
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      for (auto iov : tag.iovs) {
         std::shared_ptr<cond::BasicPayload> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           for (size_t j = 0; j < 100; j++) {
