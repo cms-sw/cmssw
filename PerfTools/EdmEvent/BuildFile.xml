@@ -1,5 +1,5 @@
-<use   name="rootgraphics"/>
-<use   name="boost"/>
+<use name="rootgraphics"/>
+<use name="boost"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>
