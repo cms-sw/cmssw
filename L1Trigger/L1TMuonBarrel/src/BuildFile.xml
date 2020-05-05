@@ -3,7 +3,6 @@
 <use name="L1Trigger/DTTrackFinder"/>
 <use name="FWCore/ServiceRegistry"/>
 <use name="FWCore/Framework"/>
-
 <use name="CommonTools/UtilAlgos"/>
 <use name="DataFormats/HepMCCandidate"/>
 <use name="DataFormats/L1TMuon"/>
@@ -11,7 +10,6 @@
 <use name="CondFormats/L1TObjects"/>
 <use name="CondFormats/DataRecord"/>
 <use name="L1Trigger/L1TCommon"/>
-
 <export>
   <lib name="1"/>
 </export>
