@@ -94,18 +94,6 @@ namespace {
       }
       return true;
     }
-    //bool fill() override {
-    //auto tag = PlotBase::getTag<0>();
-    //  for (auto iov : tag.iovs) {
-    //    std::shared_ptr<cond::BasicPayload> payload = Base::fetchPayload(std::get<1>(iov));
-    //    if (payload.get()) {
-    //      for (size_t j = 0; j < 100; j++) {
-    //        fillWithValue(j, payload->m_vec[j]);
-    //      }
-    //    }
-    //  }
-    //  return true;
-    //}
   };
 
   class BasicPayload_data5
@@ -113,14 +101,10 @@ namespace {
   public:
     BasicPayload_data5()
         : cond::payloadInspector::Histogram2D<cond::BasicPayload, cond::payloadInspector::SINGLE_IOV>(
-              "Example Histo2d", "x", 10, 0, 10, "y", 10, 0, 10) {
-      //Base::setSingleIov(true);
-    }
+              "Example Histo2d", "x", 10, 0, 10, "y", 10, 0, 10) {}
     ~BasicPayload_data5() override = default;
 
-    //bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
     bool fill() override {
-      // TO BE REPLACE WITH THE PlotImpl function
       auto tag = PlotBase::getTag<0>();
       for (auto iov : tag.iovs) {
         std::shared_ptr<cond::BasicPayload> payload = Base::fetchPayload(std::get<1>(iov));
@@ -140,13 +124,9 @@ namespace {
   public:
     BasicPayload_data6()
         : cond::payloadInspector::PlotImage<cond::BasicPayload, cond::payloadInspector::SINGLE_IOV>(
-              "Example delivery picture") {
-      //setSingleIov(true);
-    }
+              "Example delivery picture") {}
 
-    //bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
     bool fill() override {
-      // TO BE REPLACE WITH THE PlotImpl function
       auto tag = PlotBase::getTag<0>();
       auto iov = tag.iovs.front();
       std::shared_ptr<cond::BasicPayload> payload = fetchPayload(std::get<1>(iov));
@@ -228,12 +208,7 @@ namespace {
       setTwoTags(true);
     }
 
-    //bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      // TO BE REPLACE WITH THE PlotImpl function
-      //auto tag = PlotBase::getTag<0>();
-      //auto iov0 = tag.iovs.front();
-      //auto iov1 = tag.iovs.back();
       auto iov0 = iovs.front();
       auto iov1 = iovs.back();
       std::shared_ptr<cond::BasicPayload> payload0 = fetchPayload(std::get<1>(iov0));
