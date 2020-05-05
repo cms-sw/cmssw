@@ -1,9 +1,6 @@
 #ifndef L1TMuonEndCap_TrackFinder_h
 #define L1TMuonEndCap_TrackFinder_h
 
-#include <memory>
-#include <string>
-#include <vector>
 #include <array>
 
 #include "FWCore/Framework/interface/Event.h"
@@ -11,6 +8,9 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "L1Trigger/L1TMuonEndCap/interface/Common.h"
+#include "L1Trigger/L1TMuonEndCap/interface/EMTFSetup.h"
+#include "L1Trigger/L1TMuonEndCap/interface/EMTFSubsystemCollector.h"
 #include "L1Trigger/L1TMuonEndCap/interface/SectorProcessor.h"
 
 class TrackFinder {
@@ -27,26 +27,22 @@ public:
       EMTFTrackCollection& out_tracks);
 
 private:
-  GeometryTranslator geometry_translator_;
-
-  ConditionHelper condition_helper_;
-
-  SectorProcessorLUT sector_processor_lut_;
-
-  std::unique_ptr<PtAssignmentEngine> pt_assign_engine_;
+  EMTFSetup setup_;
 
   emtf::sector_array<SectorProcessor> sector_processors_;
 
-  const edm::ParameterSet config_;
+  // Various tokens
+  const edm::EDGetToken tokenDTPhi_;
+  const edm::EDGetToken tokenDTTheta_;
+  const edm::EDGetToken tokenCSC_;
+  const edm::EDGetToken tokenCSCComparator_;
+  const edm::EDGetToken tokenRPC_;
+  const edm::EDGetToken tokenRPCRecHit_;
+  const edm::EDGetToken tokenCPPF_;
+  const edm::EDGetToken tokenGEM_;
+  const edm::EDGetToken tokenME0_;
 
-  const edm::EDGetToken tokenDTPhi_, tokenDTTheta_, tokenCSC_, tokenCSCComparator_, tokenRPC_, tokenRPCRecHit_,
-      tokenCPPF_, tokenGEM_, tokenME0_;
-
-  int verbose_, primConvLUT_;
-
-  bool fwConfig_, useDT_, useCSC_, useRPC_, useIRPC_, useCPPF_, useGEM_, useME0_;
-
-  std::string era_;
+  int verbose_;
 };
 
 #endif
