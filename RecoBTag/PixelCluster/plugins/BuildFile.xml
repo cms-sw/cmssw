@@ -1,17 +1,17 @@
 <library file="*.cc" name="RecoBTagPixelClusterPlugins">
-<use name="FWCore/Framework"/>
-<use name="FWCore/PluginManager"/>
-<use name="FWCore/ParameterSet"/>
-<use name="PhysicsTools/UtilAlgos"/>
-<use name="CommonTools/UtilAlgos"/>
-<use name="DataFormats/Common"/>
-<use name="DataFormats/SiPixelCluster"/>
-<use name="DataFormats/SiPixelDetId"/>
-<use name="DataFormats/VertexReco"/>
-<use name="DataFormats/BTauReco"/>
-<use name="Geometry/TrackerGeometryBuilder"/>
-<use name="Geometry/Records"/>
-<use name="Geometry/CommonDetUnit"/>
-<use name="Geometry/CommonTopologies"/>
-<flags EDM_PLUGIN="1"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="PhysicsTools/UtilAlgos"/>
+  <use name="CommonTools/UtilAlgos"/>
+  <use name="DataFormats/Common"/>
+  <use name="DataFormats/SiPixelCluster"/>
+  <use name="DataFormats/SiPixelDetId"/>
+  <use name="DataFormats/VertexReco"/>
+  <use name="DataFormats/BTauReco"/>
+  <use name="Geometry/TrackerGeometryBuilder"/>
+  <use name="Geometry/Records"/>
+  <use name="Geometry/CommonDetUnit"/>
+  <use name="Geometry/CommonTopologies"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
