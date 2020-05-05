@@ -1,6 +1,5 @@
 #include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine2017.h"
 #include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngineAux2017.h"
-#include "L1Trigger/L1TMuonEndCap/interface/PtLUTVarCalc.h"
 
 #include <iostream>
 #include <sstream>
@@ -419,17 +418,17 @@ float PtAssignmentEngine2017::calculate_pt_xml(const address_t& address) const {
     predictors = {
         theta, St1_ring2, dPhiAB, dPhiBC, dPhiCD, dPhiAB + dPhiBC, dPhiAB + dPhiBC + dPhiCD, dPhiBC + dPhiCD, frA, clctA};
 
-    CalcDeltaPhiSums(dPhiSum4,
-                     dPhiSum4A,
-                     dPhiSum3,
-                     dPhiSum3A,
-                     outStPhi,
-                     dPhiAB,
-                     dPhiAB + dPhiBC,
-                     dPhiAB + dPhiBC + dPhiCD,
-                     dPhiBC,
-                     dPhiBC + dPhiCD,
-                     dPhiCD);
+    aux().calcDeltaPhiSums(dPhiSum4,
+                           dPhiSum4A,
+                           dPhiSum3,
+                           dPhiSum3A,
+                           outStPhi,
+                           dPhiAB,
+                           dPhiAB + dPhiBC,
+                           dPhiAB + dPhiBC + dPhiCD,
+                           dPhiBC,
+                           dPhiBC + dPhiCD,
+                           dPhiCD);
 
     int tmp[10] = {dPhiSum4, dPhiSum4A, dPhiSum3, dPhiSum3A, outStPhi, dTheta, rpcA, rpcB, rpcC, rpcD};
     predictors.insert(predictors.end(), tmp, tmp + 10);
@@ -567,42 +566,42 @@ float PtAssignmentEngine2017::calculate_pt_xml(const EMTFTrack& track) const {
 
   // BEGIN: Identical (almost) to BDT training code in EMTFPtAssign2017/PtRegression_Apr_2017.C
 
-  theta = CalcTrackTheta(th1, th2, th3, th4, St1_ring2, mode, true);
+  theta = aux().calcTrackTheta(th1, th2, th3, th4, St1_ring2, mode, true);
 
-  CalcDeltaPhis(dPhi_12,
-                dPhi_13,
-                dPhi_14,
-                dPhi_23,
-                dPhi_24,
-                dPhi_34,
-                dPhiSign,
-                dPhiSum4,
-                dPhiSum4A,
-                dPhiSum3,
-                dPhiSum3A,
-                outStPhi,
-                ph1,
-                ph2,
-                ph3,
-                ph4,
-                mode,
-                true);
+  aux().calcDeltaPhis(dPhi_12,
+                      dPhi_13,
+                      dPhi_14,
+                      dPhi_23,
+                      dPhi_24,
+                      dPhi_34,
+                      dPhiSign,
+                      dPhiSum4,
+                      dPhiSum4A,
+                      dPhiSum3,
+                      dPhiSum3A,
+                      outStPhi,
+                      ph1,
+                      ph2,
+                      ph3,
+                      ph4,
+                      mode,
+                      true);
 
-  CalcDeltaThetas(dTh_12, dTh_13, dTh_14, dTh_23, dTh_24, dTh_34, th1, th2, th3, th4, mode, true);
+  aux().calcDeltaThetas(dTh_12, dTh_13, dTh_14, dTh_23, dTh_24, dTh_34, th1, th2, th3, th4, mode, true);
 
   FR_1 = (st1 ? data.fr[0] : -99);
   FR_2 = (st2 ? data.fr[1] : -99);
   FR_3 = (st3 ? data.fr[2] : -99);
   FR_4 = (st4 ? data.fr[3] : -99);
 
-  CalcBends(bend_1, bend_2, bend_3, bend_4, pat1, pat2, pat3, pat4, dPhiSign, endcap, mode, true);
+  aux().calcBends(bend_1, bend_2, bend_3, bend_4, pat1, pat2, pat3, pat4, dPhiSign, endcap, mode, true);
 
   RPC_1 = (st1 ? (pat1 == 0) : -99);
   RPC_2 = (st2 ? (pat2 == 0) : -99);
   RPC_3 = (st3 ? (pat3 == 0) : -99);
   RPC_4 = (st4 ? (pat4 == 0) : -99);
 
-  CalcRPCs(RPC_1, RPC_2, RPC_3, RPC_4, mode, St1_ring2, theta, true);
+  aux().calcRPCs(RPC_1, RPC_2, RPC_3, RPC_4, mode, St1_ring2, theta, true);
 
   // END: Identical (almost) to BDT training code in EMTFPtAssign2017/PtRegression_Apr_2017.C
 
