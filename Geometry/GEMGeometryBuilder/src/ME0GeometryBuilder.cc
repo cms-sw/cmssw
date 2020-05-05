@@ -42,11 +42,8 @@ ME0GeometryBuilder::~ME0GeometryBuilder() {}
 ME0Geometry* ME0GeometryBuilder::build(const DDCompactView* cview, const MuonDDDConstants& muonConstants) {
   std::string attribute = "MuStructure";
   std::string value = "MuonEndCapME0";
-
-  // Asking only for the MuonME0's
   DDSpecificsMatchesValueFilter filter{DDValue(attribute, value, 0.0)};
   DDFilteredView fview(*cview, filter);
-
   return this->buildGeometry(fview, muonConstants);
 }
 
@@ -78,21 +75,17 @@ ME0Geometry* ME0GeometryBuilder::buildGeometry(DDFilteredView& fv, const MuonDDD
 
   while (testChambers) {
     // to etapartitions
-    LogTrace("ME0GeometryBuilder") << "to layer "
-                                   << fv.firstChild();  // commented out in case only looping over sensitive volumes
-    LogTrace("ME0GeometryBuilder") << "to etapt "
-                                   << fv.firstChild();  // commented out in case only looping over sensitive volumes
+    LogTrace("ME0GeometryBuilder") << "to layer " << fv.firstChild();
+    LogTrace("ME0GeometryBuilder") << "to etapt " << fv.firstChild();
     MuonDDDNumbering mdddnum(muonConstants);
     ME0NumberingScheme me0Num(muonConstants);
     int rawId = me0Num.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
     ME0DetId detId = ME0DetId(rawId);
     ME0DetId detIdCh = detId.chamberId();
     // back to chambers
-    LogTrace("ME0GeometryBuilder") << "back to layer "
-                                   << fv.parent();  // commented out in case only looping over sensitive volumes
-    LogTrace("ME0GeometryBuilder") << "back to chamb "
-                                   << fv.parent();  // commented out in case only looping over sensitive volumes
-    // ok lets get started ...
+    LogTrace("ME0GeometryBuilder") << "back to layer " << fv.parent();
+    LogTrace("ME0GeometryBuilder") << "back to chamb " << fv.parent();
+
     LogTrace("ME0GeometryBuilder") << "In DoChambers Loop :: ME0DetId " << detId << " = " << detId.rawId()
                                    << " (which belongs to ME0Chamber " << detIdCh << " = " << detIdCh.rawId() << ")";
     LogTrace("ME0GeometryBuilder") << "Second level logical part: " << fv.logicalPart().name().name();
@@ -110,16 +103,14 @@ ME0Geometry* ME0GeometryBuilder::buildGeometry(DDFilteredView& fv, const MuonDDD
     LogTrace("ME0GeometryBuilder") << "doLayer = fv.firstChild() = " << doLayers;
     while (doLayers) {
       // to etapartitions
-      LogTrace("ME0GeometryBuilder") << "to etapt "
-                                     << fv.firstChild();  // commented out in case only looping over sensitive volumes
+      LogTrace("ME0GeometryBuilder") << "to etapt " << fv.firstChild();
       MuonDDDNumbering mdddnum(muonConstants);
       ME0NumberingScheme me0Num(muonConstants);
       int rawId = me0Num.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
       ME0DetId detId = ME0DetId(rawId);
       ME0DetId detIdLa = detId.layerId();
       // back to layers
-      LogTrace("ME0GeometryBuilder") << "back to layer "
-                                     << fv.parent();  // commented out in case only looping over sensitive volumes
+      LogTrace("ME0GeometryBuilder") << "back to layer " << fv.parent();
       LogTrace("ME0GeometryBuilder") << "In DoLayers Loop :: ME0DetId " << detId << " = " << detId.rawId()
                                      << " (which belongs to ME0Layer " << detIdLa << " = " << detIdLa.rawId() << ")";
       LogTrace("ME0GeometryBuilder") << "Third level logical part: " << fv.logicalPart().name().name();
@@ -149,13 +140,13 @@ ME0Geometry* ME0GeometryBuilder::buildGeometry(DDFilteredView& fv, const MuonDDD
         doEtaParts = fv.nextSibling();
         LogTrace("ME0GeometryBuilder") << "doEtaPart = fv.nextSibling() = " << doEtaParts;
       }
-      fv.parent();  // commented out in case only looping over sensitive volumes
+      fv.parent();
       LogTrace("ME0GeometryBuilder") << "went back to parent :: name = " << fv.logicalPart().name().name()
                                      << " will now ask for nextSibling";
       doLayers = fv.nextSibling();
       LogTrace("ME0GeometryBuilder") << "doLayer = fv.nextSibling() = " << doLayers;
     }
-    fv.parent();  // commented out in case only looping over sensitive volumes
+    fv.parent();
     LogTrace("ME0GeometryBuilder") << "went back to parent :: name = " << fv.logicalPart().name().name()
                                    << " will now ask for nextSibling";
     testChambers = fv.nextSibling();
@@ -235,13 +226,12 @@ ME0Geometry* ME0GeometryBuilder::buildGeometry(DDFilteredView& fv, const MuonDDD
 ME0Chamber* ME0GeometryBuilder::buildChamber(DDFilteredView& fv, ME0DetId detId) const {
   LogTrace("ME0GeometryBuilder") << "buildChamber " << fv.logicalPart().name().name() << " " << detId << std::endl;
   DDBooleanSolid solid = (DDBooleanSolid)(fv.logicalPart().solid());
-  // std::vector<double> dpar = solid.solidA().parameters();
+
   std::vector<double> dpar = solid.parameters();
   double L = dpar[0] / cm;  // length is along local Y
   double T = dpar[3] / cm;  // thickness is long local Z
   double b = dpar[4] / cm;  // bottom width is along local X
   double B = dpar[8] / cm;  // top width is along local X
-  // hardcoded :: double b = 21.9859, B = 52.7261, L = 87.1678, T = 12.9;
 
 #ifdef EDM_ML_DEBUG
   LogTrace("ME0GeometryBuilder") << " name of logical part = " << fv.logicalPart().name().name() << std::endl;
@@ -263,15 +253,12 @@ ME0Layer* ME0GeometryBuilder::buildLayer(DDFilteredView& fv, ME0DetId detId) con
   LogTrace("ME0GeometryBuilder") << "buildLayer " << fv.logicalPart().name().name() << " " << detId << std::endl;
 
   DDBooleanSolid solid = (DDBooleanSolid)(fv.logicalPart().solid());
-  // std::vector<double> dpar = solid.solidA().parameters();
+
   std::vector<double> dpar = solid.parameters();
   double L = dpar[0] / cm;  // length is along local Y
   double t = dpar[3] / cm;  // thickness is long local Z
   double b = dpar[4] / cm;  // bottom width is along local X
   double B = dpar[8] / cm;  // top width is along local X
-  // dpar = solid.solidB().parameters();
-  // dz += dpar[3]/cm;     // layer thickness --- to be checked !!! layer thickness should be same as eta part thickness
-  // hardcoded :: double b = 21.9859, B = 52.7261, L = 87.1678, t = 0.4;
 
 #ifdef EDM_ML_DEBUG
   LogTrace("ME0GeometryBuilder") << " name of logical part = " << fv.logicalPart().name().name() << std::endl;
@@ -333,8 +320,7 @@ ME0EtaPartition* ME0GeometryBuilder::buildEtaPartition(DDFilteredView& fv, ME0De
   pars.emplace_back(nStrips);
   pars.emplace_back(nPads);
 
-  bool isOdd =
-      false;  // detId.chamber()%2; // this gives the opportunity (in future) to change the face of the chamber (electronics facing IP or electronics away from IP)
+  bool isOdd = false;  // detId.chamber()%2;
   ME0BoundPlane surf(boundPlane(fv, new TrapezoidalPlaneBounds(b, B, L, t), isOdd));
   std::string name = fv.logicalPart().name().name();
   ME0EtaPartitionSpecs* e_p_specs = new ME0EtaPartitionSpecs(GeomDetEnumerators::ME0, name, pars);
@@ -350,21 +336,9 @@ ME0GeometryBuilder::ME0BoundPlane ME0GeometryBuilder::boundPlane(const DDFiltere
   const DDTranslation& trans(fv.translation());
   const Surface::PositionType posResult(float(trans.x() / cm), float(trans.y() / cm), float(trans.z() / cm));
 
-  // now the rotation
-  //  DDRotationMatrix tmp = fv.rotation();
-  // === DDD uses 'active' rotations - see CLHEP user guide ===
-  //     ORCA uses 'passive' rotation.
-  //     'active' and 'passive' rotations are inverse to each other
-  //  DDRotationMatrix tmp = fv.rotation();
-  const DDRotationMatrix& rotation = fv.rotation();  //REMOVED .Inverse();
+  const DDRotationMatrix& rotation = fv.rotation();
   DD3Vector x, y, z;
   rotation.GetComponents(x, y, z);
-  // LogTrace("GEMGeometryBuilderFromDDD") << "translation: "<< fv.translation() << std::endl;
-  // LogTrace("GEMGeometryBuilderFromDDD") << "rotation   : "<< fv.rotation() << std::endl;
-  // LogTrace("GEMGeometryBuilderFromDDD") << "INVERSE rotation manually: \n"
-  //        << x.X() << ", " << x.Y() << ", " << x.Z() << std::endl
-  //        << y.X() << ", " << y.Y() << ", " << y.Z() << std::endl
-  //        << z.X() << ", " << z.Y() << ", " << z.Z() << std::endl;
 
   Surface::RotationType rotResult(float(x.X()),
                                   float(x.Y()),
