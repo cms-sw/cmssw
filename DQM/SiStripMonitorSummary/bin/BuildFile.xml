@@ -1,5 +1,10 @@
-<use   name="root"/>
-<use   name="rootgraphics"/>
-<bin   name="makePlots" file="makePlots.cc"></bin>
-<bin   name="makeTKTrend" file="makeTKTrend.cc"></bin>
-<bin   name="makeModulePlots" file="makeModulePlots.cc"></bin>
+<use name="root"/>
+<use name="rootgraphics"/>
+<bin name="makePlots" file="makePlots.cc">
+</bin>
+
+<bin name="makeTKTrend" file="makeTKTrend.cc">
+</bin>
+
+<bin name="makeModulePlots" file="makeModulePlots.cc">
+</bin>
