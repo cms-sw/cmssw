@@ -6,7 +6,6 @@
 <use   name="DataFormats/EcalRawData"/>
 <use   name="DataFormats/EcalRecHit"/>
 <use   name="DataFormats/EgammaReco"/>
-<use   name="DataFormats/Math"/>
 <use   name="DataFormats/TCDS"/>
 <use   name="DataFormats/L1GlobalTrigger"/>
 <use   name="DataFormats/L1GlobalMuonTrigger"/>
@@ -14,7 +13,6 @@
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/ServiceRegistry"/>
-<use   name="RecoLocalCalo/EcalRecAlgos"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/EcalObjects"/>

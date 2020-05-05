@@ -6,7 +6,6 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="Utilities/Xerces"/>
-<use   name="CondCore/DBOutputService"/>
 <use name="OnlineDB/EcalCondDB"/>
 <use   name="RelationalAccess"/>
 <use   name="rootcore"/>

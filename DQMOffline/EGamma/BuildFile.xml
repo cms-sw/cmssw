@@ -1,6 +1,5 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
-<use name="DQMServices/Components"/>
 <use name="DQMServices/Core"/>
 
 <export>
