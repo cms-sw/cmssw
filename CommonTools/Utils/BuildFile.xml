@@ -1,7 +1,7 @@
-<use   name="FWCore/Utilities"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="boost"/>
-<use   name="roothistmatrix"/>
+<use name="FWCore/Utilities"/>
+<use name="FWCore/MessageLogger"/>
+<use name="boost"/>
+<use name="roothistmatrix"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>
