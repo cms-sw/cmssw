@@ -1,10 +1,10 @@
-<use   name="root"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="Geometry/GEMGeometry"/>
-<use   name="DataFormats/GEMRecHit"/>
-<use   name="DataFormats/GEMDigi"/>
-<use   name="DataFormats/Common"/>
+<use name="root"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ParameterSet"/>
+<use name="Geometry/GEMGeometry"/>
+<use name="DataFormats/GEMRecHit"/>
+<use name="DataFormats/GEMDigi"/>
+<use name="DataFormats/Common"/>
 <export>
   <lib name="1"/>
 </export>
