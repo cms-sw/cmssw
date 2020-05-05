@@ -89,10 +89,8 @@ process.qTester = DQMQualityTester(
 process.dqmSaver.convention = 'Offline'
 process.dqmSaver.workflow = config.workflowName
 process.dqmSaver.dirName = config.outputdir
-process.DQMStore.collateHistograms = False
 process.DQM.collectorHost = ''
 """
-process.DQMStore.collateHistograms = True
 process.dqmSaver.convention = 'Offline'
 process.dqmSaver.workflow = workflowName
 process.dqmSaver.saveByRun = -1

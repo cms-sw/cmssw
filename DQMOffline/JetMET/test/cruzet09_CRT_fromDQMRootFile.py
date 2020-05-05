@@ -34,7 +34,6 @@ process.dqmSaver.referenceHandling = cms.untracked.string('all')
 # Specify root file including reference histograms
 #-----------------------------
 #process.DQMStore.verbose = 5
-#process.DQMStore.collateHistograms = True
 
 #-----------------------------
 # Locate a directory in DQMStore

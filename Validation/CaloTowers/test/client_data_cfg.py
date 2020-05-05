@@ -87,7 +87,6 @@ process.dqmSaver.workflow = Workflow
 #process.dqmSaver.saveByRun = cms.untracked.int32(1)
 #process.dqmSaver.saveAtJobEnd = cms.untracked.bool(True)
 #process.dqmSaver.forceRunNumber = cms.untracked.int32(999999)
-process.DQMStore.collateHistograms = cms.untracked.bool(True)
 process.dqmSaver.convention = 'Offline'
 process.dqmSaver.saveByRun = -1
 process.dqmSaver.saveAtJobEnd = True
