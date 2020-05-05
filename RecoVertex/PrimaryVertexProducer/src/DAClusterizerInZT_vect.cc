@@ -690,8 +690,8 @@ bool DAClusterizerInZT_vect::merge(vertex_t& y, track_t& tks, double& beta) cons
   for (unsigned int k1 = 0; (k1 + 1) < nv; k1++) {
     unsigned int k2 = k1;
     while ((++k2 < nv) && (std::fabs(y.z[k2] - y.z_ptr[k1]) < zmerge_)) {
-      auto delta = std::pow((y.z_ptr[k2] - y.z_ptr[k1]) / zmerge_, 2) +
-                   std::pow((y.t_ptr[k2] - y.t_ptr[k1]) / tmerge_, 2);
+      auto delta =
+          std::pow((y.z_ptr[k2] - y.z_ptr[k1]) / zmerge_, 2) + std::pow((y.t_ptr[k2] - y.t_ptr[k1]) / tmerge_, 2);
       if ((delta < delta_min) || (k1_min == k2_min)) {
         k1_min = k1;
         k2_min = k2;
@@ -954,9 +954,7 @@ bool DAClusterizerInZT_vect::split(const double beta, track_t& tks, vertex_t& y,
 
         double p =
             y.pk_ptr[k] * tks.pi_ptr[i] *
-            local_exp(
-                -beta *
-                Eik(tks.z_ptr[i], y.z_ptr[k], tks.dz2_ptr[i], tks.t_ptr[i], y.t_ptr[k], tks.dt2_ptr[i])) /
+            local_exp(-beta * Eik(tks.z_ptr[i], y.z_ptr[k], tks.dz2_ptr[i], tks.t_ptr[i], y.t_ptr[k], tks.dt2_ptr[i])) /
             tks.Z_sum_ptr[i];
         double wz = p * tks.dz2_ptr[i];
         double wt = p * tks.dt2_ptr[i];
@@ -1290,9 +1288,7 @@ vector<TransientVertex> DAClusterizerInZT_vect::vertices(const vector<reco::Tran
     for (unsigned int i = 0; i < nt; i++)
       tks.Z_sum_ptr[i] +=
           y.pk_ptr[k] *
-          local_exp(
-              -beta *
-              Eik(tks.z_ptr[i], y.z_ptr[k], tks.dz2_ptr[i], tks.t_ptr[i], y.t_ptr[k], tks.dt2_ptr[i]));
+          local_exp(-beta * Eik(tks.z_ptr[i], y.z_ptr[k], tks.dz2_ptr[i], tks.t_ptr[i], y.t_ptr[k], tks.dt2_ptr[i]));
   }
 
   for (unsigned int k = 0; k < nv; k++) {
@@ -1303,9 +1299,7 @@ vector<TransientVertex> DAClusterizerInZT_vect::vertices(const vector<reco::Tran
       if (tks.Z_sum_ptr[i] > 1e-100) {
         double p =
             y.pk_ptr[k] *
-            local_exp(
-                -beta *
-                Eik(tks.z_ptr[i], y.z_ptr[k], tks.dz2_ptr[i], tks.t_ptr[i], y.t_ptr[k], tks.dt2_ptr[i])) /
+            local_exp(-beta * Eik(tks.z_ptr[i], y.z_ptr[k], tks.dz2_ptr[i], tks.t_ptr[i], y.t_ptr[k], tks.dt2_ptr[i])) /
             tks.Z_sum_ptr[i];
         if ((tks.pi_ptr[i] > 0) && (p > mintrkweight_)) {
           vertexTracks.push_back(*(tks.tt[i]));
@@ -1477,14 +1471,11 @@ void DAClusterizerInZT_vect::dump(const double beta, const vertex_t& y, const tr
           continue;
 
         if ((tks.pi_ptr[i] > 0) && (tks.Z_sum_ptr[i] > 0)) {
-          double p = y.pk_ptr[ivertex] *
-                     exp(-beta * Eik(tks.z_ptr[i],
-                                     y.z_ptr[ivertex],
-                                     tks.dz2_ptr[i],
-                                     tks.t_ptr[i],
-                                     y.t_ptr[ivertex],
-                                     tks.dt2_ptr[i])) /
-                     tks.Z_sum_ptr[i];
+          double p =
+              y.pk_ptr[ivertex] *
+              exp(-beta *
+                  Eik(tks.z_ptr[i], y.z_ptr[ivertex], tks.dz2_ptr[i], tks.t_ptr[i], y.t_ptr[ivertex], tks.dt2_ptr[i])) /
+              tks.Z_sum_ptr[i];
 
           if ((ivertex >= tks.kmin[i]) && (ivertex < tks.kmax[i])) {
             if (p > 0.0001) {
@@ -1492,12 +1483,8 @@ void DAClusterizerInZT_vect::dump(const double beta, const vertex_t& y, const tr
             } else {
               std::cout << "    _   ";  // tiny but in the cluster list
             }
-            E += p * Eik(tks.z_ptr[i],
-                         y.z_ptr[ivertex],
-                         tks.dz2_ptr[i],
-                         tks.t_ptr[i],
-                         y.t_ptr[ivertex],
-                         tks.dt2_ptr[i]);
+            E +=
+                p * Eik(tks.z_ptr[i], y.z_ptr[ivertex], tks.dz2_ptr[i], tks.t_ptr[i], y.t_ptr[ivertex], tks.dt2_ptr[i]);
             sump += p;
           } else {
             if (p > 0.1) {
