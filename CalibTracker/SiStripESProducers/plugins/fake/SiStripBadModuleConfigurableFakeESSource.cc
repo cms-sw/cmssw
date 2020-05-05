@@ -121,7 +121,7 @@ SiStripBadModuleConfigurableFakeESSource::ReturnType SiStripBadModuleConfigurabl
         << "[produce] number of selected dets to be removed " << selAPVs.size() << std::endl;
 
     std::stringstream ss;
-    for (const auto selId : selAPVs) {
+    for (const auto& selId : selAPVs) {
       SiStripQuality::InputVector theSiStripVector;
       auto the_detid = selId.first;
 
