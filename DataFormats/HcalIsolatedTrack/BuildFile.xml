@@ -1,11 +1,10 @@
-<use   name="DataFormats/Candidate"/>
-<use   name="DataFormats/Common"/>
-<use   name="DataFormats/Math"/>
-<use   name="DataFormats/RecoCandidate"/>
-<use   name="DataFormats/TrackReco"/>
-<use   name="DataFormats/L1Trigger"/>
-<use   name="FWCore/MessageLogger"/>
-
+<use name="DataFormats/Candidate"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/Math"/>
+<use name="DataFormats/RecoCandidate"/>
+<use name="DataFormats/TrackReco"/>
+<use name="DataFormats/L1Trigger"/>
+<use name="FWCore/MessageLogger"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

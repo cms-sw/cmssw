@@ -1,11 +1,10 @@
-<use   name="DataFormats/Common"/>
-<use   name="DataFormats/DTDigi"/>
-<use   name="DataFormats/GeometrySurface"/>
-<use   name="DataFormats/GeometryVector"/>
-<use   name="DataFormats/MuonDetId"/>
-<use   name="DataFormats/TrackingRecHit"/>
-<use   name="FWCore/Utilities"/>
-
+<use name="DataFormats/Common"/>
+<use name="DataFormats/DTDigi"/>
+<use name="DataFormats/GeometrySurface"/>
+<use name="DataFormats/GeometryVector"/>
+<use name="DataFormats/MuonDetId"/>
+<use name="DataFormats/TrackingRecHit"/>
+<use name="FWCore/Utilities"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

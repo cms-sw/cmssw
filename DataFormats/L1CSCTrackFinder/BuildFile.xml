@@ -1,9 +1,8 @@
-<use   name="DataFormats/CSCDigi"/>
-<use   name="DataFormats/Common"/>
-<use   name="DataFormats/DetId"/>
-<use   name="DataFormats/L1GlobalMuonTrigger"/>
-<use   name="DataFormats/MuonDetId"/>
-
+<use name="DataFormats/CSCDigi"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/L1GlobalMuonTrigger"/>
+<use name="DataFormats/MuonDetId"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

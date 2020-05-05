@@ -1,9 +1,8 @@
-<use   name="DataFormats/Common"/>
-<use   name="DataFormats/CLHEP"/>
-<use   name="rootcore"/>
-<use   name="rootsmatrix"/>
-<use   name="clhep"/>
-
+<use name="DataFormats/Common"/>
+<use name="DataFormats/CLHEP"/>
+<use name="rootcore"/>
+<use name="rootsmatrix"/>
+<use name="clhep"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>
