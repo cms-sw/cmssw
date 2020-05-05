@@ -1,5 +1,5 @@
-<use   name="FWCore/ParameterSet"/>
-<use   name="DataFormats/Candidate"/>
+<use name="FWCore/ParameterSet"/>
+<use name="DataFormats/Candidate"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>
