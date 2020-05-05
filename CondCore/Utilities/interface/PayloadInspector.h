@@ -392,14 +392,21 @@ namespace cond {
 
       virtual bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) { return false; }
 
-      void setSingleIov(bool flag) { m_plotAnnotations.singleIov = flag; }
+      void setSingleIov(bool flag) {
+        m_plotAnnotations.singleIov = flag;
+        m_singleIovSet = true;
+      }
 
       void setTwoTags(bool flag) {
-        if (flag)
+        if (flag) {
           m_plotAnnotations.ntags = 2;
-        else
+          if (!m_singleIovSet)
+            m_plotAnnotations.singleIov = true;
+        } else
           m_plotAnnotations.ntags = 1;
       }
+
+      bool m_singleIovSet = false;
     };
 
     template <>
