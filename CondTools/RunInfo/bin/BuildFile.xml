@@ -1,10 +1,11 @@
-<use   name="CondTools/RunInfo"/>
-<use   name="CondFormats/RunInfo"/>
-<bin   file="conddb_import_runInfo.cpp" name="conddb_import_runInfo">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
+<use name="CondTools/RunInfo"/>
+<use name="CondFormats/RunInfo"/>
+<bin file="conddb_import_runInfo.cpp" name="conddb_import_runInfo">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
 </bin>
-<bin   file="conddb_dump_LHCInfo.cpp" name="conddb_dump_LHCInfo">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
+
+<bin file="conddb_dump_LHCInfo.cpp" name="conddb_dump_LHCInfo">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
 </bin>
