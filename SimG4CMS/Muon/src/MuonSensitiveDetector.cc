@@ -66,7 +66,7 @@ MuonSensitiveDetector::MuonSensitiveDetector(const std::string& name,
   edm::ESHandle<MuonGeometryConstants> mdc;
   es.get<IdealGeometryRecord>().get(mdc);
   if (!mdc.isValid())
-    throw cms::Exception("Unknown", "MuonSensitiveDetector") << "Cannot find MuonGeometryConstants\n";
+    throw cms::Exception("MuonSensitiveDetector") << "Cannot find MuonGeometryConstants\n";
   MuonGeometryConstants constants = *(mdc.product());
   G4String sdet = "unknown";
   if (detector->isEndcap()) {

@@ -6,7 +6,7 @@
 //#define LOCAL_DEBUG
 
 MuonDDDNumbering::MuonDDDNumbering(const MuonGeometryConstants &muonConstants) {
-  //  MuonGeometryConstants muonConstants;
+  //  Get constant values from muonConstants
   theLevelPart = muonConstants.getValue("level");
   theSuperPart = muonConstants.getValue("super");
   theBasePart = muonConstants.getValue("base");
