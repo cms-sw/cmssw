@@ -1,17 +1,17 @@
-<use   name="CondFormats/DataRecord"/>
-<use   name="CondFormats/JetMETObjects"/>
-<use   name="CondCore/DBOutputService"/>
-<use   name="CommonTools/Utils"/>
-<use   name="DataFormats/Common"/>
-<use   name="DataFormats/JetReco"/>
-<use   name="DataFormats/METReco"/>
-<use   name="DataFormats/BTauReco"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="JetMETCorrections/Objects"/>
-<use   name="JetMETCorrections/Algorithms"/>
-<use   name="JetMETCorrections/JetCorrector"/>
-<use   name="boost"/>
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/JetMETObjects"/>
+<use name="CondCore/DBOutputService"/>
+<use name="CommonTools/Utils"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/JetReco"/>
+<use name="DataFormats/METReco"/>
+<use name="DataFormats/BTauReco"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="JetMETCorrections/Objects"/>
+<use name="JetMETCorrections/Algorithms"/>
+<use name="JetMETCorrections/JetCorrector"/>
+<use name="boost"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>
