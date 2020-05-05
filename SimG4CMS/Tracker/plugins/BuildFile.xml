@@ -1,6 +1,6 @@
-  <use   name="SimG4CMS/Tracker"/>
-  <use   name="SimG4Core/SensitiveDetector"/>
-  <use   name="geant4core"/>
-<library   file="*.cc" name="SimG4CMSTrackerPlugins">
-  <flags   EDM_PLUGIN="1"/>
+<use name="SimG4CMS/Tracker"/>
+<use name="SimG4Core/SensitiveDetector"/>
+<use name="geant4core"/>
+<library file="*.cc" name="SimG4CMSTrackerPlugins">
+  <flags EDM_PLUGIN="1"/>
 </library>
