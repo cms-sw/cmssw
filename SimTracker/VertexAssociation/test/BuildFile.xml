@@ -1,16 +1,16 @@
-<use   name="FWCore/Framework"/>
-<use   name="CommonTools/Statistics"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="CommonTools/UtilAlgos"/>
-<use   name="SimTracker/VertexAssociation"/>
-<use   name="SimDataFormats/TrackingAnalysis"/>
-<use   name="MagneticField/Records"/>
-<use   name="MagneticField/Engine"/>
-<use   name="SimTracker/Records"/>
-<use   name="DataFormats/Math"/>
-<use   name="clhep"/>
-<use   name="boost"/>
-<use   name="root"/>
-<library   file="*.cc" name="testVertexAssociator">
-  <flags   EDM_PLUGIN="1"/>
+<use name="FWCore/Framework"/>
+<use name="CommonTools/Statistics"/>
+<use name="FWCore/ParameterSet"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="SimTracker/VertexAssociation"/>
+<use name="SimDataFormats/TrackingAnalysis"/>
+<use name="MagneticField/Records"/>
+<use name="MagneticField/Engine"/>
+<use name="SimTracker/Records"/>
+<use name="DataFormats/Math"/>
+<use name="clhep"/>
+<use name="boost"/>
+<use name="root"/>
+<library file="*.cc" name="testVertexAssociator">
+  <flags EDM_PLUGIN="1"/>
 </library>
