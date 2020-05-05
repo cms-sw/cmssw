@@ -1,11 +1,8 @@
-<use   name="boost"/>
-<use   name="boost_serialization"/>
-
-<use   name="DataFormats/DetId"/>
-<use   name="DataFormats/EcalDetId"/>
-<use   name="DataFormats/L1GlobalTrigger"/>
-<use   name="DataFormats/Provenance"/>
-
-<use   name="clhep"/>
-<use   name="rootmath"/>
-
+<use name="boost"/>
+<use name="boost_serialization"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/EcalDetId"/>
+<use name="DataFormats/L1GlobalTrigger"/>
+<use name="DataFormats/Provenance"/>
+<use name="clhep"/>
+<use name="rootmath"/>
