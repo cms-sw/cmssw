@@ -64,7 +64,7 @@ void PatternRecognitionbyCA<TILE>::makeTracksters(const typename PatternRecognit
 
   int type = input.tiles[0].getTypeT() ;
   int nEtaBin  = (type==1) ? ticl::TileConstantsHFNose::nEtaBins : ticl::TileConstants::nEtaBins;
-  int nPhiBin  = (type==1) ? ticl::TileConstantsHFNose::nEtaBins : ticl::TileConstants::nEtaBins;
+  int nPhiBin  = (type==1) ? ticl::TileConstantsHFNose::nPhiBins : ticl::TileConstants::nPhiBins;
 
   bool isRegionalIter = (input.regions[0].index != -1);
   std::vector<HGCDoublet::HGCntuplet> foundNtuplets;
