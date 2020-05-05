@@ -3,7 +3,7 @@
 <use name="FWCore/ParameterSet"/>
 <use name="heppdt"/>
 <use name="root"/>
-<use name="pythia8"/> 
-<use   name="DataFormats/Math"/>
+<use name="pythia8"/>
+<use name="DataFormats/Math"/>
 <flags CXXFLAGS="-g"/>
 <flags EDM_PLUGIN="1"/>
