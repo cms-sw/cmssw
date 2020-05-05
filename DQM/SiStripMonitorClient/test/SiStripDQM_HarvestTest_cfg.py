@@ -47,7 +47,6 @@ process.dqmEnvTr = DQMEDAnalyzer('DQMEventInfo',
 
 #process.dqmSaver.workflow = '/GlobalCruzet4-A/CMSSW_2_1_X-Testing/RECO'
 
-process.DQMStore.collateHistograms = False
 process.EDMtoMEConverter.convertOnEndLumi = True
 process.EDMtoMEConverter.convertOnEndRun = False
 

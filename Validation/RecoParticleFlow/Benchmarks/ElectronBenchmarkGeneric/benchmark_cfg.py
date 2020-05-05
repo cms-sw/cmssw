@@ -171,7 +171,6 @@ process.DQM = cms.Service("DQM",
 process.DQMStore = cms.Service("DQMStore",
     verboseQT = cms.untracked.int32(0),
     verbose = cms.untracked.int32(0),
-    collateHistograms = cms.untracked.bool(False)
 )
 
 

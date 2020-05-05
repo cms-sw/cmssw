@@ -48,7 +48,6 @@ process.source.processingMode = "RunsAndLumis"
 process.dqmSaver.convention = 'Offline'
 process.dqmSaver.workflow = '/Cosmics/CMSSW_2_2_X-Testing/RECO'
 
-process.DQMStore.collateHistograms = False
 process.EDMtoMEConverter.convertOnEndLumi = True
 process.EDMtoMEConverter.convertOnEndRun = False
 

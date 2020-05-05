@@ -65,7 +65,6 @@ process.MessageLogger = cms.Service("MessageLogger",
         'cout')
  )
 
-process.DQMStore.collateHistograms = True
 process.DQMStore.verbose = 1
 #process.DQM.collectorHost = ''
 #process.GlobalTag.globaltag = 'STARTUP::All'

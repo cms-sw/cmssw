@@ -45,7 +45,6 @@ process.reader = cms.EDFilter("DQMReadFileExample",
 #process.dqmSaver.convention = 'Offline'
 process.dqmSaver.workflow = '/testing/damn/reader'
 process.dqmSaver.dirName = '/tmp/valdo'
-process.DQMStore.collateHistograms = False
 
 #-------------------------------------------------
 # GEOMETRY

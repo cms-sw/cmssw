@@ -31,7 +31,6 @@ process.source.processingMode = "RunsAndLumis"
 process.dqmSaver.convention = 'Offline'
 process.dqmSaver.workflow = '/StreamExpress/BeamCommissioning09-v8/DQMOffline'
 
-process.DQMStore.collateHistograms = False
 process.EDMtoMEConverter.convertOnEndLumi = True
 process.EDMtoMEConverter.convertOnEndRun = False
 

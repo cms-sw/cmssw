@@ -198,7 +198,6 @@ process.VALOUTPUT = cms.OutputModule("PoolOutputModule",
 ValidationSequence="SEQUENCE"
 
 if ValidationSequence=="harvesting":
-    process.DQMStore.collateHistograms = False
 
     process.dqmSaver.convention = 'Offline'
 

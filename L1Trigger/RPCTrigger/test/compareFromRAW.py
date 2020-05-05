@@ -94,7 +94,6 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.DQMStore = cms.Service("DQMStore")
 #,
 #    verbose = cms.untracked.int32(0),
-#    collateHistograms = cms.untracked.bool(False)
 #)
 
 #process.tdqmSaver = cms.EDFilter("DQMFileSaver",
