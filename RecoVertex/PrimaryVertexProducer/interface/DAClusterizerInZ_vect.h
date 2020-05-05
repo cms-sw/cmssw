@@ -58,17 +58,17 @@ public:
 
     // has to be called everytime the items are modified
     void extractRaw() {
-      z_array = &z.front();
-      dz2_array = &dz2.front();
-      Z_sum_array = &Z_sum.front();
-      pi_array = &pi.front();
+      z_ptr = &z.front();
+      dz2_ptr = &dz2.front();
+      Z_sum_ptr = &Z_sum.front();
+      pi_ptr = &pi.front();
     }
 
-    double *__restrict__ z_array;    // z-coordinate at point of closest approach to the beamline
-    double *__restrict__ dz2_array;  // square of the error of z(pca)
+    double *__restrict__ z_ptr;    // z-coordinate at point of closest approach to the beamline
+    double *__restrict__ dz2_ptr;  // square of the error of z(pca)
 
-    double *__restrict__ Z_sum_array;  // Z[i]   for DA clustering
-    double *__restrict__ pi_array;     // track weight
+    double *__restrict__ Z_sum_ptr;  // Z[i]   for DA clustering
+    double *__restrict__ pi_ptr;     // track weight
 
     std::vector<double> z;      // z-coordinate at point of closest approach to the beamline
     std::vector<double> dz2;    // square of the error of z(pca)
@@ -173,32 +173,32 @@ public:
       std::cout << "vertex_t size: " << getSize() << std::endl;
 
       for (unsigned int i = 0; i < getSize(); ++i) {
-        std::cout << " z = " << z_array[i] << " pk = " << pk_array[i] << std::endl;
+        std::cout << " z = " << z_ptr[i] << " pk = " << pk_ptr[i] << std::endl;
       }
     }
 
     // has to be called everytime the items are modified
     void extractRaw() {
-      z_array = &z.front();
-      pk_array = &pk.front();
+      z_ptr = &z.front();
+      pk_ptr = &pk.front();
 
-      ei_array = &ei.front();
-      sw_array = &sw.front();
-      swz_array = &swz.front();
-      se_array = &se.front();
-      swE_array = &swE.front();
-      ei_cache_array = &ei_cache.front();
+      ei_ptr = &ei.front();
+      sw_ptr = &sw.front();
+      swz_ptr = &swz.front();
+      se_ptr = &se.front();
+      swE_ptr = &swE.front();
+      ei_cache_ptr = &ei_cache.front();
     }
 
-    double *__restrict__ z_array;
-    double *__restrict__ pk_array;
+    double *__restrict__ z_ptr;
+    double *__restrict__ pk_ptr;
 
-    double *__restrict__ ei_cache_array;
-    double *__restrict__ ei_array;
-    double *__restrict__ sw_array;
-    double *__restrict__ swz_array;
-    double *__restrict__ se_array;
-    double *__restrict__ swE_array;
+    double *__restrict__ ei_cache_ptr;
+    double *__restrict__ ei_ptr;
+    double *__restrict__ sw_ptr;
+    double *__restrict__ swz_ptr;
+    double *__restrict__ se_ptr;
+    double *__restrict__ swE_ptr;
   };
 
   DAClusterizerInZ_vect(const edm::ParameterSet &conf);

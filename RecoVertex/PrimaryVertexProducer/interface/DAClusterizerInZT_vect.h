@@ -41,21 +41,21 @@ public:
 
     // has to be called everytime the items are modified
     void extractRaw() {
-      z_array = &z.front();
-      t_array = &t.front();
-      dz2_array = &dz2.front();
-      dt2_array = &dt2.front();
-      pi_array = &pi.front();
-      Z_sum_array = &Z_sum.front();
+      z_ptr = &z.front();
+      t_ptr = &t.front();
+      dz2_ptr = &dz2.front();
+      dt2_ptr = &dt2.front();
+      pi_ptr = &pi.front();
+      Z_sum_ptr = &Z_sum.front();
     }
 
-    double *z_array;   // z-coordinate at point of closest approach to the beamline
-    double *t_array;   // t-coordinate at point of closest approach to the beamline
-    double *pi_array;  // track weight
+    double *z_ptr;   // z-coordinate at point of closest approach to the beamline
+    double *t_ptr;   // t-coordinate at point of closest approach to the beamline
+    double *pi_ptr;  // track weight
 
-    double *dz2_array;    // square of the error of z(pca)
-    double *dt2_array;    // square of the error of t(pca)
-    double *Z_sum_array;  // Z[i]   for DA clustering
+    double *dz2_ptr;    // square of the error of z(pca)
+    double *dt2_ptr;    // square of the error of t(pca)
+    double *Z_sum_ptr;  // Z[i]   for DA clustering
 
     std::vector<double> z;      // z-coordinate at point of closest approach to the beamline
     std::vector<double> t;      // t-coordinate at point of closest approach to the beamline
@@ -95,23 +95,23 @@ public:
 
     // has to be called everytime the items are modified
     void extractRaw() {
-      z_array = &z.front();
-      t_array = &t.front();
-      pk_array = &pk.front();
-      dt2_array = &dt2.front();
-      sumw_array = &sumw.front();
+      z_ptr = &z.front();
+      t_ptr = &t.front();
+      pk_ptr = &pk.front();
+      dt2_ptr = &dt2.front();
+      sumw_ptr = &sumw.front();
 
-      ei_array = &ei.front();
-      swz_array = &swz.front();
-      swt_array = &swt.front();
-      se_array = &se.front();
-      nuz_array = &nuz.front();
-      nut_array = &nut.front();
-      szz_array = &szz.front();
-      stt_array = &stt.front();
-      szt_array = &szt.front();
+      ei_ptr = &ei.front();
+      swz_ptr = &swz.front();
+      swt_ptr = &swt.front();
+      se_ptr = &se.front();
+      nuz_ptr = &nuz.front();
+      nut_ptr = &nut.front();
+      szz_ptr = &szz.front();
+      stt_ptr = &stt.front();
+      szt_ptr = &szt.front();
 
-      ei_cache_array = &ei_cache.front();
+      ei_cache_ptr = &ei_cache.front();
     }
 
     void insertItem(unsigned int k, double new_z, double new_t, double new_pk) {
@@ -228,7 +228,7 @@ public:
 
       unsigned int k = 0;
       for (; k < getSize(); k++) {
-        if (z < z_array[k])
+        if (z < z_ptr[k])
           break;
       }
       insertItem(k, z, t, pk, tks);
@@ -239,7 +239,7 @@ public:
       std::cout << "vertex_t size: " << getSize() << std::endl;
 
       for (unsigned int i = 0; i < getSize(); ++i) {
-        std::cout << " z = " << z_array[i] << " t = " << t_array[i] << " pk = " << pk_array[i] << std::endl;
+        std::cout << " z = " << z_ptr[i] << " t = " << t_ptr[i] << " pk = " << pk_ptr[i] << std::endl;
       }
     }
 
@@ -249,22 +249,22 @@ public:
     std::vector<double> dt2;   // only used with vertex time uncertainties
     std::vector<double> sumw;  // only used with vertex time uncertainties
 
-    double *z_array;
-    double *t_array;
-    double *pk_array;
-    double *dt2_array;
-    double *sumw_array;
+    double *z_ptr;
+    double *t_ptr;
+    double *pk_ptr;
+    double *dt2_ptr;
+    double *sumw_ptr;
 
-    double *ei_cache_array;
-    double *ei_array;
-    double *swz_array;
-    double *swt_array;
-    double *se_array;
-    double *szz_array;
-    double *stt_array;
-    double *szt_array;
-    double *nuz_array;
-    double *nut_array;
+    double *ei_cache_ptr;
+    double *ei_ptr;
+    double *swz_ptr;
+    double *swt_ptr;
+    double *se_ptr;
+    double *szz_ptr;
+    double *stt_ptr;
+    double *szt_ptr;
+    double *nuz_ptr;
+    double *nut_ptr;
 
     // --- temporary numbers, used during update
     std::vector<double> ei_cache;
