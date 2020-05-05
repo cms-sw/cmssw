@@ -1,17 +1,16 @@
-<use   name="DataFormats/HcalRecHit"/>
-<use   name="DataFormats/HcalDigi"/>
-<use   name="TBDataFormats/HcalTBObjects"/>
-<use   name="EventFilter/HcalRawToDigi"/>
-<use   name="CalibFormats/HcalObjects"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="DQMServices/Core"/>
-<use   name="rootmath"/>
-<use   name="DataFormats/L1GlobalTrigger"/>
-<use   name="DataFormats/Common"/>
-<use   name="CondFormats/RunInfo"/>
-
+<use name="DataFormats/HcalRecHit"/>
+<use name="DataFormats/HcalDigi"/>
+<use name="TBDataFormats/HcalTBObjects"/>
+<use name="EventFilter/HcalRawToDigi"/>
+<use name="CalibFormats/HcalObjects"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="DQMServices/Core"/>
+<use name="rootmath"/>
+<use name="DataFormats/L1GlobalTrigger"/>
+<use name="DataFormats/Common"/>
+<use name="CondFormats/RunInfo"/>
 <export>
-	<lib name="DQMHcalCommon" />
+  <lib name="DQMHcalCommon"/>
 </export>
