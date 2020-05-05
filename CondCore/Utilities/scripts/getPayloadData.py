@@ -94,16 +94,16 @@ def deserialize_iovs(db, plugin_name, plot_name, tags, time_type, input_params):
     if input_params is not None:
         plot.setInputParamValues( input_params )
 
-   modv = getattr(plugin_base,'ModuleVersion')
+    modv = getattr(plugin_base,'ModuleVersion')
 
-   success = False
-   if modv.label == '1.0':
-       if len(tags)==1:
-           success = plot.process(db_name, tags[0][0], time_type, int(tags[0][1]), int(tags[0][2]) )
-       elif len(tags)==2:
-           success = plot.processTwoTags(db_name, tags[0][0], tags[1][0], int(tags[0][1]),int(tags[1][1]) )
-       elif modv.label == '2.0':
-           success = plot.process(db_name, tags)
+    success = False
+    if modv.label == '1.0':
+        if len(tags)==1:
+            success = plot.process(db_name, tags[0][0], time_type, int(tags[0][1]), int(tags[0][2]) )
+        elif len(tags)==2:
+            success = plot.processTwoTags(db_name, tags[0][0], tags[1][0], int(tags[0][1]),int(tags[1][1]) )
+    elif modv.label == '2.0':
+        success = plot.process(db_name, tags)
 
     output('plot processed data successfully: ', success)
     if not success:
@@ -163,6 +163,7 @@ def discover():
         }
     '''
     plugin_base = import_module('pluginModule_PayloadInspector') 
+    modv = getattr(plugin_base,'ModuleVersion')
     result = {}
     for plugin_name in discover_plugins():
         output(' - plugin name: ', plugin_name)
@@ -183,9 +184,12 @@ def discover():
             output(' - is single iov: ', single_iov)
             two_tags = plot_method.isTwoTags()
             output(' - is Two Tags: ', two_tags)
-            input_params = plot_method.inputParams()
-            output(' - input params: ', len(input_params))
-            result.setdefault(payload_type, []).append({'plot': plot, 'plugin_name': plugin_name, 'title': plot_title, 'plot_type': plot_type, 'single_iov': single_iov, 'two_tags': two_tags, 'input_params': input_params})
+            plot_dict = { 'plot': plot, 'plugin_name': plugin_name, 'title': plot_title, 'plot_type': plot_type, 'single_iov': single_iov, 'two_tags': two_tags }
+            #if modv.label == '2.0':
+            #    input_params = plot_method.inputParams()
+            #    output(' - input params: ', len(input_params))
+            #    plot_dict[ 'input_params'] = input_params
+            result.setdefault(payload_type, []).append( plot_dict )
             output('currently discovered info: ', result)
     output('*** final output:', '')
     return json.dumps(result)
