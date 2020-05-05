@@ -1,35 +1,44 @@
-<use   name="CondCore/Utilities"/>
-<use   name="Utilities/Xerces"/>
+<use name="CondCore/Utilities"/>
+<use name="Utilities/Xerces"/>
 <flags CXXFLAGS="-Wno-sign-compare -Wno-unused-variable -ftemplate-depth=600"/>
+<bin file="cmscond_key_mgr.cpp" name="cmscond_key_mgr">
+</bin>
 
-<bin   file="cmscond_key_mgr.cpp" name="cmscond_key_mgr">
+<bin file="cmscond_to_lumiid.cpp" name="cmscond_to_lumiid">
+  <use name="DataFormats/Provenance"/>
 </bin>
-<bin   file="cmscond_to_lumiid.cpp" name="cmscond_to_lumiid">
-  <use   name="DataFormats/Provenance"/>
+
+<bin file="cmscond_from_lumiid.cpp" name="cmscond_from_lumiid">
+  <use name="DataFormats/Provenance"/>
 </bin>
-<bin   file="cmscond_from_lumiid.cpp" name="cmscond_from_lumiid">
-  <use   name="DataFormats/Provenance"/>
+
+<bin file="cmscond_authentication_manager.cpp" name="cmscond_authentication_manager">
 </bin>
-<bin   file="cmscond_authentication_manager.cpp" name="cmscond_authentication_manager">
+
+<bin file="conddb_test_gt_load.cpp" name="conddb_test_gt_load">
+  <use name="CondCore/CondDB"/>
 </bin>
-<bin   file="conddb_test_gt_load.cpp" name="conddb_test_gt_load">
-  <use   name="CondCore/CondDB"/>
+
+<bin file="conddb_test_gt_perf.cpp" name="conddb_test_gt_perf">
+  <use name="CondCore/CondDB"/>
 </bin>
-<bin   file="conddb_test_gt_perf.cpp" name="conddb_test_gt_perf">
-  <use   name="CondCore/CondDB"/>
+
+<bin file="conddb_import.cpp" name="conddb_import">
+  <use name="CondCore/CondDB"/>
 </bin>
-<bin   file="conddb_import.cpp" name="conddb_import">
-  <use   name="CondCore/CondDB"/>
+
+<bin file="conddb_copy_iov.cpp" name="conddb_copy_iov">
+  <use name="CondCore/CondDB"/>
 </bin>
-<bin   file="conddb_copy_iov.cpp" name="conddb_copy_iov">
-  <use   name="CondCore/CondDB"/>
+
+<bin file="conddb_test.cpp" name="conddb_test">
+  <use name="CondCore/CondDB"/>
 </bin>
-<bin   file="conddb_test.cpp" name="conddb_test">
-  <use   name="CondCore/CondDB"/>
+
+<bin file="conddb_test_read.cpp" name="conddb_test_read">
+  <use name="CondCore/CondDB"/>
 </bin>
-<bin   file="conddb_test_read.cpp" name="conddb_test_read">
-  <use   name="CondCore/CondDB"/>
-</bin>
-<bin   file="conddb_edit_tag.cpp" name="conddb_edit_tag">
-  <use   name="CondCore/CondDB"/>
+
+<bin file="conddb_edit_tag.cpp" name="conddb_edit_tag">
+  <use name="CondCore/CondDB"/>
 </bin>
