@@ -1,6 +1,6 @@
-<flags   EDM_PLUGIN="1"/>
-<use   name="DataFormats/EcalDigi"/>
-<use   name="DataFormats/EcalDetId"/>
-<use   name="DataFormats/FEDRawData"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
+<flags EDM_PLUGIN="1"/>
+<use name="DataFormats/EcalDigi"/>
+<use name="DataFormats/EcalDetId"/>
+<use name="DataFormats/FEDRawData"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
