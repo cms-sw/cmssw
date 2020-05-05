@@ -21,6 +21,7 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class BeamSpotOnlineLegacyObjectsRcd : public edm::eventsetup::EventSetupRecordImplementation<BeamSpotOnlineLegacyObjectsRcd> {};
+class BeamSpotOnlineLegacyObjectsRcd
+    : public edm::eventsetup::EventSetupRecordImplementation<BeamSpotOnlineLegacyObjectsRcd> {};
 
 #endif

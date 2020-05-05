@@ -31,7 +31,6 @@ public:
 
   ~BeamSpotOnlineObjects() override {}
 
-
   /// Setters Methods
   // set lastAnalyzedLumi_, last analyzed lumisection
   void SetLastAnalyzedLumi(int val) { lastAnalyzedLumi_ = val; }
@@ -41,7 +40,6 @@ public:
 
   // set lastAnalyzedFill_, fill of the last analyzed lumisection
   void SetLastAnalyzedFill(int val) { lastAnalyzedFill_ = val; }
-
 
   /// Getters Methods
   // get lastAnalyzedLumi_, last analyzed lumisection
@@ -53,10 +51,8 @@ public:
   // get lastAnalyzedFill_, fill of the last analyzed lumisection
   int GetLastAnalyzedFill() const { return lastAnalyzedFill_; }
 
-
   /// Print BeamSpotOnline parameters
   void print(std::stringstream& ss) const;
-
 
 private:
   int lastAnalyzedLumi_;

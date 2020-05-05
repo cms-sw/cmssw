@@ -23,7 +23,9 @@
 #include "CondFormats/DataRecord/interface/BeamSpotOnlineHLTObjectsRcd.h"
 #include "CondFormats/DataRecord/interface/BeamSpotOnlineLegacyObjectsRcd.h"
 
-class BeamSpotTransientObjectsRcd : public edm::eventsetup::DependentRecordImplementation<BeamSpotTransientObjectsRcd,
-                                    boost::mpl::vector<BeamSpotOnlineHLTObjectsRcd,BeamSpotOnlineLegacyObjectsRcd> > {};
+class BeamSpotTransientObjectsRcd
+    : public edm::eventsetup::DependentRecordImplementation<
+          BeamSpotTransientObjectsRcd,
+          boost::mpl::vector<BeamSpotOnlineHLTObjectsRcd, BeamSpotOnlineLegacyObjectsRcd> > {};
 
 #endif
