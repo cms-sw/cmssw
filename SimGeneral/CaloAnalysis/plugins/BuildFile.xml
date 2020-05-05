@@ -1,22 +1,22 @@
-<use   name="clhep"/>
-<use   name="DataFormats/SiStripDetId"/>
-<use   name="DataFormats/SiPixelDetId"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="SimDataFormats/GeneratorProducts"/>
-<use   name="SimDataFormats/CaloAnalysis"/>
-<use   name="SimDataFormats/Vertex"/>
-<use   name="DataFormats/HepMCCandidate"/>
-<use   name="SimGeneral/MixingModule"/>
-<use   name="SimGeneral/PreMixingModule"/>
-<use   name="SimDataFormats/CaloTest"/>
-<use   name="DataFormats/ForwardDetId"/>
-<use   name="DataFormats/HcalDetId"/>
-<use   name="Geometry/Records"/>
-<use   name="Geometry/HGCalGeometry"/>
-<use   name="Geometry/HcalTowerAlgo"/>
-<use   name="Geometry/HcalCommonData"/>
-<library   file="*.cc" name="SimGeneralCaloAnalysisPlugins">
-  <flags   EDM_PLUGIN="1"/>
+<use name="clhep"/>
+<use name="DataFormats/SiStripDetId"/>
+<use name="DataFormats/SiPixelDetId"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="SimDataFormats/GeneratorProducts"/>
+<use name="SimDataFormats/CaloAnalysis"/>
+<use name="SimDataFormats/Vertex"/>
+<use name="DataFormats/HepMCCandidate"/>
+<use name="SimGeneral/MixingModule"/>
+<use name="SimGeneral/PreMixingModule"/>
+<use name="SimDataFormats/CaloTest"/>
+<use name="DataFormats/ForwardDetId"/>
+<use name="DataFormats/HcalDetId"/>
+<use name="Geometry/Records"/>
+<use name="Geometry/HGCalGeometry"/>
+<use name="Geometry/HcalTowerAlgo"/>
+<use name="Geometry/HcalCommonData"/>
+<library file="*.cc" name="SimGeneralCaloAnalysisPlugins">
+  <flags EDM_PLUGIN="1"/>
 </library>
