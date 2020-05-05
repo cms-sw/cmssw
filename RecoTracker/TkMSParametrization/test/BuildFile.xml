@@ -1,8 +1,8 @@
-<use   name="boost"/>
-<use   name="root"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="RecoTracker/TkMSParametrization"/>
-<library   file="TestMS.cc" name="TestMS">
-  <flags   EDM_PLUGIN="1"/>
+<use name="boost"/>
+<use name="root"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="RecoTracker/TkMSParametrization"/>
+<library file="TestMS.cc" name="TestMS">
+  <flags EDM_PLUGIN="1"/>
 </library>
