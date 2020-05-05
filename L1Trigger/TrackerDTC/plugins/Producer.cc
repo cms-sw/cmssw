@@ -20,15 +20,14 @@
 #include "DataFormats/L1TrackTrigger/interface/TTDTC.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "L1Trigger/TrackTrigger/interface/TTStubAlgorithm_official.h"
-#include "L1Trigger/TrackTrigger/interface/TTStubAlgorithm_official.h"
 #include "L1Trigger/TrackTrigger/interface/TTStubAlgorithmRecord.h"
 
 #include "L1Trigger/TrackerDTC/interface/Settings.h"
 #include "L1Trigger/TrackerDTC/interface/Module.h"
 #include "L1Trigger/TrackerDTC/interface/DTC.h"
 
-#include <memory>
 #include <numeric>
+#include <algorithm>
 #include <vector>
 #include <string>
 
@@ -51,14 +50,12 @@ namespace trackerDTC {
     void beginRun(const Run&, const EventSetup&) override;
     void produce(Event&, const EventSetup&) override;
     void endJob() {}
-
     // helper class to store configurations
     Settings settings_;
-    // collection of outer tracker sensor modules
-    std::vector<Module> modules_;
     // ED in- and output tokens
     EDGetTokenT<TTStubDetSetVec> getTokenTTStubDetSetVec_;
-    EDPutTokenT<TTDTC> putTokenTTDTC_;
+    EDPutTokenT<TTDTC> putTokenTTDTCAccepted_;
+    EDPutTokenT<TTDTC> putTokenTTDTCLost_;
     // ES tokens
     ESGetToken<TTStubAlgorithm<Ref_Phase2TrackerDigi_>, TTStubAlgorithmRecord> getTokenTTStubAlgorithm_;
     ESGetToken<MagneticField, IdealMagneticFieldRecord> getTokenMagneticField_;
@@ -71,7 +68,8 @@ namespace trackerDTC {
   Producer::Producer(const ParameterSet& iConfig) : settings_(iConfig) {
     // book in- and output ED products
     getTokenTTStubDetSetVec_ = consumes<TTStubDetSetVec>(settings_.inputTagTTStubDetSetVec());
-    putTokenTTDTC_ = produces<TTDTC>(settings_.productBranch());
+    putTokenTTDTCAccepted_ = produces<TTDTC>(settings_.productBranchAccepted());
+    putTokenTTDTCLost_ = produces<TTDTC>(settings_.productBranchLost());
     // book ES products
     getTokenTTStubAlgorithm_ =
         esConsumes<TTStubAlgorithm<Ref_Phase2TrackerDigi_>, TTStubAlgorithmRecord, Transition::BeginRun>(
@@ -98,86 +96,52 @@ namespace trackerDTC {
     settings_.setTTStubAlgorithm(iSetup.getHandle(getTokenTTStubAlgorithm_));
     settings_.setGeometryConfiguration(iSetup.getHandle(getTokenGeometryConfiguration_));
     settings_.setProcessHistory(iRun.processHistory());
-    // convert data fromat specific stuff
-    settings_.beginRun();
     // check coniguration
     settings_.checkConfiguration();
     if (!settings_.configurationSupported())
       return;
-    // convert cabling map
-    settings_.convertCablingMap();
-    // convert outer tracker geometry
-    const vector<DetId>& cablingMap = settings_.cablingMap();
-    auto acc = [](int& sum, const DetId& detId) { return sum += !detId.null(); };
-    const int numModules = accumulate(cablingMap.begin(), cablingMap.end(), 0, acc);
-    modules_.reserve(numModules);
-    int modId(0);
-    for (const DetId& detId : cablingMap) {
-      if (!detId.null())
-        modules_.emplace_back(&settings_, detId, modId);
-      modId++;
-    }
-    settings_.setModules(modules_);
+    // convert ES Products into handy objects
+    settings_.beginRun();
   }
 
   void Producer::produce(Event& iEvent, const EventSetup& iSetup) {
-    // empty DTC product
-    TTDTC product(settings_.numRegions(), settings_.numOverlappingRegions(), settings_.numDTCsPerRegion());
-
+    // empty DTC products
+    TTDTC productAccepted(settings_.numRegions(), settings_.numOverlappingRegions(), settings_.numDTCsPerRegion());
+    TTDTC productLost(settings_.numRegions(), settings_.numOverlappingRegions(), settings_.numDTCsPerRegion());
     if (settings_.configurationSupported()) {
       // read in stub collection
       Handle<TTStubDetSetVec> handleTTStubDetSetVec;
       iEvent.getByToken(getTokenTTStubDetSetVec_, handleTTStubDetSetVec);
-
       // apply cabling map
-      auto acc = [](int& sum, const TTStubDetSet* module) { return sum += module ? module->size() : 0; };
-      vector<vector<const TTStubDetSet*>> ttDTCs(settings_.numDTCs(),
-                                                 vector<const TTStubDetSet*>(settings_.numModulesPerDTC(), nullptr));
-      TTStubDetSetVec::const_iterator ttModule;
-      for (ttModule = handleTTStubDetSetVec->begin(); ttModule != handleTTStubDetSetVec->end(); ttModule++) {
+      vector<vector<vector<TTStubRef>>> ttDTCs(settings_.numDTCs(),
+                                               vector<vector<TTStubRef>>(settings_.numModulesPerDTC()));
+      for (TTStubDetSetVec::const_iterator module = handleTTStubDetSetVec->begin();
+           module != handleTTStubDetSetVec->end();
+           module++) {
         // DetSetVec->detId + 1 = tk layout det id
-        const DetId detId = ttModule->detId() + settings_.offsetDetIdDSV();
+        const DetId detId = module->detId() + settings_.offsetDetIdDSV();
         // outer tracker module id [0-15551]
-        const int modId = settings_.modId(detId);
+        int modId = settings_.modId(detId);
         // outer tracker dtc id [0-215]
         const int dtcId = modId / settings_.numModulesPerDTC();
         // outer tracker dtc channel id [0-71]
         const int channelId = modId % settings_.numModulesPerDTC();
-        ttDTCs[dtcId][channelId] = &*ttModule;
+        vector<TTStubRef>& ttModule = ttDTCs[dtcId][channelId];
+        ttModule.reserve(module->size());
+        for (TTStubDetSet::const_iterator ttStub = module->begin(); ttStub != module->end(); ttStub++)
+          ttModule.emplace_back(makeRefTo(handleTTStubDetSetVec, ttStub));
       }
-
-      // read in and convert event content
-      int dtcId(0);
-      for (const vector<const TTStubDetSet*>& ttDTC : ttDTCs) {
-        // get modules connected to this dtc
-        const vector<Module*> modules = settings_.modules(dtcId);
-        // count number of stubs on this dtc
-        const int nSubs = accumulate(ttDTC.begin(), ttDTC.end(), 0, acc);
+      // board level processing
+      for (int dtcId = 0; dtcId < settings_.numDTCs(); dtcId++) {
         // create single outer tracker DTC board
-        DTC dtc(&settings_, nSubs);
-        // fill incoming stubs over all channel
-        int channelId(0);
-        for (const TTStubDetSet* ttModule : ttDTC) {
-          // create TTStubRefs from one module
-          vector<TTStubRef> ttStubRefs;
-          if (ttModule) {
-            ttStubRefs.reserve(ttModule->size());
-            for (TTStubDetSet::const_iterator ttStub = ttModule->begin(); ttStub != ttModule->end(); ttStub++)
-              ttStubRefs.emplace_back(makeRefTo(handleTTStubDetSetVec, ttStub));
-            // truncate incoming stubs if desired
-            if (settings_.enableTruncation())
-              ttStubRefs.resize(std::min((int)ttStubRefs.size(), settings_.maxFramesChannelInput()));
-          }
-          // fill incoming stubs of this channel
-          dtc.consume(ttStubRefs, modules.at(channelId++));
-        }
-        // route stubs and fill product
-        dtc.produce(product, dtcId++);
+        DTC dtc(&settings_, dtcId, ttDTCs[dtcId]);
+        // route stubs and fill products
+        dtc.produce(productAccepted, productLost);
       }
     }
-
-    // store ED product
-    iEvent.emplace(putTokenTTDTC_, move(product));
+    // store ED products
+    iEvent.emplace(putTokenTTDTCAccepted_, move(productAccepted));
+    iEvent.emplace(putTokenTTDTCLost_, move(productLost));
   }
 
 }  // namespace trackerDTC
