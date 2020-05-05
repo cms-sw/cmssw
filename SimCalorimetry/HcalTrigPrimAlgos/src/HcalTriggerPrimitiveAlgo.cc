@@ -849,7 +849,7 @@ void HcalTriggerPrimitiveAlgo::setWeightsQIE11(const edm::ParameterSet& weightsQ
     // Names are just abs(ieta) for HBHE
     std::vector<std::string> ietaStrs = weightsQIE11.getParameterNames();
     for (auto& ietaStr : ietaStrs) {
-        weightsQIE11_[std::stod(ietaStr)] = weightsQIE11.getUntrackedParameter<std::vector<double>>(ietaStr);
+        weightsQIE11_[std::stoi(ietaStr)] = weightsQIE11.getUntrackedParameter<std::vector<double>>(ietaStr);
     }
 }
 
