@@ -1,4 +1,4 @@
-<use   name="clhep"/>
-<use   name="boost"/>
-<use   name="root"/>
-<use   name="hepmc"/>
+<use name="clhep"/>
+<use name="boost"/>
+<use name="root"/>
+<use name="hepmc"/>
