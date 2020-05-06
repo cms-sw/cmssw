@@ -1,5 +1,5 @@
 <library file="*.cc" name="DetectorDescriptionCorePlugins">
- <use name="DetectorDescription/Core"/>
+  <use name="DetectorDescription/Core"/>
 </library>
-<flags   EDM_PLUGIN="1"/>
 
+<flags EDM_PLUGIN="1"/>

@@ -1,32 +1,40 @@
-<use   name="cppunit"/>
-<bin   name="testDD4hepFilteredView" file="DDFilteredView.cppunit.cc,testRunner.cpp">
+<use name="cppunit"/>
+<bin name="testDD4hepFilteredView" file="DDFilteredView.cppunit.cc,testRunner.cpp">
   <use name="DetectorDescription/DDCMS"/>
   <use name="dd4hep"/>
 </bin>
-<bin   name="testDD4hepExpandedView" file="DDExpandedView.cppunit.cc,testRunner.cpp">
+
+<bin name="testDD4hepExpandedView" file="DDExpandedView.cppunit.cc,testRunner.cpp">
   <use name="DetectorDescription/DDCMS"/>
   <use name="dd4hep"/>
 </bin>
-<bin   name="testDD4hepCompactView" file="DDCompactView.cppunit.cc,testRunner.cpp">
+
+<bin name="testDD4hepCompactView" file="DDCompactView.cppunit.cc,testRunner.cpp">
   <use name="DetectorDescription/DDCMS"/>
   <use name="dd4hep"/>
 </bin>
-<bin   name="testDD4hepFilter" file="Filter.cppunit.cc,testRunner.cpp">
+
+<bin name="testDD4hepFilter" file="Filter.cppunit.cc,testRunner.cpp">
   <use name="DetectorDescription/DDCMS"/>
 </bin>
-<bin   name="testDD4hepExpandedNodes" file="ExpandedNodes.cppunit.cc,testRunner.cpp">
+
+<bin name="testDD4hepExpandedNodes" file="ExpandedNodes.cppunit.cc,testRunner.cpp">
   <use name="DetectorDescription/DDCMS"/>
 </bin>
-<bin   name="testDD4hepDDSolidShapes" file="DDSolidShapes.cppunit.cc,testRunner.cpp">
+
+<bin name="testDD4hepDDSolidShapes" file="DDSolidShapes.cppunit.cc,testRunner.cpp">
   <use name="DetectorDescription/DDCMS"/>
 </bin>
-<bin   name="testDD4hepDDSolid" file="DDSolid.cppunit.cc,testRunner.cpp">
+
+<bin name="testDD4hepDDSolid" file="DDSolid.cppunit.cc,testRunner.cpp">
   <use name="DetectorDescription/DDCMS"/>
 </bin>
-<bin   name="testDD4hepDDSolidLegacyShapes" file="DDSolidLegacyShapes.cppunit.cc,testRunner.cpp">
+
+<bin name="testDD4hepDDSolidLegacyShapes" file="DDSolidLegacyShapes.cppunit.cc,testRunner.cpp">
   <use name="DetectorDescription/DDCMS"/>
 </bin>
+
 <bin file="dummyMain.cpp" name="DetectorDescriptionDDCMSTestDriver">
-  <use   name="FWCore/Utilities"/>
-  <flags   TEST_RUNNER_ARGS="/bin/bash DetectorDescription/DDCMS/test runTest.sh"/>
+  <use name="FWCore/Utilities"/>
+  <flags TEST_RUNNER_ARGS="/bin/bash DetectorDescription/DDCMS/test runTest.sh"/>
 </bin>
