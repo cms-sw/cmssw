@@ -1,11 +1,11 @@
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="SimTracker/Records"/>
-<use   name="SimTracker/TrackAssociation"/>
-<use   name="DataFormats/TrackReco"/>
-<use   name="SimDataFormats/TrackerDigiSimLink"/>
-<use   name="SimDataFormats/TrackingAnalysis"/>
-<use   name="TrackingTools/TransientTrack"/>
-<library   name="SimTrackerTrackAssociation_plugins" file="*.cc">
-  <flags   EDM_PLUGIN="1"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="SimTracker/Records"/>
+<use name="SimTracker/TrackAssociation"/>
+<use name="DataFormats/TrackReco"/>
+<use name="SimDataFormats/TrackerDigiSimLink"/>
+<use name="SimDataFormats/TrackingAnalysis"/>
+<use name="TrackingTools/TransientTrack"/>
+<library name="SimTrackerTrackAssociation_plugins" file="*.cc">
+  <flags EDM_PLUGIN="1"/>
 </library>

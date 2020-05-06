@@ -1,18 +1,18 @@
-<use   name="DataFormats/Common"/>
-<use   name="DataFormats/DetId"/>
-<use   name="DataFormats/GeometryVector"/>
-<use   name="DataFormats/SiPixelDigi"/>
-<use   name="SimDataFormats/Track"/>
-<use   name="SimDataFormats/EncodedEventId"/>
-<use   name="SimDataFormats/TrackingAnalysis"/>
-<use   name="clhep"/>
-<use   name="xerces-c"/>
-<use   name="boost"/>
-<use   name="root"/>
-<use   name="rootrflx"/>
-<use   name="DataFormats/L1TrackTrigger"/>
-<use   name="DataFormats/Phase2TrackerDigi"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/GeometryVector"/>
+<use name="DataFormats/SiPixelDigi"/>
+<use name="SimDataFormats/Track"/>
+<use name="SimDataFormats/EncodedEventId"/>
+<use name="SimDataFormats/TrackingAnalysis"/>
+<use name="clhep"/>
+<use name="xerces-c"/>
+<use name="boost"/>
+<use name="root"/>
+<use name="rootrflx"/>
+<use name="DataFormats/L1TrackTrigger"/>
+<use name="DataFormats/Phase2TrackerDigi"/>
 <export>
-  <flags   SEALPLUGIN="1"/>
-  <lib   name="1"/>
+  <flags SEALPLUGIN="1"/>
+  <lib name="1"/>
 </export>
