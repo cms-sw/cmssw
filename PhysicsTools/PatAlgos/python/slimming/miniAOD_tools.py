@@ -324,7 +324,6 @@ def miniAOD_customizeCommon(process):
     process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
     process.load("RecoTauTag.Configuration.HPSPFTaus_cff")
     #-- Adding customization for 94X 2017 legacy reMniAOD
-    from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
     _makePatTausTaskWithRetrainedMVATauID = process.makePatTausTask.copy()
     _makePatTausTaskWithRetrainedMVATauID.add(process.hpsPFTauBasicDiscriminatorsTask,
                                               process.hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTTask,
@@ -334,7 +333,8 @@ def miniAOD_customizeCommon(process):
                                               process.hpsPFTauDiscriminationByMVA6rawElectronRejection,
                                               process.hpsPFTauDiscriminationByMVA6ElectronRejection,
                                               process.hpsPFTauDiscriminationByMuonRejection3)
-    run2_miniAOD_94XFall17.toReplaceWith(
+    from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
+    (run2_miniAOD_94XFall17 | run2_miniAOD_UL).toReplaceWith(
         process.makePatTausTask, _makePatTausTaskWithRetrainedMVATauID
         )
     #-- Adding DeepTauID
@@ -407,7 +407,6 @@ def miniAOD_customizeCommon(process):
     process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour.addTagInfos = True
     process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour.tagInfoSources = ["pixelClusterTagInfos"]
 
-    from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
     _run2_miniAOD_ANY = (run2_miniAOD_80XLegacy | run2_miniAOD_94XFall17 | run2_miniAOD_UL)
     _run2_miniAOD_ANY.toModify(process.patJets, addTagInfos = False )
     _run2_miniAOD_ANY.toModify(process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour, addTagInfos = False )
