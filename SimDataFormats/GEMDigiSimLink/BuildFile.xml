@@ -1,5 +1,5 @@
-<use   name="DataFormats/Common"/>
-<use   name="SimDataFormats/EncodedEventId"/>
+<use name="DataFormats/Common"/>
+<use name="SimDataFormats/EncodedEventId"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>
