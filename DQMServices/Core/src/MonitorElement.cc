@@ -15,17 +15,21 @@ namespace dqm::impl {
 
   static TH1 *checkRootObject(const std::string &name, TObject *tobj, const char *func, int reqdim) {
     if (!tobj)
-      throw cms::Exception("MonitorElementError") <<
-                    "Method '" << func << "' cannot be invoked on monitor"
-                    " element '" << name <<"' because it is not a ROOT object.";
+      throw cms::Exception("MonitorElementError") << "Method '" << func
+                                                  << "' cannot be invoked on monitor"
+                                                     " element '"
+                                                  << name << "' because it is not a ROOT object.";
 
     auto *h = static_cast<TH1 *>(tobj);
     int ndim = h->GetDimension();
     if (reqdim < 0 || reqdim > ndim)
-      throw cms::Exception("MonitorElementError") <<
-                    "Method '" << func << "' cannot be invoked on monitor"
-                    " element '"<< name <<"' because it requires "<<reqdim <<" dimensions; this"
-                    " object of type '"<<typeid(*h).name()<<"' has "<<ndim<<" dimensions";
+      throw cms::Exception("MonitorElementError") << "Method '" << func
+                                                  << "' cannot be invoked on monitor"
+                                                     " element '"
+                                                  << name << "' because it requires " << reqdim
+                                                  << " dimensions; this"
+                                                     " object of type '"
+                                                  << typeid(*h).name() << "' has " << ndim << " dimensions";
 
     return h;
   }

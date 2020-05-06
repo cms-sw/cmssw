@@ -131,4 +131,3 @@ void DQMService::shutdown() {
   if (net_)
     net_->shutdown();
 }
-
