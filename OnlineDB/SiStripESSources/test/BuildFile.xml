@@ -1,11 +1,11 @@
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="CondFormats/DataRecord"/>
-<use   name="CondFormats/SiStripObjects"/>
-<use   name="CalibFormats/SiStripObjects"/>
-<use   name="DataFormats/SiStripCommon"/>
-<use   name="boost"/>
-<library   file="stubs/*.cc" name="testOnlineDBSiStripESSources">
-  <flags   EDM_PLUGIN="1"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/MessageLogger"/>
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/SiStripObjects"/>
+<use name="CalibFormats/SiStripObjects"/>
+<use name="DataFormats/SiStripCommon"/>
+<use name="boost"/>
+<library file="stubs/*.cc" name="testOnlineDBSiStripESSources">
+  <flags EDM_PLUGIN="1"/>
 </library>
