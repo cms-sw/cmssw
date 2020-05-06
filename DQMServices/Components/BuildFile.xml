@@ -1,6 +1,6 @@
-<use   name="EventFilter/Utilities"/>
-<use   name="FWCore/ServiceRegistry"/>
-<use   name="roothistmatrix"/>
+<use name="EventFilter/Utilities"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="roothistmatrix"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>
