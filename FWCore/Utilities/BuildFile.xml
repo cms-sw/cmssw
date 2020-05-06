@@ -1,9 +1,9 @@
-<use   name="boost"/>
-<use   name="boost_filesystem"/>
-<use   name="boost_regex"/>
-<use   name="libuuid"/>
-<use   name="tbb"/>
-<use   name="md5"/>
+<use name="boost"/>
+<use name="boost_filesystem"/>
+<use name="boost_regex"/>
+<use name="libuuid"/>
+<use name="tbb"/>
+<use name="md5"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>
