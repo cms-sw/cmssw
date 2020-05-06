@@ -120,16 +120,18 @@ class WorkFlowRunner(Thread):
                 # If the das output is not there or it's empty, consider it an
                 # issue of this step, not of the next one.
                 dasOutputPath = join(self.wfDir, 'step%d_dasquery.log'%(istep,))
-                if not exists(dasOutputPath):
-                  retStep = 1
-                  dasOutput = None
-                else:
-                  # We consider only the files which have at least one logical filename
-                  # in it. This is because sometimes das fails and still prints out junk.
-                  dasOutput = [l for l in open(dasOutputPath).read().split("\n") if l.startswith("/")]
-                if not dasOutput:
-                  retStep = 1
-                  isInputOk = False
+                # Check created das output in no-dryRun mode only
+                if not self.dryRun:
+                    if not exists(dasOutputPath):
+                        retStep = 1
+                        dasOutput = None
+                    else:
+                        # We consider only the files which have at least one logical filename
+                        # in it. This is because sometimes das fails and still prints out junk.
+                        dasOutput = [l for l in open(dasOutputPath).read().split("\n") if l.startswith("/")]
+                    if not dasOutput:
+                        retStep = 1
+                        isInputOk = False
                  
                 inFile = 'filelist:' + basename(dasOutputPath)
                 print("---")
