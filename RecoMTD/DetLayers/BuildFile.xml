@@ -1,9 +1,9 @@
-<use   name="DataFormats/GeometrySurface"/>
-<use   name="DataFormats/ForwardDetId"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/Utilities"/>
-<use   name="TrackingTools/DetLayers"/>
-<use   name="Utilities/BinningTools"/>
+<use name="DataFormats/GeometrySurface"/>
+<use name="DataFormats/ForwardDetId"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/Utilities"/>
+<use name="TrackingTools/DetLayers"/>
+<use name="Utilities/BinningTools"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>
