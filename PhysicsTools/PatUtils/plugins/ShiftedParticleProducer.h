@@ -19,7 +19,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "DataFormats/Common/interface/ValueMap.h"
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -40,12 +39,11 @@ public:
 private:
   void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
-  double getUncShift(const reco::Candidate& originalParticle);
+  double getUncShift(const CandidateView::const_iterator& originalParticle);
 
   std::string moduleLabel_;
 
   edm::EDGetTokenT<CandidateView> srcToken_;
-  edm::EDGetTokenT<edm::ValueMap<float>> weightsToken_;
 
   struct binningEntryType {
     binningEntryType(std::string uncertainty, std::string moduleLabel)
@@ -64,7 +62,7 @@ private:
       }
     }
     ~binningEntryType() {}
-    std::unique_ptr<StringCutObjectSelector<reco::Candidate>> binSelection_;
+    std::unique_ptr<StringCutObjectSelector<reco::Candidate> > binSelection_;
     //double binUncertainty_;
     std::string binUncertainty_;
     std::unique_ptr<TF2> binUncFormula_;

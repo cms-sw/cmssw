@@ -48,8 +48,7 @@ corrPfMetType1 = cms.EDProducer(
 ##____________________________________________________________________________||
 pfCandMETcorr = cms.EDProducer(
     "PFCandMETcorrInputProducer",
-    src = cms.InputTag('pfCandsNotInJetsForMetCorr'),
-    srcWeights = cms.InputTag('')
+    src = cms.InputTag('pfCandsNotInJetsForMetCorr')
     )
 
 ##____________________________________________________________________________||
