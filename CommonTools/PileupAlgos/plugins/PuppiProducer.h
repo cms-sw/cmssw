@@ -59,7 +59,7 @@ private:
   std::string fPFName;
   std::string fPVName;
   bool fPuppiDiagnostics;
-  bool fPuppiNoLep;
+  bool fPuppiForLeptons;
   bool fUseFromPVLooseTight;
   bool fUseDZ;
   float fDZCut;
@@ -68,6 +68,7 @@ private:
   double fPtMaxPhotons;
   double fEtaMaxPhotons;
   bool fUseExistingWeights;
+  bool fUseWeightsNoLep;
   bool fClonePackedCands;
   int fVtxNdofCut;
   double fVtxZCut;
