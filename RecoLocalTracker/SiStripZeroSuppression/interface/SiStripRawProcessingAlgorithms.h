@@ -22,7 +22,8 @@ public:
   void initialize(const edm::EventSetup&, const edm::Event&);
 
   uint16_t suppressHybridData_faster(const edm::DetSet<SiStripDigi>& inDigis,
-                                     edm::DetSet<SiStripDigi>& suppressedDigis);
+                                     edm::DetSet<SiStripDigi>& suppressedDigis,
+                                     uint16_t firstAPV = 0);
   uint16_t suppressHybridData(const edm::DetSet<SiStripDigi>& inDigis,
                               edm::DetSet<SiStripDigi>& suppressedDigis);
   uint16_t suppressHybridData(uint32_t detId,
