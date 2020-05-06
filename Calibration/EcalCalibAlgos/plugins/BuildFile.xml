@@ -1,2 +1,2 @@
-<use   name="Calibration/EcalCalibAlgos"/>
-<flags   EDM_PLUGIN="1"/>
+<use name="Calibration/EcalCalibAlgos"/>
+<flags EDM_PLUGIN="1"/>
