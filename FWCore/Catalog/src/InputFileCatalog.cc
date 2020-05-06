@@ -48,16 +48,14 @@ namespace edm {
     if (!fileLocators_.empty())
       fileLocators_.clear();
 
-    for (auto it = tmp_dataCatalogs.begin(); it != tmp_dataCatalogs.end(); ++it) {
-      //require the first file locator to success so obvious mistakes in data catalogs, typos for example, can be catched early
-      if (it == tmp_dataCatalogs.begin()) {
+    //require the first file locator to success so obvious mistakes in data catalogs, typos for example, can be catched early. Note that tmp_dataCatalogs is not empty at this point. The protection is done inside the dataCatalogs() above
+    fileLocators_.push_back(std::make_unique<FileLocator>(tmp_dataCatalogs.front()));
+
+    for (auto it = tmp_dataCatalogs.begin() + 1; it != tmp_dataCatalogs.end(); ++it) {
+      try {
         fileLocators_.push_back(std::make_unique<FileLocator>(*it));
-      } else {
-        try {
-          fileLocators_.push_back(std::make_unique<FileLocator>(*it));
-        } catch (cms::Exception const& e) {
-          continue;
-        }
+      } catch (cms::Exception const& e) {
+        continue;
       }
     }
 
