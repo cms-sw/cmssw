@@ -1,6 +1,5 @@
-<use   name="DataFormats/DetId"/>
-<use   name="DataFormats/TrackerCommon"/>
-
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/TrackerCommon"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>
