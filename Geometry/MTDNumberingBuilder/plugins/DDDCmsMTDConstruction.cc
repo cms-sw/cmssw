@@ -176,10 +176,10 @@ std::unique_ptr<GeometricTimingDet> DDDCmsMTDConstruction::construct(const DDCom
 
   // then ETL (number of layers depend on preTDR design or not)
 
-  if (layer.size() == 3) {
+  if (layer.size() == kNLayerPreTDR) {
     subdet[1]->addComponent(layer[1]);
     subdet[2]->addComponent(layer[2]);
-  } else if (layer.size() == 5) {
+  } else if (layer.size() == kNLayerTDR) {
     subdet[1]->addComponent(layer[1]);
     subdet[1]->addComponent(layer[2]);
     subdet[2]->addComponent(layer[3]);
@@ -315,10 +315,10 @@ std::unique_ptr<GeometricTimingDet> DDDCmsMTDConstruction::construct(const cms::
 
   // then ETL (number of layers depend on preTDR design or not)
 
-  if (layer.size() == 3) {
+  if (layer.size() == kNLayerPreTDR) {
     subdet[1]->addComponent(layer[1]);
     subdet[2]->addComponent(layer[2]);
-  } else if (layer.size() == 5) {
+  } else if (layer.size() == kNLayerTDR) {
     subdet[1]->addComponent(layer[1]);
     subdet[1]->addComponent(layer[2]);
     subdet[2]->addComponent(layer[3]);
