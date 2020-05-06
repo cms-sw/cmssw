@@ -155,9 +155,9 @@ void GEMGeometryBuilderFromDDD::build(GEMGeometry& theGeometry,
             continue;
 
           foundSuperChamber = true;
-          int nstation = (st == 0) ? 6 : 2;
+          int nlayers = (st == 0) ? GEMDetId::maxLayerId0 : GEMDetId::maxLayerId;
 
-          for (int la = 1; la <= nstation; ++la) {
+          for (int la = 1; la <= nlayers; ++la) {
             GEMDetId chId(detId.region(), detId.ring(), detId.station(), la, detId.chamber(), 0);
             auto chamber = theGeometry.chamber(chId);
             if (!chamber) {
