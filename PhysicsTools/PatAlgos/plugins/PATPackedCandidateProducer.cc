@@ -87,6 +87,7 @@ namespace pat {
     const edm::EDGetTokenT<reco::TrackCollection> TKOrigs_;
     const edm::EDGetTokenT<edm::ValueMap<float>> PuppiWeight_;
     const edm::EDGetTokenT<edm::ValueMap<float>> PuppiWeightNoLep_;
+    const edm::EDGetTokenT<std::vector<reco::PFCandidate>> PuppiCandsNoLep_;
     std::vector<edm::EDGetTokenT<edm::View<reco::Candidate>>> SVWhiteLists_;
     const bool storeChargedHadronIsolation_;
     const edm::EDGetTokenT<edm::ValueMap<bool>> ChargedHadronIsolation_;
@@ -126,6 +127,9 @@ pat::PATPackedCandidateProducer::PATPackedCandidateProducer(const edm::Parameter
                              : edm::EDGetTokenT<edm::ValueMap<float>>()),
       PuppiWeightNoLep_(usePuppi_ ? consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("PuppiNoLepSrc"))
                                   : edm::EDGetTokenT<edm::ValueMap<float>>()),
+      PuppiCandsNoLep_(
+          usePuppi_ ? consumes<std::vector<reco::PFCandidate>>(iConfig.getParameter<edm::InputTag>("PuppiNoLepSrc"))
+                    : edm::EDGetTokenT<std::vector<reco::PFCandidate>>()),
       storeChargedHadronIsolation_(!iConfig.getParameter<edm::InputTag>("chargedHadronIsolation").encode().empty()),
       ChargedHadronIsolation_(
           consumes<edm::ValueMap<bool>>(iConfig.getParameter<edm::InputTag>("chargedHadronIsolation"))),
@@ -164,9 +168,15 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event &iEvent,
 
   edm::Handle<edm::ValueMap<float>> puppiWeight;
   edm::Handle<edm::ValueMap<float>> puppiWeightNoLep;
+  edm::Handle<std::vector<reco::PFCandidate>> puppiCandsNoLep;
+  std::vector<reco::CandidatePtr> puppiCandsNoLepPtrs;
   if (usePuppi_) {
     iEvent.getByToken(PuppiWeight_, puppiWeight);
     iEvent.getByToken(PuppiWeightNoLep_, puppiWeightNoLep);
+    iEvent.getByToken(PuppiCandsNoLep_, puppiCandsNoLep);
+    for (auto pup : *puppiCandsNoLep) {
+      puppiCandsNoLepPtrs.push_back(pup.sourceCandidatePtr(0));
+    }
   }
 
   edm::Handle<reco::VertexCollection> PVOrigs;
@@ -392,7 +402,27 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event &iEvent,
       reco::PFCandidateRef pkref(cands, ic);
 
       float puppiWeightVal = (*puppiWeight)[pkref];
-      float puppiWeightNoLepVal = (*puppiWeightNoLep)[pkref];
+      float puppiWeightNoLepVal = 0.0;
+      // Check the "no lepton" puppi weights.
+      // If present, then it is not a lepton, use stored weight
+      // If absent, it is a lepton, so set the weight to 1.0
+      if (puppiWeightNoLep.isValid()) {
+        // Look for the pointer inside the "no lepton" candidate collection.
+        auto pkrefPtr = pkref->sourceCandidatePtr(0);
+
+        bool foundNoLep = false;
+        for (size_t ipcnl = 0; ipcnl < puppiCandsNoLepPtrs.size(); ipcnl++) {
+          if (puppiCandsNoLepPtrs[ipcnl] == pkrefPtr) {
+            foundNoLep = true;
+            puppiWeightNoLepVal =
+                puppiCandsNoLep->at(ipcnl).pt() / cand.pt();  // a hack for now, should use the value map
+            break;
+          }
+        }
+        if (!foundNoLep || puppiWeightNoLepVal > 1) {
+          puppiWeightNoLepVal = 1.0;
+        }
+      }
       outPtrP->back().setPuppiWeight(puppiWeightVal, puppiWeightNoLepVal);
     }
 

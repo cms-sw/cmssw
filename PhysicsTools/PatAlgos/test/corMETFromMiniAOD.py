@@ -128,6 +128,7 @@ if redoPuppi:
   runMetCorAndUncFromMiniAOD(process,
                              isData=runOnData,
                              metType="Puppi",
+                             pfCandColl=cms.InputTag("puppiForMET"),
                              recoMetFromPFCs=True,
                              reclusterJets=True,
                              jetFlavor="AK4PFPuppi",

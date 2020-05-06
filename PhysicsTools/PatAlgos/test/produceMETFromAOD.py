@@ -8,7 +8,6 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 #configurable options =======================================================================
-runOnData=False
 usePrivateSQlite=False #use external JECs (sqlite file)
 useHFCandidates=True #create an additionnal NoHF slimmed MET collection if the option is set to false
 redoPuppi=False # rebuild puppiMET
@@ -102,7 +101,7 @@ if redoPuppi:
 
   runMETCorrectionsAndUncertainties(process,
                              #isData=runOnData,
-                             metType="Puppi",
+                             pfCandColl=cms.InputTag("puppiForMET"),
                              recoMetFromPFCs=True, 
                              reclusterJets=True,
                              jetFlavor="AK4PFPuppi",
