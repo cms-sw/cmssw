@@ -1,6 +1,6 @@
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="CondCore/DBOutputService"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="CondCore/DBOutputService"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

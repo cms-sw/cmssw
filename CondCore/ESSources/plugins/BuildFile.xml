@@ -1,5 +1,5 @@
-<use   name="FWCore/Framework"/>
-<use   name="CondCore/ESSources"/>
-<library   file="*.cc" name="CondCoreESSourcesPlugins">
-  <flags   EDM_PLUGIN="1"/>
+<use name="FWCore/Framework"/>
+<use name="CondCore/ESSources"/>
+<library file="*.cc" name="CondCoreESSourcesPlugins">
+  <flags EDM_PLUGIN="1"/>
 </library>
