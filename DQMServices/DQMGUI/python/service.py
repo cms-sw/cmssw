@@ -1,12 +1,12 @@
-import zlib
 import time
 import struct
 
 from functools import lru_cache
+from async_lru import alru_cache
 
 from rendering import GUIRenderer
 from DQMServices.DQMGUI import nanoroot
-from storage import GUIDataStore, MEInfo
+from storage import GUIDataStore
 from helpers import MERenderingInfo
 
 class GUIService:
@@ -15,14 +15,14 @@ class GUIService:
     renderer = GUIRenderer()
 
     @classmethod
-    @lru_cache(10)
-    def get_samples(cls, run, dataset):
+    @alru_cache(maxsize=10)
+    async def get_samples(cls, run, dataset):
         if run == '':
             run = None
         if dataset == '':
             dataset = None
         
-        results = cls.store.get_samples(run, dataset)
+        results = await cls.store.get_samples(run, dataset)
 
         # TODO: offline_data should probably be removed. No GUI flavor distinction is required.
         samples = {
@@ -38,7 +38,8 @@ class GUIService:
         return samples
 
     @classmethod
-    def get_archive(cls, run, dataset, path, search):
+    @alru_cache(maxsize=10)
+    async def get_archive(cls, run, dataset, path, search):
 
         def get_subitem(full_path, current_dir):
             """Returns a closest sub item of full_path inside current_dir
@@ -66,14 +67,8 @@ class GUIService:
         if path and not path.endswith('/'):
             path = path + '/'
         
-        # blob format for an ME (ME/Path/mename) that has 2 QTests and an efficiency flag set looks like this:
-        # ME/Path/mename
-        # ME/Path/mename\0.qtest1
-        # ME/Path/mename\0.qtest2
-        # ME/Path/mename\0e=1
-        blob = cls.store.get_me_list_blob(run, dataset)
-        buf = zlib.decompress(blob)
-        lines = buf.split(b'\n')
+        # Get a list of all MEs
+        lines = await cls.__get_melist(run, dataset)
 
         regex = re.compile(search) if search else None
         dirs = set()
@@ -112,38 +107,41 @@ class GUIService:
         rendering_infos = []
 
         for me in me_descriptions:
-            filename, melist, offsets = cls.__get_filename_melist_offsets(me.run, me.dataset)
+            filename, me_list, me_infos = await cls.__get_filename_melist_offsets(me.run, me.dataset)
 
             # Find the index of run/dataset/me in me list blob. 
             # The index in me list will correspond to the index in offsets list.
             # TODO: use binary search or smth!!!
-            meinfo = None
-            for i in range(len(melist)):
-                line = melist[i].decode("utf-8")
+            me_info = None
+            for i in range(len(me_list)):
+                line = me_list[i].decode("utf-8")
                 if line == me.path:
-                    meinfo = offsets[i]
+                    me_info = me_infos[i]
                     break
             else: # We will end up here if we finish the loop without breaking out
                 continue
             
             # If efficiency flag is set for at least one of the MEs, it will be set for an overlay
             if not efficiency:
-                efficiency = bytes('%s\0e=1' % me.path, 'utf-8') in melist
+                efficiency = bytes('%s\0e=1' % me.path, 'utf-8') in me_list
 
-            rendering_infos.append(MERenderingInfo(filename=filename, path=me.path, meinfo=meinfo))
+            rendering_infos.append(MERenderingInfo(filename=filename, path=me.path, me_info=me_info))
 
         if not rendering_infos: # No MEs were found
             return await cls.renderer.render_string('ME not found', width=width, height=height)
 
-        # Render
         return await cls.renderer.render(rendering_infos, width, height, efficiency, stats, normalize, error_bars)
 
 
     @classmethod
-    @lru_cache(10)
-    def __get_filename_melist_offsets(cls, run, dataset):
-        filename, list_blob, offsets_blob = cls.store.get_blobs_and_filename(run, dataset)
-        melist = cls.store.melistfromblob(list_blob)
-        offsets = cls.store.meoffsetsfromblob(offsets_blob)
+    @alru_cache(maxsize=10)
+    async def __get_melist(cls, run, dataset):
+        lines = await cls.store.get_me_list_blob(run, dataset)
+        return lines
 
-        return filename, melist, offsets
+
+    @classmethod
+    @alru_cache(maxsize=10)
+    async def __get_filename_melist_offsets(cls, run, dataset):
+        filename, me_list, me_infos = await cls.store.get_blobs_and_filename(run, dataset)
+        return (filename, me_list, me_infos)

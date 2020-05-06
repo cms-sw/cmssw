@@ -8,7 +8,7 @@ import tempfile
 import subprocess
 
 from DQMServices.DQMGUI import nanoroot
-from storage import EfficiencyFlag, ScalarValue, QTest
+from meinfo import EfficiencyFlag, ScalarValue, QTest
 
 
 class GUIRenderer:
@@ -31,6 +31,12 @@ class GUIRenderer:
 
 
     @classmethod
+    async def destroy(cls):
+        for context in cls.rendering_contexts:
+            await context.destroy()
+
+
+    @classmethod
     async def render(cls, rendering_infos, width=600, height=400, efficiency=False, stats=True, normalize=True, error_bars=False):
         # Construct spec string. Sample: showstats=0;showerrbars=1;norm=False
         spec = ''
@@ -49,7 +55,7 @@ class GUIRenderer:
                 mm = mmap.mmap(root_file.fileno(), 0, prot=mmap.PROT_READ)
 
                 # Possible return values: ScalarValue, EfficiencyFlag, QTest, nanoroot.TBufferFile (bytes), 
-                info.root_object = info.meinfo.read(mm)
+                info.root_object = info.me_info.read(mm)
 
         png, error = await cls.__render(rendering_infos, width, height, spec, efficiency)
         if error == 1: # Missing streamer file - provide it
@@ -100,6 +106,17 @@ class GUIRenderingContext:
         await self.__start_rendering_process()
         await self.__open_socket_connectin()
         return self
+
+
+    async def destroy(self):
+        try:
+            self.writer.close()
+            await self.writer.wait_closed()
+        except:
+            pass
+
+        # Kill the shell process that started the renderer. -P will kill the child process (the renderer itself) too
+        subprocess.Popen('pkill -P %d' % self.render_process.pid, shell=True)
 
 
     async def render_scalar(self, text, width=266, height=200):
@@ -187,8 +204,7 @@ class GUIRenderingContext:
         start a new one and will establish a socket connetion to it.
         """
 
-        # Kill the shell process that started the renderer. -P will kill the child process (the renderer itself) too
-        subprocess.Popen('pkill -P %d' % self.render_process.pid, shell=True)
-
+        await self.destroy()
         await self.__start_rendering_process()
         await self.__open_socket_connectin()
+

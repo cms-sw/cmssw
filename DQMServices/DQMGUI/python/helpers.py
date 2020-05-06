@@ -14,12 +14,23 @@ class MEDescription:
 class MERenderingInfo:
     """Information needed to render a histogram"""
 
-    def __init__(self, filename, path, meinfo):
-        if filename == None or path == None or meinfo == None:
-            raise Exception('filename, path and meinfo must be provided to MERenderingInfo.')
+    def __init__(self, filename, path, me_info):
+        if filename == None or path == None or me_info == None:
+            raise Exception('filename, path and me_info must be provided to MERenderingInfo.')
 
         self.filename = filename
         self.path = path
-        self.meinfo = meinfo
+        self.me_info = me_info
         self.root_object = None
 
+
+class PathUtil:
+    """This helper class provides methods to handle common ME paths related operations."""
+
+    def __init__(self, path):
+        if not path:
+            raise Exception('path has to be provided')
+
+        self.path = path
+
+        
