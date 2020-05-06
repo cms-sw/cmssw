@@ -1,7 +1,7 @@
-<use   name="RecoLocalFastTime/FTLCommonAlgos"/>
-<use   name="RecoLocalFastTime/Records"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/MessageLogger"/>
-<library   file="*.cc" name="RecoLocalFastTimeFTLCommonAlgosPlugins">
-  <flags   EDM_PLUGIN="1"/>
+<use name="RecoLocalFastTime/FTLCommonAlgos"/>
+<use name="RecoLocalFastTime/Records"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<library file="*.cc" name="RecoLocalFastTimeFTLCommonAlgosPlugins">
+  <flags EDM_PLUGIN="1"/>
 </library>
