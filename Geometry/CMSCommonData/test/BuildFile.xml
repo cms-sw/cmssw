@@ -1,13 +1,12 @@
-<library   file="DDFilteredViewAnalyzer.cc" name="testDDFilteredViewAnalyzer">
-  <use   name="FWCore/Framework"/>
-  <use   name="FWCore/ParameterSet"/>
-  <use   name="Geometry/Records"/>
-  <use   name="DetectorDescription/Core"/>
-  <flags   EDM_PLUGIN="1"/>
+<library file="DDFilteredViewAnalyzer.cc" name="testDDFilteredViewAnalyzer">
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="Geometry/Records"/>
+  <use name="DetectorDescription/Core"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
 
 <bin file="TestIntegration.cpp" name="GeometryDOMCount">
-  <flags TEST_RUNNER_ARGS=" /bin/bash Geometry/CMSCommonData/test run_DOMCount.sh" />
-  <use   name="FWCore/Utilities" />
+  <flags TEST_RUNNER_ARGS=" /bin/bash Geometry/CMSCommonData/test run_DOMCount.sh"/>
+  <use name="FWCore/Utilities"/>
 </bin>
-
