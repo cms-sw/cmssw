@@ -641,7 +641,7 @@ void PixelCPEGeneric::fillPSetDescription(edm::ParameterSetDescription& desc) {
   desc.add<double>("EdgeClusterErrorX", 50.0);
   desc.add<double>("EdgeClusterErrorY", 85.0);
   desc.add<bool>("inflate_errors", false);
-  desc.add<bool>("inflate_all_errors_no_trk_angle", true);
+  desc.add<bool>("inflate_all_errors_no_trk_angle", false);
   desc.add<bool>("NoTemplateErrorsWhenNoTrkAngles", false);
   desc.add<bool>("UseErrorsFromTemplates", true);
   desc.add<bool>("TruncatePixelCharge", true);
