@@ -6,15 +6,14 @@
 <use name="FWCore/ParameterSet"/>
 <use name="Geometry/MuonNumbering"/>
 <use name="Geometry/Records"/>
-
 <library name="RPCGeometryPlugins" file="RPCGeometryESModule.cc">
-<use name="DetectorDescription/Core"/>
-<use name="DetectorDescription/DDCMS"/>
-<use name="Geometry/RPCGeometry"/>
-<use name="dd4hep"/>
-<lib name="Geom"/>
-<use name="Geometry/RPCGeometryBuilder"/>
-<flags EDM_PLUGIN="1"/>
+  <use name="DetectorDescription/Core"/>
+  <use name="DetectorDescription/DDCMS"/>
+  <use name="Geometry/RPCGeometry"/>
+  <use name="dd4hep"/>
+  <lib name="Geom"/>
+  <use name="Geometry/RPCGeometryBuilder"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
 
 <library name="RPCGeometryValidationPlugins" file="RPCGeometryValidate.cc">
@@ -22,4 +21,4 @@
   <use name="Geometry/RPCGeometry"/>
   <use name="rootgeom"/>
   <flags EDM_PLUGIN="1"/>
-</library> 
+</library>
