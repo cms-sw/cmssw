@@ -113,7 +113,7 @@ GeometricTimingDet::GeometricTimingDet(cms::DDFilteredView* fv, GeometricTimingE
   trans_.SetCoordinates(convertCmToMm(trans_.X()), convertCmToMm(trans_.Y()), convertCmToMm(trans_.Z()));
   phi_ = trans_.Phi();
   rho_ = trans_.Rho();
-  for ( size_t pit = 0; pit < params_.size(); pit++ ) {
+  for (size_t pit = 0; pit < params_.size(); pit++) {
     params_[pit] = convertCmToMm(params_[pit]);
   }
   //

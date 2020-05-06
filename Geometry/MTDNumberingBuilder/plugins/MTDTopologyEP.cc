@@ -30,8 +30,7 @@ private:
 };
 
 MTDTopologyEP::MTDTopologyEP(const edm::ParameterSet& conf)
-    : token_{setWhatProduced(this).consumesFrom<PMTDParameters, PMTDParametersRcd>(edm::ESInputTag())} {
-}
+    : token_{setWhatProduced(this).consumesFrom<PMTDParameters, PMTDParametersRcd>(edm::ESInputTag())} {}
 
 void MTDTopologyEP::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription ttc;
@@ -39,7 +38,6 @@ void MTDTopologyEP::fillDescriptions(edm::ConfigurationDescriptions& description
 }
 
 MTDTopologyEP::ReturnType MTDTopologyEP::produce(const MTDTopologyRcd& iRecord) {
-
   int mtdTopologyMode;
   MTDTopology::BTLValues btlVals;
   MTDTopology::ETLValues etlVals;
