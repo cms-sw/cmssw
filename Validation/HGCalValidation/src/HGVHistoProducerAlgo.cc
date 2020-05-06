@@ -1118,7 +1118,6 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
       edm::OneToManyWithQualityGeneric<reco::CaloClusterCollection, CaloParticleCollection, float>>
       RecoToSimCollection;
    */
-#define LogDebug(X) std::cout
   auto cpsInLayerClusterV_ = cpsInLayerClusterMap.values();
   auto cPOnLayerV_ = cPOnLayerMap.values();
   // Here we do fill the plots to compute the different metrics linked to
@@ -1139,9 +1138,10 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
         recHitTools_->getLayerWithOffset(firstHitDetId) + layers * ((recHitTools_->zside(firstHitDetId) + 1) >> 1) - 1;
     // If a reconstructed LayerCluster has energy 0 but is linked to a CaloParticle, assigned score 1
     if (clusters[lcId].energy() == 0. && !cpsInLayerCluster[lcId].empty()) {
-      for (auto& cpPair : cpsInLayerCluster[lcId]) {
+      //for (auto& cpPair : cpsInLayerCluster[lcId]) {
       //for (auto& cpPair : cpsInLayerCluster) {
-        histograms.h_score_layercl2caloparticle_perlayer.at(lcLayerId)->Fill(cpPair.second);
+      for (auto cpPair = begin(cpsInLayerClusterMap[lcRef]); cpPair!= end(cpsInLayerClusterMap[lcRef]); ++cpPair) {
+        histograms.h_score_layercl2caloparticle_perlayer.at(lcLayerId)->Fill(cpPair->second);
       }
       continue;
     }
@@ -1160,14 +1160,14 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
           cpPair.second, cp_linked.second / clusters[lcId].energy());
     */
     for (auto cpPair = begin(cpsInLayerClusterMap[lcRef]); cpPair!= end(cpsInLayerClusterMap[lcRef]); ++cpPair) {
-      LogDebug("HGCalValidator") << "layerCluster Id: \t" << lcId << "\t CP id: \t" << cpPair->first.index() << "\t score \t"
-                                 << cpPair->second << "\n";
+      //LogDebug("HGCalValidator") << "layerCluster Id: \t" << lcId << "\t CP id: \t" << cpPair->first.index() << "\t score \t"
+      //                           << cpPair->second << "\n";
       histograms.h_score_layercl2caloparticle_perlayer.at(lcLayerId)->Fill(cpPair->second);
       auto const cp_linked = cPOnLayer[cpPair->first.index()][lcLayerId].layerClusterIdToEnergyAndScore[lcId];
       //auto const cp_linked = cPOnLayerV_[cpPair->first.index()][lcLayerId];
       //auto const cp_linked = cPOnLayerMap[cpPair->first][lcId];
-      LogDebug("HGCalValidator") << "cpPair: \t" << cpPair->first.index() << "\t lcLayerId: \t" << lcLayerId << "\t cp_linked: \t" << cp_linked.first << "\t clusters[lcId].energy(): \t" << clusters[lcId].energy() << "\n";
-       histograms.h_sharedenergy_layercl2caloparticle_perlayer.at(lcLayerId)->Fill(
+      //LogDebug("HGCalValidator") << "cpPair: \t" << cpPair->first.index() << "\t lcLayerId: \t" << lcLayerId << "\t cp_linked: \t" << cp_linked.first << "\t clusters[lcId].energy(): \t" << clusters[lcId].energy() << "\n";
+      histograms.h_sharedenergy_layercl2caloparticle_perlayer.at(lcLayerId)->Fill(
           cp_linked.first / clusters[lcId].energy(), clusters[lcId].energy());
       histograms.h_energy_vs_score_layercl2caloparticle_perlayer.at(lcLayerId)->Fill(
           cpPair->second, cp_linked.first / clusters[lcId].energy());
@@ -1193,6 +1193,7 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
       //auto const& best_cp_linked = cPOnLayerV_[best->first.index()][lcLayerId];
       //auto const& best_cp_linked = cPOnLayerMap[best->first][lcId];
       auto const best_cp_linked = cPOnLayer[best->first.index()][lcLayerId].layerClusterIdToEnergyAndScore[lcId];
+      //LogDebug("HGCalValidator") << "best: \t" << best->first.index() << "\t lcId: \t" << lcId << "\t best_cp_linked.first: \t" << best_cp_linked.first << "\n";
       histograms.h_sharedenergy_layercl2caloparticle_vs_eta_perlayer.at(lcLayerId)->Fill(
           clusters[lcId].eta(), best_cp_linked.first / clusters[lcId].energy());
       histograms.h_sharedenergy_layercl2caloparticle_vs_phi_perlayer.at(lcLayerId)->Fill(
@@ -1201,8 +1202,8 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
     histograms.h_denom_layercl_eta_perlayer.at(lcLayerId)->Fill(clusters[lcId].eta());
     histograms.h_denom_layercl_phi_perlayer.at(lcLayerId)->Fill(clusters[lcId].phi());
   }  // End of loop over LayerClusters
-#define LogDebug(id) true ? edm::Suppress_LogDebug_() : edm::Suppress_LogDebug_()
 
+#define LogDebug(X) std::cout
   // Here we do fill the plots to compute the different metrics linked to
   // gen-level, namely efficiency and duplicate. In this loop we should restrict
   // only to the selected caloParaticles.
@@ -1212,6 +1213,13 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
       float CPenergy = cPOnLayer[cpId][layerId].energy;
 
       for (auto lcPair = begin(cPOnLayerMap[cpRef]); lcPair!= end(cPOnLayerMap[cpRef]); ++lcPair) {
+        //if (!cPOnLayer[cpId][layerId].layerClusterIdToEnergyAndScore.size())
+        if (cPOnLayer[cpId][layerId].layerClusterIdToEnergyAndScore[lcPair->first.index()].first == 0)
+          continue;
+        LogDebug("HGCalValidator") << "CP Id: \t" << cpId << "\t layerId \t" << layerId << "\t LC id: \t" << lcPair->first.index() << "\t score \t"
+                                   << lcPair->second << "\t"
+                                   << "shared energy:\t" << cPOnLayer[cpId][layerId].layerClusterIdToEnergyAndScore[lcPair->first.index()].first << "\t"
+                                   << "shared energy fraction:\t" << (cPOnLayer[cpId][layerId].layerClusterIdToEnergyAndScore[lcPair->first.index()].first / CPenergy) << "\n";
         histograms.h_score_caloparticle2layercl_perlayer.at(layerId)->Fill(lcPair->second);
         histograms.h_sharedenergy_caloparticle2layercl_perlayer.at(layerId)->Fill(cPOnLayer[cpId][layerId].layerClusterIdToEnergyAndScore[lcPair->first.index()].first / CPenergy,
                                                                                   CPenergy);
@@ -1241,6 +1249,7 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
       histograms.h_denom_caloparticle_phi_perlayer.at(layerId)->Fill(cP[cpId].g4Tracks()[0].momentum().phi());
     }
   }
+#define LogDebug(id) true ? edm::Suppress_LogDebug_() : edm::Suppress_LogDebug_()
 }
 
 void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histograms,
