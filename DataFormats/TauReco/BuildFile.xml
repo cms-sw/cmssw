@@ -1,13 +1,12 @@
-<use   name="DataFormats/Common"/>
-<use   name="DataFormats/RecoCandidate"/>
-<use   name="DataFormats/Candidate"/>
-<use   name="DataFormats/Math"/>
-<use   name="DataFormats/TrackReco"/>
-<use   name="DataFormats/JetReco"/>
-<use   name="DataFormats/ParticleFlowCandidate"/>
-
+<use name="DataFormats/Common"/>
+<use name="DataFormats/RecoCandidate"/>
+<use name="DataFormats/Candidate"/>
+<use name="DataFormats/Math"/>
+<use name="DataFormats/TrackReco"/>
+<use name="DataFormats/JetReco"/>
+<use name="DataFormats/ParticleFlowCandidate"/>
 <flags LCG_DICT_HEADER="classes_hlt.h classes_1.h classes_2.h classes_3.h"/>
 <flags LCG_DICT_XML="classes_def_hlt.xml classes_def_1.xml classes_def_2.xml classes_def_3.xml"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

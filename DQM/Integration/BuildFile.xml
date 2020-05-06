@@ -1,6 +1,5 @@
-<use   name="CoralBase"/>
-<use   name="RelationalAccess"/>
-
+<use name="CoralBase"/>
+<use name="RelationalAccess"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

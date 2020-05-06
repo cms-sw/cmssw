@@ -1,6 +1,5 @@
-<use   name="DataFormats/Common"/>
-<use   name="DataFormats/EcalDetId"/>
-
+<use name="DataFormats/Common"/>
+<use name="DataFormats/EcalDetId"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

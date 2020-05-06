@@ -1,7 +1,7 @@
-<use   name="DataFormats/TrackReco"/>
-<use   name="FWCore/Framework"/>
-<use   name="DQMServices/Core"/>
-<use   name="Alignment/LaserAlignment"/>
-<use   name="MagneticField/Engine"/>
-<use   name="MagneticField/Records"/>
-<flags   EDM_PLUGIN="1"/>
+<use name="DataFormats/TrackReco"/>
+<use name="FWCore/Framework"/>
+<use name="DQMServices/Core"/>
+<use name="Alignment/LaserAlignment"/>
+<use name="MagneticField/Engine"/>
+<use name="MagneticField/Records"/>
+<flags EDM_PLUGIN="1"/>

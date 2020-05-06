@@ -3,5 +3,5 @@
 <use name="FWCore/ParameterSet"/>
 <flags EDM_PLUGIN="1"/>
 <export>
-   <lib name="1"/>
+  <lib name="1"/>
 </export>

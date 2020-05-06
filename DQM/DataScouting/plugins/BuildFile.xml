@@ -4,4 +4,3 @@
 <library name="DQMDataScoutingPlugins" file="*.cc">
   <flags EDM_PLUGIN="1"/>
 </library>
-

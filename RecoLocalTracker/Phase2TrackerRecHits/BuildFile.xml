@@ -3,5 +3,5 @@
 <use name="RecoLocalTracker/ClusterParameterEstimator"/>
 <use name="DataFormats/Phase2TrackerCluster"/>
 <export>
-    <lib name="1"/>
+  <lib name="1"/>
 </export>
