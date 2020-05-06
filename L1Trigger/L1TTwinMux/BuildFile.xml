@@ -6,7 +6,6 @@
 <use name="CondFormats/L1TObjects"/>
 <use name="CondFormats/DataRecord"/>
 <use name="DataFormats/RPCDigi"/>
-
 <export>
   <lib name="1"/>
 </export>
