@@ -30,7 +30,7 @@ void SiPixelVCalReader::analyze(const edm::Event& e, const edm::EventSetup& iSet
   // Retrieve old style tracker geometry from geometry
   edm::ESHandle<TrackerGeometry> pDD;
   iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
-  std::cout << " There are " << pDD->detUnits().size() << " detectors (old)" << std::endl;
+  std::cout << " There are " << pDD->detUnits().size() << " modules" << std::endl;
 
   // Phase
   bool phase1 = true;
