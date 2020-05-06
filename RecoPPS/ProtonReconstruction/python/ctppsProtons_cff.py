@@ -84,6 +84,7 @@ def apply2018Settings(ctppsProtons):
   ctppsProtons.association_cuts_56.y_cut_mean = -0.064261029
 
   ctppsProtons.association_cuts_56.xi_cut_apply = True
+  ctppsProtons.association_cuts_56.xi_cut_value = 5. * 0.002046409
   ctppsProtons.association_cuts_56.xi_cut_mean = 1.1852528e-5
 
   ctppsProtons.association_cuts_56.th_y_cut_apply = False
