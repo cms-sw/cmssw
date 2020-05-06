@@ -1,5 +1,5 @@
-<use   name="FWCore/Framework"/>
-<use   name="CondFormats/DataRecord"/>
+<use name="FWCore/Framework"/>
+<use name="CondFormats/DataRecord"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>
