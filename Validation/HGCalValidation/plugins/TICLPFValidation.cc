@@ -129,7 +129,7 @@ void TICLPFValidation::fillDescriptions(edm::ConfigurationDescriptions& descript
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
   desc.add<std::string>("folder", "HGCAL/");  // Please keep the trailing '/'
-  desc.add<edm::InputTag>("ticlPFCandidates", edm::InputTag("pfTICLProducer"));
+  desc.add<edm::InputTag>("ticlPFCandidates", edm::InputTag("pfTICL"));
   descriptions.add("ticlPFValidationDefault", desc);
 }
 
