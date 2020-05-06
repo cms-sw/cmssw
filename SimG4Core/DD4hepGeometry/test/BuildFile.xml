@@ -2,8 +2,8 @@
 <use name="dd4hep-geant4"/>
 <use name="DetectorDescription/DDCMS"/>
 <bin file="dummyMain.cpp" name="DD4hepGeometryTestDriver">
-  <use   name="FWCore/Utilities"/>
-  <flags   TEST_RUNNER_ARGS="/bin/bash SimG4Core/DD4hepGeometry/test runTest.sh"/>
+  <use name="FWCore/Utilities"/>
+  <flags TEST_RUNNER_ARGS="/bin/bash SimG4Core/DD4hepGeometry/test runTest.sh"/>
 </bin>
 
 <library name="DD4hepGeometryTestPlugins" file="plugins/*.cc">
@@ -20,4 +20,3 @@
   <lib name="Geom"/>
   <flags EDM_PLUGIN="1"/>
 </library>
-
