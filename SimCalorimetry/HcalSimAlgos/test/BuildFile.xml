@@ -8,11 +8,15 @@
   <bin file="HcalTimeSlewTest.cpp"/>
   <flags EDM_PLUGIN="1"/>
   <library file="HcalSignalGeneratorTest.cpp" name="HcalSignalGeneratorTest">
-  </library>
+</library>
+
   <library file="HcalDigitizerTest.cc" name="HcalDigitizerTest">
-  </library>
+</library>
+
   <library file="SiPMNonlinearityAnalyzer.cc" name="SiPMNonlinearityAnalyzer">
-  </library>
+</library>
+
   <library file="CaloSamplesAnalyzer.cc" name="CaloSamplesAnalyzer">
-  </library>
+</library>
+
 </environment>

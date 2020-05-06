@@ -1,22 +1,22 @@
-<use   name="CommonTools/UtilAlgos"/>
-<use   name="DataFormats/EcalDetId"/>
-<use   name="DataFormats/HcalDetId"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="FWCore/ServiceRegistry"/>
-<use   name="Geometry/HcalCommonData"/>
-<use   name="Geometry/HcalTowerAlgo"/>
-<use   name="SimDataFormats/CaloHit"/>
-<use   name="SimDataFormats/Track"/>
-<use   name="SimDataFormats/Vertex"/>
-<use   name="SimDataFormats/GeneratorProducts"/>
-<use   name="SimG4Core/Watcher"/>
-<use   name="SimG4CMS/Calo"/>
-<use   name="boost"/>
-<use   name="root"/>
-<use   name="clhep"/>
-<library   file="*.cc" name="SimG4CMSCaloPlugins">
-  <flags   EDM_PLUGIN="1"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="DataFormats/EcalDetId"/>
+<use name="DataFormats/HcalDetId"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="Geometry/HcalCommonData"/>
+<use name="Geometry/HcalTowerAlgo"/>
+<use name="SimDataFormats/CaloHit"/>
+<use name="SimDataFormats/Track"/>
+<use name="SimDataFormats/Vertex"/>
+<use name="SimDataFormats/GeneratorProducts"/>
+<use name="SimG4Core/Watcher"/>
+<use name="SimG4CMS/Calo"/>
+<use name="boost"/>
+<use name="root"/>
+<use name="clhep"/>
+<library file="*.cc" name="SimG4CMSCaloPlugins">
+  <flags EDM_PLUGIN="1"/>
 </library>
