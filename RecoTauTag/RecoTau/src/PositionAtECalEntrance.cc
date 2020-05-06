@@ -5,24 +5,19 @@
 #include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 #include "FastSimulation/Particle/interface/RawParticle.h"
 
-#include <assert.h>
+#include <cassert>
 
-PositionAtECalEntrance::PositionAtECalEntrance()
- : bField_z_(-1.)
-{}
+PositionAtECalEntrance::PositionAtECalEntrance() : bField_z_(-1.) {}
 
-PositionAtECalEntrance::~PositionAtECalEntrance()
-{}
+PositionAtECalEntrance::~PositionAtECalEntrance() {}
 
-void PositionAtECalEntrance::beginEvent(const edm::EventSetup& es)
-{
+void PositionAtECalEntrance::beginEvent(const edm::EventSetup& es) {
   edm::ESHandle<MagneticField> bField;
   es.get<IdealMagneticFieldRecord>().get(bField);
-  bField_z_ = bField->inTesla(GlobalPoint(0.,0.,0.)).z();
+  bField_z_ = bField->inTesla(GlobalPoint(0., 0., 0.)).z();
 }
 
-reco::Candidate::Point PositionAtECalEntrance::operator()(const reco::Candidate* particle, bool& success) const
-{
+reco::Candidate::Point PositionAtECalEntrance::operator()(const reco::Candidate* particle, bool& success) const {
   assert(bField_z_ != -1.);
   BaseParticlePropagator propagator = BaseParticlePropagator(
       RawParticle(math::XYZTLorentzVector(particle->px(), particle->py(), particle->pz(), particle->energy()),
@@ -33,8 +28,9 @@ reco::Candidate::Point PositionAtECalEntrance::operator()(const reco::Candidate*
   propagator.setCharge(particle->charge());
   propagator.propagateToEcalEntrance(false);
   reco::Candidate::Point position;
-  if ( propagator.getSuccess() != 0 ) {
-    position = reco::Candidate::Point(propagator.vertex().x(), propagator.vertex().y(), propagator.vertex().z());
+  if (propagator.getSuccess() != 0) {
+    position = reco::Candidate::Point(
+        propagator.vertex().x(), propagator.vertex().y(), propagator.vertex().z());
     success = true;
   } else {
     success = false;

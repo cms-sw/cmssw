@@ -2,7 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoTauTag.RecoTau.TauDiscriminatorTools import requireLeadTrack
 
-pfRecoTauDiscriminationAgainstElectronDeadECAL = cms.EDProducer("PFRecoTauDiscriminationAgainstElectronDeadECAL",
+pfRecoTauDiscriminationAgainstElectronDeadECAL = cms.EDProducer(
+    "PFRecoTauDiscriminationAgainstElectronDeadECAL",
+
     # tau collection to discriminate
     PFTauProducer = cms.InputTag('pfTauProducer'),
 
@@ -14,7 +16,7 @@ pfRecoTauDiscriminationAgainstElectronDeadECAL = cms.EDProducer("PFRecoTauDiscri
     # status flag indicating dead/masked ECAL crystals
     minStatus = cms.uint32(12),
 
-    # region around dead/masked ECAL crystals that is to be cut                                                               
+    # region around dead/masked ECAL crystals that is to be cut
     dR = cms.double(0.08),
 
     # extrapolate leading track to ECAL or use tau direction at the primary event vertex

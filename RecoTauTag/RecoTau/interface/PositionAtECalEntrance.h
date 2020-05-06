@@ -16,9 +16,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
-class PositionAtECalEntrance 
-{
- public:
+class PositionAtECalEntrance {
+public:
   PositionAtECalEntrance();
   ~PositionAtECalEntrance();
 
@@ -26,8 +25,8 @@ class PositionAtECalEntrance
 
   reco::Candidate::Point operator()(const reco::Candidate* particle, bool& success) const;
 
- private:
+private:
   double bField_z_;
 };
 
-#endif // RecoTauTag_RecoTau_PositionAtECalEntrance_h
+#endif  // RecoTauTag_RecoTau_PositionAtECalEntrance_h
