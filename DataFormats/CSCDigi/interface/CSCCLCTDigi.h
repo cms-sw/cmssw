@@ -12,6 +12,7 @@
 #include <cstdint>
 #include <iosfwd>
 #include <vector>
+#include <limits>
 
 class CSCCLCTDigi {
 public:
@@ -19,19 +20,21 @@ public:
 
   enum CLCTKeyStripMasks { kEightStripMask = 0x1, kQuartStripMask = 0x1, kHalfStripMask = 0x1f };
   enum CLCTKeyStripShifts { kEightStripShift = 6, kQuartStripShift = 5, kHalfStripShift = 0 };
+  enum class Version { Legacy = 0, Run3 };
 
   /// Constructors
-  CSCCLCTDigi(const int valid,
-              const int quality,
-              const int pattern,
-              const int striptype,
-              const int bend,
-              const int strip,
-              const int cfeb,
-              const int bx,
-              const int trknmb = 0,
-              const int fullbx = 0,
-              const int compCode = -1);
+  CSCCLCTDigi(const uint16_t valid,
+              const uint16_t quality,
+              const uint16_t pattern,
+              const uint16_t striptype,
+              const uint16_t bend,
+              const uint16_t strip,
+              const uint16_t cfeb,
+              const uint16_t bx,
+              const uint16_t trknmb = 0,
+              const uint16_t fullbx = 0,
+              const int16_t compCode = -1,
+              const Version version = Version::Legacy);
   /// default
   CSCCLCTDigi();
 
@@ -42,37 +45,37 @@ public:
   bool isValid() const { return valid_; }
 
   /// set valid
-  void setValid(const int valid) { valid_ = valid; }
+  void setValid(const uint16_t valid) { valid_ = valid; }
 
   /// return quality of a pattern (number of layers hit!)
-  int getQuality() const { return quality_; }
+  uint16_t getQuality() const { return quality_; }
 
   /// set quality
-  void setQuality(const int quality) { quality_ = quality; }
+  void setQuality(const uint16_t quality) { quality_ = quality; }
 
   /// return pattern
-  int getPattern() const { return pattern_; }
+  uint16_t getPattern() const { return pattern_; }
 
   /// set pattern
-  void setPattern(const int pattern) { pattern_ = pattern; }
+  void setPattern(const uint16_t pattern) { pattern_ = pattern; }
 
   /// return striptype
-  int getStripType() const { return striptype_; }
+  uint16_t getStripType() const { return striptype_; }
 
   /// set stripType
-  void setStripType(const int stripType) { striptype_ = stripType; }
+  void setStripType(const uint16_t stripType) { striptype_ = stripType; }
 
   /// return bend
-  int getBend() const { return bend_; }
+  uint16_t getBend() const { return bend_; }
 
   /// set bend
-  void setBend(const int bend) { bend_ = bend; }
+  void setBend(const uint16_t bend) { bend_ = bend; }
 
   /// return halfstrip that goes from 0 to 31 in a (D)CFEB
-  int getStrip() const;
+  uint16_t getStrip() const;
 
   /// set strip
-  void setStrip(const int strip) { strip_ = strip; }
+  void setStrip(const uint16_t strip) { strip_ = strip; }
 
   /// set single quart strip bit
   void setQuartStrip(const bool quartStrip);
@@ -87,19 +90,19 @@ public:
   bool getEightStrip() const;
 
   /// return Key CFEB ID
-  int getCFEB() const { return cfeb_; }
+  uint16_t getCFEB() const { return cfeb_; }
 
   /// set Key CFEB ID
-  void setCFEB(const int cfeb) { cfeb_ = cfeb; }
+  void setCFEB(const uint16_t cfeb) { cfeb_ = cfeb; }
 
   /// return BX
-  int getBX() const { return bx_; }
+  uint16_t getBX() const { return bx_; }
 
   /// set bx
-  void setBX(const int bx) { bx_ = bx; }
+  void setBX(const uint16_t bx) { bx_ = bx; }
 
   /// return track number (1,2)
-  int getTrknmb() const { return trknmb_; }
+  uint16_t getTrknmb() const { return trknmb_; }
 
   /// Convert strip_ and cfeb_ to keyStrip. Each CFEB has up to 16 strips
   /// (32 halfstrips). There are 5 cfebs.  The "strip_" variable is one
@@ -107,19 +110,19 @@ public:
   /// Halfstrip = (cfeb*32 + strip).
   /// This function can also return the quartstrip or eightstrip
   /// when the comparator code has been set
-  int getKeyStrip(int n = 2) const;
+  uint16_t getKeyStrip(uint16_t n = 2) const;
 
   /// Set track number (1,2) after sorting CLCTs.
   void setTrknmb(const uint16_t number) { trknmb_ = number; }
 
   /// return 12-bit full BX.
-  int getFullBX() const { return fullbx_; }
+  uint16_t getFullBX() const { return fullbx_; }
 
   /// Set 12-bit full BX.
   void setFullBX(const uint16_t fullbx) { fullbx_ = fullbx; }
 
   // 12-bit comparator code
-  int getCompCode() const { return compCode_; }
+  int16_t getCompCode() const { return (isRun3() ? compCode_ : -1); }
 
   void setCompCode(const int16_t code) { compCode_ = code; }
 
@@ -142,13 +145,27 @@ public:
   /// Print content of digi.
   void print() const;
 
+  /// Distinguish Run-1/2 from Run-3
+  bool isRun3() const { return version_ == Version::Run3; }
+
+  void setRun3(bool isRun3);
+
 private:
   uint16_t valid_;
   uint16_t quality_;
+  // In Run-3, the 4-bit pattern number is reinterpreted as the
+  // 4-bit bending value. There will be 16 bending values * 2 (left/right)
   uint16_t pattern_;
   uint16_t striptype_;  // not used since mid-2008
+  // Common definition for left/right bending in Run-1, Run-2 and Run-3.
+  // 0: right; 1: left
   uint16_t bend_;
+  // In Run-3, the strip number receives two additional bits
+  // strip[4:0] -> 1/2 strip value
+  // strip[5]   -> 1/4 strip bit
+  // strip[6]   -> 1/8 strip bit
   uint16_t strip_;
+  // There are up to 7 (D)CFEBs in a chamber
   uint16_t cfeb_;
   uint16_t bx_;
   uint16_t trknmb_;
@@ -159,6 +176,8 @@ private:
   int16_t compCode_;
   // which hits are in this CLCT?
   ComparatorContainer hits_;
+
+  Version version_;
 };
 
 std::ostream& operator<<(std::ostream& o, const CSCCLCTDigi& digi);
