@@ -1,15 +1,15 @@
-<use   name="clhep"/>
-<use   name="CalibFormats/SiStripObjects"/>
-<use   name="CalibTracker/Records"/>
-<use   name="CondFormats/CSCObjects"/>
-<use   name="CondFormats/SiPixelObjects"/>
-<use   name="DataFormats/SiStripDetId"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="SimDataFormats/Track"/>
-<use   name="SimDataFormats/TrackingAnalysis"/>
-<use   name="SimDataFormats/TrackingHit"/>
-<use   name="SimTracker/Common"/>
+<use name="clhep"/>
+<use name="CalibFormats/SiStripObjects"/>
+<use name="CalibTracker/Records"/>
+<use name="CondFormats/CSCObjects"/>
+<use name="CondFormats/SiPixelObjects"/>
+<use name="DataFormats/SiStripDetId"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="SimDataFormats/Track"/>
+<use name="SimDataFormats/TrackingAnalysis"/>
+<use name="SimDataFormats/TrackingHit"/>
+<use name="SimTracker/Common"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>
