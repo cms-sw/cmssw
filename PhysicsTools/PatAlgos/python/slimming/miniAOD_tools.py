@@ -198,9 +198,13 @@ def miniAOD_customizeCommon(process):
                                     )
     task.add(process.CHSCands)
 
-    from RecoMET.METProducers.pfMet_cfi import pfMet
-    process.pfMetCHS = pfMet.clone(src = 'CHSCands')
-    task.add(process.pfMetCHS)
+    process.pfMetCHS = cms.EDProducer("PFMETProducer",
+                                      src = cms.InputTag("CHSCands"),
+                                      alias = cms.string('pfMet'),
+                                      globalThreshold = cms.double(0.0),
+                                      calculateSignificance = cms.bool(False),
+                                      )
+    task.add(process.pfMetCHS)    
 
     addMETCollection(process,
                      labelName = "patCHSMet",
@@ -218,7 +222,13 @@ def miniAOD_customizeCommon(process):
                                     )
     task.add(process.TrkCands)
 
-    process.pfMetTrk = pfMet.clone(src = 'TrkCands')
+    process.pfMetTrk = cms.EDProducer("PFMETProducer",
+                                      src = cms.InputTag("TrkCands"),
+                                      alias = cms.string('pfMet'),
+                                      globalThreshold = cms.double(0.0),
+                                      calculateSignificance = cms.bool(False),
+                                      )
+
     task.add(process.pfMetTrk)
 
     addMETCollection(process,
@@ -365,14 +375,6 @@ def miniAOD_customizeCommon(process):
         process.makePatTausTask, _makePatTausTaskWithTauReReco
         )
     
-    # Adding puppi jets
-    process.load('CommonTools.PileupAlgos.Puppi_cff')
-    process.load('RecoJets.JetProducers.ak4PFJets_cfi')
-    from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
-    _rerun_puppijets_task = task.copy()
-    _rerun_puppijets_task.add(process.puppi, process.ak4PFJetsPuppi)
-    (run2_miniAOD_80XLegacy | run2_miniAOD_94XFall17 | pA_2016 | pp_on_AA_2018).toReplaceWith(task, _rerun_puppijets_task)
-
     from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import j2tParametersVX
     process.ak4PFJetsPuppiTracksAssociatorAtVertex = cms.EDProducer("JetTracksAssociatorAtVertex",
         j2tParametersVX,
@@ -424,12 +426,11 @@ def miniAOD_customizeCommon(process):
     run2_miniAOD_94XFall17.toModify(process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour, addTagInfos = False )
     
     ## puppi met
-    process.load('RecoMET.METProducers.pfMetPuppi_cfi')
-    _rerun_puppimet_task = task.copy()
-    _rerun_puppimet_task.add(process.puppiNoLep, process.pfMetPuppi)
-    (run2_miniAOD_80XLegacy | run2_miniAOD_94XFall17).toReplaceWith(task, _rerun_puppimet_task)
-    
+    from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppies
+    makePuppies( process );
+
     runMetCorAndUncForMiniAODProduction(process, metType="Puppi",
+                                        pfCandColl=cms.InputTag("puppiForMET"),
                                         jetCollUnskimmed="slimmedJetsPuppi",
                                         recoMetFromPFCs=True,
                                         jetFlavor="AK4PFPuppi",

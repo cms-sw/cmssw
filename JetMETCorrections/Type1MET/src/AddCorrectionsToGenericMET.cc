@@ -31,7 +31,7 @@ reco::MET AddCorrectionsToGenericMET::getCorrectedMET(const reco::MET& srcMET,
                                                       edm::Event& evt,
                                                       const edm::EventSetup& es) {
   CorrMETData corr = getCorrection(srcMET, evt, es);
-  reco::MET outMET(srcMET.sumEt() + corr.sumet, constructP4From(srcMET, corr), srcMET.vertex(), srcMET.isWeighted());
+  reco::MET outMET(srcMET.sumEt() + corr.sumet, constructP4From(srcMET, corr), srcMET.vertex());
 
   return outMET;
 }
@@ -41,11 +41,7 @@ reco::PFMET AddCorrectionsToGenericMET::getCorrectedPFMET(const reco::PFMET& src
                                                           edm::Event& evt,
                                                           const edm::EventSetup& es) {
   CorrMETData corr = getCorrection(srcMET, evt, es);
-  reco::PFMET outMET(srcMET.getSpecific(),
-                     srcMET.sumEt() + corr.sumet,
-                     constructP4From(srcMET, corr),
-                     srcMET.vertex(),
-                     srcMET.isWeighted());
+  reco::PFMET outMET(srcMET.getSpecific(), srcMET.sumEt() + corr.sumet, constructP4From(srcMET, corr), srcMET.vertex());
 
   return outMET;
 }
