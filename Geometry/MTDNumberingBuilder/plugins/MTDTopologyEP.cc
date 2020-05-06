@@ -31,7 +31,6 @@ private:
 
 MTDTopologyEP::MTDTopologyEP(const edm::ParameterSet& conf)
     : token_{setWhatProduced(this).consumesFrom<PMTDParameters, PMTDParametersRcd>(edm::ESInputTag())} {
-  edm::LogInfo("MTD") << "MTDTopologyEP::MTDTopologyEP";
 }
 
 void MTDTopologyEP::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -40,7 +39,6 @@ void MTDTopologyEP::fillDescriptions(edm::ConfigurationDescriptions& description
 }
 
 MTDTopologyEP::ReturnType MTDTopologyEP::produce(const MTDTopologyRcd& iRecord) {
-  edm::LogInfo("MTDTopologyEP") << "MTDTopologyEP::produce(const MTDTopologyRcd& iRecord)";
 
   int mtdTopologyMode;
   MTDTopology::BTLValues btlVals;
@@ -77,11 +75,12 @@ void MTDTopologyEP::fillParameters(const PMTDParameters& ptp,
 
 #ifdef EDM_ML_DEBUG
 
-  edm::LogInfo("MTDTopologyEP") << "BTL values = " << btlVals.sideStartBit_ << " " << btlVals.layerStartBit_ << " "
+  edm::LogInfo("MTDTopologyEP") << "Topology mode = " << mtdTopologyMode << "\n"
+                                << "BTL values = " << btlVals.sideStartBit_ << " " << btlVals.layerStartBit_ << " "
                                 << btlVals.trayStartBit_ << " " << btlVals.moduleStartBit_ << " " << std::hex
                                 << btlVals.sideMask_ << " " << std::hex << btlVals.layerMask_ << " " << std::hex
-                                << btlVals.trayMask_ << " " << std::hex << btlVals.moduleMask_ << " ";
-  edm::LogInfo("MTDTopologyEP") << "ETL values = " << etlVals.sideStartBit_ << " " << etlVals.layerStartBit_ << " "
+                                << btlVals.trayMask_ << " " << std::hex << btlVals.moduleMask_ << "\n"
+                                << "ETL values = " << etlVals.sideStartBit_ << " " << etlVals.layerStartBit_ << " "
                                 << etlVals.ringStartBit_ << " " << etlVals.moduleStartBit_ << " " << std::hex
                                 << etlVals.sideMask_ << " " << std::hex << etlVals.layerMask_ << " " << std::hex
                                 << etlVals.ringMask_ << " " << std::hex << etlVals.moduleMask_ << " ";
