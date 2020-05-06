@@ -1,7 +1,7 @@
-<use   name="DataFormats/CaloRecHit"/>
-<use   name="DataFormats/Common"/>
-<use   name="DataFormats/EcalDetId"/>
-<use   name="DataFormats/EcalDigi"/>
+<use name="DataFormats/CaloRecHit"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/EcalDetId"/>
+<use name="DataFormats/EcalDigi"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

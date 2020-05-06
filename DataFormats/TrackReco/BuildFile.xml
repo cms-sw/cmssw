@@ -1,16 +1,16 @@
-<use   name="DataFormats/Common"/>
-<use   name="DataFormats/TrajectoryState"/>
-<use   name="DataFormats/TrackCandidate"/>
-<use   name="DataFormats/MuonDetId"/>
-<use   name="DataFormats/BeamSpot"/>
-<use   name="DataFormats/SiPixelDetId"/>
-<use   name="DataFormats/SiStripDetId"/>
-<use   name="DataFormats/SiPixelCluster"/>
-<use   name="DataFormats/TrackingRecHit"/>
-<use   name="DataFormats/TrackerCommon"/>
-<use   name="FWCore/Utilities"/>
-<use   name="clhepheader"/>
-<use   name="rootmath"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/TrajectoryState"/>
+<use name="DataFormats/TrackCandidate"/>
+<use name="DataFormats/MuonDetId"/>
+<use name="DataFormats/BeamSpot"/>
+<use name="DataFormats/SiPixelDetId"/>
+<use name="DataFormats/SiStripDetId"/>
+<use name="DataFormats/SiPixelCluster"/>
+<use name="DataFormats/TrackingRecHit"/>
+<use name="DataFormats/TrackerCommon"/>
+<use name="FWCore/Utilities"/>
+<use name="clhepheader"/>
+<use name="rootmath"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>
