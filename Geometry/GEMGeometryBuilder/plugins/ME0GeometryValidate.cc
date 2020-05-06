@@ -118,7 +118,7 @@ void ME0GeometryValidate::analyze(const edm::Event& event, const edm::EventSetup
     validateME0EtaPartitionGeometry2();
     validateME0EtaPartitionGeometry();
   } else {
-    LogVerbatim("ME0Geometry") << "Invalid ME0 geometry";
+    LogError("ME0Geometry") << "Invalid ME0 geometry";
   }
 }
 
@@ -182,21 +182,21 @@ void ME0GeometryValidate::validateME0EtaPartitionGeometry() {
     const StripTopology& topo = it->specificTopology();
     const float stripLen = topo.stripLength();
     const float* parameters = fwGeometry_.getParameters(chId.rawId());
-    nstrips_.push_back(fabs(n_strips - parameters[0]));
+    nstrips_.push_back(std::abs(n_strips - parameters[0]));
 
     if (n_strips) {
       for (int istrips = 1; istrips <= n_strips; istrips++) {
-        if (fabs(n_pitch - parameters[2]) < 1.0e-05)
+        if (std::abs(n_pitch - parameters[2]) < 1.0e-05)
           pitch_.push_back(0.0f);
         else
-          pitch_.push_back(fabs(n_pitch - parameters[2]));
-        if (fabs(stripLen - parameters[1]) < 1.0e-05)
+          pitch_.push_back(std::abs(n_pitch - parameters[2]));
+        if (std::abs(stripLen - parameters[1]) < 1.0e-05)
           pitch_.push_back(0.0f);
         else
-          stripslen_.push_back(fabs(stripLen - parameters[1]));
+          stripslen_.push_back(std::abs(stripLen - parameters[1]));
       }
     } else {
-      LogVerbatim("ME0Geometry") << "ATTENTION! nStrips == 0";
+      LogWarning("ME0Geometry") << "ATTENTION! nStrips == 0";
     }
   }
   makeHistograms2("ME0 Eta Partition");
@@ -261,10 +261,10 @@ void ME0GeometryValidate::compareShape(const GeomDet* det, const float* shape) {
 
     return;
   }
-  topWidths_.push_back(fabs(shapeTopWidth - topWidth));
-  bottomWidths_.push_back(fabs(shapeBottomWidth - bottomWidth));
-  lengths_.push_back(fabs(shapeLength - length));
-  thicknesses_.push_back(fabs(shapeThickness - thickness));
+  topWidths_.push_back(std::abs(shapeTopWidth - topWidth));
+  bottomWidths_.push_back(std::abs(shapeBottomWidth - bottomWidth));
+  lengths_.push_back(std::abs(shapeLength - length));
+  thicknesses_.push_back(std::abs(shapeThickness - thickness));
 }
 
 float ME0GeometryValidate::getDistance(const GlobalPoint& p1, const GlobalPoint& p2) {

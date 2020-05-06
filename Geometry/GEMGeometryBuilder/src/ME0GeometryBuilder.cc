@@ -23,7 +23,8 @@
 
 #include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "DataFormats/Math/interface/CMSUnits.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 
 #include <algorithm>
 #include <iostream>
@@ -34,6 +35,8 @@
 #include "Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h"
 #include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
 #include "Geometry/MuonNumbering/interface/DD4hep_ME0NumberingScheme.h"
+
+using namespace geant_units::operators;
 
 ME0GeometryBuilder::ME0GeometryBuilder() {}
 
@@ -93,7 +96,7 @@ ME0Geometry* ME0GeometryBuilder::buildGeometry(DDFilteredView& fv, const MuonDDD
     std::vector<double> dpar2 = solid2.parameters();
     std::stringstream parameters2;
     for (unsigned int i = 0; i < dpar2.size(); ++i) {
-      parameters2 << " dpar[" << i << "]=" << dpar2[i] / 10 << "cm ";
+      parameters2 << " dpar[" << i << "]=" << convertMmToCm(dpar2[i]) << "cm ";
     }
     LogTrace("ME0GeometryBuilder") << "Second level parameters: vector with size = " << dpar2.size() << " and elements "
                                    << parameters2.str();
@@ -118,7 +121,7 @@ ME0Geometry* ME0GeometryBuilder::buildGeometry(DDFilteredView& fv, const MuonDDD
       std::vector<double> dpar3 = solid3.parameters();
       std::stringstream parameters3;
       for (unsigned int i = 0; i < dpar3.size(); ++i) {
-        parameters3 << " dpar[" << i << "]=" << dpar3[i] / 10 << "cm ";
+        parameters3 << " dpar[" << i << "]=" << convertMmToCm(dpar3[i]) << "cm ";
       }
       LogTrace("ME0GeometryBuilder") << "Third level parameters: vector with size = " << dpar3.size()
                                      << " and elements " << parameters3.str();
@@ -132,7 +135,7 @@ ME0Geometry* ME0GeometryBuilder::buildGeometry(DDFilteredView& fv, const MuonDDD
         std::vector<double> dpar4 = solid4.parameters();
         std::stringstream parameters4;
         for (unsigned int i = 0; i < dpar4.size(); ++i) {
-          parameters4 << " dpar[" << i << "]=" << dpar4[i] / 10 << "cm ";
+          parameters4 << " dpar[" << i << "]=" << convertMmToCm(dpar4[i]) << "cm ";
         }
         LogTrace("ME0GeometryBuilder") << "Fourth level parameters: vector with size = " << dpar4.size()
                                        << " and elements " << parameters4.str();
@@ -228,16 +231,17 @@ ME0Chamber* ME0GeometryBuilder::buildChamber(DDFilteredView& fv, ME0DetId detId)
   DDBooleanSolid solid = (DDBooleanSolid)(fv.logicalPart().solid());
 
   std::vector<double> dpar = solid.parameters();
-  double L = dpar[0] / cm;  // length is along local Y
-  double T = dpar[3] / cm;  // thickness is long local Z
-  double b = dpar[4] / cm;  // bottom width is along local X
-  double B = dpar[8] / cm;  // top width is along local X
+
+  double L = convertMmToCm(dpar[0]);  // length is along local Y
+  double T = convertMmToCm(dpar[3]);  // thickness is long local Z
+  double b = convertMmToCm(dpar[4]);  // bottom width is along local X
+  double B = convertMmToCm(dpar[8]);  // top width is along local X
 
 #ifdef EDM_ML_DEBUG
   LogTrace("ME0GeometryBuilder") << " name of logical part = " << fv.logicalPart().name().name() << std::endl;
   LogTrace("ME0GeometryBuilder") << " dpar is vector with size = " << dpar.size() << std::endl;
   for (unsigned int i = 0; i < dpar.size(); ++i) {
-    LogTrace("ME0GeometryBuilder") << " dpar [" << i << "] = " << dpar[i] / 10 << " cm " << std::endl;
+    LogTrace("ME0GeometryBuilder") << " dpar [" << i << "] = " << convertMmToCm(dpar[i]) << " cm " << std::endl;
   }
   LogTrace("ME0GeometryBuilder") << "size  b: " << b << "cm, B: " << B << "cm,  L: " << L << "cm, T: " << T << "cm "
                                  << std::endl;
@@ -255,16 +259,16 @@ ME0Layer* ME0GeometryBuilder::buildLayer(DDFilteredView& fv, ME0DetId detId) con
   DDBooleanSolid solid = (DDBooleanSolid)(fv.logicalPart().solid());
 
   std::vector<double> dpar = solid.parameters();
-  double L = dpar[0] / cm;  // length is along local Y
-  double t = dpar[3] / cm;  // thickness is long local Z
-  double b = dpar[4] / cm;  // bottom width is along local X
-  double B = dpar[8] / cm;  // top width is along local X
+  double L = convertMmToCm(dpar[0]);  // length is along local Y
+  double t = convertMmToCm(dpar[3]);  // thickness is long local Z
+  double b = convertMmToCm(dpar[4]);  // bottom width is along local X
+  double B = convertMmToCm(dpar[8]);  // top width is along local X
 
 #ifdef EDM_ML_DEBUG
   LogTrace("ME0GeometryBuilder") << " name of logical part = " << fv.logicalPart().name().name() << std::endl;
   LogTrace("ME0GeometryBuilder") << " dpar is vector with size = " << dpar.size() << std::endl;
   for (unsigned int i = 0; i < dpar.size(); ++i) {
-    LogTrace("ME0GeometryBuilder") << " dpar [" << i << "] = " << dpar[i] / 10 << " cm " << std::endl;
+    LogTrace("ME0GeometryBuilder") << " dpar [" << i << "] = " << convertMmToCm(dpar[i]) << " cm " << std::endl;
   }
   LogTrace("ME0GeometryBuilder") << "size  b: " << b << "cm, B: " << B << "cm,  L: " << L << "cm, t: " << t << "cm "
                                  << std::endl;
@@ -283,14 +287,14 @@ ME0EtaPartition* ME0GeometryBuilder::buildEtaPartition(DDFilteredView& fv, ME0De
   DDValue numbOfStrips("nStrips");
   DDValue numbOfPads("nPads");
   std::vector<const DDsvalues_type*> specs(fv.specifics());
-  std::vector<const DDsvalues_type*>::iterator is = specs.begin();
   double nStrips = 0., nPads = 0.;
-  for (; is != specs.end(); is++) {
-    if (DDfetch(*is, numbOfStrips))
+  for (const auto& is : specs) {
+    if (DDfetch(is, numbOfStrips))
       nStrips = numbOfStrips.doubles()[0];
-    if (DDfetch(*is, numbOfPads))
+    if (DDfetch(is, numbOfPads))
       nPads = numbOfPads.doubles()[0];
   }
+
   LogTrace("ME0GeometryBuilder") << ((nStrips == 0.) ? ("No nStrips found!!")
                                                      : ("Number of strips: " + std::to_string(nStrips)));
   LogTrace("ME0GeometryBuilder") << ((nPads == 0.) ? ("No nPads found!!")
@@ -298,16 +302,16 @@ ME0EtaPartition* ME0GeometryBuilder::buildEtaPartition(DDFilteredView& fv, ME0De
 
   // EtaPartition specific parameter (size)
   std::vector<double> dpar = fv.logicalPart().solid().parameters();
-  double b = dpar[4] / cm;  // half bottom edge
-  double B = dpar[8] / cm;  // half top edge
-  double L = dpar[0] / cm;  // half apothem
-  double t = dpar[3] / cm;  // half thickness
+  double b = convertMmToCm(dpar[4]);  // half bottom edge
+  double B = convertMmToCm(dpar[8]);  // half top edge
+  double L = convertMmToCm(dpar[0]);  // half apothem
+  double t = convertMmToCm(dpar[3]);  // half thickness
 
 #ifdef EDM_ML_DEBUG
   LogTrace("ME0GeometryBuilder") << " name of logical part = " << fv.logicalPart().name().name() << std::endl;
   LogTrace("ME0GeometryBuilder") << " dpar is vector with size = " << dpar.size() << std::endl;
   for (unsigned int i = 0; i < dpar.size(); ++i) {
-    LogTrace("ME0GeometryBuilder") << " dpar [" << i << "] = " << dpar[i] / 10 << " cm " << std::endl;
+    LogTrace("ME0GeometryBuilder") << " dpar [" << i << "] = " << convertMmToCm(dpar[i]) << " cm " << std::endl;
   }
   LogTrace("ME0GeometryBuilder") << "size  b: " << b << "cm, B: " << B << "cm,  L: " << L << "cm, t: " << t << "cm "
                                  << std::endl;
@@ -334,7 +338,8 @@ ME0GeometryBuilder::ME0BoundPlane ME0GeometryBuilder::boundPlane(const DDFiltere
                                                                  bool isOddChamber) const {
   // extract the position
   const DDTranslation& trans(fv.translation());
-  const Surface::PositionType posResult(float(trans.x() / cm), float(trans.y() / cm), float(trans.z() / cm));
+  const Surface::PositionType posResult(
+      float(convertMmToCm(trans.x())), float(convertMmToCm(trans.y())), float(convertMmToCm(trans.z())));
 
   const DDRotationMatrix& rotation = fv.rotation();
   DD3Vector x, y, z;
