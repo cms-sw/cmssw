@@ -207,5 +207,11 @@
    <field name="dzs_"                   mapping="blob"/>
  </class>
 
+ <class name="PDetGeomDesc" class_version="0">
+   <field name="container_" mapping="blob"/>
+ </class>
+ <class name="PDetGeomDesc::Item"/>
+ <class name="std::vector<PDetGeomDesc::Item>"/>
+
 </lcgdict> 
 
