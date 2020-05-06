@@ -26,7 +26,7 @@ void SiPixelVCalDB::analyze(const edm::Event& e, const edm::EventSetup& iSetup) 
   // Retrieve old style tracker geometry from geometry
   edm::ESHandle<TrackerGeometry> pDD;
   iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
-  std::cout << " There are " << pDD->detUnits().size() << " detectors (old)" << std::endl;
+  std::cout << " There are " << pDD->detUnits().size() << " modules" << std::endl;
 
   for (const auto& it : pDD->detUnits()) {
     if (dynamic_cast<PixelGeomDetUnit const*>(it)!=0) {

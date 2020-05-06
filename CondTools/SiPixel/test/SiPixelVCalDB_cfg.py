@@ -15,7 +15,7 @@ threshold = 'INFO' if verbose else 'WARNING'
 print ">>> run = %s"%run
 
 # LOAD PROCESS
-process = cms.Process("SiPixelVCalDB",eras.Run2_2017)
+process = cms.Process("SiPixelVCalDB",era)
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.GeometryDB_cff")
 #process.load("Configuration.StandardSequences.GeometryIdeal_cff")
@@ -102,7 +102,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     )
 )
 
-# NUMBER OF ELECTRONS -> VCAL DB OBJECT
+# VCAL -> NUMBER OF ELECTRONS DB OBJECT
 # https://github.com/cms-analysis/DPGAnalysis-SiPixelTools/blob/1232a8c0ef3abe7b78c757887138089706e0499a/GainCalibration/test/vcal-irradiation-factors.txt
 # https://github.com/cms-sw/cmssw/blob/master/DataFormats/SiPixelDetId/src/PixelEndcapName.cc
 slope      = 47.

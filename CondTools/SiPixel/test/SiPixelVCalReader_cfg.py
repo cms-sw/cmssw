@@ -23,12 +23,11 @@ process.load("CondCore.CondDB.CondDB_cfi")
 
 # BASIC SETTINGS
 process.source = cms.Source("EmptyIOVSource",
-    firstValue = cms.uint64(1),
-    lastValue = cms.uint64(1),
+    firstValue = cms.uint64(run),
+    lastValue = cms.uint64(run),
+    #firstRun = cms.untracked.uint32(run),
     timetype = cms.string('runnumber'),
     interval = cms.uint64(1),
-    firstRun = cms.untracked.uint32(run), # select the geometry for Phase-I pixels
-    #lastRun = cms.untracked.uint32(1),
 )
 ###process.source = cms.Source("EmptySource",
 ###    #lastRun = cms.untracked.uint32(1),
