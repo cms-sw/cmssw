@@ -97,40 +97,46 @@ uint16_t SiStripRawProcessingAlgorithms::suppressHybridData(uint32_t id,
  * Otherwise, the positive inputs are copied.
  *
  * @param hybridDigis input ADCs in ZS format (regular ZS or "hybrid", i.e. processed as x->(x+1024-ped)/2)
- * @param output zero-suppressed digis
- * @param RawDigis processed ADCs
+ * @param suppressedDigis zero-suppressed digis
+ * @param firstAPV (optional) number of the first APV for which digis are should be handled (otherwise all present)
+ *
  * @return number of restored APVs
  */
-uint16_t SiStripRawProcessingAlgorithms::suppressHybridData_faster(const edm::DetSet<SiStripDigi>& hybridDigis,
-                                                                   edm::DetSet<SiStripDigi>& suppressedDigis) {
-  if (hybridDigis.empty()) {
-    // TODO check if this ever happens - will anything be unpacked then?
-    return 0;
-  }
-  const auto stripModuleGeom = dynamic_cast<const StripGeomDetUnit*>(trGeo->idToDetUnit(hybridDigis.id));
-  const std::size_t nStrips = stripModuleGeom->specificTopology().nstrips();
-  const std::size_t nAPVs = nStrips / 128;
-
-
+// NOTE replaces both suppressHybridData methods and convertVirginRawToHybrid
+uint16_t SiStripRawProcessingAlgorithms::suppressHybridData_faster(const edm::DetSet<SiStripDigi>& hybridDigis, edm::DetSet<SiStripDigi>& suppressedDigis, uint16_t firstAPV) {
   uint16_t nAPVFlagged = 0;
-  auto beginAPV = std::cbegin(hybridDigis);
-  for (std::size_t iAPV{0}; iAPV != nAPVs; ++iAPV) {
-    const auto endAPV = (iAPV + 1 != nAPVs)
-                            ? std::lower_bound(beginAPV, std::cend(hybridDigis), SiStripDigi((iAPV + 1) * 128, 0))
-                            : std::cend(hybridDigis);
+  auto beginAPV = hybridDigis.begin();
+  const auto indigis_end = hybridDigis.end();
+  auto iAPV = firstAPV;
+  while ( beginAPV != indigis_end ) {
+    const auto endAPV = std::lower_bound(beginAPV, indigis_end, SiStripDigi((iAPV + 1) * 128, 0));
     const auto nDigisInAPV = std::distance(beginAPV, endAPV);
     if (nDigisInAPV > 64) {
-      digivector_t procRawDigis(128, -1024);
+      digivector_t workDigis(128, -1024);
       for (auto it = beginAPV; it != endAPV; ++it) {
-        procRawDigis[it->strip() - 128 * iAPV] = it->adc() * 2 - 1024;
+        workDigis[it->strip() - 128 * iAPV] = it->adc() * 2 - 1024;
       }
-      nAPVFlagged += suppressHybridData(hybridDigis.id, iAPV, procRawDigis, suppressedDigis);
+      digivector_t workDigisPedSubtracted(workDigis);
+      subtractorCMN->subtract(hybridDigis.id, iAPV, workDigis);
+      const auto apvFlagged = restorer->inspectAndRestore(hybridDigis.id, iAPV, workDigisPedSubtracted, workDigis, subtractorCMN->getAPVsCM());
+      nAPVFlagged += apvFlagged;
+      if ( getAPVFlags()[iAPV] ) {
+        suppressor->suppress(workDigis, iAPV, suppressedDigis);
+      } else { // bad APV: more than 64 but not flagged
+        for ( uint16_t i = 0; i != 128; ++i ) {
+          const auto digi = workDigisPedSubtracted[i];
+          if ( digi > 0 ) {
+            suppressedDigis.push_back(SiStripDigi(iAPV * 128 + i, suppressor->truncate(digi)));
+          }
+        }
+      }
     } else {  // already zero-suppressed, copy and truncate
       std::transform(beginAPV, endAPV, std::back_inserter(suppressedDigis), [this](const SiStripDigi inDigi) {
         return SiStripDigi(inDigi.strip(), suppressor->truncate(inDigi.adc()));
       });
     }
     beginAPV = endAPV;
+    ++iAPV;
   }
   return nAPVFlagged;
 }
