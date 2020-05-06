@@ -19,7 +19,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/Common/interface/ValueMap.h"
 
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -45,7 +44,6 @@ private:
   std::string mPayloadName;
   std::string mSampleType;
   bool mIsData;
-  edm::EDGetTokenT<edm::ValueMap<float>> weightsToken_;
 
   std::vector<edm::ParameterSet> cfgCorrParameters_;
 

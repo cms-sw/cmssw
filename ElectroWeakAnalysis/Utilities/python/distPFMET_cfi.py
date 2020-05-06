@@ -10,7 +10,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoMET.METProducers.METSigParams_cfi import *
 
 distpfMet = cms.EDProducer("PFMETProducer",
-                       parameters = METSignificance_params,
+                       METSignificance_params,
                        src = cms.InputTag("distortedPFCand"),
                        alias = cms.string('PFMET'),
                        globalThreshold = cms.double(0.0),

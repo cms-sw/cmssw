@@ -17,7 +17,6 @@ METSignificance = cms.EDProducer(
     srcJetResPt          = cms.string('AK4PFchs_pt'),
     srcJetResPhi         = cms.string('AK4PFchs_phi'),
     srcRho               = cms.InputTag('fixedGridRhoAll'),
-    srcWeights           = cms.InputTag(''),
     
     parameters = METSignificanceParams
     )

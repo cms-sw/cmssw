@@ -516,7 +516,7 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       //tcMETmuCorValueMap  = *tcMETmuCorValueMap_h;
     }
 
-    if (embedPfEcalEnergy_ || embedPFCandidate_) {
+    if (embedPfEcalEnergy_) {
       // get the PFCandidates of type muons
       iEvent.getByToken(pfMuonToken_, pfMuons);
     }
@@ -604,29 +604,19 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (embedTcMETMuonCorrs_)
         aMuon.embedTcMETMuonCorrs((*tcMETMuonCorrs)[muonRef]);
 
-      if (embedPfEcalEnergy_ || embedPFCandidate_) {
-        if (embedPfEcalEnergy_)
-          aMuon.setPfEcalEnergy(-99.0);
-        unsigned index = 0;
+      if (embedPfEcalEnergy_) {
+        aMuon.setPfEcalEnergy(-99.0);
         for (const reco::PFCandidate& pfmu : *pfMuons) {
           if (pfmu.muonRef().isNonnull()) {
             if (pfmu.muonRef().id() != muonRef.id())
               throw cms::Exception("Configuration")
                   << "Muon reference within PF candidates does not point to the muon collection." << std::endl;
             if (pfmu.muonRef().key() == muonRef.key()) {
-              reco::PFCandidateRef pfRef(pfMuons, index);
-              aMuon.setPFCandidateRef(pfRef);
-              if (embedPfEcalEnergy_)
-                aMuon.setPfEcalEnergy(pfmu.ecalEnergy());
-              if (embedPFCandidate_)
-                aMuon.embedPFCandidate();
-              break;
+              aMuon.setPfEcalEnergy(pfmu.ecalEnergy());
             }
           }
-          index++;
         }
       }
-
       if (addInverseBeta_) {
         aMuon.readTimeExtra((*muonsTimeExtra)[muonRef]);
       }
