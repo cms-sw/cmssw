@@ -1,7 +1,7 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="DataFormats/PatCandidates"/>
-<use name="pythia8"/> 
+<use name="pythia8"/>
 <use name="DataFormats/RPCRecHit"/>
 <use name="DataFormats/EcalRecHit"/>
 <use name="DataFormats/HcalRecHit"/>
@@ -9,4 +9,3 @@
 <use name="DataFormats/TrackReco"/>
 <use name="CondFormats/BeamSpotObjects"/>
 <flags EDM_PLUGIN="1"/>
-
