@@ -1,8 +1,8 @@
-<use   name="DataFormats/GeometrySurface"/>
-<use   name="DataFormats/GeometryVector"/>
-<use   name="MagneticField/Engine"/>
-<use   name="MagneticField/Layers"/>
-<use   name="MagneticField/VolumeGeometry"/>
+<use name="DataFormats/GeometrySurface"/>
+<use name="DataFormats/GeometryVector"/>
+<use name="MagneticField/Engine"/>
+<use name="MagneticField/Layers"/>
+<use name="MagneticField/VolumeGeometry"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>
