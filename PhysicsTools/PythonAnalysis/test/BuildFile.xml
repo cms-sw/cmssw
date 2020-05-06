@@ -1,3 +1,4 @@
+<!-- To make sure we rebuild this package when python_tools package updated -->
 <use name="python_tools"/>
 
 <test name="testPandas" command="testPandas.py"/>
