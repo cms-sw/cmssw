@@ -40,7 +40,6 @@ MTDParametersESModule::MTDParametersESModule(const edm::ParameterSet& pset)
   } else {
     dd4hepToken_ = cc.consumesFrom<cms::DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
   }
-  edm::LogInfo("MTDParametersESModule") << "MTDParametersESModule::MTDParametersESModule";
 }
 
 void MTDParametersESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -50,8 +49,6 @@ void MTDParametersESModule::fillDescriptions(edm::ConfigurationDescriptions& des
 }
 
 MTDParametersESModule::ReturnType MTDParametersESModule::produce(const PMTDParametersRcd& iRecord) {
-  edm::LogInfo("MTDParametersESModule") << "MTDParametersESModule::produce(const PMTDParametersRcd& iRecord)"
-                                        << std::endl;
   auto ptp = std::make_unique<PMTDParameters>();
   if (!fromDD4hep_) {
     auto cpv = iRecord.getTransientHandle(ddCompactToken_);
