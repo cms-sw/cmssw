@@ -70,7 +70,11 @@ int GEMNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
 
     roll = num.getBaseNo(theRollLevel) + 1;
     const int copyno = num.getBaseNo(theSectorLevel) + 1;
-    if (copyno < 50) {
+    // Half the chambers are flipped back to front, this is encoded in
+    // the chamber number, which affects the layer numbering. Layer 1
+    // is always the closest layer to the interaction point.
+    const int layerDemarcation = 50;
+    if (copyno < layerDemarcation) {
       if (copyno % 2 == 0) {
         layer = 2;
         chamber = copyno - 1;
@@ -79,7 +83,7 @@ int GEMNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
         chamber = copyno;
       }
     } else {
-      int copynp = copyno - 50;
+      int copynp = copyno - layerDemarcation;
       if (copynp % 2 != 0) {
         layer = 2;
         chamber = copynp - 1;
