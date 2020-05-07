@@ -31,7 +31,7 @@ namespace gfea {
   struct Empty {};
 };  // namespace gfea
 
-class GenFilterEfficiencyAnalyzer : public edm::global::EDAnalyzer<edm::LuminosityBlockCache<gfea::Empty>> {
+class GenFilterEfficiencyAnalyzer final : public edm::global::EDAnalyzer<edm::LuminosityBlockCache<gfea::Empty>> {
 public:
   explicit GenFilterEfficiencyAnalyzer(const edm::ParameterSet&);
   ~GenFilterEfficiencyAnalyzer() final;

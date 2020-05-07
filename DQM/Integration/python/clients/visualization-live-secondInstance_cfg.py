@@ -1,12 +1,20 @@
 from __future__ import print_function
-import re,os
+import re, os, sys
 import FWCore.ParameterSet.Config as cms
 from Configuration.DataProcessing.GetScenario import getScenario
 
 """
 Example configuration for online reconstruction meant for visualization clients.
 """
-from DQM.Integration.config.inputsource_cfi import options,runType,source
+
+unitTest = False
+if 'unitTest=True' in sys.argv:
+    unitTest=True
+
+if unitTest:
+    from DQM.Integration.config.unittestinputsource_cfi import options, runType, source
+else:
+    from DQM.Integration.config.inputsource_cfi import options, runType, source
 
 # this is needed to map the names of the run-types chosen by DQM to the scenarios, ideally we could converge to the same names
 #scenarios = {'pp_run': 'ppEra_Run2_2016','cosmic_run':'cosmicsEra_Run2_2016','hi_run':'HeavyIons'}
@@ -20,7 +28,6 @@ if not runType.getRunTypeName() in scenarios.keys():
 scenarioName = scenarios[runType.getRunTypeName()]
 
 print("Using scenario:",scenarioName)
-
 
 try:
     scenario = getScenario(scenarioName)
@@ -50,16 +57,24 @@ rawDataMapperByLabel.rawCollectionList = [cms.InputTag("rawDataRepacker")]
 
 process = scenario.visualizationProcessing(writeTiers=['FEVT'], **kwds)
 
-process.source = source
-process.source.inputFileTransitionsEachEvent = cms.untracked.bool(True)
-process.source.skipFirstLumis                = cms.untracked.bool(True)
-process.source.minEventsPerLumi              = cms.untracked.int32(0)
-process.source.nextLumiTimeoutMillis         = cms.untracked.int32(10000)
-process.source.streamLabel                   = cms.untracked.string('streamDQMEventDisplay')
+if unitTest:
+    process.__dict__['_Process__name'] = "RECONEW"
 
-m = re.search(r"\((\w+)\)", str(source.runNumber))
-runno = str(m.group(1))
-outDir= '/fff/BU0/output/EvD/run'+runno+'/streamEvDOutput2'
+process.source = source
+
+if not unitTest:
+    process.source.inputFileTransitionsEachEvent = cms.untracked.bool(True)
+    process.source.skipFirstLumis                = cms.untracked.bool(True)
+    process.source.minEventsPerLumi              = cms.untracked.int32(0)
+    process.source.nextLumiTimeoutMillis         = cms.untracked.int32(10000)
+    process.source.streamLabel                   = cms.untracked.string('streamDQMEventDisplay')
+
+    m = re.search(r"\((\w+)\)", str(source.runNumber))
+    runno = str(m.group(1))
+    outDir= '/fff/BU0/output/EvD/run'+runno+'/streamEvDOutput2'
+else:
+    runno = options.runNumber
+    outDir = "./upload"
 
 #create output directory
 try:

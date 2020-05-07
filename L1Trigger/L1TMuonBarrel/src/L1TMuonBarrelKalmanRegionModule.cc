@@ -78,7 +78,7 @@ L1MuKBMTrackCollection L1TMuonBarrelKalmanRegionModule::process(L1TMuonBarrelKal
     std::sort(seeds.begin(), seeds.end(), sorter);
   }
 
-  for (const auto seed : seeds) {
+  for (const auto& seed : seeds) {
     std::pair<bool, L1MuKBMTrack> trackInfo = trackMaker->chain(seed, stubs);
     if (trackInfo.first) {
       if (seed->stNum() == 2)

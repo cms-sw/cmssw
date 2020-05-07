@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 
 #from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 #process = cms.Process("BeamMonitor", Run2_2018) # FIMXE
+import sys
 from Configuration.Eras.Era_Run2_2018_pp_on_AA_cff import Run2_2018_pp_on_AA
 process = cms.Process("BeamMonitor", Run2_2018_pp_on_AA)
 
@@ -20,15 +21,23 @@ process = cms.Process("BeamMonitor", Run2_2018_pp_on_AA)
 #    destinations = cms.untracked.vstring('cerr'),
 #)
 
+unitTest=False
+if 'unitTest=True' in sys.argv:
+  unitTest=True
+
 # Common part for PP and H.I Running
 #-----------------------------
-# for live online DQM in P5
-process.load("DQM.Integration.config.inputsource_cfi")
+if unitTest:
+  process.load("DQM.Integration.config.unittestinputsource_cfi")
+else:
+  # for live online DQM in P5
+  process.load("DQM.Integration.config.inputsource_cfi")
+
+  # new stream label
+  process.source.streamLabel = cms.untracked.string('streamDQMOnlineBeamspot')
+
 # for testing in lxplus
 #process.load("DQM.Integration.config.fileinputsource_cfi")
-
-# new stream label
-process.source.streamLabel = cms.untracked.string('streamDQMOnlineBeamspot')
 
 #--------------------------
 # HLT Filter

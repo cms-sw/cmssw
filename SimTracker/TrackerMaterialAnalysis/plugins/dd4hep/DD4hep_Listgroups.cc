@@ -31,6 +31,8 @@
 #include <TText.h>
 #include <TColor.h>
 
+#include "DD4hep_MaterialAccountingGroup.h"
+
 class DD4hep_ListGroups : public edm::one::EDAnalyzer<> {
 public:
   DD4hep_ListGroups(const edm::ParameterSet &iConfig);
@@ -47,8 +49,10 @@ private:
   std::set<std::string_view> m_group_names;
   std::vector<unsigned int> m_color;
   std::vector<int> m_gradient;
+  std::vector<DD4hep_MaterialAccountingGroup *> m_groups;
   void fillColor();
   void fillGradient();
+  void produceAndSaveSummaryPlot(cms::DDCompactView cpv);
   std::vector<std::pair<std::shared_ptr<TLine>, std::shared_ptr<TText>>> overlayEtaReferences();
 };
 
@@ -58,6 +62,12 @@ DD4hep_ListGroups::DD4hep_ListGroups(const edm::ParameterSet &iConfig)
 }
 
 DD4hep_ListGroups::~DD4hep_ListGroups() {}
+
+void DD4hep_ListGroups::produceAndSaveSummaryPlot(cms::DDCompactView cpv) {
+  for (auto n : m_group_names) {
+    m_groups.push_back(new DD4hep_MaterialAccountingGroup(n.data(), cpv));
+  }
+}
 
 void DD4hep_ListGroups::fillColor(void) {
   // With the introduction of the support for PhaseI and PhaseII detectors it
@@ -239,35 +249,32 @@ void DD4hep_ListGroups::analyze(const edm::Event &evt, const edm::EventSetup &se
 
   for (const auto &t : fv.specpars()) {
     m_group_names.insert(t->strValue("TrackingMaterialGroup"));
-    std::cout << t->strValue("TrackingMaterialGroup") << std::endl;
   }
 
   for (const auto &i : m_group_names) {
     cms::DDFilter filter1("TrackingMaterialGroup", {i.data(), i.size()});
     cms::DDFilteredView fv1(*cpv, filter1);
     bool firstChild = fv1.firstChild();
-    //fv1.printFilter();
-
-    std::cout << "***" << i << std::endl;
 
     for (const auto j : fv1.specpars()) {
-      for (const auto k : j->paths) {
-        std::cout << k << std::endl;
+      for (const auto &k : j->paths) {
         if (firstChild) {
-          std::cout << "Find children matching selection for a parent " << fv1.name() << "\n";
           std::vector<std::vector<cms::Node *>> children = fv1.children(k);
           for (auto const &path : children) {
             for (auto const &node : path) {
-              std::cout << node->GetName() << ", ";
+              edm::LogVerbatim("TrackingMaterialGroup") << node->GetName() << "/";
             }
-            std::cout << "\n";
+            cms::Translation trans = fv1.translation(path);
+            edm::LogVerbatim("TrackingMaterialGroup")
+                << "(" << trans.x() << ", " << trans.y() << ", " << trans.z() << ")\n";
           }
-          std::cout << "\n";
         }
       }
     }
-    std::cout << "*************" << std::endl;
   }
+
+  if (m_saveSummaryPlot)
+    produceAndSaveSummaryPlot(*cpv);
 }
 
 void DD4hep_ListGroups::endJob() {}

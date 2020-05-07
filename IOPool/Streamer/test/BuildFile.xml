@@ -1,38 +1,47 @@
 <environment>
-  <use   name="FWCore/Framework"/>
-  <bin   file="EventMessageTest.cpp">
-    <use   name="IOPool/Streamer"/>
+  <use name="FWCore/Framework"/>
+  <bin file="EventMessageTest.cpp">
+    <use name="IOPool/Streamer"/>
   </bin>
-  <bin   file="ReadStreamerFile.cpp">
-    <use   name="IOPool/Streamer"/>
-    <use   name="FWCore/Catalog"/>
-    <use   name="FWCore/PluginManager"/>
-    <use   name="FWCore/ServiceRegistry"/>
-    <use   name="FWCore/Services"/>
-    <use   name="FWCore/ParameterSetReader"/>
-    <flags   TEST_RUNNER_ARGS="all"/>
-    <flags   PRE_TEST="WriteStreamerFile"/>
+
+  <bin file="ReadStreamerFile.cpp">
+    <use name="IOPool/Streamer"/>
+    <use name="FWCore/Catalog"/>
+    <use name="FWCore/PluginManager"/>
+    <use name="FWCore/ServiceRegistry"/>
+    <use name="FWCore/Services"/>
+    <use name="FWCore/ParameterSetReader"/>
+    <flags TEST_RUNNER_ARGS="all"/>
+    <flags PRE_TEST="WriteStreamerFile"/>
   </bin>
-  <bin   file="WriteStreamerFile.cpp">
-    <use   name="IOPool/Streamer"/>
+
+  <bin file="WriteStreamerFile.cpp">
+    <use name="IOPool/Streamer"/>
   </bin>
-  <bin   file="RunThis_t.cpp" name="NewStreamerUNCOMPRESSED">
-    <flags   TEST_RUNNER_ARGS="/bin/bash IOPool/Streamer/test RunUNCOMPRESSED.sh"/>
+
+  <bin file="RunThis_t.cpp" name="NewStreamerUNCOMPRESSED">
+    <flags TEST_RUNNER_ARGS="/bin/bash IOPool/Streamer/test RunUNCOMPRESSED.sh"/>
   </bin>
-  <bin   file="RunThis_t.cpp" name="NewStreamerZLIB">
-    <flags   TEST_RUNNER_ARGS=" /bin/bash IOPool/Streamer/test RunZLIB.sh"/>
+
+  <bin file="RunThis_t.cpp" name="NewStreamerZLIB">
+    <flags TEST_RUNNER_ARGS=" /bin/bash IOPool/Streamer/test RunZLIB.sh"/>
   </bin>
-  <bin   file="RunThis_t.cpp" name="NewStreamerLZMA">
-    <flags   TEST_RUNNER_ARGS=" /bin/bash IOPool/Streamer/test RunLZMA.sh"/>
+
+  <bin file="RunThis_t.cpp" name="NewStreamerLZMA">
+    <flags TEST_RUNNER_ARGS=" /bin/bash IOPool/Streamer/test RunLZMA.sh"/>
   </bin>
-  <bin   file="RunThis_t.cpp" name="NewStreamerZSTD">
-    <flags   TEST_RUNNER_ARGS=" /bin/bash IOPool/Streamer/test RunZSTD.sh"/>
+
+  <bin file="RunThis_t.cpp" name="NewStreamerZSTD">
+    <flags TEST_RUNNER_ARGS=" /bin/bash IOPool/Streamer/test RunZSTD.sh"/>
   </bin>
-  <library   file="StreamThingProducer.cc" name="StreamThingProducer">
-    <flags   EDM_PLUGIN="1"/>
-    <use   name="DataFormats/TestObjects"/>
+
+  <library file="StreamThingProducer.cc" name="StreamThingProducer">
+    <flags EDM_PLUGIN="1"/>
+    <use name="DataFormats/TestObjects"/>
   </library>
-  <library   file="StreamThingAnalyzer.cc" name="StreamThingAnalyzer">
-    <flags   EDM_PLUGIN="1"/>
+
+  <library file="StreamThingAnalyzer.cc" name="StreamThingAnalyzer">
+    <flags EDM_PLUGIN="1"/>
   </library>
+
 </environment>

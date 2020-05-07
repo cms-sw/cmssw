@@ -30,5 +30,5 @@
 <use name="CommonTools/UtilAlgos"/>
 <use name="CondCore/DBOutputService"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

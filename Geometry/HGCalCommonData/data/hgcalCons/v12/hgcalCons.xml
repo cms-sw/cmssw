@@ -1,0 +1,187 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="hgcalCons.xml" eval="true">
+   <Constant name="MinimumTileSize"        value="10.0*mm"/>
+   <Vector name="RadiusMixBoundary" type="numeric" nEntries="14">
+     [hgcal:radMixL0], [hgcal:radMixL1], [hgcal:radMixL2], [hgcal:radMixL3],
+     [hgcal:radMixL4], [hgcal:radMixL5], [hgcal:radMixL6], [hgcal:radMixL7],
+     [hgcal:radMixL8], [hgcal:radMixL9], [hgcal:radMixL10],[hgcal:radMixL11],
+     [hgcal:radMixL12],[hgcal:radMixL13]
+   </Vector>
+   <Vector name="ZRanges" type="numeric" nEntries="4">
+     [hgcal:zHGCalEE1], [hgcal:zHGCalHEsil1], [hgcal:zHGCalHEmix1], 
+     [hgcal:zHGCalHEmix5]</Vector>
+  <Vector name="LayerCenter" type="numeric" nEntries="50">
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    1, 2, 1, 2, 1, 2, 1, 2,
+    1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2</Vector>
+ </ConstantsSection>
+
+<SpecParSection label="hgcalCons.xml" eval="true">
+  <SpecPar name="HGCalEESensitive">
+    <PartSelector path="//HGCalEESensitive.*"/>    
+    <Parameter name="Volume" value="HGCalEESensitive" eval="false"/>
+    <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8Full" eval="false"/>
+    <Parameter name="LevelZSide"          value="3"/>
+    <Parameter name="LevelTop"            value="9"/>
+    <Parameter name="LevelTop"            value="9"/>
+    <Parameter name="CellThickness"       value="[hgcal:CellThicknessFine]"/>
+    <Parameter name="CellThickness"       value="[hgcal:CellThicknessCoarse1]"/>
+    <Parameter name="CellThickness"       value="[hgcal:CellThicknessCoarse2]"/>
+    <Parameter name="FirstMixedLayer"     value="-1"/>
+    <Parameter name="LayerOffset"         value="0"/>
+    <Parameter name="DetectorType"        value="1"/>
+    <Parameter name="WaferMaskMode"       value="1"/>
+    <Parameter name="Radius100to200"      value="[hgcal:rad100200P0]"/>
+    <Parameter name="Radius100to200"      value="[hgcal:rad100200P1]"/>
+    <Parameter name="Radius100to200"      value="[hgcal:rad100200P2]"/>
+    <Parameter name="Radius100to200"      value="[hgcal:rad100200P3]"/> 
+    <Parameter name="Radius100to200"      value="[hgcal:rad100200P4]"/>
+    <Parameter name="Radius200to300"      value="[hgcal:rad200300P0]"/>
+    <Parameter name="Radius200to300"      value="[hgcal:rad200300P1]"/>
+    <Parameter name="Radius200to300"      value="[hgcal:rad200300P2]"/>
+    <Parameter name="Radius200to300"      value="[hgcal:rad200300P3]"/>
+    <Parameter name="Radius200to300"      value="[hgcal:rad200300P4]"/>
+    <Parameter name="RadiusCuts"          value="[hgcal:ChoiceType]"/>
+    <Parameter name="RadiusCuts"          value="[hgcal:NCornerCut]"/>
+    <Parameter name="RadiusCuts"          value="[hgcal:FracAreaMin]"/>
+    <Parameter name="RadiusCuts"          value="[hgcal:zMinForRadPar]"/>
+    <Parameter name="SlopeBottom"         value="0"/>
+    <Parameter name="SlopeBottom"         value="0"/>
+    <Parameter name="SlopeBottom"         value="0"/>
+    <Parameter name="SlopeBottom"         value="0"/>
+    <Parameter name="ZFrontBottom"        value="[hgcal:zHGCal1]"/>
+    <Parameter name="ZFrontBottom"        value="[hgcal:zHGCal2]"/>
+    <Parameter name="ZFrontBottom"        value="[hgcal:zHGCal6]"/>
+    <Parameter name="ZFrontBottom"        value="[hgcal:zHGCal7]"/>
+    <Parameter name="RMinFront"           value="[hgcal:rMinHGCalEE1]"/>
+    <Parameter name="RMinFront"           value="[hgcal:rMinHGCalHEsil1]"/>
+    <Parameter name="RMinFront"           value="[hgcal:rMinHGCalHEmix1]"/>
+    <Parameter name="RMinFront"           value="[hgcal:rMinHGCalHEmix2]"/>
+    <Parameter name="SlopeTop"            value="[hgcal:slope2]"/>
+    <Parameter name="SlopeTop"            value="[hgcal:slope3]"/>
+    <Parameter name="SlopeTop"            value="0"/>
+    <Parameter name="SlopeTop"            value="0"/>
+    <Parameter name="ZFrontTop"           value="[hgcal:zHGCal1]"/>
+    <Parameter name="ZFrontTop"           value="[hgcal:zHGCal4]"/>
+    <Parameter name="ZFrontTop"           value="[hgcal:zHGCal8]"/> 
+    <Parameter name="ZFrontTop"           value="[hgcal:zHGCal9]"/>
+    <Parameter name="RMaxFront"           value="[hgcal:rMaxHGCal1]"/>
+    <Parameter name="RMaxFront"           value="[hgcal:rMaxHGCal4]"/>
+    <Parameter name="RMaxFront"           value="[hgcal:rMaxHGCal8]"/>
+    <Parameter name="RMaxFront"           value="[hgcal:rMaxHGCal9]"/>
+  </SpecPar>
+  <SpecPar name="HGCalHESiliconSensitive">
+    <PartSelector path="//HGCalHESiliconSensitive.*"/>
+    <Parameter name="Volume" value="HGCalHESiliconSensitive" eval="false"/>
+    <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8Full" eval="false"/>
+    <Parameter name="LevelZSide"          value="3"/>
+    <Parameter name="LevelTop"            value="9"/>
+    <Parameter name="LevelTop"            value="11"/>
+    <Parameter name="CellThickness"       value="[hgcal:CellThicknessFine]"/>
+    <Parameter name="CellThickness"       value="[hgcal:CellThicknessCoarse1]"/>
+    <Parameter name="CellThickness"       value="[hgcal:CellThicknessCoarse2]"/>
+    <Parameter name="FirstMixedLayer"     value="[hgcal:FirstMixedLayer]"/>
+    <Parameter name="LayerOffset"         value="28"/>
+    <Parameter name="DetectorType"        value="2"/>
+    <Parameter name="WaferMaskMode"       value="0"/>
+    <Parameter name="Radius100to200"      value="[hgcal:rad100200P0]"/>
+    <Parameter name="Radius100to200"      value="[hgcal:rad100200P1]"/>
+    <Parameter name="Radius100to200"      value="[hgcal:rad100200P2]"/>
+    <Parameter name="Radius100to200"      value="[hgcal:rad100200P3]"/> 
+    <Parameter name="Radius100to200"      value="[hgcal:rad100200P4]"/>
+    <Parameter name="Radius200to300"      value="[hgcal:rad200300P0]"/>
+    <Parameter name="Radius200to300"      value="[hgcal:rad200300P1]"/>
+    <Parameter name="Radius200to300"      value="[hgcal:rad200300P2]"/>
+    <Parameter name="Radius200to300"      value="[hgcal:rad200300P3]"/>
+    <Parameter name="Radius200to300"      value="[hgcal:rad200300P4]"/>
+    <Parameter name="RadiusCuts"          value="[hgcal:ChoiceType]"/>
+    <Parameter name="RadiusCuts"          value="[hgcal:NCornerCut]"/>
+    <Parameter name="RadiusCuts"          value="[hgcal:FracAreaMin]"/>
+    <Parameter name="RadiusCuts"          value="[hgcal:zMinForRadPar]"/>
+    <Parameter name="SlopeBottom"         value="0"/>
+    <Parameter name="SlopeBottom"         value="0"/>
+    <Parameter name="SlopeBottom"         value="0"/>
+    <Parameter name="SlopeBottom"         value="0"/>
+    <Parameter name="ZFrontBottom"        value="[hgcal:zHGCal1]"/>
+    <Parameter name="ZFrontBottom"        value="[hgcal:zHGCal2]"/>
+    <Parameter name="ZFrontBottom"        value="[hgcal:zHGCal6]"/>
+    <Parameter name="ZFrontBottom"        value="[hgcal:zHGCal7]"/>
+    <Parameter name="RMinFront"           value="[hgcal:rMinHGCalEE1]"/>
+    <Parameter name="RMinFront"           value="[hgcal:rMinHGCalHEsil1]"/>
+    <Parameter name="RMinFront"           value="[hgcal:rMinHGCalHEmix1]"/>
+    <Parameter name="RMinFront"           value="[hgcal:rMinHGCalHEmix2]"/>
+    <Parameter name="SlopeTop"            value="[hgcal:slope2]"/>
+    <Parameter name="SlopeTop"            value="[hgcal:slope3]"/>
+    <Parameter name="SlopeTop"            value="0"/>
+    <Parameter name="SlopeTop"            value="0"/>
+    <Parameter name="ZFrontTop"           value="[hgcal:zHGCal1]"/>
+    <Parameter name="ZFrontTop"           value="[hgcal:zHGCal4]"/>
+    <Parameter name="ZFrontTop"           value="[hgcal:zHGCal8]"/> 
+    <Parameter name="ZFrontTop"           value="[hgcal:zHGCal9]"/>
+    <Parameter name="RMaxFront"           value="[hgcal:rMaxHGCal1]"/>
+    <Parameter name="RMaxFront"           value="[hgcal:rMaxHGCal4]"/>
+    <Parameter name="RMaxFront"           value="[hgcal:rMaxHGCal8]"/>
+    <Parameter name="RMaxFront"           value="[hgcal:rMaxHGCal9]"/>
+  </SpecPar>
+  <SpecPar name="HGCalHEScintillatorSensitive">
+    <PartSelector path="//HGCalHEScintillatorSensitive.*"/>
+    <Parameter name="Volume" value="HGCalHEScintillatorSensitive" eval="false"/>
+    <Parameter name="GeometryMode" value="HGCalGeometryMode::Trapezoid" eval="false"/>
+    <Parameter name="LevelZSide"          value="3"/>
+    <Parameter name="LevelTop"            value="11"/>
+    <Parameter name="LevelTop"            value="11"/>
+    <Parameter name="FirstLayer"          value="[hgcal:FirstMixedLayer]"/>
+    <Parameter name="FirstMixedLayer"     value="[hgcal:FirstMixedLayer]"/>
+    <Parameter name="LayerOffset"         value="28"/>
+    <Parameter name="DetectorType"        value="3"/>
+    <Parameter name="WaferThickness"      value="[hgcal:ScintillatorThickness]"/>
+    <Parameter name="MinimumTileSize"     value="[MinimumTileSize]"/>
+    <Parameter name="NPhiBinBH"           value="360"/>
+    <Parameter name="NPhiBinBH"           value="288"/>
+    <Parameter name="LayerFrontBH"        value="[hgcal:FirstMixedLayer]"/>
+    <Parameter name="LayerFrontBH"        value="[hgcal:FirstMixedLayer]"/>
+    <Parameter name="RMinLayerBH"         value="[hgcal:radMixL3]"/>
+    <Parameter name="RMinLayerBH"         value="[hgcal:radMixL13]"/>
+    <Parameter name="SlopeBottom"         value="0"/>
+    <Parameter name="SlopeBottom"         value="0"/>
+    <Parameter name="SlopeBottom"         value="0"/>
+    <Parameter name="SlopeBottom"         value="0"/>
+    <Parameter name="ZFrontBottom"        value="[hgcal:zHGCal1]"/>
+    <Parameter name="ZFrontBottom"        value="[hgcal:zHGCal2]"/>
+    <Parameter name="ZFrontBottom"        value="[hgcal:zHGCal6]"/>
+    <Parameter name="ZFrontBottom"        value="[hgcal:zHGCal7]"/>
+    <Parameter name="RMinFront"           value="[hgcal:rMinHGCalEE1]"/>
+    <Parameter name="RMinFront"           value="[hgcal:rMinHGCalHEsil1]"/>
+    <Parameter name="RMinFront"           value="[hgcal:rMinHGCalHEmix1]"/>
+    <Parameter name="RMinFront"           value="[hgcal:rMinHGCalHEmix2]"/>
+    <Parameter name="SlopeTop"            value="[hgcal:slope2]"/>
+    <Parameter name="SlopeTop"            value="[hgcal:slope3]"/>
+    <Parameter name="SlopeTop"            value="0"/>
+    <Parameter name="SlopeTop"            value="0"/>
+    <Parameter name="ZFrontTop"           value="[hgcal:zHGCal1]"/>
+    <Parameter name="ZFrontTop"           value="[hgcal:zHGCal4]"/>
+    <Parameter name="ZFrontTop"           value="[hgcal:zHGCal8]"/> 
+    <Parameter name="ZFrontTop"           value="[hgcal:zHGCal9]"/>
+    <Parameter name="RMaxFront"           value="[hgcal:rMaxHGCal1]"/>
+    <Parameter name="RMaxFront"           value="[hgcal:rMaxHGCal4]"/>
+    <Parameter name="RMaxFront"           value="[hgcal:rMaxHGCal8]"/>
+    <Parameter name="RMaxFront"           value="[hgcal:rMaxHGCal9]"/>
+  </SpecPar>
+  <SpecPar name="HGCal">
+    <PartSelector path="//HGCalEECell.*"/>
+    <PartSelector path="//HGCalHECell.*"/>
+    <Parameter name="OnlyForHGCalNumbering" value="HGCal" eval="false"/>
+    <Parameter name="WaferMode" value="HGCalGeometryMode::ExtrudedPolygon" eval="false"/>
+    <Parameter name="WaferSize"           value="[hgcal:WaferSize]"/>
+    <Parameter name="WaferThickness"      value="[hgcal:WaferThickness]"/>
+    <Parameter name="SensorSeparation"    value="[hgcal:SensorSeparation]"/>
+    <Parameter name="MouseBite"           value="[hgcal:MouseBite]"/>
+    <Parameter name="NumberOfCellsFine"   value="[hgcal:NumberOfCellsFine]"/>
+    <Parameter name="NumberOfCellsCoarse" value="[hgcal:NumberOfCellsCoarse]"/>
+  </SpecPar>
+</SpecParSection>
+
+</DDDefinition>

@@ -7,7 +7,7 @@
 #include "DataFormats/GeometrySurface/interface/SimpleConeBounds.h"
 
 void volumeHandle::buildCons() {
-  LogTrace("magneticfield::volumeHandle") << "Building cons surfaces...: ";
+  LogTrace("MagGeoBuilder") << "Building cons surfaces...: ";
 
   DDCons cons(solid);
 
@@ -21,10 +21,9 @@ void volumeHandle::buildCons() {
   double startPhi = cons.phiFrom();
   double deltaPhi = cons.deltaPhi();
 
-  LogTrace("magneticfield::volumeHandle")
-      << "zhalf      " << zhalf << newln << "rInMinusZ  " << rInMinusZ << newln << "rOutMinusZ " << rOutMinusZ << newln
-      << "rInPlusZ   " << rInPlusZ << newln << "rOutPlusZ  " << rOutPlusZ << newln << "phiFrom    " << startPhi << newln
-      << "deltaPhi   " << deltaPhi;
+  LogTrace("MagGeoBuilder") << "zhalf      " << zhalf << newln << "rInMinusZ  " << rInMinusZ << newln << "rOutMinusZ "
+                            << rOutMinusZ << newln << "rInPlusZ   " << rInPlusZ << newln << "rOutPlusZ  " << rOutPlusZ
+                            << newln << "phiFrom    " << startPhi << newln << "deltaPhi   " << deltaPhi;
 
   // recalculate center: (for a DDCons, DDD gives 0,0,Z)
   double rZmin = (rInMinusZ + rOutMinusZ) / 2.;
@@ -57,8 +56,7 @@ void volumeHandle::buildCons() {
     surfaces[outer] =
         new Cone(Surface::PositionType(0, 0, center_.z()), Surface::RotationType(), cb.vertex(), cb.openingAngle());
 
-    LogTrace("magneticfield::volumeHandle")
-        << "Outer surface: cone, vtx: " << cb.vertex() << " angle " << cb.openingAngle();
+    LogTrace("MagGeoBuilder") << "Outer surface: cone, vtx: " << cb.vertex() << " angle " << cb.openingAngle();
   }
   // All other surfaces
   buildPhiZSurf(startPhi, deltaPhi, zhalf, rCentr);

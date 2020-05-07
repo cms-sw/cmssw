@@ -13,7 +13,6 @@
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "DataFormats/MuonDetId/interface/ME0DetId.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
-#include "DataFormats/RPCDigi/interface/RPCDigi.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigi.h"
 #include "DataFormats/GEMDigi/interface/ME0PadDigi.h"
 #include "DataFormats/L1TMuon/interface/CPPFDigi.h"

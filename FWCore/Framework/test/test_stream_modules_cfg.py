@@ -29,7 +29,7 @@ process.source = cms.Source("EmptySource",
 
 
 process.GlobIntProd = cms.EDProducer("edmtest::stream::GlobalIntProducer",
-    transitions = cms.int32(nEvt+2)
+    transitions = cms.int32(nEvt+3)
     ,cachevalue = cms.int32(nEvt)
 )
 
@@ -75,7 +75,7 @@ process.TestEndLumiBlockProd = cms.EDProducer("edmtest::stream::TestEndLumiBlock
 
 
 process.GlobIntAn = cms.EDAnalyzer("edmtest::stream::GlobalIntAnalyzer",
-    transitions = cms.int32(nEvt+2)
+    transitions = cms.int32(nEvt+3)
     ,cachevalue = cms.int32(nEvt)
 )
 
@@ -100,7 +100,7 @@ process.LumiSumIntAn = cms.EDAnalyzer("edmtest::stream::LumiSummaryIntAnalyzer",
 )
 
 process.GlobIntFil = cms.EDFilter("edmtest::stream::GlobalIntFilter",
-    transitions = cms.int32(nEvt+2)
+    transitions = cms.int32(nEvt+3)
     ,cachevalue = cms.int32(nEvt)
 )
 

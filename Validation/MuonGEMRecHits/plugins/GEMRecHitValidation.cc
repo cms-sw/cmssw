@@ -34,16 +34,21 @@ void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
       for (const auto& station : region->stations()) {
         Int_t station_id = station->station();
 
-        for (const auto& chamber : station->superChambers()[0]->chambers()) {
-          Int_t layer_id = chamber->id().layer();
-          ME3IdsKey key3{region_id, station_id, layer_id};
+        const auto& superChamberVec = station->superChambers();
+        if (superChamberVec.empty() || superChamberVec[0] == nullptr) {
+          edm::LogError(kLogCategory_) << "Super chambers missing or null for region = " << region_id
+                                       << " and station = " << station_id;
+        } else {
+          for (const auto& chamber : superChamberVec[0]->chambers()) {
+            Int_t layer_id = chamber->id().layer();
+            ME3IdsKey key3{region_id, station_id, layer_id};
 
-          me_detail_cls_[key3] = bookHist1D(booker, key3, "cls", cls_title, 11, -0.5, 10.5, cls_x_title);
-
-        }  // chamber loop
-      }    // station loop
-    }      // region loop
-  }        // detail plot
+            me_detail_cls_[key3] = bookHist1D(booker, key3, "cls", cls_title, 11, -0.5, 10.5, cls_x_title);
+          }  // chamber loop
+        }    // end else
+      }      // station loop
+    }        // region loop
+  }          // detail plot
 
   // NOTE Residual
   booker.setCurrentFolder("MuonGEMRecHitsV/GEMRecHitsTask/Residual");
@@ -61,21 +66,24 @@ void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
       for (const auto& station : region->stations()) {
         Int_t station_id = station->station();
 
-        for (const auto& chamber : station->superChambers()[0]->chambers()) {
-          Int_t layer_id = chamber->id().layer();
-          ME3IdsKey key3{region_id, station_id, layer_id};
+        const auto& superChamberVec = station->superChambers();
+        if (!superChamberVec.empty() && superChamberVec[0] != nullptr) {
+          for (const auto& chamber : superChamberVec[0]->chambers()) {
+            Int_t layer_id = chamber->id().layer();
+            ME3IdsKey key3{region_id, station_id, layer_id};
 
-          // Occupancy histograms of SimHits and RecHits for Efficiency
-          me_detail_residual_x_[key3] =
-              bookHist1D(booker, key3, "residual_x", "Residual in X", 120, -3, 3, "Residual in X [cm]");
+            // Occupancy histograms of SimHits and RecHits for Efficiency
+            me_detail_residual_x_[key3] =
+                bookHist1D(booker, key3, "residual_x", "Residual in X", 120, -3, 3, "Residual in X [cm]");
 
-          me_detail_residual_y_[key3] =
-              bookHist1D(booker, key3, "residual_y", "Residual in Y", 600, -15, 15, "Residual in Y [cm]");
+            me_detail_residual_y_[key3] =
+                bookHist1D(booker, key3, "residual_y", "Residual in Y", 600, -15, 15, "Residual in Y [cm]");
 
-        }  // chamber loop
-      }    // station loop
-    }      // detail_plot
-  }        // region loop
+          }  // chamber loop
+        }    // end if
+      }      // station loop
+    }        // detail_plot
+  }          // region loop
 
   // NOTE Pull
   booker.setCurrentFolder("MuonGEMRecHitsV/GEMRecHitsTask/Pull");
@@ -91,18 +99,21 @@ void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
       for (const auto& station : region->stations()) {
         Int_t station_id = station->station();
 
-        for (const auto& chamber : station->superChambers()[0]->chambers()) {
-          Int_t layer_id = chamber->id().layer();
-          ME3IdsKey key3{region_id, station_id, layer_id};
+        const auto& superChamberVec = station->superChambers();
+        if (!superChamberVec.empty() && superChamberVec[0] != nullptr) {
+          for (const auto& chamber : superChamberVec[0]->chambers()) {
+            Int_t layer_id = chamber->id().layer();
+            ME3IdsKey key3{region_id, station_id, layer_id};
 
-          me_detail_pull_x_[key3] = bookHist1D(booker, key3, "pull_x", "Pull in X", 100, -3, 3);
+            me_detail_pull_x_[key3] = bookHist1D(booker, key3, "pull_x", "Pull in X", 100, -3, 3);
 
-          me_detail_pull_y_[key3] = bookHist1D(booker, key3, "pull_y", "Pull in Y", 100, -3, 3);
+            me_detail_pull_y_[key3] = bookHist1D(booker, key3, "pull_y", "Pull in Y", 100, -3, 3);
 
-        }  // chamber loop
-      }    // station loop
-    }      // detail plot
-  }        // region loop
+          }  // chamber loop
+        }    // end if
+      }      // station loop
+    }        // detail plot
+  }          // region loop
 
   // NOTE Occupancy
   booker.setCurrentFolder("MuonGEMRecHitsV/GEMRecHitsTask/Occupancy");
@@ -144,18 +155,21 @@ void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
       me_rechit_occ_det_[key2] = bookDetectorOccupancy(booker, key2, station, "matched_rechit", "Matched RecHit");
 
       if (detail_plot_) {
-        for (const auto& chamber : station->superChambers()[0]->chambers()) {
-          Int_t layer_id = chamber->id().layer();
-          ME3IdsKey key3{region_id, station_id, layer_id};
+        const auto& superChamberVec = station->superChambers();
+        if (!superChamberVec.empty() && superChamberVec[0] != nullptr) {
+          for (const auto& chamber : superChamberVec[0]->chambers()) {
+            Int_t layer_id = chamber->id().layer();
+            ME3IdsKey key3{region_id, station_id, layer_id};
 
-          me_detail_occ_xy_[key3] = bookXYOccupancy(booker, key3, "rechit", "RecHit");
+            me_detail_occ_xy_[key3] = bookXYOccupancy(booker, key3, "rechit", "RecHit");
 
-          me_detail_occ_polar_[key3] = bookPolarOccupancy(booker, key3, "rechit", "RecHit");
+            me_detail_occ_polar_[key3] = bookPolarOccupancy(booker, key3, "rechit", "RecHit");
 
-        }  // chamber loop
-      }    // detail plot
-    }      // station loop
-  }        // region_loop
+          }  // chamber loop
+        }    // end if
+      }      // detail plot
+    }        // station loop
+  }          // region_loop
 }
 
 Bool_t GEMRecHitValidation::matchRecHitAgainstSimHit(GEMRecHitCollection::const_iterator rechit, Int_t simhit_strip) {

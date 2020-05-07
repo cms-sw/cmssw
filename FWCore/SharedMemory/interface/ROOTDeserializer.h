@@ -43,9 +43,10 @@ namespace edm::shared_memory {
     // ---------- member functions ---------------------------
     T deserialize() {
       T value;
-      if (buffer_.mustGetBufferAgain()) {
+      if (previousBufferIdentifier_ != buffer_.bufferIdentifier()) {
         auto buff = buffer_.buffer();
         bufferFile_.SetBuffer(buff.first, buff.second, kFALSE);
+        previousBufferIdentifier_ = buffer_.bufferIdentifier();
       }
 
       class_->ReadBuffer(bufferFile_, &value);
@@ -58,6 +59,7 @@ namespace edm::shared_memory {
     READBUFFER& buffer_;
     TClass* const class_;
     TBufferFile bufferFile_;
+    int previousBufferIdentifier_ = 0;
   };
 }  // namespace edm::shared_memory
 

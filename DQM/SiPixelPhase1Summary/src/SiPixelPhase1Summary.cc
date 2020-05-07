@@ -55,7 +55,7 @@ SiPixelPhase1Summary::SiPixelPhase1Summary(const edm::ParameterSet& iConfig) : c
   std::vector<edm::ParameterSet> mapPSets = conf_.getParameter<std::vector<edm::ParameterSet> >("SummaryMaps");
 
   //Go through the configuration file and add in
-  for (auto const mapPSet : mapPSets) {
+  for (auto const& mapPSet : mapPSets) {
     summaryPlotName_[mapPSet.getParameter<std::string>("MapName")] = mapPSet.getParameter<std::string>("MapHist");
   }
   deadRocThresholds_ = conf_.getParameter<std::vector<double> >("DeadROCErrorThreshold");
@@ -509,7 +509,7 @@ void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker& iBooker, DQMStore::I
             i + 1,
             j + 1,
             1);  // This resets the map to be good. We only then set it to 0 if there has been a problem in one of the other summaries.
-        for (auto const mapInfo : summaryPlotName_) {  //Check summary maps
+        for (auto const& mapInfo : summaryPlotName_) {  //Check summary maps
           auto name = mapInfo.first;
           if (summaryMap_[name] == nullptr) {
             edm::LogWarning("SiPixelPhase1Summary") << "Summary " << name << " does not exist!";

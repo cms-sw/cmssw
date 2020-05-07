@@ -1,13 +1,21 @@
 import FWCore.ParameterSet.Config as cms
 
+import sys
 from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 process = cms.Process("L1TStage2DQM", Run2_2018)
+
+unitTest = False
+if 'unitTest=True' in sys.argv:
+    unitTest=True
 
 #--------------------------------------------------
 # Event Source and Condition
 
-# Live Online DQM in P5
-process.load("DQM.Integration.config.inputsource_cfi")
+if unitTest:
+    process.load("DQM.Integration.config.unittestinputsource_cfi")
+else:
+    # Live Online DQM in P5
+    process.load("DQM.Integration.config.inputsource_cfi")
 
 # # Testing in lxplus
 # process.load("DQM.Integration.config.fileinputsource_cfi")

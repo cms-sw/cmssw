@@ -16,8 +16,6 @@
 
 #include "DetectorDescription/DDCMS/interface/DDShapes.h"
 
-#include "MagneticField/Layers/interface/MagVerbosity.h"
-
 #include <string>
 #include <iterator>
 
@@ -68,21 +66,21 @@ volumeHandle::volumeHandle(const cms::DDFilteredView &fv, bool expand2Pi, bool d
     isIronFlag = true;
 
   if (debug) {
-    LogTrace("magneticfield::volumeHandle") << " RMin =  " << theRMin << newln << " RMax =  " << theRMax;
+    LogTrace("MagGeoBuilder") << " RMin =  " << theRMin << newln << " RMax =  " << theRMax;
 
     if (theRMin < 0 || theRN < theRMin || theRMax < theRN)
-      LogTrace("magneticfield::volumeHandle") << "*** WARNING: wrong RMin/RN/RMax";
+      LogTrace("MagGeoBuilder") << "*** WARNING: wrong RMin/RN/RMax";
 
-    LogTrace("magneticfield::volumeHandle")
-        << "Summary: " << name << " " << copyno << " shape = " << theShape << " trasl " << center() << " R "
-        << center().perp() << " phi " << center().phi() << " magFile " << magFile << " Material= " << fv.materialName()
-        << " isIron= " << isIronFlag << " masterSector= " << masterSector;
+    LogTrace("MagGeoBuilder") << "Summary: " << name << " " << copyno << " shape = " << theShape << " trasl "
+                              << center() << " R " << center().perp() << " phi " << center().phi() << " magFile "
+                              << magFile << " Material= " << fv.materialName() << " isIron= " << isIronFlag
+                              << " masterSector= " << masterSector;
 
-    LogTrace("magneticfield::volumeHandle") << " Orientation of surfaces:";
+    LogTrace("MagGeoBuilder") << " Orientation of surfaces:";
     std::string sideName[3] = {"positiveSide", "negativeSide", "onSurface"};
     for (int i = 0; i < 6; ++i) {
       if (surfaces[i] != nullptr)
-        LogTrace("magneticfield::volumeHandle") << "  " << i << ":" << sideName[surfaces[i]->side(center_, 0.3)];
+        LogTrace("MagGeoBuilder") << "  " << i << ":" << sideName[surfaces[i]->side(center_, 0.3)];
     }
   }
 }
@@ -126,7 +124,7 @@ void volumeHandle::referencePlane(const cms::DDFilteredView &fv) {
   refRot.GetComponents(x, y, z);
   if (debug) {
     if (x.Cross(y).Dot(z) < 0.5) {
-      LogTrace("magneticfield::volumeHandle") << "*** WARNING: Rotation is not RH ";
+      LogTrace("MagGeoBuilder") << "*** WARNING: Rotation is not RH ";
     }
   }
 
@@ -145,7 +143,7 @@ void volumeHandle::referencePlane(const cms::DDFilteredView &fv) {
 
   // Check correct orientation
   if (debug) {
-    LogTrace("magneticfield::volumeHandle") << "Refplane pos  " << refPlane->position();
+    LogTrace("MagGeoBuilder") << "Refplane pos  " << refPlane->position();
 
     // See comments above for the conventions for orientation.
     LocalVector globalZdir(0., 0., 1.);  // Local direction of the axis along global Z
@@ -160,7 +158,7 @@ void volumeHandle::referencePlane(const cms::DDFilteredView &fv) {
     }
     float chk = refPlane->toGlobal(globalZdir).dot(GlobalVector(0, 0, 1));
     if (chk < .999)
-      LogTrace("magneticfield::volumeHandle") << "*** WARNING RefPlane check failed!***" << chk;
+      LogTrace("MagGeoBuilder") << "*** WARNING RefPlane check failed!***" << chk;
   }
 }
 

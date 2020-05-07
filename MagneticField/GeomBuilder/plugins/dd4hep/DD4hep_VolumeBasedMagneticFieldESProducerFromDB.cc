@@ -91,8 +91,8 @@ DD4hep_VolumeBasedMagneticFieldESProducerFromDB::DD4hep_VolumeBasedMagneticField
             mayGetConfigToken_,
             [](auto const& iGet, edm::ESTransientHandle<RunInfo> iHandle) {
               auto const label = closerNominalLabel(iHandle->m_avg_current);
-              edm::LogInfo("MagneticFieldDB") << "Current :" << iHandle->m_avg_current
-                                              << " (from RunInfo DB); using map configuration with label: " << label;
+              edm::LogInfo("MagneticField") << "Current :" << iHandle->m_avg_current
+                                            << " (from RunInfo DB); using map configuration with label: " << label;
               return iGet("", label);
             },
             edm::ESProductTag<RunInfo, RunInfoRcd>("", ""));
@@ -100,8 +100,8 @@ DD4hep_VolumeBasedMagneticFieldESProducerFromDB::DD4hep_VolumeBasedMagneticField
   } else {
     //we know exactly what we are going to get
     auto const label = closerNominalLabel(current);
-    edm::LogInfo("MagneticFieldDB") << "Current :" << current
-                                    << " (from valueOverride card); using map configuration with label: " << label;
+    edm::LogInfo("MagneticField") << "Current :" << current
+                                  << " (from valueOverride card); using map configuration with label: " << label;
     setWhatProduced(
         this, &DD4hep_VolumeBasedMagneticFieldESProducerFromDB::chooseConfigViaParameter, edm::es::Label(myConfigLabel))
         .setConsumes(knownFromParamConfigToken_, edm::ESInputTag(""s, std::string(label)));
@@ -148,8 +148,8 @@ std::unique_ptr<MagneticField> DD4hep_VolumeBasedMagneticFieldESProducerFromDB::
   std::unique_ptr<MagneticField> paramField =
       ParametrizedMagneticFieldFactory::get(conf->slaveFieldVersion, conf->slaveFieldParameters);
 
-  edm::LogInfo("MagneticFieldDB") << "Version: " << conf->version << " geometryVersion: " << conf->geometryVersion
-                                  << " slaveFieldVersion: " << conf->slaveFieldVersion;
+  edm::LogInfo("MagneticField") << "Version: " << conf->version << " geometryVersion: " << conf->geometryVersion
+                                << " slaveFieldVersion: " << conf->slaveFieldVersion;
 
   if (conf->version == "parametrizedMagneticField") {
     // The map consist of only the parametrization in this case

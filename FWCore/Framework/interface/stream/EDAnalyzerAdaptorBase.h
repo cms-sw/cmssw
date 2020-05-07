@@ -127,7 +127,7 @@ namespace edm {
                                                     Principal const& iPrincipal) const {}
 
       virtual void setupStreamModules() = 0;
-      void doBeginJob();
+      virtual void doBeginJob() = 0;
       virtual void doEndJob() = 0;
 
       void doBeginStream(StreamID id);

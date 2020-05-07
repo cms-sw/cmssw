@@ -88,6 +88,7 @@ namespace edm {
         m_lumis.resize(iNLumis);
         m_lumiSummaries.resize(iNLumis);
       }
+      void doBeginJob() final { MyGlobal::beginJob(m_global.get()); }
       void doEndJob() final { MyGlobal::endJob(m_global.get()); }
       void setupRun(M* iProd, RunIndex iIndex) final { MyGlobalRun::set(iProd, m_runs[iIndex].get()); }
       void streamEndRunSummary(M* iProd, edm::Run const& iRun, edm::EventSetup const& iES) final {

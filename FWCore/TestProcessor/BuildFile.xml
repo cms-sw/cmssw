@@ -1,6 +1,6 @@
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSetReader"/>
-<use   name="boost"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSetReader"/>
+<use name="boost"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

@@ -9,20 +9,20 @@
 using namespace edm::shared_memory;
 
 TEST_CASE("test Read/WriteBuffers", "[Buffers]") {
-  char bufferIndex = 0;
+  BufferInfo bufferInfo = {0, 0};
 
   std::string const uniqueName = "BufferTest" + std::to_string(getpid());
 
-  WriteBuffer writeBuffer(uniqueName, &bufferIndex);
+  WriteBuffer writeBuffer(uniqueName, &bufferInfo);
 
-  ReadBuffer readBuffer(uniqueName, &bufferIndex);
+  ReadBuffer readBuffer(uniqueName, &bufferInfo);
 
   SECTION("First") {
     std::array<char, 4> dummy = {{'t', 'e', 's', 't'}};
 
     writeBuffer.copyToBuffer(dummy.data(), dummy.size());
 
-    REQUIRE(readBuffer.mustGetBufferAgain());
+    REQUIRE(readBuffer.bufferIdentifier() == 1);
     {
       auto b = readBuffer.buffer();
       REQUIRE(b.second == dummy.size());
@@ -34,7 +34,7 @@ TEST_CASE("test Read/WriteBuffers", "[Buffers]") {
 
       writeBuffer.copyToBuffer(dummy.data(), dummy.size() - 1);
 
-      REQUIRE(not readBuffer.mustGetBufferAgain());
+      REQUIRE(readBuffer.bufferIdentifier() == 1);
       {
         auto b = readBuffer.buffer();
         //the second argument is the buffer capacity, not the last length sent
@@ -46,7 +46,7 @@ TEST_CASE("test Read/WriteBuffers", "[Buffers]") {
         std::array<char, 6> dummy = {{'l', 'a', 'r', 'g', 'e', 'r'}};
         writeBuffer.copyToBuffer(dummy.data(), dummy.size());
 
-        REQUIRE(readBuffer.mustGetBufferAgain());
+        REQUIRE(readBuffer.bufferIdentifier() == 2);
         {
           auto b = readBuffer.buffer();
           REQUIRE(b.second == dummy.size());
@@ -58,7 +58,7 @@ TEST_CASE("test Read/WriteBuffers", "[Buffers]") {
           std::array<char, 7> dummy = {{'l', 'a', 'r', 'g', 'e', 's', 't'}};
           writeBuffer.copyToBuffer(dummy.data(), dummy.size());
 
-          REQUIRE(readBuffer.mustGetBufferAgain());
+          REQUIRE(readBuffer.bufferIdentifier() == 3);
           {
             auto b = readBuffer.buffer();
             REQUIRE(b.second == dummy.size());

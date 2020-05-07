@@ -11,7 +11,6 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/EcalObjects/interface/EcalWeight.h"
-#include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
 #include "DataFormats/Math/interface/Matrix.h"
 #include <iostream>
 

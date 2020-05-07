@@ -1,7 +1,7 @@
 <use   name="RecoVertex/VertexPrimitives"/>
 <use   name="RecoVertex/KinematicFit"/>
 <use   name="TrackingTools/TransientTrack"/>
-<use   name="RecoTracker/Record" />
+<use   name="TrackingTools/Records"/>
 <use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="DataFormats/RecoCandidate"/>
 <use   name="HepPDT"/>

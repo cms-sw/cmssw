@@ -20,7 +20,6 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -42,7 +41,6 @@
 #include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
 
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
-// #include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 
 // class definition
 class NavigationSchoolAnalyzer : public edm::EDAnalyzer {

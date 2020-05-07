@@ -69,6 +69,8 @@ namespace {
     }
 
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>> &iovs) override {
+      gStyle->SetOptStat("emr");
+
       auto iov = iovs.front();
       std::shared_ptr<SiPixelLorentzAngle> payload = fetchPayload(std::get<1>(iov));
       std::map<uint32_t, float> LAMap_ = payload->getLorentzAngles();
@@ -77,7 +79,6 @@ namespace {
       canvas.cd();
       auto h1 = std::unique_ptr<TH1F>(new TH1F(
           "value", "SiPixel LA value;SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T];# modules", 50, 0.051, 0.15));
-      h1->SetStats(false);
 
       canvas.SetTopMargin(0.06);
       canvas.SetBottomMargin(0.12);
@@ -97,15 +98,24 @@ namespace {
       h1->Draw("bar2");
 
       SiPixelPI::makeNicePlotStyle(h1.get());
+      h1->SetStats(true);
 
       canvas.Update();
 
-      TLegend legend = TLegend(0.40, 0.88, 0.95, 0.94);
+      TLegend legend = TLegend(0.40, 0.88, 0.94, 0.93);
       legend.SetHeader(("Payload hash: #bf{" + (std::get<1>(iov)) + "}").c_str(),
                        "C");  // option "C" allows to center the header
       //legend.AddEntry(h1.get(), ("IOV: " + std::to_string(std::get<0>(iov))).c_str(), "PL");
       legend.SetTextSize(0.025);
+      legend.SetLineColor(10);
       legend.Draw("same");
+
+      TPaveStats *st = (TPaveStats *)h1->FindObject("stats");
+      st->SetTextSize(0.03);
+      st->SetX1NDC(0.15);  //new x start position
+      st->SetY1NDC(0.83);  //new y start position
+      st->SetX2NDC(0.39);  //new x end position
+      st->SetY2NDC(0.93);  //new y end position
 
       auto ltx = TLatex();
       ltx.SetTextFont(62);
@@ -466,7 +476,7 @@ namespace {
   class SiPixelBPixLorentzAngleMap : public cond::payloadInspector::PlotImage<SiPixelLorentzAngle> {
   public:
     SiPixelBPixLorentzAngleMap()
-        : cond::payloadInspector::PlotImage<SiPixelLorentzAngle>("SiPixelQuality Barrel Pixel Map"),
+        : cond::payloadInspector::PlotImage<SiPixelLorentzAngle>("SiPixelLorentzAngle Barrel Pixel Map"),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
               edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml").fullPath())} {
       setSingleIov(true);
@@ -579,7 +589,7 @@ namespace {
   class SiPixelFPixLorentzAngleMap : public cond::payloadInspector::PlotImage<SiPixelLorentzAngle> {
   public:
     SiPixelFPixLorentzAngleMap()
-        : cond::payloadInspector::PlotImage<SiPixelLorentzAngle>("SiPixelQuality Forward Pixel Map"),
+        : cond::payloadInspector::PlotImage<SiPixelLorentzAngle>("SiPixelLorentzAngle Forward Pixel Map"),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
               edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml").fullPath())} {
       setSingleIov(true);

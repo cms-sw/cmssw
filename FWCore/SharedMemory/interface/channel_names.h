@@ -26,8 +26,8 @@
 
 namespace edm::shared_memory {
   namespace channel_names {
-    constexpr char const* const kToWorkerBufferIndex = "bufferIndexToWorker";
-    constexpr char const* const kFromWorkerBufferIndex = "bufferIndexFromWorker";
+    constexpr char const* const kToWorkerBufferInfo = "bufferInfoToWorker";
+    constexpr char const* const kFromWorkerBufferInfo = "bufferInfoFromWorker";
     constexpr char const* const kMutex = "mtx";
     constexpr char const* const kConditionFromMain = "cndFromMain";
     constexpr char const* const kConditionToMain = "cndToMain";

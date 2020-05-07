@@ -1,7 +1,12 @@
 import FWCore.ParameterSet.Config as cms
+import sys
 
 # Process initialization
 process = cms.Process('FED')
+
+unitTest = False
+if 'unitTest=True' in sys.argv:
+    unitTest=True
 
 # Logging:
 process.MessageLogger = cms.Service(
@@ -18,7 +23,10 @@ process.load('DQM.Integration.config.environment_cfi')
 # Global tag:
 process.load('DQM.Integration.config.FrontierCondition_GT_cfi')
 # Input:
-process.load('DQM.Integration.config.inputsource_cfi')
+if unitTest:
+    process.load("DQM.Integration.config.unittestinputsource_cfi")
+else:
+    process.load('DQM.Integration.config.inputsource_cfi')
 # Output:
 process.dqmEnv.subSystemFolder = 'FED'
 process.dqmSaver.tag = 'FED'

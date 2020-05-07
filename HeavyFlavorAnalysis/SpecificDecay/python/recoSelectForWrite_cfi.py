@@ -122,18 +122,14 @@ K0s_pset     = cms.PSet( name = cms.string( 'K0s' ),
                        etaMax = cms.double( 10.0 ),
                       massMin = cms.double( 0.0 ),
                       massMax = cms.double( 20.0 ),
-                      probMin = cms.double( -1.0 ),
-                  constrMass  = cms.double( -1.0 ),
-                  constrSigma = cms.double( -1.0 )
+                      probMin = cms.double( -1.0 )
 )
 Lambda0_pset = cms.PSet( name = cms.string( 'Lambda0' ),
                         ptMin = cms.double( 0.0 ),
                        etaMax = cms.double( 10.0 ),
                       massMin = cms.double( 0.0 ),
                       massMax = cms.double( 20.0 ),
-                      probMin = cms.double( -1.0 ),
-                  constrMass  = cms.double( -1.0 ),
-                  constrSigma = cms.double( -1.0 )
+                      probMin = cms.double( -1.0 )
 )
 B0_pset      = cms.PSet( name = cms.string( 'B0' ),
                      mJPsiMin = cms.double( 2.80 ),

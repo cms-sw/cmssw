@@ -234,6 +234,11 @@ RawTask::RawTask(edm::ParameterSet const& ps) : DQTask(ps) {
   //	extract some info
   int bx = e.bunchCrossing();
 
+  auto lumiCache = luminosityBlockCache(e.getLuminosityBlock().index());
+  _currentLS = lumiCache->currentLS;
+  _xQuality.reset();
+  _xQuality = lumiCache->xQuality;
+
   /*
 	 *	For Calibration/Abort Gap Processing
 	 *	check if the #channels taht are bad from the unpacker 
@@ -408,19 +413,19 @@ RawTask::RawTask(edm::ParameterSet const& ps) : DQTask(ps) {
   }
 }
 
-/* virtual */ void RawTask::dqmBeginLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
-  DQTask::dqmBeginLuminosityBlock(lb, es);
-
+std::shared_ptr<hcaldqm::Cache> RawTask::globalBeginLuminosityBlock(edm::LuminosityBlock const& lb,
+                                                                    edm::EventSetup const& es) const {
+  return DQTask::globalBeginLuminosityBlock(lb, es);
   //	_cBadQualityvsLS.extendAxisRange(_currentLS);
-
-  //	ONLINE ONLY!
-  if (_ptype != fOnline)
-    return;
   //	_cSummaryvsLS_FED.extendAxisRange(_currentLS);
   //	_cSummaryvsLS.extendAxisRange(_currentLS);
 }
 
-/* virtual */ void RawTask::dqmEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
+/* virtual */ void RawTask::globalEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
+  auto lumiCache = luminosityBlockCache(lb.index());
+  _currentLS = lumiCache->currentLS;
+  _evsPerLS = lumiCache->EvtCntLS;
+
   if (_ptype != fOnline)
     return;
 
@@ -485,7 +490,7 @@ RawTask::RawTask(edm::ParameterSet const& ps) : DQTask(ps) {
   _xBadQLS.reset();
 
   //	in the end always do the DQTask::endLumi
-  DQTask::dqmEndLuminosityBlock(lb, es);
+  DQTask::globalEndLuminosityBlock(lb, es);
 }
 
 DEFINE_FWK_MODULE(RawTask);

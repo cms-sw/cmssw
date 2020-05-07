@@ -37,10 +37,28 @@ modv = parser.parse_args().modelv
 
 df = pd.read_pickle(fName)
 print ("vars in file:",df.keys())
+print("events in df original:",df.shape[0])
 df = df.loc[df['t_eHcal_y'] > 20]
+print("events in df after energy cut:",df.shape[0])
 df['t_eHcal_xun'] = df['t_eHcal_x']
 df['t_delta_un'] = df['t_delta']
 df['t_ieta_un'] = df['t_ieta']
+
+mina = []
+maxa = []
+keya = []
+
+
+for i in df.keys():
+    keya.append(i)
+    mina.append(df[i].min())
+    maxa.append(df[i].max())
+
+print('var = ',keya)
+print('mina = ',mina)
+print('maxa = ',maxa)
+
+
 #cols_to_stand = ['t_nVtx','t_ieta','t_eHcal10', 't_eHcal30','t_rhoh','t_eHcal_x']
 #cols_to_minmax = ['t_delta', 't_hmaxNearP','t_emaxNearP', 't_hAnnular', 't_eAnnular','t_pt']
 cols_to_minmax = ['t_delta', 't_hmaxNearP','t_emaxNearP', 't_hAnnular', 't_eAnnular','t_pt','t_nVtx','t_ieta','t_eHcal10', 't_eHcal30','t_rhoh','t_eHcal_x']

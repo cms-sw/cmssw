@@ -10,7 +10,6 @@
 <use name="geant4core"/>
 <use name="clhep"/>
 <use name="hepmc"/>
-
 <export>
   <lib name="ValidationHGCalValidation"/>
 </export>

@@ -118,7 +118,8 @@ SiPixelPhase1TrackEfficiencyVertices= DefaultHistoTrack.clone(
    )
 )
 
-
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(SiPixelPhase1TrackEfficiencyVertices, range_max = 150.5, range_nbins=151)
 
 SiPixelPhase1TrackEfficiencyConf = cms.VPSet(
   SiPixelPhase1TrackEfficiencyValid,

@@ -1,8 +1,6 @@
-<use   name="DataFormats/HcalDetId"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="Geometry/HGCalCommonData"/>
+<use name="DataFormats/HcalDetId"/>
+<use name="FWCore/ParameterSet"/>
+<use name="Geometry/HGCalCommonData"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>
-

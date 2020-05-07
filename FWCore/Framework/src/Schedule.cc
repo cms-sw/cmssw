@@ -320,22 +320,37 @@ namespace edm {
             it = inserted.first;
           }
 
+          bool found = false;
           for (auto const& productIter : preg.productList()) {
             BranchKey const& branchKey = productIter.first;
+            // The alias-for product must be in the same process as
+            // the SwitchProducer (earlier processes or SubProcesses
+            // may contain products with same type, module label, and
+            // instance name)
+            if (branchKey.processName() != processName) {
+              continue;
+            }
+
             BranchDescription const& desc = productIter.second;
             if (desc.branchType() == prod.second.branchType() and
                 desc.unwrappedTypeID().typeInfo() == prod.second.unwrappedTypeID().typeInfo() and
                 branchKey.moduleLabel() == prod.second.switchAliasModuleLabel() and
                 branchKey.productInstanceName() == prod.second.productInstanceName()) {
-              if (branchKey.processName() != processName) {
-                throw Exception(errors::LogicError)
-                    << "Encountered a BranchDescription that is aliased-for by SwitchProducer, and whose processName "
-                    << branchKey.processName() << " differs from current process " << processName
-                    << ". Module label is " << branchKey.moduleLabel() << ".\nPlease contact a framework developer.";
-              }
               prod.second.setSwitchAliasForBranch(desc);
               it->second.chosenBranches.push_back(prod.first);  // with moduleLabel of the Switch
+              found = true;
             }
+          }
+          if (not found) {
+            Exception ex(errors::LogicError);
+            ex << "Trying to find a BranchDescription to be aliased-for by SwitchProducer with\n"
+               << "  friendly class name = " << prod.second.friendlyClassName() << "\n"
+               << "  module label = " << prod.second.moduleLabel() << "\n"
+               << "  product instance name = " << prod.second.productInstanceName() << "\n"
+               << "  process name = " << processName
+               << "\n\nbut did not find any. Please contact a framework developer.";
+            ex.addContext("Calling Schedule.cc:processSwitchProducers()");
+            throw ex;
           }
         }
       }
@@ -358,7 +373,7 @@ namespace edm {
           std::fill(foundBranches.begin(), foundBranches.end(), false);
           for (auto& nonConstItem : preg.productListUpdator()) {
             auto const& item = nonConstItem;
-            if (item.first.moduleLabel() == caseLabel) {
+            if (item.first.moduleLabel() == caseLabel and item.first.processName() == processName) {
               // Set the alias-for branch as transient so it gets fully ignored in output.
               // I tried first to implicitly drop all branches with
               // '@' in ProductSelector, but that gave problems on

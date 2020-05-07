@@ -119,7 +119,7 @@ namespace {
     Stream ss;
     for (auto const& spansLayers : spansLayerSets) {
       ss << "Overlapping detGroups:\n";
-      for (auto const cspan : spansLayers.first) {
+      for (auto const& cspan : spansLayers.first) {
         detGroupSpanInfo(cspan, ss);
         ss << std::endl;
       }

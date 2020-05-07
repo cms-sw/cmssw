@@ -1,88 +1,93 @@
 <architecture name="slc6_amd64">
   <flags LDFLAGS="-Wl,-dynamic-linker,$(GLIBC_BASE)/lib64/ld.so"/>
 </architecture>
-<bin   name="cmsRunGlibC" file="cmsRun.cpp">
-  <use   name="roothistmatrix"/>
-  <use   name="tbb"/>
-  <use   name="boost"/>
-  <use   name="boost_program_options"/>
-  <use   name="FWCore/Framework"/>
-  <use   name="FWCore/MessageLogger"/>
-  <use   name="FWCore/PluginManager"/>
-  <use   name="FWCore/ServiceRegistry"/>
-  <use   name="FWCore/Utilities"/>
-  <use   name="FWCore/ParameterSet"/>
-  <use   name="FWCore/ParameterSetReader"/>
+<bin name="cmsRunGlibC" file="cmsRun.cpp">
+  <use name="roothistmatrix"/>
+  <use name="tbb"/>
+  <use name="boost"/>
+  <use name="boost_program_options"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="FWCore/Utilities"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/ParameterSetReader"/>
 </bin>
-<bin   name="cmsRunTC" file="cmsRun.cpp">
-  <use   name="tbb"/>
-  <use   name="boost"/>
-  <use   name="boost_program_options"/>
-  <use   name="tcmalloc_minimal"/>
-  <use   name="FWCore/Framework"/>
-  <use   name="FWCore/MessageLogger"/>
-  <use   name="FWCore/PluginManager"/>
-  <use   name="FWCore/ServiceRegistry"/>
-  <use   name="FWCore/Utilities"/>
-  <use   name="FWCore/ParameterSet"/>
-  <use   name="FWCore/ParameterSetReader"/>
+
+<bin name="cmsRunTC" file="cmsRun.cpp">
+  <use name="tbb"/>
+  <use name="boost"/>
+  <use name="boost_program_options"/>
+  <use name="tcmalloc_minimal"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="FWCore/Utilities"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/ParameterSetReader"/>
 </bin>
-<bin   name="cmsRun" file="cmsRun.cpp">
-  <use   name="tbb"/>
-  <use   name="boost"/>
-  <use   name="boost_program_options"/>
+
+<bin name="cmsRun" file="cmsRun.cpp">
+  <use name="tbb"/>
+  <use name="boost"/>
+  <use name="boost_program_options"/>
   <!-- jemalloc is mostly tested on x86_64 in upstream -->
   <architecture name=".*_amd64_.*">
-    <use   name="jemalloc"/>
+    <use name="jemalloc"/>
   </architecture>
-  <use   name="FWCore/Framework"/>
-  <use   name="FWCore/MessageLogger"/>
-  <use   name="FWCore/PluginManager"/>
-  <use   name="FWCore/ServiceRegistry"/>
-  <use   name="FWCore/Utilities"/>
-  <use   name="FWCore/ParameterSet"/>
-  <use   name="FWCore/ParameterSetReader"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="FWCore/Utilities"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/ParameterSetReader"/>
 </bin>
-<bin   name="cmsRunVDT" file="cmsRun.cpp">
-  <use   name="vdt"/>
-  <use   name="tbb"/>
-  <use   name="boost"/>
-  <use   name="boost_program_options"/>
-  <use   name="jemalloc"/>
-  <use   name="FWCore/Framework"/>
-  <use   name="FWCore/MessageLogger"/>
-  <use   name="FWCore/PluginManager"/>
-  <use   name="FWCore/ServiceRegistry"/>
-  <use   name="FWCore/Utilities"/>
-  <use   name="FWCore/ParameterSet"/>
-  <use   name="FWCore/ParameterSetReader"/>
+
+<bin name="cmsRunVDT" file="cmsRun.cpp">
+  <use name="vdt"/>
+  <use name="tbb"/>
+  <use name="boost"/>
+  <use name="boost_program_options"/>
+  <use name="jemalloc"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="FWCore/Utilities"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/ParameterSetReader"/>
 </bin>
-<bin   name="cmsRunJE" file="cmsRun.cpp">
-  <use   name="tbb"/>
-  <use   name="boost"/>
-  <use   name="boost_program_options"/>
-  <use   name="jemalloc"/>
-  <use   name="FWCore/Framework"/>
-  <use   name="FWCore/MessageLogger"/>
-  <use   name="FWCore/PluginManager"/>
-  <use   name="FWCore/ServiceRegistry"/>
-  <use   name="FWCore/Utilities"/>
-  <use   name="FWCore/ParameterSet"/>
-  <use   name="FWCore/ParameterSetReader"/>
+
+<bin name="cmsRunJE" file="cmsRun.cpp">
+  <use name="tbb"/>
+  <use name="boost"/>
+  <use name="boost_program_options"/>
+  <use name="jemalloc"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="FWCore/Utilities"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/ParameterSetReader"/>
 </bin>
-<bin   name="cmsRunPython3" file="cmsRunPython3.cpp">
-  <use   name="tbb"/>
-  <use   name="boost"/>
-  <use   name="boost_program_options"/>
+
+<bin name="cmsRunPython3" file="cmsRunPython3.cpp">
+  <use name="tbb"/>
+  <use name="boost"/>
+  <use name="boost_program_options"/>
   <!-- jemalloc is mostly tested on x86_64 in upstream -->
   <architecture name=".*_amd64_.*">
-    <use   name="jemalloc"/>
+    <use name="jemalloc"/>
   </architecture>
-  <use   name="FWCore/Framework"/>
-  <use   name="FWCore/MessageLogger"/>
-  <use   name="FWCore/PluginManager"/>
-  <use   name="FWCore/ServiceRegistry"/>
-  <use   name="FWCore/Utilities"/>
-  <use   name="FWCore/ParameterSet"/>
-  <use   name="FWCore/PyDevParameterSet"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="FWCore/Utilities"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/PyDevParameterSet"/>
 </bin>

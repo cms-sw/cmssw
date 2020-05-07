@@ -830,6 +830,19 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
   int bx = e.bunchCrossing();
   meNumEvents1LS->Fill(0.5);  // just increment
 
+  auto lumiCache = luminosityBlockCache(e.getLuminosityBlock().index());
+  _currentLS = lumiCache->currentLS;
+  _xQuality.reset();
+  _xQuality = lumiCache->xQuality;
+
+  if (_ptype == fOnline &&
+      lumiCache->EvtCntLS == 1) {  // Reset the bin for _cCapid_BadvsFEDvsLSmod60 at the beginning of each new LS
+    for (std::vector<uint32_t>::const_iterator it = _vhashFEDs.begin(); it != _vhashFEDs.end(); ++it) {
+      HcalElectronicsId eid = HcalElectronicsId(*it);
+      _cCapid_BadvsFEDvsLSmod60.setBinContent(eid, _currentLS % 50, 0);
+    }
+  }
+
   //	To fill histograms outside of the loop, you need to determine if there were
   //	any valid det ids first
   uint32_t rawidValid = 0;
@@ -1400,18 +1413,16 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
   }
 }
 
-/* virtual */ void DigiTask::dqmBeginLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
-  DQTask::dqmBeginLuminosityBlock(lb, es);
-  if (_ptype == fOnline) {
-    // Reset the bin for _cCapid_BadvsFEDvsLSmod60
-    for (std::vector<uint32_t>::const_iterator it = _vhashFEDs.begin(); it != _vhashFEDs.end(); ++it) {
-      HcalElectronicsId eid = HcalElectronicsId(*it);
-      _cCapid_BadvsFEDvsLSmod60.setBinContent(eid, _currentLS % 50, 0);
-    }
-  }
+std::shared_ptr<hcaldqm::Cache> DigiTask::globalBeginLuminosityBlock(edm::LuminosityBlock const& lb,
+                                                                     edm::EventSetup const& es) const {
+  return DQTask::globalBeginLuminosityBlock(lb, es);
 }
 
-/* virtual */ void DigiTask::dqmEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
+/* virtual */ void DigiTask::globalEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
+  auto lumiCache = luminosityBlockCache(lb.index());
+  _currentLS = lumiCache->currentLS;
+  _evsPerLS = lumiCache->EvtCntLS;
+
   if (_ptype != fOnline)
     return;
 
@@ -1529,7 +1540,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
   _xBadCapid.reset();
 
   //	in the end always do the DQTask::endLumi
-  DQTask::dqmEndLuminosityBlock(lb, es);
+  DQTask::globalEndLuminosityBlock(lb, es);
 }
 
 DEFINE_FWK_MODULE(DigiTask);

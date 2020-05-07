@@ -546,24 +546,22 @@ void SiStripConfigDb::usingXmlFiles() {
       edm::LogWarning(mlConfigDb_) << "[SiStripConfigDb::" << __func__ << "]"
                                    << " NULL paths to input 'fec.xml' files!";
     } else {
-      std::vector<std::string>::iterator iter = ip->second.inputFecXml().begin();
-      for (; iter != ip->second.inputFecXml().end(); iter++) {
-        if ((*iter).empty()) {
+      for (const auto& iter : ip->second.inputFecXml()) {
+        if (iter.empty()) {
           edm::LogWarning(mlConfigDb_) << "[SiStripConfigDb::" << __func__ << "]"
                                        << " NULL path to input 'fec.xml' file!";
         } else {
-          if (checkFileExists(*iter)) {
+          if (checkFileExists(iter)) {
             try {
-              deviceFactory(__func__)->addFecFileName(*iter);
+              deviceFactory(__func__)->addFecFileName(iter);
             } catch (...) {
               handleException(__func__);
             }
             LogTrace(mlConfigDb_) << "[SiStripConfigDb::" << __func__ << "]"
-                                  << " Added 'fec.xml' file: " << *iter;
+                                  << " Added 'fec.xml' file: " << iter;
           } else {
             edm::LogWarning(mlConfigDb_) << "[SiStripConfigDb::" << __func__ << "]"
-                                         << " No 'fec.xml' file found at " << *iter;
-            *iter = "";
+                                         << " No 'fec.xml' file found at " << iter;
           }
         }
       }
@@ -574,24 +572,22 @@ void SiStripConfigDb::usingXmlFiles() {
       edm::LogWarning(mlConfigDb_) << "[SiStripConfigDb::" << __func__ << "]"
                                    << " NULL paths to input 'fed.xml' files!";
     } else {
-      std::vector<std::string>::iterator iter = ip->second.inputFedXml().begin();
-      for (; iter != ip->second.inputFedXml().end(); iter++) {
-        if ((*iter).empty()) {
+      for (const auto& iter : ip->second.inputFedXml()) {
+        if (iter.empty()) {
           edm::LogWarning(mlConfigDb_) << "[SiStripConfigDb::" << __func__ << "]"
                                        << " NULL path to input 'fed.xml' file!";
         } else {
-          if (checkFileExists(*iter)) {
+          if (checkFileExists(iter)) {
             try {
-              deviceFactory(__func__)->addFedFileName(*iter);
+              deviceFactory(__func__)->addFedFileName(iter);
             } catch (...) {
               handleException(__func__);
             }
             LogTrace(mlConfigDb_) << "[SiStripConfigDb::" << __func__ << "]"
-                                  << " Added 'fed.xml' file: " << *iter;
+                                  << " Added 'fed.xml' file: " << iter;
           } else {
             edm::LogWarning(mlConfigDb_) << "[SiStripConfigDb::" << __func__ << "]"
-                                         << " No 'fed.xml' file found at " << *iter;
-            *iter = "";
+                                         << " No 'fed.xml' file found at " << iter;
           }
         }
       }

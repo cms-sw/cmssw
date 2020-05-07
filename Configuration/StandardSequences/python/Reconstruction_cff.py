@@ -217,6 +217,13 @@ reconstruction_pixelTrackingOnlyTask = cms.Task(
 )
 reconstruction_pixelTrackingOnly = cms.Sequence(reconstruction_pixelTrackingOnlyTask)
 
+reconstruction_ecalOnlyTask = cms.Task(
+    bunchSpacingProducer,
+    ecalLocalRecoTask,
+    ecalClustersNoPFBoxTask
+)
+reconstruction_ecalOnly = cms.Sequence(reconstruction_ecalOnlyTask)
+
 #need a fully expanded sequence copy
 modulesToRemove = list() # copy does not work well
 noTrackingAndDependent = list()

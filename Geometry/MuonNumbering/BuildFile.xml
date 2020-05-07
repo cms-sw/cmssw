@@ -1,5 +1,5 @@
-<use   name="DataFormats/MuonDetId"/>
-<use   name="DetectorDescription/Core"/>
+<use name="DetectorDescription/Core"/>
+<use name="DataFormats/MuonDetId"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

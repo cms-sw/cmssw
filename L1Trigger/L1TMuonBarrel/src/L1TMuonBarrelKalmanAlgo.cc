@@ -1078,7 +1078,7 @@ std::map<int, int> L1TMuonBarrelKalmanAlgo::trackAddress(const L1MuKBMTrack& tra
   out[l1t::RegionalMuonCand::kSegSelStat4] = 0;
   //out[l1t::RegionalMuonCand::kNumBmtfSubAddr]=0; // This is commented out for better data/MC agreement
 
-  for (const auto stub : track.stubs()) {
+  for (const auto& stub : track.stubs()) {
     bool ownwheel = stub->whNum() == track.wheel();
     int sector = 0;
     if ((stub->scNum() == track.sector() + 1) || (stub->scNum() == 0 && track.sector() == 11))

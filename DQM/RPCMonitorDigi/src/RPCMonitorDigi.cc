@@ -15,7 +15,13 @@
 
 const std::array<std::string, 3> RPCMonitorDigi::regionNames_ = {{"Endcap-", "Barrel", "Endcap+"}};
 
-RPCMonitorDigi::RPCMonitorDigi(const edm::ParameterSet& pset) : counter(0), numberOfDisks_(0), numberOfInnerRings_(0) {
+RPCMonitorDigi::RPCMonitorDigi(const edm::ParameterSet& pset)
+    : counter(0),
+      muonRPCEvents_(nullptr),
+      NumberOfRecHitMuon_(nullptr),
+      NumberOfMuon_(nullptr),
+      numberOfDisks_(0),
+      numberOfInnerRings_(0) {
   useMuonDigis_ = pset.getUntrackedParameter<bool>("UseMuon", true);
   useRollInfo_ = pset.getUntrackedParameter<bool>("UseRollInfo", false);
 
@@ -377,7 +383,7 @@ void RPCMonitorDigi::performSourceOperation(std::map<RPCDetId, std::vector<RPCRe
         }
       }
 
-      // ###################### Wheel/Disk Level #########################ààà
+      // ###################### Wheel/Disk Level #########################
       if (region == 0) {
         os.str("");
         os << "1DOccupancy_Wheel_" << wheelOrDiskNumber;

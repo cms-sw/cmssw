@@ -75,6 +75,11 @@ public:
   }
 
   void beginRun(edm::Run const& run, edm::EventSetup const& setup) final {
+    // if we run booking multiple times because there are multiple runs in a
+    // job, this is needed to make sure all existing MEs are in a valid state
+    // before the booking code runs.
+    edm::Service<DQMStore>()->initLumi(run.run(), /* lumi */ 0, meId());
+    edm::Service<DQMStore>()->enterLumi(run.run(), /* lumi */ 0, meId());
     dqmBeginRun(run, setup);
     edm::Service<DQMStore>()->bookTransaction(
         [this, &run, &setup](DQMStore::IBooker& booker) {
@@ -83,6 +88,7 @@ public:
         },
         meId(),
         this->getCanSaveByLumi());
+    edm::Service<DQMStore>()->initLumi(run.run(), /* lumi */ 0, meId());
     edm::Service<DQMStore>()->enterLumi(run.run(), /* lumi */ 0, meId());
   }
 

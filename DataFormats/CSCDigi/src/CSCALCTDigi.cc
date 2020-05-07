@@ -14,25 +14,29 @@
 using namespace std;
 
 /// Constructors
-CSCALCTDigi::CSCALCTDigi(const int valid,
-                         const int quality,
-                         const int accel,
-                         const int patternb,
-                         const int keywire,
-                         const int bx,
-                         const int trknmb) {
-  valid_ = valid;
-  quality_ = quality;
-  accel_ = accel;
-  patternb_ = patternb;
-  keywire_ = keywire;
-  bx_ = bx;
-  trknmb_ = trknmb;
-}
+CSCALCTDigi::CSCALCTDigi(const uint16_t valid,
+                         const uint16_t quality,
+                         const uint16_t accel,
+                         const uint16_t patternb,
+                         const uint16_t keywire,
+                         const uint16_t bx,
+                         const uint16_t trknmb,
+                         const uint16_t hmt,
+                         const Version version)
+    : valid_(valid),
+      quality_(quality),
+      accel_(accel),
+      patternb_(patternb),
+      keywire_(keywire),
+      bx_(bx),
+      trknmb_(trknmb),
+      hmt_(hmt),
+      version_(version) {}
 
 /// Default
 CSCALCTDigi::CSCALCTDigi() {
   clear();  // set contents to zero
+  version_ = Version::Legacy;
 }
 
 /// Clears this ALCT.
@@ -45,7 +49,14 @@ void CSCALCTDigi::clear() {
   bx_ = 0;
   trknmb_ = 0;
   fullbx_ = 0;
+  hmt_ = 0;
 }
+
+uint16_t CSCALCTDigi::getHMT() const { return (isRun3() ? hmt_ : std::numeric_limits<uint16_t>::max()); }
+
+void CSCALCTDigi::setHMT(const uint16_t h) { hmt_ = isRun3() ? h : std::numeric_limits<uint16_t>::max(); }
+
+void CSCALCTDigi::setRun3(const bool isRun3) { version_ = isRun3 ? Version::Run3 : Version::Legacy; }
 
 bool CSCALCTDigi::operator>(const CSCALCTDigi& rhs) const {
   bool returnValue = false;
@@ -61,8 +72,8 @@ bool CSCALCTDigi::operator>(const CSCALCTDigi& rhs) const {
   // The > operator then checks the quality of ALCTs.
   // If two qualities are equal, the ALCT furthest from the beam axis
   // (lowest eta, highest wire group number) is selected.
-  int quality1 = getQuality();
-  int quality2 = rhs.getQuality();
+  uint16_t quality1 = getQuality();
+  uint16_t quality2 = rhs.getQuality();
   if (quality1 > quality2) {
     returnValue = true;
   } else if (quality1 == quality2 && getKeyWG() > rhs.getKeyWG()) {
@@ -75,7 +86,8 @@ bool CSCALCTDigi::operator==(const CSCALCTDigi& rhs) const {
   // Exact equality.
   bool returnValue = false;
   if (isValid() == rhs.isValid() && getQuality() == rhs.getQuality() && getAccelerator() == rhs.getAccelerator() &&
-      getCollisionB() == rhs.getCollisionB() && getKeyWG() == rhs.getKeyWG() && getBX() == rhs.getBX()) {
+      getCollisionB() == rhs.getCollisionB() && getKeyWG() == rhs.getKeyWG() && getBX() == rhs.getBX() &&
+      getHMT() == rhs.getHMT()) {
     returnValue = true;
   }
   return returnValue;
@@ -96,7 +108,8 @@ void CSCALCTDigi::print() const {
                                 << " Quality = " << setw(2) << getQuality() << " Accel. = " << setw(1)
                                 << getAccelerator() << " PatternB = " << setw(1) << getCollisionB()
                                 << " Key wire group = " << setw(3) << getKeyWG() << " BX = " << setw(2) << getBX()
-                                << " Full BX= " << std::setw(1) << getFullBX();
+                                << " Full BX = " << std::setw(1) << getFullBX() << " HMT = " << std::setw(1)
+                                << getHMT();
   } else {
     edm::LogVerbatim("CSCDigi") << "Not a valid Anode LCT.";
   }
@@ -105,5 +118,5 @@ void CSCALCTDigi::print() const {
 std::ostream& operator<<(std::ostream& o, const CSCALCTDigi& digi) {
   return o << "CSC ALCT #" << digi.getTrknmb() << ": Valid = " << digi.isValid() << " Quality = " << digi.getQuality()
            << " Accel. = " << digi.getAccelerator() << " PatternB = " << digi.getCollisionB()
-           << " Key wire group = " << digi.getKeyWG() << " BX = " << digi.getBX();
+           << " Key wire group = " << digi.getKeyWG() << " BX = " << digi.getBX() << " HMT = " << digi.getHMT();
 }

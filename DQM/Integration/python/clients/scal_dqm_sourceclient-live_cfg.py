@@ -1,12 +1,21 @@
 import FWCore.ParameterSet.Config as cms
+import sys
 
 process = cms.Process("DQM")
+
+unitTest = False
+if 'unitTest=True' in sys.argv:
+    unitTest=True
 
 #----------------------------
 #### Event Source
 #----------------------------
-# for live online DQM in P5
-process.load("DQM.Integration.config.inputsource_cfi")
+
+if unitTest:
+    process.load("DQM.Integration.config.unittestinputsource_cfi")
+else:
+    # for live online DQM in P5
+    process.load("DQM.Integration.config.inputsource_cfi")
 
 # for testing in lxplus
 #process.load("DQM.Integration.config.fileinputsource_cfi")
@@ -38,7 +47,7 @@ gtDigis = EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi.l1GtUnpack.clone()
 import EventFilter.L1GlobalTriggerRawToDigi.l1GtEvmUnpack_cfi
 gtEvmDigis = EventFilter.L1GlobalTriggerRawToDigi.l1GtEvmUnpack_cfi.l1GtEvmUnpack.clone()
 
-if (process.runType.getRunType() == process.runType.pp_run):
+if (process.runType.getRunType() == process.runType.pp_run and not unitTest):
     process.source.SelectEvents = cms.untracked.vstring('HLT_ZeroBias*')
 
 process.physicsBitSelector = cms.EDFilter("PhysDecl",

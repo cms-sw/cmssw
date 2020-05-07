@@ -1,12 +1,11 @@
-<use   name="SimCalorimetry/EcalSelectiveReadoutAlgos"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="DataFormats/EcalDigi"/>
-<use   name="DataFormats/EcalDetId"/>
-<use   name="CondFormats/DataRecord"/>
-<use   name="CondFormats/EcalObjects"/>
-<use   name="CondCore/DBOutputService"/>
+<use name="SimCalorimetry/EcalSelectiveReadoutAlgos"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/MessageLogger"/>
+<use name="DataFormats/EcalDigi"/>
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/EcalObjects"/>
+<use name="CondCore/DBOutputService"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

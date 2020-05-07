@@ -17,6 +17,14 @@ pushd ${LOCAL_TMP_DIR}
   cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}Task_cfg.py disableTest2 || die "cmsRun ${test}Task_cfg.py 2" $?
 
   echo "*************************************************"
+  echo "SwitchProducer in a Task, SwitchProducers have same labels as products in input file"
+  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}TaskInput_cfg.py || die "cmsRun ${test}TaskInput_cfg.py 1" $?
+
+  echo "*************************************************"
+  echo "SwitchProducer in a Task, SwitchProducers have same labels as products in input file, case test2 disabled"
+  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}TaskInput_cfg.py disableTest2 || die "cmsRun ${test}TaskInput_cfg.py 2" $?
+
+  echo "*************************************************"
   echo "Merge outputs (Task)"
   cmsRun ${LOCAL_TEST_DIR}/${test}Merge_cfg.py outputFile=testSwitchProducerTaskMerge1.root inputFiles=file:testSwitchProducerTask1.root inputFiles=file:testSwitchProducerTask2.root || die "Merge Task1: order 1 2" $?
   echo "*************************************************"

@@ -4,6 +4,7 @@
 <use   name="CommonTools/Utils"/>
 <use   name="DataFormats/FWLite"/>
 <use   name="DataFormats/PatCandidates"/>
+<use   name="PhysicsTools/SelectorUtils"/>
 <export>
   <lib   name="1"/>
 </export>
