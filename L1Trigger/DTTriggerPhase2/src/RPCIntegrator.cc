@@ -28,9 +28,8 @@ void RPCIntegrator::initialise(const edm::EventSetup& iEventSetup, double shift_
 
   if (m_debug_)
     std::cout << "Getting RPC geometry" << std::endl;
-  iEventSetup.get<MuonGeometryRecord>().get(m_rpcGeo_);
-
-  iEventSetup.get<MuonGeometryRecord>().get(m_dtGeo_);
+  rpcGeo_ = iEventSetup.getData(rpcGeomH);
+  dtGeo_  = iEventSetup.getData(dtGeomH);
   shift_back_ = shift_back_fromDT;
 }
 
@@ -215,12 +214,12 @@ L1Phase2MuDTPhDigi RPCIntegrator::createL1Phase2MuDTPhDigi(
 double RPCIntegrator::phiBending(RPCMetaprimitive* rpc_hit_1, RPCMetaprimitive* rpc_hit_2) {
   // Adaptation of https://github.com/dtp2-tpg-am/cmssw/blob/AM_106X_dev/L1Trigger/DTTriggerPhase2/src/MuonPathAssociator.cc#L189
   DTChamberId DT_chamber(rpc_hit_1->rpc_id.ring(), rpc_hit_1->rpc_id.station(), rpc_hit_1->rpc_id.sector());
-  LocalPoint lp_rpc_hit_1_dtconv = m_dtGeo_->chamber(DT_chamber)->toLocal(rpc_hit_1->global_position);
-  LocalPoint lp_rpc_hit_2_dtconv = m_dtGeo_->chamber(DT_chamber)->toLocal(rpc_hit_2->global_position);
+  LocalPoint lp_rpc_hit_1_dtconv = dtGeo_.chamber(DT_chamber)->toLocal(rpc_hit_1->global_position);
+  LocalPoint lp_rpc_hit_2_dtconv = dtGeo_.chamber(DT_chamber)->toLocal(rpc_hit_2->global_position);
   double slope = (lp_rpc_hit_1_dtconv.x() - lp_rpc_hit_2_dtconv.x()) / distance_between_two_rpc_layers_;
   double average_x = (lp_rpc_hit_1_dtconv.x() + lp_rpc_hit_2_dtconv.x()) / 2;
   GlobalPoint seg_middle_global =
-      m_dtGeo_->chamber(DT_chamber)->toGlobal(LocalPoint(average_x, 0., 0.));  // for station 1 and 2, z = 0
+      dtGeo_.chamber(DT_chamber)->toGlobal(LocalPoint(average_x, 0., 0.));  // for station 1 and 2, z = 0
   double seg_phi = phi_DT_MP_conv(seg_middle_global.phi(), rpc_hit_1->rpc_id.sector());
   double psi = atan(slope);
   double phiB = hasPosRF_rpc(rpc_hit_1->rpc_id.ring(), rpc_hit_1->rpc_id.sector()) ? psi - seg_phi : -psi - seg_phi;
@@ -248,7 +247,7 @@ double RPCIntegrator::phi_DT_MP_conv(double rpc_global_phi, int rpcSector) {
 GlobalPoint RPCIntegrator::RPCGlobalPosition(RPCDetId rpcId, const RPCRecHit& rpcIt) const {
   RPCDetId rpcid = RPCDetId(rpcId);
   const LocalPoint& rpc_lp = rpcIt.localPosition();
-  const GlobalPoint& rpc_gp = m_rpcGeo_->idToDet(rpcid)->surface().toGlobal(rpc_lp);
+  const GlobalPoint& rpc_gp = rpcGeo_.idToDet(rpcid)->surface().toGlobal(rpc_lp);
 
   return rpc_gp;
 }

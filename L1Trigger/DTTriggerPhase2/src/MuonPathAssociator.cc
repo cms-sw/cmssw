@@ -53,7 +53,7 @@ void MuonPathAssociator::initialise(const edm::EventSetup &iEventSetup) {
   if (debug)
     cout << "MuonPathAssociator::initialiase" << endl;
 
-  iEventSetup.get<MuonGeometryRecord>().get(dtGeo);  //1103
+  dtGeo_ = iEventSetup.getData(dtGeomH);
 }
 
 void MuonPathAssociator::run(edm::Event &iEvent,
@@ -259,7 +259,7 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
             double z = 0;
             if (ChId.station() >= 3)
               z = -1.8;
-            GlobalPoint jm_x_cmssw_global = dtGeo->chamber(ChId)->toGlobal(
+            GlobalPoint jm_x_cmssw_global = dtGeo_.chamber(ChId)->toGlobal(
                 LocalPoint(MeanPos, 0., z));  //Jm_x is already extrapolated to the middle of the SL
             int thisec = ChId.sector();
             if (se == 13)
@@ -1047,7 +1047,7 @@ void MuonPathAssociator::printmPC(metaPrimitive mP) {
   if (mpath->getQuality(0) >=3 and mpath->getQuality(2) >=3)  quality=HIGHHIGHQ;
       
   DTChamberId ChId(mpath->getRawId());
-  GlobalPoint jm_x_cmssw_global = dtGeo->chamber(ChId)->toGlobal(LocalPoint(MeanPos,0.,0.));//jm_x is already extrapolated to the middle of the SL
+  GlobalPoint jm_x_cmssw_global = dtGeo_.chamber(ChId)->toGlobal(LocalPoint(MeanPos,0.,0.));//jm_x is already extrapolated to the middle of the SL
   int thisec = ChId.sector();
   float phi= jm_x_cmssw_global.phi()-0.5235988*(thisec-1);
   float psi=atan(NewSlope);

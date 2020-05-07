@@ -4,38 +4,39 @@ using namespace std;
 using namespace edm;
 using namespace cmsdt;
 
-struct {
-  bool operator()(std::tuple<unsigned short int, bool*, bool*, unsigned short int, double*, DTPrimitive*> a,
+namespace {
+  struct {
+    bool operator()(std::tuple<unsigned short int, bool*, bool*, unsigned short int, double*, DTPrimitive*> a,
                     std::tuple<unsigned short int, bool*, bool*, unsigned short int, double*, DTPrimitive*> b) const {
-    unsigned short int sumhqa = 0;
-    unsigned short int sumhqb = 0;
-    unsigned short int sumlqa = 0;
-    unsigned short int sumlqb = 0;
-    double sumdista = 0;
-    double sumdistb = 0;
-
-    for (unsigned short int lay = 0; lay < 8; lay++) {
-      sumhqa += (unsigned short int)get<1>(a)[lay];
-      sumhqb += (unsigned short int)get<1>(b)[lay];
-      sumlqa += (unsigned short int)get<2>(a)[lay];
-      sumlqb += (unsigned short int)get<2>(b)[lay];
-      sumdista += get<4>(a)[lay];
-      sumdistb += get<4>(b)[lay];
+      unsigned short int sumhqa = 0;
+      unsigned short int sumhqb = 0;
+      unsigned short int sumlqa = 0;
+      unsigned short int sumlqb = 0;
+      double sumdista = 0;
+      double sumdistb = 0;
+      
+      for (unsigned short int lay = 0; lay < 8; lay++) {
+	sumhqa += (unsigned short int)get<1>(a)[lay];
+	sumhqb += (unsigned short int)get<1>(b)[lay];
+	sumlqa += (unsigned short int)get<2>(a)[lay];
+	sumlqb += (unsigned short int)get<2>(b)[lay];
+	sumdista += get<4>(a)[lay];
+	sumdistb += get<4>(b)[lay];
+      }
+      
+      if (get<0>(a) != get<0>(b))
+	return (get<0>(a) > get<0>(b));  // number of layers with hits
+      else if (sumhqa != sumhqb)
+	return (sumhqa > sumhqb);  // number of hq hits
+      else if (sumlqa != sumlqb)
+	return (sumlqa > sumlqb);  // number of lq hits
+      else if (get<3>(a) != get<3>(b))
+	return (get<3>(a) < get<3>(b));  // abs. diff. between SL1 & SL3 hits
+      else
+	return (sumdista < sumdistb);  // abs. dist. to digis
     }
-
-    if (get<0>(a) != get<0>(b))
-      return (get<0>(a) > get<0>(b));  // number of layers with hits
-    else if (sumhqa != sumhqb)
-      return (sumhqa > sumhqb);  // number of hq hits
-    else if (sumlqa != sumlqb)
-      return (sumlqa > sumlqb);  // number of lq hits
-    else if (get<3>(a) != get<3>(b))
-      return (get<3>(a) < get<3>(b));  // abs. diff. between SL1 & SL3 hits
-    else
-      return (sumdista < sumdistb);  // abs. dist. to digis
-  }
-} HoughOrdering;
-
+  } HoughOrdering;
+}
 // ============================================================================
 // Constructors and destructor
 // ============================================================================
@@ -65,6 +66,7 @@ HoughGrouping::HoughGrouping(const ParameterSet& pset) : MotherGrouping(pset) {
   minSingleSLHitsMin = (unsigned short int)pset.getUntrackedParameter<int>("minSingleSLHitsMin");
   allowUncorrelatedPatterns = pset.getUntrackedParameter<bool>("allowUncorrelatedPatterns");
   minUncorrelatedHits = (unsigned short int)pset.getUntrackedParameter<int>("minUncorrelatedHits");
+  
 }
 
 HoughGrouping::~HoughGrouping() {
@@ -126,15 +128,14 @@ void HoughGrouping::run(edm::Event& iEvent,
 
   ResetAttributes();
 
-  iEventSetup.get<MuonGeometryRecord>().get(dtGeomH);
-  const DTGeometry* dtGeom = dtGeomH.product();
+  const auto & dtGeom = iEventSetup.getData(dtGeomH); 
 
   if (debug) 
     cout << "HoughGrouping::run - Beginning digis' loop..." << endl;
   LocalPoint wirePosInLay, wirePosInChamber;
   GlobalPoint wirePosGlob;
   for (DTDigiCollection::DigiRangeIterator dtLayerIdIt = digis.begin(); dtLayerIdIt != digis.end(); dtLayerIdIt++) {
-    const DTLayer* lay = dtGeom->layer((*dtLayerIdIt).first);
+    const DTLayer* lay = dtGeom.layer((*dtLayerIdIt).first);
     for (DTDigiCollection::const_iterator digiIt = ((*dtLayerIdIt).second).first;
          digiIt != ((*dtLayerIdIt).second).second;
          digiIt++) {
@@ -228,7 +229,7 @@ void HoughGrouping::run(edm::Event& iEvent,
   }
 
   DTChamberId TheChambId(thewheel, thestation, thesector);
-  const DTChamber* TheChamb = dtGeom->chamber(TheChambId);
+  const DTChamber* TheChamb = dtGeom.chamber(TheChambId);
   std::vector<std::tuple<unsigned short int, bool*, bool*, unsigned short int, double*, DTPrimitive*>> cands;
 
   for (unsigned short int ican = 0; ican < maxima.size(); ican++) {

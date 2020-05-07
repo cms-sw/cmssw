@@ -113,7 +113,7 @@ private:
   std::vector<DTPrimitive> digisinL6;
   std::vector<DTPrimitive> digisinL7;
 
-  //Preliminary matches, those can grow quite big so better not to rely on the stack
+  //Preliminary matches, those can grow quite big so better not to rely on the stack 
   std::vector<CandidateGroup*>* prelimMatches;
   std::vector<CandidateGroup*>* allMatches;
   std::vector<CandidateGroup*>* finalMatches;

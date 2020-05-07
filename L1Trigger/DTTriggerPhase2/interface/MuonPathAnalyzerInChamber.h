@@ -36,9 +36,10 @@
 // ===============================================================================
 // Previous definitions and declarations
 // ===============================================================================
-constexpr int NLayers = 8 ;
-typedef std::array<LATERAL_CASES, NLayers> TLateralities;
-
+namespace { 
+  constexpr int NLayers = 8 ;
+  typedef std::array<LATERAL_CASES, NLayers> TLateralities;
+}
 // ===============================================================================
 // Class declarations
 // ===============================================================================
@@ -81,7 +82,8 @@ public:
   bool hasPosRF(int wh, int sec) { return wh > 0 || (wh == 0 && sec % 4 > 1); };
 
   // Public attributes
-  edm::ESHandle<DTGeometry> dtGeo_;
+  DTGeometry dtGeo_;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomH;
 
   //ttrig
   std::map<int, float> ttriginfo_;

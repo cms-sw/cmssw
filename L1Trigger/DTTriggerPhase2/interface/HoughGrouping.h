@@ -17,6 +17,7 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Common/interface/TriggerNames.h"
@@ -155,7 +156,7 @@ private:
   unsigned short int minNLayerHits, minSingleSLHitsMax, minSingleSLHitsMin, minUncorrelatedHits, UpperNumber, LowerNumber;
   double angletan, anglebinwidth, posbinwidth, maxdeltaAngDeg, maxdeltaPos, MaxDistanceToWire;
 
-  edm::ESHandle<DTGeometry> dtGeomH;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomH;
   DTChamberId TheChambId;
 
   double maxrads, minangle, oneanglebin;

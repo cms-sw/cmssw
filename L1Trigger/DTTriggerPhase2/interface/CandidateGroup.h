@@ -27,7 +27,7 @@ public:
   int nLayerhits() const { return nLayerhits_; };
   int nLayerUp() const { return nLayerUp_; };
   int nLayerDown() const { return nLayerDown_; };
-  std::vector<DTPrimitive> candHits() const { return candHits_; }; // WHAT TO DO WITH THIS!!! 
+  std::vector<DTPrimitive> candHits() { return candHits_; }; // WHAT TO DO WITH THIS!!! 
   std::bitset<8> quality() const { return quality_; };
   const DTPattern* pattern() const { return pattern_; }; // WHAT TO DO WITH THIS!!!
 

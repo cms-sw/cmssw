@@ -56,7 +56,7 @@ MuonPathAnalyzerPerSL::~MuonPathAnalyzerPerSL() {
 void MuonPathAnalyzerPerSL::initialise(const edm::EventSetup &iEventSetup) {
   if (debug_)
     cout << "MuonPathAnalyzerPerSL::initialiase" << endl;
-  iEventSetup.get<MuonGeometryRecord>().get(dtGeo_);  //1103
+  dtGeo_ = iEventSetup.getData(dtGeomH);
 }
 
 void MuonPathAnalyzerPerSL::run(edm::Event &iEvent,
@@ -295,7 +295,7 @@ void MuonPathAnalyzerPerSL::analyze(MuonPath *inMPath, std::vector<metaPrimitive
           if (MuonPathSLId.superLayer() == 3)
             z = z3;
 
-          GlobalPoint jm_x_cmssw_global = dtGeo_->chamber(ChId)->toGlobal(LocalPoint(jm_x, 0., z));
+          GlobalPoint jm_x_cmssw_global = dtGeo_.chamber(ChId)->toGlobal(LocalPoint(jm_x, 0., z));
           int thisec = MuonPathSLId.sector();
           if (thisec == 13)
             thisec = 4;

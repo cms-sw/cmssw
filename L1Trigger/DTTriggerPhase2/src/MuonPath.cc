@@ -130,9 +130,6 @@ MuonPath::~MuonPath() {
 //------------------------------------------------------------------
 //--- Public
 //------------------------------------------------------------------
-/**
- * Añade una 'DTPrimitive'
- */
 void MuonPath::setPrimitive(DTPrimitive *ptr, int layer) {
   if (ptr == NULL)
     std::cout << "NULL 'Primitive'." << std::endl;

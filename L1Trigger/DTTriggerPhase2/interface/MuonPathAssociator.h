@@ -65,7 +65,9 @@ public:
   void printmPC(metaPrimitive mP);
 
   // Public attributes
-  edm::ESHandle<DTGeometry> dtGeo;
+  DTGeometry dtGeo_;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomH;
+
 
 private:
   // Private methods

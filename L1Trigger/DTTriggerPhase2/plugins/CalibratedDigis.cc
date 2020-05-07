@@ -73,9 +73,7 @@ private:
 
   // ----------member data ---------------------------
   edm::EDGetTokenT<DTDigiCollection> dtDigisToken;
-  //  edm::ESGetToken<DTDigiCollection> dtDigisToken;
   edm::Handle<DTDigiCollection> DTDigiHandle;
-  edm::ESHandle<DTGeometry> DTGeometryHandle;
   edm::InputTag dtDigiTag;
 };
 
@@ -91,6 +89,8 @@ private:
 // constructors and destructor
 //
 CalibratedDigis::CalibratedDigis(const edm::ParameterSet& iConfig) {
+ 
+  
   //register your products
   /* Examples
    produces<ExampleData2>();
@@ -132,9 +132,6 @@ void CalibratedDigis::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
   theSync->setES(iSetup);  
   iEvent.getByToken(dtDigisToken, DTDigiHandle);
-
-  ESHandle<DTGeometry> dtGeom;
-  iSetup.get<MuonGeometryRecord>().get(dtGeom);
   DTDigiCollection mydigis;
 
   DTDigiCollection::DigiRangeIterator dtLayerIt;
@@ -177,20 +174,8 @@ void CalibratedDigis::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 // ------------ method called when starting to processes a luminosity block  ------------
-/*
-void
-CalibratedDigis::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
 
 // ------------ method called when ending the processing of a luminosity block  ------------
-/*
-void
-CalibratedDigis::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 

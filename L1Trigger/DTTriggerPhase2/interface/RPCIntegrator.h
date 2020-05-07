@@ -24,7 +24,7 @@
 
 //DT geometry
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
-#include <Geometry/DTGeometry/interface/DTGeometry.h>
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DQM/DTMonitorModule/interface/DTTrigGeomUtils.h"
@@ -95,8 +95,12 @@ private:
   int m_bx_window_;
   double m_phi_window_;
   bool m_storeAllRPCHits_;
-  edm::ESHandle<RPCGeometry> m_rpcGeo_;
-  edm::ESHandle<DTGeometry> m_dtGeo_;
+  
+  DTGeometry dtGeo_;
+  RPCGeometry rpcGeo_;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomH;
+  edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeomH;
+
   double m_dt_phi_granularity_ = 65536. / 0.8;  // 65536 different values per 0.8 radian
   double m_dt_phiB_granularity_ = 2048. / 1.4;  // 2048. different values per 1.4 radian
   // Constant geometry values

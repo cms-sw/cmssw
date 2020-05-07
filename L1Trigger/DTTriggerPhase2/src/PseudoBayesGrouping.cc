@@ -57,9 +57,11 @@ void PseudoBayesGrouping::initialise(const edm::EventSetup& iEventSetup) {
     cout << "PseudoBayesGrouping::initialiase Total number of loaded patterns: " << nPatterns << endl;
   f->Close();
   delete f;
+  
   prelimMatches = new std::vector<CandidateGroup*>;
   allMatches = new std::vector<CandidateGroup*>;
   finalMatches = new std::vector<CandidateGroup*>;
+
 }
 
 void PseudoBayesGrouping::LoadPattern(std::vector<std::vector<std::vector<int>>>::iterator itPattern) {
@@ -198,14 +200,14 @@ void PseudoBayesGrouping::run(Event& iEvent,
 
 void PseudoBayesGrouping::FillMuonPaths(std::vector<MuonPath*>* mpaths) {
   //Loop over all selected candidates
-  for (std::vector<CandidateGroup*>::iterator itCand = finalMatches->begin(); itCand != finalMatches->end(); itCand++) {
+  for (auto itCand = finalMatches->begin(); itCand != finalMatches->end(); itCand++) {
     if (debug)
       std::cout << "PseudoBayesGrouping::run Create pointers " << std::endl;
     DTPrimitive* ptrPrimitive[8];
     std::bitset<8> qualityDTP;
     int intHit = 0;
     //And for each candidate loop over all grouped hits
-    for (std::vector<DTPrimitive>::iterator itDTP = (*itCand)->candHits().begin(); itDTP != (*itCand)->candHits().end();
+    for (auto itDTP = (*itCand)->candHits().begin(); itDTP != (*itCand)->candHits().end();
          itDTP++) {
       if (debug)
         std::cout << "PseudoBayesGrouping::run loop over dt hits to fill pointer" << std::endl;
