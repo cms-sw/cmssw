@@ -26,7 +26,7 @@ void ShiftedParticleMETcorrInputProducer::produce(edm::StreamID, edm::Event& evt
     evt.getByToken(weightsToken_, weights);
 
   auto metCorrection = std::make_unique<CorrMETData>();
-  if (originalParticles->size() != shiftedParticles->size())
+  if ((!weightsToken_.isUninitialized()) && (originalParticles->size() != shiftedParticles->size()))
     throw cms::Exception("InvalidInput")
         << "Original collection and shifted collection are of different size in ShiftedParticleMETcorrInputProducer\n";
   for (unsigned i = 0; i < originalParticles->size(); ++i) {
@@ -38,10 +38,22 @@ void ShiftedParticleMETcorrInputProducer::produce(edm::StreamID, edm::Event& evt
       weight = (*weights)[particlePtr];
     }
     const reco::Candidate& originalParticle = originalParticles->at(i);
+    metCorrection->mex += originalParticle.px() * weight;
+    metCorrection->mey += originalParticle.py() * weight;
+    metCorrection->sumet -= originalParticle.et() * weight;
+  }
+  for (unsigned i = 0; i < shiftedParticles->size(); ++i) {
+    float weight = 1.0;
+    if (!weightsToken_.isUninitialized()) {
+      edm::Ptr<reco::Candidate> particlePtr = originalParticles->ptrAt(i);
+      while (!weights->contains(particlePtr.id()) && (particlePtr->numberOfSourceCandidatePtrs() > 0))
+        particlePtr = particlePtr->sourceCandidatePtr(0);
+      weight = (*weights)[particlePtr];
+    }
     const reco::Candidate& shiftedParticle = shiftedParticles->at(i);
-    metCorrection->mex += (originalParticle.px() - shiftedParticle.px()) * weight;
-    metCorrection->mey += (originalParticle.py() - shiftedParticle.py()) * weight;
-    metCorrection->sumet -= (originalParticle.et() - shiftedParticle.et()) * weight;
+    metCorrection->mex -= shiftedParticle.px() * weight;
+    metCorrection->mey -= shiftedParticle.py() * weight;
+    metCorrection->sumet += shiftedParticle.et() * weight;
   }
 
   evt.put(std::move(metCorrection));
