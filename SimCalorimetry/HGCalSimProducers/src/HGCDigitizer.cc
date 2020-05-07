@@ -137,7 +137,7 @@ namespace {
             vt.emplace_back(t);
           }
         }
-        simResult.emplace_back_timing(id.rawId(), iSample, vc, vt);
+        simResult.emplace_back(id.rawId(), iSample, vc, vt);
       }
     }
     simResult.shrink_to_fit();
@@ -257,37 +257,8 @@ namespace {
       }
     }
   }
+}  //namespace
 
-  // Loads the internals of the SimHit accumulator from the digis for premixing
-  void loadSimHitAccumulator(hgc::HGCSimHitDataAccumulator& simData,
-                             const PHGCSimAccumulator& simAccumulator,
-                             const float minCharge,
-                             const float maxCharge,
-                             bool setIfZero) {
-    const float minPackChargeLog = minCharge > 0.f ? std::log(minCharge) : -2;
-    const float maxPackChargeLog = std::log(maxCharge);
-    constexpr uint16_t base = 1 << PHGCSimAccumulator::Data::sampleOffset;
-
-    for (const auto& detIdIndexHitInfo : simAccumulator) {
-      auto simIt = simData.emplace(detIdIndexHitInfo.detId(), HGCCellInfo()).first;
-      auto& hit_info = simIt->second.hit_info;
-
-      size_t iEn = detIdIndexHitInfo.energyIndex();
-      size_t iSample = detIdIndexHitInfo.sampleIndex();
-      if (iSample != 9)
-        continue;
-      float value = logintpack::unpack16log(detIdIndexHitInfo.data(), minPackChargeLog, maxPackChargeLog, base);
-
-      if (iEn == 0 || !setIfZero) {
-        hit_info[iEn][iSample] += value;
-      } else if (hit_info[iEn][iSample] == 0) {
-        hit_info[iEn][iSample] = value;
-      }
-    }
-  }
-}  // namespace
-
-//
 HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector& iC)
     : simHitAccumulator_(new HGCSimHitDataAccumulator()),
       pusimHitAccumulator_(new HGCPUSimHitDataAccumulator()),
@@ -383,10 +354,9 @@ void HGCDigitizer::finalizeEvent(edm::Event& e, edm::EventSetup const& es, CLHEP
   averageOccupancies_[idx] = (averageOccupancies_[idx] * (nEvents_ - 1) + thisOcc) / nEvents_;
 
   if (premixStage1_) {
-    std::unique_ptr<PreMixHGCSimAccumulator> simRecord;
+    auto simRecord = std::make_unique<PreMixHGCSimAccumulator>();
 
     if (!pusimHitAccumulator_->empty()) {
-      simRecord = std::make_unique<PreMixHGCSimAccumulator>();
       saveSimHitAccumulator_forPreMix(
           *simRecord, *pusimHitAccumulator_, validIds_, premixStage1MinCharge_, premixStage1MaxCharge_);
     }
@@ -773,15 +743,6 @@ void HGCDigitizer::accumulate_forPreMix(const PreMixHGCSimAccumulator& simAccumu
   }
 }
 
-void HGCDigitizer::accumulate(const PHGCSimAccumulator& simAccumulator) {
-  //configuration to apply for the computation of time-of-flight
-
-  std::array<float, 3> tdcForToAOnset{{0.f, 0.f, 0.f}};
-  float keV2fC(0.f);
-  bool weightToAbyEnergy = getWeight(tdcForToAOnset, keV2fC);
-  loadSimHitAccumulator(
-      *simHitAccumulator_, simAccumulator, premixStage1MinCharge_, premixStage1MaxCharge_, !weightToAbyEnergy);
-}
 //
 void HGCDigitizer::beginRun(const edm::EventSetup& es) {
   //get geometry

@@ -70,7 +70,6 @@ public:
                             const GEOM* geom,
                             CLHEP::HepRandomEngine* hre);
 
-  void accumulate(const PHGCSimAccumulator& simAccumulator);
   void accumulate_forPreMix(const PreMixHGCSimAccumulator& simAccumulator, const bool minbiasFlag);
   /**
      @short actions at the start/end of event

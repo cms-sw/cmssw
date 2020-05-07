@@ -74,10 +74,10 @@ public:
     simhitCollection_.shrink_to_fit();
   }
 
-  void emplace_back_timing(unsigned int detId,
-                           unsigned short sampleIndex,
-                           const std::vector<unsigned short>& accCharge,
-                           const std::vector<unsigned short>& timing) {
+  void emplace_back(unsigned int detId,
+                    unsigned short sampleIndex,
+                    const std::vector<unsigned short>& accCharge,
+                    const std::vector<unsigned short>& timing) {
     if (detIdSize_.empty() || detIdSize_.back().detId() != detId) {
       detIdSize_.emplace_back(detId);
     }
@@ -93,8 +93,8 @@ public:
     unsigned int detId() const { return detId_; }
     unsigned short sampleIndex() const { return simhitcollection_.sampleIndex(); }
     unsigned int nhits() const { return simhitcollection_.nhits(); }
-    std::vector<unsigned short> chargeArray() const { return simhitcollection_.chargeArray(); }
-    std::vector<unsigned short> timeArray() const { return simhitcollection_.timeArray(); }
+    const std::vector<unsigned short> chargeArray() const { return simhitcollection_.chargeArray(); }
+    const std::vector<unsigned short> timeArray() const { return simhitcollection_.timeArray(); }
 
   private:
     unsigned int detId_;
