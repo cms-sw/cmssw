@@ -1078,7 +1078,16 @@ private:
 
     // Handle text.
     if (TObjString *os = dynamic_cast<TObjString *>(ob)) {
-      TText *t = new TText(.5, .5, os->GetName());
+      // Using TPaveText here because it supports multiline strings.
+      // We split a string on new line character and add each line separately.
+      TPaveText *t = new TPaveText(0.0, 0.0, 1.0, 1.0, "NB");
+      std::string delim("\n");
+      char *token = strtok(strdup(os->GetName()), delim.c_str());
+      while (token) {
+        t->AddText(token);
+        token = strtok(NULL, delim.c_str());
+      }
+
       t->SetTextFont(63);
       t->SetTextAlign(22);
       t->SetTextSize(16);

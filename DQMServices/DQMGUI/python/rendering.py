@@ -7,8 +7,6 @@ import asyncio
 import tempfile
 import subprocess
 
-from functools import reduce
-
 from DQMServices.DQMGUI import nanoroot
 from helpers import MERenderingInfo
 from meinfo import EfficiencyFlag, ScalarValue, QTest
@@ -137,7 +135,7 @@ class GUIRenderer:
             streamerfile = rendering_infos[0].filename.encode("utf-8") if use_streamerfile else b''
         else:
             # When strings are overlayed, we display them all seaprated with a new line
-            data = reduce(lambda a, b : a + '\n' + str(b.root_object.value), rendering_infos, '').encode('utf-8')
+            data = '\n'.join([str(x.root_object.value) for x in rendering_infos]).encode('utf-8')
 
         mtype = 4 # DQM_MSG_GET_IMAGE_DATA
         vlow = 0
