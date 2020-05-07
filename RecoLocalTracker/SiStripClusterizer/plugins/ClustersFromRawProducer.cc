@@ -397,7 +397,7 @@ void ClusterFiller::fill(StripClusterizerAlgorithm::output_t::TSFastFiller& reco
                                                              pCode);
             if (fedchannelunpacker::StatusCode::SUCCESS == st_ch) {
               edm::DetSet<SiStripDigi> suppDigis{id};
-              rawAlgos.suppressHybridData_faster(unpDigis, suppDigis, ipair * 2);
+              rawAlgos.suppressHybridData(unpDigis, suppDigis, ipair * 2);
               std::copy(std::begin(suppDigis), std::end(suppDigis), perStripAdder);
             }
           }

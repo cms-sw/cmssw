@@ -43,7 +43,6 @@ private:
   bool produceBaselinePoints;
   bool storeInZScollBadAPV;
   bool produceHybridFormat;
-  bool fasterHybridZS;
 
   using rawtoken_t = edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi>>;
   using zstoken_t = edm::EDGetTokenT<edm::DetSetVector<SiStripDigi>>;

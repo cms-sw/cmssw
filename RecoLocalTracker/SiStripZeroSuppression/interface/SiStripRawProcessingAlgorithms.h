@@ -21,15 +21,9 @@ public:
   void initialize(const edm::EventSetup&);
   void initialize(const edm::EventSetup&, const edm::Event&);
 
-  uint16_t suppressHybridData_faster(const edm::DetSet<SiStripDigi>& inDigis,
-                                     edm::DetSet<SiStripDigi>& suppressedDigis,
-                                     uint16_t firstAPV = 0);
   uint16_t suppressHybridData(const edm::DetSet<SiStripDigi>& inDigis,
-                              edm::DetSet<SiStripDigi>& suppressedDigis);
-  uint16_t suppressHybridData(uint32_t detId,
-                              uint16_t firstAPV,
-                              digivector_t& processedRawDigis,
-                              edm::DetSet<SiStripDigi>& suppressedDigis);
+                              edm::DetSet<SiStripDigi>& suppressedDigis,
+                              uint16_t firstAPV = 0);
 
   uint16_t suppressVirginRawData(uint32_t detId,
                                  uint16_t firstAPV,
@@ -49,8 +43,6 @@ public:
                                     edm::DetSet<SiStripDigi>& rawDigis);
   uint16_t convertVirginRawToHybrid(const edm::DetSet<SiStripRawDigi>& rawDigis,
                                     edm::DetSet<SiStripDigi>& suppressedDigis);
-
-  void convertHybridDigiToRawDigiVector(const edm::DetSet<SiStripDigi>& inDigis, digivector_t& rawDigis);
 
   inline const std::vector<bool>& getAPVFlags() const { return restorer->getAPVFlags(); }
   inline const SiStripAPVRestorer::baselinemap_t& getBaselineMap() const { return restorer->getBaselineMap(); }
