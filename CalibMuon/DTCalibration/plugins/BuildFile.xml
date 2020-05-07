@@ -1,13 +1,11 @@
 <use name="FWCore/Framework"/>
 <use name="DataFormats/DTDigi"/>
 <use name="DataFormats/DTRecHit"/>
-<use name="DataFormats/MuonReco"/>
 <use name="Geometry/DTGeometry"/>
 <use name="Geometry/Records"/>
 <use name="Geometry/MuonNumbering"/>
 <use name="CondFormats/DTObjects"/>
 <use name="CondFormats/DataRecord"/>
-<use name="CondCore/DBOutputService"/>
 <use name="CommonTools/Utils"/>
 <use name="CalibMuon/DTDigiSync"/>
 <use name="CalibMuon/DTCalibration"/>
