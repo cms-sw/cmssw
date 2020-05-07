@@ -18,7 +18,6 @@
 #include "FWCore/Framework/interface/ComponentDescription.h"
 #include "FWCore/Framework/interface/MakeDataException.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
-#include "FWCore/Framework/src/ESGlobalMutex.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
 
@@ -59,37 +58,6 @@ namespace edm {
         throw MakeDataException(iRecord.key(), iKey);
       }
 
-      class ESSignalSentry {
-      public:
-        ESSignalSentry(const EventSetupRecordImpl& iRecord,
-                       const DataKey& iKey,
-                       ComponentDescription const* componentDescription,
-                       ActivityRegistry const* activityRegistry)
-            : eventSetupRecord_(iRecord),
-              dataKey_(iKey),
-              componentDescription_(componentDescription),
-              calledPostLock_(false),
-              activityRegistry_(activityRegistry) {
-          activityRegistry->preLockEventSetupGetSignal_(componentDescription_, eventSetupRecord_.key(), dataKey_);
-        }
-        void sendPostLockSignal() {
-          calledPostLock_ = true;
-          activityRegistry_->postLockEventSetupGetSignal_(componentDescription_, eventSetupRecord_.key(), dataKey_);
-        }
-        ~ESSignalSentry() noexcept(false) {
-          if (!calledPostLock_) {
-            activityRegistry_->postLockEventSetupGetSignal_(componentDescription_, eventSetupRecord_.key(), dataKey_);
-          }
-          activityRegistry_->postEventSetupGetSignal_(componentDescription_, eventSetupRecord_.key(), dataKey_);
-        }
-
-      private:
-        EventSetupRecordImpl const& eventSetupRecord_;
-        DataKey const& dataKey_;
-        ComponentDescription const* componentDescription_;
-        bool calledPostLock_;
-        ActivityRegistry const* activityRegistry_;
-      };
     }  // namespace
 
     void DataProxy::prefetchAsync(WaitingTask* iTask,
@@ -126,23 +94,18 @@ namespace edm {
                                ActivityRegistry const* activityRegistry,
                                EventSetupImpl const* iEventSetupImpl) const {
       if (!cacheIsValid()) {
-        ESSignalSentry signalSentry(iRecord, iKey, providerDescription(), activityRegistry);
-        std::lock_guard<std::recursive_mutex> guard(esGlobalMutex());
-        signalSentry.sendPostLockSignal();
-        if (!cacheIsValid()) {
-          auto waitTask = edm::make_empty_waiting_task();
-          waitTask->set_ref_count(2);
-          auto waitTaskPtr = waitTask.get();
-          tbb::this_task_arena::isolate([this, waitTaskPtr, &iRecord, &iKey, iEventSetupImpl]() {
-            prefetchAsync(waitTaskPtr, iRecord, iKey, iEventSetupImpl);
-            waitTaskPtr->decrement_ref_count();
-            waitTaskPtr->wait_for_all();
-          });
-          cache_ = getAfterPrefetchImpl();
-          cacheIsValid_.store(true, std::memory_order_release);
-          if (waitTask->exceptionPtr()) {
-            std::rethrow_exception(*waitTask->exceptionPtr());
-          }
+        auto waitTask = edm::make_empty_waiting_task();
+        waitTask->set_ref_count(2);
+        auto waitTaskPtr = waitTask.get();
+        tbb::this_task_arena::isolate([this, waitTaskPtr, &iRecord, &iKey, iEventSetupImpl]() {
+          prefetchAsync(waitTaskPtr, iRecord, iKey, iEventSetupImpl);
+          waitTaskPtr->decrement_ref_count();
+          waitTaskPtr->wait_for_all();
+        });
+        cache_ = getAfterPrefetchImpl();
+        cacheIsValid_.store(true, std::memory_order_release);
+        if (waitTask->exceptionPtr()) {
+          std::rethrow_exception(*waitTask->exceptionPtr());
         }
       }
       return getAfterPrefetch(iRecord, iKey, iTransiently);
