@@ -128,9 +128,11 @@ namespace edm {
       return itemsToGetFromRecords_[iIndex].size();
     }
 
+    bool hasMayConsumes() const noexcept { return hasMayConsumes_; }
+
     template <typename Record>
     std::optional<std::vector<ESProxyIndex>> updateFromMayConsumes(unsigned int iIndex, const Record& iRecord) const {
-      if (itemsToGetFromRecords_.empty() or itemsToGetFromRecords_[iIndex].empty()) {
+      if (not hasMayConsumes()) {
         return {};
       }
       std::vector<ESProxyIndex> ret = itemsToGetFromRecords_[iIndex];
@@ -253,6 +255,9 @@ namespace edm {
     //need another structure to say which record to get the data from in
     // order to make prefetching work
     std::vector<std::vector<ESRecordIndex>> recordsUsedDuringGet_;
+
+    SerialTaskQueue queue_;
+    bool hasMayConsumes_ = false;
   };
 }  // namespace edm
 #endif
