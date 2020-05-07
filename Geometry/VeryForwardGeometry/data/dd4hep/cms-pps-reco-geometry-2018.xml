@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
 <DDDefinition>
   <debug> 
-    <!--debug_rotations/>
+    <debug_rotations/>
     <debug_materials/>
-    <debug_shapes/>
-    <debug_volumes/>
+    <!--debug_shapes/>
+    <debug_volumes/-->
     <debug_constants/>
     <debug_includes/>
-    <debug_namespaces/>
+    <!--debug_namespaces/>
     <debug_placements/>
     <debug_algorithms/>
     <debug_visattr/-->
@@ -68,8 +68,8 @@
     <Include ref="Geometry/VeryForwardData/data/RP_Box/RP_Box_123.xml"/>
     <Include ref="Geometry/VeryForwardData/data/RP_Box/RP_Box_124.xml"/>
     <Include ref="Geometry/VeryForwardData/data/RP_Box/RP_Box_125.xml"/>
-    <Include ref="Geometry/VeryForwardData/data/RP_Hybrid.xml"/>
     <Include ref="Geometry/VeryForwardData/data/RP_Materials.xml"/>
+    <Include ref="Geometry/VeryForwardData/data/RP_Hybrid.xml"/>
     <Include ref="Geometry/VeryForwardData/data/RP_Transformations.xml"/>
     <Include ref="Geometry/VeryForwardData/data/RP_Detectors_Assembly.xml"/>
     <Include ref="Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_000.xml"/>
