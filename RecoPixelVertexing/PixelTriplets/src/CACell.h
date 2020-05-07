@@ -85,8 +85,8 @@ public:
                             const float region_origin_x,
                             const float region_origin_y,
                             const float region_origin_radius,
-                            const CACut::CAValuesByInnerLayerIds &thetaCutByInnerLayer,
-                            const CACut::CAValuesByInnerLayerIds &phiCutByInnerLayer,
+                            const CACut::CAValuesByInnerLayerIds& thetaCutByInnerLayer,
+                            const CACut::CAValuesByInnerLayerIds& phiCutByInnerLayer,
                             const float hardPtCut,
                             std::vector<CACell::CAntuplet>* foundTriplets) {
     int ncells = innerCells.size();
@@ -136,8 +136,8 @@ public:
                             const float region_origin_x,
                             const float region_origin_y,
                             const float region_origin_radius,
-                            const CACut::CAValuesByInnerLayerIds &thetaCutByInnerLayer,
-                            const CACut::CAValuesByInnerLayerIds &phiCutByInnerLayer,
+                            const CACut::CAValuesByInnerLayerIds& thetaCutByInnerLayer,
+                            const CACut::CAValuesByInnerLayerIds& phiCutByInnerLayer,
                             const float hardPtCut) {
     checkAlignmentAndAct(allCells,
                          innerCells,
@@ -157,8 +157,8 @@ public:
                                     const float region_origin_x,
                                     const float region_origin_y,
                                     const float region_origin_radius,
-                                    const CACut::CAValuesByInnerLayerIds &thetaCutByInnerLayer,
-                                    const CACut::CAValuesByInnerLayerIds &phiCutByInnerLayer,
+                                    const CACut::CAValuesByInnerLayerIds& thetaCutByInnerLayer,
+                                    const CACut::CAValuesByInnerLayerIds& phiCutByInnerLayer,
                                     const float hardPtCut) {
     checkAlignmentAndAct(allCells,
                          innerCells,

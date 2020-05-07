@@ -8,8 +8,7 @@ class CACut {
 public:
   explicit CACut(const double defaultCut, const std::vector<edm::ParameterSet> &tripletCuts)
       : useCACuts(true), foundAllLayerIds(false), defaultCut_(defaultCut) {
-
-    if  ( tripletCuts.size() == 1 && tripletCuts[0].getParameter<double>("cut") == -1. ) {
+    if (tripletCuts.size() == 1 && tripletCuts[0].getParameter<double>("cut") == -1.) {
       useCACuts = false;
       //TODO Uncomment the Following warning after tuning
       //edm::LogWarning("Configuration") << "No CACut VPSet. Using default cut value of " << defaultCut << " for all layer triplets";
@@ -25,7 +24,7 @@ public:
   void setCutValuesByTripletNames(const std::vector<edm::ParameterSet> &tripletCuts) {
     for (const auto &thisTriplet : tripletCuts) {
       valuesByTripletNames_.emplace_back();
-      auto &thisCACut =  valuesByTripletNames_.back();
+      auto &thisCACut = valuesByTripletNames_.back();
 
       thisCACut.tripletName = thisTriplet.getParameter<std::string>("seedingLayers");
       thisCACut.cutValue = thisTriplet.getParameter<double>("cut");
@@ -33,7 +32,8 @@ public:
   }
 
   void setCutValuesByLayerIds(CAGraph &caLayers) {
-    if ( !useCACuts || foundAllLayerIds ) return;
+    if (!useCACuts || foundAllLayerIds)
+      return;
 
     foundAllLayerIds = true;
     valuesByLayerIds_.clear();
@@ -45,10 +45,9 @@ public:
       // Triplet name, e.g. 'BPix1+BPix2+BPix3'
       std::string layersToSet = thisTriplet.tripletName;
       for (int thisLayer = 0; thisLayer < 3; thisLayer++) {
-
         // Get layer name
         std::size_t layerPos = layersToSet.find("+");
-        if ( (thisLayer<2 && layerPos==std::string::npos) || (thisLayer==2 && layerPos!=std::string::npos) ) {
+        if ((thisLayer < 2 && layerPos == std::string::npos) || (thisLayer == 2 && layerPos != std::string::npos)) {
           throw cms::Exception("Configuration")
               << "Please enter a valid triplet name in the CACuts parameter set; e.g. 'BPix1+BPix2+BPix3'";
         }
@@ -61,8 +60,7 @@ public:
         if (thisCACut.layerIds.back() == -1) {
           foundAllLayerIds = false;
           edm::LogWarning("Configuration")
-              << "Layer name '" << layerName
-              << "' not found in the CAGraph. Please check CACuts parameter set.";
+              << "Layer name '" << layerName << "' not found in the CAGraph. Please check CACuts parameter set.";
         }
       }
 
@@ -72,27 +70,25 @@ public:
     }
 
     setCutValuesByInnerLayerIds(caLayers);
-
   }
 
-  void setCutValuesByInnerLayerIds(CAGraph &caLayers) { //TODO: Is "const {" needed here?
+  void setCutValuesByInnerLayerIds(CAGraph &caLayers) {  //TODO: Is "const {" needed here?
 
-    for ( auto &thisTriplet : valuesByLayerIds_ ) {
-
-      if (thisTriplet.hasValueByInnerLayerId) continue;
+    for (auto &thisTriplet : valuesByLayerIds_) {
+      if (thisTriplet.hasValueByInnerLayerId)
+        continue;
       auto it = std::find(thisTriplet.layerIds.begin(), thisTriplet.layerIds.end(), -1);
-      if ( it != thisTriplet.layerIds.end()) continue;
+      if (it != thisTriplet.layerIds.end())
+        continue;
 
-      std::cout << "(" << thisTriplet.layerIds[0]
-                << ", " << thisTriplet.layerIds[1]
-                << ", " << thisTriplet.layerIds[2]
+      std::cout << "(" << thisTriplet.layerIds[0] << ", " << thisTriplet.layerIds[1] << ", " << thisTriplet.layerIds[2]
                 << "), " << thisTriplet.cutValue << std::endl;
 
       bool foundOuterDoublet = false;
 
-      for ( auto &thisOuterDoublet : valuesByInnerLayerIds_ ) {
-        if ( thisOuterDoublet.outerDoubletIds[0] == thisTriplet.layerIds[1] &&
-             thisOuterDoublet.outerDoubletIds[1] == thisTriplet.layerIds[2]) {
+      for (auto &thisOuterDoublet : valuesByInnerLayerIds_) {
+        if (thisOuterDoublet.outerDoubletIds[0] == thisTriplet.layerIds[1] &&
+            thisOuterDoublet.outerDoubletIds[1] == thisTriplet.layerIds[2]) {
           thisOuterDoublet.innerLayerIds.emplace_back(thisTriplet.layerIds[0]);
           thisOuterDoublet.cutValues.emplace_back(thisTriplet.cutValue);
           foundOuterDoublet = true;
@@ -110,7 +106,6 @@ public:
       }
 
       thisTriplet.hasValueByInnerLayerId = true;
-
     }
   }
 
@@ -136,7 +131,6 @@ public:
   };
 
   CAValuesByInnerLayerIds getCutsByInnerLayer(int layerIds1, int layerIds2) const {
-
     for (const auto &thisCut : valuesByInnerLayerIds_) {
       if (thisCut.outerDoubletIds[0] == layerIds1 && thisCut.outerDoubletIds[1] == layerIds2) {
         return thisCut;

@@ -18,7 +18,6 @@ void CellularAutomaton::createAndConnectCells(const std::vector<const HitDoublet
   float region_origin_y = region.origin().y();
   float region_origin_radius = region.originRBound();
 
-
   std::vector<bool> alreadyVisitedLayerPairs;
   alreadyVisitedLayerPairs.resize(theLayerGraph.theLayerPairs.size());
   for (auto visited : alreadyVisitedLayerPairs) {
@@ -154,7 +153,6 @@ void CellularAutomaton::findTriplets(std::vector<const HitDoublets *> const &hit
   float region_origin_x = region.origin().x();
   float region_origin_y = region.origin().y();
   float region_origin_radius = region.originRBound();
-
 
   std::vector<bool> alreadyVisitedLayerPairs;
   alreadyVisitedLayerPairs.resize(theLayerGraph.theLayerPairs.size());
