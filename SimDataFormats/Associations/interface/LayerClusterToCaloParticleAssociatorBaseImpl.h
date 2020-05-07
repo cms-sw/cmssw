@@ -19,7 +19,7 @@
 namespace hgcal {
 
   typedef edm::AssociationMap<
-      edm::OneToManyWithQualityGeneric<CaloParticleCollection, reco::CaloClusterCollection, float>>
+      edm::OneToManyWithQualityGeneric<CaloParticleCollection, reco::CaloClusterCollection, std::pair<float,float>>>
       SimToRecoCollection;
   typedef edm::AssociationMap<
       edm::OneToManyWithQualityGeneric<reco::CaloClusterCollection, CaloParticleCollection, float>>
