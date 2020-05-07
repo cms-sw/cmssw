@@ -9,8 +9,8 @@ Tracker:
 * T15: Phase2 tilted tracker (v6.1.6) w/ phase 2 pixel (v6.1.3) (Active geometry: same as T14. Material Budget: major update in IT, gathering info from recent Mechanical designs.)
 * T16: Active geometry: skewed Inner Tracker geometry. Material Budget: same as T15.
 * T17: Phase2 tilted tracker (v6.1.6) w/ phase 2 pixel (v6.1.5) TFPX: Changed sensors spacing within all double-disks + Increased distance between Disks 6 and 7 + Put TBPX portcards between Disks 6 and 7.
-* T18: Phase2 tilted tracker (v6.1.6) w/ phase 2 pixel (v6.1.6) TFPX: Shift all double-disks by + 25mm in Z. All services volumes (& TBPX portcards) are also shifted.
 * T19: Phase2 tilted tracker (v6.1.6) w/ phase 2 pixel (v7.0.0) Inner Tracker description with 3D sensors in TBPX L1 + TBPX L2 + TFPX R1.
+* T20: Phase2 tilted tracker (v6.1.6) Outer Tracker: All sensors 200 um -> 290 um + Update in Module MB + PS modules: s-sensor 164 um longer + Major update in OTST MB. Inner Tracker: (v6.1.5) from T17 is called.
 
 Calorimeters:
 * C4: HGCal (v9) + Phase2 HCAL and EB
@@ -23,6 +23,7 @@ Muon system:
 * M2: Phase2 muon system for TDR w/ GE2/1, ME0, RE3/1, RE4/1 (incl. granularity in ME0, staggered GE2/1)
 * M3: same as M2 with change to the number of iRPC strips from 192 to 96 as in TDR
 * M4: same as M3 but no Overlaps inside the Muon System and MB4Shields completed
+* M5: same as M4 but with: the right value for YE3 size, no "hidden" overlaps inside the Muon System and iRPC updated.
 
 Fast Timing system:
 * I5: Fast Timing detector (LYSO barrel, silicon endcap), full description with passive materials, LYSO bars along z flat
@@ -51,8 +52,9 @@ Several detector combinations have been generated:
 * D49 = T15+C9+M4+I10+O4+F2
 * D50 = T15+C9+M4+I11+O4+F2
 * D51 = T17+C9+M4+I10+O4+F2
-* D52 = T18+C9+M4+I10+O4+F2
 * D53 = T15+C9+M4+I12+O4+F2
 * D54 = T19+C9+M4+I10+O4+F2
+* D55 = T19+C9+M5+I10+O4+F2
+* D56 = T20+C9+M4+I10+O4+F2
 
 D35 is the MTD TDR baseline, D41 is the L1T TDR baseline, and D49 is the HLT TDR baseline.

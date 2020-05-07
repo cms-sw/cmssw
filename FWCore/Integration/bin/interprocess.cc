@@ -115,7 +115,7 @@ int main(int argc, char* argv[]) {
       //This class is holding the lock
       WorkerChannel communicationChannel(memoryName, uniqueID);
 
-      WriteBuffer sm_buffer{memoryName, communicationChannel.fromWorkerBufferIndex()};
+      WriteBuffer sm_buffer{memoryName, communicationChannel.fromWorkerBufferInfo()};
       int counter = 0;
 
       //The lock must be released if there is a catastrophic signal

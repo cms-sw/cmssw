@@ -1,4 +1,3 @@
-<bin   name="testFWCoreSOA" file="table_t.cppunit.cpp">
-  <use   name="cppunit"/>
+<bin name="testFWCoreSOA" file="table_t.cppunit.cpp">
+  <use name="cppunit"/>
 </bin>
-

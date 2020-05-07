@@ -1,8 +1,8 @@
-<use   name="FWCore/Utilities"/>
-<use   name="FWCore/Reflection"/>
-<use   name="boost"/>
-<use   name="rootcore"/>
-<use   name="tbb"/>
+<use name="FWCore/Utilities"/>
+<use name="FWCore/Reflection"/>
+<use name="boost"/>
+<use name="rootcore"/>
+<use name="tbb"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

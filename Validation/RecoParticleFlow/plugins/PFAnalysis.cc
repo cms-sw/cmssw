@@ -627,7 +627,7 @@ void PFAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
     if (recotosim.find(trackref) != recotosim.end()) {
       const auto& tps = recotosim[trackref];
-      for (const auto tp : tps) {
+      for (const auto& tp : tps) {
         edm::Ref<std::vector<TrackingParticle>> tpr = tp.first;
         trackingparticle_to_element.push_back(make_pair(tpr.key(), idx_in_all_elements));
         //cout << "trackingparticle_to_element " << tpr.key() << " " << idx_in_all_elements << endl;

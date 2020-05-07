@@ -52,7 +52,7 @@ namespace edmtest {
       }
       message << '\n';
 
-      for (auto const p : trigpaths) {
+      for (auto const& p : trigpaths) {
         message << "path name: " << p << " contains:";
         for (auto const& m : tns->getTrigPathModules(p)) {
           message << " " << m;

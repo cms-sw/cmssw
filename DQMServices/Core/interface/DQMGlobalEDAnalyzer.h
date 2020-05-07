@@ -45,6 +45,7 @@ public:
         // local MEs for each run cache.
         meId(run),
         /* canSaveByLumi */ false);
+    dqmstore_->initLumi(run.run(), /* lumi */ 0, meId(run));
     dqmstore_->enterLumi(run.run(), /* lumi */ 0, meId(run));
     return h;
   }

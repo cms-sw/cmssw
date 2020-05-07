@@ -1,12 +1,9 @@
-<use   name="DataFormats/PatCandidates"/>
 <use   name="DataFormats/FWLite"/>
 <use   name="FWCore/FWLite"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/ParameterSetReader"/>
 <use   name="root"/>
 <use   name="boost"/>
-<use   name="CommonTools/Utils"/>
-<use   name="PhysicsTools/Utilities"/>
 <use   name="PhysicsTools/FWLite"/>
 <use   name="PhysicsTools/SelectorUtils"/>
 <environment>

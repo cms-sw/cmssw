@@ -18,8 +18,6 @@
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-#include "MagneticField/Layers/interface/MagVerbosity.h"
-
 #include <string>
 #include <iterator>
 #include <iomanip>

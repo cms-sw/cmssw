@@ -642,9 +642,16 @@ namespace dqm {
       // For input modules: trigger recycling without local ME/enterLumi/moduleID.
       MonitorElement* findOrRecycle(MonitorElementData::Key const&);
 
+      // this creates local all needed global MEs for the given run/lumi (and
+      // module), potentially cloning them if there are concurrent runs/lumis.
+      // Symmetrical to cleanupLumi, this is called from a framwork hook, to
+      // make sure it also runs when the module does not call anything.
+      void initLumi(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi);
+      void initLumi(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, uint64_t moduleID);
+
       // modules are expected to call these callbacks when they change run/lumi.
-      // The DQMStore then updates the module's MEs, potentially cloning them
-      // if there are concurrent runs/lumis.
+      // The DQMStore then updates the module's MEs local MEs to point to the
+      // new run/lumi.
       void enterLumi(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, uint64_t moduleID);
       void leaveLumi(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, uint64_t moduleID);
 

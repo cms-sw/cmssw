@@ -1,5 +1,6 @@
 from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
+import sys
 
 process = cms.Process("CSCDQMLIVE")
 
@@ -32,8 +33,16 @@ process.csc2DRecHits.readBadChambers = cms.bool(False)
 #----------------------------
 # Event Source
 #-----------------------------
-# for live online DQM in P5
-process.load("DQM.Integration.config.inputsource_cfi")
+
+unitTest=False
+if 'unitTest=True' in sys.argv:
+  unitTest=True
+
+if unitTest:
+  process.load("DQM.Integration.config.unittestinputsource_cfi")
+else:
+  # for live online DQM in P5
+  process.load("DQM.Integration.config.inputsource_cfi")
 
 # for testing in lxplus
 #process.load("DQM.Integration.config.fileinputsource_cfi")

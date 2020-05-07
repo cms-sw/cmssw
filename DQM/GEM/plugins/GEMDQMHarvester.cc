@@ -79,10 +79,12 @@ void GEMDQMHarvester::refineSummaryHistogram(edm::Service<DQMStore> &store) {
   store->setCurrentFolder(strDirCurr);
 
   MonitorElement *h3Curr = store->get(strDirCurr + "/" + strNameSrc);
-  TH2F *h2New = nullptr;
+  if (h3Curr) {
+    TH2F *h2New = nullptr;
 
-  refineSummaryHistogramCore(h3Curr->getTH3F(), strNewName, h2New);
-  store->book2D(strNewName, h2New);
+    refineSummaryHistogramCore(h3Curr->getTH3F(), strNewName, h2New);
+    store->book2D(strNewName, h2New);
+  }
 
   store->bookFloat("reportSummary")->Fill(m_fReportSummary);
 }

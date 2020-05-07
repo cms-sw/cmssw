@@ -20,6 +20,7 @@
 
 // system include files
 #include <memory>
+#include <type_traits>
 // user include files
 #include "FWCore/Framework/interface/stream/dummy_helpers.h"
 
@@ -32,17 +33,30 @@ namespace edm {
     //********************************
     // CallGlobal
     //********************************
+    namespace callGlobalDetail {
+      template <typename, typename = std::void_t<>>
+      struct has_globalBeginJob : std::false_type {};
+
+      template <typename T>
+      struct has_globalBeginJob<T, std::void_t<decltype(T::globalBeginJob(nullptr))>> : std::true_type {};
+    }  // namespace callGlobalDetail
     template <typename T, bool>
     struct CallGlobalImpl {
       template <typename B>
       static void set(B* iProd, typename T::GlobalCache const* iCache) {
         static_cast<T*>(iProd)->setGlobalCache(iCache);
       }
+      static void beginJob(typename T::GlobalCache* iCache) {
+        if constexpr (callGlobalDetail::has_globalBeginJob<T>::value) {
+          T::globalBeginJob(iCache);
+        }
+      }
       static void endJob(typename T::GlobalCache* iCache) { T::globalEndJob(iCache); }
     };
     template <typename T>
     struct CallGlobalImpl<T, false> {
       static void set(void* iProd, void const* iCache) {}
+      static void beginJob(void* iCache) {}
       static void endJob(void* iCache) {}
     };
 

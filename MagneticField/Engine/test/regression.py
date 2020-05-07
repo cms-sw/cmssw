@@ -138,7 +138,8 @@ process.testMagneticField = cms.EDAnalyzer("testMagneticField",
 ## Size of testing volume (cm):
 	InnerRadius = cms.untracked.double(0),    #  default: 0 
 	OuterRadius = cms.untracked.double(900),  #  default: 900 
-        HalfLength  = cms.untracked.double(2400)  #  default: 2400 
+        minZ  = cms.untracked.double(-2400),      #  default: -2400 
+        maxZ  = cms.untracked.double(2400)        #  default: 2400 
 
 )
 

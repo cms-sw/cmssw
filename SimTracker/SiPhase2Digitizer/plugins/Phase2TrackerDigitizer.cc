@@ -216,7 +216,7 @@ namespace cms {
   }
 
   void Phase2TrackerDigitizer::finalizeEvent(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-    // Decide if we want analog readout for Outer Tracker.
+    //Decide if we want analog readout for Outer Tracker.
     addPixelCollection(iEvent, iSetup, isOuterTrackerReadoutAnalog_);
     if (!isOuterTrackerReadoutAnalog_) {
       if (premixStage1_)
@@ -285,7 +285,7 @@ namespace cms {
       if (fiter == algomap_.end())
         continue;
 
-      //Decide if we want analog readout for Outer Tracker.
+      // Decide if we want analog readout for Outer Tracker.
       if (!ot_analog && (algotype != AlgorithmType::InnerPixel && algotype != AlgorithmType::InnerPixel3D)) {
         continue;
       }
@@ -350,13 +350,12 @@ namespace cms {
       uint32_t rawId = det_u->geographicalId().rawId();
       auto algotype = getAlgoType(rawId);
 
-      if (algomap_.find(algotype) == algomap_.end() || algotype == AlgorithmType::InnerPixel ||
-          algotype == AlgorithmType::InnerPixel3D) {
+      auto fiter = algomap_.find(algotype);
+      if (fiter == algomap_.end() || algotype == AlgorithmType::InnerPixel || algotype == AlgorithmType::InnerPixel3D) {
         continue;
       }
-
       std::map<int, DigitizerUtility::DigiSimInfo> digi_map;
-      algomap_[algotype]->digitize(dynamic_cast<const Phase2TrackerGeomDetUnit*>(det_u), digi_map, tTopo);
+      fiter->second->digitize(dynamic_cast<const Phase2TrackerGeomDetUnit*>(det_u), digi_map, tTopo);
 
       edm::DetSet<DigiType> collector(rawId);
       edm::DetSet<PixelDigiSimLink> linkcollector(rawId);

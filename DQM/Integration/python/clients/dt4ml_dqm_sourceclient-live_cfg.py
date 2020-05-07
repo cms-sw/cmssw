@@ -1,14 +1,22 @@
 from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
+import sys
 import os
 
 process = cms.Process("DTDQM")
 
+unitTest = False
+if 'unitTest=True' in sys.argv:
+    unitTest=True
+
 #----------------------------
 #### Event Source
 #----------------------------
-# for live online DQM in P5
-process.load("DQM.Integration.config.inputsource_cfi")
+if unitTest:
+    process.load("DQM.Integration.config.unittestinputsource_cfi")
+else:
+    # for live online DQM in P5
+    process.load("DQM.Integration.config.inputsource_cfi")
 
 # for testing in lxplus
 #process.load("DQM.Integration.config.fileinputsource_cfi")
@@ -38,7 +46,9 @@ except:
 
 process.dqmSaver.backupLumiCount = 10
 process.dqmSaver.keepBackupLumi = True
-process.dqmSaver.path = filePath
+
+if not unitTest:
+    process.dqmSaver.path = filePath
 
 # disable DQM gui
 print("old:",process.DQM.collectorHost)

@@ -38,12 +38,16 @@ namespace {
       });
     }
     {
-      *channel.toWorkerBufferIndex() = 0;
+      *channel.toWorkerBufferInfo() = {0, 0};
       auto result = channel.doTransition(
           [&]() {
-            if (*channel.fromWorkerBufferIndex() != 1) {
+            if (channel.fromWorkerBufferInfo()->index_ != 1) {
+              throw cms::Exception("BadValue") << "wrong index value of fromWorkerBufferInfo "
+                                               << static_cast<int>(channel.fromWorkerBufferInfo()->index_);
+            }
+            if (channel.fromWorkerBufferInfo()->identifier_ != 1) {
               throw cms::Exception("BadValue")
-                  << "wrong value of fromWorkerBufferIndex " << *channel.fromWorkerBufferIndex();
+                  << "wrong identifier value of fromWorkerBufferInfo " << channel.fromWorkerBufferInfo()->identifier_;
             }
             if (not channel.shouldKeepEvent()) {
               throw cms::Exception("BadValue") << "told not to keep event";
@@ -56,12 +60,16 @@ namespace {
       }
     }
     {
-      *channel.toWorkerBufferIndex() = 1;
+      *channel.toWorkerBufferInfo() = {1, 1};
       auto result = channel.doTransition(
           [&]() {
-            if (*channel.fromWorkerBufferIndex() != 0) {
+            if (channel.fromWorkerBufferInfo()->index_ != 0) {
+              throw cms::Exception("BadValue") << "wrong index value of fromWorkerBufferInfo "
+                                               << static_cast<int>(channel.fromWorkerBufferInfo()->index_);
+            }
+            if (channel.fromWorkerBufferInfo()->identifier_ != 2) {
               throw cms::Exception("BadValue")
-                  << "wrong value of fromWorkerBufferIndex " << *channel.fromWorkerBufferIndex();
+                  << "wrong identifier value of fromWorkerBufferInfo " << channel.fromWorkerBufferInfo()->identifier_;
             }
             if (channel.shouldKeepEvent()) {
               throw cms::Exception("BadValue") << "told to keep event";
@@ -105,10 +113,15 @@ namespace {
             throw cms::Exception("BadValue") << "wrong transitionID received " << static_cast<int>(iTransitionID);
           }
 
-          if (*channel.toWorkerBufferIndex() != 0) {
-            throw cms::Exception("BadValue") << "wrong toWorkerBufferIndex received " << *channel.toWorkerBufferIndex();
+          if (channel.toWorkerBufferInfo()->index_ != 0) {
+            throw cms::Exception("BadValue")
+                << "wrong toWorkerBufferInfo index received " << static_cast<int>(channel.toWorkerBufferInfo()->index_);
           }
-          *channel.fromWorkerBufferIndex() = 1;
+          if (channel.toWorkerBufferInfo()->identifier_ != 0) {
+            throw cms::Exception("BadValue")
+                << "wrong toWorkerBufferInfo identifier received " << channel.toWorkerBufferInfo()->identifier_;
+          }
+          *channel.fromWorkerBufferInfo() = {1, 1};
           channel.shouldKeepEvent(true);
           break;
         }
@@ -121,10 +134,15 @@ namespace {
             throw cms::Exception("BadValue") << "wrong transitionID received " << static_cast<int>(iTransitionID);
           }
 
-          if (*channel.toWorkerBufferIndex() != 1) {
-            throw cms::Exception("BadValue") << "wrong toWorkerBufferIndex received " << *channel.toWorkerBufferIndex();
+          if (channel.toWorkerBufferInfo()->index_ != 1) {
+            throw cms::Exception("BadValue")
+                << "wrong toWorkerBufferInfo index received " << static_cast<int>(channel.toWorkerBufferInfo()->index_);
           }
-          *channel.fromWorkerBufferIndex() = 0;
+          if (channel.toWorkerBufferInfo()->identifier_ != 1) {
+            throw cms::Exception("BadValue")
+                << "wrong toWorkerBufferInfo identifier received " << channel.toWorkerBufferInfo()->identifier_;
+          }
+          *channel.fromWorkerBufferInfo() = {2, 0};
           channel.shouldKeepEvent(false);
           break;
         }

@@ -17,7 +17,7 @@ public:
   explicit SiStripRawDigi(uint16_t adc) : adc_(adc) {}
 
   SiStripRawDigi() : adc_(0) {}
-  ~SiStripRawDigi() {}
+  ~SiStripRawDigi() = default;
 
   inline uint16_t adc() const { return adc_; }
 

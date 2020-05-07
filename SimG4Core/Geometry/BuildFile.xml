@@ -1,13 +1,12 @@
-<use   name="DetectorDescription/Core"/>
-<use   name="geant4core"/>
-<use   name="DetectorDescription/DDCMS"/>
-<use   name="dd4hep-core"/>
-<use   name="dd4hep-geant4"/>
-<use   name="Geometry/Records"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/Utilities"/>
-<use   name="xerces-c"/>
-<use   name="expat"/>
+<use name="DetectorDescription/Core"/>
+<use name="geant4core"/>
+<use name="DetectorDescription/DDCMS"/>
+<use name="dd4hep-core"/>
+<use name="dd4hep-geant4"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/Utilities"/>
+<use name="xerces-c"/>
+<use name="expat"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

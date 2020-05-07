@@ -45,7 +45,7 @@ public:
   void analyze(edm::Event const&, edm::EventSetup const&) override;
   void endJob() override {}
 
-  void theBaseNumber(const std::vector<std::pair<std::string, uint32_t>>& gh);
+  void theBaseNumber(cms::DDFilteredView& fv);
 
 private:
   const edm::ESInputTag tag_;
@@ -138,14 +138,8 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
   bool isBarrel = true;
   bool exitLoop = false;
   uint32_t level(0);
-  std::vector<std::pair<std::string, uint32_t>> geoHistory;
 
   do {
-    uint32_t clevel = fv.navPos().size();
-    uint32_t ccopy = (clevel > 1 ? fv.copyNum() : 0);
-    geoHistory.resize(clevel);
-    geoHistory[clevel - 1] = std::pair<std::string, uint32_t>(static_cast<std::string>(fv.name()), ccopy);
-
     if (fv.name() == "BarrelTimingLayer") {
       isBarrel = true;
       edm::LogInfo("DD4hep_TestMTDIdealGeometry") << "isBarrel = " << isBarrel;
@@ -155,12 +149,15 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
     }
 
     std::stringstream ss;
-    auto print_path = [&](std::vector<std::pair<std::string, uint32_t>>& theHistory) {
-      ss << " - ";
-      for (const auto& t : theHistory) {
-        ss << t.first;
+
+    theBaseNumber(fv);
+
+    auto print_path = [&]() {
+      ss << " - OCMS[0]/";
+      for (int ii = thisN_.getLevels() - 1; ii-- > 0;) {
+        ss << thisN_.getLevelName(ii);
         ss << "[";
-        ss << t.second;
+        ss << thisN_.getCopyNumber(ii);
         ss << "]/";
       }
     };
@@ -184,11 +181,10 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
     // Actions for MTD volumes: searchg for sensitive detectors
 
     if (write) {
-      print_path(geoHistory);
+      print_path();
 
 #ifdef EDM_ML_DEBUG
-      edm::LogInfo("DD4hep_TestMTDIdealGeometry") << level << " " << clevel << " " << fv.name() << " " << ccopy << "\n"
-                                                  << fv.path();
+      edm::LogInfo("DD4hep_TestMTDIdealGeometry") << fv.path();
 #endif
 
       edm::LogInfo("DD4hep_TestMTDPath") << ss.str();
@@ -208,8 +204,6 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
         //
         // Test of numbering scheme for sensitive detectors
         //
-
-        theBaseNumber(geoHistory);
 
         std::stringstream snum;
 
@@ -302,14 +296,14 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
   } while (fv.next(0));
 }
 
-void DD4hep_TestMTDIdealGeometry::theBaseNumber(const std::vector<std::pair<std::string, uint32_t>>& gh) {
+void DD4hep_TestMTDIdealGeometry::theBaseNumber(cms::DDFilteredView& fv) {
   thisN_.reset();
-  thisN_.setSize(gh.size());
+  thisN_.setSize(fv.navPos().size());
 
-  for (auto t = gh.rbegin(); t != gh.rend(); ++t) {
-    std::string name;
-    name.assign(t->first);
-    int copyN(t->second);
+  for (uint ii = 0; ii < fv.navPos().size(); ii++) {
+    std::string name((fv.geoHistory()[ii])->GetName());
+    name.assign(name.erase(name.rfind('_')));
+    int copyN(fv.copyNos()[ii]);
     thisN_.addLevel(name, copyN);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("DD4hep_TestMTDIdealGeometry") << name << " " << copyN;

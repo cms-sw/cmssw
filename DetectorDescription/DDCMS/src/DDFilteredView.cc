@@ -106,6 +106,17 @@ const Translation DDFilteredView::translation() const {
   return Translation(translation[0], translation[1], translation[2]);
 }
 
+const Translation DDFilteredView::translation(const std::vector<Node*>& nodes) const {
+  const TGeoMatrix* current = it_.back().GetCurrentMatrix();
+  TGeoHMatrix matrix(*current);
+  for (const auto& n : nodes) {
+    matrix.Multiply(n->GetMatrix());
+  }
+  const Double_t* translation = matrix.GetTranslation();
+  assert(translation);
+  return Translation(translation[0], translation[1], translation[2]);
+}
+
 const Double_t* DDFilteredView::rot() const { return it_.back().GetCurrentMatrix()->GetRotationMatrix(); }
 
 const RotationMatrix DDFilteredView::rotation() const {
@@ -115,8 +126,6 @@ const RotationMatrix DDFilteredView::rotation() const {
     return RotationMatrix();
   }
 
-  LogVerbatim("DDFilteredView") << "Rotation matrix components (1st 3) = " << rotation[0] << ", " << rotation[1] << ", "
-                                << rotation[2];
   RotationMatrix rotMatrix;
   rotMatrix.SetComponents(rotation[0],
                           rotation[1],
@@ -136,8 +145,6 @@ void DDFilteredView::rot(dd4hep::Rotation3D& matrixOut) const {
     LogError("DDFilteredView") << "Current node has no valid rotation matrix.";
     return;
   }
-  LogVerbatim("DDFilteredView") << "Rotation matrix components (1st 3) = " << rotation[0] << ", " << rotation[1] << ", "
-                                << rotation[2];
   matrixOut.SetComponents(rotation[0],
                           rotation[1],
                           rotation[2],
@@ -302,13 +309,13 @@ std::vector<std::vector<Node*>> DDFilteredView::children(const std::string& sele
       std::string pathFromParent = pathToNode.substr(n);
 
       if (match(pathFromParent, names)) {
-        std::vector<Node*> children;
+        std::vector<Node*> result;
         LogVerbatim("Geometry") << "Match found: " << pathFromParent;
         for (int i = startLevel_; i < it_.back().GetLevel(); i++) {
-          children.emplace_back(it_.back().GetNode(i));
+          result.emplace_back(it_.back().GetNode(i));
         }
-        children.emplace_back(node);
-        paths.emplace_back(children);
+        result.emplace_back(node);
+        paths.emplace_back(result);
       }
     }
     node = it_.back().Next();

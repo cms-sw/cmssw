@@ -1,5 +1,5 @@
-<use   name="Geometry/DTGeometry"/>
-<use   name="root"/>
+<use name="Geometry/DTGeometry"/>
+<use name="root"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

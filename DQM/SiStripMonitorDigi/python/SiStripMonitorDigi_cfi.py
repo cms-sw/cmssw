@@ -206,3 +206,7 @@ SiStripMonitorDigi = DQMEDAnalyzer('SiStripMonitorDigi',
     ResetMEsEachRun = cms.bool(False),
     TrendVs10LS       = cms.bool(False),
 )
+
+
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(SiStripMonitorDigi,    TH1NumberOfDigis = dict(xmax = 39999.5, Nbinx = 500))

@@ -1,10 +1,9 @@
-<use   name="CondFormats/Common"/>
-<use   name="CondFormats/Serialization"/>
-<use   name="DataFormats/MuonDetId"/>
-<use   name="FWCore/Utilities"/>
-<use   name="boost_serialization"/>
-<use   name="roothistmatrix"/>
-
+<use name="CondFormats/Common"/>
+<use name="CondFormats/Serialization"/>
+<use name="DataFormats/MuonDetId"/>
+<use name="FWCore/Utilities"/>
+<use name="boost_serialization"/>
+<use name="roothistmatrix"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

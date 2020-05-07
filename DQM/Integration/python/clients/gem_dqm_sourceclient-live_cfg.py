@@ -1,6 +1,11 @@
 import FWCore.ParameterSet.Config as cms
+import sys
 
 process = cms.Process('GEMDQM')
+
+unitTest = False
+if 'unitTest=True' in sys.argv:
+  unitTest=True
 
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
@@ -9,7 +14,10 @@ process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = "GEM"
 process.dqmSaver.tag = "GEM"
 
-process.load("DQM.Integration.config.inputsource_cfi")
+if unitTest:
+  process.load("DQM.Integration.config.unittestinputsource_cfi")
+else:
+  process.load("DQM.Integration.config.inputsource_cfi")
 
 process.load("DQMServices.Components.DQMProvInfo_cfi")
 

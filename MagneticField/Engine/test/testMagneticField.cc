@@ -3,7 +3,7 @@
  *  A set of tests for regression and validation of the field map.
  *
  *  outputTable: generate txt file with values to be used for regression. Points are generated 
- *  according to InnerRadius, OuterRadius, HalfLength
+ *  according to innerRadius, outerRadius, minZ, maxZ
  *
  *  inputTable: file with input values to be checked against, format depends on inputFileType:
  *  xyz = cartesian coordinates in cm (default)
@@ -53,8 +53,6 @@ using namespace edm;
 using namespace Geom;
 using namespace std;
 
-// #include "MagneticField/Layers/interface/MagVerbosity.h"
-
 class testMagneticField : public edm::EDAnalyzer {
 public:
   testMagneticField(const edm::ParameterSet& pset) {
@@ -68,11 +66,11 @@ public:
     //    number of random points to try
     numberOfPoints = pset.getUntrackedParameter<int>("numberOfPoints", 10000);
     //    outer radius of test cylinder
-    InnerRadius = pset.getUntrackedParameter<double>("InnerRadius", 0.);
-    //    half length of test cylinder
-    OuterRadius = pset.getUntrackedParameter<double>("OuterRadius", 900);
-    //    half length of test cylinder
-    HalfLength = pset.getUntrackedParameter<double>("HalfLength", 2400);
+    innerRadius = pset.getUntrackedParameter<double>("InnerRadius", 0.);
+    outerRadius = pset.getUntrackedParameter<double>("OuterRadius", 900);
+    //    Z extent of test cylinder
+    minZ = pset.getUntrackedParameter<double>("minZ", -2400);
+    maxZ = pset.getUntrackedParameter<double>("maxZ", 2400);
   }
 
   ~testMagneticField() {}
@@ -91,6 +89,7 @@ public:
 
     if (outputFile != "") {
       writeValidationTable(numberOfPoints, outputFile);
+      return;
     }
 
     if (inputFileType == "TOSCA") {
@@ -139,15 +138,17 @@ private:
   string outputFile;
   double reso;
   int numberOfPoints;
-  double OuterRadius;
-  double InnerRadius;
-  double HalfLength;
+  double outerRadius;
+  double innerRadius;
+  double minZ;
+  double maxZ;
 };
 
 void testMagneticField::writeValidationTable(int npoints, string filename) {
-  GlobalPointProvider p(InnerRadius, OuterRadius, -Geom::pi(), Geom::pi(), -HalfLength, HalfLength);
+  GlobalPointProvider p(innerRadius, outerRadius, -Geom::pi(), Geom::pi(), minZ, maxZ);
 
-  if (filename.substr(filename.rfind(".")) == ".txt") {
+  std::string::size_type ps = filename.rfind(".");
+  if (ps != std::string::npos && filename.substr(ps) == ".txt") {
     ofstream file(filename.c_str());
 
     for (int i = 0; i < npoints; ++i) {
@@ -188,7 +189,8 @@ void testMagneticField::validate(string filename, string type) {
   edm::FileInPath mydata(filename);
   fullPath = mydata.fullPath();
 
-  if (filename.substr(filename.rfind(".")) == ".txt") {
+  std::string::size_type ps = filename.rfind(".");
+  if (ps != std::string::npos && filename.substr(filename.rfind(".")) == ".txt") {
     binary = false;
     file.open(fullPath.c_str());
   } else {
@@ -230,7 +232,7 @@ void testMagneticField::validate(string filename, string type) {
       }
     }
 
-    if (gp.perp() < InnerRadius || gp.perp() > OuterRadius || fabs(gp.z()) > HalfLength)
+    if (gp.perp() < innerRadius || gp.perp() > outerRadius || gp.z() < minZ || gp.z() > maxZ)
       continue;
 
     GlobalVector oldB(bx, by, bz);
@@ -345,8 +347,6 @@ void testMagneticField::validateVsTOSCATable(string filename) {
       cout << "validateVsTOSCATable: type " << type << " unknown " << endl;
       return;
     }
-
-    //    if (gp.perp() < InnerRadius || gp.perp() > OuterRadius || fabs(gp.z()) > HalfLength) continue;
 
     GlobalVector oldB(bx, by, bz);
     if (vol->inside(gp, 0.03)) {

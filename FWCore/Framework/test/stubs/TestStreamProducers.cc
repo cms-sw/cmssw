@@ -64,6 +64,13 @@ namespace edmtest {
         produces<unsigned int>();
       }
 
+      static void globalBeginJob(Cache* iGlobal) {
+        ++m_count;
+        if (iGlobal->value != 0) {
+          throw cms::Exception("cache value") << iGlobal->value << " but it was supposed to be 0";
+        }
+      }
+
       void produce(edm::Event&, edm::EventSetup const&) override {
         ++m_count;
         ++((globalCache())->value);

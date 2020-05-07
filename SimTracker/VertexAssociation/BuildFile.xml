@@ -1,13 +1,9 @@
-<use   name="SimDataFormats/Track"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="DataFormats/TrackReco"/>
-<use   name="DataFormats/VertexReco"/>
-<use   name="DataFormats/Common"/>
-<use   name="DataFormats/Math"/>
-<use   name="FWCore/Utilities"/>
-<use   name="SimDataFormats/TrackingAnalysis"/>
-<use   name="SimDataFormats/Associations"/>
-<use   name="SimTracker/Common"/>
+<use name="SimDataFormats/Track"/>
+<use name="DataFormats/VertexReco"/>
+<use name="DataFormats/Common"/>
+<use name="SimDataFormats/TrackingAnalysis"/>
+<use name="SimDataFormats/Associations"/>
+<use name="SimTracker/Common"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

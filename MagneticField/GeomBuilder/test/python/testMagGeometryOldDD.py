@@ -64,7 +64,6 @@ process.MagneticFieldESProducer = cms.ESProducer("VolumeBasedMagneticFieldESProd
                                               version = cms.string('fake'),
                                               geometryVersion = cms.int32(160812),
                                               debugBuilder = cms.untracked.bool(False), # Set to True to activate full debug
-                                              cacheLastVolume = cms.untracked.bool(True),
                                               scalingVolumes = cms.vint32(),
                                               scalingFactors = cms.vdouble(),
 

@@ -59,6 +59,7 @@ protected:
   std::vector<edm::InputTag> label_mcl;
   const bool SaveGeneralInfo_;
   const bool doCaloParticlePlots_;
+  const bool doCaloParticleSelection_;
   const bool dolayerclustersPlots_;
   const bool domulticlustersPlots_;
   const edm::FileInPath cummatbudinxo_;

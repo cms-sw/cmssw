@@ -47,11 +47,9 @@ public:
 
   bool isDefined(const GlobalPoint& gp) const override;
 
-  bool isZSymmetric() const;
-
 private:
   const MagGeometry* field;
-  float maxR;
+  float maxRsq;
   float maxZ;
   const MagneticField* paramField;
   bool magGeomOwned;

@@ -1,15 +1,9 @@
-<use   name="DataFormats/Candidate"/>
-<use   name="DataFormats/Common"/>
-<use   name="DataFormats/Math"/>
-<use   name="DataFormats/TrackReco"/>
-<use   name="SimDataFormats/EncodedEventId"/>
-<use   name="SimDataFormats/GeneratorProducts"/>
-<use   name="DataFormats/HepMCCandidate"/>
-<use   name="SimDataFormats/Track"/>
-<use   name="SimDataFormats/CaloHit"/>
-<use   name="SimDataFormats/Vertex"/>
-
-<use   name="clhepheader"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/Math"/>
+<use name="DataFormats/HepMCCandidate"/>
+<use name="SimDataFormats/Track"/>
+<use name="SimDataFormats/CaloHit"/>
+<use name="clhepheader"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

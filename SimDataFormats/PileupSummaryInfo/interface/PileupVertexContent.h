@@ -19,8 +19,6 @@ Usage: purely descriptive
 #include <vector>
 #include <string>
 #include <iostream>
-#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
 class PileupVertexContent {

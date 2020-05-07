@@ -172,11 +172,19 @@ dqm::impl::MonitorElement* GEMBaseValidation::bookDetectorOccupancy(DQMStore::IB
   std::vector<const GEMSuperChamber*> superchambers = station->superChambers();
 
   Int_t num_superchambers = superchambers.size();
-  Int_t num_chambers = superchambers.front()->nChambers();
-
+  Int_t num_chambers = 0;
+  Int_t nbinsy = 0;
+  if (num_superchambers > 0) {
+    num_chambers = superchambers.front()->nChambers();
+    if (num_chambers > 0)
+      nbinsy = superchambers.front()->chambers().front()->nEtaPartitions();
+  }
   Int_t nbinsx = num_superchambers * num_chambers;
-  Int_t nbinsy = superchambers.front()->chambers().front()->nEtaPartitions();
 
+  if (nbinsx <= 0)
+    nbinsx = 20;  // Ensure histogram is not zero size
+  if (nbinsy <= 0)
+    nbinsy = 20;
   auto hist = new TH2F(name, title, nbinsx, 1 - 0.5, nbinsx + 0.5, nbinsy, 1 - 0.5, nbinsy + 0.5);
   hist->GetXaxis()->SetTitle("Chamber-Layer");
   hist->GetYaxis()->SetTitle("Eta Partition");

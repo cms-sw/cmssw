@@ -35,8 +35,12 @@ namespace hcaldqm {
 
     _evsTotal++;
     _cEvsTotal.fill(_evsTotal);
-    _evsPerLS++;
+
+    auto lumiCache = luminosityBlockCache(e.getLuminosityBlock().index());
+    lumiCache->EvtCntLS++;
+    _evsPerLS = lumiCache->EvtCntLS;
     _cEvsPerLS.fill(_evsPerLS);
+
     this->_process(e, es);
   }
 
@@ -88,19 +92,25 @@ namespace hcaldqm {
     this->_resetMonitors(f100LS);
   }
 
-  void DQTask::dqmBeginLuminosityBlock(edm::LuminosityBlock const &lb, edm::EventSetup const &es) {
-    _currentLS = lb.luminosityBlock();
-    this->_resetMonitors(f1LS);
+  std::shared_ptr<hcaldqm::Cache> DQTask::globalBeginLuminosityBlock(edm::LuminosityBlock const &lb,
+                                                                     edm::EventSetup const &es) const {
+    auto d = std::make_shared<hcaldqm::Cache>();
+    d->currentLS = lb.luminosityBlock();
+    d->EvtCntLS = 0;
 
+    /*   //// these resets were not useful anymore
+    this->_resetMonitors(f1LS);
     if (_procLSs % 10 == 0)
       this->_resetMonitors(f10LS);
     if (_procLSs % 50 == 0)
       this->_resetMonitors(f50LS);
     if (_procLSs % 100 == 0)
       this->_resetMonitors(f100LS);
+*/
 
     //	get the Channel Quality Status for all the channels
-    _xQuality.reset();
+    d->xQuality.initialize(hashfunctions::fDChannel);
+    d->xQuality.reset();
     const HcalChannelQuality &cq = es.getData(hcalChannelQualityToken_);
     std::vector<DetId> detids = cq.getAllChannels();
     for (std::vector<DetId>::const_iterator it = detids.begin(); it != detids.end(); ++it) {
@@ -112,13 +122,14 @@ namespace hcaldqm {
         HcalDetId did(*it);
         uint32_t mask = (cq.getValues(did))->getValue();
         if (mask != 0) {
-          _xQuality.push(did, mask);
+          d->xQuality.push(did, mask);
         }
       }
     }
+    return d;
   }
 
-  void DQTask::dqmEndLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) { _procLSs++; }
+  void DQTask::globalEndLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) { _procLSs++; }
 
   void DQTask::_resetMonitors(UpdateFreq uf) {
     //	reset per event

@@ -3,7 +3,6 @@
 </export>
 <flags ADD_SUBDIR="1"/>
 <flags LDFLAGS="-lXMLIO"/>
-
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="DataFormats/L1TMuon"/>

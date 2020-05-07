@@ -168,7 +168,7 @@ void DQMProtobufReader::load(DQMStore* store, std::string filename) {
   FileInputStream fin(filedescriptor);
   GzipInputStream input(&fin);
   CodedInputStream input_coded(&input);
-  input_coded.SetTotalBytesLimit(1024 * 1024 * 1024, -1);
+  input_coded.SetTotalBytesLimit(1024 * 1024 * 1024);
   if (!dqmstore_message.ParseFromCodedStream(&input_coded)) {
     edm::LogError("DQMProtobufReader") << "Fatal parsing file '" << filename << "'";
   }

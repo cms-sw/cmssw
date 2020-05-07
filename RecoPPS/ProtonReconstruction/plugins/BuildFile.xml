@@ -5,5 +5,4 @@
 <use name="Geometry/VeryForwardGeometryBuilder"/>
 <use name="RecoPPS/ProtonReconstruction"/>
 <use name="rootcore"/>
-
 <flags EDM_PLUGIN="1"/>

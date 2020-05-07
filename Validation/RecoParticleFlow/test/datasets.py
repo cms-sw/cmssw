@@ -129,10 +129,9 @@ if __name__ == "__main__":
     #prefix = "root://xrootd-cms.infn.it//"
     tmpdir = "tmp"
     datasets = [
-        Dataset("/RelValQCD_FlatPt_15_3000HS_14/CMSSW_11_0_0_patch1-110X_mcRun3_2021_realistic_v6-v1/GEN-SIM-DIGI-RAW", "QCD_noPU", prefix, None, False, tmpdir),
-        Dataset("/RelValQCD_FlatPt_15_3000HS_14/CMSSW_11_0_0_patch1-PU_110X_mcRun3_2021_realistic_v6-v1/GEN-SIM-DIGI-RAW", "QCD_PU", prefix, None, False, tmpdir),
-        Dataset("/RelValZMM_14/CMSSW_11_0_0_patch1-PU_110X_mcRun3_2021_realistic_v6-v1/GEN-SIM-DIGI-RAW", "ZMM_PU", prefix, None, False, tmpdir),
-        Dataset("/RelValNuGun/CMSSW_11_0_0_patch1-PU_110X_mcRun3_2021_realistic_v6-v1/GEN-SIM-DIGI-RAW", "NuGun_PU", prefix, None, False, tmpdir)]
-
+        Dataset("/RelValQCD_FlatPt_15_3000HS_14/CMSSW_11_1_0_pre5-111X_mcRun3_2021_realistic_v2-v1/GEN-SIM-DIGI-RAW", "QCD_noPU", prefix, None, False, tmpdir),
+        Dataset("/RelValQCD_FlatPt_15_3000HS_14/CMSSW_11_1_0_pre5-PU_111X_mcRun3_2021_realistic_v2_rsb-v1/GEN-SIM-DIGI-RAW", "QCD_PU", prefix, None, False, tmpdir),
+        Dataset("/RelValZMM_14/CMSSW_11_1_0_pre5-PU_111X_mcRun3_2021_realistic_v2_rsb-v1/GEN-SIM-DIGI-RAW", "ZMM_PU", prefix, None, False, tmpdir),
+        Dataset("/RelValNuGun/CMSSW_11_1_0_pre5-PU_111X_mcRun3_2021_realistic_v2_rsb-v1/GEN-SIM-DIGI-RAW", "NuGun_PU", prefix, None, False, tmpdir)]
     for ds in datasets:
         ds.cache_das_filenames()

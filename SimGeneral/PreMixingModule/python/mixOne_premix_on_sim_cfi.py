@@ -224,7 +224,8 @@ phase2_tracker.toModify(mixData,
             pixelPileInputTag = cms.InputTag("simSiPixelDigis:Pixel"),
             trackerLabelSig = cms.InputTag("simSiPixelDigis:Tracker"),
             trackerPileInputTag = cms.InputTag("simSiPixelDigis:Tracker"),
-            premixStage1ElectronPerAdc = cms.double(_phase2TrackerPremixStage1ModifyDict["PixelDigitizerAlgorithm"]["ElectronPerAdc"])
+            pixelPmxStage1ElectronPerAdc = cms.double(phase2TrackerDigitizer.PixelDigitizerAlgorithm.ElectronPerAdc.value()),
+            trackerPmxStage1ElectronPerAdc = cms.double(phase2TrackerDigitizer.PSPDigitizerAlgorithm.ElectronPerAdc.value())
         ),
         pixelSimLink = dict(
             labelSig = "simSiPixelDigis:Pixel",

@@ -1,7 +1,7 @@
-<use   name="DetectorDescription/Core"/>
-<use   name="DetectorDescription/Parser"/>
-<use   name="clhep"/>
-<use   name="xerces-c"/>
+<use name="DetectorDescription/Core"/>
+<use name="DetectorDescription/Parser"/>
+<use name="clhep"/>
+<use name="xerces-c"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

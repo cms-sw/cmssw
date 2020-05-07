@@ -17,6 +17,7 @@
 #include "TH1F.h"
 
 //Insert here the include to the algos
+#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 #include "CalibTracker/SiStripQuality/interface/SiStripHotStripAlgorithmFromClusterOccupancy.h"
 #include "CalibTracker/SiStripQuality/interface/SiStripBadAPVAlgorithmFromClusterOccupancy.h"
 #include "CalibTracker/SiStripQuality/interface/SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy.h"

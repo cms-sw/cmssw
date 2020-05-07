@@ -8,6 +8,7 @@ autoValidation = { 'liteTracking' : ['prevalidationLiteTracking','validationLite
                    'electronOnlyValidation' : ['', 'electronValidationSequence', 'electronPostValidationSequence'],
                    'photonOnlyValidation' : ['', 'photonValidationSequence', 'photonPostProcessor'],
                    'tauOnlyValidation' : ['produceDenoms', 'pfTauRunDQMValidation', 'runTauEff'],
+                   'ecalOnlyValidation' : ['globalPrevalidationECALOnly','globalValidationECAL','postValidation_ECAL'],
                    'hcalOnlyValidation' : ['globalPrevalidationHCAL','globalValidationHCAL','postValidation_HCAL'],
                    'baseValidation' : ['baseCommonPreValidation','baseCommonValidation','postValidation_common'],
                    'miniAODValidation' : ['prevalidationMiniAOD','validationMiniAOD','validationHarvestingMiniAOD'],

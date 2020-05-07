@@ -90,6 +90,8 @@ postValidation_JetMET = cms.Sequence(
     METPostProcessor
 )
 
+postValidation_ECAL = cms.Sequence()
+
 postValidation_HCAL = cms.Sequence(
       hcalSimHitsPostProcessor
     + hcaldigisPostProcessor

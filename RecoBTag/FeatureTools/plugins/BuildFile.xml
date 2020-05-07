@@ -8,6 +8,5 @@
   <use name="CondFormats/DataRecord"/>
   <use name="CondFormats/BTauObjects"/>
   <use name="TrackingTools/Records"/>
-
   <flags EDM_PLUGIN="1"/>
 </library>

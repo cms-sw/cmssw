@@ -14,7 +14,7 @@ public:
   SiStripDigi(const uint16_t& strip, const uint16_t& adc) : strip_(strip), adc_(adc) { ; }
 
   SiStripDigi() : strip_(0), adc_(0) { ; }
-  ~SiStripDigi() { ; }
+  ~SiStripDigi() = default;
 
   inline const uint16_t& strip() const;
   inline const uint16_t& adc() const;

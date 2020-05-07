@@ -7,6 +7,8 @@ import multiprocessing
 import time
 import re
 
+MAXWORKFLOWLENGTH = 81
+
 def performInjectionOptionTest(opt):
     if opt.show:
         print('Not injecting to wmagent in --show mode. Need to run the worklfows.')
@@ -83,7 +85,7 @@ class MatrixInjector(object):
         self.speciallabel=''
         if opt.label:
             self.speciallabel= '_'+opt.label
-
+        self.longWFName = []
 
         if not os.getenv('WMCORE_ROOT'):
             print('\n\twmclient is not setup properly. Will not be able to upload or submit requests.\n')
@@ -477,6 +479,10 @@ class MatrixInjector(object):
                     chainDict['RequestString']='RV'+chainDict['CMSSWVersion']+s[1].split('+')[0]
                     if processStrPrefix or thisLabel:
                         chainDict['RequestString']+='_'+processStrPrefix+thisLabel
+                    #check candidate WF name
+                    self.candidateWFName = self.user+'_'+chainDict['RequestString']
+                    if (len(self.candidateWFName)>MAXWORKFLOWLENGTH):
+                        self.longWFName.append(self.candidateWFName)
 
 ### PrepID
                     chainDict['PrepID'] = chainDict['CMSSWVersion']+'__'+self.batchTime+'-'+s[1].split('+')[0]
@@ -512,6 +518,8 @@ class MatrixInjector(object):
                                 #print 't_second',pprint.pformat(t_second)
                                 if t_second['TaskName'].startswith('HARVEST'):
                                     chainDict.update(copy.deepcopy(self.defaultHarvest))
+                                    if "_RD" in t_second['TaskName']:
+                                        chainDict['DQMHarvestUnit'] = "multiRun"
                                     chainDict['DQMConfigCacheID']=t_second['ConfigCacheID']
                                     ## the info are not in the task specific dict but in the general dict
                                     #t_input.update(copy.deepcopy(self.defaultHarvest))
@@ -645,6 +653,6 @@ class MatrixInjector(object):
                 workFlow=makeRequest(self.wmagent,d,encodeDict=True)
                 print("...........",n,"submitted")
                 random_sleep()
-            
-
-        
+        if self.testMode and len(self.longWFName)>0:
+            print("\n*** WARNING: "+str(len(self.longWFName))+" workflows have too long names for submission (>"+str(MAXWORKFLOWLENGTH)+ "characters) ***")
+            print('\n'.join(self.longWFName))

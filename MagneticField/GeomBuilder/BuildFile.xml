@@ -1,17 +1,14 @@
-<use   name="DataFormats/GeometrySurface"/>
-<use   name="DataFormats/GeometryVector"/>
-<use   name="DetectorDescription/Core"/>
-<use   name="DetectorDescription/DDCMS"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/Utilities"/>
-<use   name="MagneticField/Engine"/>
-<use   name="MagneticField/Interpolation"/>
-<use   name="MagneticField/Layers"/>
-<use   name="MagneticField/VolumeGeometry"/>
-<use   name="MagneticField/ParametrizedEngine"/>
-<use   name="Utilities/BinningTools"/>
-<use   name="CondFormats/MFObjects"/>
-<use   name="clhep"/>
+<use name="DataFormats/GeometrySurface"/>
+<use name="DataFormats/GeometryVector"/>
+<use name="DetectorDescription/Core"/>
+<use name="DetectorDescription/DDCMS"/>
+<use name="FWCore/Utilities"/>
+<use name="MagneticField/Interpolation"/>
+<use name="MagneticField/Layers"/>
+<use name="MagneticField/VolumeGeometry"/>
+<use name="Utilities/BinningTools"/>
+<use name="CondFormats/MFObjects"/>
+<use name="clhep"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

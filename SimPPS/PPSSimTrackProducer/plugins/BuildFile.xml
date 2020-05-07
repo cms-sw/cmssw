@@ -1,10 +1,7 @@
 <use name="FWCore/Framework"/>
-<use name="FWCore/PluginManager"/>
 <use name="FWCore/ParameterSet"/>
-<use   name="SimTransport/PPSProtonTransport"/>
-<use   name="CommonTools/Utils"/>
-<use   name="SimGeneral/HepPDTRecord"/>
-<use   name="hepmc"/>
-<use   name="clhep"/>
-<use   name="hector"/>
+<use name="SimTransport/PPSProtonTransport"/>
+<use name="hepmc"/>
+<use name="clhep"/>
+<use name="hector"/>
 <flags EDM_PLUGIN="1"/>

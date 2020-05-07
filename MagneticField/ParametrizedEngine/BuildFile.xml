@@ -1,8 +1,7 @@
-<use   name="DataFormats/GeometryVector"/>
-<!--use   name="FWCore/Framework"/-->
-<use   name="FWCore/ParameterSet"/>
-<use   name="MagneticField/Engine"/>
-<use   name="MagneticField/Records"/>
+<use name="DataFormats/Math"/>
+<use name="FWCore/ParameterSet"/>
+<use name="MagneticField/Engine"/>
+<use name="MagneticField/UniformEngine"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

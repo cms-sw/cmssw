@@ -12,7 +12,7 @@ g4SimHits.Watchers = cms.VPSet(cms.PSet(
             'HGCalBeamTube2',
             'HGCalBeamTube3',
         ),
-        MaximumZ = cms.double(11100.),
+        MaximumZ = cms.double(25000.),
         StopName = cms.string("HGCal"),
     ),
     type = cms.string('HGCalTBMB')

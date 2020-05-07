@@ -84,12 +84,12 @@ public:
   GlobalPoint const& getBackPoint() const { return m_backPoint; }
 
   RhoEtaPhi const& repPos() const { return m_rep; }
-  float rhoPos() const { return m_rep.rho(); }
-  float etaPos() const { return m_rep.eta(); }
-  float phiPos() const { return m_rep.phi(); }
+  virtual float rhoPos() const { return m_rep.rho(); }
+  virtual float etaPos() const { return m_rep.eta(); }
+  virtual float phiPos() const { return m_rep.phi(); }
 
-  float etaSpan() const { return m_dEta; }
-  float phiSpan() const { return m_dPhi; }
+  virtual float etaSpan() const { return m_dEta; }
+  virtual float phiSpan() const { return m_dPhi; }
 
   /// Returns true if the specified point is inside this cell
   bool inside(const GlobalPoint& point) const;
