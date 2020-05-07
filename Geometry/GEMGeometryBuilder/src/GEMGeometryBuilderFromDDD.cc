@@ -144,7 +144,8 @@ void GEMGeometryBuilderFromDDD::build(GEMGeometry& theGeometry,
     for (int st = 0; st <= GEMDetId::maxStationId; ++st) {
       GEMStation* station = new GEMStation(re, st);
       std::string sign(re == -1 ? "-" : "");
-      std::string name = (st == 0) ? "GE0" : ("GE" + sign + std::to_string(st) + "/1");
+      std::string suffix = (st == GEMDetId::minStationId0) ? "" : + "/1";
+      std::string name = "GE" + sign + std::to_string(st) + suffix;
       station->setName(name);
       bool foundSuperChamber = false;
       for (int ri = 1; ri <= 1; ++ri) {
@@ -155,7 +156,7 @@ void GEMGeometryBuilderFromDDD::build(GEMGeometry& theGeometry,
             continue;
 
           foundSuperChamber = true;
-          int nlayers = (st == 0) ? GEMDetId::maxLayerId0 : GEMDetId::maxLayerId;
+          int nlayers = (st == GEMDetId::minStationId0) ? GEMDetId::maxLayerId0 : GEMDetId::maxLayerId;
 
           for (int la = 1; la <= nlayers; ++la) {
             GEMDetId chId(detId.region(), detId.ring(), detId.station(), la, detId.chamber(), 0);
