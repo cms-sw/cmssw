@@ -487,6 +487,19 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
   // init decayer
   fDecayer->settings.flag("ProcessLevel:all", false ); // trick
   fDecayer->settings.flag("ProcessLevel:resonanceDecays", true );
+  //fDecayer->readString("9900015:m0 = 2.0");
+  //fDecayer->readString("9900015:tau0 = 5");
+  std::cout << "BEFORE LISTING of HNL PROPERTIES" << std::endl;
+  fDecayer->particleData.list(9900015);
+  std::cout << "AFTER LISTING of HNL PROPERTIES" << std::endl;
+  //antiName spinType chargeType colType m0 mWidth mMin mMax tau0");
+  //fDecayer->settings.flag("HNLDecays:mode = 3"); // copied from Sonia
+  //fDecayer->settings.flag("HNLDecays:HNLPolarization = 1."); // copied from Sonia
+  //fDecayer->settings.flag("9900015:m0 = 5"); // in [GeV]
+  //fDecayer->settings.flag("9900015:tau0 = 5"); // I think in [mm/c]
+  //fDecayer->settings.flag("9900015:oneChannel = 1 1. 1521 9900015 -13"); // If you want to remove all existing channels and force decays into one new channel you can use this
+  //end MG
+
   edm::LogInfo("Pythia8Interface") << "Initializing Decayer";
   status1 = fDecayer->init();
 
@@ -862,15 +875,52 @@ bool Pythia8Hadronizer::residualDecay()
 
   bool result = true;
 
+  //MG
+  std::cout   << setw(8)<<  "PdgId" 
+              << setw(8) << "Status" 
+              << setw(8) << "GenMass" 
+              << setw(8) << "Name" 
+              << setw(8) << "Spin" 
+              << setw(8) << "Charge"
+              << setw(8) << "colType" 
+              << setw(8) << "m0" 
+              << setw(8) << "mWid" 
+              << setw(12) << "tau0" 
+              << setw(8) << "isRes" 
+              << setw(8) << "mayDec" 
+              << setw(8) << "canDec" 
+              << setw(8) << "doExt" 
+              << setw(8) << "isVis"  << std::endl;
+
   for ( int ipart=NPartsAfterDecays; ipart>NPartsBeforeDecays; ipart-- )
   {
 
+    // Take the paricle from the HepMC gen event
     HepMC::GenParticle* part = event().get()->barcode_to_particle( ipart );
+    // MG
+    std::cout << setw(8) << part->pdg_id()
+              << setw(8) << part->status() 
+              << setw(8) << part->generated_mass() 
+              << setw(8) << (fDecayer->particleData).name(part->pdg_id()) 
+              << setw(8) << (fDecayer->particleData).spinType(part->pdg_id())
+              << setw(8) << (fDecayer->particleData).chargeType(part->pdg_id())
+              << setw(8) << (fDecayer->particleData).colType(part->pdg_id())
+              << setw(8) << (fDecayer->particleData).m0(part->pdg_id())
+              << setw(8) << (fDecayer->particleData).mWidth(part->pdg_id())
+              << setw(12) << (fDecayer->particleData).tau0(part->pdg_id())
+              << setw(8) << (fDecayer->particleData).isResonance(part->pdg_id())
+              << setw(8) << (fDecayer->particleData).mayDecay(part->pdg_id())
+              << setw(8) << (fDecayer->particleData).canDecay(part->pdg_id())
+              << setw(8) << (fDecayer->particleData).doExternalDecay(part->pdg_id())
+              << setw(8) << (fDecayer->particleData).isVisible(part->pdg_id())
+              << std::endl;
+
 
     if ( part->status() == 1 && (fDecayer->particleData).canDecay(part->pdg_id()) )
     {
-      fDecayer->event.reset();
-      Particle py8part(  part->pdg_id(), 93, 0, 0, 0, 0, 0, 0,
+      fDecayer->event.reset(); // self-explanatory
+      //int id, int status, int mother1, int mother2, int daughter1, int daughter2, int col, int acol, double px, double py, double pz, double e, double m = 0., double scale = 0., double pol = 9
+      Particle py8part(  part->pdg_id(), 93, 0, 0, 0, 0, 0, 0, // create a new particle with the same properties as the particle of the previous step
                          part->momentum().x(),
                          part->momentum().y(),
                          part->momentum().z(),
@@ -879,16 +929,31 @@ bool Pythia8Hadronizer::residualDecay()
       HepMC::GenVertex* ProdVtx = part->production_vertex();
       py8part.vProd( ProdVtx->position().x(), ProdVtx->position().y(),
                      ProdVtx->position().z(), ProdVtx->position().t() );
-      py8part.tau( (fDecayer->particleData).tau0( part->pdg_id() ) );
-      fDecayer->event.append( py8part );
+      py8part.tau( (fDecayer->particleData).tau0( part->pdg_id() ) ); // despite the name tau, this is actually the tau0
+      fDecayer->event.append( py8part ); // append the particle to the current event, should be the only one
       int nentries = fDecayer->event.size();
+      std::cout << "check nPart before decay=" << nentries << std::endl;
+      std::cout << "p8 particle properties" << std::endl;
+      std::cout << "prodV x=" << py8part.xProd() << " decV x=" << py8part.xDec() << std::endl;
+      std::cout << "prodV y=" << py8part.yProd() << " decV x=" << py8part.yDec() << std::endl;
+      std::cout << "prodV z=" << py8part.zProd() << " decV x=" << py8part.zDec() << std::endl;
+      std::cout << "prodV t=" << py8part.tProd() << " decV x=" << py8part.tDec() << std::endl;
+      double pythDiffSq =  (py8part.xProd()-py8part.xDec())*(py8part.xProd()-py8part.xDec()) + (py8part.yProd()-py8part.yDec())*(py8part.yProd()-py8part.yDec()) + ( py8part.zProd()-py8part.zDec())*(py8part.zProd()-py8part.zDec())  ;
+      double timeDiffSq = (py8part.tProd()-py8part.tDec())*(py8part.tProd()-py8part.tDec());
+      std::cout << "spaceDiffSq=" << pythDiffSq << " timeDiffSq=" << timeDiffSq << std::endl;
+      std::cout << "reldiff= " << 1-pythDiffSq/timeDiffSq << std::endl;
+      std::cout << "spaceDiff=" << std::sqrt(pythDiffSq) << std::endl;
+      std::cout << "3-mom=" << std::sqrt(py8part.px()*py8part.px() + py8part.py()*py8part.py() + py8part.pz()*py8part.pz()) << std::endl;
+      std::cout << "tau0=" << py8part.tau0() << std::endl;
+      std::cout << "tau=" <<  py8part.tau() << std::endl;
       if ( !fDecayer->event[nentries-1].mayDecay() ) continue;
-      fDecayer->next();
+      fDecayer->next(); // generate, i.e. only decay the only particle existing
       int nentries1 = fDecayer->event.size();
+      std::cout << "check nPart after decay=" << nentries1 << std::endl;
       if ( nentries1 <= nentries ) continue; //same number of particles, no decays...
 
-      part->set_status(2);
-
+      part->set_status(2); // this is the HNL that ends in the final record
+      std::cout << "PARTICLE DECAYED" << std::endl;
       result = toHepMC.fill_next_event( *(fDecayer.get()), event().get(), -1, true, part);
 
     }
