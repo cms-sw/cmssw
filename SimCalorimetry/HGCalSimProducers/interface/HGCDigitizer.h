@@ -13,7 +13,6 @@
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCHEbackDigitizer.h"
 #include "SimCalorimetry/HGCalSimProducers/interface/HFNoseDigitizer.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
-#include "DataFormats/HGCDigi/interface/PHGCSimAccumulator.h"
 #include "DataFormats/HGCDigi/interface/PreMixHGCSimAccumulator.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
