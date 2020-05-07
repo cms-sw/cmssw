@@ -18,6 +18,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -40,6 +41,7 @@ private:
   edm::EDGetTokenT<edm::View<reco::Candidate>> pflow_;
   edm::EDGetTokenT<edm::View<reco::Vertex>> vertices_;
   std::string moduleLabel_;
+  edm::EDGetTokenT<edm::ValueMap<float>> weightsToken_;
 
   std::vector<edm::ParameterSet> cfgCorrParameters_;
 
