@@ -526,8 +526,8 @@ hgcal::SimToRecoCollection LayerClusterAssociatorByEnergyScoreImpl::associateSim
     for (size_t layerId = 0; layerId < cPOnLayer[cpId].size(); ++layerId) {
       for (auto& lcPair : cPOnLayer[cpId][layerId].layerClusterIdToEnergyAndScore) {
         returnValue.insert(edm::Ref<CaloParticleCollection>(cPCH, cpId),  // Ref to CP
-                           std::make_pair(edm::Ref<reco::CaloClusterCollection>(cCCH, lcPair.first),
-                                          lcPair.second.second)  // Pair <Ref to LC, score>
+                           std::make_pair(edm::Ref<reco::CaloClusterCollection>(cCCH, lcPair.first),  // Pair <Ref to,
+                                          std::make_pair(lcPair.second.first, lcPair.second.second))  // pair <energy, score>
         );
 #ifdef MRDEBUG
         LogDebug("LayerClusterAssociatorByEnergyScoreImpl") << "CP Id: \t" << cpId << "\t LC id: \t" << lcPair.first
