@@ -9,6 +9,9 @@ from DQMServices.DQMGUI import nanoroot
 from storage import GUIDataStore
 from helpers import MERenderingInfo
 
+from layouts.layout_manager import add_layout
+
+
 class GUIService:
 
     store = GUIDataStore()

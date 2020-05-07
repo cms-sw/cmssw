@@ -3,6 +3,7 @@ import time
 import zlib
 import struct
 import socket
+import asyncio
 import tempfile
 import aiosqlite
 import subprocess
@@ -86,7 +87,7 @@ class GUIDataStore:
         row = await cursor.fetchone()
         await cursor.close()
 
-        me_list = cls.__me_list_from_blob(row[0])
+        me_list = await cls.__me_list_from_blob(row[0])
         return me_list
 
 
@@ -114,18 +115,26 @@ class GUIDataStore:
         await cursor.close()
 
         filename = row[0]
-        me_list = cls.__me_list_from_blob(row[1])
-        me_infos = cls.__me_infos_from_blob(row[2])
+        me_list = await cls.__me_list_from_blob(row[1])
+        me_infos = await cls.__me_infos_from_blob(row[2])
 
         return (filename, me_list, me_infos)
 
 
     @classmethod
-    def __me_list_from_blob(cls, namesblob):
-        return zlib.decompress(namesblob).splitlines()
+    async def __me_list_from_blob(cls, namesblob):
+        def me_list_from_blob_sync():
+            return zlib.decompress(namesblob).splitlines()
+
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, me_list_from_blob_sync)
 
     
     @classmethod
-    def __me_infos_from_blob(cls, offsetblob):
-        return MEInfo.blobtolist(offsetblob)
+    async def __me_infos_from_blob(cls, offsetblob):
+        def me_infos_from_blob_sync():
+            return MEInfo.blobtolist(offsetblob)
+
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, me_infos_from_blob_sync)
 

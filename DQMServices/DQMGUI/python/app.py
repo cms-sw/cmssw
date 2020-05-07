@@ -110,7 +110,7 @@ def config_and_start_webserver():
     # Setup rotating file loggin
     def log_file_namer(filename):
         parts = filename.split('/')
-        parts[-1] = f'dqmgui_{parts[-1][11:-1]}.log'
+        parts[-1] = f'dqmgui_{parts[-1][11:]}.log'
         return '/'.join(parts)
     
     handler = TimedRotatingFileHandler('logs/dqmgui.log', when='midnight', interval=1)

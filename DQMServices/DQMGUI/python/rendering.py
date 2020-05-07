@@ -7,145 +7,138 @@ import asyncio
 import tempfile
 import subprocess
 
+from functools import reduce
+
 from DQMServices.DQMGUI import nanoroot
+from helpers import MERenderingInfo
 from meinfo import EfficiencyFlag, ScalarValue, QTest
 
 
 class GUIRenderer:
-    rendering_contexts = []
-    semaphore = None
+    """
+    This class provides access to multiple rendering contexts (out of processes renderers) in a thread safe manner.
+    """
+
+    __rendering_contexts = []
+    __semaphore = None
 
 
     @classmethod
     async def initialize(cls, workers=8):
         """Starts the renderers and configures the pool"""
 
-        if len(cls.rendering_contexts) != 0:
+        if len(cls.__rendering_contexts) != 0:
             print('DQM rendering sub processes already initialized')
             return
         
         print('Initializing %s DQM rendering sub processes...' % workers)
 
-        cls.rendering_contexts = [await GUIRenderingContext.create() for _ in range(workers)]
-        cls.semaphore = asyncio.Semaphore(workers)
+        cls.__rendering_contexts = [await GUIRenderingContext.create() for _ in range(workers)]
+        cls.__semaphore = asyncio.Semaphore(workers)
 
 
     @classmethod
     async def destroy(cls):
-        for context in cls.rendering_contexts:
+        """Destroys all rendering contexts."""
+        for context in cls.__rendering_contexts:
             await context.destroy()
 
 
     @classmethod
+    async def render_string(cls, string, width=600, height=400):
+        """Renders a single string."""
+        rendering_info = MERenderingInfo('', '', '', ScalarValue(b'', string, b''))
+        message = cls.pack_message_for_renderer([rendering_info], width, height)
+        png, error = await cls.__render(message)
+
+        return png
+    
+
+    @classmethod
     async def render(cls, rendering_infos, width=600, height=400, efficiency=False, stats=True, normalize=True, error_bars=False):
-        # Construct spec string. Sample: showstats=0;showerrbars=1;norm=False
-        spec = ''
-        if not stats:
-            spec += 'showstats=0;'
-        if not normalize:
-            spec += 'norm=False;'
-        if error_bars:
-            spec += 'showerrbars=1;'
+        """
+        This method fetches objects from ROOT files, then it packs the message for the out of process renderer
+        and then, calls internal __render method to that talks with out of process renderers to get a png.
+        
+        First, the attempt is made to render a histogram without providing streamer objects to the renderer.
+        If this attempt fails, rendering is repeated with the file containing streamer objects passed in.
 
-        if spec.endswith(';'):
-            spec = spec[:-1]
+        Streamer object contains information on how to read a specific version of a specific ROOT type (TH1F, TH1D, ...)
+        This ensures forward compatibility. DQM ROOT files contain streamers required to read all types from that file.
+        So, we pass a name of a file of a ROOT file that contains the streamer object to the renderer. Renderer will 
+        cache streamer files, so it has to be provided only once.
 
+        rendering_infos is a list. If many rendering infos is provided, an overlay of all of these MEs is drawn.
+        """
+        # Collect root objects from files
         for info in rendering_infos:
+            # TODO: to read int and float we don't need to go to the file
             with open(info.filename, 'rb') as root_file:
                 mm = mmap.mmap(root_file.fileno(), 0, prot=mmap.PROT_READ)
 
-                # Possible return values: ScalarValue, EfficiencyFlag, QTest, nanoroot.TBufferFile (bytes), 
+                # Possible return values: ScalarValue, EfficiencyFlag, QTest, bytes 
                 info.root_object = info.me_info.read(mm)
 
-        png, error = await cls.__render(rendering_infos, width, height, spec, efficiency)
-        if error == 1: # Missing streamer file - provide it
-            png, error = await cls.__render(rendering_infos, width, height, spec, efficiency, True)
-        
-        return png
-
-
-    @classmethod
-    async def render_string(cls, string, width=600, height=400):
-        png, error = await cls.__render(string, width=width, height=height)
-        return png
-
-
-    @classmethod
-    async def __render(cls, rendering_infos, width=266, height=200, spec='', efficiency=False, use_streamerfile=False):
-        # Determine the type of histogram by the first in the list.
-        # Only the same type of histograms can be overlayed.
-        if isinstance(rendering_infos, str):
-            root_object = rendering_infos
-        else:
-            root_object = rendering_infos[0].root_object
-
-        if isinstance(root_object, QTest) or isinstance(root_object, EfficiencyFlag):
+        # We can render either ScalarValue or bytes (TH* object)
+        root_object = rendering_infos[0].root_object
+        if not isinstance(root_object, ScalarValue) and not isinstance(root_object, bytes):
             raise Exception('Only ScalarValue and TH* can be rendered.')
 
-        await cls.semaphore.acquire()
+        # Pack the message for rendering context
+        message = cls.pack_message_for_renderer(rendering_infos, width, height, efficiency, stats, normalize, error_bars, False)
+        png, error = await cls.__render(message)
+        if error == 1: # Missing streamer file - provide it
+            message = cls.pack_message_for_renderer(rendering_infos, width, height, efficiency, stats, normalize, error_bars, True)
+            png, error = await cls.__render(message)
 
-        try:
-            context = cls.rendering_contexts.pop()
-            if isinstance(root_object, ScalarValue):
-                return await context.render_scalar(root_object.value, width, height)
-            elif isinstance(root_object, str):
-                return await context.render_scalar(root_object, width, height)
-            elif isinstance(root_object, bytes):
-                return await context.render_histogram(rendering_infos, width, height, spec, efficiency, use_streamerfile)
-            else:
-                return await context.render_scalar('Unknown ME type', width, height)
-        finally:
-            cls.rendering_contexts.append(context)
-            cls.semaphore.release()
-
-
-class GUIRenderingContext:
-
-    async def create():
-        self = GUIRenderingContext()
-        await self.__start_rendering_process()
-        await self.__open_socket_connectin()
-        return self
-
-
-    async def destroy(self):
-        try:
-            self.writer.close()
-            await self.writer.wait_closed()
-        except:
-            pass
-
-        # Kill the shell process that started the renderer. -P will kill the child process (the renderer itself) too
-        subprocess.Popen('pkill -P %d' % self.render_process.pid, shell=True)
-
-
-    async def render_scalar(self, text, width=266, height=200):
-        data = str(text).encode("utf-8")
-        return await self.__render_internal(data, width, height)
-
-
-    async def render_histogram(self, rendering_infos, width=266, height=200, spec='', efficiency=False, use_streamerfile=False):
-        DQM_PROP_TYPE_SCALAR = 0x0000000f
-        # Real type is not needed. It's enough to know that ME is not scalar.
-        flags = DQM_PROP_TYPE_SCALAR + 1
-
-        if efficiency:
-            flags |= 0x00200000
-        
-        data = b''
-        for info in rendering_infos:
-            data += struct.pack('=i', len(info.root_object)) + info.root_object
-        
-        num_objs = len(rendering_infos)
-        name = rendering_infos[0].path.encode('utf-8') # to bytes
-        # TODO: Probably we will need to provide a streamer file of every ME in overlay
-        streamerfile = rendering_infos[0].filename.encode("utf-8") if use_streamerfile else b''
-
-        return await self.__render_internal(data, width, height, name, flags, spec, num_objs, streamerfile)
+        return png
 
     
-    async def __render_internal(self, data, width=266, height=200, name=b'', flags=0, spec='', num_objs=1, streamerfile=b''):
-        # Pack the message for the renderer
+    @classmethod
+    def pack_message_for_renderer(cls, rendering_infos, width=600, height=400, efficiency=False, stats=True, normalize=True, error_bars=False, use_streamerfile=False):
+        """
+        Packing is done using struct.pack() method. We essentially pack the bytes that describe what we want to get 
+        rendered into a data structure that C++ code running in the out of process renderer can read.
+        """
+        # If it's not string, it's TH* object
+        is_string = isinstance(rendering_infos[0].root_object, ScalarValue) 
+
+        flags = 0x0000000f #DQM_PROP_TYPE_SCALAR
+        num_objs = 1
+        spec = ''
+        data = b''
+        name = b''
+        streamerfile = b''
+
+        if not is_string:
+            # Real type is not needed. It's enough to know that ME is not scalar.
+            flags += 1
+
+            # Construct spec string. Sample: showstats=0;showerrbars=1;norm=False
+            if not stats:
+                spec += 'showstats=0;'
+            if not normalize:
+                spec += 'norm=False;'
+            if error_bars:
+                spec += 'showerrbars=1;'
+
+            if spec.endswith(';'):
+                spec = spec[:-1]
+
+            if efficiency:
+                flags |= 0x00200000
+            
+            for info in rendering_infos:
+                data += struct.pack('=i', len(info.root_object)) + info.root_object
+            
+            num_objs = len(rendering_infos)
+            name = rendering_infos[0].path.encode('utf-8')
+            # TODO: Probably we will need to provide a streamer file of every ME in overlay
+            streamerfile = rendering_infos[0].filename.encode("utf-8") if use_streamerfile else b''
+        else:
+            # When strings are overlayed, we display them all seaprated with a new line
+            data = reduce(lambda a, b : a + '\n' + str(b.root_object.value), rendering_infos, '').encode('utf-8')
+
         mtype = 4 # DQM_MSG_GET_IMAGE_DATA
         vlow = 0
         vhigh = 0
@@ -163,6 +156,57 @@ class GUIRenderingContext:
         message += streamerfile + name + spec + data
         message = struct.pack('=i', len(message) + 4) + message
 
+        return message
+
+
+    @classmethod
+    async def __render(cls, message):
+        """
+        There is a limited number of out of process renderers available. This number is configured at startup.
+        This method provides a thread safe access to the available out of process renderers. If none are available, 
+        it waits asynchronously until one frees up.
+        """
+        await cls.__semaphore.acquire()
+
+        try:
+            context = cls.__rendering_contexts.pop()
+            return await context.render(message)
+        finally:
+            cls.__rendering_contexts.append(context)
+            cls.__semaphore.release()
+
+
+class GUIRenderingContext:
+    """
+    This class encapsulates access to one rendering process.
+    """
+
+    @staticmethod
+    async def create():
+        """In order to create an instance of GUIRenderingContext, this method should be called instead of an initializer."""
+        self = GUIRenderingContext()
+        await self.__start_rendering_process()
+        await self.__open_socket_connection()
+        return self
+
+
+    async def destroy(self):
+        """Closes socket connection to the rendering process and kill it."""
+        try:
+            self.writer.close()
+            await self.writer.wait_closed()
+        except:
+            pass
+
+        # Kill the shell process that started the renderer. -P will kill the child process (the renderer itself) too
+        subprocess.Popen('pkill -P %d' % self.render_process.pid, shell=True)
+
+    
+    async def render(self, message):
+        """
+        This method flushes the message to the corresponding out of process renderer. If an error occurs, it 
+        restarts the renderer process and re-establishes the socket connection to it.
+        """
         try:
             self.writer.write(message)
             await self.writer.drain()
@@ -184,6 +228,7 @@ class GUIRenderingContext:
 
 
     async def __start_rendering_process(self):
+        """Starts the rendering process."""
         self.working_dir = tempfile.mkdtemp()
         self.render_process = subprocess.Popen(
                 f"dqmRender --state-directory {self.working_dir}/ > {self.working_dir}/render.log 2>&1", 
@@ -194,17 +239,19 @@ class GUIRenderingContext:
             await asyncio.sleep(0.2)
 
 
-    async def __open_socket_connectin(self):
+    async def __open_socket_connection(self):
+        """Opens a socket connection the rendering process. This connection is kept for as long as possible."""
         self.reader, self.writer = await asyncio.open_unix_connection(f'{self.working_dir}/socket')
 
     
     async def __restart_renderer(self):
-        """Rendering processes might crash. 
+        """
+        Rendering processes might crash. 
         This method will attempt to kill the old renderer process (if it is still running), 
         start a new one and will establish a socket connetion to it.
         """
 
         await self.destroy()
         await self.__start_rendering_process()
-        await self.__open_socket_connectin()
+        await self.__open_socket_connection()
 
