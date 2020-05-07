@@ -9,8 +9,8 @@ _barrelAlgo = cms.PSet(
 
 _endcapAlgo = cms.PSet(
     algoName = cms.string("MTDRecHitAlgo"),
-    thresholdToKeep = cms.double(0.0425),      # MeV
-    calibrationConstant = cms.double(0.17596), # MeV/fC
+    thresholdToKeep = cms.double(0.0425),       # MeV
+    calibrationConstant = cms.double(0.023156), # MeV/fC
 )
 
 
