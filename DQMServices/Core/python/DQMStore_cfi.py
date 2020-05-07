@@ -6,4 +6,8 @@ DQMStore = cms.Service("DQMStore",
     # MEs/modules that allow it (canSaveByLumi)
     saveByLumi = cms.untracked.bool(False),
     trackME = cms.untracked.string(""),
+
+    # UNUSED: historical HLT configs expect this option to be present, so it
+    # remains here, even though the DQMStore does not use it any more.
+    enableMultiThread = cms.untracked.bool(True)
 )
