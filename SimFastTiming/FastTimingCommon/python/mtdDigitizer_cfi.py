@@ -63,22 +63,26 @@ _endcap_MTDDigitizer = cms.PSet(
     DeviceSimulation  = cms.PSet(
         bxTime            = cms.double(25),
         tofDelay          = cms.double(1),
-        # Assuming Landau MPV = 0.08798 MeV = 0.5 fC:
-        fCPerMeV          = cms.double(5.68311), # [fC/MeV]
+        # Assuming an average energy W = 3.71 eV to produce an e-h couple in Si at -30 C:
+        #  fCPerMeV = electron charge / W
+        fCPerMeV          = cms.double(43.185354), # [fC/MeV]
         ),
     ElectronicsSimulation = cms.PSet(
-        bxTime             = cms.double(25),
-        etaResolution      = cms.string("0.03+0.0025*x"), # This is just a dummy dependence on eta.
+        bxTime               = cms.double(25),
+        IntegratedLuminosity = cms.double(1000.),   # [1/fb]
+        FluenceVsRadius      = cms.string("1.937*TMath::Power(x,-1.706)"),
+        LGADGainVsFluence    = cms.string("TMath::Min(15.,30.-x)"),
+        TimeResConstant      = cms.double(0.15),    # [ns]
         # n bits for the ADC 
-        adcNbits           = cms.uint32(8),
+        adcNbits             = cms.uint32(8),
         # n bits for the TDC
-        tdcNbits           = cms.uint32(11),
+        tdcNbits             = cms.uint32(11),
         # ADC saturation
-        adcSaturation_fC   = cms.double(17.),     # [fC]
+        adcSaturation_fC     = cms.double(17.),     # [fC]
         # for different thickness
-        adcThreshold_fC    = cms.double(0.24),    # [fC]
+        adcThreshold_fC      = cms.double(0.24),    # [fC]
         # LSB for time of arrival estimate from TDC in ns
-        toaLSB_ns          = cms.double(0.013),  # [ns]
+        toaLSB_ns            = cms.double(0.013),   # [ns]
         )
 )
 
