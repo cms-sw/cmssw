@@ -44,11 +44,13 @@ namespace edmtest {
     TestESSourceTestProxy(TestESSource* testESSource) : testESSource_(testESSource) {}
 
   private:
-    void const* getImpl(edm::eventsetup::EventSetupRecordImpl const&,
-                        edm::eventsetup::DataKey const&,
-                        edm::EventSetupImpl const*) override;
+    void prefetchAsyncImpl(edm::WaitingTask*,
+                           edm::eventsetup::EventSetupRecordImpl const&,
+                           edm::eventsetup::DataKey const&,
+                           edm::EventSetupImpl const*) override;
     void invalidateCache() override {}
     void initializeForNewIOV() override;
+    void const* getAfterPrefetchImpl() const override;
 
     IOVTestInfo iovTestInfo_;
     TestESSource* testESSource_;
@@ -82,9 +84,10 @@ namespace edmtest {
     unsigned int nConcurrentIOVs_ = 0;
   };
 
-  void const* TestESSourceTestProxy::getImpl(edm::eventsetup::EventSetupRecordImpl const& iRecord,
-                                             edm::eventsetup::DataKey const& iKey,
-                                             edm::EventSetupImpl const* iEventSetupImpl) {
+  void TestESSourceTestProxy::prefetchAsyncImpl(edm::WaitingTask*,
+                                                edm::eventsetup::EventSetupRecordImpl const& iRecord,
+                                                edm::eventsetup::DataKey const& iKey,
+                                                edm::EventSetupImpl const* iEventSetupImpl) {
     ++testESSource_->count_;
     if (testESSource_->count_.load() > 1) {
       throw cms::Exception("TestFailure") << "TestESSourceTestProxy::getImpl,"
@@ -95,7 +98,7 @@ namespace edmtest {
     record.setImpl(&iRecord, std::numeric_limits<unsigned int>::max(), nullptr, iEventSetupImpl, true);
 
     edm::ValidityInterval iov = record.validityInterval();
-    edm::LogAbsolute("TestESSoureTestProxy")
+    edm::LogAbsolute("TestESSourceTestProxy")
         << "TestESSoureTestProxy::getImpl startIOV = " << iov.first().luminosityBlockNumber()
         << " endIOV = " << iov.last().luminosityBlockNumber() << " IOV index = " << record.iovIndex()
         << " cache identifier = " << record.cacheIdentifier();
@@ -106,8 +109,9 @@ namespace edmtest {
     iovTestInfo_.cacheIdentifier_ = record.cacheIdentifier();
 
     --testESSource_->count_;
-    return &iovTestInfo_;
   }
+
+  void const* TestESSourceTestProxy::getAfterPrefetchImpl() const { return &iovTestInfo_; }
 
   void TestESSourceTestProxy::initializeForNewIOV() {
     edm::LogAbsolute("TestESSourceTestProxy::initializeForNewIOV") << "TestESSourceTestProxy::initializeForNewIOV";

@@ -57,7 +57,8 @@ through the 'validityInterval' method.
 // forward declarations
 namespace cms {
   class Exception;
-}
+  class WaitingTask;
+}  // namespace cms
 
 namespace edm {
 
@@ -65,6 +66,7 @@ namespace edm {
   class ESHandleExceptionFactory;
   class ESInputTag;
   class EventSetupImpl;
+  class WaitingTask;
 
   namespace eventsetup {
     struct ComponentDescription;
@@ -87,7 +89,7 @@ namespace edm {
       bool doGet(ESProxyIndex iProxyIndex, EventSetupImpl const*, bool aGetTransiently = false) const;
 
       ///prefetch the data to setup for subsequent calls to getImplementation
-      void prefetch(ESProxyIndex iProxyIndex, EventSetupImpl const*) const;
+      void prefetchAsync(WaitingTask* iTask, ESProxyIndex iProxyIndex, EventSetupImpl const*) const;
 
       /**returns true only if someone has already requested data for this key
           and the data was retrieved

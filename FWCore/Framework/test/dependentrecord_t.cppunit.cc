@@ -143,8 +143,8 @@ namespace {
     WorkingDepRecordProxy(const edm::eventsetup::test::DummyData* iDummy) : data_(iDummy) {}
 
   protected:
-    const value_type* make(const record_type&, const DataKey&) override { return data_; }
-    void invalidateCache() override {}
+    const value_type* make(const record_type&, const DataKey&) final { return data_; }
+    void const* getAfterPrefetchImpl() const final { return data_; }
 
   private:
     const edm::eventsetup::test::DummyData* data_;
@@ -754,7 +754,14 @@ namespace {
       for (size_t i = 0; i != proxies.size(); ++i) {
         auto rec = iImpl.findImpl(recs[i]);
         if (rec) {
-          rec->prefetch(proxies[i], &iImpl);
+          auto waitTask = edm::make_empty_waiting_task();
+          waitTask->set_ref_count(2);
+          rec->prefetchAsync(waitTask.get(), proxies[i], &iImpl);
+          waitTask->decrement_ref_count();
+          waitTask->wait_for_all();
+          if (waitTask->exceptionPtr()) {
+            std::rethrow_exception(*waitTask->exceptionPtr());
+          }
         }
       }
     }
@@ -773,7 +780,14 @@ namespace {
       for (size_t i = 0; i != proxies.size(); ++i) {
         auto rec = iImpl.findImpl(recs[i]);
         if (rec) {
-          rec->prefetch(proxies[i], &iImpl);
+          auto waitTask = edm::make_empty_waiting_task();
+          waitTask->set_ref_count(2);
+          rec->prefetchAsync(waitTask.get(), proxies[i], &iImpl);
+          waitTask->decrement_ref_count();
+          waitTask->wait_for_all();
+          if (waitTask->exceptionPtr()) {
+            std::rethrow_exception(*waitTask->exceptionPtr());
+          }
         }
       }
     }

@@ -26,6 +26,7 @@
 // user include files
 #include "FWCore/Framework/interface/DataProxy.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
+#include "FWCore/Concurrency/interface/WaitingTaskList.h"
 
 #include "FWCore/Framework/interface/produce_helpers.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
@@ -47,18 +48,20 @@ namespace edm::eventsetup {
       iCallback->holdOntoPointer(&data_);
     }
 
-    ~CallbackProxy() override {
+    ~CallbackProxy() final {
       DataT* dummy(nullptr);
       callback_->holdOntoPointer(dummy);
     }
 
-    const void* getImpl(const EventSetupRecordImpl& iRecord,
-                        const DataKey&,
-                        EventSetupImpl const* iEventSetupImpl) override {
+    void prefetchAsyncImpl(WaitingTask* iWaitTask,
+                           const EventSetupRecordImpl& iRecord,
+                           const DataKey&,
+                           EventSetupImpl const* iEventSetupImpl) final {
       assert(iRecord.key() == RecordT::keyForClass());
-      (*callback_)(&iRecord, iEventSetupImpl);
-      return smart_pointer_traits::getPointer(data_);
+      callback_->prefetchAsync(iWaitTask, &iRecord, iEventSetupImpl);
     }
+
+    void const* getAfterPrefetchImpl() const final { return smart_pointer_traits::getPointer(data_); }
 
     void invalidateCache() override {
       data_ = DataT{};

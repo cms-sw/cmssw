@@ -574,7 +574,14 @@ namespace {
       for (size_t i = 0; i != proxies.size(); ++i) {
         auto rec = iImpl.findImpl(recs[i]);
         if (rec) {
-          rec->prefetch(proxies[i], &iImpl);
+          auto waitTask = edm::make_empty_waiting_task();
+          waitTask->set_ref_count(2);
+          rec->prefetchAsync(waitTask.get(), proxies[i], &iImpl);
+          waitTask->decrement_ref_count();
+          waitTask->wait_for_all();
+          if (waitTask->exceptionPtr()) {
+            std::rethrow_exception(*waitTask->exceptionPtr());
+          }
         }
       }
     }
@@ -634,13 +641,12 @@ namespace {
               edm::ESProductTag<edm::eventsetup::test::DummyData, DummyRecord>("", ""));
     }
     std::unique_ptr<edm::eventsetup::test::DummyData> produce(const DummyRecord& iRecord) {
-      CPPUNIT_ASSERT(succeed_ == token_.hasValidIndex());
       auto const& data = iRecord.getHandle(token_);
       CPPUNIT_ASSERT(data.isValid() == succeed_);
       if (data.isValid()) {
         return std::make_unique<edm::eventsetup::test::DummyData>(*data);
       }
-      return std::make_unique<edm::eventsetup::test::DummyData>();
+      return std::unique_ptr<edm::eventsetup::test::DummyData>();
     }
 
   private:
@@ -834,7 +840,7 @@ void testEventsetup::getDataWithESGetTokenTest() {
                             static_cast<unsigned int>(edm::Transition::Event),
                             consumer.esGetTokenIndices(edm::Transition::Event),
                             true};
-      CPPUNIT_ASSERT_THROW(eventSetup.getData(consumer.m_token), cms::Exception);
+      CPPUNIT_ASSERT_THROW(eventSetup.getData(consumer.m_token), edm::eventsetup::NoDataException<DummyData>);
     }
     {
       DummyDataConsumer consumer{edm::ESInputTag("", "setMayConsumeSucceed")};

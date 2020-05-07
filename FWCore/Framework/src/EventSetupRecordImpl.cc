@@ -299,18 +299,16 @@ namespace edm {
       return nullptr != proxy;
     }
 
-    void EventSetupRecordImpl::prefetch(ESProxyIndex iProxyIndex, EventSetupImpl const* iEventSetupImpl) const {
+    void EventSetupRecordImpl::prefetchAsync(WaitingTask* iTask,
+                                             ESProxyIndex iProxyIndex,
+                                             EventSetupImpl const* iEventSetupImpl) const {
       if
         UNLIKELY(iProxyIndex.value() == std::numeric_limits<int>::max()) { return; }
 
       const DataProxy* proxy = proxies_[iProxyIndex.value()];
       if (nullptr != proxy) {
-        //When we move to async any exception will be propagated to the WaitingTask
-        try {
-          auto const& key = keysForProxies_[iProxyIndex.value()];
-          proxy->doGet(*this, key, true, activityRegistry_, iEventSetupImpl);
-        } catch (...) {
-        }
+        auto const& key = keysForProxies_[iProxyIndex.value()];
+        proxy->prefetchAsync(iTask, *this, key, iEventSetupImpl);
       }
     }
 
