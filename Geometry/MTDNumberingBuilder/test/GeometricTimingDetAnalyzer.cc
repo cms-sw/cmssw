@@ -36,6 +36,8 @@
 
 #include "DataFormats/ForwardDetId/interface/MTDDetId.h"
 
+#include "DataFormats/Math/interface/Rounding.h"
+
 //
 //
 // class decleration
@@ -75,6 +77,8 @@ GeometricTimingDetAnalyzer::~GeometricTimingDetAnalyzer() {
 //
 // member functions
 //
+
+using cms_rounding::roundIfNear0;
 
 // ------------ method called to produce the data  ------------
 void GeometricTimingDetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -132,6 +136,12 @@ void GeometricTimingDetAnalyzer::dumpGeometricTimingDet(const GeometricTimingDet
 
   MTDDetId thisDet(det->geographicalID());
 
+  auto fround = [&](double in) {
+    std::stringstream ss;
+    ss << std::fixed << std::setw(14) << roundIfNear0(in);
+    return ss.str();
+  };
+
   edm::LogVerbatim("GeometricTimingDetAnalyzer").log([&](auto& log) {
     log << "\n---------------------------------------------------------------------------------------\n";
     log << "Module = " << det->name() << " rawId = " << det->geographicalID().rawId()
@@ -155,14 +165,11 @@ void GeometricTimingDetAnalyzer::dumpGeometricTimingDet(const GeometricTimingDet
         << " And Contains SubDetectors: " << det->components().size() << "\n"
         << " And Contains Daughters:    " << det->deepComponents().size() << "\n"
         << " Is leaf: " << det->isLeaf() << "\n\n"
-        << " Translation = " << std::fixed << std::setw(14) << trans.X() << " " << std::setw(14) << trans.Y() << " "
-        << std::setw(14) << trans.Z() << "\n"
-        << " Rotation    = " << std::fixed << std::setw(14) << x.X() << " " << std::setw(14) << x.Y() << " "
-        << std::setw(14) << x.Z() << " " << std::setw(14) << y.X() << " " << std::setw(14) << y.Y() << " "
-        << std::setw(14) << y.Z() << " " << std::setw(14) << z.X() << " " << std::setw(14) << z.Y() << " "
-        << std::setw(14) << z.Z() << "\n"
-        << " Phi = " << std::fixed << std::setw(14) << det->phi() << " Rho = " << std::fixed << std::setw(14)
-        << det->rho() << "\n";
+        << " Translation = " << fround(trans.X()) << " " << fround(trans.Y()) << " " << fround(trans.Z()) << "\n"
+        << " Rotation    = " << fround(x.X()) << " " << fround(x.Y()) << " " << fround(x.Z()) << " " << fround(y.X())
+        << " " << fround(y.Y()) << " " << fround(y.Z()) << " " << fround(z.X()) << " " << fround(z.Y()) << " "
+        << fround(z.Z()) << "\n"
+        << " Phi = " << fround(det->phi()) << " Rho = " << fround(det->rho()) << "\n";
     log << "\n---------------------------------------------------------------------------------------\n";
   });
 
