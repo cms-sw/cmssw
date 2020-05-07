@@ -67,6 +67,7 @@ namespace edm {
       for (auto& proxyInfo : *info) {
         //check for mayConsumes
         if (auto chooser = proxyInfo.chooser_.get()) {
+          hasMayConsumes_ = true;
           auto tagGetter = iProxyToIndices.makeTagGetter(chooser->recordKey(), chooser->productType());
           if (not tagGetter.hasNothingToGet()) {
             records.push_back(iProxyToIndices.recordIndexFor(chooser->recordKey()));
