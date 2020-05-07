@@ -150,7 +150,10 @@ namespace PixelRegions {
   class PixelRegionContainers {
   public:
     PixelRegionContainers(const TrackerTopology* t_topo, const bool isPhase1)
-        : m_trackerTopo(t_topo), m_isPhase1(isPhase1) {}
+        : m_trackerTopo(t_topo), m_isPhase1(isPhase1) {
+      // set log scale by default to false
+      m_isLog = false;
+    }
 
     ~PixelRegionContainers() {}
 
@@ -187,26 +190,39 @@ namespace PixelRegions {
     }
 
     //============================================================================
-    void draw(TCanvas& canv, bool isBarrel) {
+    void draw(TCanvas& canv, bool isBarrel, const char* option = "bar2") {
       if (isBarrel) {
         for (int j = 1; j <= 4; j++) {
-          canv.cd(j);
-          m_theMap.at(PixelIDs[j - 1])->Draw("bar2");
+          if (!m_isLog) {
+            canv.cd(j);
+          } else {
+            canv.cd(j)->SetLogy();
+          }
+          m_theMap.at(PixelIDs[j - 1])->Draw(option);
         }
       } else {  // forward
         for (int j = 1; j <= 12; j++) {
-          canv.cd(j);
-          m_theMap.at(PixelIDs[j + 3])->Draw("bar2");
+          if (!m_isLog) {
+            canv.cd(j);
+          } else {
+            canv.cd(j)->SetLogy();
+          }
+          m_theMap.at(PixelIDs[j + 3])->Draw(option);
         }
       }
     }
 
     //============================================================================
-    void beautify() {
+    void beautify(const int linecolor = kBlack, const int fillcolor = kRed) {
       for (const auto& plot : m_theMap) {
         plot.second->SetTitle("");
-        plot.second->GetYaxis()->SetRangeUser(0., plot.second->GetMaximum() * 1.30);
-        plot.second->SetFillColor(kRed);
+        if (!m_isLog) {
+          plot.second->GetYaxis()->SetRangeUser(0., plot.second->GetMaximum() * 1.30);
+        } else {
+          plot.second->GetYaxis()->SetRangeUser(0.1, plot.second->GetMaximum() * 10.);
+        }
+        plot.second->SetLineColor(linecolor);
+        plot.second->SetFillColor(fillcolor);
         plot.second->SetMarkerStyle(20);
         plot.second->SetMarkerSize(1);
         SiPixelPI::makeNicePlotStyle(plot.second.get());
@@ -215,12 +231,15 @@ namespace PixelRegions {
     }
 
     //============================================================================
+    void setLogScale() { m_isLog = true; }
+
+    //============================================================================
     void stats() {
       for (const auto& plot : m_theMap) {
         TPaveStats* st = (TPaveStats*)plot.second->FindObject("stats");
         if (st) {
           st->SetTextSize(0.03);
-          SiPixelPI::adjustStats(st, 0.15, 0.83, 0.39, 0.93);
+          SiPixelPI::adjustStats(st, 0.15, 0.85, 0.39, 0.93);
         }
       }
     }
