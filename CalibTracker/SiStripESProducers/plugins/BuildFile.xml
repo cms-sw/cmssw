@@ -1,15 +1,19 @@
 <library file="fake/*.cc" name="CalibTrackerSiStripFakeESProducersPlugins">
+  <use name="CalibTracker/Records"/>
   <use name="CalibTracker/SiStripESProducers"/>
   <use name="CondCore/DBOutputService"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 
 <library file="real/*.cc" name="CalibTrackerSiStripRealESProducersPlugins">
+  <use name="CalibTracker/Records"/>
   <use name="CalibTracker/SiStripESProducers"/>
+  <use name="CondFormats/RunInfo"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 
 <library file="geom/*.cc" name="CalibTrackerSiStripGeomESProducersPlugins">
+  <use name="CalibTracker/Records"/>
   <use name="CalibTracker/SiStripESProducers"/>
   <use name="Geometry/TrackerGeometryBuilder"/>
   <use name="DataFormats/TrackerCommon"/>
@@ -17,6 +21,7 @@
 </library>
 
 <library file="DBWriter/*.cc" name="CalibTrackerSiStripESProducersDBWriterPlugins">
+  <use name="CalibTracker/Records"/>
   <use name="CalibTracker/SiStripESProducers"/>
   <use name="CondCore/DBOutputService"/>
   <flags EDM_PLUGIN="1"/>

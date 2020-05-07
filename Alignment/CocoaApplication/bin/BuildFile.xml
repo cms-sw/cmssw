@@ -6,6 +6,5 @@
 <use name="Alignment/CocoaFit"/>
 <use name="Alignment/CocoaUtilities"/>
 <use name="Alignment/CocoaToDDL"/>
-<use name="Alignment/CocoaDDLObjects"/>
 <bin file="cocoa.cpp" name="cocoa">
 </bin>
