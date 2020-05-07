@@ -27,6 +27,9 @@
 #include "FWCore/Framework/interface/EventSetupImpl.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/Utilities/interface/ESIndices.h"
+#include "FWCore/Utilities/interface/ConvertException.h"
+#include "FWCore/Concurrency/interface/WaitingTaskList.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 
 namespace edm {
   namespace eventsetup {
@@ -61,17 +64,44 @@ namespace edm {
       Callback(const Callback&) = delete;
       const Callback& operator=(const Callback&) = delete;
 
-      void operator()(EventSetupRecordImpl const* iRecord, EventSetupImpl const* iEventSetupImpl) {
+      void prefetchAsync(WaitingTask* iTask,
+                         EventSetupRecordImpl const* iRecord,
+                         EventSetupImpl const* iEventSetupImpl) {
         bool expected = false;
-        if (wasCalledForThisRecord_.compare_exchange_strong(expected, true)) {
-          //Get everything we can before knowing about the mayGets
-          prefetch(iEventSetupImpl, getTokenIndices());
+        auto doPrefetch = wasCalledForThisRecord_.compare_exchange_strong(expected, true);
+        taskList_.add(iTask);
+        if (doPrefetch) {
+          if
+            UNLIKELY(producer_->hasMayConsumes()) {
+              //after prefetching need to do the mayGet
+              auto mayGetTask = edm::make_waiting_task(
+                  tbb::task::allocate_root(), [this, iRecord, iEventSetupImpl](std::exception_ptr const* iExcept) {
+                    if (iExcept) {
+                      runProducerAsync(iExcept, iRecord, iEventSetupImpl);
+                      return;
+                    }
+                    if (handleMayGet(iRecord, iEventSetupImpl)) {
+                      auto runTask =
+                          edm::make_waiting_task(tbb::task::allocate_root(),
+                                                 [this, iRecord, iEventSetupImpl](std::exception_ptr const* iExcept) {
+                                                   runProducerAsync(iExcept, iRecord, iEventSetupImpl);
+                                                 });
+                      prefetchNeededDataAsync(runTask, iEventSetupImpl, &((*postMayGetProxies_).front()));
+                    } else {
+                      runProducerAsync(iExcept, iRecord, iEventSetupImpl);
+                    }
+                  });
 
-          if (handleMayGet(iRecord, iEventSetupImpl)) {
-            prefetch(iEventSetupImpl, &((*postMayGetProxies_).front()));
+              //Get everything we can before knowing about the mayGets
+              prefetchNeededDataAsync(mayGetTask, iEventSetupImpl, getTokenIndices());
+            }
+          else {
+            auto task = edm::make_waiting_task(tbb::task::allocate_root(),
+                                               [this, iRecord, iEventSetupImpl](std::exception_ptr const* iExcept) {
+                                                 runProducerAsync(iExcept, iRecord, iEventSetupImpl);
+                                               });
+            prefetchNeededDataAsync(task, iEventSetupImpl, getTokenIndices());
           }
-
-          runProducer(iRecord, iEventSetupImpl);
         }
       }
 
@@ -95,19 +125,23 @@ namespace edm {
           setData<typename RemainingContainerT::head_type, typename RemainingContainerT::tail_type>(iProducts);
         }
       }
-      void newRecordComing() { wasCalledForThisRecord_ = false; }
+      void newRecordComing() {
+        wasCalledForThisRecord_ = false;
+        taskList_.reset();
+      }
 
       unsigned int transitionID() const { return id_; }
       ESProxyIndex const* getTokenIndices() const { return producer_->getTokenIndices(id_); }
 
     private:
-      void prefetch(EventSetupImpl const* iImpl, ESProxyIndex const* proxies) const {
+      void prefetchNeededDataAsync(WaitingTask* task, EventSetupImpl const* iImpl, ESProxyIndex const* proxies) const {
+        WaitingTaskHolder h(task);
         auto recs = producer_->getTokenRecordIndices(id_);
         auto n = producer_->numberOfTokenIndices(id_);
         for (size_t i = 0; i != n; ++i) {
           auto rec = iImpl->findImpl(recs[i]);
           if (rec) {
-            rec->prefetch(proxies[i], iImpl);
+            rec->prefetchAsync(task, proxies[i], iImpl);
           }
         }
       }
@@ -120,21 +154,43 @@ namespace edm {
         return static_cast<bool>(postMayGetProxies_);
       }
 
-      void runProducer(EventSetupRecordImpl const* iRecord, EventSetupImpl const* iEventSetupImpl) {
-        auto proxies = getTokenIndices();
-        if (postMayGetProxies_) {
-          proxies = &((*postMayGetProxies_).front());
+      void runProducerAsync(std::exception_ptr const* iExcept,
+                            EventSetupRecordImpl const* iRecord,
+                            EventSetupImpl const* iEventSetupImpl) {
+        if (iExcept) {
+          //The cache held by the CallbackProxy was already set to invalid at the beginning of the IOV
+          taskList_.doneWaiting(*iExcept);
+          return;
         }
-        TRecord rec;
-        rec.setImpl(iRecord, transitionID(), proxies, iEventSetupImpl, true);
-        decorator_.pre(rec);
-        storeReturnedValues((producer_->*method_)(rec));
-        decorator_.post(rec);
+        producer_->queue().push([this, iRecord, iEventSetupImpl]() {
+          std::exception_ptr exceptPtr;
+          try {
+            convertException::wrap([this, iRecord, iEventSetupImpl] {
+              auto proxies = getTokenIndices();
+              if (postMayGetProxies_) {
+                proxies = &((*postMayGetProxies_).front());
+              }
+              TRecord rec;
+              rec.setImpl(iRecord, transitionID(), proxies, iEventSetupImpl, true);
+              decorator_.pre(rec);
+              storeReturnedValues((producer_->*method_)(rec));
+              decorator_.post(rec);
+            });
+          } catch (cms::Exception& iException) {
+            auto const& description = producer_->description();
+            std::ostringstream ost;
+            ost << "Running EventSetup component " << description.type_ << "/'" << description.label_;
+            iException.addContext(ost.str());
+            exceptPtr = std::current_exception();
+          }
+          taskList_.doneWaiting(exceptPtr);
+        });
       }
 
       std::array<void*, produce::size<TReturn>::value> proxyData_;
       std::optional<std::vector<ESProxyIndex>> postMayGetProxies_;
       edm::propagate_const<T*> producer_;
+      edm::WaitingTaskList taskList_;
       method_type method_;
       // This transition id identifies which setWhatProduced call this Callback is associated with
       const unsigned int id_;

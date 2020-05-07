@@ -21,6 +21,7 @@
 
 // system include files
 #include <atomic>
+#include <memory>
 
 // user include files
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
@@ -29,6 +30,7 @@
 namespace edm {
   class ActivityRegistry;
   class EventSetupImpl;
+  class WaitingTask;
 
   namespace eventsetup {
     struct ComponentDescription;
@@ -44,6 +46,8 @@ namespace edm {
 
       // ---------- const member functions ---------------------
       bool cacheIsValid() const { return cacheIsValid_.load(std::memory_order_acquire); }
+
+      void prefetchAsync(WaitingTask*, EventSetupRecordImpl const&, DataKey const&, EventSetupImpl const*) const;
 
       void doGet(EventSetupRecordImpl const&,
                  DataKey const&,
@@ -79,7 +83,10 @@ namespace edm {
           the pointer must be a pointer to that base class interface and not a pointer to an inheriting class
           instance.
           */
-      virtual void const* getImpl(EventSetupRecordImpl const&, DataKey const& iKey, EventSetupImpl const*) = 0;
+      virtual void prefetchAsyncImpl(WaitingTask*,
+                                     EventSetupRecordImpl const&,
+                                     DataKey const& iKey,
+                                     EventSetupImpl const*) = 0;
 
       /** indicates that the Proxy should invalidate any cached information
           as that information has 'expired' (i.e. we have moved to a new IOV)
@@ -93,10 +100,13 @@ namespace edm {
           */
       virtual void invalidateTransientCache();
 
+      /** used to retrieve the data from the implementation. The data is then cached locally.
+       */
+      virtual void const* getAfterPrefetchImpl() const = 0;
+
       void clearCacheIsValid();
 
     private:
-      void runGetImplAndSetCache(EventSetupRecordImpl const&, DataKey const& iKey, EventSetupImpl const*) const;
       // ---------- member data --------------------------------
       ComponentDescription const* description_;
       CMS_THREAD_SAFE mutable void const* cache_;  //protected by a global mutex

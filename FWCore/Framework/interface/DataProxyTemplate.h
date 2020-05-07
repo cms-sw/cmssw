@@ -33,8 +33,10 @@
 // user include files
 #include "FWCore/Framework/interface/DataProxy.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
+#include "FWCore/Concurrency/interface/WaitingTaskList.h"
 #include <cassert>
 #include <limits>
+#include <atomic>
 
 // forward declarations
 
@@ -52,17 +54,40 @@ namespace edm {
 
       DataProxyTemplate() {}
 
-      const void* getImpl(const EventSetupRecordImpl& iRecord,
-                          const DataKey& iKey,
-                          EventSetupImpl const* iEventSetupImpl) override {
+      void prefetchAsyncImpl(WaitingTask* iTask,
+                             const EventSetupRecordImpl& iRecord,
+                             const DataKey& iKey,
+                             EventSetupImpl const* iEventSetupImpl) override {
         assert(iRecord.key() == RecordT::keyForClass());
-        RecordT rec;
-        rec.setImpl(&iRecord, std::numeric_limits<unsigned int>::max(), nullptr, iEventSetupImpl, true);
-        return this->make(rec, iKey);
+        bool expected = false;
+        bool doPrefetch = prefetching_.compare_exchange_strong(expected, true);
+        taskList_.add(iTask);
+
+        if (doPrefetch) {
+          try {
+            //We assume calling make is so fast that it isn't work launching a new task
+            RecordT rec;
+            rec.setImpl(&iRecord, std::numeric_limits<unsigned int>::max(), nullptr, iEventSetupImpl, true);
+            this->make(rec, iKey);
+          } catch (...) {
+            taskList_.doneWaiting(std::current_exception());
+            return;
+          }
+          taskList_.doneWaiting(std::exception_ptr{});
+        }
       }
 
     protected:
+      void invalidateCache() override {
+        taskList_.reset();
+        prefetching_ = false;
+      }
+
       virtual const DataT* make(const RecordT&, const DataKey&) = 0;
+
+    private:
+      WaitingTaskList taskList_;
+      std::atomic<bool> prefetching_{false};
     };
 
   }  // namespace eventsetup

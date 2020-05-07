@@ -20,7 +20,9 @@
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "FWCore/Framework/src/ESGlobalMutex.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/Concurrency/interface/WaitingTaskList.h"
 
+#include "tbb/task_arena.h"
 namespace edm {
   namespace eventsetup {
 
@@ -90,24 +92,28 @@ namespace edm {
       };
     }  // namespace
 
-    void DataProxy::runGetImplAndSetCache(EventSetupRecordImpl const& iRecord,
-                                          DataKey const& iKey,
-                                          EventSetupImpl const* iEventSetupImpl) const {
-      auto setIsValid = [this](std::atomic<bool>*) { cacheIsValid_.store(true, std::memory_order_release); };
-      std::unique_ptr<std::atomic<bool>, decltype(setIsValid)> sentry(&cacheIsValid_, setIsValid);
-      cache_ = const_cast<DataProxy*>(this)->getImpl(iRecord, iKey, iEventSetupImpl);
+    void DataProxy::prefetchAsync(WaitingTask* iTask,
+                                  EventSetupRecordImpl const& iRecord,
+                                  DataKey const& iKey,
+                                  EventSetupImpl const* iEventSetupImpl) const {
+      const_cast<DataProxy*>(this)->prefetchAsyncImpl(iTask, iRecord, iKey, iEventSetupImpl);
     }
 
     void const* DataProxy::getAfterPrefetch(const EventSetupRecordImpl& iRecord,
                                             const DataKey& iKey,
                                             bool iTransiently) const {
-      assert(cacheIsValid());
       //We need to set the AccessType for each request so this can't be called in an earlier function in the stack.
       //This also must be before the cache_ check since we want to setCacheIsValid before a possible
       // exception throw. If we don't, 'getImpl' will be called again on a second request for the data.
 
       if
-        UNLIKELY(!iTransiently) { nonTransientAccessRequested_.store(true, std::memory_order_release); }
+        LIKELY(!iTransiently) { nonTransientAccessRequested_.store(true, std::memory_order_release); }
+
+      if
+        UNLIKELY(!cacheIsValid()) {
+          cache_ = getAfterPrefetchImpl();
+          cacheIsValid_.store(true, std::memory_order_release);
+        }
 
       if
         UNLIKELY(nullptr == cache_) { throwMakeException(iRecord, iKey); }
@@ -124,7 +130,19 @@ namespace edm {
         std::lock_guard<std::recursive_mutex> guard(esGlobalMutex());
         signalSentry.sendPostLockSignal();
         if (!cacheIsValid()) {
-          runGetImplAndSetCache(iRecord, iKey, iEventSetupImpl);
+          auto waitTask = edm::make_empty_waiting_task();
+          waitTask->set_ref_count(2);
+          auto waitTaskPtr = waitTask.get();
+          tbb::this_task_arena::isolate([this, waitTaskPtr, &iRecord, &iKey, iEventSetupImpl]() {
+            prefetchAsync(waitTaskPtr, iRecord, iKey, iEventSetupImpl);
+            waitTaskPtr->decrement_ref_count();
+            waitTaskPtr->wait_for_all();
+          });
+          cache_ = getAfterPrefetchImpl();
+          cacheIsValid_.store(true, std::memory_order_release);
+          if (waitTask->exceptionPtr()) {
+            std::rethrow_exception(*waitTask->exceptionPtr());
+          }
         }
       }
       return getAfterPrefetch(iRecord, iKey, iTransiently);

@@ -85,6 +85,8 @@ Example: two algorithms each creating only one objects
 #include "FWCore/Framework/interface/eventsetup_dependsOn.h"
 #include "FWCore/Framework/interface/es_Label.h"
 
+#include "FWCore/Concurrency/interface/SerialTaskQueue.h"
+
 // forward declarations
 namespace edm {
   namespace eventsetup {
@@ -146,6 +148,8 @@ namespace edm {
       }
       return ret;
     }
+
+    SerialTaskQueue& queue() { return queue_; }
 
   protected:
     /** \param iThis the 'this' pointer to an inheriting class instance
