@@ -309,6 +309,8 @@ namespace gainCalibHelper {
         : cond::payloadInspector::PlotImage<PayloadType>(
               Form("SiPixelGainCalibration %s Values Per Region", TypeName[myType])) {
       this->setSingleIov(true);
+      cond::payloadInspector::PlotBase::addInputParam("SetLog");
+
       if constexpr (std::is_same_v<PayloadType, SiPixelGainCalibrationOffline>) {
         isForHLT_ = false;
         label_ = "SiPixelGainCalibrationOffline_PayloadInspector";
@@ -319,7 +321,15 @@ namespace gainCalibHelper {
     }
 
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      gStyle->SetOptStat("emr");
+      // parse first if log
+      bool setLog(false);
+      auto paramValues = cond::payloadInspector::PlotBase::inputParamValues();
+      auto ip = paramValues.find("SetLog");
+      if (ip != paramValues.end()) {
+        setLog = boost::lexical_cast<bool>(ip->second);
+      }
+
+      gStyle->SetOptStat("mr");
 
       auto iov = iovs.front();
       std::shared_ptr<PayloadType> payload = this->fetchPayload(std::get<1>(iov));
@@ -370,26 +380,14 @@ namespace gainCalibHelper {
         gainCalibPI::fillTheHisto(payload, myPlots.getHistoFromMap(pixelId), myType, wantedDets);
       }
 
-      myPlots.beautify();
-      myPlots.draw(canvas, isBarrel);
+      if (setLog) {
+        myPlots.setLogScale();
+      }
+      myPlots.beautify(kBlue, 10);
+      myPlots.draw(canvas, isBarrel, "HIST");
 
-      /*
-      canvas.cd()->SetLogy();
-      h1->SetTitle("");
-      h1->GetYaxis()->SetRangeUser(0.1, h1->GetMaximum() * 10.);
-      h1->SetFillColor(kBlue);
-      h1->SetMarkerStyle(20);
-      h1->SetMarkerSize(1);
-      h1->Draw("bar2");
-
-      SiPixelPI::makeNicePlotStyle(h1.get());
-      h1->SetStats(true);
-
-      canvas.Update();
-      */
-
-      TLegend legend = TLegend(0.40, 0.88, 0.94, 0.93);
-      legend.SetHeader(("Payload hash: #bf{" + (std::get<1>(iov)) + "}").c_str(),
+      TLegend legend = TLegend(0.45, 0.88, 0.91, 0.92);
+      legend.SetHeader(("hash: #bf{" + (std::get<1>(iov)) + "}").c_str(),
                        "C");  // option "C" allows to center the header
       //legend.AddEntry(h1.get(), ("IOV: " + std::to_string(std::get<0>(iov))).c_str(), "PL");
       legend.SetLineColor(10);
@@ -406,12 +404,6 @@ namespace gainCalibHelper {
 
       myPlots.stats();
 
-      /*
-      TPaveStats* st = (TPaveStats*)h1->FindObject("stats");
-      st->SetTextSize(0.03);
-      SiPixelPI::adjustStats(st, 0.15, 0.83, 0.39, 0.93);
-      */
-
       auto ltx = TLatex();
       ltx.SetTextFont(62);
       ltx.SetTextSize(0.05);
@@ -420,7 +412,8 @@ namespace gainCalibHelper {
       for (unsigned int c = 1; c <= maxPads; c++) {
         auto index = isBarrel ? c - 1 : c + 3;
         canvas.cd(c);
-        ltx.DrawLatexNDC(gPad->GetLeftMargin() + 0.1,
+        auto leftX = setLog ? 0. : 0.1;
+        ltx.DrawLatexNDC(gPad->GetLeftMargin() + leftX,
                          1 - gPad->GetTopMargin() + 0.01,
                          (PixelRegions::IDlabels.at(index) + ", IOV:" + std::to_string(std::get<0>(iov))).c_str());
       }
