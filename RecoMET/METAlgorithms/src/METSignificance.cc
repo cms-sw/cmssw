@@ -51,7 +51,8 @@ reco::METCovMatrix metsig::METSignificance::getCovariance(const edm::View<reco::
                                                           JME::JetResolution& resPhiObj,
                                                           JME::JetResolutionScaleFactor& resSFObj,
                                                           bool isRealData,
-                                                          double& sumPtUnclustered) {
+                                                          double& sumPtUnclustered,
+                                                          edm::ValueMap<float> const* weights) {
   //pfcandidates
   const edm::View<reco::Candidate>* pfCandidates = pfCandidatesH.product();
 
@@ -87,6 +88,7 @@ reco::METCovMatrix metsig::METSignificance::getCovariance(const edm::View<reco::
     // check if candidate exists in a lepton or jet
     bool cleancand = true;
     if (footprint.find(pfCandidates->ptrAt(i)) == footprint.end()) {
+      float weight = (weights != nullptr) ? (*weights)[pfCandidates->ptrAt(i)] : 1.0;
       //dP4 recovery
       for (const auto& it : footprint) {
         if ((it.isNonnull()) && (it.isAvailable()) && (reco::deltaR2(it->p4(), (*pfCandidates)[i].p4()) < 0.00000025)) {
@@ -96,7 +98,7 @@ reco::METCovMatrix metsig::METSignificance::getCovariance(const edm::View<reco::
       }
       // if not, add to sumPtUnclustered
       if (cleancand) {
-        sumPtUnclustered += (*pfCandidates)[i].pt();
+        sumPtUnclustered += (*pfCandidates)[i].pt() * weight;
       }
     }
   }

@@ -12,7 +12,7 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
 //____________________________________________________________________________||
-SpecificPFMETData PFSpecificAlgo::run(const edm::View<reco::Candidate>& pfCands) {
+SpecificPFMETData PFSpecificAlgo::run(const edm::View<reco::Candidate>& pfCands, edm::ValueMap<float> const* weights) {
   if (pfCands.empty())
     return SpecificPFMETData();
 
@@ -24,12 +24,13 @@ SpecificPFMETData PFSpecificAlgo::run(const edm::View<reco::Candidate>& pfCands)
   double type6Et = 0.0;
   double type7Et = 0.0;
 
-  for (edm::View<reco::Candidate>::const_iterator iPfCand = pfCands.begin(); iPfCand != pfCands.end(); ++iPfCand) {
-    const reco::Candidate* pfCand = dynamic_cast<const reco::Candidate*>(&(*iPfCand));
+  for (auto const& pfCandPtr : pfCands.ptrs()) {
+    const reco::Candidate* pfCand = pfCandPtr.get();
+    float weight = (weights != nullptr) ? (*weights)[pfCandPtr] : 1.0;
     if (!pfCand)
       continue;
     const double theta = pfCand->theta();
-    const double e = pfCand->energy();
+    const double e = pfCand->energy() * weight;
     const double et = e * sin(theta);
     switch (abs(pfCand->pdgId())) {
       case 211:
