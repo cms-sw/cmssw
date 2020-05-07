@@ -43,6 +43,7 @@ public:
 
 private:
   std::string detector_;
+  bool doNose_;
   std::unique_ptr<PatternRecognitionAlgoBaseT<TICLLayerTiles>> myAlgo_;
   std::unique_ptr<PatternRecognitionAlgoBaseT<TICLLayerTilesHFNose>> myAlgoHFNose_;
 
@@ -94,6 +95,9 @@ TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps, const Tracks
       filter_on_categories_(ps.getParameter<std::vector<int>>("filter_on_categories")),
       pid_threshold_(ps.getParameter<double>("pid_threshold")),
       itername_(ps.getParameter<std::string>("itername")) {
+
+  doNose_ = (detector_ == "HFNose") ? true : false;
+
   produces<std::vector<Trackster>>();
   produces<std::vector<float>>();  // Mask to be applied at the next iteration
 }
@@ -155,8 +159,8 @@ void TrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 
   edm::Handle<TICLLayerTiles> layer_clusters_tiles_h;
   edm::Handle<TICLLayerTilesHFNose> layer_clusters_tiles_hfnose_h;
-  if (detector_ == "HGCAL") evt.getByToken(layer_clusters_tiles_token_, layer_clusters_tiles_h);
-  else if (detector_ == "HFNose") evt.getByToken(layer_clusters_tiles_hfnose_token_, layer_clusters_tiles_hfnose_h);
+  if(doNose_) evt.getByToken(layer_clusters_tiles_hfnose_token_, layer_clusters_tiles_hfnose_h);
+  else evt.getByToken(layer_clusters_tiles_token_, layer_clusters_tiles_h);
   const auto& layer_clusters_tiles = *layer_clusters_tiles_h;
   const auto& layer_clusters_hfnose_tiles = *layer_clusters_tiles_hfnose_h;
 
@@ -168,20 +172,20 @@ void TrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
       seedToTrackstersAssociation.emplace(seeding_regions[i].index, 0);
     }
   }
-  if (detector_ == "HGCAL") {
 
-  const typename PatternRecognitionAlgoBaseT<TICLLayerTiles>::Inputs input(
-      evt, es, layerClusters, inputClusterMask, layerClustersTimes, layer_clusters_tiles, seeding_regions);
+  if(doNose_) {
 
-  myAlgo_->makeTracksters(input, *result, seedToTrackstersAssociation);
+    const typename PatternRecognitionAlgoBaseT<TICLLayerTilesHFNose>::Inputs inputHFNose(
+        evt, es, layerClusters, inputClusterMask, layerClustersTimes, layer_clusters_hfnose_tiles, seeding_regions);
 
-  }
+    myAlgoHFNose_->makeTracksters(inputHFNose, *result, seedToTrackstersAssociation);
 
-  if (detector_ == "HFNose") {
-  const typename PatternRecognitionAlgoBaseT<TICLLayerTilesHFNose>::Inputs inputHFNose(
-      evt, es, layerClusters, inputClusterMask, layerClustersTimes, layer_clusters_hfnose_tiles, seeding_regions);
+  } else {
 
-     myAlgoHFNose_->makeTracksters(inputHFNose, *result, seedToTrackstersAssociation);
+    const typename PatternRecognitionAlgoBaseT<TICLLayerTiles>::Inputs input(
+        evt, es, layerClusters, inputClusterMask, layerClustersTimes, layer_clusters_tiles, seeding_regions);
+
+    myAlgo_->makeTracksters(input, *result, seedToTrackstersAssociation);
 
   }
 
