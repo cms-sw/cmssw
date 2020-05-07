@@ -20,10 +20,7 @@
 #include "Geometry/MuonNumbering/interface/ME0NumberingScheme.h"
 
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
-
 #include "DataFormats/GeometryVector/interface/Basic3DVector.h"
-
-#include "DataFormats/Math/interface/CMSUnits.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
 
 #include <algorithm>
