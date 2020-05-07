@@ -31,8 +31,10 @@ CAHitTripletGenerator::CAHitTripletGenerator(const edm::ParameterSet& cfg,
           "extraHitRPhitolerance")),  //extra window in ThirdHitPredictionFromCircle range (divide by R to get phi)
       maxChi2(cfg.getParameter<edm::ParameterSet>("maxChi2")),
       useBendingCorrection(cfg.getParameter<bool>("useBendingCorrection")),
-      caThetaCut(cfg.getParameter<double>("CAThetaCut"), cfg.getParameter<std::vector<edm::ParameterSet>>("CAThetaCut_byTriplets")),
-      caPhiCut(cfg.getParameter<double>("CAPhiCut"), cfg.getParameter<std::vector<edm::ParameterSet>>("CAPhiCut_byTriplets")),
+      caThetaCut(cfg.getParameter<double>("CAThetaCut"),
+                 cfg.getParameter<std::vector<edm::ParameterSet>>("CAThetaCut_byTriplets")),
+      caPhiCut(cfg.getParameter<double>("CAPhiCut"),
+               cfg.getParameter<std::vector<edm::ParameterSet>>("CAPhiCut_byTriplets")),
       caHardPtCut(cfg.getParameter<double>("CAHardPtCut")) {
   edm::ParameterSet comparitorPSet = cfg.getParameter<edm::ParameterSet>("SeedComparitorPSet");
   std::string comparitorName = comparitorPSet.getParameter<std::string>("ComponentName");
@@ -48,15 +50,15 @@ void CAHitTripletGenerator::fillDescriptions(edm::ParameterSetDescription& desc)
   desc.add<double>("CAPhiCut", 0.1);
 
   edm::ParameterSetDescription validatorCACut;
-  validatorCACut.add<string>("seedingLayers","BPix1+BPix2+BPix3");
-  validatorCACut.add<double>("cut",0.00125);
+  validatorCACut.add<string>("seedingLayers", "BPix1+BPix2+BPix3");
+  validatorCACut.add<double>("cut", 0.00125);
   std::vector<edm::ParameterSet> defaultCACutVector;
   edm::ParameterSet defaultCACut;
-  defaultCACut.addParameter<string>("seedingLayers","");
-  defaultCACut.addParameter<double>("cut",-1.);
+  defaultCACut.addParameter<string>("seedingLayers", "");
+  defaultCACut.addParameter<double>("cut", -1.);
   defaultCACutVector.push_back(defaultCACut);
-  desc.addVPSet("CAThetaCut_byTriplets",validatorCACut,defaultCACutVector);
-  desc.addVPSet("CAPhiCut_byTriplets",validatorCACut,defaultCACutVector);
+  desc.addVPSet("CAThetaCut_byTriplets", validatorCACut, defaultCACutVector);
+  desc.addVPSet("CAPhiCut_byTriplets", validatorCACut, defaultCACutVector);
 
   desc.add<double>("CAHardPtCut", 0);
 
