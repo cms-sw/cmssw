@@ -10,7 +10,7 @@
 #include "L1Trigger/L1TMuon/interface/MuonTriggerPrimitiveFwd.h"
 
 // Uncomment the following line to use assert
-#define EMTF_ALLOW_ASSERT
+//#define EMTF_ALLOW_ASSERT
 
 #ifdef EMTF_ALLOW_ASSERT
 #define emtf_assert(expr) (assert(expr))

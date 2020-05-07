@@ -14,9 +14,6 @@
 #include "DataFormats/MuonDetId/interface/ME0DetId.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
-//#include "DataFormats/RPCDigi/interface/RPCDigi.h"
-//#include "DataFormats/GEMDigi/interface/GEMPadDigi.h"
-//#include "DataFormats/GEMDigi/interface/ME0PadDigi.h"
 #include "DataFormats/L1TMuon/interface/CPPFDigi.h"
 #include "DataFormats/L1TMuon/interface/EMTF/ME.h"
 
@@ -81,11 +78,8 @@ namespace l1t {
 
     virtual ~EMTFHit(){};
 
-    // void ImportCSCDetId (const CSCDetId& _detId);
     CSCDetId CreateCSCDetId() const;
-    // void ImportRPCDetId (const RPCDetId& _detId);
     RPCDetId CreateRPCDetId() const;
-    // void ImportGEMDetId (const GEMDetId& _detId);
     // GEMDetId CreateGEMDetId() const;
 
     // void ImportCSCCorrelatedLCTDigi (const CSCCorrelatedLCTDigi& _digi);

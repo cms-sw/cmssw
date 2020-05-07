@@ -132,10 +132,7 @@ simEmtfDigisData = simEmtfDigisMC.clone(
     CSCInput = cms.InputTag('emtfStage2Digis'),
     CSCComparatorInput = cms.InputTag('muonCSCDigis','MuonCSCComparatorDigi'),
     RPCInput = cms.InputTag('muonRPCDigis'),
-    #RPCRecHitInput = cms.InputTag('rpcRecHits'),  # no unpacker
     CPPFInput = cms.InputTag('emtfStage2Digis'),
-    #GEMInput = cms.InputTag('muonGEMPadDigis'),  # no unpacker
-    #ME0Input = cms.InputTag('me0TriggerConvertedPseudoDigis'),  # no unpacker
 
     CPPFEnable = cms.bool(True), # Use CPPF-emulated clustered RPC hits from CPPF as the RPC hits
 

@@ -746,7 +746,6 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
         int ring = TrkHit.Ring();
         int station = TrkHit.Station();
         int sector = TrkHit.Sector();
-        //int subsector = TrkHit.Subsector();
         //int cscid_offset = (sector - 1) * 9;//no longer needed after new time plots (maybe useful for future plots)
         int neighbor = TrkHit.Neighbor();
         int endcap = TrkHit.Endcap();
