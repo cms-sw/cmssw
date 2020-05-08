@@ -1,18 +1,33 @@
-<use   name="root"/>
-<use   name="FWCore/FWLite"/>
-<use   name="DataFormats/FWLite"/>
-<use   name="FWCore/ParameterSetReader"/>
-<use   name="DataFormats/PatCandidates"/>
-<use   name="PhysicsTools/FWLite"/>
-<use   name="PhysicsTools/PatExamples"/>
-<use   name="PhysicsTools/SelectorUtils"/>
+<use name="root"/>
+<use name="DataFormats/FWLite"/>
+<use name="DataFormats/PatCandidates"/>
+<use name="FWCore/FWLite"/>
+<use name="FWCore/ParameterSetReader"/>
+<use name="PhysicsTools/FWLite"/>
+<use name="PhysicsTools/PatExamples"/>
+<use name="PhysicsTools/SelectorUtils"/>
 <environment>
-  <bin   file="PatMuonEDMAnalyzer.cc"></bin>
-  <bin   file="PatMuonFWLiteAnalyzer.cc"></bin>
-  <bin   file="PatBasicFWLiteAnalyzer.cc"></bin>
-  <bin   file="PatBasicFWLiteJetAnalyzer.cc"></bin>
-  <bin   file="PatBasicFWLiteJetAnalyzer_Selector.cc"></bin>
-  <bin   file="PatBasicFWLiteJetUnitTest.cc"></bin>
-  <bin   file="PatCleaningExercise.cc"></bin>
-  <bin   file="PatAnalysisTasksExercise.cc"></bin>
+  <bin file="PatMuonEDMAnalyzer.cc">
+  </bin>
+
+  <bin file="PatMuonFWLiteAnalyzer.cc">
+  </bin>
+
+  <bin file="PatBasicFWLiteAnalyzer.cc">
+  </bin>
+
+  <bin file="PatBasicFWLiteJetAnalyzer.cc">
+  </bin>
+
+  <bin file="PatBasicFWLiteJetAnalyzer_Selector.cc">
+  </bin>
+
+  <bin file="PatBasicFWLiteJetUnitTest.cc">
+  </bin>
+
+  <bin file="PatCleaningExercise.cc">
+  </bin>
+
+  <bin file="PatAnalysisTasksExercise.cc">
+  </bin>
 </environment>
