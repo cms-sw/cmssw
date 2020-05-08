@@ -360,7 +360,7 @@ void CTPPSProtonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
               if (tr_i.getRPId() == tr_j.getRPId())
                 continue;
 
-              if (fabs(z_i) >= fabs(z_j))
+              if (std::abs(z_i) >= std::abs(z_j))
                 continue;
 
               bool matching = true;
