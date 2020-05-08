@@ -30,8 +30,14 @@
 #include <TLine.h>
 #include <TText.h>
 #include <TColor.h>
+#include <TCanvas.h>
+#include <TStyle.h>
+#include <TFrame.h>
+#include <TLegend.h>
+#include <TLegendEntry.h>
 
 #include "DD4hep_MaterialAccountingGroup.h"
+#include "DD4hep_TrackingMaterialPlotter.h"
 
 class DD4hep_ListGroups : public edm::one::EDAnalyzer<> {
 public:
@@ -52,21 +58,146 @@ private:
   std::vector<DD4hep_MaterialAccountingGroup *> m_groups;
   void fillColor();
   void fillGradient();
+  void fillMaterialDifferences();
   void produceAndSaveSummaryPlot(cms::DDCompactView cpv);
   std::vector<std::pair<std::shared_ptr<TLine>, std::shared_ptr<TText>>> overlayEtaReferences();
+  std::map<std::string, std::pair<float, float> > m_diff;
+  std::map<std::string, std::pair<float, float> > m_values;
 };
+
+#include "DD4hep_ListGroupsMaterialDifference.h"
 
 DD4hep_ListGroups::DD4hep_ListGroups(const edm::ParameterSet &iConfig)
     : m_tag(iConfig.getParameter<edm::ESInputTag>("DDDetector")) {
   m_saveSummaryPlot = iConfig.getUntrackedParameter<bool>("SaveSummaryPlot");
+  m_plots.clear();
+  m_groups.clear();
+  TColor::InitializeColors();
+  fillColor();
+  fillMaterialDifferences();
+  fillGradient();
 }
 
 DD4hep_ListGroups::~DD4hep_ListGroups() {}
 
 void DD4hep_ListGroups::produceAndSaveSummaryPlot(cms::DDCompactView cpv) {
+
+  const double scale = 10.;
+
+  static int markerStyles[10] = {kFullCircle,
+                                 kFullSquare,
+                                 kFullTriangleUp,
+                                 kFullTriangleDown,
+                                 kOpenCircle,
+                                 kOpenSquare,
+                                 kOpenTriangleUp,
+                                 kOpenDiamond,
+                                 kOpenCross,
+                                 kFullStar};
+
   for (auto n : m_group_names) {
     m_groups.push_back(new DD4hep_MaterialAccountingGroup(n.data(), cpv));
   }
+
+  std::unique_ptr<TCanvas> canvas(
+      new TCanvas("Grouping_rz", "Grouping - RZ view", (int)(600 * scale * 1.25), (int)(120 * scale * 1.50)));
+  canvas->GetFrame()->SetFillColor(kWhite);
+  gStyle->SetOptStat(0);
+
+  unsigned int color_index = 1;
+
+  std::unique_ptr<TLegend> leg(new TLegend(0.1, 0.1, 0.23, 0.34));
+  leg->SetHeader("Tracker Material Grouping");
+  leg->SetTextFont(42);
+  leg->SetTextSize(0.008);
+  leg->SetNColumns(3);
+  std::unique_ptr<TProfile2D> radlen(
+      new TProfile2D("OverallRadLen", "OverallRadLen", 600., -300., 300, 120., 0., 120.));
+  std::unique_ptr<TProfile2D> eneloss(
+      new TProfile2D("OverallEnergyLoss", "OverallEnergyLoss", 600., -300., 300, 120., 0., 120.));
+  std::unique_ptr<TProfile2D> radlen_diff(
+      new TProfile2D("OverallDifferencesRadLen", "OverallDifferencesRadLen", 600., -300., 300, 120., 0., 120.));
+  std::unique_ptr<TProfile2D> eneloss_diff(
+      new TProfile2D("OverallDifferencesEnergyLoss", "OverallDifferencesEnergyLoss", 600., -300., 300, 120., 0., 120.));
+
+  for (auto g : m_groups) {
+    m_plots.push_back(
+        new TH2F(g->name().c_str(), g->name().c_str(), 6000., -300., 300, 1200., 0., 120.));  // 10x10 points per cm2
+    TH2F &current = *m_plots.back();
+    current.SetMarkerColor(m_color[color_index]);
+    current.SetMarkerStyle(markerStyles[color_index % 10]);
+    current.SetMarkerSize(0.8);
+    current.SetLineWidth(1);
+    for (auto element : g->elements()) {
+      current.Fill(element.z(), element.perp());
+      radlen->Fill(element.z(), element.perp(), m_values[g->name()].first);
+      eneloss->Fill(element.z(), element.perp(), m_values[g->name()].second);
+      radlen_diff->Fill(element.z(), element.perp(), m_diff[g->name()].first);
+      eneloss_diff->Fill(element.z(), element.perp(), m_diff[g->name()].second);
+    }
+
+    if (color_index == 1)
+      current.Draw();
+    else
+      current.Draw("SAME");
+
+    leg->AddEntry(&current, g->name().c_str(), "lp")->SetTextColor(m_color[color_index]);
+    color_index++;
+
+    color_index = color_index % m_color.size();
+
+  }
+  leg->Draw();
+  canvas->SaveAs("Grouping.png");
+
+  std::vector<std::pair<std::shared_ptr<TLine>, std::shared_ptr<TText> > > lines = overlayEtaReferences();
+
+  canvas->Clear();
+  radlen->SetMinimum(0);
+  radlen->SetMaximum(0.25);
+  radlen->Draw("COLZ");
+  for (auto line : lines) {
+    line.first->SetLineWidth(5);
+    line.first->Draw();
+    line.second->Draw();
+  }
+  canvas->SaveAs("RadLenValues.png");
+
+  canvas->Clear();
+  eneloss->SetMinimum(0.00001);
+  eneloss->SetMaximum(0.0005);
+  eneloss->Draw("COLZ");
+  for (auto line : lines) {
+    line.first->SetLineWidth(5);
+    line.first->Draw();
+    line.second->Draw();
+  }
+  canvas->SaveAs("EnergyLossValues.png");
+
+  canvas->Clear();
+  gStyle->SetPalette(m_gradient.size(), &m_gradient.front());
+  gStyle->SetNumberContours(m_gradient.size());
+  radlen_diff->SetMinimum(-100);
+  radlen_diff->SetMaximum(100);
+  radlen_diff->Draw("COLZ");
+  for (auto line : lines) {
+    line.first->SetLineWidth(5);
+    line.first->Draw();
+    line.second->Draw();
+  }
+  canvas->SaveAs("RadLenChanges.png");
+
+  canvas->Clear();
+  eneloss_diff->SetMinimum(-100);
+  eneloss_diff->SetMaximum(100);
+  eneloss_diff->Draw("COLZ");
+  for (auto line : lines) {
+    line.first->SetLineWidth(5);
+    line.first->Draw();
+    line.second->Draw();
+  }
+  canvas->SaveAs("EnergyLossChanges.png");
+
 }
 
 void DD4hep_ListGroups::fillColor(void) {
