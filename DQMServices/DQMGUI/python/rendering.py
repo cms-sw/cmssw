@@ -74,8 +74,12 @@ class GUIRenderer:
             with open(info.filename, 'rb') as root_file:
                 mm = mmap.mmap(root_file.fileno(), 0, prot=mmap.PROT_READ)
 
-                # Possible return values: ScalarValue, EfficiencyFlag, QTest, bytes 
-                info.root_object = info.me_info.read(mm)
+                def get_object():
+                    # Possible return values: ScalarValue, EfficiencyFlag, QTest, bytes 
+                    return info.me_info.read(mm)
+
+                # Executing on a different thread because it will potentially perform blocking IO on the mmapped file
+                info.root_object = await asyncio.get_event_loop().run_in_executor(None, get_object)
 
         # We can render either ScalarValue or bytes (TH* object)
         root_object = rendering_infos[0].root_object
@@ -132,10 +136,17 @@ class GUIRenderer:
             num_objs = len(rendering_infos)
             name = rendering_infos[0].path.encode('utf-8')
             # TODO: Probably we will need to provide a streamer file of every ME in overlay
-            streamerfile = rendering_infos[0].filename.encode("utf-8") if use_streamerfile else b''
+            streamerfile = rendering_infos[0].filename.encode('utf-8') if use_streamerfile else b''
         else:
+            def scalar_to_string(scalar):
+                # We can handle float to string here for example
+                if isinstance(scalar, bytes):
+                    return str(scalar.decode())
+                else:
+                    return str(scalar)
+
             # When strings are overlayed, we display them all seaprated with a new line
-            data = '\n'.join([str(x.root_object.value) for x in rendering_infos]).encode('utf-8')
+            data = '\n'.join([scalar_to_string(x.root_object.value) for x in rendering_infos]).encode('utf-8')
 
         mtype = 4 # DQM_MSG_GET_IMAGE_DATA
         vlow = 0

@@ -7,15 +7,16 @@ from async_lru import alru_cache
 from rendering import GUIRenderer
 from DQMServices.DQMGUI import nanoroot
 from storage import GUIDataStore
-from helpers import MERenderingInfo
+from helpers import MERenderingInfo, PathUtil
 
-from layouts.layout_manager import add_layout
+from layouts.layout_manager import LayoutManager
 
 
 class GUIService:
 
     store = GUIDataStore()
     renderer = GUIRenderer()
+    layouts_manager = LayoutManager()
 
     @classmethod
     @alru_cache(maxsize=10)
@@ -43,29 +44,12 @@ class GUIService:
     @classmethod
     @alru_cache(maxsize=10)
     async def get_archive(cls, run, dataset, path, search):
-
-        def get_subitem(full_path, current_dir):
-            """Returns a closest sub item of full_path inside current_dir
-            The second value of the response tuple indicates if that closest sub item is final one
-            i.e. if it is a file or a directory.
-            If full_path is a/b/c/d/file and current_dir is /a/b/c function will return (d, False).
-            If full_path is a/b/c/d/file and current_dir is /a/b/c/d function will return (file, True).
-            If current_dir is not part of full_path, function will return False.
-            """
-
-            # Remove double slashes
-            full_path = full_path.replace('//', '/')
-            current_dir = current_dir.replace('//', '/')
-
-            if full_path.startswith(current_dir):
-                names = full_path.replace(current_dir, '').split('/')
-                if len(names) == 1: # This is an ME
-                    return (names[0], True)
-                else: # This is a folder
-                    return (names[0], False)
-            else:
-                return False
-
+        """
+        Returns a directory listing for run/dataset/path combination.
+        Search is performed on ME name if it is provided.
+        Layout property is the name of the layout the ME is coming from. If layout property is null, 
+        it means that ME is not coming from a layout. 
+        """
         # Path must end with a slash
         if path and not path.endswith('/'):
             path = path + '/'
@@ -74,32 +58,51 @@ class GUIService:
         lines = await cls.__get_melist(run, dataset)
 
         regex = re.compile(search) if search else None
-        dirs = set()
         objs = set()
+        dirs = set()
+
+        path_util = PathUtil()
 
         # TODO: This is now a linear search over a sorted list: optimize this!!!
         for x in range(len(lines)):
             line = lines[x].decode("utf-8")
-            subitem = get_subitem(line, path)
-            if subitem:
+            path_util.set_path(line)
+            subsequent_segment = path_util.subsequent_segment_of(path)
+            if subsequent_segment:
                 if regex and not regex.match(line.split('/')[-1]):
                     continue # Regex is provided and ME name doesn't match it
                 
                 if '\0' in line:
                     continue # This is a secondary item, not a main ME name
 
-                if subitem[1]:
-                    objs.add(subitem[0])
+                if subsequent_segment.is_file:
+                    # TODO path has to be full path to the ME, not only to a folder
+                    objs.add((subsequent_segment.name, path[:-1], None))
                 else:
-                    dirs.add(subitem[0])
+                    dirs.add(subsequent_segment.name)
 
-        # Remove last slash before returning
-        path = path[:-1]
+        # Add MEs from layouts
+        # Layouts will be filtered against the search regex on their destination name.
+        # Non existant sources will still be attempted to be displayed resulting in 
+        # 'ME not found' string to be rendered.
+        for layout in cls.layouts_manager.get_layouts():
+            path_util.set_path(layout.destination)
+            subsequent_segment = path_util.subsequent_segment_of(path)
+            if subsequent_segment:
+                if regex and not regex.match(layout.destination.split('/')[-1]):
+                    continue # Regex is provided and destination ME name doesn't match it
+
+                if subsequent_segment.is_file:
+                    objs.add((subsequent_segment.name, layout.source, layout.name))
+                else:
+                    dirs.add(subsequent_segment.name)
+
+
 
         # Put results to a list to be returned
         data = {'contents': []}
         data['contents'].extend({'subdir': x} for x in dirs)
-        data['contents'].extend({'obj': x, 'dir': path} for x in objs)
+        data['contents'].extend({'obj': name, 'dir': fullpath, 'layout': layoutname} for name, fullpath, layoutname in objs)
 
         return data
 
