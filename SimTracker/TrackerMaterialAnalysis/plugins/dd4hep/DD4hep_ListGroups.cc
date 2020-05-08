@@ -61,8 +61,8 @@ private:
   void fillMaterialDifferences();
   void produceAndSaveSummaryPlot(cms::DDCompactView cpv);
   std::vector<std::pair<std::shared_ptr<TLine>, std::shared_ptr<TText>>> overlayEtaReferences();
-  std::map<std::string, std::pair<float, float> > m_diff;
-  std::map<std::string, std::pair<float, float> > m_values;
+  std::map<std::string, std::pair<float, float>> m_diff;
+  std::map<std::string, std::pair<float, float>> m_values;
 };
 
 #include "DD4hep_ListGroupsMaterialDifference.h"
@@ -81,7 +81,6 @@ DD4hep_ListGroups::DD4hep_ListGroups(const edm::ParameterSet &iConfig)
 DD4hep_ListGroups::~DD4hep_ListGroups() {}
 
 void DD4hep_ListGroups::produceAndSaveSummaryPlot(cms::DDCompactView cpv) {
-
   const double scale = 10.;
 
   static int markerStyles[10] = {kFullCircle,
@@ -145,12 +144,11 @@ void DD4hep_ListGroups::produceAndSaveSummaryPlot(cms::DDCompactView cpv) {
     color_index++;
 
     color_index = color_index % m_color.size();
-
   }
   leg->Draw();
   canvas->SaveAs("Grouping.png");
 
-  std::vector<std::pair<std::shared_ptr<TLine>, std::shared_ptr<TText> > > lines = overlayEtaReferences();
+  std::vector<std::pair<std::shared_ptr<TLine>, std::shared_ptr<TText>>> lines = overlayEtaReferences();
 
   canvas->Clear();
   radlen->SetMinimum(0);
@@ -197,7 +195,6 @@ void DD4hep_ListGroups::produceAndSaveSummaryPlot(cms::DDCompactView cpv) {
     line.second->Draw();
   }
   canvas->SaveAs("EnergyLossChanges.png");
-
 }
 
 void DD4hep_ListGroups::fillColor(void) {
