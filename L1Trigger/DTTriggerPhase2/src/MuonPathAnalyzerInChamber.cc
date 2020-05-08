@@ -65,7 +65,8 @@ void MuonPathAnalyzerInChamber::initialise(const edm::EventSetup &iEventSetup) {
   if (debug_)
     cout << "MuonPathAnalyzerInChamber::initialiase" << endl;
 
-  dtGeo_ = iEventSetup.getData(dtGeomH);
+  const MuonGeometryRecord &geom = iEventSetup.get<MuonGeometryRecord>();
+  dtGeo_ = &geom.get(dtGeomH);
 }
 
 void MuonPathAnalyzerInChamber::run(edm::Event &iEvent,
@@ -196,7 +197,7 @@ void MuonPathAnalyzerInChamber::analyze(MuonPath *inMPath, std::vector<MuonPath 
 
     DTSuperLayerId MuonPathSLId(thisLId.wheel(), thisLId.station(), thisLId.sector(), thisLId.superLayer());
     GlobalPoint jm_x_cmssw_global =
-        dtGeo_.chamber(MuonPathSLId)
+        dtGeo_->chamber(MuonPathSLId)
             ->toGlobal(LocalPoint(jm_x, 0., z));  //jm_x is already extrapolated to the middle of the SL
     int thisec = MuonPathSLId.sector();
     if (thisec == 13)

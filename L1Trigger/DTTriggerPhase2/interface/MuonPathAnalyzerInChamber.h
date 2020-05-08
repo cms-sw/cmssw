@@ -79,7 +79,7 @@ public:
   bool hasPosRF(int wh, int sec) { return wh > 0 || (wh == 0 && sec % 4 > 1); };
 
   // Public attributes
-  DTGeometry dtGeo_;
+  DTGeometry const *dtGeo_;
   edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomH;
 
   //ttrig

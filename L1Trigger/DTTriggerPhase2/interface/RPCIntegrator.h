@@ -97,8 +97,8 @@ private:
   double m_phi_window_;
   bool m_storeAllRPCHits_;
 
-  DTGeometry dtGeo_;
-  RPCGeometry rpcGeo_;
+  DTGeometry const* dtGeo_;
+  RPCGeometry const* rpcGeo_;
   edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomH;
   edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeomH;
 

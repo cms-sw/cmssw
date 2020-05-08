@@ -55,7 +55,8 @@ void MuonPathAssociator::initialise(const edm::EventSetup &iEventSetup) {
   if (debug)
     cout << "MuonPathAssociator::initialiase" << endl;
 
-  dtGeo_ = iEventSetup.getData(dtGeomH);
+  const MuonGeometryRecord &geom = iEventSetup.get<MuonGeometryRecord>();
+  dtGeo_ = &geom.get(dtGeomH);
 }
 
 void MuonPathAssociator::run(edm::Event &iEvent,
@@ -261,7 +262,7 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
             double z = 0;
             if (ChId.station() >= 3)
               z = -1.8;
-            GlobalPoint jm_x_cmssw_global = dtGeo_.chamber(ChId)->toGlobal(
+            GlobalPoint jm_x_cmssw_global = dtGeo_->chamber(ChId)->toGlobal(
                 LocalPoint(MeanPos, 0., z));  //Jm_x is already extrapolated to the middle of the SL
             int thisec = ChId.sector();
             if (se == 13)

@@ -9,8 +9,9 @@
 #include <vector>
 
 // CMSSW headers
-#include <FWCore/Framework/interface/ConsumesCollector.h>
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -164,6 +165,7 @@ private:
       LowerNumber;
   double angletan, anglebinwidth, posbinwidth, maxdeltaAngDeg, maxdeltaPos, MaxDistanceToWire;
 
+  DTGeometry const* dtGeo_;
   edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomH;
   DTChamberId TheChambId;
 

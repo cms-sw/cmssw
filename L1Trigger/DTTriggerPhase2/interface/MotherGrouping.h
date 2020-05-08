@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"

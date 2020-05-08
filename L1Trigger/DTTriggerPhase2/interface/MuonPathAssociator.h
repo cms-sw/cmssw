@@ -66,7 +66,7 @@ public:
   void printmPC(metaPrimitive mP);
 
   // Public attributes
-  DTGeometry dtGeo_;
+  DTGeometry const *dtGeo_;
   edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomH;
 
 private:

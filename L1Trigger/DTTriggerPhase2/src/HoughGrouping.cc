@@ -65,6 +65,8 @@ HoughGrouping::HoughGrouping(const ParameterSet& pset, edm::ConsumesCollector& i
   minSingleSLHitsMin = (unsigned short int)pset.getUntrackedParameter<int>("minSingleSLHitsMin");
   allowUncorrelatedPatterns = pset.getUntrackedParameter<bool>("allowUncorrelatedPatterns");
   minUncorrelatedHits = (unsigned short int)pset.getUntrackedParameter<int>("minUncorrelatedHits");
+
+  dtGeomH = iC.esConsumes<DTGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
 }
 
 HoughGrouping::~HoughGrouping() {
@@ -115,6 +117,9 @@ void HoughGrouping::initialise(const edm::EventSetup& iEventSetup) {
     cout << "HoughGrouping::ResetAttributes - oneanglebin: " << oneanglebin << endl;
     cout << "HoughGrouping::ResetAttributes - posbinwidth: " << posbinwidth << endl;
   }
+
+  const MuonGeometryRecord& geom = iEventSetup.get<MuonGeometryRecord>();
+  dtGeo_ = &geom.get(dtGeomH);
 }
 
 void HoughGrouping::run(edm::Event& iEvent,
@@ -126,14 +131,12 @@ void HoughGrouping::run(edm::Event& iEvent,
 
   ResetAttributes();
 
-  const auto& dtGeom = iEventSetup.getData(dtGeomH);
-
   if (debug)
     cout << "HoughGrouping::run - Beginning digis' loop..." << endl;
   LocalPoint wirePosInLay, wirePosInChamber;
   GlobalPoint wirePosGlob;
   for (DTDigiCollection::DigiRangeIterator dtLayerIdIt = digis.begin(); dtLayerIdIt != digis.end(); dtLayerIdIt++) {
-    const DTLayer* lay = dtGeom.layer((*dtLayerIdIt).first);
+    const DTLayer* lay = dtGeo_->layer((*dtLayerIdIt).first);
     for (DTDigiCollection::const_iterator digiIt = ((*dtLayerIdIt).second).first;
          digiIt != ((*dtLayerIdIt).second).second;
          digiIt++) {
@@ -227,7 +230,7 @@ void HoughGrouping::run(edm::Event& iEvent,
   }
 
   DTChamberId TheChambId(thewheel, thestation, thesector);
-  const DTChamber* TheChamb = dtGeom.chamber(TheChambId);
+  const DTChamber* TheChamb = dtGeo_->chamber(TheChambId);
   std::vector<ProtoCand> cands;
 
   for (unsigned short int ican = 0; ican < maxima.size(); ican++) {
@@ -578,6 +581,12 @@ ProtoCand HoughGrouping::AssociateHits(const DTChamber* thechamb, double m, doub
   bool isright = false;
 
   ProtoCand returnPC;
+  for (auto l = 0; l < 8; l++) {
+    returnPC.IsThereHitInLayer.push_back(false);
+    returnPC.IsThereNeighBourHitInLayer.push_back(false);
+    returnPC.xDistToPattern.push_back(0);
+    returnPC.DTHits.push_back(DTPrimitive());
+  }
 
   if (debug)
     cout << "HoughGrouping::AssociateHits - Beginning SL loop" << endl;
@@ -668,6 +677,7 @@ ProtoCand HoughGrouping::AssociateHits(const DTChamber* thechamb, double m, doub
           returnPC.xDistToPattern[abslay] = abs(tmpx - (tmpLocalCh.x() + 1.05));
           returnPC.DTHits[abslay] = DTPrimitive(digimap[abslay][tmpwire - 1]);
           returnPC.DTHits[abslay].setLaterality(RIGHT);
+
         } else if ((!isleft) && (isright)) {
           tmpLocal = LocalPoint(thechamb->superLayer(sl)->layer(l)->specificTopology().wirePosition(tmpwire + 1), 0, 0);
           tmpGlobal = thechamb->superLayer(sl)->layer(l)->toGlobal(tmpLocal);

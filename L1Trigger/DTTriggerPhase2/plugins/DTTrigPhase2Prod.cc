@@ -106,9 +106,8 @@ public:
   void setMinimumQuality(MP_QUALITY q);
 
   // data-members
-  DTGeometry dtGeo_;
+  DTGeometry const* dtGeo_;
   edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomH;
-  //  const DTGeometry dtGeo_;
   std::vector<std::pair<int, MuonPath>> primitives_;
 
 private:
@@ -197,13 +196,10 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset) {
   if (grcode_ == 1)
     grouping_obj_ = std::unique_ptr<HoughGrouping>(
         new HoughGrouping(pset.getParameter<edm::ParameterSet>("HoughGrouping"), consumesColl));
-  //    grouping_obj_ = new HoughGrouping(pset.getParameter<edm::ParameterSet>("HoughGrouping"));
   else if (grcode_ == 2)
     grouping_obj_ = std::unique_ptr<PseudoBayesGrouping>(
         new PseudoBayesGrouping(pset.getParameter<edm::ParameterSet>("PseudoBayesPattern"), consumesColl));
-  //    grouping_obj_ = new PseudoBayesGrouping(pset.getParameter<edm::ParameterSet>("PseudoBayesPattern"));
   else {
-    //    grouping_obj_ = new InitialGrouping(pset);
     grouping_obj_ = std::unique_ptr<InitialGrouping>(new InitialGrouping(pset, consumesColl));
   }
 
@@ -227,22 +223,12 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset) {
   mpathassociator_ = std::unique_ptr<MuonPathAssociator>(new MuonPathAssociator(pset, consumesColl));
   rpc_integrator_ = std::unique_ptr<RPCIntegrator>(new RPCIntegrator(pset, consumesColl));
 
-  dtGeomH = esConsumes<DTGeometry, MuonGeometryRecord>();
+  dtGeomH = esConsumes<DTGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
 }
 
 DTTrigPhase2Prod::~DTTrigPhase2Prod() {
-  //delete inMuonPath;
-  //delete outValidMuonPath;
-
   if (debug_)
     std::cout << "DTp2: calling destructor" << std::endl;
-
-  //  delete grouping_obj_;          // Grouping destructor
-  //  delete mpathanalyzer_;         // Analyzer destructor
-  //  delete mpathqualityenhancer_;  // Filter destructor
-  //  delete mpathredundantfilter_;  // Filter destructor
-  //  delete mpathassociator_;       // Associator destructor
-  //  delete rpc_integrator_;
 }
 
 void DTTrigPhase2Prod::beginRun(edm::Run const& iRun, const edm::EventSetup& iEventSetup) {
@@ -256,6 +242,9 @@ void DTTrigPhase2Prod::beginRun(edm::Run const& iRun, const edm::EventSetup& iEv
   mpathqualityenhancer_->initialise(iEventSetup);  // Filter object initialisation
   mpathredundantfilter_->initialise(iEventSetup);  // Filter object initialisation
   mpathassociator_->initialise(iEventSetup);       // Associator object initialisation
+
+  const MuonGeometryRecord& geom = iEventSetup.get<MuonGeometryRecord>();
+  dtGeo_ = &geom.get(dtGeomH);
 }
 
 void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
@@ -269,7 +258,6 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
   edm::Handle<RPCRecHitCollection> rpcRecHits;
   iEvent.getByToken(rpcRecHitsLabel_, rpcRecHits);
 
-  dtGeo_ = iEventSetup.getData(dtGeomH);  //1103
   ////////////////////////////////
   // GROUPING CODE:
   ////////////////////////////////
@@ -289,8 +277,7 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
   else if (debug_)
     cout << "DTTrigPhase2Prod::produce - Getting and grouping digis per chamber." << endl;
   std::vector<MuonPath*> muonpaths;
-  for (std::vector<const DTChamber*>::const_iterator ich = dtGeo_.chambers().begin(); ich != dtGeo_.chambers().end();
-       ich++) {
+  for (auto ich = dtGeo_->chambers().begin(); ich != dtGeo_->chambers().end(); ich++) {
     // The code inside this for loop would ideally later fit inside a trigger unit (in principle, a DT station) of the future Phase 2 DT Trigger.
     const DTChamber* chamb = (*ich);
     DTChamberId chid = chamb->id();
@@ -530,10 +517,15 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
     if (debug_)
       std::cout << "Start integrating RPC" << std::endl;
     rpc_integrator_->initialise(iEventSetup, shift_back);
+    std::cout << "prepare MP " << endl;
     rpc_integrator_->prepareMetaPrimitives(rpcRecHits);
+    std::cout << "match with DT " << endl;
     rpc_integrator_->matchWithDTAndUseRPCTime(correlatedMetaPrimitives);
+    std::cout << "Make RPC only " << endl;
     rpc_integrator_->makeRPCOnlySegments();
+    std::cout << "Store RPC " << endl;
     rpc_integrator_->storeRPCSingleHits();
+    std::cout << "Remove RPC hits" << endl;
     rpc_integrator_->removeRPCHitsUsed();
   }
 
@@ -604,7 +596,7 @@ void DTTrigPhase2Prod::endRun(edm::Run const& iRun, const edm::EventSetup& iEven
   mpathanalyzer_->finish();
   mpathqualityenhancer_->finish();
   mpathredundantfilter_->finish();
-  //  mpathassociator_->finish();
+  mpathassociator_->finish();
   rpc_integrator_->finish();
 };
 
