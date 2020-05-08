@@ -51,6 +51,10 @@ namespace gainCalibHelper {
       }
 
       for (const auto& d : detids) {
+        // skip the special case used to signal there are no attached dets
+        if (d == 0xFFFFFFFF)
+          continue;
+
         auto range = payload->getRange(d);
         int numberOfRowsToAverageOver = payload->getNumberOfRowsToAverageOver();
         int ncols = payload->getNCols(d);

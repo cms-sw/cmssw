@@ -125,11 +125,13 @@ namespace PixelRegions {
   static const std::vector<uint32_t> attachedDets(const PixelRegions::PixelId theId,
                                                   const TrackerTopology* trackTopo,
                                                   const bool phase1) {
-    std::vector<uint32_t> out;
+    std::vector<uint32_t> out = {};
     edm::FileInPath m_fp;
     if (phase1) {
+      // phase-1 skimmed geometry from release
       m_fp = edm::FileInPath("SLHCUpgradeSimulations/Geometry/data/PhaseI/PixelSkimmedGeometry_phase1.txt");
     } else {
+      // phase-0 skimmed geometry from release
       m_fp = edm::FileInPath("CalibTracker/SiPixelESProducers/data/PixelSkimmedGeometry.txt");
     }
 
@@ -141,6 +143,20 @@ namespace PixelRegions {
         out.push_back(d);
       }
     }
+
+    // in case no DetIds are assigned, fill with UINT32_MAX
+    // in order to be able to tell a part the default case
+    // in SiPixelGainCalibHelper::fillTheHitsto
+    if (out.empty()) {
+      out.push_back(0xFFFFFFFF);
+    }
+
+    COUT << "ID:" << theId << " ";
+    for (const auto& entry : out) {
+      COUT << entry << ",";
+    }
+    COUT << std::endl;
+
     return out;
   }
 
@@ -198,7 +214,18 @@ namespace PixelRegions {
           } else {
             canv.cd(j)->SetLogy();
           }
-          m_theMap.at(PixelIDs[j - 1])->Draw(option);
+          if ((j == 4) && !m_isPhase1) {
+            m_theMap.at(PixelIDs[j - 1])->Draw("AXIS");
+            TLatex t2;
+            t2.SetTextAlign(22);
+            t2.SetTextSize(0.1);
+            t2.SetTextAngle(45);
+            t2.SetTextFont(61);
+            t2.SetTextColor(kBlack);
+            t2.DrawLatexNDC(0.5, 0.5, "Not in Phase-0!");
+          } else {
+            m_theMap.at(PixelIDs[j - 1])->Draw(option);
+          }
         }
       } else {  // forward
         for (int j = 1; j <= 12; j++) {
@@ -207,7 +234,18 @@ namespace PixelRegions {
           } else {
             canv.cd(j)->SetLogy();
           }
-          m_theMap.at(PixelIDs[j + 3])->Draw(option);
+          if ((j % 6 == 5 || j % 6 == 0) && !m_isPhase1) {
+            m_theMap.at(PixelIDs[j + 3])->Draw("AXIS");
+            TLatex t2;
+            t2.SetTextAlign(22);
+            t2.SetTextSize(0.1);
+            t2.SetTextAngle(45);
+            t2.SetTextFont(61);
+            t2.SetTextColor(kBlack);
+            t2.DrawLatexNDC(0.5, 0.5, "Not in Phase-0!");
+          } else {
+            m_theMap.at(PixelIDs[j + 3])->Draw(option);
+          }
         }
       }
     }
