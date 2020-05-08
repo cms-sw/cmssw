@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
@@ -41,7 +42,7 @@
 class MuonPathAssociator {
 public:
   // Constructors and destructor
-  MuonPathAssociator(const edm::ParameterSet &pset);
+  MuonPathAssociator(const edm::ParameterSet &pset, edm::ConsumesCollector &iC);
   ~MuonPathAssociator();
 
   // Main methods
@@ -67,7 +68,6 @@ public:
   // Public attributes
   DTGeometry dtGeo_;
   edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomH;
-
 
 private:
   // Private methods

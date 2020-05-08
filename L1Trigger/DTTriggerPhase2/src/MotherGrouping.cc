@@ -6,7 +6,7 @@ using namespace std;
 // ============================================================================
 // Constructors and destructor
 // ============================================================================
-MotherGrouping::MotherGrouping(const ParameterSet& pset) {
+MotherGrouping::MotherGrouping(const ParameterSet& pset, edm::ConsumesCollector& iC) {
   // Obtention of parameters
   debug = pset.getUntrackedParameter<bool>("debug");
   if (debug)

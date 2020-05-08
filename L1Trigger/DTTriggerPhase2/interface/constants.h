@@ -83,13 +83,12 @@ struct PARTIAL_LATQ_TYPE {
   bool latQValid;
   int bxValue;
 };
-struct LATQ_TYPE{
+struct LATQ_TYPE {
   bool valid;
   int bxValue;
   int invalidateHitIdx;
   MP_QUALITY quality;
 };
-
 
 namespace cmsdt {
 
@@ -108,7 +107,7 @@ namespace cmsdt {
   constexpr int CELL_SEMILENGTH = 21;
   // En milímetros / nanosegundo (velocidad de deriva)
   constexpr float DRIFT_SPEED = 0.0542;
-/*
+  /*
   This is the maximum value than internal time can take. This is because
   internal time is cyclical due to the limited size of the time counters and
   the limited value of the bunch crossing index.
@@ -116,20 +115,20 @@ namespace cmsdt {
   maximum BX index, plus an arbitrary amount for taking into account the
   muon traveling time and muon's signal drift time.
  */
-  constexpr int MAX_VALUE_OF_TIME =(LHC_CLK_FREQ * MAX_BX_IDX + 5000);
+  constexpr int MAX_VALUE_OF_TIME = (LHC_CLK_FREQ * MAX_BX_IDX + 5000);
 
-/*
+  /*
  * Total BTI number and total channel number must be coordinated. One BTI
  * works over 10 channels, but 2 consecutive BTI's overlap many of their
  * channels.
  */
-  constexpr int  TOTAL_BTI = 100;         // Should be the same value as NUM_CH_PER_LAYER
-  constexpr int  NUM_CH_PER_LAYER = 100;  // Should be the same value as TOTAL_BTI
-  constexpr int  NUM_LAYERS = 4;
-  constexpr int  TOTAL_CHANNELS = (NUM_LAYERS * NUM_CH_PER_LAYER);
-  constexpr int  NUM_SUPERLAYERS = 3;
+  constexpr int TOTAL_BTI = 100;         // Should be the same value as NUM_CH_PER_LAYER
+  constexpr int NUM_CH_PER_LAYER = 100;  // Should be the same value as TOTAL_BTI
+  constexpr int NUM_LAYERS = 4;
+  constexpr int TOTAL_CHANNELS = (NUM_LAYERS * NUM_CH_PER_LAYER);
+  constexpr int NUM_SUPERLAYERS = 3;
 
-/*
+  /*
  * Size of pre-mixer buffers for DTPrimitives
  *
  * As first approach, this value should be evaluated in order to allow storing
@@ -138,11 +137,11 @@ namespace cmsdt {
  * the processing speed of the final analyzer.
  */
   constexpr int SIZE_SEEKT_BUFFER = 32;
-  
-// Number of cells for a analysis block (BTI)
+
+  // Number of cells for a analysis block (BTI)
   constexpr int NUM_CELLS_PER_BLOCK = 10;
 
-/*
+  /*
  * Number of entries for the payload inside DTPrimitive.
  * This value is also used in other code places to manage reading and writing
  * from/to files
@@ -150,6 +149,6 @@ namespace cmsdt {
   constexpr int PAYLOAD_ENTRIES = 9;
   // #define PAYLOAD_ENTRIES 1
 
-}  // namespace CMS
+}  // namespace cmsdt
 
 #endif

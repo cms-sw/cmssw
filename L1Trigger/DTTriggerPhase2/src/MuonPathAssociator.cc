@@ -8,7 +8,7 @@ using namespace std;
 // ============================================================================
 // Constructors and destructor
 // ============================================================================
-MuonPathAssociator::MuonPathAssociator(const ParameterSet &pset) {
+MuonPathAssociator::MuonPathAssociator(const ParameterSet &pset, edm::ConsumesCollector &iC) {
   // Obtention of parameters
   debug = pset.getUntrackedParameter<bool>("debug");
   clean_chi2_correlation = pset.getUntrackedParameter<bool>("clean_chi2_correlation");
@@ -39,6 +39,8 @@ MuonPathAssociator::MuonPathAssociator(const ParameterSet &pset) {
     ifin3 >> rawId >> shift;
     shiftinfo[rawId] = shift;
   }
+
+  dtGeomH = iC.esConsumes<DTGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
 }
 
 MuonPathAssociator::~MuonPathAssociator() {

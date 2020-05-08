@@ -33,7 +33,7 @@ void DTPattern::addHit(RefDTPatternHit hit) {
               << std::endl;
 }
 
-int DTPattern::latHitIn(int slId, int chId, int allowedVariance) const{
+int DTPattern::latHitIn(int slId, int chId, int allowedVariance) const {
   //Check if a hit is inside of the pattern for a given pattern width
   int temp = -999;
   //std::cout << std::endl << "Compare " << slId << " , " << chId << " with" <<  std::endl;

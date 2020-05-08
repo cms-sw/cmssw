@@ -46,7 +46,6 @@
 #include "TFile.h"
 #include "TString.h"
 
-
 // ===============================================================================
 // Class declarations
 // ===============================================================================
@@ -54,7 +53,7 @@
 class PseudoBayesGrouping : public MotherGrouping {
 public:
   // Constructors and destructor
-  PseudoBayesGrouping(const edm::ParameterSet& pset);
+  PseudoBayesGrouping(const edm::ParameterSet& pset, edm::ConsumesCollector& iC);
   ~PseudoBayesGrouping() override;
 
   // Main methods
@@ -71,7 +70,7 @@ public:
 
 private:
   // Private methods
-  void LoadPattern(std::vector<std::vector<std::vector<int> > >::iterator itPattern);
+  void LoadPattern(std::vector<std::vector<std::vector<int>>>::iterator itPattern);
   void FillDigisByLayer(const DTDigiCollection* digis);
   void CleanDigisByLayer();
   void RecognisePatternsByLayerPairs();
@@ -113,10 +112,10 @@ private:
   std::vector<DTPrimitive> digisinL6;
   std::vector<DTPrimitive> digisinL7;
 
-  //Preliminary matches, those can grow quite big so better not to rely on the stack 
-  std::vector<CandidateGroup*>* prelimMatches;
-  std::vector<CandidateGroup*>* allMatches;
-  std::vector<CandidateGroup*>* finalMatches;
+  //Preliminary matches, those can grow quite big so better not to rely on the stack
+  std::unique_ptr<std::vector<CandidateGroup*>> prelimMatches;
+  std::unique_ptr<std::vector<CandidateGroup*>> allMatches;
+  std::unique_ptr<std::vector<CandidateGroup*>> finalMatches;
 
   //Pattern related info
   int nPatterns;

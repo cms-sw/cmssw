@@ -36,21 +36,18 @@
 // ===============================================================================
 // Previous definitions and declarations
 // ===============================================================================
-namespace { 
-  constexpr int NLayers = 8 ;
+namespace {
+  constexpr int NLayers = 8;
   typedef std::array<LATERAL_CASES, NLayers> TLateralities;
-}
+}  // namespace
 // ===============================================================================
 // Class declarations
 // ===============================================================================
 
 class MuonPathAnalyzerInChamber : public MuonPathAnalyzer {
-
-
 public:
-
   // Constructors and destructor
-  MuonPathAnalyzerInChamber(const edm::ParameterSet &pset);
+  MuonPathAnalyzerInChamber(const edm::ParameterSet &pset, edm::ConsumesCollector &iC);
   virtual ~MuonPathAnalyzerInChamber();
 
   // Main methods
@@ -94,9 +91,7 @@ public:
   //shift
   std::map<int, float> shiftinfo_;
 
-
 private:
-
   // Private methods
   //  void analyze(MuonPath *inMPath, std::vector<metaPrimitive> &metaPrimitives);
   void analyze(MuonPath *inMPath, std::vector<MuonPath *> &outMPaths);

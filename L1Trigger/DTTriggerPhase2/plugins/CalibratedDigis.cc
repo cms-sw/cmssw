@@ -59,7 +59,6 @@ public:
   explicit CalibratedDigis(const edm::ParameterSet&);
   ~CalibratedDigis();
 
- 
 private:
   int timeOffset_;
   int flat_calib_;
@@ -89,8 +88,6 @@ private:
 // constructors and destructor
 //
 CalibratedDigis::CalibratedDigis(const edm::ParameterSet& iConfig) {
- 
-  
   //register your products
   /* Examples
    produces<ExampleData2>();
@@ -128,9 +125,9 @@ CalibratedDigis::~CalibratedDigis() {
 // ------------ method called to produce the data  ------------
 void CalibratedDigis::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //  auto cc = setWhatProduced(this);
-  
+
   using namespace edm;
-  theSync->setES(iSetup);  
+  theSync->setES(iSetup);
   iEvent.getByToken(dtDigisToken, DTDigiHandle);
   DTDigiCollection mydigis;
 
@@ -171,7 +168,6 @@ void CalibratedDigis::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 // ------------ method called when starting to processes a run  ------------
 
 // ------------ method called when ending the processing of a run  ------------
-
 
 // ------------ method called when starting to processes a luminosity block  ------------
 

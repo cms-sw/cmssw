@@ -6,41 +6,40 @@ using namespace cmsdt;
 
 namespace {
   struct {
-    bool operator()(std::tuple<unsigned short int, bool*, bool*, unsigned short int, double*, DTPrimitive*> a,
-                    std::tuple<unsigned short int, bool*, bool*, unsigned short int, double*, DTPrimitive*> b) const {
+    bool operator()(ProtoCand a, ProtoCand b) const {
       unsigned short int sumhqa = 0;
       unsigned short int sumhqb = 0;
       unsigned short int sumlqa = 0;
       unsigned short int sumlqb = 0;
       double sumdista = 0;
       double sumdistb = 0;
-      
+
       for (unsigned short int lay = 0; lay < 8; lay++) {
-	sumhqa += (unsigned short int)get<1>(a)[lay];
-	sumhqb += (unsigned short int)get<1>(b)[lay];
-	sumlqa += (unsigned short int)get<2>(a)[lay];
-	sumlqb += (unsigned short int)get<2>(b)[lay];
-	sumdista += get<4>(a)[lay];
-	sumdistb += get<4>(b)[lay];
+        sumhqa += (unsigned short int)a.IsThereHitInLayer[lay];
+        sumhqb += (unsigned short int)b.IsThereHitInLayer[lay];
+        sumlqa += (unsigned short int)a.IsThereNeighBourHitInLayer[lay];
+        sumlqb += (unsigned short int)b.IsThereNeighBourHitInLayer[lay];
+        sumdista += a.xDistToPattern[lay];
+        sumdistb += b.xDistToPattern[lay];
       }
-      
-      if (get<0>(a) != get<0>(b))
-	return (get<0>(a) > get<0>(b));  // number of layers with hits
+
+      if (a.NLayersWithHits != b.NLayersWithHits)
+        return (a.NLayersWithHits > b.NLayersWithHits);  // number of layers with hits
       else if (sumhqa != sumhqb)
-	return (sumhqa > sumhqb);  // number of hq hits
+        return (sumhqa > sumhqb);  // number of hq hits
       else if (sumlqa != sumlqb)
-	return (sumlqa > sumlqb);  // number of lq hits
-      else if (get<3>(a) != get<3>(b))
-	return (get<3>(a) < get<3>(b));  // abs. diff. between SL1 & SL3 hits
+        return (sumlqa > sumlqb);  // number of lq hits
+      else if (a.NHitsDiff != b.NHitsDiff)
+        return (a.NHitsDiff < b.NHitsDiff);  // abs. diff. between SL1 & SL3 hits
       else
-	return (sumdista < sumdistb);  // abs. dist. to digis
+        return (sumdista < sumdistb);  // abs. dist. to digis
     }
   } HoughOrdering;
-}
+}  // namespace
 // ============================================================================
 // Constructors and destructor
 // ============================================================================
-HoughGrouping::HoughGrouping(const ParameterSet& pset) : MotherGrouping(pset) {
+HoughGrouping::HoughGrouping(const ParameterSet& pset, edm::ConsumesCollector& iC) : MotherGrouping(pset, iC) {
   // Obtention of parameters
   debug = pset.getUntrackedParameter<bool>("debug");
   if (debug)
@@ -66,7 +65,6 @@ HoughGrouping::HoughGrouping(const ParameterSet& pset) : MotherGrouping(pset) {
   minSingleSLHitsMin = (unsigned short int)pset.getUntrackedParameter<int>("minSingleSLHitsMin");
   allowUncorrelatedPatterns = pset.getUntrackedParameter<bool>("allowUncorrelatedPatterns");
   minUncorrelatedHits = (unsigned short int)pset.getUntrackedParameter<int>("minUncorrelatedHits");
-  
 }
 
 HoughGrouping::~HoughGrouping() {
@@ -128,9 +126,9 @@ void HoughGrouping::run(edm::Event& iEvent,
 
   ResetAttributes();
 
-  const auto & dtGeom = iEventSetup.getData(dtGeomH); 
+  const auto& dtGeom = iEventSetup.getData(dtGeomH);
 
-  if (debug) 
+  if (debug)
     cout << "HoughGrouping::run - Beginning digis' loop..." << endl;
   LocalPoint wirePosInLay, wirePosInChamber;
   GlobalPoint wirePosGlob;
@@ -230,7 +228,7 @@ void HoughGrouping::run(edm::Event& iEvent,
 
   DTChamberId TheChambId(thewheel, thestation, thesector);
   const DTChamber* TheChamb = dtGeom.chamber(TheChambId);
-  std::vector<std::tuple<unsigned short int, bool*, bool*, unsigned short int, double*, DTPrimitive*>> cands;
+  std::vector<ProtoCand> cands;
 
   for (unsigned short int ican = 0; ican < maxima.size(); ican++) {
     if (debug)
@@ -243,17 +241,18 @@ void HoughGrouping::run(edm::Event& iEvent,
   if (debug)
     cout << "HoughGrouping::run - now we have our muonpaths! It has " << outMpath->size() << " elements" << endl;
 
-  short int indi = cands.size() - 1;
-  while (!cands.empty()) {
-    delete[] get<1>(cands.at(indi));
-    delete[] get<2>(cands.at(indi));
-    delete[] get<4>(cands.at(indi));
-    delete[] get<5>(cands.at(indi));
-
-    cands.pop_back();
-    indi--;
-  }
-  std::vector<std::tuple<unsigned short int, bool*, bool*, unsigned short int, double*, DTPrimitive*>>().swap(cands);
+  cands.clear();
+  //  short int indi = cands.size() - 1;
+  //  while (!cands.empty()) {
+  //    delete[] get<1>(cands.at(indi));
+  //    delete[] get<2>(cands.at(indi));
+  //    delete[] get<4>(cands.at(indi));
+  //    delete[] get<5>(cands.at(indi));
+  //
+  //    cands.pop_back();
+  //    indi--;
+  //  }
+  //  std::vector<std::tuple<unsigned short int, bool*, bool*, unsigned short int, double*, DTPrimitive*>>().swap(cands);
   return;
 }
 
@@ -533,7 +532,7 @@ std::vector<std::pair<double, double>> HoughGrouping::FindTheMaxima(
 }
 
 std::pair<double, double> HoughGrouping::GetTwoDelta(std::tuple<double, double, unsigned short int> pair1,
-                                                         std::tuple<double, double, unsigned short int> pair2) {
+                                                     std::tuple<double, double, unsigned short int> pair2) {
   if (debug)
     cout << "HoughGrouping::GetTwoDelta" << endl;
   return {TMath::Abs(get<0>(pair1) - get<0>(pair2)), TMath::Abs(get<1>(pair1) - get<1>(pair2))};
@@ -564,8 +563,7 @@ std::pair<double, double> HoughGrouping::GetAveragePoint(
   return {TMath::Mean(xs.begin(), xs.end(), ws.begin()), TMath::Mean(ys.begin(), ys.end(), ws.begin())};
 }
 
-std::tuple<unsigned short int, bool*, bool*, unsigned short int, double*, DTPrimitive*> HoughGrouping::AssociateHits(
-    const DTChamber* thechamb, double m, double n) {
+ProtoCand HoughGrouping::AssociateHits(const DTChamber* thechamb, double m, double n) {
   if (debug)
     cout << "HoughGrouping::AssociateHits" << endl;
   LocalPoint tmpLocal, AWireLocal, AWireLocalCh, tmpLocalCh, thepoint;
@@ -579,24 +577,7 @@ std::tuple<unsigned short int, bool*, bool*, unsigned short int, double*, DTPrim
   bool isleft = false;
   bool isright = false;
 
-  std::tuple<unsigned short int, bool*, bool*, unsigned short int, double*, DTPrimitive*> returntuple;
-  get<0>(returntuple) = 0;
-  get<1>(returntuple) = new bool[8];
-  get<2>(returntuple) = new bool[8];
-  get<3>(returntuple) = 0;
-  get<4>(returntuple) = new double[8];
-  for (unsigned short int lay = 0; lay < 8; lay++) {
-    get<1>(returntuple)[lay] = false;
-    get<2>(returntuple)[lay] = false;
-    get<4>(returntuple)[lay] = 0.;
-  }
-  get<5>(returntuple) = new DTPrimitive[8];
-  // 0: # of layers with hits.
-  // 1: # of hits of high quality (the expected line crosses the cell).
-  // 2: # of hits of low quality (the expected line is in a neighbouring cell).
-  // 3: absolute diff. between the number of hits in SL1 and SL3.
-  // 4: absolute distance to all hits of the segment.
-  // 5: DTPrimitive of the candidate.
+  ProtoCand returnPC;
 
   if (debug)
     cout << "HoughGrouping::AssociateHits - Beginning SL loop" << endl;
@@ -627,7 +608,7 @@ std::tuple<unsigned short int, bool*, bool*, unsigned short int, double*, DTPrim
       tmpx = (AWireLocalCh.z() - n) / m;
 
       if ((tmpx <= xlowlim) || (tmpx >= xhighlim)) {
-        get<5>(returntuple)[abslay] = DTPrimitive();  // empty primitive
+        returnPC.DTHits[abslay] = DTPrimitive();  // empty primitive
         continue;
       }
 
@@ -653,17 +634,17 @@ std::tuple<unsigned short int, bool*, bool*, unsigned short int, double*, DTPrim
         }
 
         // Filling info
-        get<0>(returntuple)++;
-        get<1>(returntuple)[abslay] = true;
-        get<2>(returntuple)[abslay] = true;
+        returnPC.NLayersWithHits++;
+        returnPC.IsThereHitInLayer[abslay] = true;
+        returnPC.IsThereNeighBourHitInLayer[abslay] = true;
         if (lat == LEFT)
-          get<4>(returntuple)[abslay] = TMath::Abs(tmpx - (tmpLocalCh.x() - 1.05));
+          returnPC.xDistToPattern[abslay] = abs(tmpx - (tmpLocalCh.x() - 1.05));
         else if (lat == RIGHT)
-          get<4>(returntuple)[abslay] = TMath::Abs(tmpx - (tmpLocalCh.x() + 1.05));
+          returnPC.xDistToPattern[abslay] = abs(tmpx - (tmpLocalCh.x() + 1.05));
         else
-          get<4>(returntuple)[abslay] = TMath::Abs(tmpx - tmpLocalCh.x());
-        get<5>(returntuple)[abslay] = DTPrimitive(digimap[abslay][tmpwire]);
-        get<5>(returntuple)[abslay].setLaterality(lat);
+          returnPC.xDistToPattern[abslay] = abs(tmpx - tmpLocalCh.x());
+        returnPC.DTHits[abslay] = DTPrimitive(digimap[abslay][tmpwire]);
+        returnPC.DTHits[abslay].setLaterality(lat);
       } else {
         if (debug)
           cout << "HoughGrouping::AssociateHits - No hit in the crossing cell" << endl;
@@ -682,22 +663,22 @@ std::tuple<unsigned short int, bool*, bool*, unsigned short int, double*, DTPrim
           tmpLocalCh = thechamb->toLocal(tmpGlobal);
 
           // Filling info
-          get<0>(returntuple)++;
-          get<2>(returntuple)[abslay] = true;
-          get<4>(returntuple)[abslay] = TMath::Abs(tmpx - (tmpLocalCh.x() + 1.05));
-          get<5>(returntuple)[abslay] = DTPrimitive(digimap[abslay][tmpwire - 1]);
-          get<5>(returntuple)[abslay].setLaterality(RIGHT);
+          returnPC.NLayersWithHits++;
+          returnPC.IsThereNeighBourHitInLayer[abslay] = true;
+          returnPC.xDistToPattern[abslay] = abs(tmpx - (tmpLocalCh.x() + 1.05));
+          returnPC.DTHits[abslay] = DTPrimitive(digimap[abslay][tmpwire - 1]);
+          returnPC.DTHits[abslay].setLaterality(RIGHT);
         } else if ((!isleft) && (isright)) {
           tmpLocal = LocalPoint(thechamb->superLayer(sl)->layer(l)->specificTopology().wirePosition(tmpwire + 1), 0, 0);
           tmpGlobal = thechamb->superLayer(sl)->layer(l)->toGlobal(tmpLocal);
           tmpLocalCh = thechamb->toLocal(tmpGlobal);
 
           // Filling info
-          get<0>(returntuple)++;
-          get<2>(returntuple)[abslay] = true;
-          get<4>(returntuple)[abslay] = TMath::Abs(tmpx - (tmpLocalCh.x() - 1.05));
-          get<5>(returntuple)[abslay] = DTPrimitive(digimap[abslay][tmpwire + 1]);
-          get<5>(returntuple)[abslay].setLaterality(LEFT);
+          returnPC.NLayersWithHits++;
+          returnPC.IsThereNeighBourHitInLayer[abslay] = true;
+          returnPC.xDistToPattern[abslay] = abs(tmpx - (tmpLocalCh.x() - 1.05));
+          returnPC.DTHits[abslay] = DTPrimitive(digimap[abslay][tmpwire + 1]);
+          returnPC.DTHits[abslay].setLaterality(LEFT);
         } else if ((isleft) && (isright)) {
           LocalPoint tmpLocal_l =
               LocalPoint(thechamb->superLayer(sl)->layer(l)->specificTopology().wirePosition(tmpwire - 1), 0, 0);
@@ -713,49 +694,53 @@ std::tuple<unsigned short int, bool*, bool*, unsigned short int, double*, DTPrim
           distright = TMath::Abs(thepoint.x() - tmpLocalCh_r.x());
 
           // Filling info
-          get<0>(returntuple)++;
-          get<2>(returntuple)[abslay] = true;
+          returnPC.NLayersWithHits++;
+          returnPC.IsThereNeighBourHitInLayer[abslay] = true;
+
+          returnPC.xDistToPattern[abslay] = abs(tmpx - (tmpLocalCh.x() - 1.05));
+          returnPC.DTHits[abslay] = DTPrimitive(digimap[abslay][tmpwire + 1]);
+          returnPC.DTHits[abslay].setLaterality(LEFT);
+
           if (distleft < distright) {
-            get<4>(returntuple)[abslay] = TMath::Abs(tmpx - (tmpLocalCh.x() + 1.05));
-            get<5>(returntuple)[abslay] = DTPrimitive(digimap[abslay][tmpwire - 1]);
-            get<5>(returntuple)[abslay].setLaterality(RIGHT);
+            returnPC.xDistToPattern[abslay] = TMath::Abs(tmpx - (tmpLocalCh.x() + 1.05));
+            returnPC.DTHits[abslay] = DTPrimitive(digimap[abslay][tmpwire - 1]);
+            returnPC.DTHits[abslay].setLaterality(RIGHT);
           } else {
-            get<4>(returntuple)[abslay] = TMath::Abs(tmpx - (tmpLocalCh.x() - 1.05));
-            get<5>(returntuple)[abslay] = DTPrimitive(digimap[abslay][tmpwire + 1]);
-            get<5>(returntuple)[abslay].setLaterality(LEFT);
+            returnPC.xDistToPattern[abslay] = TMath::Abs(tmpx - (tmpLocalCh.x() - 1.05));
+            returnPC.DTHits[abslay] = DTPrimitive(digimap[abslay][tmpwire + 1]);
+            returnPC.DTHits[abslay].setLaterality(LEFT);
           }
-        } else {                                        // case where there are no digis
-          get<5>(returntuple)[abslay] = DTPrimitive();  // empty primitive
+        } else {                                    // case where there are no digis
+          returnPC.DTHits[abslay] = DTPrimitive();  // empty primitive
         }
       }
     }
   }
 
-  SetDifferenceBetweenSL(returntuple);
+  SetDifferenceBetweenSL(returnPC);
   if (debug) {
     cout << "HoughGrouping::AssociateHits - Finishing with the candidate. We have found the following of it:" << endl;
-    cout << "HoughGrouping::AssociateHits - # of layers with hits: " << get<0>(returntuple) << endl;
+    cout << "HoughGrouping::AssociateHits - # of layers with hits: " << returnPC.NLayersWithHits << endl;
     for (unsigned short int lay = 0; lay < 8; lay++) {
       cout << "HoughGrouping::AssociateHits - For absolute layer: " << lay << endl;
-      cout << "HoughGrouping::AssociateHits - # of HQ hits: " << get<1>(returntuple)[lay] << endl;
-      cout << "HoughGrouping::AssociateHits - # of LQ hits: " << get<2>(returntuple)[lay] << endl;
+      cout << "HoughGrouping::AssociateHits - # of HQ hits: " << returnPC.IsThereHitInLayer[lay] << endl;
+      cout << "HoughGrouping::AssociateHits - # of LQ hits: " << returnPC.IsThereNeighBourHitInLayer[lay] << endl;
     }
-    cout << "HoughGrouping::AssociateHits - Abs. diff. between SL1 and SL3 hits: " << get<3>(returntuple) << endl;
+    cout << "HoughGrouping::AssociateHits - Abs. diff. between SL1 and SL3 hits: " << returnPC.NHitsDiff << endl;
     for (unsigned short int lay = 0; lay < 8; lay++) {
       cout << "HoughGrouping::AssociateHits - For absolute layer: " << lay << endl;
-      cout << "HoughGrouping::AssociateHits - Abs. distance to digi: " << get<4>(returntuple)[lay] << endl;
+      cout << "HoughGrouping::AssociateHits - Abs. distance to digi: " << returnPC.xDistToPattern[lay] << endl;
     }
   }
-  return returntuple;
+  return returnPC;
 }
 
-void HoughGrouping::SetDifferenceBetweenSL(
-    std::tuple<unsigned short int, bool*, bool*, unsigned short int, double*, DTPrimitive*>& tupl) {
+void HoughGrouping::SetDifferenceBetweenSL(ProtoCand& tupl) {
   if (debug)
     cout << "HoughGrouping::SetDifferenceBetweenSL" << endl;
   short int absres = 0;
   for (unsigned short int lay = 0; lay < 8; lay++) {
-    if ((get<5>(tupl))[lay].channelId() > 0) {
+    if (tupl.DTHits[lay].channelId() > 0) {
       if (lay <= 3)
         absres++;
       else
@@ -764,14 +749,12 @@ void HoughGrouping::SetDifferenceBetweenSL(
   }
 
   if (absres >= 0)
-    get<3>(tupl) = absres;
+    tupl.NHitsDiff = absres;
   else
-    get<3>(tupl) = (unsigned short int)(-absres);
+    tupl.NHitsDiff = (unsigned short int)(-absres);
 }
 
-void HoughGrouping::OrderAndFilter(
-    std::vector<std::tuple<unsigned short int, bool*, bool*, unsigned short int, double*, DTPrimitive*>>& invector,
-    std::vector<MuonPath*>*& outMuonPath) {
+void HoughGrouping::OrderAndFilter(std::vector<ProtoCand>& invector, std::vector<MuonPath*>*& outMuonPath) {
   if (debug)
     cout << "HoughGrouping::OrderAndFilter" << endl;
   // 0: # of layers with hits.
@@ -803,16 +786,17 @@ void HoughGrouping::OrderAndFilter(
       for (unsigned short int lay = 0; lay < 8; lay++) {
         if (debug)
           cout << "HoughGrouping::OrderAndFilter - Checking layer number: " << lay << endl;
-        if ((get<5>(invector.at(i))[lay].channelId() == get<5>(invector.at(ind))[lay].channelId()) &&
-            (get<5>(invector.at(ind))[lay].channelId() != -1)) {
-          get<0>(invector.at(i))--;
-          get<1>(invector.at(i))[lay] = false;
-          get<2>(invector.at(i))[lay] = false;
+        if (invector.at(i).DTHits[lay].channelId() == invector.at(ind).DTHits[lay].channelId() &&
+            invector.at(ind).DTHits[lay].channelId() != -1) {
+          invector.at(i).NLayersWithHits--;
+          invector.at(i).IsThereHitInLayer[lay] = false;
+          invector.at(i).IsThereNeighBourHitInLayer[lay] = false;
           SetDifferenceBetweenSL(invector.at(i));
           // We check that if its a different laterality, the best candidate of the two of them changes its laterality to not-known (that is, both).
-          if (get<5>(invector.at(i))[lay].laterality() != get<5>(invector.at(ind))[lay].laterality())
-            get<5>(invector.at(ind))[lay].setLaterality(NONE);
-          get<5>(invector.at(i))[lay] = DTPrimitive();
+          if (invector.at(i).DTHits[lay].laterality() != invector.at(ind).DTHits[lay].laterality())
+            invector.at(ind).DTHits[lay].setLaterality(NONE);
+
+          invector.at(i).DTHits[lay] = DTPrimitive();
         }
       }
       if (debug)
@@ -831,10 +815,6 @@ void HoughGrouping::OrderAndFilter(
       cout << "HoughGrouping::OrderAndFilter - We are gonna erase " << elstoremove.size() << " elements" << endl;
 
     for (short int el = (elstoremove.size() - 1); el > -1; el--) {
-      delete[] get<1>(invector.at(elstoremove.at(el)));
-      delete[] get<2>(invector.at(elstoremove.at(el)));
-      delete[] get<4>(invector.at(elstoremove.at(el)));
-      delete[] get<5>(invector.at(elstoremove.at(el)));
       invector.erase(invector.begin() + elstoremove.at(el));
     }
 
@@ -848,10 +828,6 @@ void HoughGrouping::OrderAndFilter(
   // Ultimate filter: if the remaining do not fill the requirements (configurable through pset arguments), they are removed also.
   for (short int el = (invector.size() - 1); el > -1; el--) {
     if (!AreThereEnoughHits(invector.at(el))) {
-      delete[] get<1>(invector.at(el));
-      delete[] get<2>(invector.at(el));
-      delete[] get<4>(invector.at(el));
-      delete[] get<5>(invector.at(el));
       invector.erase(invector.begin() + el);
     }
   }
@@ -869,7 +845,7 @@ void HoughGrouping::OrderAndFilter(
     unsigned short int tmplowfill = 0;
     unsigned short int tmpupfill = 0;
     for (unsigned short int lay = 0; lay < 8; lay++) {
-      ptrPrimitive[lay] = new DTPrimitive(get<5>(invector.at(i))[lay]);
+      ptrPrimitive[lay] = new DTPrimitive(invector.at(i).DTHits[lay]);
       if (debug) {
         cout << "\nHoughGrouping::OrderAndFilter - cameraid: " << ptrPrimitive[lay]->cameraId() << endl;
         cout << "HoughGrouping::OrderAndFilter - channelid (GOOD): " << ptrPrimitive[lay]->channelId() << endl;
@@ -904,16 +880,15 @@ void HoughGrouping::OrderAndFilter(
   return;
 }
 
-bool HoughGrouping::AreThereEnoughHits(
-    std::tuple<unsigned short int, bool*, bool*, unsigned short int, double*, DTPrimitive*> tupl) {
+bool HoughGrouping::AreThereEnoughHits(ProtoCand& tupl) {
   if (debug)
     cout << "HoughGrouping::AreThereEnoughHits" << endl;
   unsigned short int numhitssl1 = 0;
   unsigned short int numhitssl3 = 0;
   for (unsigned short int lay = 0; lay < 8; lay++) {
-    if ((get<5>(tupl)[lay].channelId() > 0) && (lay < 4))
+    if ((tupl.DTHits[lay].channelId() > 0) && (lay < 4))
       numhitssl1++;
-    else if (get<5>(tupl)[lay].channelId() > 0)
+    else if (tupl.DTHits[lay].channelId() > 0)
       numhitssl3++;
   }
 

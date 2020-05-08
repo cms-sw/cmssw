@@ -2,10 +2,15 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESProducts.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -61,8 +66,6 @@
 #include <queue>
 #include <cmath>
 
-
-
 class DTTrigPhase2Prod : public edm::stream::EDProducer<> {
   typedef std::map<DTChamberId, DTDigiCollection, std::less<DTChamberId>> DTDigiMap;
   typedef DTDigiMap::iterator DTDigiMap_iterator;
@@ -103,6 +106,7 @@ public:
   void setMinimumQuality(MP_QUALITY q);
 
   // data-members
+  DTGeometry dtGeo_;
   edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomH;
   //  const DTGeometry dtGeo_;
   std::vector<std::pair<int, MuonPath>> primitives_;
@@ -132,11 +136,11 @@ private:
 
   // Grouping attributes and methods
   int grcode_;  // Grouping code
-  MotherGrouping* grouping_obj_;
-  MuonPathAnalyzer* mpathanalyzer_;
-  MPFilter* mpathqualityenhancer_;
-  MPFilter* mpathredundantfilter_;
-  MuonPathAssociator* mpathassociator_;
+  std::unique_ptr<MotherGrouping> grouping_obj_;
+  std::unique_ptr<MuonPathAnalyzer> mpathanalyzer_;
+  std::unique_ptr<MPFilter> mpathqualityenhancer_;
+  std::unique_ptr<MPFilter> mpathredundantfilter_;
+  std::unique_ptr<MuonPathAssociator> mpathassociator_;
 
   // Buffering
   bool activateBuffer_;
@@ -147,15 +151,13 @@ private:
                    std::vector<std::queue<std::pair<DTLayerId*, DTDigi*>>*>& vec);
 
   // RPC
-  RPCIntegrator* rpc_integrator_;
+  std::unique_ptr<RPCIntegrator> rpc_integrator_;
   bool useRPC_;
 
   void assignIndex(std::vector<metaPrimitive>& inMPaths);
   void assignIndexPerBX(std::vector<metaPrimitive>& inMPaths);
   int assignQualityOrder(metaPrimitive mP);
 };
-
-
 
 using namespace edm;
 using namespace std;
@@ -171,7 +173,7 @@ namespace {
       return (a.second->time() < b.second->time());
     }
   } DigiTimeOrdering;
-}
+}  // namespace
 
 DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset) {
   produces<L1Phase2MuDTPhContainer>();
@@ -190,26 +192,29 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset) {
   // Choosing grouping scheme:
   grcode_ = pset.getParameter<int>("grouping_code");
 
-  if (grcode_ == 0)
-    grouping_obj_ = new InitialGrouping(pset);
-  else if (grcode_ == 1)
-    grouping_obj_ = new HoughGrouping(pset.getParameter<edm::ParameterSet>("HoughGrouping"));
+  edm::ConsumesCollector consumesColl(consumesCollector());
+
+  if (grcode_ == 1)
+    grouping_obj_ = std::unique_ptr<HoughGrouping>(
+        new HoughGrouping(pset.getParameter<edm::ParameterSet>("HoughGrouping"), consumesColl));
+  //    grouping_obj_ = new HoughGrouping(pset.getParameter<edm::ParameterSet>("HoughGrouping"));
   else if (grcode_ == 2)
-    grouping_obj_ = new PseudoBayesGrouping(pset.getParameter<edm::ParameterSet>("PseudoBayesPattern"));
+    grouping_obj_ = std::unique_ptr<PseudoBayesGrouping>(
+        new PseudoBayesGrouping(pset.getParameter<edm::ParameterSet>("PseudoBayesPattern"), consumesColl));
+  //    grouping_obj_ = new PseudoBayesGrouping(pset.getParameter<edm::ParameterSet>("PseudoBayesPattern"));
   else {
-    if (debug_)
-      cout << "DTp2::constructor: Non-valid grouping code. Choosing InitialGrouping by default." << endl;
-    grouping_obj_ = new InitialGrouping(pset);
+    //    grouping_obj_ = new InitialGrouping(pset);
+    grouping_obj_ = std::unique_ptr<InitialGrouping>(new InitialGrouping(pset, consumesColl));
   }
 
   if (grcode_ == 0) {
     if (debug_)
       cout << "DTp2:constructor: JM analyzer" << endl;
-    mpathanalyzer_ = new MuonPathAnalyzerPerSL(pset);
+    mpathanalyzer_ = std::unique_ptr<MuonPathAnalyzerPerSL>(new MuonPathAnalyzerPerSL(pset, consumesColl));
   } else {
     if (debug_)
       cout << "DTp2:constructor: Full chamber analyzer" << endl;
-    mpathanalyzer_ = new MuonPathAnalyzerInChamber(pset);
+    mpathanalyzer_ = std::unique_ptr<MuonPathAnalyzerInChamber>(new MuonPathAnalyzerInChamber(pset, consumesColl));
   }
 
   // Getting buffer option
@@ -217,10 +222,12 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset) {
   superCellhalfspacewidth_ = pset.getParameter<int>("superCellspacewidth") / 2;
   superCelltimewidth_ = pset.getParameter<double>("superCelltimewidth");
 
-  mpathqualityenhancer_ = new MPQualityEnhancerFilter(pset);
-  mpathredundantfilter_ = new MPRedundantFilter(pset);
-  mpathassociator_ = new MuonPathAssociator(pset);
-  rpc_integrator_ = new RPCIntegrator(pset);
+  mpathqualityenhancer_ = std::unique_ptr<MPQualityEnhancerFilter>(new MPQualityEnhancerFilter(pset));
+  mpathredundantfilter_ = std::unique_ptr<MPRedundantFilter>(new MPRedundantFilter(pset));
+  mpathassociator_ = std::unique_ptr<MuonPathAssociator>(new MuonPathAssociator(pset, consumesColl));
+  rpc_integrator_ = std::unique_ptr<RPCIntegrator>(new RPCIntegrator(pset, consumesColl));
+
+  dtGeomH = esConsumes<DTGeometry, MuonGeometryRecord>();
 }
 
 DTTrigPhase2Prod::~DTTrigPhase2Prod() {
@@ -230,12 +237,12 @@ DTTrigPhase2Prod::~DTTrigPhase2Prod() {
   if (debug_)
     std::cout << "DTp2: calling destructor" << std::endl;
 
-  delete grouping_obj_;          // Grouping destructor
-  delete mpathanalyzer_;         // Analyzer destructor
-  delete mpathqualityenhancer_;  // Filter destructor
-  delete mpathredundantfilter_;  // Filter destructor
-  delete mpathassociator_;       // Associator destructor
-  delete rpc_integrator_;
+  //  delete grouping_obj_;          // Grouping destructor
+  //  delete mpathanalyzer_;         // Analyzer destructor
+  //  delete mpathqualityenhancer_;  // Filter destructor
+  //  delete mpathredundantfilter_;  // Filter destructor
+  //  delete mpathassociator_;       // Associator destructor
+  //  delete rpc_integrator_;
 }
 
 void DTTrigPhase2Prod::beginRun(edm::Run const& iRun, const edm::EventSetup& iEventSetup) {
@@ -243,10 +250,6 @@ void DTTrigPhase2Prod::beginRun(edm::Run const& iRun, const edm::EventSetup& iEv
     cout << "DTTrigPhase2Prod::beginRun " << iRun.id().run() << endl;
   if (debug_)
     cout << "DTTrigPhase2Prod::beginRun: getting DT geometry" << endl;
-
-
-  ESHandle<DTConfigManager> dtConfig;
-  iEventSetup.get<DTConfigManagerRcd>().get(dtConfig);
 
   grouping_obj_->initialise(iEventSetup);          // Grouping object initialisation
   mpathanalyzer_->initialise(iEventSetup);         // Analyzer object initialisation
@@ -266,7 +269,7 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
   edm::Handle<RPCRecHitCollection> rpcRecHits;
   iEvent.getByToken(rpcRecHitsLabel_, rpcRecHits);
 
-  const auto& dtGeo_ = iEventSetup.getData(dtGeomH);  //1103
+  dtGeo_ = iEventSetup.getData(dtGeomH);  //1103
   ////////////////////////////////
   // GROUPING CODE:
   ////////////////////////////////
@@ -784,5 +787,3 @@ void DTTrigPhase2Prod::processDigi(std::queue<std::pair<DTLayerId*, DTDigi*>>& i
 }
 
 DEFINE_FWK_MODULE(DTTrigPhase2Prod);
-
-

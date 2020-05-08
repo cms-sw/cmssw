@@ -7,8 +7,8 @@ using namespace std;
 // ============================================================================
 // Constructors and destructor
 // ============================================================================
-MuonPathAnalyzerInChamber::MuonPathAnalyzerInChamber(const ParameterSet &pset)
-    : MuonPathAnalyzer(pset),
+MuonPathAnalyzerInChamber::MuonPathAnalyzerInChamber(const ParameterSet &pset, edm::ConsumesCollector &iC)
+    : MuonPathAnalyzer(pset, iC),
       debug_(pset.getUntrackedParameter<bool>("debug")),
       chi2Th_(pset.getUntrackedParameter<double>("chi2Th")),
       z_filename_(pset.getParameter<edm::FileInPath>("z_filename")),
@@ -49,6 +49,8 @@ MuonPathAnalyzerInChamber::MuonPathAnalyzerInChamber(const ParameterSet &pset)
     ifin3 >> rawId >> shift;
     shiftinfo_[rawId] = shift;
   }
+
+  dtGeomH = iC.esConsumes<DTGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
 }
 
 MuonPathAnalyzerInChamber::~MuonPathAnalyzerInChamber() {
@@ -62,6 +64,7 @@ MuonPathAnalyzerInChamber::~MuonPathAnalyzerInChamber() {
 void MuonPathAnalyzerInChamber::initialise(const edm::EventSetup &iEventSetup) {
   if (debug_)
     cout << "MuonPathAnalyzerInChamber::initialiase" << endl;
+
   dtGeo_ = iEventSetup.getData(dtGeomH);
 }
 

@@ -33,7 +33,7 @@ public:
   int SL1() { return std::get<0>(id_); }
   int SL2() { return std::get<1>(id_); }
   int Diff() { return std::get<2>(id_); }
-  const std::vector<RefDTPatternHit>& genHits() const { return genHits_; }
+  const std::vector<RefDTPatternHit> &genHits() const { return genHits_; }
 
   //Printing
   friend std::ostream &operator<<(std::ostream &out, DTPattern &p);

@@ -44,7 +44,7 @@
 class MuonPathAnalyzerPerSL : public MuonPathAnalyzer {
 public:
   // Constructors and destructor
-  MuonPathAnalyzerPerSL(const edm::ParameterSet &pset);
+  MuonPathAnalyzerPerSL(const edm::ParameterSet &pset, edm::ConsumesCollector &iC);
   virtual ~MuonPathAnalyzerPerSL();
 
   // Main methods
@@ -77,7 +77,7 @@ public:
   // Public attributes
   DTGeometry dtGeo_;
   edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomH;
-  
+
   //shift
   edm::FileInPath shift_filename_;
   std::map<int, float> shiftinfo_;

@@ -7,8 +7,8 @@ using namespace cmsdt;
 // ============================================================================
 // Constructors and destructor
 // ============================================================================
-MuonPathAnalyzerPerSL::MuonPathAnalyzerPerSL(const ParameterSet &pset)
-    : MuonPathAnalyzer(pset),
+MuonPathAnalyzerPerSL::MuonPathAnalyzerPerSL(const ParameterSet &pset, edm::ConsumesCollector &iC)
+    : MuonPathAnalyzer(pset, iC),
       bxTolerance_(30),
       minQuality_(LOWQGHOST),
       chiSquareThreshold_(50),
@@ -43,6 +43,8 @@ MuonPathAnalyzerPerSL::MuonPathAnalyzerPerSL(const ParameterSet &pset)
     std::cout << "chosen sl must be 1,3 or 4(both superlayers)" << std::endl;
     assert(chosen_sl_ != 1 && chosen_sl_ != 3 && chosen_sl_ != 4);  //4 means run using the two superlayers
   }
+
+  dtGeomH = iC.esConsumes<DTGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
 }
 
 MuonPathAnalyzerPerSL::~MuonPathAnalyzerPerSL() {
@@ -56,6 +58,7 @@ MuonPathAnalyzerPerSL::~MuonPathAnalyzerPerSL() {
 void MuonPathAnalyzerPerSL::initialise(const edm::EventSetup &iEventSetup) {
   if (debug_)
     cout << "MuonPathAnalyzerPerSL::initialiase" << endl;
+
   dtGeo_ = iEventSetup.getData(dtGeomH);
 }
 

@@ -4,6 +4,10 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -43,7 +47,7 @@
 class MuonPathAnalyzer {
 public:
   // Constructors and destructor
-  MuonPathAnalyzer(const edm::ParameterSet& pset);
+  MuonPathAnalyzer(const edm::ParameterSet& pset, edm::ConsumesCollector& iC);
   virtual ~MuonPathAnalyzer();
 
   // Main methods

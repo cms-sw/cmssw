@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
@@ -45,7 +46,7 @@
 class MotherGrouping {
 public:
   // Constructors and destructor
-  MotherGrouping(const edm::ParameterSet& pset);
+  MotherGrouping(const edm::ParameterSet& pset, edm::ConsumesCollector& iC);
   virtual ~MotherGrouping();
 
   // Main methods

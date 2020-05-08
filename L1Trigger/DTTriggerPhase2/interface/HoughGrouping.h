@@ -103,10 +103,20 @@ using namespace cmsdt;
 // ===============================================================================
 // Class declarations
 // ===============================================================================
+struct ProtoCand {
+  unsigned short int NLayersWithHits;   // 0: # of layers with hits.
+  std::vector<bool> IsThereHitInLayer;  // 1: # of hits of high quality (the expected line crosses the cell).
+  std::vector<bool>
+      IsThereNeighBourHitInLayer;      // 2: # of hits of low quality (the expected line is in a neighbouring cell).
+  unsigned short int NHitsDiff;        // 3: absolute diff. between the number of hits in SL1 and SL3.
+  std::vector<double> xDistToPattern;  // 4: absolute distance to all hits of the segment.
+  std::vector<DTPrimitive> DTHits;     // 5: DTPrimitive of the candidate.
+};
+
 class HoughGrouping : public MotherGrouping {
 public:
   // Constructors and destructor
-  HoughGrouping(const ParameterSet& pset);
+  HoughGrouping(const ParameterSet& pset, edm::ConsumesCollector& iC);
   ~HoughGrouping() override;
 
   // Main methods
@@ -135,25 +145,23 @@ private:
       std::vector<std::tuple<double, double, unsigned short int>> inputvec);
 
   std::pair<double, double> GetTwoDelta(std::tuple<double, double, unsigned short int> pair1,
-                                            std::tuple<double, double, unsigned short int> pair2);
+                                        std::tuple<double, double, unsigned short int> pair2);
   std::pair<double, double> GetAveragePoint(std::vector<std::tuple<double, double, unsigned short int>> inputvec,
-                                                unsigned short int firstindex,
-                                                std::vector<unsigned short int> indexlist);
+                                            unsigned short int firstindex,
+                                            std::vector<unsigned short int> indexlist);
   std::pair<double, double> TransformPair(std::pair<double, double> inputpair);
 
-  std::tuple<unsigned short int, bool*, bool*, unsigned short int, double*, DTPrimitive*> AssociateHits(const DTChamber* thechamb,
-                                                                                          double m,
-                                                                                          double n);
+  ProtoCand AssociateHits(const DTChamber* thechamb, double m, double n);
 
-  void OrderAndFilter(std::vector<std::tuple<unsigned short int, bool*, bool*, unsigned short int, double*, DTPrimitive*>>& invector,
-                      std::vector<MuonPath*>*& outMuonPath);
+  void OrderAndFilter(std::vector<ProtoCand>& invector, std::vector<MuonPath*>*& outMuonPath);
 
-  void SetDifferenceBetweenSL(std::tuple<unsigned short int, bool*, bool*, unsigned short int, double*, DTPrimitive*>& tupl);
-  bool AreThereEnoughHits(std::tuple<unsigned short int, bool*, bool*, unsigned short int, double*, DTPrimitive*> tupl);
+  void SetDifferenceBetweenSL(ProtoCand& tupl);
+  bool AreThereEnoughHits(ProtoCand& tupl);
 
   // Private attributes
   bool debug, allowUncorrelatedPatterns;
-  unsigned short int minNLayerHits, minSingleSLHitsMax, minSingleSLHitsMin, minUncorrelatedHits, UpperNumber, LowerNumber;
+  unsigned short int minNLayerHits, minSingleSLHitsMax, minSingleSLHitsMin, minUncorrelatedHits, UpperNumber,
+      LowerNumber;
   double angletan, anglebinwidth, posbinwidth, maxdeltaAngDeg, maxdeltaPos, MaxDistanceToWire;
 
   edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomH;

@@ -6,8 +6,8 @@ using namespace cmsdt;
 // ============================================================================
 // Constructors and destructor
 // ============================================================================
-InitialGrouping::InitialGrouping(const ParameterSet &pset)
-    : MotherGrouping(pset), chInDummy({DTPrimitive()}), currentBaseChannel(-1) {
+InitialGrouping::InitialGrouping(const ParameterSet &pset, edm::ConsumesCollector &iC)
+    : MotherGrouping(pset, iC), chInDummy({DTPrimitive()}), currentBaseChannel(-1) {
   // Obtention of parameters
   debug = pset.getUntrackedParameter<bool>("debug");
   if (debug)
@@ -37,7 +37,7 @@ void InitialGrouping::initialise(const edm::EventSetup &iEventSetup) {
 
 void InitialGrouping::run(Event &iEvent,
                           const EventSetup &iEventSetup,
-                          const DTDigiCollection& digis,
+                          const DTDigiCollection &digis,
                           std::vector<MuonPath *> *mpaths) {
   if (debug)
     cout << "InitialGrouping: run" << endl;

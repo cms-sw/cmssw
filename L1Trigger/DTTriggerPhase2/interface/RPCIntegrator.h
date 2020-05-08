@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
@@ -39,11 +40,11 @@ struct RPCMetaprimitive {
   int rpc_bx;
   double rpc_t0;
   RPCMetaprimitive(RPCDetId rpc_id_construct,
-                    const RPCRecHit* rpc_cluster_construct,
-                    GlobalPoint global_position_construct,
-                    int rpcFlag_construct,
-                    int rpc_bx_construct,
-                    double rpc_t0_construct)
+                   const RPCRecHit* rpc_cluster_construct,
+                   GlobalPoint global_position_construct,
+                   int rpcFlag_construct,
+                   int rpc_bx_construct,
+                   double rpc_t0_construct)
       : rpc_id(rpc_id_construct),
         rpc_cluster(rpc_cluster_construct),
         global_position(global_position_construct),
@@ -63,7 +64,7 @@ struct RPCMetaprimitive {
 
 class RPCIntegrator {
 public:
-  RPCIntegrator(const edm::ParameterSet& pset);
+  RPCIntegrator(const edm::ParameterSet& pset, edm::ConsumesCollector& iC);
   ~RPCIntegrator();
 
   void initialise(const edm::EventSetup& iEventSetup, double shift_back_fromDT);
@@ -95,7 +96,7 @@ private:
   int m_bx_window_;
   double m_phi_window_;
   bool m_storeAllRPCHits_;
-  
+
   DTGeometry dtGeo_;
   RPCGeometry rpcGeo_;
   edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomH;

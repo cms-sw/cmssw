@@ -60,13 +60,13 @@ constexpr int CHANNELS_PATH_ARRANGEMENTS[8][4] = {
 /* For each of the previous cell's combinations, this array stores the associated cell's displacement, relative to lower layer cell, measured in semi-cell length units */
 
 constexpr int CELL_HORIZONTAL_LAYOUTS[8][4] = {{0, -1, -2, -3},
-                                             {0, -1, -2, -1},
-                                             {0, -1, 0, -1},
-                                             {0, -1, 0, 1},
-                                             {0, 1, 0, -1},
-                                             {0, 1, 0, 1},
-                                             {0, 1, 2, 1},
-                                             {0, 1, 2, 3}};
+                                               {0, -1, -2, -1},
+                                               {0, -1, 0, -1},
+                                               {0, -1, 0, 1},
+                                               {0, 1, 0, -1},
+                                               {0, 1, 0, 1},
+                                               {0, 1, 2, 1},
+                                               {0, 1, 2, 3}};
 
 // ===============================================================================
 // Class declarations
@@ -79,7 +79,7 @@ class InitialGrouping : public MotherGrouping {
 
 public:
   // Constructors and destructor
-  InitialGrouping(const edm::ParameterSet& pset);
+  InitialGrouping(const edm::ParameterSet& pset, edm::ConsumesCollector& iC);
   ~InitialGrouping() override;
 
   // Main methods

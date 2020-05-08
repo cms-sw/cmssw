@@ -6,7 +6,8 @@ using namespace std;
 // ============================================================================
 // Constructors and destructor
 // ============================================================================
-PseudoBayesGrouping::PseudoBayesGrouping(const ParameterSet& pset) : MotherGrouping(pset) {
+PseudoBayesGrouping::PseudoBayesGrouping(const ParameterSet& pset, edm::ConsumesCollector& iC)
+    : MotherGrouping(pset, iC) {
   // Obtention of parameters
   debug = pset.getUntrackedParameter<bool>("debug");
   pattern_filename = pset.getUntrackedParameter<edm::FileInPath>("pattern_filename").fullPath();
@@ -26,9 +27,9 @@ PseudoBayesGrouping::PseudoBayesGrouping(const ParameterSet& pset) : MotherGroup
 PseudoBayesGrouping::~PseudoBayesGrouping() {
   if (debug)
     cout << "PseudoBayesGrouping:: destructor" << endl;
-  delete prelimMatches;
-  delete allMatches;
-  delete finalMatches;
+  //  delete prelimMatches;
+  //  delete allMatches;
+  //  delete finalMatches;
   for (std::vector<DTPattern*>::iterator pat_it = allPatterns.begin(); pat_it != allPatterns.end(); pat_it++) {
     delete (*pat_it);
   }
@@ -57,11 +58,10 @@ void PseudoBayesGrouping::initialise(const edm::EventSetup& iEventSetup) {
     cout << "PseudoBayesGrouping::initialiase Total number of loaded patterns: " << nPatterns << endl;
   f->Close();
   delete f;
-  
-  prelimMatches = new std::vector<CandidateGroup*>;
-  allMatches = new std::vector<CandidateGroup*>;
-  finalMatches = new std::vector<CandidateGroup*>;
 
+  prelimMatches = std::unique_ptr<std::vector<CandidateGroup*>>(new std::vector<CandidateGroup*>);
+  allMatches = std::unique_ptr<std::vector<CandidateGroup*>>(new std::vector<CandidateGroup*>);
+  finalMatches = std::unique_ptr<std::vector<CandidateGroup*>>(new std::vector<CandidateGroup*>);
 }
 
 void PseudoBayesGrouping::LoadPattern(std::vector<std::vector<std::vector<int>>>::iterator itPattern) {
@@ -207,8 +207,7 @@ void PseudoBayesGrouping::FillMuonPaths(std::vector<MuonPath*>* mpaths) {
     std::bitset<8> qualityDTP;
     int intHit = 0;
     //And for each candidate loop over all grouped hits
-    for (auto itDTP = (*itCand)->candHits().begin(); itDTP != (*itCand)->candHits().end();
-         itDTP++) {
+    for (auto itDTP = (*itCand)->candHits().begin(); itDTP != (*itCand)->candHits().end(); itDTP++) {
       if (debug)
         std::cout << "PseudoBayesGrouping::run loop over dt hits to fill pointer" << std::endl;
       int layerHit = itDTP->layerId();
@@ -318,8 +317,7 @@ void PseudoBayesGrouping::RecognisePatterns(std::vector<DTPrimitive> digisinLDow
         //if (debug) cout << *(*pat_it) << endl;
         (*pat_it)->setHitDown(wireDown);
         cand = new CandidateGroup(*pat_it);
-        for (auto dtTest_it = alldigis.begin(); dtTest_it != alldigis.end();
-             dtTest_it++) {
+        for (auto dtTest_it = alldigis.begin(); dtTest_it != alldigis.end(); dtTest_it++) {
           //Find hits matching to the pattern
           //if (debug) cout << "Hit in " << dtTest_it->layerId() << " , " << dtTest_it->channelId();
           if (((*pat_it)->latHitIn(dtTest_it->layerId(), dtTest_it->channelId(), allowedVariance)) != -999) {
@@ -359,8 +357,7 @@ void PseudoBayesGrouping::FillDigisByLayer(const DTDigiCollection* digis) {
   for (auto dtDigi_It = digis->begin(); dtDigi_It != digis->end(); dtDigi_It++) {
     const DTLayerId dtLId = (*dtDigi_It).first;
     //Skip digis in SL theta which we are not interested on for the grouping
-    for (auto digiIt = ((*dtDigi_It).second).first; digiIt != ((*dtDigi_It).second).second;
-         digiIt++) {
+    for (auto digiIt = ((*dtDigi_It).second).first; digiIt != ((*dtDigi_It).second).second; digiIt++) {
       //Need to change notation slightly here
       if (dtLId.superlayer() == 2)
         continue;

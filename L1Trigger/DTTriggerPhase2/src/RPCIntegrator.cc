@@ -7,7 +7,7 @@
 
 #include <math.h>
 
-RPCIntegrator::RPCIntegrator(const edm::ParameterSet& pset) {
+RPCIntegrator::RPCIntegrator(const edm::ParameterSet& pset, edm::ConsumesCollector& iC) {
   m_debug_ = pset.getUntrackedParameter<bool>("debug");
   if (m_debug_)
     std::cout << "RPCIntegrator constructor" << std::endl;
@@ -15,6 +15,9 @@ RPCIntegrator::RPCIntegrator(const edm::ParameterSet& pset) {
   m_bx_window_ = pset.getUntrackedParameter<int>("bx_window");
   m_phi_window_ = pset.getUntrackedParameter<double>("phi_window");
   m_storeAllRPCHits_ = pset.getUntrackedParameter<bool>("storeAllRPCHits");
+
+  rpcGeomH = iC.esConsumes<RPCGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
+  dtGeomH = iC.esConsumes<DTGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
 }
 
 RPCIntegrator::~RPCIntegrator() {
@@ -29,7 +32,8 @@ void RPCIntegrator::initialise(const edm::EventSetup& iEventSetup, double shift_
   if (m_debug_)
     std::cout << "Getting RPC geometry" << std::endl;
   rpcGeo_ = iEventSetup.getData(rpcGeomH);
-  dtGeo_  = iEventSetup.getData(dtGeomH);
+  dtGeo_ = iEventSetup.getData(dtGeomH);
+
   shift_back_ = shift_back_fromDT;
 }
 
@@ -46,12 +50,12 @@ void RPCIntegrator::prepareMetaPrimitives(edm::Handle<RPCRecHitCollection> rpcRe
       continue;  // Region = 0 Barrel
     RPCMetaprimitives_.push_back(
         RPCMetaprimitive(rpcDetId,
-                          &*rpcIt,
-                          global_position,
-                          3,
-                          rpcIt->BunchX() + 20,
-                          rpcIt->time() + 20 * 25));  // set everyone to rpc single hit not matched to DT flag for now
-                                                      // if dt bx centered at zero again
+                         &*rpcIt,
+                         global_position,
+                         3,
+                         rpcIt->BunchX() + 20,
+                         rpcIt->time() + 20 * 25));  // set everyone to rpc single hit not matched to DT flag for now
+                                                     // if dt bx centered at zero again
     //RPCMetaprimitives_.push_back(RPCMetaprimitive(rpcDetId, &*rpcIt, global_position, 3)); // set everyone to rpc single hit not matched to DT flag for now
   }
 }
