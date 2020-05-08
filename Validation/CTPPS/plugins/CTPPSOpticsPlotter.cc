@@ -188,7 +188,7 @@ void CTPPSOpticsPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup
   // make per-arm plots
   for (const auto& ap : arm_plots_) {
     // find optics objects
-    const LHCInterpolatedOpticalFunctionsSet *opt_N = NULL, *opt_F = NULL;
+    const LHCInterpolatedOpticalFunctionsSet *opt_N = nullptr, *opt_F = nullptr;
 
     for (const auto& it : *hOpticalFunctions) {
       CTPPSDetId rpId(it.first);
