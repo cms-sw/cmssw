@@ -175,7 +175,7 @@ private:
     }
 
     void UpdateOptics(const LHCInterpolatedOpticalFunctionsSetCollection &ofc) {
-      const LHCInterpolatedOpticalFunctionsSet *of = NULL;
+      const LHCInterpolatedOpticalFunctionsSet *of = nullptr;
 
       for (const auto &p : ofc) {
         CTPPSDetId rpId(p.first);
