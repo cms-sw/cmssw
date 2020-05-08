@@ -7,39 +7,6 @@
 
 namespace muon {
   SelectionType selectionTypeFromString(const std::string& label) {
-    static const SelectionTypeStringToEnum selectionTypeStringToEnumMap[] = {
-        {"All", All},
-        {"AllGlobalMuons", AllGlobalMuons},
-        {"AllStandAloneMuons", AllStandAloneMuons},
-        {"AllTrackerMuons", AllTrackerMuons},
-        {"TrackerMuonArbitrated", TrackerMuonArbitrated},
-        {"AllArbitrated", AllArbitrated},
-        {"GlobalMuonPromptTight", GlobalMuonPromptTight},
-        {"TMLastStationLoose", TMLastStationLoose},
-        {"TMLastStationTight", TMLastStationTight},
-        {"TM2DCompatibilityLoose", TM2DCompatibilityLoose},
-        {"TM2DCompatibilityTight", TM2DCompatibilityTight},
-        {"TMOneStationLoose", TMOneStationLoose},
-        {"TMOneStationTight", TMOneStationTight},
-        {"TMLastStationOptimizedLowPtLoose", TMLastStationOptimizedLowPtLoose},
-        {"TMLastStationOptimizedLowPtTight", TMLastStationOptimizedLowPtTight},
-        {"GMTkChiCompatibility", GMTkChiCompatibility},
-        {"GMStaChiCompatibility", GMStaChiCompatibility},
-        {"GMTkKinkTight", GMTkKinkTight},
-        {"TMLastStationAngLoose", TMLastStationAngLoose},
-        {"TMLastStationAngTight", TMLastStationAngTight},
-        {"TMOneStationAngLoose", TMOneStationAngLoose},
-        {"TMOneStationAngTight", TMOneStationAngTight},
-        {"TMLastStationOptimizedBarrelLowPtLoose", TMLastStationOptimizedBarrelLowPtLoose},
-        {"TMLastStationOptimizedBarrelLowPtTight", TMLastStationOptimizedBarrelLowPtTight},
-        {"RPCMuLoose", RPCMuLoose},
-        {"AllME0Muons", AllME0Muons},
-        {"ME0MuonArbitrated", ME0MuonArbitrated},
-        {"AllGEMMuons", AllGEMMuons},
-        {"GEMMuonArbitrated", GEMMuonArbitrated},
-        {"TriggerIdLoose", TriggerIdLoose},
-        {nullptr, (SelectionType)-1}};
-
     SelectionType value = (SelectionType)-1;
     bool found = false;
     for (int i = 0; selectionTypeStringToEnumMap[i].label && (!found); ++i)
