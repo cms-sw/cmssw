@@ -183,11 +183,25 @@ def customiseFor29512(process):
 
     return process
 
+def customiseFor29658(process):
+    """small cleanup of CorrectedECALPFClusterProducer::fillDescriptions
+    Removes two unused parameters of CorrectedECALPFClusterProducer
+    PR: https://github.com/cms-sw/cmssw/pull/29658
+    """
+    for mod in producers_by_type(process, 'CorrectedECALPFClusterProducer'):
+        if hasattr(mod, 'energyCorrector'):
+           for parName in ['algoName', 'verticesLabel']:
+               if hasattr(mod.energyCorrector, parName):
+                  delattr(mod.energyCorrector, parName)
+
+    return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
     process = customiseFor29512(process)
+    process = customiseFor29658(process)
 
     return process
