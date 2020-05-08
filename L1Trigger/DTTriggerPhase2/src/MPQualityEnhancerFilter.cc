@@ -98,17 +98,17 @@ void MPQualityEnhancerFilter::finish() {
   return 0;
 }*/
 int MPQualityEnhancerFilter::areCousins(metaPrimitive mp, metaPrimitive second_mp) {
-    if(mp.rawId!=second_mp.rawId) 
-      return 0;
-    if(mp.wi1==second_mp.wi1 and mp.wi1!=-1 and mp.tdc1!=-1) 
-      return 1;
-    if(mp.wi2==second_mp.wi2 and mp.wi2!=-1 and mp.tdc2!=-1) 
-      return 2;
-    if(mp.wi3==second_mp.wi3 and mp.wi3!=-1 and mp.tdc3!=-1)
-      return 3;
-    if(mp.wi4==second_mp.wi4 and mp.wi4!=-1 and mp.tdc4!=-1) 
-      return 4;
+  if (mp.rawId != second_mp.rawId)
     return 0;
+  if (mp.wi1 == second_mp.wi1 and mp.wi1 != -1 and mp.tdc1 != -1)
+    return 1;
+  if (mp.wi2 == second_mp.wi2 and mp.wi2 != -1 and mp.tdc2 != -1)
+    return 2;
+  if (mp.wi3 == second_mp.wi3 and mp.wi3 != -1 and mp.tdc3 != -1)
+    return 3;
+  if (mp.wi4 == second_mp.wi4 and mp.wi4 != -1 and mp.tdc4 != -1)
+    return 4;
+  return 0;
 }
 
 int MPQualityEnhancerFilter::rango(metaPrimitive mp) {
