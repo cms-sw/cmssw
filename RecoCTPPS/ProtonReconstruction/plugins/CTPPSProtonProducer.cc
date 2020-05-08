@@ -341,23 +341,26 @@ void CTPPSProtonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
         // do multi-RP reco if chosen
         if (doMultiRPReconstruction_ && rpIds.size() == 2)
         {
-          // find matching track pairs from different tracking RPs
+          // find matching track pairs from different tracking RPs, ordered: i=near, j=far RP
           std::vector<std::pair<unsigned int, unsigned int>> idx_pairs;
           std::map<unsigned int, unsigned int> idx_pair_multiplicity;
           for (const auto &i : indices)
           {
             for (const auto &j : indices)
             {
-              if (j <= i)
-                continue;
-
               const auto &tr_i = hTracks->at(i);
               const auto &tr_j = hTracks->at(j);
+
+              const double z_i = hGeometry->getRPTranslation(tr_i.getRPId()).z();
+              const double z_j = hGeometry->getRPTranslation(tr_j.getRPId()).z();
 
               const auto &pr_i = singleRPResultsIndexed[i];
               const auto &pr_j = singleRPResultsIndexed[j];
 
               if (tr_i.getRPId() == tr_j.getRPId())
+                continue;
+
+              if (fabs(z_i) >= fabs(z_j))
                 continue;
 
               bool matching = true;
