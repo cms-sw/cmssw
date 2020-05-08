@@ -111,12 +111,6 @@ bool CSCDigiValidator::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   CSCALCTDigiCollection::DigiRangeIterator alct = _alct->begin(), salct = _salct->begin();
   CSCCorrelatedLCTDigiCollection::DigiRangeIterator lct = _lct->begin(), slct = _slct->begin();
   L1CSCTrackCollection::const_iterator trk = _trk->begin(), strk = _strk->begin();
-  std::vector<csctf::TrackStub>::const_iterator dt = _dt->get().begin(), sdt = _sdt->get().begin();
-  // WARNING 5_0_X
-  dt++;
-  dt--;
-  sdt++;
-  sdt--;
 
   //per detID, create lists of various digi types
   matchingDetWireCollection wires;
