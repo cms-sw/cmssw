@@ -47,7 +47,7 @@ private:
   // Build the surfaces for a ddcons shape
   void buildCons();
   // Build the surfaces for a ddpseudotrap shape
-  void buildPseudoTrap();
+  void buildPseudoTrap(double x1, double x2, double y1, double y2, double halfZ, double radius, bool atMinusZ);
   // Build the surfaces for a ddtrunctubs shape
   void buildTruncTubs();
 
