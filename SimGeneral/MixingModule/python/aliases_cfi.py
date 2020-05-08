@@ -78,7 +78,6 @@ from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 (~phase2_hgcal).toModify(simHGCalUnsuppressedDigis, mix = None)
 
 from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
-
 (premix_stage1 & phase2_hgcal).toModify(simHGCalUnsuppressedDigis,                                                                
     mix = {                                                                                                                       
         0 : dict(type = "PreMixHGCSimAccumulator"),                                                                               

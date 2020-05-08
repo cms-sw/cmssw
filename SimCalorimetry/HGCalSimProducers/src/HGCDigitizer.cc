@@ -156,7 +156,8 @@ namespace {
                                        bool setIfZero,
                                        const std::array<float, 3>& tdcForToAOnset,
                                        const bool minbiasFlag,
-                                       std::map<uint32_t, bool>& hitOrder_monitor) {
+                                       std::map<uint32_t, bool>& hitOrder_monitor,
+                                       const unsigned int thisBx) {
     const float minPackChargeLog = minCharge > 0.f ? std::log(minCharge) : -2;
     const float maxPackChargeLog = std::log(maxCharge);
     constexpr uint16_t base = 1 << PreMixHGCSimAccumulator::SimHitCollection::sampleOffset;
@@ -183,7 +184,7 @@ namespace {
           p_charge = logintpack::unpack16log(unsigned_charge, minPackChargeLog, maxPackChargeLog, base);
 
           (simIt->second).hit_info[0][iSample] += p_charge;
-          if (iSample == 9) {
+          if (iSample == (unsigned short)thisBx) {
             if (hitRefs_bx0[detId].empty()) {
               hitRefs_bx0[detId].emplace_back(p_charge, p_time);
             } else {
@@ -541,7 +542,7 @@ void HGCDigitizer::accumulate_forPreMix(edm::Handle<edm::PCaloHitContainer> cons
     const float tof = toa - dist2center / refSpeed_ + tofDelay_;
     const int itime = std::floor(tof / bxTime_) + 9;
 
-    if (itime < 0 || itime > 14)
+    if (itime < 0 || itime > (int)maxBx_)
       continue;
 
     if (itime >= (int)simHitIt->second.PUhit_info[0].size())
@@ -549,8 +550,8 @@ void HGCDigitizer::accumulate_forPreMix(edm::Handle<edm::PCaloHitContainer> cons
     (simHitIt->second).PUhit_info[1][itime].push_back(tof);
     (simHitIt->second).PUhit_info[0][itime].push_back(charge);
   }
-  if (nchits == 0000) {
-    HGCPUSimHitDataAccumulator::iterator simHitIt = pusimHitAccumulator_->emplace(0000, HGCCellHitInfo()).first;
+  if (nchits == 0) {
+    HGCPUSimHitDataAccumulator::iterator simHitIt = pusimHitAccumulator_->emplace(0, HGCCellHitInfo()).first;
     (simHitIt->second).PUhit_info[1][9].push_back(0.0);
     (simHitIt->second).PUhit_info[0][9].push_back(0.0);
   }
@@ -626,7 +627,7 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const& hits,
     //itime += bxCrossing;
     //itime += 9;
 
-    if (itime < 0 || itime > 14)
+    if (itime < 0 || itime > (int)maxBx_)
       continue;
 
     //check if time index is ok and store energy
@@ -639,7 +640,7 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const& hits,
     //working version with pileup only for in-time hits
     int waferThickness = getCellThickness(geom, id);
     bool orderChanged = false;
-    if (itime == 9) {
+    if (itime == (int)thisBx_) {
       //if start empty => just add charge and time
       if (hitRefs_bx0[id].empty()) {
         hitRefs_bx0[id].emplace_back(charge, tof);
@@ -727,7 +728,8 @@ void HGCDigitizer::accumulate_forPreMix(const PreMixHGCSimAccumulator& simAccumu
                                     !weightToAbyEnergy,
                                     tdcForToAOnset,
                                     minbiasFlag,
-                                    hitOrder_monitor);
+                                    hitOrder_monitor,
+                                    thisBx_);
   } else if (nullptr != gHcal_) {
     loadSimHitAccumulator_forPreMix(*simHitAccumulator_,
                                     *pusimHitAccumulator_,
@@ -739,7 +741,8 @@ void HGCDigitizer::accumulate_forPreMix(const PreMixHGCSimAccumulator& simAccumu
                                     !weightToAbyEnergy,
                                     tdcForToAOnset,
                                     minbiasFlag,
-                                    hitOrder_monitor);
+                                    hitOrder_monitor,
+                                    thisBx_);
   }
 }
 
