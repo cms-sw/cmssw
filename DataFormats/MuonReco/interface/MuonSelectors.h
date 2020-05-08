@@ -142,7 +142,6 @@ namespace muon {
       {"LowPtMvaMedium", reco::Muon::LowPtMvaMedium},
       {nullptr, (reco::Muon::Selector)-1}};
 
-
   /// main GoodMuon wrapper call
   bool isGoodMuon(const reco::Muon& muon,
                   SelectionType type,
