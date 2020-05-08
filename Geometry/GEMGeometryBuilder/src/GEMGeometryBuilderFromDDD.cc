@@ -144,7 +144,7 @@ void GEMGeometryBuilderFromDDD::build(GEMGeometry& theGeometry,
     for (int st = 0; st <= GEMDetId::maxStationId; ++st) {
       GEMStation* station = new GEMStation(re, st);
       std::string sign(re == -1 ? "-" : "");
-      std::string suffix = (st == GEMDetId::minStationId0) ? "" : + "/1";
+      std::string suffix = (st == GEMDetId::minStationId0) ? "" : "/1";
       std::string name = "GE" + sign + std::to_string(st) + suffix;
       station->setName(name);
       bool foundSuperChamber = false;
