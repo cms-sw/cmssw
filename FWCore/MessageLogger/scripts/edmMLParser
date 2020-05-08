@@ -89,13 +89,13 @@ if __name__ == '__main__':
 
     # Now some fault control..If an error is found we raise an exception
     if args.logfile_name=='':
-        raise('Please select a file name and a MessageLogger category!')
+        raise Exception('Please select a file name and a MessageLogger category!')
 
     if not os.path.exists(args.logfile_name):
-        raise ('File to be parsed not present!')
+        raise Exception('File to be parsed not present!')
 
     if args.verbosityLevel != '' and args.verbosityLevel not in allowedVerbosityLevels :
-        raise ('Selected verbosity level not supported')
+        raise Exception('Selected verbosity level not supported')
 
     category_names = args.category_name.split(',')
 
