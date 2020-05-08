@@ -553,7 +553,7 @@ def miniAOD_customizeData(process):
     from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
     from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
     (ctpps_2016 & ~run2_miniAOD_devel).toModify(task, func=lambda t: t.add(process.ctppsLocalTrackLiteProducer, process.ctppsProtons))
-    (ctpps_2016 & run2_miniAOD_devel).toModify(task, func=lambda t: t.add(process.recoCTPPS))
+    (ctpps_2016 & run2_miniAOD_devel).toModify(task, func=lambda t: t.add(process.recoCTPPSTask))
 
 def miniAOD_customizeAllData(process):
     miniAOD_customizeCommon(process)

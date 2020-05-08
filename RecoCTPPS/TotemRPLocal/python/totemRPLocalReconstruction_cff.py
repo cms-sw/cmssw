@@ -12,9 +12,10 @@ from RecoCTPPS.TotemRPLocal.totemRPUVPatternFinder_cfi import *
 # local track fitting
 from RecoCTPPS.TotemRPLocal.totemRPLocalTrackFitter_cfi import *
 
-totemRPLocalReconstruction = cms.Sequence(
-    totemRPClusterProducer *
-    totemRPRecHitProducer *
-    totemRPUVPatternFinder *
+totemRPLocalReconstructionTask = cms.Task(
+    totemRPClusterProducer ,
+    totemRPRecHitProducer ,
+    totemRPUVPatternFinder ,
     totemRPLocalTrackFitter
 )
+totemRPLocalReconstruction = cms.Sequence(totemRPLocalReconstructionTask)
