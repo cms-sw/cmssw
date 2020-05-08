@@ -497,10 +497,6 @@ void L1TStage2RegionalMuonCandComp::analyze(const edm::Event& e, const edm::Even
           errorSummaryNum->Fill(RTRACKADDR);
       }
 
-      if (incBin[RMUON] && muonSelMismatch) {
-        errorSummaryNum->Fill(RMUON);
-      }
-
       if (isBmtf) {
         if (muonIt1->hwDXY() != muonIt2->hwDXY()) {
           muonMismatch = true;
@@ -518,6 +514,10 @@ void L1TStage2RegionalMuonCandComp::analyze(const edm::Event& e, const edm::Even
             errorSummaryNum->Fill(RPT2);
           }
         }
+      }
+
+      if (incBin[RMUON] && muonSelMismatch) {
+        errorSummaryNum->Fill(RMUON);
       }
 
       if (muonMismatch) {
