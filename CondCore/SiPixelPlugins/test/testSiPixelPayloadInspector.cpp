@@ -10,6 +10,8 @@
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 
 int main(int argc, char** argv) {
+  Py_Initialize();
+
   edmplugin::PluginManager::Config config;
   edmplugin::PluginManager::configure(edmplugin::standard::config());
 
@@ -25,30 +27,29 @@ int main(int argc, char** argv) {
   // Lorentz Angle
 
   std::string tag = "SiPixelLorentzAngle_v11_offline";
-  std::string runTimeType = cond::time::timeTypeName(cond::runnumber);
   cond::Time_t start = boost::lexical_cast<unsigned long long>(303790);
   cond::Time_t end = boost::lexical_cast<unsigned long long>(324245);
 
   std::cout << "## Exercising Lorentz Angle plots " << std::endl;
 
   SiPixelLorentzAngleValues histo1;
-  histo1.process(connectionString, tag, runTimeType, start, start);
+  histo1.process(connectionString, PI::mk_input(tag, start, start));
   std::cout << histo1.data() << std::endl;
 
   SiPixelLorentzAngleValueComparisonSingleTag histo2;
-  histo2.process(connectionString, tag, runTimeType, start, end);
+  histo2.process(connectionString, PI::mk_input(tag, start, end));
   std::cout << histo2.data() << std::endl;
 
   SiPixelLorentzAngleByRegionComparisonSingleTag histo3;
-  histo3.process(connectionString, tag, runTimeType, start, end);
+  histo3.process(connectionString, PI::mk_input(tag, start, end));
   std::cout << histo3.data() << std::endl;
 
   SiPixelBPixLorentzAngleMap histo4;
-  histo4.process(connectionString, tag, runTimeType, start, start);
+  histo4.process(connectionString, PI::mk_input(tag, start, start));
   std::cout << histo4.data() << std::endl;
 
   SiPixelFPixLorentzAngleMap histo5;
-  histo5.process(connectionString, tag, runTimeType, end, end);
+  histo5.process(connectionString, PI::mk_input(tag, end, end));
   std::cout << histo5.data() << std::endl;
 
   // 2 tags comparisons
@@ -57,11 +58,11 @@ int main(int argc, char** argv) {
   cond::Time_t start2 = boost::lexical_cast<unsigned long long>(1);
 
   SiPixelLorentzAngleValueComparisonTwoTags histo6;
-  histo6.processTwoTags(connectionString, tag, tag2, start, start2);
+  histo6.process(connectionString, PI::mk_input(tag, start, start, tag2, start2, start2));
   std::cout << histo6.data() << std::endl;
 
   SiPixelLorentzAngleByRegionComparisonTwoTags histo7;
-  histo7.processTwoTags(connectionString, tag, tag2, start, start2);
+  histo7.process(connectionString, PI::mk_input(tag, start, start, tag2, start2, start2));
   std::cout << histo7.data() << std::endl;
 
   // SiPixelQuality
@@ -73,11 +74,11 @@ int main(int argc, char** argv) {
   std::cout << "## Exercising SiPixelQuality plots " << std::endl;
 
   SiPixelBPixQualityMap histo8;
-  histo8.process(connectionString, tag, runTimeType, start, start);
+  histo8.process(connectionString, PI::mk_input(tag, start, start));
   std::cout << histo8.data() << std::endl;
 
   SiPixelFPixQualityMap histo9;
-  histo9.process(connectionString, tag, runTimeType, start, start);
+  histo9.process(connectionString, PI::mk_input(tag, start, start));
   std::cout << histo9.data() << std::endl;
 
   // SiPixelGainCalibrationOffline
@@ -89,32 +90,34 @@ int main(int argc, char** argv) {
   std::cout << "## Exercising SiPixelGainCalibrationOffline plots " << std::endl;
 
   SiPixelGainCalibrationOfflineGainsValues histo10;
-  histo10.process(connectionString, tag, runTimeType, start, start);
+  histo10.process(connectionString, PI::mk_input(tag, start, start));
   std::cout << histo10.data() << std::endl;
 
   SiPixelGainCalibrationOfflinePedestalsValues histo11;
-  histo11.process(connectionString, tag, runTimeType, start, start);
+  histo11.process(connectionString, PI::mk_input(tag, start, start));
   std::cout << histo11.data() << std::endl;
 
   SiPixelGainCalibrationOfflineGainsByPart histo12;
-  histo12.process(connectionString, tag, runTimeType, start, start);
+  histo12.process(connectionString, PI::mk_input(tag, start, start));
   std::cout << histo12.data() << std::endl;
 
   SiPixelGainCalibrationOfflinePedestalsByPart histo13;
-  histo13.process(connectionString, tag, runTimeType, start, start);
+  histo13.process(connectionString, PI::mk_input(tag, start, start));
   std::cout << histo13.data() << std::endl;
 
   end = boost::lexical_cast<unsigned long long>(326851);
 
   SiPixelGainCalibOfflinePedestalComparisonSingleTag histo14;
-  histo14.process(connectionString, tag, runTimeType, start, end);
+  histo14.process(connectionString, PI::mk_input(tag, start, end));
   std::cout << histo14.data() << std::endl;
 
   SiPixelGainCalibOfflineGainByRegionComparisonSingleTag histo15;
-  histo15.process(connectionString, tag, runTimeType, start, end);
+  histo15.process(connectionString, PI::mk_input(tag, start, end));
   std::cout << histo15.data() << std::endl;
 
   SiPixelGainCalibrationOfflineCorrelations histo16;
-  histo16.process(connectionString, tag, runTimeType, end, end);
+  histo16.process(connectionString, PI::mk_input(tag, end, end));
   std::cout << histo16.data() << std::endl;
+
+  Py_Finalize();
 }

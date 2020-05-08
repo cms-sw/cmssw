@@ -8,6 +8,7 @@
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 
 int main(int argc, char** argv) {
+  Py_Initialize();
   edmplugin::PluginManager::Config config;
   edmplugin::PluginManager::configure(edmplugin::standard::config());
 
@@ -21,21 +22,21 @@ int main(int argc, char** argv) {
   std::string connectionString("frontier://FrontierProd/CMS_CONDITIONS");
 
   std::string tag = "runinfo_31X_hlt";
-  std::string runTimeType = cond::time::timeTypeName(cond::runnumber);
   cond::Time_t start = boost::lexical_cast<unsigned long long>(311950);
   cond::Time_t end = boost::lexical_cast<unsigned long long>(312237);
 
   std::cout << "## RunInfo testing" << std::endl;
 
   RunInfoTest histo0;
-  histo0.process(connectionString, tag, runTimeType, end, end);
+  histo0.process(connectionString, PI::mk_input(tag, end, end));
   std::cout << histo0.data() << std::endl;
 
   RunInfoParameters histo1;
-  histo1.process(connectionString, tag, runTimeType, end, end);
+  histo1.process(connectionString, PI::mk_input(tag, end, end));
   std::cout << histo1.data() << std::endl;
 
   RunInfoBFieldHistory histo2;
-  histo2.process(connectionString, tag, runTimeType, start, end);
+  histo2.process(connectionString, PI::mk_input(tag, start, end));
   std::cout << histo2.data() << std::endl;
+  Py_Finalize();
 }
