@@ -94,30 +94,30 @@ TriggerPrimitive::TriggerPrimitive(const DTChamberId& detid,
 TriggerPrimitive::TriggerPrimitive(const CSCDetId& detid, const CSCCorrelatedLCTDigi& digi)
     : _id(detid), _subsystem(TriggerPrimitive::kCSC) {
   calculateGlobalSector(detid, _globalsector, _subsector);
-  _csc.trknmb = digi.getTrknmb();
+  _csc.trknmb = digi.trackNumber();
   _csc.valid = digi.isValid();
-  _csc.quality = digi.getQuality();
-  _csc.keywire = digi.getKeyWG();
-  _csc.strip = digi.getStrip();
-  _csc.pattern = digi.getPattern();
-  _csc.bend = digi.getBend();
-  _csc.bx = digi.getBX();
-  _csc.mpclink = digi.getMPCLink();
-  _csc.bx0 = digi.getBX0();
-  _csc.syncErr = digi.getSyncErr();
-  _csc.cscID = digi.getCSCID();
+  _csc.quality = digi.quality();
+  _csc.keywire = digi.keyWireGroup();
+  _csc.strip = digi.strip();
+  _csc.pattern = digi.pattern();
+  _csc.bend = digi.bend();
+  _csc.bx = digi.bx();
+  _csc.mpclink = digi.mpcLink();
+  _csc.bx0 = digi.bx0();
+  _csc.syncErr = digi.syncErr();
+  _csc.cscID = digi.cscID();
 
   // Use ME1/1a --> ring 4 convention
-  if (detid.station() == 1 && detid.ring() == 1 && digi.getStrip() >= 128) {
+  if (detid.station() == 1 && detid.ring() == 1 && digi.strip() >= 128) {
     _id = CSCDetId(detid.endcap(), detid.station(), 4, detid.chamber(), detid.layer());
-    _csc.strip = digi.getStrip() - 128;
+    _csc.strip = digi.strip() - 128;
   }
 
-  CSCCorrelatedLCTDigi digi_clone = digi;  // Necessary to get around const qualifier
+  const CSCCorrelatedLCTDigi& digi_clone = digi;  // Necessary to get around const qualifier
   CSCALCTDigi alct = digi_clone.getALCT();
-  CSCCLCTDigi clct = digi_clone.getCLCT();
-  _csc.alct_quality = alct.getQuality();
-  _csc.clct_quality = clct.getQuality();
+  const CSCCLCTDigi& clct = digi_clone.getCLCT();
+  _csc.alct_quality = alct.quality();
+  _csc.clct_quality = clct.quality();
 }
 
 // constructor from RPC data
@@ -245,7 +245,7 @@ bool TriggerPrimitive::operator==(const TriggerPrimitive& tp) const {
           this->_subsector == tp._subsector);
 }
 
-const int TriggerPrimitive::getBX() const {
+const int TriggerPrimitive::bx() const {
   switch (_subsystem) {
     case kDT:
       return _dt.bx;
@@ -262,7 +262,7 @@ const int TriggerPrimitive::getBX() const {
   return -1;
 }
 
-const int TriggerPrimitive::getStrip() const {
+const int TriggerPrimitive::strip() const {
   switch (_subsystem) {
     case kDT:
       return -1;
@@ -296,7 +296,7 @@ const int TriggerPrimitive::getWire() const {
   return -1;
 }
 
-const int TriggerPrimitive::getPattern() const {
+const int TriggerPrimitive::pattern() const {
   switch (_subsystem) {
     case kDT:
       return -1;

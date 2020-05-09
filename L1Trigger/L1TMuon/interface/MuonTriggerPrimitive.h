@@ -241,10 +241,10 @@ namespace L1TMuon {
     GEMData& accessGEMData() { return _gem; }
 
     // consistent accessors to common information
-    const int getBX() const;
-    const int getStrip() const;
+    const int bx() const;
+    const int strip() const;
     const int getWire() const;
-    const int getPattern() const;
+    const int pattern() const;
     const DetId rawId() const { return _id; };
 
     const unsigned getGlobalSector() const { return _globalsector; }

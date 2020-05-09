@@ -85,10 +85,10 @@ namespace L1TMuon {
     TTData& accessTTData() { return _data; }
 
     // Accessors to common information
-    const int getStrip() const;
+    const int strip() const;
     const int getSegment() const;
-    const int getBend() const;
-    const int getBX() const;
+    const int bend() const;
+    const int bx() const;
 
     const unsigned getGlobalSector() const { return _globalsector; }
     const unsigned getSubSector() const { return _subsector; }

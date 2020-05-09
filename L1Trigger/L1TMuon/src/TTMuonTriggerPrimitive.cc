@@ -54,7 +54,7 @@ bool TTTriggerPrimitive::operator==(const TTTriggerPrimitive& tp) const {
           this->_subsector == tp._subsector);
 }
 
-const int TTTriggerPrimitive::getBX() const {
+const int TTTriggerPrimitive::bx() const {
   switch (_subsystem) {
     case kTT:
       return _data.bx;
@@ -65,7 +65,7 @@ const int TTTriggerPrimitive::getBX() const {
   return -1;
 }
 
-const int TTTriggerPrimitive::getStrip() const {
+const int TTTriggerPrimitive::strip() const {
   switch (_subsystem) {
     case kTT:
       return static_cast<int>(_data.row_f);
@@ -87,7 +87,7 @@ const int TTTriggerPrimitive::getSegment() const {
   return -1;
 }
 
-const int TTTriggerPrimitive::getBend() const {
+const int TTTriggerPrimitive::bend() const {
   switch (_subsystem) {
     case kTT:
       return static_cast<int>(_data.bend);
