@@ -53,7 +53,7 @@ namespace csctf {
     unsigned subsector() const;
     unsigned cscid() const;
     unsigned cscidSeparateME1a() const;
-    int BX() const { return getBX(); }
+    int BX() const { return bx(); }
 
     /// Comparision Operators, used for MPC sorting
     bool operator>(const TrackStub &) const;

@@ -113,15 +113,15 @@ namespace csctf {
   }
 
   bool TrackStub::operator<(const TrackStub& rhs) const {
-    return (rhs.isValid() && ((!(isValid())) || (getQuality() < rhs.getQuality()) ||
-                              (getQuality() == rhs.getQuality() && cscid() < rhs.cscid()) ||
-                              (getQuality() == rhs.getQuality() && cscid() == rhs.cscid() && (getTrknmb() == 2))));
+    return (rhs.isValid() &&
+            ((!(isValid())) || (quality() < rhs.quality()) || (quality() == rhs.quality() && cscid() < rhs.cscid()) ||
+             (quality() == rhs.quality() && cscid() == rhs.cscid() && (trackNumber() == 2))));
   }
 
   bool TrackStub::operator>(const TrackStub& rhs) const {
-    return (isValid() && ((!(rhs.isValid())) || (getQuality() > rhs.getQuality()) ||
-                          (getQuality() == rhs.getQuality() && cscid() > rhs.cscid()) ||
-                          (getQuality() == rhs.getQuality() && cscid() == rhs.cscid() && (getTrknmb() == 1))));
+    return (isValid() && ((!(rhs.isValid())) || (quality() > rhs.quality()) ||
+                          (quality() == rhs.quality() && cscid() > rhs.cscid()) ||
+                          (quality() == rhs.quality() && cscid() == rhs.cscid() && (trackNumber() == 1))));
   }
 
 }  // namespace csctf
