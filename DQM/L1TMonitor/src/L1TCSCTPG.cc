@@ -63,39 +63,39 @@ void L1TCSCTPG::analyze(const Event& e, const EventSetup& c) {
        cscItr1++) {
     CSCCorrelatedLCTDigiCollection::Range range1 = pCSCTPGcorrlcts->get((*cscItr1).first);
     for (CSCCorrelatedLCTDigiCollection::const_iterator lctItr1 = range1.first; lctItr1 != range1.second; lctItr1++) {
-      csctpgpattern->Fill(lctItr1->getCLCTPattern());
+      csctpgpattern->Fill(lctItr1->clctPattern());
       if (verbose_) {
-        std::cout << "CSC TPG CLCT pattern " << lctItr1->getCLCTPattern() << std::endl;
+        std::cout << "CSC TPG CLCT pattern " << lctItr1->clctPattern() << std::endl;
       }
 
-      csctpgquality->Fill(lctItr1->getQuality());
+      csctpgquality->Fill(lctItr1->quality());
       if (verbose_) {
-        std::cout << "CSC LCT quality " << lctItr1->getQuality() << std::endl;
+        std::cout << "CSC LCT quality " << lctItr1->quality() << std::endl;
       }
 
-      csctpgwg->Fill(lctItr1->getKeyWG());
+      csctpgwg->Fill(lctItr1->keyWireGroup());
       if (verbose_) {
-        std::cout << "CSC LCT wire group " << lctItr1->getKeyWG() << std::endl;
+        std::cout << "CSC LCT wire group " << lctItr1->keyWireGroup() << std::endl;
       }
 
-      csctpgstrip->Fill(lctItr1->getStrip());
+      csctpgstrip->Fill(lctItr1->strip());
       if (verbose_) {
-        std::cout << "CSC LCT strip " << lctItr1->getStrip() << std::endl;
+        std::cout << "CSC LCT strip " << lctItr1->strip() << std::endl;
       }
 
-      csctpgstriptype->Fill(lctItr1->getStripType());
+      csctpgstriptype->Fill(lctItr1->stripType());
       if (verbose_) {
-        std::cout << "CSC LCT strip type" << lctItr1->getStripType() << std::endl;
+        std::cout << "CSC LCT strip type" << lctItr1->stripType() << std::endl;
       }
 
-      csctpgbend->Fill(lctItr1->getBend());
+      csctpgbend->Fill(lctItr1->bend());
       if (verbose_) {
-        std::cout << "CSC LCT bend " << lctItr1->getBend() << std::endl;
+        std::cout << "CSC LCT bend " << lctItr1->bend() << std::endl;
       }
 
-      csctpgbx->Fill(lctItr1->getBX());
+      csctpgbx->Fill(lctItr1->bx());
       if (verbose_) {
-        std::cout << "CSC LCT bx " << lctItr1->getBX() << std::endl;
+        std::cout << "CSC LCT bx " << lctItr1->bx() << std::endl;
       }
     }
   }

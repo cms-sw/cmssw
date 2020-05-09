@@ -31,7 +31,7 @@ namespace cscdqm {
   }
 
   /**
-   * @brief  Set a single bit in the 3D Histogram (aka EMU level event display). Checks if mo and x != null. 
+   * @brief  Set a single bit in the 3D Histogram (aka EMU level event display). Checks if mo and x != null.
    * @param  eventNumber number of event
    * @param  mo Histogram
    * @param  x X bin number
@@ -511,7 +511,7 @@ namespace cscdqm {
 
         if (alctsDatas.size() == 2) {
           if (getCSCHisto(h::CSC_ALCT1_VS_ALCT0_KEYWG, crateID, dmbID, mo))
-            mo->Fill(alctsDatas[0].getKeyWG(), alctsDatas[1].getKeyWG());
+            mo->Fill(alctsDatas[0].keyWireGroup(), alctsDatas[1].keyWireGroup());
         }
 
         MonitorObject* mo_CSC_ALCT0_BXN_mean = nullptr;
@@ -532,18 +532,18 @@ namespace cscdqm {
             continue;
 
           if (getCSCHisto(h::CSC_ALCTXX_KEYWG, crateID, dmbID, lct, mo)) {
-            mo->Fill(alctsDatas[lct].getKeyWG());
+            mo->Fill(alctsDatas[lct].keyWireGroup());
           }
 
           if (lct == 0)
-            alct_keywg = alctsDatas[lct].getKeyWG();
+            alct_keywg = alctsDatas[lct].keyWireGroup();
 
           int alct_dtime = 0;
           if (fwVersion == 2007) {
-            alct_dtime = alctsDatas[lct].getBX();
+            alct_dtime = alctsDatas[lct].bx();
           } else {
             // Older 2006 Format
-            alct_dtime = (int)(alctsDatas[lct].getBX() - (alctHeader->BXNCount() & 0x1F));
+            alct_dtime = (int)(alctsDatas[lct].bx() - (alctHeader->BXNCount() & 0x1F));
           }
 
           // == Those two summary histos need to be outside of per-chamber CSC_ALCTXX_DTIME histo check.
@@ -595,27 +595,27 @@ namespace cscdqm {
 
           if (getCSCHisto(h::CSC_ALCTXX_DTIME_VS_KEYWG, crateID, dmbID, lct, mo)) {
             if (alct_dtime < -16) {
-              mo->Fill(alctsDatas[lct].getKeyWG(), alct_dtime + 32);
+              mo->Fill(alctsDatas[lct].keyWireGroup(), alct_dtime + 32);
             } else {
               if (alct_dtime >= 16)
-                mo->Fill(alctsDatas[lct].getKeyWG(), alct_dtime - 32);
+                mo->Fill(alctsDatas[lct].keyWireGroup(), alct_dtime - 32);
               else
-                mo->Fill(alctsDatas[lct].getKeyWG(), alct_dtime);
+                mo->Fill(alctsDatas[lct].keyWireGroup(), alct_dtime);
             }
           }
 
           if (getCSCHisto(h::CSC_ALCTXX_DTIME_PROFILE, crateID, dmbID, lct, mo)) {
             if (alct_dtime < -16) {
-              mo->Fill(alctsDatas[lct].getKeyWG(), alct_dtime + 32);
+              mo->Fill(alctsDatas[lct].keyWireGroup(), alct_dtime + 32);
             } else {
               if (alct_dtime >= 16)
-                mo->Fill(alctsDatas[lct].getKeyWG(), alct_dtime - 32);
+                mo->Fill(alctsDatas[lct].keyWireGroup(), alct_dtime - 32);
               else
-                mo->Fill(alctsDatas[lct].getKeyWG(), alct_dtime);
+                mo->Fill(alctsDatas[lct].keyWireGroup(), alct_dtime);
             }
           }
 
-          int alct_bxn = alctsDatas[lct].getBX();
+          int alct_bxn = alctsDatas[lct].bx();
           if (fwVersion == 2007) {
             alct_bxn = (alct_bxn + alctHeader->BXNCount()) & 0x1F;
           }
@@ -624,15 +624,15 @@ namespace cscdqm {
             mo->Fill(alct_bxn);
 
           if (getCSCHisto(h::CSC_ALCTXX_QUALITY, crateID, dmbID, lct, mo))
-            mo->Fill(alctsDatas[lct].getKeyWG(), alctsDatas[lct].getQuality());
+            mo->Fill(alctsDatas[lct].keyWireGroup(), alctsDatas[lct].quality());
 
           if (mo_EventDisplay) {
-            mo_EventDisplay->SetBinContent(2, alctsDatas[lct].getKeyWG(), alct_bxn + 1);
-            mo_EventDisplay->SetBinContent(3, alctsDatas[lct].getKeyWG(), alctsDatas[lct].getQuality());
+            mo_EventDisplay->SetBinContent(2, alctsDatas[lct].keyWireGroup(), alct_bxn + 1);
+            mo_EventDisplay->SetBinContent(3, alctsDatas[lct].keyWireGroup(), alctsDatas[lct].quality());
           }
 
           if (getCSCHisto(h::CSC_ALCTXX_QUALITY_DISTR, crateID, dmbID, lct, mo)) {
-            mo->Fill(alctsDatas[lct].getQuality());
+            mo->Fill(alctsDatas[lct].quality());
             if (lct == 0) {
               MonitorObject* mo1 = nullptr;
               if (cscPosition && getEMUHisto(h::EMU_CSC_ALCT0_QUALITY, mo1)) {
@@ -642,16 +642,16 @@ namespace cscdqm {
           }
 
           if (getCSCHisto(h::CSC_ALCTXX_QUALITY_PROFILE, crateID, dmbID, lct, mo))
-            mo->Fill(alctsDatas[lct].getKeyWG(), alctsDatas[lct].getQuality());
+            mo->Fill(alctsDatas[lct].keyWireGroup(), alctsDatas[lct].quality());
 
           if (getCSCHisto(h::CSC_ALCTXX_PATTERN, crateID, dmbID, lct, mo)) {
-            int pattern = (alctsDatas[lct].getAccelerator() << 1) + alctsDatas[lct].getCollisionB();
-            int keywg = alctsDatas[lct].getKeyWG();
+            int pattern = (alctsDatas[lct].accelerator() << 1) + alctsDatas[lct].collisionB();
+            int keywg = alctsDatas[lct].keyWireGroup();
             mo->Fill(keywg, pattern);
           }
 
           if (getCSCHisto(h::CSC_ALCTXX_PATTERN_DISTR, crateID, dmbID, lct, mo)) {
-            int pattern = (alctsDatas[lct].getAccelerator() << 1) + alctsDatas[lct].getCollisionB();
+            int pattern = (alctsDatas[lct].accelerator() << 1) + alctsDatas[lct].collisionB();
             mo->Fill(pattern);
           }
         }
@@ -863,7 +863,7 @@ namespace cscdqm {
         CSCTMBTrailer* tmbTrailer = tmbData->tmbTrailer();
 
         if (tmbHeader && tmbTrailer) {
-          CSCCLCTData* clctData = data.clctData();
+          CSCComparatorData* comparatorData = data.comparatorData();
 
           std::vector<CSCCLCTDigi> clctsDatasTmp = tmbHeader->CLCTDigis(cid.rawId());
           std::vector<CSCCLCTDigi> clctsDatas;
@@ -986,7 +986,7 @@ namespace cscdqm {
 
           if (clctsDatas.size() == 1) {
             if (getCSCHisto(h::CSC_CLCT0_CLSSIFICATION, crateID, dmbID, mo)) {
-              if (clctsDatas[0].getStripType())
+              if (clctsDatas[0].stripType())
                 mo->Fill(0.0);
               else
                 mo->Fill(1.0);
@@ -995,15 +995,15 @@ namespace cscdqm {
 
           if (clctsDatas.size() == 2) {
             if (getCSCHisto(h::CSC_CLCT1_VS_CLCT0_KEY_STRIP, crateID, dmbID, mo))
-              mo->Fill(clctsDatas[0].getKeyStrip(), clctsDatas[1].getKeyStrip());
+              mo->Fill(clctsDatas[0].keyStrip(), clctsDatas[1].keyStrip());
             if (getCSCHisto(h::CSC_CLCT0_CLCT1_CLSSIFICATION, crateID, dmbID, mo)) {
-              if (clctsDatas[0].getStripType() && clctsDatas[1].getStripType())
+              if (clctsDatas[0].stripType() && clctsDatas[1].stripType())
                 mo->Fill(0.0);
-              if (clctsDatas[0].getStripType() && !clctsDatas[1].getStripType())
+              if (clctsDatas[0].stripType() && !clctsDatas[1].stripType())
                 mo->Fill(1.0);
-              if (!clctsDatas[0].getStripType() && clctsDatas[1].getStripType())
+              if (!clctsDatas[0].stripType() && clctsDatas[1].stripType())
                 mo->Fill(2.0);
-              if (!clctsDatas[0].getStripType() && !clctsDatas[1].getStripType())
+              if (!clctsDatas[0].stripType() && !clctsDatas[1].stripType())
                 mo->Fill(3.0);
             }
           }
@@ -1026,9 +1026,9 @@ namespace cscdqm {
 
           for (uint32_t lct = 0; lct < clctsDatas.size(); lct++) {
             if (getCSCHisto(h::CSC_CLCTXX_BXN, crateID, dmbID, lct, mo))
-              mo->Fill(clctsDatas[lct].getFullBX() % 64);
+              mo->Fill(clctsDatas[lct].fullBX() % 64);
 
-            int clct_dtime = clctsDatas[lct].getFullBX() - tmbHeader->BXNCount();
+            int clct_dtime = clctsDatas[lct].fullBX() - tmbHeader->BXNCount();
             if (clct_dtime > 0) {
               clct_dtime -= 3564;
             }
@@ -1064,7 +1064,7 @@ namespace cscdqm {
 
               // == For CLCT0 Fill Summary dTime Histograms
               if (lct == 0) {
-                /* -- Moved 
+                /* -- Moved
                 if (cid.endcap() == 1) {
                   if (mo_CSC_Plus_endcap_CLCT0_dTime) mo_CSC_Plus_endcap_CLCT0_dTime->Fill(dTime);
                 }
@@ -1081,43 +1081,43 @@ namespace cscdqm {
               }
             }
 
-            /** LOG_DEBUG << "CLCT BX = " << clctsDatas[lct].getBX() << " TMB BX = " << tmbHeader->BXNCount() << " 03 = " << (int)(tmbHeader->BXNCount()&0x3); */
-            /** LOG_DEBUG <<  "diff = " << clctsDatas[lct].getBX()-(tmbHeader->BXNCount()&0x3); */
-            LOG_DEBUG << "LCT:" << lct << " Type:" << clctsDatas[lct].getStripType()
-                      << " Strip:" << clctsDatas[lct].getKeyStrip();
+            /** LOG_DEBUG << "CLCT BX = " << clctsDatas[lct].bx() << " TMB BX = " << tmbHeader->BXNCount() << " 03 = " << (int)(tmbHeader->BXNCount()&0x3); */
+            /** LOG_DEBUG <<  "diff = " << clctsDatas[lct].bx()-(tmbHeader->BXNCount()&0x3); */
+            LOG_DEBUG << "LCT:" << lct << " Type:" << clctsDatas[lct].stripType()
+                      << " Strip:" << clctsDatas[lct].keyStrip();
 
-            if (clctsDatas[lct].getStripType()) {  // HalfStrip Type
+            if (clctsDatas[lct].stripType()) {  // HalfStrip Type
 
               if (getCSCHisto(h::CSC_CLCTXX_KEYHALFSTRIP, crateID, dmbID, lct, mo))
-                mo->Fill(clctsDatas[lct].getKeyStrip());
+                mo->Fill(clctsDatas[lct].keyStrip());
 
               if (getCSCHisto(h::CSC_CLCTXX_DTIME_VS_HALF_STRIP, crateID, dmbID, lct, mo)) {
-                mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime);
+                mo->Fill((int)(clctsDatas[lct].keyStrip()), clct_dtime);
                 /*
                 if (clct_dtime < -16) {
-                  mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime + 32);
+                  mo->Fill((int)(clctsDatas[lct].keyStrip()), clct_dtime + 32);
                 } else {
-                  if (clct_dtime > 16) mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime - 32);
-                  else                 mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime);
+                  if (clct_dtime > 16) mo->Fill((int)(clctsDatas[lct].keyStrip()), clct_dtime - 32);
+                  else                 mo->Fill((int)(clctsDatas[lct].keyStrip()), clct_dtime);
                 }
                 */
               }
 
               if (getCSCHisto(h::CSC_CLCTXX_DTIME_PROFILE, crateID, dmbID, lct, mo)) {
-                mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime);
+                mo->Fill((int)(clctsDatas[lct].keyStrip()), clct_dtime);
                 /*
                 if (clct_dtime < -16) {
-                  mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime + 32);
+                  mo->Fill((int)(clctsDatas[lct].keyStrip()), clct_dtime + 32);
                 } else {
-                  if (clct_dtime > 16) mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime - 32);
-                  else                 mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime);
+                  if (clct_dtime > 16) mo->Fill((int)(clctsDatas[lct].keyStrip()), clct_dtime - 32);
+                  else                 mo->Fill((int)(clctsDatas[lct].keyStrip()), clct_dtime);
                 }
                 */
               }
 
               if (getCSCHisto(h::CSC_CLCTXX_HALF_STRIP_PATTERN, crateID, dmbID, lct, mo)) {
-                int pattern_clct = clctsDatas[lct].getPattern();
-                /**  int pattern_clct = (int)((clctsDatas[lct].getPattern()>>1)&0x3); */
+                int pattern_clct = clctsDatas[lct].pattern();
+                /**  int pattern_clct = (int)((clctsDatas[lct].pattern()>>1)&0x3); */
                 /**  pattern_clct = Number of patterns in CLCT */
                 /**  Last (left) bit is bend. Positive bend = 1, negative bend = 0 */
                 double tbin = -1;
@@ -1159,7 +1159,7 @@ namespace cscdqm {
                 }
 
                 if (tbin >= 0)
-                  mo->Fill(clctsDatas[lct].getKeyStrip(), tbin);
+                  mo->Fill(clctsDatas[lct].keyStrip(), tbin);
 
                 MonitorObject* mo1 = nullptr;
                 if (getCSCHisto(h::CSC_CLCT_HALF_STRIP_PATTERN_DISTR, crateID, dmbID, lct, mo1))
@@ -1167,15 +1167,15 @@ namespace cscdqm {
               }
 
               if (getCSCHisto(h::CSC_CLCTXX_HALF_STRIP_QUALITY, crateID, dmbID, lct, mo))
-                mo->Fill((int)(clctsDatas[lct].getKeyStrip()), (int)(clctsDatas[lct].getQuality()));
+                mo->Fill((int)(clctsDatas[lct].keyStrip()), (int)(clctsDatas[lct].quality()));
 
               if (mo_EventDisplay) {
-                mo_EventDisplay->SetBinContent(10, clctsDatas[lct].getKeyStrip(), clct_dtime);
-                mo_EventDisplay->SetBinContent(11, clctsDatas[lct].getKeyStrip(), clctsDatas[lct].getQuality());
+                mo_EventDisplay->SetBinContent(10, clctsDatas[lct].keyStrip(), clct_dtime);
+                mo_EventDisplay->SetBinContent(11, clctsDatas[lct].keyStrip(), clctsDatas[lct].quality());
               }
 
               if (getCSCHisto(h::CSC_CLCTXX_HALF_STRIP_QUALITY_DISTR, crateID, dmbID, lct, mo)) {
-                mo->Fill((int)(clctsDatas[lct].getQuality()));
+                mo->Fill((int)(clctsDatas[lct].quality()));
                 if (lct == 0) {
                   MonitorObject* mo1 = nullptr;
                   if (cscPosition && getEMUHisto(h::EMU_CSC_CLCT0_QUALITY, mo1)) {
@@ -1185,58 +1185,58 @@ namespace cscdqm {
               }
 
               if (getCSCHisto(h::CSC_CLCTXX_HALF_STRIP_QUALITY_PROFILE, crateID, dmbID, lct, mo))
-                mo->Fill((int)(clctsDatas[lct].getKeyStrip()), (int)(clctsDatas[lct].getQuality()));
+                mo->Fill((int)(clctsDatas[lct].keyStrip()), (int)(clctsDatas[lct].quality()));
 
             } else {  // DiStrip Type
 
               LOG_INFO << "Entering block!";
 
               if (getCSCHisto(h::CSC_CLCTXX_KEYDISTRIP, crateID, dmbID, lct, mo))
-                mo->Fill(clctsDatas[lct].getKeyStrip());
+                mo->Fill(clctsDatas[lct].keyStrip());
               else
                 LOG_ERROR << "Not found h::CSC_CLCTXX_KEYDISTRIP = " << h::CSC_CLCTXX_KEYDISTRIP;
 
               if (lct == 0)
-                clct_kewdistrip = clctsDatas[lct].getKeyStrip();
+                clct_kewdistrip = clctsDatas[lct].keyStrip();
 
               if (getCSCHisto(h::CSC_CLCTXX_DTIME_VS_DISTRIP, crateID, dmbID, lct, mo)) {
-                mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime);
+                mo->Fill((int)(clctsDatas[lct].keyStrip()), clct_dtime);
                 /*
-                if(clct_dtime < -16) mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime + 32);
+                if(clct_dtime < -16) mo->Fill((int)(clctsDatas[lct].keyStrip()), clct_dtime + 32);
                 else {
-                  if(clct_dtime > 16) mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime - 32);
-                  else mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime);
+                  if(clct_dtime > 16) mo->Fill((int)(clctsDatas[lct].keyStrip()), clct_dtime - 32);
+                  else mo->Fill((int)(clctsDatas[lct].keyStrip()), clct_dtime);
                 }
                 */
               }
 
               if (getCSCHisto(h::CSC_CLCTXX_DISTRIP_PATTERN, crateID, dmbID, lct, mo)) {
-                int pattern_clct = (int)((clctsDatas[lct].getPattern() >> 1) & 0x3);
+                int pattern_clct = (int)((clctsDatas[lct].pattern() >> 1) & 0x3);
                 /**  pattern_clct = Number of patterns in CLCT */
                 /**  Last (left) bit is bend. Positive bend = 1, negative bend = 0 */
                 if (pattern_clct == 1)
-                  mo->Fill(clctsDatas[lct].getKeyStrip(), 7.0);
+                  mo->Fill(clctsDatas[lct].keyStrip(), 7.0);
                 if (pattern_clct == 3)
-                  mo->Fill(clctsDatas[lct].getKeyStrip(), 6.0);
+                  mo->Fill(clctsDatas[lct].keyStrip(), 6.0);
                 if (pattern_clct == 5)
-                  mo->Fill(clctsDatas[lct].getKeyStrip(), 5.0);
+                  mo->Fill(clctsDatas[lct].keyStrip(), 5.0);
                 if (pattern_clct == 7)
-                  mo->Fill(clctsDatas[lct].getKeyStrip(), 4.0);
+                  mo->Fill(clctsDatas[lct].keyStrip(), 4.0);
                 if (pattern_clct == 6)
-                  mo->Fill(clctsDatas[lct].getKeyStrip(), 3.0);
+                  mo->Fill(clctsDatas[lct].keyStrip(), 3.0);
                 if (pattern_clct == 4)
-                  mo->Fill(clctsDatas[lct].getKeyStrip(), 2.0);
+                  mo->Fill(clctsDatas[lct].keyStrip(), 2.0);
                 if (pattern_clct == 2)
-                  mo->Fill(clctsDatas[lct].getKeyStrip(), 1.0);
+                  mo->Fill(clctsDatas[lct].keyStrip(), 1.0);
                 if (pattern_clct == 0)
-                  mo->Fill(clctsDatas[lct].getKeyStrip(), 0.0);
+                  mo->Fill(clctsDatas[lct].keyStrip(), 0.0);
               }
 
               if (getCSCHisto(h::CSC_CLCTXX_DISTRIP_QUALITY, crateID, dmbID, lct, mo))
-                mo->Fill((int)(clctsDatas[lct].getKeyStrip()), (int)(clctsDatas[lct].getQuality()));
+                mo->Fill((int)(clctsDatas[lct].keyStrip()), (int)(clctsDatas[lct].quality()));
 
               if (getCSCHisto(h::CSC_CLCTXX_DISTRIP_QUALITY_PROFILE, crateID, dmbID, lct, mo))
-                mo->Fill((int)(clctsDatas[lct].getKeyStrip()), (int)(clctsDatas[lct].getQuality()));
+                mo->Fill((int)(clctsDatas[lct].keyStrip()), (int)(clctsDatas[lct].quality()));
             }
           }
 
@@ -1246,7 +1246,7 @@ namespace cscdqm {
           int NumberOfLayersWithHitsInCLCT = 0;
           int NumberOfHalfStripsWithHitsInCLCT = 0;
 
-          if (clctData && clctData->check()) {
+          if (comparatorData && comparatorData->check()) {
             MonitorObject* mo_CFEB_Comparators_TimeSamples = nullptr;
             getCSCHisto(h::CSC_CFEB_COMPARATORS_TIMESAMPLES, crateID, dmbID, mo_CFEB_Comparators_TimeSamples);
 
@@ -1268,7 +1268,7 @@ namespace cscdqm {
                 int tbin_clct_previous = -1;
                 bool CheckLayerCLCT = true;
 
-                std::vector<CSCComparatorDigi> compOutData = clctData->comparatorDigis(nLayer, nCFEB);
+                std::vector<CSCComparatorDigi> compOutData = comparatorData->comparatorDigis(nLayer, nCFEB);
 
                 for (std::vector<CSCComparatorDigi>::iterator compOutDataItr = compOutData.begin();
                      compOutDataItr != compOutData.end();

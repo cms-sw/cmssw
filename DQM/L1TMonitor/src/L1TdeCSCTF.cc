@@ -3,11 +3,11 @@
  * written by J. Gartner
  *
  * 2011.03.11 expanded by GP Di Giovanni
- * 
+ *
  * There is quality test allowing to check elements outside the
  * diagonal, so I need to add the 1D plot with all elements in the diagonal
  * in the first bin and all elements outside the diagonal in the second bin
- * 
+ *
  * In such way we can run the ContentsXRange quality test...
  */
 
@@ -71,10 +71,10 @@ L1TdeCSCTF::L1TdeCSCTF(ParameterSet const& pset) {
         		{
 					for(int subsectorItr = 0; subsectorItr < 2; subsectorItr++)
    					{
-		      			srLUTs_[endcapItr-1][sectorItr-1][subsectorItr] = new CSCSectorReceiverLUT(endcapItr, sectorItr, subsectorItr+1, stationItr, srLUTset, TMB07); 
+		      			srLUTs_[endcapItr-1][sectorItr-1][subsectorItr] = new CSCSectorReceiverLUT(endcapItr, sectorItr, subsectorItr+1, stationItr, srLUTset, TMB07);
         			}
         		} else {
-		  			srLUTs_[endcapItr-1][sectorItr-1][stationItr] = new CSCSectorReceiverLUT(endcapItr, sectorItr, 0, stationItr, srLUTset, TMB07); 
+		  			srLUTs_[endcapItr-1][sectorItr-1][stationItr] = new CSCSectorReceiverLUT(endcapItr, sectorItr, 0, stationItr, srLUTset, TMB07);
        			} //if for station 1 or 234
       		} // stationItr loop
    		} // sectorItr loop
@@ -461,7 +461,7 @@ void L1TdeCSCTF::analyze(Event const& e, EventSetup const& es) {
         break;
       if ((stu->BX() > 4) && (stu->BX() < 9)) {
         dDtStub[0][dDtCounter] = stu->phiPacked();
-        dDtStub[1][dDtCounter] = stu->getQuality();
+        dDtStub[1][dDtCounter] = stu->quality();
         dDtStub[2][dDtCounter] = stu->endcap();
         dDtStub[3][dDtCounter] = stu->sector();
         dDtStub[4][dDtCounter] = stu->subsector();
@@ -489,7 +489,7 @@ void L1TdeCSCTF::analyze(Event const& e, EventSetup const& es) {
         break;
       if ((eStu->BX() > 4) && (eStu->BX() < 9)) {
         eDtStub[0][eDtCounter] = eStu->phiPacked();
-        eDtStub[1][eDtCounter] = eStu->getQuality();
+        eDtStub[1][eDtCounter] = eStu->quality();
         eDtStub[2][eDtCounter] = eStu->endcap();
         eDtStub[3][eDtCounter] = eStu->sector();
         eDtStub[4][eDtCounter] = eStu->subsector();

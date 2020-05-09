@@ -948,9 +948,9 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c) {
         int ring = (*csc).first.ring();
         int cscId = (*csc).first.triggerCscId() - 1;
         int fpga = (subSector ? subSector - 1 : station + 1);
-        int strip = lct->getStrip();
-        int keyWire = lct->getKeyWG();
-        int bx = lct->getBX();
+        int strip = lct->strip();
+        int keyWire = lct->keyWireGroup();
+        int bx = lct->bx();
 
         int endcapAssignment = 1;
         int shift = 1;
@@ -1015,7 +1015,7 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c) {
         lclphidat lclPhi;
         try {
           lclPhi = srLUTs_[fpga][EndCapLUT][sector]->localPhi(
-              lct->getStrip(), lct->getPattern(), lct->getQuality(), lct->getBend(), gangedME11a_);
+              lct->strip(), lct->pattern(), lct->quality(), lct->bend(), gangedME11a_);
         } catch (cms::Exception&) {
           bzero(&lclPhi, sizeof(lclPhi));
         }
@@ -1023,7 +1023,7 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c) {
         gblphidat gblPhi;
         try {
           gblPhi =
-              srLUTs_[fpga][EndCapLUT][sector]->globalPhiME(lclPhi.phi_local, lct->getKeyWG(), cscId + 1, gangedME11a_);
+              srLUTs_[fpga][EndCapLUT][sector]->globalPhiME(lclPhi.phi_local, lct->keyWireGroup(), cscId + 1, gangedME11a_);
         } catch (cms::Exception&) {
           bzero(&gblPhi, sizeof(gblPhi));
         }
@@ -1031,7 +1031,7 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c) {
         gbletadat gblEta;
         try {
           gblEta = srLUTs_[fpga][EndCapLUT][sector]->globalEtaME(
-              lclPhi.phi_bend_local, lclPhi.phi_local, lct->getKeyWG(), cscId + 1, gangedME11a_);
+              lclPhi.phi_bend_local, lclPhi.phi_local, lct->keyWireGroup(), cscId + 1, gangedME11a_);
         } catch (cms::Exception&) {
           bzero(&gblEta, sizeof(gblEta));
         }
@@ -1399,9 +1399,9 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c) {
              lclphidat lclPhi;
              lclPhi = srLUTs_[fpga]->localPhi(lct->getStrip(), lct->getPattern(), lct->getQuality(), lct->getBend());
              gblphidat gblPhi;
-             gblPhi = srLUTs_[fpga]->globalPhiME(lclPhi.phi_local, lct->getKeyWG(), cscId+1);
+             gblPhi = srLUTs_[fpga]->globalPhiME(lclPhi.phi_local, lct->keyWireGroup(), cscId+1);
              gbletadat gblEta;
-             gblEta = srLUTs_[fpga]->globalEtaME(lclPhi.phi_bend_local, lclPhi.phi_local, lct->getKeyWG(), cscId+1);
+             gblEta = srLUTs_[fpga]->globalEtaME(lclPhi.phi_bend_local, lclPhi.phi_local, lct->keyWireGroup(), cscId+1);
 
              haloVals[indexHalo][2] = gblEta.global_eta/127. * 1.5 + 0.9;
              } //station1 or 2
@@ -1448,9 +1448,9 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c) {
           //                       lclphidat lclPhi;
           //                       lclPhi = srLUTs_[fpga]->localPhi(lct->getStrip(), lct->getPattern(), lct->getQuality(), lct->getBend());
           //                       gblphidat gblPhi;
-          //                       gblPhi = srLUTs_[fpga]->globalPhiME(lclPhi.phi_local, lct->getKeyWG(), cscId+1);
+          //                       gblPhi = srLUTs_[fpga]->globalPhiME(lclPhi.phi_local, lct->keyWireGroup(), cscId+1);
           //                       gbletadat gblEta;
-          //                       gblEta = srLUTs_[fpga]->globalEtaME(lclPhi.phi_bend_local, lclPhi.phi_local, lct->getKeyWG(), cscId+1);
+          //                       gblEta = srLUTs_[fpga]->globalEtaME(lclPhi.phi_bend_local, lclPhi.phi_local, lct->keyWireGroup(), cscId+1);
           //                       haloEta[station-1] = gblEta.global_eta/127. * 1.5 + 0.9;
           //                       if(station==1 && cscId<2) haloME11 = true;
           //                    }
@@ -1489,15 +1489,15 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c) {
     for (std::vector<csctf::TrackStub>::const_iterator stub = vstubs.begin(); stub != vstubs.end(); stub++) {
       if (verbose_) {
         edm::LogInfo("DataNotFound") << "\n mbEndcap: " << stub->endcap();
-        edm::LogInfo("DataNotFound") << "\n stub->getStrip()[FLAG]: " << stub->getStrip();
-        edm::LogInfo("DataNotFound") << "\n stub->getKeyWG()[CAL]: " << stub->getKeyWG();
-        edm::LogInfo("DataNotFound") << "\n stub->BX(): " << stub->BX();
+        edm::LogInfo("DataNotFound") << "\n stub->strip()[FLAG]: " << stub->strip();
+        edm::LogInfo("DataNotFound") << "\n stub->keyWireGroup()[CAL]: " << stub->keyWireGroup();
+        edm::LogInfo("DataNotFound") << "\n stub->bx(): " << stub->bx();
         edm::LogInfo("DataNotFound") << "\n stub->sector(): " << stub->sector();
         edm::LogInfo("DataNotFound") << "\n stub->subsector(): " << stub->subsector();
         edm::LogInfo("DataNotFound") << "\n stub->station(): " << stub->station();
         edm::LogInfo("DataNotFound") << "\n stub->phiPacked(): " << stub->phiPacked();
-        edm::LogInfo("DataNotFound") << "\n stub->getBend(): " << stub->getBend();
-        edm::LogInfo("DataNotFound") << "\n stub->getQuality(): " << stub->getQuality();
+        edm::LogInfo("DataNotFound") << "\n stub->bend(): " << stub->bend();
+        edm::LogInfo("DataNotFound") << "\n stub->quality(): " << stub->quality();
         edm::LogInfo("DataNotFound") << "\n stub->cscid(): " << stub->cscid() << endl;
       }
       // define the sector ID
@@ -1507,10 +1507,10 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c) {
       // horrible! They used the same class to write up the LCT and MB info,
       // but given the MB does not have strip and WG they replaced this two
       // with the flag and cal bits... :S
-      if (stub->getKeyWG() == 0)  //!CAL as Janos adviced
+      if (stub->keyWireGroup() == 0)  //!CAL as Janos adviced
       {
         // if FLAG =1, muon belong to previous BX
-        int bxDT = stub->BX() - stub->getStrip();  // correct by the FLAG
+        int bxDT = stub->BX() - stub->strip();  // correct by the FLAG
         int subDT = stub->subsector();
 
         // Fill the event only if CSC had or would have triggered
@@ -1542,7 +1542,7 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c) {
             }
           }  // loop on the tracks
         }    //if (isCSCcand_){
-      }      //if (stub->getKeyWG() == 0) {
+      }      //if (stub->keyWireGroup() == 0) {
     }
   }
 }
