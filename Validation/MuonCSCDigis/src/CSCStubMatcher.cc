@@ -108,10 +108,10 @@ void CSCStubMatcher::matchCLCTsToSimTrack(const CSCCLCTDigiCollection& clcts) {
         continue;
 
       // check that the BX for this stub wasn't too early or too late
-      if (c->getBX() < minBXCLCT_ || c->getBX() > maxBXCLCT_)
+      if (c->bx() < minBXCLCT_ || c->bx() > maxBXCLCT_)
         continue;
 
-      int half_strip = c->getKeyStrip() + 1;  // CLCT halfstrip numbers start from 0
+      int half_strip = c->keyStrip() + 1;  // CLCT halfstrip numbers start from 0
       if (ch_id.ring() == 4 and ch_id.station() == 1 and half_strip > 128)
         half_strip = half_strip - 128;
 
@@ -168,10 +168,10 @@ void CSCStubMatcher::matchALCTsToSimTrack(const CSCALCTDigiCollection& alcts) {
         cout << "alct " << ch_id << " " << *a << endl;
 
       // check that the BX for stub wasn't too early or too late
-      if (a->getBX() < minBXALCT_ || a->getBX() > maxBXALCT_)
+      if (a->bx() < minBXALCT_ || a->bx() > maxBXALCT_)
         continue;
 
-      int wg = a->getKeyWG() + 1;  // as ALCT wiregroups numbers start from 0
+      int wg = a->keyWireGroup() + 1;  // as ALCT wiregroups numbers start from 0
 
       // store all ALCTs in this chamber
       chamber_to_alcts_all_[id].push_back(*a);
@@ -401,7 +401,7 @@ CSCCLCTDigi CSCStubMatcher::bestClctInChamber(unsigned int detid) const {
   int bestQ = 0;
   int index = -1;
   for (unsigned int i = 0; i < input.size(); ++i) {
-    int quality = input[i].getQuality();
+    int quality = input[i].quality();
     if (quality > bestQ) {
       bestQ = quality;
       index = i;
@@ -418,7 +418,7 @@ CSCALCTDigi CSCStubMatcher::bestAlctInChamber(unsigned int detid) const {
   int bestQ = 0;
   int index = -1;
   for (unsigned int i = 0; i < input.size(); ++i) {
-    int quality = input[i].getQuality();
+    int quality = input[i].quality();
     if (quality > bestQ) {
       bestQ = quality;
       index = i;
@@ -435,7 +435,7 @@ CSCCorrelatedLCTDigi CSCStubMatcher::bestLctInChamber(unsigned int detid) const 
   int bestQ = 0;
   int index = -1;
   for (unsigned int i = 0; i < input.size(); ++i) {
-    int quality = input[i].getQuality();
+    int quality = input[i].quality();
     if (quality > bestQ) {
       bestQ = quality;
       index = i;
@@ -461,7 +461,7 @@ int CSCStubMatcher::nChambersWithCLCT(int min_quality) const {
     for (const auto& clct : clcts) {
       if (!clct.isValid())
         continue;
-      if (clct.getQuality() >= min_quality) {
+      if (clct.quality() >= min_quality) {
         nStubChamber++;
       }
     }
@@ -481,7 +481,7 @@ int CSCStubMatcher::nChambersWithALCT(int min_quality) const {
     for (const auto& alct : alcts) {
       if (!alct.isValid())
         continue;
-      if (alct.getQuality() >= min_quality) {
+      if (alct.quality() >= min_quality) {
         nStubChamber++;
       }
     }
@@ -501,7 +501,7 @@ int CSCStubMatcher::nChambersWithLCT(int min_quality) const {
     for (const auto& lct : lcts) {
       if (!lct.isValid())
         continue;
-      if (lct.getQuality() >= min_quality) {
+      if (lct.quality() >= min_quality) {
         nStubChamber++;
       }
     }
@@ -521,7 +521,7 @@ int CSCStubMatcher::nChambersWithMPLCT(int min_quality) const {
     for (const auto& mplct : mplcts) {
       if (!mplct.isValid())
         continue;
-      if (mplct.getQuality() >= min_quality) {
+      if (mplct.quality() >= min_quality) {
         nStubChamber++;
       }
     }
@@ -544,10 +544,10 @@ GlobalPoint CSCStubMatcher::getGlobalPosition(unsigned int rawId, const CSCCorre
   CSCDetId cscId(rawId);
   CSCDetId key_id(cscId.endcap(), cscId.station(), cscId.ring(), cscId.chamber(), CSCConstants::KEY_CLCT_LAYER);
   const auto& chamber = cscGeometry_->chamber(cscId);
-  float fractional_strip = lct.getFractionalStrip();
+  float fractional_strip = lct.fractionalStrip();
   const auto& layer_geo = chamber->layer(CSCConstants::KEY_CLCT_LAYER)->geometry();
-  // LCT::getKeyWG() also starts from 0
-  float wire = layer_geo->middleWireOfGroup(lct.getKeyWG() + 1);
+  // LCT::keyWireGroup() also starts from 0
+  float wire = layer_geo->middleWireOfGroup(lct.keyWireGroup() + 1);
   const LocalPoint& csc_intersect = layer_geo->intersectionOfStripAndWire(fractional_strip, wire);
   const GlobalPoint& csc_gp = cscGeometry_->idToDet(key_id)->surface().toGlobal(csc_intersect);
   return csc_gp;

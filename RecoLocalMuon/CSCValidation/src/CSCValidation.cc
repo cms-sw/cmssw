@@ -345,7 +345,7 @@ bool CSCValidation::filterEvents(edm::Handle<CSCRecHit2DCollection> recHits,
   return true;
   //if (saMuons->size() != 1) return false;
   /*
-  for(reco::TrackCollection::const_iterator muon = saMuons->begin(); muon != saMuons->end(); ++ muon ) {  
+  for(reco::TrackCollection::const_iterator muon = saMuons->begin(); muon != saMuons->end(); ++ muon ) {
     double p  = muon->p();
     double reducedChisq = muon->normalizedChi2();
 
@@ -378,7 +378,7 @@ bool CSCValidation::filterEvents(edm::Handle<CSCRecHit2DCollection> recHits,
       && ( crudeLength > lengthMin )
       && ( crudeLength < lengthMax );
 
-    
+
     goodSAMuon = goodSAMuon && ( fabs(deltaPhi) < deltaPhiMax );
     goodSAMuon = goodSAMuon &&
       (
@@ -391,13 +391,13 @@ bool CSCValidation::filterEvents(edm::Handle<CSCRecHit2DCollection> recHits,
        ( (M_PI-outerGlobalPolarAngle > polarMin) && (M_PI-outerGlobalPolarAngle < polarMax) )
        );
 
-   //goodSAMuon = goodSAMuon && (nCSCHits > nCSCHitsMin) && (nCSCHits < 13);  
+   //goodSAMuon = goodSAMuon && (nCSCHits > nCSCHitsMin) && (nCSCHits < 13);
    //goodSAMuon = goodSAMuon && (nCSCHits > 13) && (nCSCHits < 19);
    //goodSAMuon = goodSAMuon && (nCSCHits > 19) && (nCSCHits < nCSCHitsMax);
 
 
    if (goodSAMuon) nGoodSAMuons++;
-   
+
   } // end loop over stand-alone muon collection
 
 
@@ -2704,7 +2704,7 @@ void CSCValidation::doGasGain(const CSCWireDigiCollection& wirecltn,
               /*
                    std::cout<<idchamber<<"   "<<id.station()<<" "<<id.ring()<<" "
                    <<id.chamber()<<"    "<<layer<<" "<< wire<<" "<<m_strip[1]<<" "<<
-                   chambertype<<" "<< hvsgmtnmb<<" "<< nmbofhvsegm<<" "<< 
+                   chambertype<<" "<< hvsgmtnmb<<" "<< nmbofhvsegm<<" "<<
                    location<<"   "<<adc_3_3_sum<<std::endl;
                  */
             }  // end of if flag==0
@@ -2818,7 +2818,7 @@ void CSCValidation::doCompTiming(const CSCComparatorDigiCollection& compars) {
         /*
           if(id.station()==1 && (id.ring()==1 || id.ring()==4))
              std::cout<<idchamber<<" "<<id.station()<<" "<<id.ring()<<" "
-                      <<strip <<std::endl;  
+                      <<strip <<std::endl;
           */
         indexer.dbIndex(id, strip);  // strips 1-16 of ME1/1a
                                      // become strips 65-80 of ME1/1
@@ -2903,7 +2903,7 @@ void CSCValidation::doADCTiming(const CSCRecHit2DCollection& rechitcltn) {
                       if(id.station()==1 && (id.ring()==1 || id.ring()==4))
                       std::cout<<idchamber<<" "<<id.station()<<" "<<id.ring()<<" "<<m_strip[1]<<" "<<
                           "      "<<centerStrip<<
-                             " "<<adc_3_3_wtbin<<"     "<<adc_3_3_sum<<std::endl;    
+                             " "<<adc_3_3_wtbin<<"     "<<adc_3_3_sum<<std::endl;
                       */
             ss << "adc_3_3_weight_time_bin_vs_cfeb_occupancy_ME_" << idchamber;
             name = ss.str();
@@ -3144,12 +3144,12 @@ void CSCValidation::doTimeMonitoring(edm::Handle<CSCRecHit2DCollection> recHits,
       // Valid digi in the chamber (or in neighbouring chamber)
       if ((*digiIt).isValid()) {
         n_alcts++;
-        histos->fill1DHist((*digiIt).getBX(), "ALCT_getBX", "ALCT.getBX()", 11, -0.5, 10.5, "TimeMonitoring");
+        histos->fill1DHist((*digiIt).bx(), "ALCT_bx", "ALCT.bx()", 11, -0.5, 10.5, "TimeMonitoring");
         histos->fill1DHist(
-            (*digiIt).getFullBX(), "ALCT_getFullBX", "ALCT.getFullBX()", 3601, -0.5, 3600.5, "TimeMonitoring");
+            (*digiIt).fullBX(), "ALCT_fullBX", "ALCT.fullBX()", 3601, -0.5, 3600.5, "TimeMonitoring");
         //if we don't already have digi information stored for this chamber, then we fill it
         if (ALCT_KeyWG_map.find(idALCT.chamberId()) == ALCT_KeyWG_map.end()) {
-          ALCT_KeyWG_map[idALCT.chamberId()] = (*digiIt).getKeyWG();
+          ALCT_KeyWG_map[idALCT.chamberId()] = (*digiIt).keyWireGroup();
           //printf("I did fill ALCT info for Chamber %d %d %d %d \n",idALCT.chamberId().endcap(), idALCT.chamberId().station(), idALCT.chamberId().ring(), idALCT.chamberId().chamber());
         }
       }
@@ -3168,12 +3168,12 @@ void CSCValidation::doTimeMonitoring(edm::Handle<CSCRecHit2DCollection> recHits,
       // Valid digi in the chamber (or in neighbouring chamber)
       if ((*digiIt).isValid()) {
         n_clcts++;
-        histos->fill1DHist((*digiIt).getBX(), "CLCT_getBX", "CLCT.getBX()", 11, -0.5, 10.5, "TimeMonitoring");
+        histos->fill1DHist((*digiIt).bx(), "CLCT_getBX", "CLCT.getBX()", 11, -0.5, 10.5, "TimeMonitoring");
         histos->fill1DHist(
-            (*digiIt).getFullBX(), "CLCT_getFullBX", "CLCT.getFullBX()", 3601, -0.5, 3600.5, "TimeMonitoring");
+            (*digiIt).fullBX(), "CLCT_fullBX", "CLCT.fullBX()", 3601, -0.5, 3600.5, "TimeMonitoring");
         //if we don't already have digi information stored for this chamber, then we fill it
         if (CLCT_getFullBx_map.find(idCLCT.chamberId()) == CLCT_getFullBx_map.end()) {
-          CLCT_getFullBx_map[idCLCT.chamberId()] = (*digiIt).getFullBX();
+          CLCT_getFullBx_map[idCLCT.chamberId()] = (*digiIt).fullBX();
           //printf("I did fill CLCT info for Chamber %d %d %d %d \n",idCLCT.chamberId().endcap(), idCLCT.chamberId().station(), idCLCT.chamberId().ring(), idCLCT.chamberId().chamber());
         }
       }
@@ -3190,7 +3190,7 @@ void CSCValidation::doTimeMonitoring(edm::Handle<CSCRecHit2DCollection> recHits,
       if ((*digiIt).isValid()) {
         n_correlatedlcts++;
         histos->fill1DHist(
-            (*digiIt).getBX(), "CorrelatedLCTS_getBX", "CorrelatedLCT.getBX()", 11, -0.5, 10.5, "TimeMonitoring");
+            (*digiIt).bx(), "CorrelatedLCTS_getBX", "CorrelatedLCT.bx()", 11, -0.5, 10.5, "TimeMonitoring");
       }
     }
   }
@@ -3424,7 +3424,7 @@ void CSCValidation::doTimeMonitoring(edm::Handle<CSCRecHit2DCollection> recHits,
             bool goodTMB = false;
             if (nclct && cscData[iCSC].tmbData()) {
               if (cscData[iCSC].tmbHeader()->check()) {
-                if (cscData[iCSC].clctData()->check())
+                if (cscData[iCSC].comparatorData()->check())
                   goodTMB = true;
               }
             }

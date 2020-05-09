@@ -45,7 +45,7 @@ void CSCCLCTDigiValidation::analyze(const edm::Event &e, const edm::EventSetup &
     theNDigisPerLayerPlots[chamberType - 1]->Fill(nDigis);
 
     for (std::vector<CSCCLCTDigi>::const_iterator digiItr = beginDigi; digiItr != endDigi; ++digiItr) {
-      theTimeBinPlots[chamberType - 1]->Fill(digiItr->getBX());
+      theTimeBinPlots[chamberType - 1]->Fill(digiItr->bx());
     }
   }
 }
