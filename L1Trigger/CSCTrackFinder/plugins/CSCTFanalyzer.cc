@@ -93,7 +93,7 @@ void CSCTFanalyzer::analyze(edm::Event const& e, edm::EventSetup const& es) {
         int cscId = (*csc).first.triggerCscId() - 1;
         int sector = (*csc).first.triggerSector() - 1 + ((*csc).first.endcap() == 1 ? 0 : 6);
         //int subSector = CSCTriggerNumbering::triggerSubSectorFromLabels((*csc).first);
-        int tbin = lct->getBX();
+        int tbin = lct->bx();
         //int fpga    = ( subSector ? subSector-1 : station+1 );
         if ((verbose & 1) == 1)
           std::cout << "LCT in station=" << (station + 1) << " sector=" << (sector + 1) << " cscId=" << (cscId + 1)
@@ -112,8 +112,8 @@ void CSCTFanalyzer::analyze(edm::Event const& e, edm::EventSetup const& es) {
         //int dtEndcap = stub->endcap()-1;
         std::cout << "   DT data: tbin=" << stub->BX() << " (CSC) sector=" << stub->sector()
                   << " (CSC) subsector=" << stub->subsector() << " station=" << stub->station()
-                  << " endcap=" << stub->endcap() << " phi=" << stub->phiPacked() << " phiBend=" << stub->getBend()
-                  << " quality=" << stub->getQuality() << " id=" << stub->getMPCLink() << " mb_bxn=" << stub->cscid()
+                  << " endcap=" << stub->endcap() << " phi=" << stub->phiPacked() << " phiBend=" << stub->bend()
+                  << " quality=" << stub->quality() << " id=" << stub->mpcLink() << " mb_bxn=" << stub->cscid()
                   << std::endl;
       }
 

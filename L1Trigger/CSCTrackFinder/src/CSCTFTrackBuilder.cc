@@ -148,7 +148,7 @@ void CSCTFTrackBuilder::buildTracks(
     for (; tkstbs != possible_stubs.end(); tkstbs++) {
       switch (tkstbs->station()) {
         case 1:
-          if ((tkstbs->getMPCLink() +
+          if ((tkstbs->mpcLink() +
                (3 * (CSCTriggerNumbering::triggerSubSectorFromLabels(CSCDetId(tkstbs->getDetId().rawId())) - 1))) ==
                   me1ID &&
               me1ID != 0 && me1Tbin == tkstbs->BX()) {
@@ -156,22 +156,22 @@ void CSCTFTrackBuilder::buildTracks(
           }
           break;
         case 2:
-          if (tkstbs->getMPCLink() == me2ID && me2ID != 0 && me2Tbin == tkstbs->BX()) {
+          if (tkstbs->mpcLink() == me2ID && me2ID != 0 && me2Tbin == tkstbs->BX()) {
             tcitr->second.insertDigi(CSCDetId(tkstbs->getDetId().rawId()), *(tkstbs->getDigi()));
           }
           break;
         case 3:
-          if (tkstbs->getMPCLink() == me3ID && me3ID != 0 && me3Tbin == tkstbs->BX()) {
+          if (tkstbs->mpcLink() == me3ID && me3ID != 0 && me3Tbin == tkstbs->BX()) {
             tcitr->second.insertDigi(CSCDetId(tkstbs->getDetId().rawId()), *(tkstbs->getDigi()));
           }
           break;
         case 4:
-          if (tkstbs->getMPCLink() == me4ID && me4ID != 0 && me4Tbin == tkstbs->BX()) {
+          if (tkstbs->mpcLink() == me4ID && me4ID != 0 && me4Tbin == tkstbs->BX()) {
             tcitr->second.insertDigi(CSCDetId(tkstbs->getDetId().rawId()), *(tkstbs->getDigi()));
           }
           break;
         case 5:
-          if (tkstbs->getMPCLink() == mb1ID && mb1ID != 0 && mb1Tbin == tkstbs->BX()) {
+          if (tkstbs->mpcLink() == mb1ID && mb1ID != 0 && mb1Tbin == tkstbs->BX()) {
             /// Hmmm how should I implement this??? Maybe change the L1Track to use stubs not LCTs?
           }
           break;

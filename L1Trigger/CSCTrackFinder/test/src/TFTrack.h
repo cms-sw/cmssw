@@ -17,48 +17,52 @@
 
 #include <L1Trigger/CSCTrackFinder/test/src/Track.h>
 
-namespace csctf_analysis
-{
-  class TFTrack : public Track
-  {
-    public:
-	TFTrack();
-	TFTrack(const L1MuRegionalCand& track);
-	TFTrack(const L1CSCTrack& track, const edm::EventSetup& iSetup );
-	TFTrack(L1MuGMTExtendedCand track);
-//	double distanceTo(RefTrack* reftrack);
-        void print();
-	double getPt() const {return Pt;};
-	double getPhi() const {return Phi;};
-	double getEta() const {return Eta;};
-	double getTFPt() const {return Pt;};
-	double getRank() const {return Rank;};
-	int getMode() const {return Mode;};  
-	int getPtPacked() const {return PtPacked;};
-	int getEtaPacked() const {return EtaPacked;};
-	int getPhiPacked() const {return PhiPacked;};
-	int getChargePacked() const {return ChargePacked;};
-	int getFR() const {return FR;};
-	int getBX() const {return Bx;};
-	int getLUTAddress() const {return LUTAddress;}
-	int getEndcap() const {if(isEndcap1==true){return 1;} else{return 2;}}
-	//added by josh and nathaniel
-    private:
-	float Pt;
-	double Phi;
-	double Eta;
-	int PtPacked;
-	int EtaPacked;
-	int PhiPacked;
-	int ChargePacked;
-	int Bx;
-	int Charge;
-	int Halo;
-	int Mode;
-	int Rank;
-	int FR;
-	int LUTAddress;
-	bool isEndcap1;
+namespace csctf_analysis {
+  class TFTrack : public Track {
+  public:
+    TFTrack();
+    TFTrack(const L1MuRegionalCand& track);
+    TFTrack(const L1CSCTrack& track, const edm::EventSetup& iSetup);
+    TFTrack(L1MuGMTExtendedCand track);
+    //	double distanceTo(RefTrack* reftrack);
+    void print();
+    double getPt() const { return Pt; };
+    double getPhi() const { return Phi; };
+    double getEta() const { return Eta; };
+    double getTFPt() const { return Pt; };
+    double getRank() const { return Rank; };
+    int getMode() const { return Mode; };
+    int getPtPacked() const { return PtPacked; };
+    int getEtaPacked() const { return EtaPacked; };
+    int getPhiPacked() const { return PhiPacked; };
+    int getChargePacked() const { return ChargePacked; };
+    int getFR() const { return FR; };
+    int bx() const { return Bx; };
+    int getLUTAddress() const { return LUTAddress; }
+    int getEndcap() const {
+      if (isEndcap1 == true) {
+        return 1;
+      } else {
+        return 2;
+      }
+    }
+    //added by josh and nathaniel
+  private:
+    float Pt;
+    double Phi;
+    double Eta;
+    int PtPacked;
+    int EtaPacked;
+    int PhiPacked;
+    int ChargePacked;
+    int Bx;
+    int Charge;
+    int Halo;
+    int Mode;
+    int Rank;
+    int FR;
+    int LUTAddress;
+    bool isEndcap1;
   };
-}
+}  // namespace csctf_analysis
 #endif

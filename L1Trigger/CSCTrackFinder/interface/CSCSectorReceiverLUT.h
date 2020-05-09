@@ -27,7 +27,7 @@ public:
   ///Geometry Lookup Tables
 
   /// Please note, the pattern used below is the 4 bit pattern.
-  /// ex) digi->getPattern(), NOT digi->getCLCTPattern()
+  /// ex) digi->pattern(), NOT digi->clctPattern()
   lclphidat localPhi(int strip, int pattern, int quality, int lr, const bool gangedME1a = false) const;
   lclphidat localPhi(unsigned address, const bool gangedME1a = false) const;
   lclphidat localPhi(lclphiadd address, const bool gangedME1a = false) const;

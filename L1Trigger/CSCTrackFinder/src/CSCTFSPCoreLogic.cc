@@ -51,215 +51,215 @@ void CSCTFSPCoreLogic::loadData(const CSCTriggerContainer<csctf::TrackStub>& the
             // correctly pass 10,11,12 ro the SP core if ME1a
             if (!gangedME1a)
               csc_id = stubi->cscidSeparateME1a();
-            switch (stubi->getMPCLink()) {
+            switch (stubi->mpcLink()) {
               case 1:
                 if (CSCTriggerNumbering::triggerSubSectorFromLabels(CSCDetId(stubi->getDetId().rawId())) == 1) {
                   io_[relative_bx + 1].me1aVp = stubi->isValid();
-                  io_[relative_bx + 1].me1aQp = stubi->getQuality();
+                  io_[relative_bx + 1].me1aQp = stubi->quality();
                   io_[relative_bx + 1].me1aEtap = stubi->etaPacked();
                   io_[relative_bx + 1].me1aPhip = stubi->phiPacked();
-                  io_[relative_bx + 1].me1aAmp = (stubi->getQuality() == 1 || stubi->getQuality() == 2);
+                  io_[relative_bx + 1].me1aAmp = (stubi->quality() == 1 || stubi->quality() == 2);
                   //io_[relative_bx+1].me1aCSCIdp  = stubi->cscid();
                   io_[relative_bx + 1].me1aCSCIdp = csc_id;
-                  io_[relative_bx + 1].me1aCLCTp = stubi->getCLCTPattern();
+                  io_[relative_bx + 1].me1aCLCTp = stubi->clctPattern();
                 }
                 if (CSCTriggerNumbering::triggerSubSectorFromLabels(CSCDetId(stubi->getDetId().rawId())) == 2) {
                   io_[relative_bx + 1].me1dVp = stubi->isValid();
-                  io_[relative_bx + 1].me1dQp = stubi->getQuality();
+                  io_[relative_bx + 1].me1dQp = stubi->quality();
                   io_[relative_bx + 1].me1dEtap = stubi->etaPacked();
                   io_[relative_bx + 1].me1dPhip = stubi->phiPacked();
-                  io_[relative_bx + 1].me1dAmp = (stubi->getQuality() == 1 || stubi->getQuality() == 2);
+                  io_[relative_bx + 1].me1dAmp = (stubi->quality() == 1 || stubi->quality() == 2);
                   //io_[relative_bx+1].me1dCSCIdp  = stubi->cscid();
                   io_[relative_bx + 1].me1dCSCIdp = csc_id;
-                  io_[relative_bx + 1].me1dCLCTp = stubi->getCLCTPattern();
+                  io_[relative_bx + 1].me1dCLCTp = stubi->clctPattern();
                 }
                 break;
               case 2:
                 if (CSCTriggerNumbering::triggerSubSectorFromLabels(CSCDetId(stubi->getDetId().rawId())) == 1) {
                   io_[relative_bx + 1].me1bVp = stubi->isValid();
-                  io_[relative_bx + 1].me1bQp = stubi->getQuality();
+                  io_[relative_bx + 1].me1bQp = stubi->quality();
                   io_[relative_bx + 1].me1bEtap = stubi->etaPacked();
                   io_[relative_bx + 1].me1bPhip = stubi->phiPacked();
-                  io_[relative_bx + 1].me1bAmp = (stubi->getQuality() == 1 || stubi->getQuality() == 2);
+                  io_[relative_bx + 1].me1bAmp = (stubi->quality() == 1 || stubi->quality() == 2);
                   //io_[relative_bx+1].me1bCSCIdp  = stubi->cscid();
                   io_[relative_bx + 1].me1dCSCIdp = csc_id;
-                  io_[relative_bx + 1].me1bCLCTp = stubi->getCLCTPattern();
+                  io_[relative_bx + 1].me1bCLCTp = stubi->clctPattern();
                 }
                 if (CSCTriggerNumbering::triggerSubSectorFromLabels(CSCDetId(stubi->getDetId().rawId())) == 2) {
                   io_[relative_bx + 1].me1eVp = stubi->isValid();
-                  io_[relative_bx + 1].me1eQp = stubi->getQuality();
+                  io_[relative_bx + 1].me1eQp = stubi->quality();
                   io_[relative_bx + 1].me1eEtap = stubi->etaPacked();
                   io_[relative_bx + 1].me1ePhip = stubi->phiPacked();
-                  io_[relative_bx + 1].me1eAmp = (stubi->getQuality() == 1 || stubi->getQuality() == 2);
+                  io_[relative_bx + 1].me1eAmp = (stubi->quality() == 1 || stubi->quality() == 2);
                   //io_[relative_bx+1].me1eCSCIdp  = stubi->cscid();
                   io_[relative_bx + 1].me1dCSCIdp = csc_id;
-                  io_[relative_bx + 1].me1eCLCTp = stubi->getCLCTPattern();
+                  io_[relative_bx + 1].me1eCLCTp = stubi->clctPattern();
                 }
                 break;
               case 3:
                 if (CSCTriggerNumbering::triggerSubSectorFromLabels(CSCDetId(stubi->getDetId().rawId())) == 1) {
                   io_[relative_bx + 1].me1cVp = stubi->isValid();
-                  io_[relative_bx + 1].me1cQp = stubi->getQuality();
+                  io_[relative_bx + 1].me1cQp = stubi->quality();
                   io_[relative_bx + 1].me1cEtap = stubi->etaPacked();
                   io_[relative_bx + 1].me1cPhip = stubi->phiPacked();
-                  io_[relative_bx + 1].me1cAmp = (stubi->getQuality() == 1 || stubi->getQuality() == 2);
+                  io_[relative_bx + 1].me1cAmp = (stubi->quality() == 1 || stubi->quality() == 2);
                   //io_[relative_bx+1].me1cCSCIdp  = stubi->cscid();
                   io_[relative_bx + 1].me1dCSCIdp = csc_id;
-                  io_[relative_bx + 1].me1cCLCTp = stubi->getCLCTPattern();
+                  io_[relative_bx + 1].me1cCLCTp = stubi->clctPattern();
                 }
                 if (CSCTriggerNumbering::triggerSubSectorFromLabels(CSCDetId(stubi->getDetId().rawId())) == 2) {
                   io_[relative_bx + 1].me1fVp = stubi->isValid();
-                  io_[relative_bx + 1].me1fQp = stubi->getQuality();
+                  io_[relative_bx + 1].me1fQp = stubi->quality();
                   io_[relative_bx + 1].me1fEtap = stubi->etaPacked();
                   io_[relative_bx + 1].me1fPhip = stubi->phiPacked();
-                  io_[relative_bx + 1].me1fAmp = (stubi->getQuality() == 1 || stubi->getQuality() == 2);
+                  io_[relative_bx + 1].me1fAmp = (stubi->quality() == 1 || stubi->quality() == 2);
                   //io_[relative_bx+1].me1fCSCIdp  = stubi->cscid();
                   io_[relative_bx + 1].me1dCSCIdp = csc_id;
-                  io_[relative_bx + 1].me1fCLCTp = stubi->getCLCTPattern();
+                  io_[relative_bx + 1].me1fCLCTp = stubi->clctPattern();
                 }
                 break;
               default:
                 edm::LogWarning("CSCTFSPCoreLogic::loadData()")
-                    << "SERIOUS ERROR: MPC LINK " << stubi->getMPCLink() << " NOT IN RANGE [1,3]\n";
+                    << "SERIOUS ERROR: MPC LINK " << stubi->mpcLink() << " NOT IN RANGE [1,3]\n";
             };
             break;
           case 2:
-            switch (stubi->getMPCLink()) {
+            switch (stubi->mpcLink()) {
               case 1:
                 io_[relative_bx + 1].me2aVp = stubi->isValid();
-                io_[relative_bx + 1].me2aQp = stubi->getQuality();
+                io_[relative_bx + 1].me2aQp = stubi->quality();
                 io_[relative_bx + 1].me2aEtap = stubi->etaPacked();
                 io_[relative_bx + 1].me2aPhip = stubi->phiPacked();
-                io_[relative_bx + 1].me2aAmp = (stubi->getQuality() == 1 || stubi->getQuality() == 2);
+                io_[relative_bx + 1].me2aAmp = (stubi->quality() == 1 || stubi->quality() == 2);
                 break;
               case 2:
                 io_[relative_bx + 1].me2bVp = stubi->isValid();
-                io_[relative_bx + 1].me2bQp = stubi->getQuality();
+                io_[relative_bx + 1].me2bQp = stubi->quality();
                 io_[relative_bx + 1].me2bEtap = stubi->etaPacked();
                 io_[relative_bx + 1].me2bPhip = stubi->phiPacked();
-                io_[relative_bx + 1].me2bAmp = (stubi->getQuality() == 1 || stubi->getQuality() == 2);
+                io_[relative_bx + 1].me2bAmp = (stubi->quality() == 1 || stubi->quality() == 2);
                 break;
               case 3:
                 io_[relative_bx + 1].me2cVp = stubi->isValid();
-                io_[relative_bx + 1].me2cQp = stubi->getQuality();
+                io_[relative_bx + 1].me2cQp = stubi->quality();
                 io_[relative_bx + 1].me2cEtap = stubi->etaPacked();
                 io_[relative_bx + 1].me2cPhip = stubi->phiPacked();
-                io_[relative_bx + 1].me2cAmp = (stubi->getQuality() == 1 || stubi->getQuality() == 2);
+                io_[relative_bx + 1].me2cAmp = (stubi->quality() == 1 || stubi->quality() == 2);
                 break;
               default:
                 edm::LogWarning("CSCTFSPCoreLogic::loadData()")
-                    << "SERIOUS ERROR: MPC LINK " << stubi->getMPCLink() << " NOT IN RANGE [1,3]\n";
+                    << "SERIOUS ERROR: MPC LINK " << stubi->mpcLink() << " NOT IN RANGE [1,3]\n";
             };
             break;
           case 3:
-            switch (stubi->getMPCLink()) {
+            switch (stubi->mpcLink()) {
               case 1:
                 io_[relative_bx + 1].me3aVp = stubi->isValid();
-                io_[relative_bx + 1].me3aQp = stubi->getQuality();
+                io_[relative_bx + 1].me3aQp = stubi->quality();
                 io_[relative_bx + 1].me3aEtap = stubi->etaPacked();
                 io_[relative_bx + 1].me3aPhip = stubi->phiPacked();
-                io_[relative_bx + 1].me3aAmp = (stubi->getQuality() == 1 || stubi->getQuality() == 2);
+                io_[relative_bx + 1].me3aAmp = (stubi->quality() == 1 || stubi->quality() == 2);
                 break;
               case 2:
                 io_[relative_bx + 1].me3bVp = stubi->isValid();
-                io_[relative_bx + 1].me3bQp = stubi->getQuality();
+                io_[relative_bx + 1].me3bQp = stubi->quality();
                 io_[relative_bx + 1].me3bEtap = stubi->etaPacked();
                 io_[relative_bx + 1].me3bPhip = stubi->phiPacked();
-                io_[relative_bx + 1].me3bAmp = (stubi->getQuality() == 1 || stubi->getQuality() == 2);
+                io_[relative_bx + 1].me3bAmp = (stubi->quality() == 1 || stubi->quality() == 2);
                 break;
               case 3:
                 io_[relative_bx + 1].me3cVp = stubi->isValid();
-                io_[relative_bx + 1].me3cQp = stubi->getQuality();
+                io_[relative_bx + 1].me3cQp = stubi->quality();
                 io_[relative_bx + 1].me3cEtap = stubi->etaPacked();
                 io_[relative_bx + 1].me3cPhip = stubi->phiPacked();
-                io_[relative_bx + 1].me3cAmp = (stubi->getQuality() == 1 || stubi->getQuality() == 2);
+                io_[relative_bx + 1].me3cAmp = (stubi->quality() == 1 || stubi->quality() == 2);
                 break;
               default:
                 edm::LogWarning("CSCTFSPCoreLogic::loadData()")
-                    << "SERIOUS ERROR: MPC LINK " << stubi->getMPCLink() << " NOT IN RANGE [1,3]\n";
+                    << "SERIOUS ERROR: MPC LINK " << stubi->mpcLink() << " NOT IN RANGE [1,3]\n";
             };
             break;
           case 4:
-            switch (stubi->getMPCLink()) {
+            switch (stubi->mpcLink()) {
               case 1:
                 io_[relative_bx + 1].me4aVp = stubi->isValid();
-                io_[relative_bx + 1].me4aQp = stubi->getQuality();
+                io_[relative_bx + 1].me4aQp = stubi->quality();
                 io_[relative_bx + 1].me4aEtap = stubi->etaPacked();
                 io_[relative_bx + 1].me4aPhip = stubi->phiPacked();
-                io_[relative_bx + 1].me4aAmp = (stubi->getQuality() == 1 || stubi->getQuality() == 2);
+                io_[relative_bx + 1].me4aAmp = (stubi->quality() == 1 || stubi->quality() == 2);
                 break;
               case 2:
                 io_[relative_bx + 1].me4bVp = stubi->isValid();
-                io_[relative_bx + 1].me4bQp = stubi->getQuality();
+                io_[relative_bx + 1].me4bQp = stubi->quality();
                 io_[relative_bx + 1].me4bEtap = stubi->etaPacked();
                 io_[relative_bx + 1].me4bPhip = stubi->phiPacked();
-                io_[relative_bx + 1].me4bAmp = (stubi->getQuality() == 1 || stubi->getQuality() == 2);
+                io_[relative_bx + 1].me4bAmp = (stubi->quality() == 1 || stubi->quality() == 2);
                 break;
               case 3:
                 io_[relative_bx + 1].me4cVp = stubi->isValid();
-                io_[relative_bx + 1].me4cQp = stubi->getQuality();
+                io_[relative_bx + 1].me4cQp = stubi->quality();
                 io_[relative_bx + 1].me4cEtap = stubi->etaPacked();
                 io_[relative_bx + 1].me4cPhip = stubi->phiPacked();
-                io_[relative_bx + 1].me4cAmp = (stubi->getQuality() == 1 || stubi->getQuality() == 2);
+                io_[relative_bx + 1].me4cAmp = (stubi->quality() == 1 || stubi->quality() == 2);
                 break;
               default:
                 edm::LogWarning("CSCTFSPCoreLogic::loadData()")
-                    << "SERIOUS ERROR: MPC LINK " << stubi->getMPCLink() << " NOT IN RANGE [1,3]\n";
+                    << "SERIOUS ERROR: MPC LINK " << stubi->mpcLink() << " NOT IN RANGE [1,3]\n";
             };
             break;
           case 5:
             // We need to put the DT stubs 1 BX ahead of the CSC ones for the TF firmware
             //std::cout << "DT Stub at bx: " << relative_bx << std::endl;
-            switch (stubi->getMPCLink()) {
+            switch (stubi->mpcLink()) {
               case 1:
                 if (this->GetSPFirmwareVersion() < 20100629) {
                   // introducing the bug which was causing only even DT qualities
                   // to get accepted
-                  if (stubi->getQuality() % 2 == 1) {
+                  if (stubi->quality() % 2 == 1) {
                     //io_[relative_bx].mb1aVp   = stubi->isValid();
-                    io_[relative_bx].mb1aVp = stubi->getStrip();
-                    io_[relative_bx].mb1aQp = stubi->getQuality();
+                    io_[relative_bx].mb1aVp = stubi->strip();
+                    io_[relative_bx].mb1aQp = stubi->quality();
                     io_[relative_bx].mb1aPhip = stubi->phiPacked();
-                    io_[relative_bx].mb1aBendp = stubi->getBend();
+                    io_[relative_bx].mb1aBendp = stubi->bend();
                   }
                 } else {
-                  io_[relative_bx].mb1aVp = stubi->getStrip();
-                  io_[relative_bx].mb1aQp = stubi->getQuality();
+                  io_[relative_bx].mb1aVp = stubi->strip();
+                  io_[relative_bx].mb1aQp = stubi->quality();
                   io_[relative_bx].mb1aPhip = stubi->phiPacked();
-                  io_[relative_bx].mb1aBendp = stubi->getBend();
+                  io_[relative_bx].mb1aBendp = stubi->bend();
                 }
                 break;
               case 2:
                 if (this->GetSPFirmwareVersion() < 20100629) {
                   // introducing the bug which was causing only even DT qualities
                   // to get accepted
-                  if (stubi->getQuality() % 2 == 1) {
+                  if (stubi->quality() % 2 == 1) {
                     //io_[relative_bx].mb1aVp   = stubi->isValid();
-                    io_[relative_bx].mb1bVp = stubi->getStrip();
-                    io_[relative_bx].mb1bQp = stubi->getQuality();
+                    io_[relative_bx].mb1bVp = stubi->strip();
+                    io_[relative_bx].mb1bQp = stubi->quality();
                     io_[relative_bx].mb1bPhip = stubi->phiPacked();
-                    io_[relative_bx].mb1bBendp = stubi->getBend();
+                    io_[relative_bx].mb1bBendp = stubi->bend();
                   }
                 } else {
-                  io_[relative_bx].mb1bVp = stubi->getStrip();
-                  io_[relative_bx].mb1bQp = stubi->getQuality();
+                  io_[relative_bx].mb1bVp = stubi->strip();
+                  io_[relative_bx].mb1bQp = stubi->quality();
                   io_[relative_bx].mb1bPhip = stubi->phiPacked();
-                  io_[relative_bx].mb1bBendp = stubi->getBend();
+                  io_[relative_bx].mb1bBendp = stubi->bend();
                 }
                 break;
                 /*case 3:
 					io_[relative_bx].mb1cVp   = stubi->isValid();
-					io_[relative_bx].mb1cQp   = stubi->getQuality();
+					io_[relative_bx].mb1cQp   = stubi->quality();
 					io_[relative_bx].mb1cPhip = stubi->phiPacked();
 					break;
 					case 4:
 					io_[relative_bx].mb1dVp   = stubi->isValid();
-					io_[relative_bx].mb1dQp   = stubi->getQuality();
+					io_[relative_bx].mb1dQp   = stubi->quality();
 					io_[relative_bx].mb1dPhip = stubi->phiPacked();
 					break;*/
               default:
                 edm::LogWarning("CSCTFSPCoreLogic::loadData()")
-                    << "SERIOUS ERROR: DT LINK " << stubi->getMPCLink() << " NOT IN RANGE [1,4]\n";
+                    << "SERIOUS ERROR: DT LINK " << stubi->mpcLink() << " NOT IN RANGE [1,4]\n";
             }
             break;
           default:

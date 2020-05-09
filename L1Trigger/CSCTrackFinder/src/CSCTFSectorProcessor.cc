@@ -706,92 +706,88 @@ int CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stubs
         stub_vec_filtered.push_back(*itr);
         break;  // DT stubs get filtered by the core controll register
       case 4:
-        switch (itr->getMPCLink()) {
+        switch (itr->mpcLink()) {
           case 3:
-            if ((kill_fiber & 0x4000) == 0 && QualityEnableME4c & (1 << itr->getQuality()))
+            if ((kill_fiber & 0x4000) == 0 && QualityEnableME4c & (1 << itr->quality()))
               stub_vec_filtered.push_back(*itr);
             break;
           case 2:
-            if ((kill_fiber & 0x2000) == 0 && QualityEnableME4b & (1 << itr->getQuality()))
+            if ((kill_fiber & 0x2000) == 0 && QualityEnableME4b & (1 << itr->quality()))
               stub_vec_filtered.push_back(*itr);
             break;
           case 1:
-            if ((kill_fiber & 0x1000) == 0 && QualityEnableME4a & (1 << itr->getQuality()))
+            if ((kill_fiber & 0x1000) == 0 && QualityEnableME4a & (1 << itr->quality()))
               stub_vec_filtered.push_back(*itr);
             break;
           default:
-            edm::LogWarning("CSCTFSectorProcessor::run()")
-                << "No MPC sorting for LCT: link=" << itr->getMPCLink() << "\n";
+            edm::LogWarning("CSCTFSectorProcessor::run()") << "No MPC sorting for LCT: link=" << itr->mpcLink() << "\n";
         }
         break;
       case 3:
-        switch (itr->getMPCLink()) {
+        switch (itr->mpcLink()) {
           case 3:
-            if ((kill_fiber & 0x0800) == 0 && QualityEnableME3c & (1 << itr->getQuality()))
+            if ((kill_fiber & 0x0800) == 0 && QualityEnableME3c & (1 << itr->quality()))
               stub_vec_filtered.push_back(*itr);
             break;
           case 2:
-            if ((kill_fiber & 0x0400) == 0 && QualityEnableME3b & (1 << itr->getQuality()))
+            if ((kill_fiber & 0x0400) == 0 && QualityEnableME3b & (1 << itr->quality()))
               stub_vec_filtered.push_back(*itr);
             break;
           case 1:
-            if ((kill_fiber & 0x0200) == 0 && QualityEnableME3a & (1 << itr->getQuality()))
+            if ((kill_fiber & 0x0200) == 0 && QualityEnableME3a & (1 << itr->quality()))
               stub_vec_filtered.push_back(*itr);
             break;
           default:
-            edm::LogWarning("CSCTFSectorProcessor::run()")
-                << "No MPC sorting for LCT: link=" << itr->getMPCLink() << "\n";
+            edm::LogWarning("CSCTFSectorProcessor::run()") << "No MPC sorting for LCT: link=" << itr->mpcLink() << "\n";
         }
         break;
       case 2:
-        switch (itr->getMPCLink()) {
+        switch (itr->mpcLink()) {
           case 3:
-            if ((kill_fiber & 0x0100) == 0 && QualityEnableME2c & (1 << itr->getQuality()))
+            if ((kill_fiber & 0x0100) == 0 && QualityEnableME2c & (1 << itr->quality()))
               stub_vec_filtered.push_back(*itr);
             break;
           case 2:
-            if ((kill_fiber & 0x0080) == 0 && QualityEnableME2b & (1 << itr->getQuality()))
+            if ((kill_fiber & 0x0080) == 0 && QualityEnableME2b & (1 << itr->quality()))
               stub_vec_filtered.push_back(*itr);
             break;
           case 1:
-            if ((kill_fiber & 0x0040) == 0 && QualityEnableME2a & (1 << itr->getQuality()))
+            if ((kill_fiber & 0x0040) == 0 && QualityEnableME2a & (1 << itr->quality()))
               stub_vec_filtered.push_back(*itr);
             break;
           default:
-            edm::LogWarning("CSCTFSectorProcessor::run()")
-                << "No MPC sorting for LCT: link=" << itr->getMPCLink() << "\n";
+            edm::LogWarning("CSCTFSectorProcessor::run()") << "No MPC sorting for LCT: link=" << itr->mpcLink() << "\n";
         }
         break;
       case 1:
-        switch (itr->getMPCLink() +
+        switch (itr->mpcLink() +
                 (3 * (CSCTriggerNumbering::triggerSubSectorFromLabels(CSCDetId(itr->getDetId().rawId())) - 1))) {
           case 6:
-            if ((kill_fiber & 0x0020) == 0 && QualityEnableME1f & (1 << itr->getQuality()))
+            if ((kill_fiber & 0x0020) == 0 && QualityEnableME1f & (1 << itr->quality()))
               stub_vec_filtered.push_back(*itr);
             break;
           case 5:
-            if ((kill_fiber & 0x0010) == 0 && QualityEnableME1e & (1 << itr->getQuality()))
+            if ((kill_fiber & 0x0010) == 0 && QualityEnableME1e & (1 << itr->quality()))
               stub_vec_filtered.push_back(*itr);
             break;
           case 4:
-            if ((kill_fiber & 0x0008) == 0 && QualityEnableME1d & (1 << itr->getQuality()))
+            if ((kill_fiber & 0x0008) == 0 && QualityEnableME1d & (1 << itr->quality()))
               stub_vec_filtered.push_back(*itr);
             break;
           case 3:
-            if ((kill_fiber & 0x0004) == 0 && QualityEnableME1c & (1 << itr->getQuality()))
+            if ((kill_fiber & 0x0004) == 0 && QualityEnableME1c & (1 << itr->quality()))
               stub_vec_filtered.push_back(*itr);
             break;
           case 2:
-            if ((kill_fiber & 0x0002) == 0 && QualityEnableME1b & (1 << itr->getQuality()))
+            if ((kill_fiber & 0x0002) == 0 && QualityEnableME1b & (1 << itr->quality()))
               stub_vec_filtered.push_back(*itr);
             break;
           case 1:
-            if ((kill_fiber & 0x0001) == 0 && QualityEnableME1a & (1 << itr->getQuality()))
+            if ((kill_fiber & 0x0001) == 0 && QualityEnableME1a & (1 << itr->quality()))
               stub_vec_filtered.push_back(*itr);
             break;
           default:
-            edm::LogWarning("CSCTFSectorProcessor::run()")
-                << "No MPC sorting for LCT: link=" << itr->getMPCLink() << "\n";
+            edm::LogWarning("CSCTFSectorProcessor::run()") << "No MPC sorting for LCT: link=" << itr->mpcLink() << "\n";
         }
         break;
       default:
@@ -813,13 +809,13 @@ int CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stubs
 
       lclphidat lclPhi;
       try {
-        lclPhi = srLUTs_[FPGAs[fpga]]->localPhi(
-            itr->getStrip(), itr->getPattern(), itr->getQuality(), itr->getBend(), m_gangedME1a);
+        lclPhi =
+            srLUTs_[FPGAs[fpga]]->localPhi(itr->strip(), itr->pattern(), itr->quality(), itr->bend(), m_gangedME1a);
       } catch (cms::Exception& e) {
         bzero(&lclPhi, sizeof(lclPhi));
         edm::LogWarning("CSCTFSectorProcessor:run()")
-            << "Exception from LocalPhi LUT in " << FPGAs[fpga] << "(strip=" << itr->getStrip()
-            << ",pattern=" << itr->getPattern() << ",quality=" << itr->getQuality() << ",bend=" << itr->getBend() << ")"
+            << "Exception from LocalPhi LUT in " << FPGAs[fpga] << "(strip=" << itr->strip()
+            << ",pattern=" << itr->pattern() << ",quality=" << itr->quality() << ",bend=" << itr->bend() << ")"
             << std::endl;
       }
 
@@ -828,15 +824,15 @@ int CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stubs
         unsigned csc_id = itr->cscid();
         if (!m_gangedME1a)
           csc_id = itr->cscidSeparateME1a();
-        //std::cout << "station="<<id.station()<<" ring="<<id.ring()<<" strip="<<itr->getStrip()<<" WG="<<itr->getKeyWG()<<std::endl;
+        //std::cout << "station="<<id.station()<<" ring="<<id.ring()<<" strip="<<itr->strip()<<" WG="<<itr->keyWireGroup()<<std::endl;
         //std::cout << "csc_id=" << csc_id << std::endl;
-        gblPhi = srLUTs_[FPGAs[fpga]]->globalPhiME(lclPhi.phi_local, itr->getKeyWG(), csc_id, m_gangedME1a);
+        gblPhi = srLUTs_[FPGAs[fpga]]->globalPhiME(lclPhi.phi_local, itr->keyWireGroup(), csc_id, m_gangedME1a);
 
       } catch (cms::Exception& e) {
         bzero(&gblPhi, sizeof(gblPhi));
         edm::LogWarning("CSCTFSectorProcessor:run()")
             << "Exception from GlobalPhi LUT in " << FPGAs[fpga] << "(phi_local=" << lclPhi.phi_local
-            << ",KeyWG=" << itr->getKeyWG() << ",csc=" << itr->cscid() << ")" << std::endl;
+            << ",KeyWG=" << itr->keyWireGroup() << ",csc=" << itr->cscid() << ")" << std::endl;
       }
 
       gbletadat gblEta;
@@ -845,24 +841,24 @@ int CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stubs
         if (!m_gangedME1a)
           csc_id = itr->cscidSeparateME1a();
         gblEta = srLUTs_[FPGAs[fpga]]->globalEtaME(
-            lclPhi.phi_bend_local, lclPhi.phi_local, itr->getKeyWG(), csc_id, m_gangedME1a);
-        //gblEta = srLUTs_[FPGAs[fpga]]->globalEtaME(lclPhi.phi_bend_local, lclPhi.phi_local, itr->getKeyWG(), itr->cscid());
+            lclPhi.phi_bend_local, lclPhi.phi_local, itr->keyWireGroup(), csc_id, m_gangedME1a);
+        //gblEta = srLUTs_[FPGAs[fpga]]->globalEtaME(lclPhi.phi_bend_local, lclPhi.phi_local, itr->keyWireGroup(), itr->cscid());
       } catch (cms::Exception& e) {
         bzero(&gblEta, sizeof(gblEta));
         edm::LogWarning("CSCTFSectorProcessor:run()")
             << "Exception from GlobalEta LUT in " << FPGAs[fpga] << "(phi_bend_local=" << lclPhi.phi_bend_local
-            << ",phi_local=" << lclPhi.phi_local << ",KeyWG=" << itr->getKeyWG() << ",csc=" << itr->cscid() << ")"
+            << ",phi_local=" << lclPhi.phi_local << ",KeyWG=" << itr->keyWireGroup() << ",csc=" << itr->cscid() << ")"
             << std::endl;
       }
 
       gblphidat gblPhiDT;
       try {
-        gblPhiDT = srLUTs_[FPGAs[fpga]]->globalPhiMB(lclPhi.phi_local, itr->getKeyWG(), itr->cscid(), m_gangedME1a);
+        gblPhiDT = srLUTs_[FPGAs[fpga]]->globalPhiMB(lclPhi.phi_local, itr->keyWireGroup(), itr->cscid(), m_gangedME1a);
       } catch (cms::Exception& e) {
         bzero(&gblPhiDT, sizeof(gblPhiDT));
         edm::LogWarning("CSCTFSectorProcessor:run()")
             << "Exception from GlobalPhi DT LUT in " << FPGAs[fpga] << "(phi_local=" << lclPhi.phi_local
-            << ",KeyWG=" << itr->getKeyWG() << ",csc=" << itr->cscid() << ")" << std::endl;
+            << ",KeyWG=" << itr->keyWireGroup() << ",csc=" << itr->cscid() << ")" << std::endl;
       }
 
       itr->setEtaPacked(gblEta.global_eta);
@@ -996,10 +992,10 @@ int CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stubs
         if ((mpc == 0 && trigger_on_ME1a) || (mpc == 1 && trigger_on_ME1b) || (mpc == 2 && trigger_on_ME2) ||
             (mpc == 3 && trigger_on_ME3) || (mpc == 4 && trigger_on_ME4) ||
             (mpc == 5 && ((trigger_on_MB1a && subSector % 2 == 1) || (trigger_on_MB1d && subSector % 2 == 0)))) {
-          int bx = itr->getBX() - m_minBX;
+          int bx = itr->bx() - m_minBX;
           if (bx < 0 || bx >= 7)
             edm::LogWarning("CSCTFTrackBuilder::buildTracks()")
-                << " LCT BX is out of [" << m_minBX << "," << m_maxBX << ") range: " << itr->getBX();
+                << " LCT BX is out of [" << m_minBX << "," << m_maxBX << ") range: " << itr->bx();
           else if (itr->isValid())
             myStubContainer[bx].push_back(*itr);
         }
@@ -1039,19 +1035,18 @@ int CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stubs
           int subSector = CSCTriggerNumbering::triggerSubSectorFromLabels(CSCDetId(st_iter->getDetId().rawId()));
           int mpc = (subSector ? subSector - 1 : station + 1);
           // Sort MB stubs first (priority: quality OR MB1a > MB1b for the same quality)
-          if (mpc == 5 &&
-              (st_iter->getQuality() > qualityMB || (st_iter->getQuality() == qualityMB && subSector < MB))) {
-            qualityMB = st_iter->getQuality();
+          if (mpc == 5 && (st_iter->quality() > qualityMB || (st_iter->quality() == qualityMB && subSector < MB))) {
+            qualityMB = st_iter->quality();
             MB = subSector;
             if (ME > 4)
               bestStub = st_iter;  // do not select this stub if ME already had any candidate
           }
           // Sort ME stubs (priority: quality OR ME1a > ME1b > ME2 > ME3 > ME4 for the same quality)
-          if (mpc < 5 && (st_iter->getQuality() > qualityME || (st_iter->getQuality() == qualityME && mpc < ME) ||
-                          (st_iter->getQuality() == qualityME && mpc == ME && st_iter->getMPCLink() < linkME))) {
-            qualityME = st_iter->getQuality();
+          if (mpc < 5 && (st_iter->quality() > qualityME || (st_iter->quality() == qualityME && mpc < ME) ||
+                          (st_iter->quality() == qualityME && mpc == ME && st_iter->mpcLink() < linkME))) {
+            qualityME = st_iter->quality();
             ME = mpc;
-            linkME = st_iter->getMPCLink();
+            linkME = st_iter->mpcLink();
             bestStub = st_iter;
           }
         }
@@ -1071,19 +1066,19 @@ int CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stubs
         track.setEtaPacked((bestStub->etaPacked() >> 2) & 0x1f);
         switch (bestStub->station()) {
           case 1:
-            track.setStationIds(bestStub->getMPCLink(), 0, 0, 0, 0);
+            track.setStationIds(bestStub->mpcLink(), 0, 0, 0, 0);
             break;
           case 2:
-            track.setStationIds(0, bestStub->getMPCLink(), 0, 0, 0);
+            track.setStationIds(0, bestStub->mpcLink(), 0, 0, 0);
             break;
           case 3:
-            track.setStationIds(0, 0, bestStub->getMPCLink(), 0, 0);
+            track.setStationIds(0, 0, bestStub->mpcLink(), 0, 0);
             break;
           case 4:
-            track.setStationIds(0, 0, 0, bestStub->getMPCLink(), 0);
+            track.setStationIds(0, 0, 0, bestStub->mpcLink(), 0);
             break;
           case 5:
-            track.setStationIds(0, 0, 0, 0, bestStub->getMPCLink());
+            track.setStationIds(0, 0, 0, 0, bestStub->mpcLink());
             break;
           default:
             edm::LogError("CSCTFSectorProcessor::run()") << "Illegal LCT link=" << bestStub->station() << "\n";
