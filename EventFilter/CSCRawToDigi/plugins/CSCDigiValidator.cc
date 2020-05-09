@@ -471,51 +471,49 @@ bool CSCDigiValidator::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::vector<CSCCLCTDigi> cv = cl->second.first;
     std::vector<CSCCLCTDigi> sv = cl->second.second;
     for (int i = 0; i < max; ++i) {
-      if (cv[i].getKeyStrip() != sv[i].getKeyStrip()) {
+      if (cv[i].keyStrip() != sv[i].keyStrip()) {
         std::cout << "In detId: " << cl->first << std::endl;
-        std::cout << "CLCT key strips do not match: " << sv[i].getKeyStrip() << " != " << cv[i].getKeyStrip()
-                  << std::endl;
+        std::cout << "CLCT key strips do not match: " << sv[i].keyStrip() << " != " << cv[i].keyStrip() << std::endl;
       }
-      if (cv[i].getStrip() != sv[i].getStrip()) {
+      if (cv[i].strip() != sv[i].strip()) {
         std::cout << "In detId: " << cl->first << std::endl;
-        std::cout << "CLCT strips do not match: " << sv[i].getStrip() << " != " << cv[i].getStrip() << std::endl;
+        std::cout << "CLCT strips do not match: " << sv[i].strip() << " != " << cv[i].strip() << std::endl;
       }
       if (cv[i].isValid() != sv[i].isValid()) {
         std::cout << "In detId: " << cl->first << std::endl;
         std::cout << "CLCT Valid bits do not match: " << sv[i].isValid() << " != " << cv[i].isValid() << std::endl;
       }
-      if (cv[i].getQuality() != sv[i].getQuality()) {
+      if (cv[i].quality() != sv[i].quality()) {
         std::cout << "In detId: " << cl->first << std::endl;
-        std::cout << "CLCT qualities do not match: " << sv[i].getQuality() << " != " << cv[i].getQuality() << std::endl;
+        std::cout << "CLCT qualities do not match: " << sv[i].quality() << " != " << cv[i].quality() << std::endl;
       }
-      if (cv[i].getPattern() != sv[i].getPattern()) {
+      if (cv[i].pattern() != sv[i].pattern()) {
         std::cout << "In detId: " << cl->first << std::endl;
-        std::cout << "CLCT patterns do not match: " << sv[i].getPattern() << " != " << cv[i].getPattern() << std::endl;
+        std::cout << "CLCT patterns do not match: " << sv[i].pattern() << " != " << cv[i].pattern() << std::endl;
       }
-      if (cv[i].getStripType() != sv[i].getStripType()) {
+      if (cv[i].stripType() != sv[i].stripType()) {
         std::cout << "In detId: " << cl->first << std::endl;
-        std::cout << "CLCT strip types do not match: " << sv[i].getStripType() << " != " << cv[i].getStripType()
-                  << std::endl;
+        std::cout << "CLCT strip types do not match: " << sv[i].stripType() << " != " << cv[i].stripType() << std::endl;
       }
-      if (cv[i].getBend() != sv[i].getBend()) {
+      if (cv[i].bend() != sv[i].bend()) {
         std::cout << "In detId: " << cl->first << std::endl;
-        std::cout << "CLCT bends do not match: " << sv[i].getBend() << " != " << cv[i].getBend() << std::endl;
+        std::cout << "CLCT bends do not match: " << sv[i].bend() << " != " << cv[i].bend() << std::endl;
       }
-      if (cv[i].getCFEB() != sv[i].getCFEB()) {
+      if (cv[i].cfeb() != sv[i].cfeb()) {
         std::cout << "In detId: " << cl->first << std::endl;
-        std::cout << "CLCT CFEBs do not match: " << sv[i].getCFEB() << " != " << cv[i].getCFEB() << std::endl;
+        std::cout << "CLCT CFEBs do not match: " << sv[i].cfeb() << " != " << cv[i].cfeb() << std::endl;
       }
-      if (((short)cv[i].getBX()) != ((short)sv[i].getBX()) - 4) {
+      if (((short)cv[i].bx()) != ((short)sv[i].bx()) - 4) {
         std::cout << "In detId: " << cl->first << std::endl;
-        std::cout << "CLCT BX do not match: " << sv[i].getBX() - 4 << " != " << cv[i].getBX() << std::endl;
+        std::cout << "CLCT BX do not match: " << sv[i].bx() - 4 << " != " << cv[i].bx() << std::endl;
       }
-      if (cv[i].getFullBX() != sv[i].getFullBX()) {
+      if (cv[i].fullBX() != sv[i].fullBX()) {
         std::cout << "In detId: " << cl->first << std::endl;
-        std::cout << "CLCT Full BX do not match: " << sv[i].getFullBX() << " != " << cv[i].getFullBX() << std::endl;
+        std::cout << "CLCT Full BX do not match: " << sv[i].fullBX() << " != " << cv[i].fullBX() << std::endl;
       }
-      if (cv[i].getTrknmb() != sv[i].getTrknmb()) {
+      if (cv[i].trackNumber() != sv[i].trackNumber()) {
         std::cout << "In detId: " << cl->first << std::endl;
-        std::cout << "CLCT Track numbers do not match: " << sv[i].getTrknmb() << " != " << cv[i].getTrknmb()
+        std::cout << "CLCT Track numbers do not match: " << sv[i].trackNumber() << " != " << cv[i].trackNumber()
                   << std::endl;
       }
     }
@@ -539,36 +537,36 @@ bool CSCDigiValidator::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::vector<CSCALCTDigi> cv = al->second.first;
     std::vector<CSCALCTDigi> sv = al->second.second;
     for (int i = 0; i < max; ++i) {
-      if (cv[i].getKeyWG() != sv[i].getKeyWG()) {
+      if (cv[i].keyWireGroup() != sv[i].keyWireGroup()) {
         std::cout << "In detId: " << al->first << std::endl;
-        std::cout << "ALCT key wire groups do not match: " << sv[i].getKeyWG() << " != " << cv[i].getKeyWG()
+        std::cout << "ALCT key wire groups do not match: " << sv[i].keyWireGroup() << " != " << cv[i].keyWireGroup()
                   << std::endl;
       }
       if (cv[i].isValid() != sv[i].isValid()) {
         std::cout << "In detId: " << al->first << std::endl;
         std::cout << "ALCT Valid bits do not match: " << sv[i].isValid() << " != " << cv[i].isValid() << std::endl;
       }
-      if (cv[i].getQuality() != sv[i].getQuality()) {
+      if (cv[i].quality() != sv[i].quality()) {
         std::cout << "In detId: " << al->first << std::endl;
-        std::cout << "ALCT qualities do not match: " << sv[i].getQuality() << " != " << cv[i].getQuality() << std::endl;
+        std::cout << "ALCT qualities do not match: " << sv[i].quality() << " != " << cv[i].quality() << std::endl;
       }
-      if (cv[i].getAccelerator() != sv[i].getAccelerator()) {
+      if (cv[i].accelerator() != sv[i].accelerator()) {
         std::cout << "In detId: " << al->first << std::endl;
-        std::cout << "ALCT accelerator bits do not match: " << sv[i].getAccelerator()
-                  << " != " << cv[i].getAccelerator() << std::endl;
-      }
-      if (cv[i].getCollisionB() != sv[i].getCollisionB()) {
-        std::cout << "In detId: " << al->first << std::endl;
-        std::cout << "ALCT CollisionB flags do not match: " << sv[i].getCollisionB() << " != " << cv[i].getCollisionB()
+        std::cout << "ALCT accelerator bits do not match: " << sv[i].accelerator() << " != " << cv[i].accelerator()
                   << std::endl;
       }
-      if ((cv[i].getBX()) != (sv[i].getBX())) {
+      if (cv[i].collisionB() != sv[i].collisionB()) {
         std::cout << "In detId: " << al->first << std::endl;
-        std::cout << "ALCT BX do not match: " << sv[i].getBX() << " != " << cv[i].getBX() << std::endl;
+        std::cout << "ALCT CollisionB flags do not match: " << sv[i].collisionB() << " != " << cv[i].collisionB()
+                  << std::endl;
       }
-      if (cv[i].getFullBX() != sv[i].getFullBX()) {
+      if ((cv[i].bx()) != (sv[i].bx())) {
+        std::cout << "In detId: " << al->first << std::endl;
+        std::cout << "ALCT BX do not match: " << sv[i].bx() << " != " << cv[i].bx() << std::endl;
+      }
+      if (cv[i].fullBX() != sv[i].fullBX()) {
         std::cout << "In detId: " << cl->first << std::endl;
-        std::cout << "ALCT Full BX do not match: " << sv[i].getFullBX() << " != " << cv[i].getFullBX() << std::endl;
+        std::cout << "ALCT Full BX do not match: " << sv[i].fullBX() << " != " << cv[i].fullBX() << std::endl;
       }
     }
   }
@@ -591,72 +589,70 @@ bool CSCDigiValidator::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::vector<CSCCorrelatedLCTDigi> cv = lc->second.first;
     std::vector<CSCCorrelatedLCTDigi> sv = lc->second.second;
     for (int i = 0; i < max; ++i) {
-      if (cv[i].getStrip() != sv[i].getStrip()) {
+      if (cv[i].strip() != sv[i].strip()) {
         std::cout << "In detId: " << lc->first << std::endl;
-        std::cout << "Correlated LCT strips do not match: " << sv[i].getStrip() << " != " << cv[i].getStrip()
-                  << std::endl;
+        std::cout << "Correlated LCT strips do not match: " << sv[i].strip() << " != " << cv[i].strip() << std::endl;
       }
-      if (cv[i].getKeyWG() != sv[i].getKeyWG()) {
+      if (cv[i].keyWireGroup() != sv[i].keyWireGroup()) {
         std::cout << "In detId: " << lc->first << std::endl;
-        std::cout << "Correlated LCT key wire groups do not match: " << sv[i].getKeyWG() << " != " << cv[i].getKeyWG()
-                  << std::endl;
+        std::cout << "Correlated LCT key wire groups do not match: " << sv[i].keyWireGroup()
+                  << " != " << cv[i].keyWireGroup() << std::endl;
       }
       if (cv[i].isValid() != sv[i].isValid()) {
         std::cout << "In detId: " << lc->first << std::endl;
         std::cout << "Correlated LCT Valid bits do not match: " << sv[i].isValid() << " != " << cv[i].isValid()
                   << std::endl;
       }
-      if (cv[i].getQuality() != sv[i].getQuality()) {
+      if (cv[i].quality() != sv[i].quality()) {
         std::cout << "In detId: " << lc->first << std::endl;
-        std::cout << "Correlated LCT qualities do not match: " << sv[i].getQuality() << " != " << cv[i].getQuality()
+        std::cout << "Correlated LCT qualities do not match: " << sv[i].quality() << " != " << cv[i].quality()
                   << std::endl;
       }
-      if (cv[i].getPattern() != sv[i].getPattern()) {
+      if (cv[i].pattern() != sv[i].pattern()) {
         std::cout << "In detId: " << lc->first << std::endl;
-        std::cout << "Correlated LCT ALCT patterns do not match: " << sv[i].getPattern() << " != " << cv[i].getPattern()
+        std::cout << "Correlated LCT ALCT patterns do not match: " << sv[i].pattern() << " != " << cv[i].pattern()
                   << std::endl;
       }
-      if (cv[i].getCLCTPattern() != sv[i].getCLCTPattern()) {
+      if (cv[i].clctPattern() != sv[i].clctPattern()) {
         std::cout << "In detId: " << lc->first << std::endl;
-        std::cout << "Correlated LCT CLCT patterns do not match: " << sv[i].getCLCTPattern()
-                  << " != " << cv[i].getCLCTPattern() << std::endl;
+        std::cout << "Correlated LCT CLCT patterns do not match: " << sv[i].clctPattern()
+                  << " != " << cv[i].clctPattern() << std::endl;
       }
-      if (cv[i].getStripType() != sv[i].getStripType()) {
+      if (cv[i].stripType() != sv[i].stripType()) {
         std::cout << "In detId: " << lc->first << std::endl;
-        std::cout << "Correlated LCT strip types do not match: " << sv[i].getStripType()
-                  << " != " << cv[i].getStripType() << std::endl;
-      }
-      if (cv[i].getBend() != sv[i].getBend()) {
-        std::cout << "In detId: " << lc->first << std::endl;
-        std::cout << "Correlated LCT bends do not match: " << sv[i].getBend() << " != " << cv[i].getBend() << std::endl;
-      }
-      if (cv[i].getMPCLink() != sv[i].getMPCLink()) {
-        std::cout << "In detId: " << lc->first << std::endl;
-        std::cout << "Correlated LCT MPC Links do not match: " << sv[i].getMPCLink() << " != " << cv[i].getMPCLink()
+        std::cout << "Correlated LCT strip types do not match: " << sv[i].stripType() << " != " << cv[i].stripType()
                   << std::endl;
       }
-      if ((cv[i].getBX()) != (sv[i].getBX() - 6)) {
+      if (cv[i].bend() != sv[i].bend()) {
         std::cout << "In detId: " << lc->first << std::endl;
-        std::cout << "Correlated LCT BX do not match: " << sv[i].getBX() - 6 << " != " << cv[i].getBX() << std::endl;
+        std::cout << "Correlated LCT bends do not match: " << sv[i].bend() << " != " << cv[i].bend() << std::endl;
       }
-      if (cv[i].getCSCID() != sv[i].getCSCID()) {
+      if (cv[i].mpcLink() != sv[i].mpcLink()) {
         std::cout << "In detId: " << lc->first << std::endl;
-        std::cout << "Correlated LCT CSCIDs do not match: " << sv[i].getCSCID() << " != " << cv[i].getCSCID()
+        std::cout << "Correlated LCT MPC Links do not match: " << sv[i].mpcLink() << " != " << cv[i].mpcLink()
                   << std::endl;
       }
-      if (cv[i].getBX0() != sv[i].getBX0()) {
+      if ((cv[i].bx()) != (sv[i].bx() - 6)) {
         std::cout << "In detId: " << lc->first << std::endl;
-        std::cout << "Correlated LCT BX0s do not match: " << sv[i].getBX0() << " != " << cv[i].getBX0() << std::endl;
+        std::cout << "Correlated LCT BX do not match: " << sv[i].bx() - 6 << " != " << cv[i].bx() << std::endl;
       }
-      if (cv[i].getSyncErr() != sv[i].getSyncErr()) {
+      if (cv[i].cscID() != sv[i].cscID()) {
         std::cout << "In detId: " << lc->first << std::endl;
-        std::cout << "Correlated LCT SyncErrs do not match: " << sv[i].getSyncErr() << " != " << cv[i].getSyncErr()
+        std::cout << "Correlated LCT CSCIDs do not match: " << sv[i].cscID() << " != " << cv[i].cscID() << std::endl;
+      }
+      if (cv[i].bx0() != sv[i].bx0()) {
+        std::cout << "In detId: " << lc->first << std::endl;
+        std::cout << "Correlated LCT BX0s do not match: " << sv[i].bx0() << " != " << cv[i].bx0() << std::endl;
+      }
+      if (cv[i].syncErr() != sv[i].syncErr()) {
+        std::cout << "In detId: " << lc->first << std::endl;
+        std::cout << "Correlated LCT SyncErrs do not match: " << sv[i].syncErr() << " != " << cv[i].syncErr()
                   << std::endl;
       }
-      if (cv[i].getTrknmb() != sv[i].getTrknmb()) {
+      if (cv[i].trackNumber() != sv[i].trackNumber()) {
         std::cout << "In detId: " << lc->first << std::endl;
-        std::cout << "Correlated LCT Track numbers do not match: " << sv[i].getTrknmb() << " != " << cv[i].getTrknmb()
-                  << std::endl;
+        std::cout << "Correlated LCT Track numbers do not match: " << sv[i].trackNumber()
+                  << " != " << cv[i].trackNumber() << std::endl;
       }
     }
   }

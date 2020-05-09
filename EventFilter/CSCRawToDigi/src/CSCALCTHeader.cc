@@ -194,7 +194,7 @@ void CSCALCTHeader::add(const std::vector<CSCALCTDigi> &digis) {
       theALCTs.resize(header2007.lctBins * 2);
     }
     for (std::vector<CSCALCTDigi>::const_iterator digi = digis.begin(); digi != digis.end(); ++digi) {
-      int bx = digi->getBX();
+      int bx = digi->bx();
       if (bx < (int)header2007.lctBins) {
         // 2 ALCTs per bx
         int i = bx * 2;
@@ -205,12 +205,12 @@ void CSCALCTHeader::add(const std::vector<CSCALCTDigi> &digis) {
           theALCTs[i] = CSCALCT(*digi);
         }
         // new best LCT
-        else if (digi->getQuality() > q1) {
+        else if (digi->quality() > q1) {
           theALCTs[i + 1] = theALCTs[i];
           theALCTs[i] = CSCALCT(*digi);
         }
         // new second best
-        else if (!theALCTs[i + 1].valid || (digi->getQuality() > q2)) {
+        else if (!theALCTs[i + 1].valid || (digi->quality() > q2)) {
           theALCTs[i + 1] = CSCALCT(*digi);
         }
       }

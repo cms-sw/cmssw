@@ -7,10 +7,10 @@ CSCALCT::CSCALCT() {
 
 CSCALCT::CSCALCT(const CSCALCTDigi& alctDigi)
     : valid(alctDigi.isValid()),
-      quality(alctDigi.getQuality()),
-      accel(alctDigi.getAccelerator()),
-      pattern(alctDigi.getCollisionB()),
-      keyWire(alctDigi.getKeyWG()),
+      quality(alctDigi.quality()),
+      accel(alctDigi.accelerator()),
+      pattern(alctDigi.collisionB()),
+      keyWire(alctDigi.keyWireGroup()),
       reserved(0) {}
 
 #include <iostream>

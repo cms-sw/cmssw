@@ -64,20 +64,20 @@ void CSCALCTs2006::add(const std::vector<CSCALCTDigi>& digis) {
 
 void CSCALCTs2006::addALCT0(const CSCALCTDigi& digi) {
   alct0_valid = digi.isValid();
-  alct0_quality = digi.getQuality();
-  alct0_accel = digi.getAccelerator();
-  alct0_pattern = digi.getCollisionB();
-  alct0_key_wire = digi.getKeyWG();
+  alct0_quality = digi.quality();
+  alct0_accel = digi.accelerator();
+  alct0_pattern = digi.collisionB();
+  alct0_key_wire = digi.keyWireGroup();
   // probably not right
-  alct0_bxn_low = digi.getBX();
+  alct0_bxn_low = digi.bx();
 }
 
 void CSCALCTs2006::addALCT1(const CSCALCTDigi& digi) {
   alct1_valid = digi.isValid();
-  alct1_quality = digi.getQuality();
-  alct1_accel = digi.getAccelerator();
-  alct1_pattern = digi.getCollisionB();
-  alct1_key_wire = digi.getKeyWG();
+  alct1_quality = digi.quality();
+  alct1_accel = digi.accelerator();
+  alct1_pattern = digi.collisionB();
+  alct1_key_wire = digi.keyWireGroup();
   // probably not right
-  alct1_bxn_low = digi.getBX();
+  alct1_bxn_low = digi.bx();
 }

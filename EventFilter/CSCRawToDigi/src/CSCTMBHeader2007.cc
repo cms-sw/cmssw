@@ -95,72 +95,72 @@ void CSCTMBHeader2007::addALCT1(const CSCALCTDigi& digi) {
 }
 
 void CSCTMBHeader2007::addCLCT0(const CSCCLCTDigi& digi) {
-  int strip = digi.getStrip();
-  int cfeb = digi.getCFEB();
-  int bend = digi.getBend();
-  int pattern = digi.getPattern();
+  int strip = digi.strip();
+  int cfeb = digi.cfeb();
+  int bend = digi.bend();
+  int pattern = digi.pattern();
   //hardwareStripNumbering(strip, cfeb, pattern, bend);
   bits.clct0_valid = digi.isValid();
-  bits.clct0_quality = digi.getQuality();
+  bits.clct0_quality = digi.quality();
   bits.clct0_shape = pattern;
   bits.clct0_bend = bend;
   bits.clct0_key = strip;
   bits.clct0_cfeb_low = (cfeb & 0x1);
   bits.clct0_cfeb_high = (cfeb >> 1);
-  bits.clct0_bxn = digi.getBX();
-  bits.bxnPreTrigger = digi.getFullBX();
-  bits.bxnCount = (digi.getFullBX() + 167) & 0xFFF;
+  bits.clct0_bxn = digi.bx();
+  bits.bxnPreTrigger = digi.fullBX();
+  bits.bxnCount = (digi.fullBX() + 167) & 0xFFF;
 }
 
 void CSCTMBHeader2007::addCLCT1(const CSCCLCTDigi& digi) {
-  int strip = digi.getStrip();
-  int cfeb = digi.getCFEB();
-  int bend = digi.getBend();
-  int pattern = digi.getPattern();
+  int strip = digi.strip();
+  int cfeb = digi.cfeb();
+  int bend = digi.bend();
+  int pattern = digi.pattern();
   //hardwareStripNumbering(strip, cfeb, pattern, bend);
   bits.clct1_valid = digi.isValid();
-  bits.clct1_quality = digi.getQuality();
+  bits.clct1_quality = digi.quality();
   bits.clct1_shape = pattern;
   bits.clct1_bend = bend;
   bits.clct1_key = strip;
   bits.clct1_cfeb_low = (cfeb & 0x1);
   bits.clct1_cfeb_high = (cfeb >> 1);
-  bits.clct1_bxn = digi.getBX();
-  bits.bxnPreTrigger = digi.getFullBX();
+  bits.clct1_bxn = digi.bx();
+  bits.bxnPreTrigger = digi.fullBX();
 }
 
 void CSCTMBHeader2007::addCorrelatedLCT0(const CSCCorrelatedLCTDigi& digi) {
-  int halfStrip = digi.getStrip();
+  int halfStrip = digi.strip();
   //hardwareHalfStripNumbering(halfStrip);
 
   bits.MPC_Muon0_vpf_ = digi.isValid();
-  bits.MPC_Muon0_wire_ = digi.getKeyWG();
-  bits.MPC_Muon0_clct_pattern_ = digi.getPattern();
-  bits.MPC_Muon0_quality_ = digi.getQuality();
+  bits.MPC_Muon0_wire_ = digi.keyWireGroup();
+  bits.MPC_Muon0_clct_pattern_ = digi.pattern();
+  bits.MPC_Muon0_quality_ = digi.quality();
   bits.MPC_Muon0_halfstrip_clct_pattern = halfStrip;
-  bits.MPC_Muon0_bend_ = digi.getBend();
-  bits.MPC_Muon0_SyncErr_ = digi.getSyncErr();
-  bits.MPC_Muon0_bx_ = digi.getBX();
-  bits.MPC_Muon0_bc0_ = digi.getBX0();
-  bits.MPC_Muon0_cscid_low = digi.getCSCID() & 0x7;
-  bits.MPC_Muon0_cscid_bit4 = (digi.getCSCID() >> 3) & 0x1;
+  bits.MPC_Muon0_bend_ = digi.bend();
+  bits.MPC_Muon0_SyncErr_ = digi.syncErr();
+  bits.MPC_Muon0_bx_ = digi.bx();
+  bits.MPC_Muon0_bc0_ = digi.bx0();
+  bits.MPC_Muon0_cscid_low = digi.cscID() & 0x7;
+  bits.MPC_Muon0_cscid_bit4 = (digi.cscID() >> 3) & 0x1;
 }
 
 void CSCTMBHeader2007::addCorrelatedLCT1(const CSCCorrelatedLCTDigi& digi) {
-  int halfStrip = digi.getStrip();
+  int halfStrip = digi.strip();
   //hardwareHalfStripNumbering(halfStrip);
 
   bits.MPC_Muon1_vpf_ = digi.isValid();
-  bits.MPC_Muon1_wire_ = digi.getKeyWG();
-  bits.MPC_Muon1_clct_pattern_ = digi.getPattern();
-  bits.MPC_Muon1_quality_ = digi.getQuality();
+  bits.MPC_Muon1_wire_ = digi.keyWireGroup();
+  bits.MPC_Muon1_clct_pattern_ = digi.pattern();
+  bits.MPC_Muon1_quality_ = digi.quality();
   bits.MPC_Muon1_halfstrip_clct_pattern = halfStrip;
-  bits.MPC_Muon1_bend_ = digi.getBend();
-  bits.MPC_Muon1_SyncErr_ = digi.getSyncErr();
-  bits.MPC_Muon1_bx_ = digi.getBX();
-  bits.MPC_Muon1_bc0_ = digi.getBX0();
-  bits.MPC_Muon1_cscid_low = digi.getCSCID() & 0x7;
-  bits.MPC_Muon1_cscid_bit4 = (digi.getCSCID() >> 3) & 0x1;
+  bits.MPC_Muon1_bend_ = digi.bend();
+  bits.MPC_Muon1_SyncErr_ = digi.syncErr();
+  bits.MPC_Muon1_bx_ = digi.bx();
+  bits.MPC_Muon1_bc0_ = digi.bx0();
+  bits.MPC_Muon1_cscid_low = digi.cscID() & 0x7;
+  bits.MPC_Muon1_cscid_bit4 = (digi.cscID() >> 3) & 0x1;
 }
 
 void CSCTMBHeader2007::print(std::ostream& os) const {

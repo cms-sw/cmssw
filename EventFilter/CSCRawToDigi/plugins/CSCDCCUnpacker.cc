@@ -53,7 +53,7 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCCFEBData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCALCTHeader.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCAnodeData.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCCLCTData.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCComparatorData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDDUEventData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBHeader.h"
@@ -125,7 +125,7 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet& pset) : numOfEvents(0) {
   }
   //CSCAnodeData::setDebug(debug);
   CSCALCTHeader::setDebug(debug);
-  CSCCLCTData::setDebug(debug);
+  CSCComparatorData::setDebug(debug);
   CSCEventData::setDebug(debug);
   CSCTMBData::setDebug(debug);
   CSCDCCEventData::setDebug(debug);
@@ -454,7 +454,7 @@ void CSCDCCUnpacker::produce(edm::Event& e, const edm::EventSetup& c) {
             //	    if (nclct&&(cscData[iCSC].dataPresent>>5&0x1)==1) {
             if (nclct && cscData[iCSC].tmbData()) {
               if (cscData[iCSC].tmbHeader()->check()) {
-                if (cscData[iCSC].clctData()->check())
+                if (cscData[iCSC].comparatorData()->check())
                   goodTMB = true;
               } else {
                 LogTrace("CSCDCCUnpacker|CSCRawToDigi") << "one of TMB checks failed! not storing TMB digis ";
@@ -544,7 +544,7 @@ void CSCDCCUnpacker::produce(edm::Event& e, const edm::EventSetup& c) {
                 for (icfeb = 0; icfeb < nCFEBs; ++icfeb) {
                   layer = pcrate->detId(vmecrate, dmb, icfeb, ilayer);
                   std::vector<CSCComparatorDigi> comparatorDigis =
-                      cscData[iCSC].clctData()->comparatorDigis(layer.rawId(), icfeb);
+                      cscData[iCSC].comparatorData()->comparatorDigis(layer.rawId(), icfeb);
                   // Set cfeb=0, so that ME1/a and ME1/b comparators go to
                   // ring 1.
                   layer = pcrate->detId(vmecrate, dmb, 0, ilayer);

@@ -92,7 +92,7 @@ void CSCTFAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) {
         edm::LogInfo("CSCTFAnalyzer") << "   DT data: tbin=" << stub->BX() << " CSC sector=" << stub->sector()
                                       << " CSC subsector=" << stub->subsector() << " station=" << stub->station()
                                       << " endcap=" << stub->endcap() << " phi=" << stub->phiPacked()
-                                      << " phiBend=" << stub->getBend() << " quality=" << stub->getQuality()
+                                      << " phiBend=" << stub->bend() << " quality=" << stub->quality()
                                       << " mb_bxn=" << stub->cscid();
       }
     } else
@@ -114,7 +114,7 @@ void CSCTFAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) {
           int cscId = (*csc).first.triggerCscId() - 1;
           int sector = (*csc).first.triggerSector() - 1;  // + ( (*csc).first.endcap()==1 ? 0 : 6 );
           int subSector = CSCTriggerNumbering::triggerSubSectorFromLabels((*csc).first);
-          int tbin = lct->getBX();
+          int tbin = lct->bx();
           int fpga = (subSector ? subSector - 1 : station + 1);
           // If Det Id is within range
           if (sector < 0 || sector > 11 || station < 0 || station > 3 || cscId < 0 || cscId > 8 || lctId < 0 ||
@@ -126,9 +126,9 @@ void CSCTFAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) {
                                         << "  station: " << (station + 1) << "  sector: " << (sector + 1)
                                         << "  subSector: " << subSector << "  tbin: " << tbin
                                         << "  cscId: " << (cscId + 1) << "  fpga: " << (fpga + 1) << " "
-                                        << "LCT(vp=" << lct->isValid() << ",qual=" << lct->getQuality()
-                                        << ",wg=" << lct->getKeyWG() << ",strip=" << lct->getStrip()
-                                        << ",link=" << lct->getMPCLink() << ")";
+                                        << "LCT(vp=" << lct->isValid() << ",qual=" << lct->quality()
+                                        << ",wg=" << lct->keyWireGroup() << ",strip=" << lct->strip()
+                                        << ",link=" << lct->mpcLink() << ")";
         }
       }
     } else
@@ -163,7 +163,7 @@ void CSCTFAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) {
             int cscId = (*csc).first.triggerCscId() - 1;
             int sector = (*csc).first.triggerSector() - 1;  // + ( (*csc).first.endcap()==1 ? 0 : 6 );
             int subSector = CSCTriggerNumbering::triggerSubSectorFromLabels((*csc).first);
-            int tbin = lct->getBX();
+            int tbin = lct->bx();
             int fpga = (subSector ? subSector - 1 : station + 1);
             // If Det Id is within range
             if (sector < 0 || sector > 11 || station < 0 || station > 3 || cscId < 0 || cscId > 8 || lctId < 0 ||
@@ -171,20 +171,20 @@ void CSCTFAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) {
               edm::LogInfo("CSCTFAnalyzer: Digi are out of range: ");
               continue;
             }
-            if (lct->getQuality() < 100)
+            if (lct->quality() < 100)
               edm::LogInfo("CSCTFAnalyzer")
                   << "       Linked LCT: " << (*csc).first.endcap() << "  station: " << (station + 1)
                   << "  sector: " << (sector + 1) << "  subSector: " << subSector << "  tbin: " << tbin
                   << "  cscId: " << (cscId + 1) << "  fpga: " << (fpga + 1) << " LCT(vp=" << lct->isValid()
-                  << ",qual=" << lct->getQuality() << ",wg=" << lct->getKeyWG() << ",strip=" << lct->getStrip() << ")";
+                  << ",qual=" << lct->quality() << ",wg=" << lct->keyWireGroup() << ",strip=" << lct->strip() << ")";
             else
               edm::LogInfo("CSCTFAnalyzer")
                   << "       Linked MB stub: " << (*csc).first.endcap() << "  sector: " << (sector + 1)
                   << "  subSector: " << subSector << "  tbin: " << tbin << " MB(vp=" << lct->isValid()
-                  << ",qual=" << (lct->getQuality() - 100) << ",cal=" << lct->getKeyWG() << ",flag=" << lct->getStrip()
-                  << ",bc0=" << lct->getPattern() << ",phiBend=" << lct->getBend() << ",tbin=" << lct->getBX()
-                  << ",id=" << lct->getMPCLink() << ",bx0=" << lct->getBX0() << ",se=" << lct->getSyncErr()
-                  << ",bxn=" << lct->getCSCID() << ",phi=" << lct->getTrknmb() << ")";
+                  << ",qual=" << (lct->quality() - 100) << ",cal=" << lct->keyWireGroup() << ",flag=" << lct->strip()
+                  << ",bc0=" << lct->pattern() << ",phiBend=" << lct->bend() << ",tbin=" << lct->bx()
+                  << ",id=" << lct->mpcLink() << ",bx0=" << lct->bx0() << ",se=" << lct->syncErr()
+                  << ",bxn=" << lct->cscID() << ",phi=" << lct->trackNumber() << ")";
           }
         }
       }

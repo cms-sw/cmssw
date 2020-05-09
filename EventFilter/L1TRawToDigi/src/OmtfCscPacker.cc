@@ -14,14 +14,14 @@ namespace omtf {
       CSCDetId chamberId = CSCDetId(chDigis.first).chamberId();
       for (auto digi = chDigis.second.first; digi != chDigis.second.second; digi++) {
         CscDataWord64 data;
-        data.hitNum_ = digi->getTrknmb();
+        data.hitNum_ = digi->trackNumber();
         data.vp_ = digi->isValid();
-        data.bxNum_ = digi->getBX() - (CSCConstants::LCT_CENTRAL_BX - 3);
-        data.halfStrip_ = digi->getStrip();
-        data.clctPattern_ = digi->getPattern();
-        data.keyWG_ = digi->getKeyWG();
-        data.lr_ = digi->getBend();
-        data.quality_ = digi->getQuality();
+        data.bxNum_ = digi->bx() - (CSCConstants::LCT_CENTRAL_BX - 3);
+        data.halfStrip_ = digi->strip();
+        data.clctPattern_ = digi->pattern();
+        data.keyWG_ = digi->keyWireGroup();
+        data.lr_ = digi->bend();
+        data.quality_ = digi->quality();
         auto im = theCsc2Omtf.find(chamberId);
         if (im != theCsc2Omtf.end()) {
           std::vector<EleIndex> links = {im->second.first, im->second.second};

@@ -85,8 +85,8 @@ void CSCTMBHeader::swapCLCTs(CSCCLCTDigi& digi1, CSCCLCTDigi& digi2)
 	       (theChamberId.ring() == 1 || theChamberId.ring() == 4));
   if (!me11) return;
 
-  int cfeb1 = digi1.getCFEB();
-  int cfeb2 = digi2.getCFEB();
+  int cfeb1 = digi1.cfeb();
+  int cfeb2 = digi2.cfeb();
   if (cfeb1 != cfeb2) return;
 
   bool me1a = (cfeb1 == 4);
@@ -96,8 +96,8 @@ void CSCTMBHeader::swapCLCTs(CSCCLCTDigi& digi1, CSCCLCTDigi& digi2)
   if ( (me1a && zplus) || (me1b && !zplus)) {
     // Swap CLCTs if they have the same quality and pattern # (priority
     // has to be given to the lower key).
-    if (digi1.getQuality() == digi2.getQuality() &&
-	digi1.getPattern() == digi2.getPattern()) {
+    if (digi1.quality() == digi2.quality() &&
+	digi1.pattern() == digi2.pattern()) {
       CSCCLCTDigi temp = digi1;
       digi1 = digi2;
       digi2 = temp;

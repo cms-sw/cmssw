@@ -27,7 +27,7 @@ CSCBadCFEBWord
 CSCCFEBData
 CSCCFEBTimeSlice
 CSCChamberDataItr
-CSCCLCTData
+CSCComparatorDigi
 CSCDCCEventData
 CSCDCCExaminer
 CSCDCCHeader

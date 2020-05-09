@@ -12,7 +12,7 @@ int main() {
   CSCTMBData::selfTest();
   CSCTMBTrailer::selfTest();
   //CSCEventData::selfTest();
-  CSCCLCTData::selfTest();
+  CSCComparatorData::selfTest();
 
   CSCAnodeData2006::selfTest();
   CSCAnodeData2007::selfTest();

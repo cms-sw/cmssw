@@ -43,7 +43,7 @@ namespace cscd2r {
     typename LCTCollection::Range lctRange = lcts.get(chamberId);
     bool result = false;
     for (typename LCTCollection::const_iterator lctItr = lctRange.first; lctItr != lctRange.second; ++lctItr) {
-      int bx = lctItr->getBX() - nominalBX;
+      int bx = lctItr->bx() - nominalBX;
       if (bx >= bxMin && bx <= bxMax) {
         result = true;
         break;
@@ -57,7 +57,7 @@ namespace cscd2r {
       CSCDetId me1aId = CSCDetId(chamberId.endcap(), chamberId.station(), 4, chamberId.chamber(), 0);
       lctRange = lcts.get(me1aId);
       for (typename LCTCollection::const_iterator lctItr = lctRange.first; lctItr != lctRange.second; ++lctItr) {
-        int bx = lctItr->getBX() - nominalBX;
+        int bx = lctItr->bx() - nominalBX;
         if (bx >= bxMin && bx <= bxMax) {
           result = true;
           break;
@@ -68,7 +68,7 @@ namespace cscd2r {
     return result;
   }
 
-  // need to specialize for pretriggers, since they don't have a getBX()
+  // need to specialize for pretriggers, since they don't have a bx()
   template <>
   bool accept(const CSCDetId& cscId, const CSCCLCTPreTriggerCollection& lcts, int bxMin, int bxMax, bool me1abCheck) {
     if (bxMin == -999)
@@ -270,17 +270,17 @@ void CSCDigiToRaw::add(const CSCCLCTDigiCollection& clctDigis, FindEventDataInfo
     if (me11a && fedInfo.formatVersion_ == 2013) {
       std::vector<CSCCLCTDigi> shiftedDigis((*j).second.first, (*j).second.second);
       for (std::vector<CSCCLCTDigi>::iterator iC = shiftedDigis.begin(); iC != shiftedDigis.end(); ++iC) {
-        if (iC->getCFEB() < 3) {  //sanity check, mostly
+        if (iC->cfeb() < 3) {  //sanity check, mostly
           (*iC) = CSCCLCTDigi(iC->isValid(),
-                              iC->getQuality(),
-                              iC->getPattern(),
-                              iC->getStripType(),
-                              iC->getBend(),
-                              iC->getStrip(),
-                              iC->getCFEB() + 4,
-                              iC->getBX(),
-                              iC->getTrknmb(),
-                              iC->getFullBX());
+                              iC->quality(),
+                              iC->pattern(),
+                              iC->stripType(),
+                              iC->bend(),
+                              iC->strip(),
+                              iC->cfeb() + 4,
+                              iC->bx(),
+                              iC->trackNumber(),
+                              iC->fullBX());
         }
       }
       cscData.add(shiftedDigis);
@@ -302,19 +302,19 @@ void CSCDigiToRaw::add(const CSCCorrelatedLCTDigiCollection& corrLCTDigis, FindE
     if (me11a && fedInfo.formatVersion_ == 2013) {
       std::vector<CSCCorrelatedLCTDigi> shiftedDigis((*j).second.first, (*j).second.second);
       for (std::vector<CSCCorrelatedLCTDigi>::iterator iC = shiftedDigis.begin(); iC != shiftedDigis.end(); ++iC) {
-        if (iC->getStrip() < 96) {  //sanity check, mostly
-          (*iC) = CSCCorrelatedLCTDigi(iC->getTrknmb(),
+        if (iC->strip() < 96) {  //sanity check, mostly
+          (*iC) = CSCCorrelatedLCTDigi(iC->trackNumber(),
                                        iC->isValid(),
-                                       iC->getQuality(),
-                                       iC->getKeyWG(),
-                                       iC->getStrip() + 128,
-                                       iC->getPattern(),
-                                       iC->getBend(),
-                                       iC->getBX(),
-                                       iC->getMPCLink(),
-                                       iC->getBX0(),
-                                       iC->getSyncErr(),
-                                       iC->getCSCID());
+                                       iC->quality(),
+                                       iC->keyWireGroup(),
+                                       iC->strip() + 128,
+                                       iC->pattern(),
+                                       iC->bend(),
+                                       iC->bx(),
+                                       iC->mpcLink(),
+                                       iC->bx0(),
+                                       iC->syncErr(),
+                                       iC->cscID());
         }
       }
       cscData.add(shiftedDigis);

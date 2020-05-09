@@ -83,13 +83,12 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c) {
       int cscId = (*csc).first.triggerCscId() - 1;
       int sector = (*csc).first.triggerSector() - 1 + ((*csc).first.endcap() == 1 ? 0 : 6);
       int subSector = CSCTriggerNumbering::triggerSubSectorFromLabels((*csc).first);
-      int tbin = lct->getBX() - (central_lct_bx - central_sp_bx);  // Shift back to hardware BX window definition
+      int tbin = lct->bx() - (central_lct_bx - central_sp_bx);  // Shift back to hardware BX window definition
       if (tbin > 6 || tbin < 0) {
         edm::LogError("CSCTFPacker|produce") << " LCT's BX=" << tbin << " is out of 0-6 window";
         continue;
       }
       int fpga = (subSector ? subSector - 1 : station + 1);
-      ///std::cout<<"Front data station: "<<station<<"  sector: "<<sector<<"  subSector: "<<subSector<<"  tbin: "<<tbin<<"  cscId: "<<cscId<<"  fpga: "<<fpga<<" LCT_qual="<<lct->getQuality()<<" LCT_strip="<<lct->getStrip()<<" LCT_wire="<<lct->getKeyWG()<<std::endl;
 
       // If Det Id is within range
       if (sector < 0 || sector > 11 || station < 0 || station > 3 || cscId < 0 || cscId > 8 || lctId < 0 || lctId > 1) {
@@ -98,16 +97,16 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c) {
         continue;
       }
 
-      meDataRecord[sector][tbin][fpga][cscId][lctId].clct_pattern_number = lct->getPattern();
-      meDataRecord[sector][tbin][fpga][cscId][lctId].quality_ = lct->getQuality();
-      meDataRecord[sector][tbin][fpga][cscId][lctId].wire_group_id = lct->getKeyWG();
+      meDataRecord[sector][tbin][fpga][cscId][lctId].clct_pattern_number = lct->pattern();
+      meDataRecord[sector][tbin][fpga][cscId][lctId].quality_ = lct->quality();
+      meDataRecord[sector][tbin][fpga][cscId][lctId].wire_group_id = lct->keyWireGroup();
 
       meDataRecord[sector][tbin][fpga][cscId][lctId].clct_pattern_id =
-          (swapME1strips && cscId < 3 && station == 0 && (*csc).first.endcap() == 2 && lct->getStrip() < 65
-               ? 65 - lct->getStrip()
-               : lct->getStrip());
+          (swapME1strips && cscId < 3 && station == 0 && (*csc).first.endcap() == 2 && lct->strip() < 65
+               ? 65 - lct->strip()
+               : lct->strip());
       meDataRecord[sector][tbin][fpga][cscId][lctId].csc_id = (*csc).first.triggerCscId();
-      meDataRecord[sector][tbin][fpga][cscId][lctId].left_right = lct->getBend();
+      meDataRecord[sector][tbin][fpga][cscId][lctId].left_right = lct->bend();
       meDataRecord[sector][tbin][fpga][cscId][lctId].bx0_ = 0;  //?;
       meDataRecord[sector][tbin][fpga][cscId][lctId].bc0_ = 0;  //?;
 
@@ -116,7 +115,7 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c) {
       meDataRecord[sector][tbin][fpga][cscId][lctId].receiver_status_dv1 = 0;  // dummy
       meDataRecord[sector][tbin][fpga][cscId][lctId].aligment_fifo_full = 0;   // dummy
 
-      meDataRecord[sector][tbin][fpga][cscId][lctId].link_id = lct->getMPCLink();
+      meDataRecord[sector][tbin][fpga][cscId][lctId].link_id = lct->mpcLink();
       meDataRecord[sector][tbin][fpga][cscId][lctId].mpc_id = 0;               // Join with above?
       meDataRecord[sector][tbin][fpga][cscId][lctId].err_prop_cnt = 0;         // dummy
       meDataRecord[sector][tbin][fpga][cscId][lctId].receiver_status_er2 = 0;  // dummy
@@ -162,21 +161,21 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c) {
       for (std::vector<csctf::TrackStub>::const_iterator dt = stubs.begin(); dt != stubs.end(); dt++) {
         int sector = dt->sector() - 1 + (dt->endcap() == 1 ? 0 : 6);
         int subSector = dt->subsector() - 1;
-        int tbin = dt->getBX() - (central_lct_bx - central_sp_bx);  // Shift back to hardware BX window definition
+        int tbin = dt->bx() - (central_lct_bx - central_sp_bx);  // Shift back to hardware BX window definition
         if (tbin < 0 || tbin > 6 || sector < 0 || sector > 11 || subSector < 0 || subSector > 11) {
           edm::LogInfo("CSCTFPacker: CSC DT digi are out of range: ")
               << " sector=" << sector << "  subSector=" << subSector << "  tbin=" << tbin;
           continue;
         }
-        mbDataRecord[sector][subSector][tbin].quality_ = dt->getQuality();
-        mbDataRecord[sector][subSector][tbin].phi_bend_ = dt->getBend();
-        mbDataRecord[sector][subSector][tbin].flag_ = dt->getStrip();
-        mbDataRecord[sector][subSector][tbin].cal_ = dt->getKeyWG();
+        mbDataRecord[sector][subSector][tbin].quality_ = dt->quality();
+        mbDataRecord[sector][subSector][tbin].phi_bend_ = dt->bend();
+        mbDataRecord[sector][subSector][tbin].flag_ = dt->strip();
+        mbDataRecord[sector][subSector][tbin].cal_ = dt->keyWireGroup();
         mbDataRecord[sector][subSector][tbin].phi_ = dt->phiPacked();
-        mbDataRecord[sector][subSector][tbin].bxn1_ = (dt->getBX0() >> 1) & 0x1;
-        mbDataRecord[sector][subSector][tbin].bxn0_ = dt->getBX0() & 0x1;
-        mbDataRecord[sector][subSector][tbin].bc0_ = dt->getPattern();
-        mbDataRecord[sector][subSector][tbin].mb_bxn_ = dt->getCSCID();
+        mbDataRecord[sector][subSector][tbin].bxn1_ = (dt->bx0() >> 1) & 0x1;
+        mbDataRecord[sector][subSector][tbin].bxn0_ = dt->bx0() & 0x1;
+        mbDataRecord[sector][subSector][tbin].bc0_ = dt->pattern();
+        mbDataRecord[sector][subSector][tbin].mb_bxn_ = dt->cscID();
         switch (subSector) {
           case 0:
             meDataHeader[sector][tbin].vq_a = 1;
@@ -188,7 +187,7 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c) {
             edm::LogInfo("CSCTFPacker: subSector=") << subSector;
             break;
         }
-        mbDataRecord[sector][subSector][tbin].id_ = dt->getMPCLink();  // for later use
+        mbDataRecord[sector][subSector][tbin].id_ = dt->mpcLink();  // for later use
       }
     }
   }
