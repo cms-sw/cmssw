@@ -87,7 +87,7 @@ private:
   edm::EDGetTokenT<reco::TrackCollection> tok_genTrack_;
   std::vector<bool> mediumMuon_;
   TH1I *h_nHLT, *h_HLTAccept, *h_HLTCorr;
-  TH2I *h_nHLTvsRN;
+  TH2I* h_nHLTvsRN;
   std::vector<TH1I*> h_HLTAccepts;
   TH1D *h_pt, *h_eta, *h_phi, *h_dr1, *h_dr2, *h_dr3;
   int nRun_;
@@ -111,8 +111,8 @@ StudyTriggerHLT::StudyTriggerHLT(const edm::ParameterSet& iConfig)
   tok_genTrack_ = consumes<reco::TrackCollection>(labelGenTrack_);
 
   edm::LogInfo("StudyHLT") << "Verbosity " << verbosity_ << " Trigger labels " << triggerEvent_ << " and "
-                           << theTriggerResultsLabel_ << " Labels used: Track " << labelGenTrack_ << " Muon " << labelMuon_
-			   << " Track Quality " << theTrackQuality_;
+                           << theTriggerResultsLabel_ << " Labels used: Track " << labelGenTrack_ << " Muon "
+                           << labelMuon_ << " Track Quality " << theTrackQuality_;
 
   firstEvent_ = true;
   changed_ = false;
@@ -121,8 +121,8 @@ StudyTriggerHLT::StudyTriggerHLT(const edm::ParameterSet& iConfig)
 void StudyTriggerHLT::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<int>("verbosity", 0);
-  desc.add<edm::InputTag>("labelMuon", edm::InputTag("muons",  "" , "RECO"));
-  desc.add<edm::InputTag>("labelTrack", edm::InputTag("generalTracks",  "" , "RECO"));
+  desc.add<edm::InputTag>("labelMuon", edm::InputTag("muons", "", "RECO"));
+  desc.add<edm::InputTag>("labelTrack", edm::InputTag("generalTracks", "", "RECO"));
   desc.add<std::string>("trackQuality", "highPurity");
   descriptions.add("studyTriggerHLT", desc);
 }
@@ -185,31 +185,34 @@ void StudyTriggerHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& i
   }
   firstEvent_ = false;
 
-  double globalMin=1000;
+  double globalMin = 1000;
   edm::Handle<reco::MuonCollection> muonEventHandle;
   iEvent.getByToken(tok_Muon_, muonEventHandle);
   edm::Handle<reco::TrackCollection> trackEventHandle;
   iEvent.getByToken(tok_genTrack_, trackEventHandle);
-  edm::LogVerbatim("StudyHLT") << "Muon Handle " << muonEventHandle.isValid() << " Track Handle " << trackEventHandle.isValid();
-  for (reco::TrackCollection::const_iterator track1 = trackEventHandle->begin(); 
-       track1 != trackEventHandle->end(); ++ track1 ) {
-    double localMin=1000;
+  edm::LogVerbatim("StudyHLT") << "Muon Handle " << muonEventHandle.isValid() << " Track Handle "
+                               << trackEventHandle.isValid();
+  for (reco::TrackCollection::const_iterator track1 = trackEventHandle->begin(); track1 != trackEventHandle->end();
+       ++track1) {
+    double localMin = 1000;
     if (muonEventHandle.isValid()) {
-      for (reco::MuonCollection::const_iterator recMuon = muonEventHandle->begin();
-	   recMuon != muonEventHandle->end(); ++recMuon)  {
-	if (((recMuon->isPFMuon()) && (recMuon->isGlobalMuon() || recMuon->isTrackerMuon())) &&
-	    (recMuon->innerTrack()->validFraction() > 0.49)) {
-	  double chiGlobal = ((recMuon->globalTrack().isNonnull()) ? recMuon->globalTrack()->normalizedChi2() : 999);
-	  bool goodGlob = (recMuon->isGlobalMuon() && chiGlobal < 3 && recMuon->combinedQuality().chi2LocalPosition < 12 && recMuon->combinedQuality().trkKink < 20);
-	  if (muon::segmentCompatibility(*recMuon) > (goodGlob ? 0.303 : 0.451)) {
-	    double dr = deltaR(track1->eta(), track1->phi(), recMuon->eta(), recMuon->phi());
-	    if (dr < localMin) {
-	      localMin = dr;
-	      if (localMin < globalMin)
-		globalMin = localMin;
-	    }
-	  }
-	}
+      for (reco::MuonCollection::const_iterator recMuon = muonEventHandle->begin(); recMuon != muonEventHandle->end();
+           ++recMuon) {
+        if (((recMuon->isPFMuon()) && (recMuon->isGlobalMuon() || recMuon->isTrackerMuon())) &&
+            (recMuon->innerTrack()->validFraction() > 0.49)) {
+          double chiGlobal = ((recMuon->globalTrack().isNonnull()) ? recMuon->globalTrack()->normalizedChi2() : 999);
+          bool goodGlob =
+              (recMuon->isGlobalMuon() && chiGlobal < 3 && recMuon->combinedQuality().chi2LocalPosition < 12 &&
+               recMuon->combinedQuality().trkKink < 20);
+          if (muon::segmentCompatibility(*recMuon) > (goodGlob ? 0.303 : 0.451)) {
+            double dr = deltaR(track1->eta(), track1->phi(), recMuon->eta(), recMuon->phi());
+            if (dr < localMin) {
+              localMin = dr;
+              if (localMin < globalMin)
+                globalMin = localMin;
+            }
+          }
+        }
       }
     }
     h_pt->Fill(track1->pt());
@@ -217,8 +220,9 @@ void StudyTriggerHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& i
     h_phi->Fill(track1->phi());
     h_dr1->Fill(localMin);
     if (track1->quality(trackQuality_))
-	h_dr3->Fill(localMin);
-    edm::LogVerbatim("StudyHLT") << "Track pT " << track1->pt() << " eta " << track1->eta() << " phi " << track1->phi() << " minimum distance " << localMin;
+      h_dr3->Fill(localMin);
+    edm::LogVerbatim("StudyHLT") << "Track pT " << track1->pt() << " eta " << track1->eta() << " phi " << track1->phi()
+                                 << " minimum distance " << localMin;
   }
   edm::LogVerbatim("StudyHLT") << "GlobalMinimum  = " << globalMin;
   h_dr2->Fill(globalMin);
@@ -231,11 +235,11 @@ void StudyTriggerHLT::beginJob() {
   for (int i = 1; i <= 500; ++i)
     h_HLTAccept->GetXaxis()->SetBinLabel(i, " ");
   h_nHLTvsRN = fs_->make<TH2I>("h_nHLTvsRN", "size of trigger Names vs RunNo", 300, 319200, 319500, 100, 400, 500);
-  h_pt  = fs_->make<TH1D>("h_pt", "p_{t}", 50, 0, 20 );
+  h_pt = fs_->make<TH1D>("h_pt", "p_{t}", 50, 0, 20);
   h_pt->Sumw2();
-  h_eta = fs_->make<TH1D>("h_eta", "#eta", 50, -3, 3 );
+  h_eta = fs_->make<TH1D>("h_eta", "#eta", 50, -3, 3);
   h_eta->Sumw2();
-  h_phi = fs_->make<TH1D>("h_phi", "#phi", 50, -10, 10 );
+  h_phi = fs_->make<TH1D>("h_phi", "#phi", 50, -10, 10);
   h_phi->Sumw2();
   h_dr1 = fs_->make<TH1D>("dR1", "#Delta R (Track)", 1000, 0, 1.0);
   h_dr1->Sumw2();
