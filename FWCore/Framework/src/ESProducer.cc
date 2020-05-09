@@ -95,7 +95,11 @@ namespace edm {
           items.push_back(index);
           if (index != eventsetup::ESRecordsToProxyIndices::missingProxyIndex()) {
             records.push_back(iProxyToIndices.recordIndexFor(proxyInfo.recordKey_));
+          } else {
+            //The record is not actually missing but the proxy is
+            records.emplace_back(eventsetup::ESRecordsToProxyIndices::missingRecordIndex());
           }
+          assert(items.size() == records.size());
         }
       }
     }
