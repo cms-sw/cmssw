@@ -153,7 +153,7 @@ private:
   static const unsigned int thisBx_ = 9;
   std::vector<float> cce_;
   std::map<uint32_t, std::vector<std::pair<float, float> > > hitRefs_bx0;
-  std::map<uint32_t, bool> hitOrder_monitor;
+  std::unordered_map<uint32_t, bool> hitOrder_monitor;
 };
 
 #endif
