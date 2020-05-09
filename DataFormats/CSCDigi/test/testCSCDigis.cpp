@@ -393,16 +393,16 @@ void testCSCDigis::readCSCCorrLCTDigi(CSCCorrelatedLCTDigiCollection &collection
     for (CSCCorrelatedLCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; digiIt++) {
       ++count;
       CPPUNIT_ASSERT(digiIt->isValid() == 1);
-      CPPUNIT_ASSERT(digiIt->getQuality() == 15);
-      CPPUNIT_ASSERT(digiIt->getCLCTPattern() == 2);
-      CPPUNIT_ASSERT(digiIt->getStrip() == 16);
-      CPPUNIT_ASSERT(digiIt->getKeyWG() == 10);
-      CPPUNIT_ASSERT(digiIt->getBend() == 1);
-      CPPUNIT_ASSERT(digiIt->getBX() == 0);
+      CPPUNIT_ASSERT(digiIt->quality() == 15);
+      CPPUNIT_ASSERT(digiIt->clctPattern() == 2);
+      CPPUNIT_ASSERT(digiIt->strip() == 16);
+      CPPUNIT_ASSERT(digiIt->keyWireGroup() == 10);
+      CPPUNIT_ASSERT(digiIt->bend() == 1);
+      CPPUNIT_ASSERT(digiIt->bx() == 0);
 
       std::cout << "CSC Correlated LCT - endcap station ring csc layer LCT# Quality: " << id.endcap() << " "
                 << id.station() << " " << id.ring() << " " << id.chamber() << " " << id.layer() << " "
-                << digiIt->getTrknmb() << " " << digiIt->getQuality() << std::endl;
+                << digiIt->trackNumber() << " " << digiIt->quality() << std::endl;
     }
   }
   std::cout << "CSC Correlated LCT Digi count - " << count << std::endl;
@@ -545,12 +545,12 @@ void testCSCDigis::readCSCALCTDigi(CSCALCTDigiCollection &collection) {
     for (CSCALCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; ++digiIt) {
       count++;
       CPPUNIT_ASSERT((*digiIt).isValid());
-      CPPUNIT_ASSERT((*digiIt).getQuality() == 3);
-      CPPUNIT_ASSERT((*digiIt).getAccelerator() == 0);
-      CPPUNIT_ASSERT((*digiIt).getCollisionB() == 1);
-      CPPUNIT_ASSERT((*digiIt).getKeyWG() == 16);
-      CPPUNIT_ASSERT((*digiIt).getBX() == 4);
-      CPPUNIT_ASSERT((*digiIt).getTrknmb() == 1);
+      CPPUNIT_ASSERT((*digiIt).quality() == 3);
+      CPPUNIT_ASSERT((*digiIt).accelerator() == 0);
+      CPPUNIT_ASSERT((*digiIt).collisionB() == 1);
+      CPPUNIT_ASSERT((*digiIt).keyWireGroup() == 16);
+      CPPUNIT_ASSERT((*digiIt).bx() == 4);
+      CPPUNIT_ASSERT((*digiIt).trackNumber() == 1);
 
       printf(
           "CSC ALCT - endcap station ring csc layer valid quality accel pattern wire bx track: %3d %3d %3d %3d %3d %3d "
@@ -561,12 +561,12 @@ void testCSCDigis::readCSCALCTDigi(CSCALCTDigiCollection &collection) {
           id.chamber(),
           id.layer(),
           (*digiIt).isValid(),
-          (*digiIt).getQuality(),
-          (*digiIt).getAccelerator(),
-          (*digiIt).getCollisionB(),
-          (*digiIt).getKeyWG(),
-          (*digiIt).getBX(),
-          (*digiIt).getTrknmb());
+          (*digiIt).quality(),
+          (*digiIt).accelerator(),
+          (*digiIt).collisionB(),
+          (*digiIt).keyWireGroup(),
+          (*digiIt).bx(),
+          (*digiIt).trackNumber());
     }  // for digis in layer
   }    // end of for (detUnitIt=...
   printf("CSC ALCT count:  %3d \n", count);
@@ -582,14 +582,14 @@ void testCSCDigis::readCSCCLCTDigi(CSCCLCTDigiCollection &collection) {
     for (CSCCLCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; ++digiIt) {
       count++;
       CPPUNIT_ASSERT((*digiIt).isValid());
-      CPPUNIT_ASSERT((*digiIt).getQuality() == 3);
-      CPPUNIT_ASSERT((*digiIt).getPattern() == 2);
-      CPPUNIT_ASSERT((*digiIt).getStripType() == 1);
-      CPPUNIT_ASSERT((*digiIt).getBend() == 0);
-      CPPUNIT_ASSERT((*digiIt).getStrip() == 16);
-      CPPUNIT_ASSERT((*digiIt).getCFEB() == 5);
-      CPPUNIT_ASSERT((*digiIt).getBX() == 3);
-      CPPUNIT_ASSERT((*digiIt).getTrknmb() == 1);
+      CPPUNIT_ASSERT((*digiIt).quality() == 3);
+      CPPUNIT_ASSERT((*digiIt).pattern() == 2);
+      CPPUNIT_ASSERT((*digiIt).stripType() == 1);
+      CPPUNIT_ASSERT((*digiIt).bend() == 0);
+      CPPUNIT_ASSERT((*digiIt).strip() == 16);
+      CPPUNIT_ASSERT((*digiIt).cfeb() == 5);
+      CPPUNIT_ASSERT((*digiIt).bx() == 3);
+      CPPUNIT_ASSERT((*digiIt).trackNumber() == 1);
 
       printf(
           "CSC CLCT - endcap station ring csc layer valid quality pattern striptype bend strip cfeb bx tracknmb %3d "
@@ -600,14 +600,14 @@ void testCSCDigis::readCSCCLCTDigi(CSCCLCTDigiCollection &collection) {
           id.chamber(),
           id.layer(),
           (*digiIt).isValid(),
-          (*digiIt).getQuality(),
-          (*digiIt).getPattern(),
-          (*digiIt).getStripType(),
-          (*digiIt).getBend(),
-          (*digiIt).getStrip(),
-          (*digiIt).getCFEB(),
-          (*digiIt).getBX(),
-          (*digiIt).getTrknmb());
+          (*digiIt).quality(),
+          (*digiIt).pattern(),
+          (*digiIt).stripType(),
+          (*digiIt).bend(),
+          (*digiIt).strip(),
+          (*digiIt).cfeb(),
+          (*digiIt).bx(),
+          (*digiIt).trackNumber());
 
     }  // for digis in layer
   }    // end of for (detUnitIt=...

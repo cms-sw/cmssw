@@ -35,28 +35,28 @@ public:
   bool isValid() const { return valid_; }
 
   /// return quality of a pattern (number of layers hit!)
-  int getQuality() const { return quality_; }
+  int quality() const { return quality_; }
 
   /// return pattern
-  int getPattern() const { return pattern_; }
+  int pattern() const { return pattern_; }
 
   /// return striptype
-  int getStripType() const { return striptype_; }
+  int stripType() const { return striptype_; }
 
   /// return bend
-  int getBend() const { return bend_; }
+  int bend() const { return bend_; }
 
   /// return halfstrip that goes from 0 to 31
-  int getStrip() const { return strip_; }
+  int strip() const { return strip_; }
 
   /// return Key CFEB ID
-  int getCFEB() const { return cfeb_; }
+  int cfeb() const { return cfeb_; }
 
   /// return BX
-  int getBX() const { return bx_; }
+  int bx() const { return bx_; }
 
   /// return track number (1,2)
-  int getTrknmb() const { return trknmb_; }
+  int trackNumber() const { return trknmb_; }
 
   /// Convert strip_ and cfeb_ to keyStrip. Each CFEB has up to 16 strips
   /// (32 halfstrips). There are 5 cfebs.  The "strip_" variable is one
@@ -67,7 +67,7 @@ public:
   /// the correlated LCT digi.  For distrip patterns, the convention is
   /// the same as for persistent strip numbers: low halfstrip of a distrip.
   /// SV, June 15th, 2006.
-  int getKeyStrip() const {
+  int keyStrip() const {
     int keyStrip = cfeb_ * 32 + strip_;
     return keyStrip;
   }
@@ -76,7 +76,7 @@ public:
   void setTrknmb(const uint16_t number) { trknmb_ = number; }
 
   /// return 12-bit full BX.
-  int getFullBX() const { return fullbx_; }
+  int fullBX() const { return fullbx_; }
 
   /// Set 12-bit full BX.
   void setFullBX(const uint16_t fullbx) { fullbx_ = fullbx; }

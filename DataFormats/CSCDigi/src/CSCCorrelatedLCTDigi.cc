@@ -11,33 +11,33 @@
 #include <iostream>
 
 /// Constructors
-CSCCorrelatedLCTDigi::CSCCorrelatedLCTDigi(const uint16_t itrknmb,
+CSCCorrelatedLCTDigi::CSCCorrelatedLCTDigi(const uint16_t iTrackNumber,
                                            const uint16_t ivalid,
                                            const uint16_t iquality,
-                                           const uint16_t ikeywire,
+                                           const uint16_t ikeyWireGroup,
                                            const uint16_t istrip,
                                            const uint16_t ipattern,
                                            const uint16_t ibend,
                                            const uint16_t ibx,
-                                           const uint16_t impclink,
+                                           const uint16_t impcLink,
                                            const uint16_t ibx0,
                                            const uint16_t isyncErr,
                                            const uint16_t icscID,
                                            const uint16_t ihmt,
                                            const Version version)
-    : trknmb(itrknmb),
-      valid(ivalid),
-      quality(iquality),
-      keywire(ikeywire),
-      strip(istrip),
-      pattern(ipattern),
-      bend(ibend),
-      bx(ibx),
-      mpclink(impclink),
-      bx0(ibx0),
-      syncErr(isyncErr),
-      cscID(icscID),
-      hmt(ihmt),
+    : trackNumber_(iTrackNumber),
+      valid_(ivalid),
+      quality_(iquality),
+      keyWireGroup_(ikeyWireGroup),
+      strip_(istrip),
+      pattern_(ipattern),
+      bend_(ibend),
+      bx_(ibx),
+      mpcLink_(impcLink),
+      bx0_(ibx0),
+      syncErr_(isyncErr),
+      cscID_(icscID),
+      hmt_(ihmt),
       version_(version) {}
 
 /// Default
@@ -48,102 +48,102 @@ CSCCorrelatedLCTDigi::CSCCorrelatedLCTDigi() {
 
 /// Clears this LCT.
 void CSCCorrelatedLCTDigi::clear() {
-  trknmb = 0;
-  valid = 0;
-  quality = 0;
-  keywire = 0;
-  strip = 0;
-  pattern = 0;
-  bend = 0;
-  bx = 0;
-  mpclink = 0;
-  bx0 = 0;
-  syncErr = 0;
-  cscID = 0;
-  hmt = 0;
+  trackNumber_ = 0;
+  valid_ = 0;
+  quality_ = 0;
+  keyWireGroup_ = 0;
+  strip_ = 0;
+  pattern_ = 0;
+  bend_ = 0;
+  bx_ = 0;
+  mpcLink_ = 0;
+  bx0_ = 0;
+  syncErr_ = 0;
+  cscID_ = 0;
+  hmt_ = 0;
 }
 
-uint16_t CSCCorrelatedLCTDigi::getStrip(const uint16_t n) const {
+uint16_t CSCCorrelatedLCTDigi::strip(const uint16_t n) const {
   // all 10 bits
   if (n == 8) {
-    return 2 * getStrip(4) + getEightStrip();
+    return 2 * strip(4) + eightStrip();
   }
   // lowest 9 bits
   else if (n == 4) {
-    return 2 * getStrip(2) + getQuartStrip();
+    return 2 * strip(2) + quartStrip();
   }
   // lowest 8 bits
   else {
-    return strip & kHalfStripMask;
+    return strip_ & kHalfStripMask;
   }
 }
 
 void CSCCorrelatedLCTDigi::setQuartStrip(const bool quartStrip) {
   // clear the old value
-  strip &= ~(kQuartStripMask << kQuartStripShift);
+  strip_ &= ~(kQuartStripMask << kQuartStripShift);
 
   // set the new value
-  strip |= quartStrip << kQuartStripShift;
+  strip_ |= quartStrip << kQuartStripShift;
 }
 
 void CSCCorrelatedLCTDigi::setEightStrip(const bool eightStrip) {
   // clear the old value
-  strip &= ~(kEightStripMask << kEightStripShift);
+  strip_ &= ~(kEightStripMask << kEightStripShift);
 
   // set the new value
-  strip |= eightStrip << kEightStripShift;
+  strip_ |= eightStrip << kEightStripShift;
 }
 
-bool CSCCorrelatedLCTDigi::getQuartStrip() const { return (strip >> kQuartStripShift) & kQuartStripMask; }
+bool CSCCorrelatedLCTDigi::quartStrip() const { return (strip_ >> kQuartStripShift) & kQuartStripMask; }
 
-bool CSCCorrelatedLCTDigi::getEightStrip() const { return (strip >> kEightStripShift) & kEightStripMask; }
+bool CSCCorrelatedLCTDigi::eightStrip() const { return (strip_ >> kEightStripShift) & kEightStripMask; }
 
 /// return the fractional strip
-float CSCCorrelatedLCTDigi::getFractionalStrip(const uint16_t n) const {
+float CSCCorrelatedLCTDigi::fractionalStrip(const uint16_t n) const {
   if (n == 8) {
-    return 0.125f * (getStrip() + 1) - 0.0625f;
+    return 0.125f * (strip() + 1) - 0.0625f;
   } else if (n == 4) {
-    return 0.25f * (getStrip() + 1) - 0.125f;
+    return 0.25f * (strip() + 1) - 0.125f;
   } else {
-    return 0.5f * (getStrip() + 1) - 0.25f;
+    return 0.5f * (strip() + 1) - 0.25f;
   }
 }
 
-uint16_t CSCCorrelatedLCTDigi::getCLCTPattern() const {
-  return (isRun3() ? std::numeric_limits<uint16_t>::max() : (pattern & 0xF));
+uint16_t CSCCorrelatedLCTDigi::clctPattern() const {
+  return (isRun3() ? std::numeric_limits<uint16_t>::max() : (pattern_ & 0xF));
 }
 
-uint16_t CSCCorrelatedLCTDigi::getHMT() const { return (isRun3() ? hmt : std::numeric_limits<uint16_t>::max()); }
+uint16_t CSCCorrelatedLCTDigi::hmt() const { return (isRun3() ? hmt_ : std::numeric_limits<uint16_t>::max()); }
 
-void CSCCorrelatedLCTDigi::setHMT(const uint16_t h) { hmt = isRun3() ? h : std::numeric_limits<uint16_t>::max(); }
+void CSCCorrelatedLCTDigi::setHMT(const uint16_t h) { hmt_ = isRun3() ? h : std::numeric_limits<uint16_t>::max(); }
 
 void CSCCorrelatedLCTDigi::setRun3(const bool isRun3) { version_ = isRun3 ? Version::Run3 : Version::Legacy; }
 
 /// Comparison
 bool CSCCorrelatedLCTDigi::operator==(const CSCCorrelatedLCTDigi& rhs) const {
-  return ((trknmb == rhs.trknmb) && (quality == rhs.quality) && (keywire == rhs.keywire) && (strip == rhs.strip) &&
-          (pattern == rhs.pattern) && (bend == rhs.bend) && (bx == rhs.bx) && (valid == rhs.valid) &&
-          (mpclink == rhs.mpclink) && (hmt == rhs.hmt));
+  return ((trackNumber_ == rhs.trackNumber_) && (quality_ == rhs.quality_) && (keyWireGroup_ == rhs.keyWireGroup_) &&
+          (strip_ == rhs.strip_) && (pattern_ == rhs.pattern_) && (bend_ == rhs.bend_) && (bx_ == rhs.bx_) &&
+          (valid_ == rhs.valid_) && (mpcLink_ == rhs.mpcLink_) && (hmt_ == rhs.hmt_));
 }
 
 /// Debug
 void CSCCorrelatedLCTDigi::print() const {
   if (isValid()) {
-    edm::LogVerbatim("CSCDigi") << "CSC LCT #" << getTrknmb() << ": Valid = " << isValid()
-                                << " Quality = " << getQuality() << " Key Wire = " << getKeyWG()
-                                << " Strip = " << getStrip() << " Pattern = " << getPattern()
-                                << " Bend = " << ((getBend() == 0) ? 'L' : 'R') << " BX = " << getBX()
-                                << " MPC Link = " << getMPCLink() << " HMT Bit = " << getHMT();
+    edm::LogVerbatim("CSCDigi") << "CSC LCT #" << trackNumber() << ": Valid = " << isValid()
+                                << " Quality = " << quality() << " Key Wire = " << keyWireGroup()
+                                << " Strip = " << strip() << " Pattern = " << pattern()
+                                << " Bend = " << ((bend() == 0) ? 'L' : 'R') << " BX = " << bx()
+                                << " MPC Link = " << mpcLink() << " HMT Bit = " << hmt();
   } else {
     edm::LogVerbatim("CSCDigi") << "Not a valid correlated LCT.";
   }
 }
 
 std::ostream& operator<<(std::ostream& o, const CSCCorrelatedLCTDigi& digi) {
-  return o << "CSC LCT #" << digi.getTrknmb() << ": Valid = " << digi.isValid() << " Quality = " << digi.getQuality()
-           << " MPC Link = " << digi.getMPCLink() << " cscID = " << digi.getCSCID() << "\n"
-           << "  cathode info: Strip = " << digi.getStrip() << " Pattern = " << digi.getPattern()
-           << " Bend = " << ((digi.getBend() == 0) ? 'L' : 'R') << "\n"
-           << "    anode info: Key wire = " << digi.getKeyWG() << " BX = " << digi.getBX() << " bx0 = " << digi.getBX0()
-           << " syncErr = " << digi.getSyncErr() << " HMT Bit = " << digi.getHMT() << "\n";
+  return o << "CSC LCT #" << digi.trackNumber() << ": Valid = " << digi.isValid() << " Quality = " << digi.quality()
+           << " MPC Link = " << digi.mpcLink() << " cscID = " << digi.cscID() << "\n"
+           << "  cathode info: Strip = " << digi.strip() << " Pattern = " << digi.pattern()
+           << " Bend = " << ((digi.bend() == 0) ? 'L' : 'R') << "\n"
+           << "    anode info: Key wire = " << digi.keyWireGroup() << " BX = " << digi.bx() << " bx0 = " << digi.bx0()
+           << " syncErr = " << digi.syncErr() << " HMT Bit = " << digi.hmt() << "\n";
 }

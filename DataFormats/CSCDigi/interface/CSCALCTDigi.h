@@ -40,14 +40,14 @@ public:
   void setValid(const uint16_t valid) { valid_ = valid; }
 
   /// return quality of a pattern
-  uint16_t getQuality() const { return quality_; }
+  uint16_t quality() const { return quality_; }
 
   /// set quality
   void setQuality(const uint16_t quality) { quality_ = quality; }
 
   /// return Accelerator bit
   /// 1-Accelerator pattern, 0-CollisionA or CollisionB pattern
-  uint16_t getAccelerator() const { return accel_; }
+  uint16_t accelerator() const { return accel_; }
 
   /// set accelerator bit
   void setAccelerator(const uint16_t accelerator) { accel_ = accelerator; }
@@ -55,37 +55,37 @@ public:
   /// return Collision Pattern B bit
   /// 1-CollisionB pattern (accel_ = 0),
   /// 0-CollisionA pattern (accel_ = 0)
-  uint16_t getCollisionB() const { return patternb_; }
+  uint16_t collisionB() const { return patternb_; }
 
   /// set Collision Pattern B bit
   void setCollisionB(const uint16_t collision) { patternb_ = collision; }
 
   /// return key wire group
-  uint16_t getKeyWG() const { return keywire_; }
+  uint16_t keyWireGroup() const { return keywire_; }
 
   /// set key wire group
   void setKeyWG(const uint16_t keyWG) { keywire_ = keyWG; }
 
   /// return BX - five low bits of BXN counter tagged by the ALCT
-  uint16_t getBX() const { return bx_; }
+  uint16_t bx() const { return bx_; }
 
   /// set BX
   void setBX(const uint16_t BX) { bx_ = BX; }
 
   /// return track number (1,2)
-  uint16_t getTrknmb() const { return trknmb_; }
+  uint16_t trackNumber() const { return trknmb_; }
 
   /// Set track number (1,2) after sorting ALCTs.
   void setTrknmb(const uint16_t number) { trknmb_ = number; }
 
   /// return 12-bit full BX.
-  uint16_t getFullBX() const { return fullbx_; }
+  uint16_t fullBX() const { return fullbx_; }
 
   /// Set 12-bit full BX.
   void setFullBX(const uint16_t fullbx) { fullbx_ = fullbx; }
 
   /// return the high multiplicity bits
-  uint16_t getHMT() const;
+  uint16_t hmt() const;
 
   /// set the high multiplicity bits
   void setHMT(const uint16_t hmt);

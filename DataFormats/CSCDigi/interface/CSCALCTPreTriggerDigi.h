@@ -33,14 +33,14 @@ public:
   void setValid(const int valid) { valid_ = valid; }
 
   /// return quality of a pattern
-  int getQuality() const { return quality_; }
+  int quality() const { return quality_; }
 
   /// set quality
   void setQuality(const int quality) { quality_ = quality; }
 
   /// return Accelerator bit
   /// 1-Accelerator pattern, 0-CollisionA or CollisionB pattern
-  int getAccelerator() const { return accel_; }
+  int accelerator() const { return accel_; }
 
   /// set accelerator bit
   void setAccelerator(const int accelerator) { accel_ = accelerator; }
@@ -48,31 +48,31 @@ public:
   /// return Collision Pattern B bit
   /// 1-CollisionB pattern (accel_ = 0),
   /// 0-CollisionA pattern (accel_ = 0)
-  int getCollisionB() const { return patternb_; }
+  int collisionB() const { return patternb_; }
 
   /// set Collision Pattern B bit
   void setCollisionB(const int collision) { patternb_ = collision; }
 
   /// return key wire group
-  int getKeyWG() const { return keywire_; }
+  int keyWireGroup() const { return keywire_; }
 
   /// set key wire group
   void setKeyWG(const int keyWG) { keywire_ = keyWG; }
 
   /// return BX - five low bits of BXN counter tagged by the ALCT
-  int getBX() const { return bx_; }
+  int bx() const { return bx_; }
 
   /// set BX
   void setBX(const int BX) { bx_ = BX; }
 
   /// return track number (1,2)
-  int getTrknmb() const { return trknmb_; }
+  int trackNumber() const { return trknmb_; }
 
   /// Set track number (1,2) after sorting ALCTs.
   void setTrknmb(const uint16_t number) { trknmb_ = number; }
 
   /// return 12-bit full BX.
-  int getFullBX() const { return fullbx_; }
+  int fullBX() const { return fullbx_; }
 
   /// Set 12-bit full BX.
   void setFullBX(const uint16_t fullbx) { fullbx_ = fullbx; }

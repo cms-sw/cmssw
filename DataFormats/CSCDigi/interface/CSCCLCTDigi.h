@@ -48,31 +48,31 @@ public:
   void setValid(const uint16_t valid) { valid_ = valid; }
 
   /// return quality of a pattern (number of layers hit!)
-  uint16_t getQuality() const { return quality_; }
+  uint16_t quality() const { return quality_; }
 
   /// set quality
   void setQuality(const uint16_t quality) { quality_ = quality; }
 
   /// return pattern
-  uint16_t getPattern() const { return pattern_; }
+  uint16_t pattern() const { return pattern_; }
 
   /// set pattern
   void setPattern(const uint16_t pattern) { pattern_ = pattern; }
 
   /// return striptype
-  uint16_t getStripType() const { return striptype_; }
+  uint16_t stripType() const { return striptype_; }
 
   /// set stripType
   void setStripType(const uint16_t stripType) { striptype_ = stripType; }
 
   /// return bend
-  uint16_t getBend() const { return bend_; }
+  uint16_t bend() const { return bend_; }
 
   /// set bend
   void setBend(const uint16_t bend) { bend_ = bend; }
 
   /// return halfstrip that goes from 0 to 31 in a (D)CFEB
-  uint16_t getStrip() const;
+  uint16_t strip() const;
 
   /// set strip
   void setStrip(const uint16_t strip) { strip_ = strip; }
@@ -81,28 +81,28 @@ public:
   void setQuartStrip(const bool quartStrip);
 
   /// get single quart strip bit
-  bool getQuartStrip() const;
+  bool quartStrip() const;
 
   /// set single eight strip bit
   void setEightStrip(const bool eightStrip);
 
   /// get single eight strip bit
-  bool getEightStrip() const;
+  bool eightStrip() const;
 
   /// return Key CFEB ID
-  uint16_t getCFEB() const { return cfeb_; }
+  uint16_t cfeb() const { return cfeb_; }
 
   /// set Key CFEB ID
   void setCFEB(const uint16_t cfeb) { cfeb_ = cfeb; }
 
   /// return BX
-  uint16_t getBX() const { return bx_; }
+  uint16_t bx() const { return bx_; }
 
   /// set bx
   void setBX(const uint16_t bx) { bx_ = bx; }
 
   /// return track number (1,2)
-  uint16_t getTrknmb() const { return trknmb_; }
+  uint16_t trackNumber() const { return trknmb_; }
 
   /// Convert strip_ and cfeb_ to keyStrip. Each CFEB has up to 16 strips
   /// (32 halfstrips). There are 5 cfebs.  The "strip_" variable is one
@@ -110,19 +110,19 @@ public:
   /// Halfstrip = (cfeb*32 + strip).
   /// This function can also return the quartstrip or eightstrip
   /// when the comparator code has been set
-  uint16_t getKeyStrip(uint16_t n = 2) const;
+  uint16_t keyStrip(uint16_t n = 2) const;
 
   /// Set track number (1,2) after sorting CLCTs.
   void setTrknmb(const uint16_t number) { trknmb_ = number; }
 
   /// return 12-bit full BX.
-  uint16_t getFullBX() const { return fullbx_; }
+  uint16_t fullBX() const { return fullbx_; }
 
   /// Set 12-bit full BX.
   void setFullBX(const uint16_t fullbx) { fullbx_ = fullbx; }
 
   // 12-bit comparator code
-  int16_t getCompCode() const { return (isRun3() ? compCode_ : -1); }
+  int16_t compCode() const { return (isRun3() ? compCode_ : -1); }
 
   void setCompCode(const int16_t code) { compCode_ = code; }
 

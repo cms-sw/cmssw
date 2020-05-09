@@ -52,7 +52,7 @@ void CSCALCTDigi::clear() {
   hmt_ = 0;
 }
 
-uint16_t CSCALCTDigi::getHMT() const { return (isRun3() ? hmt_ : std::numeric_limits<uint16_t>::max()); }
+uint16_t CSCALCTDigi::hmt() const { return (isRun3() ? hmt_ : std::numeric_limits<uint16_t>::max()); }
 
 void CSCALCTDigi::setHMT(const uint16_t h) { hmt_ = isRun3() ? h : std::numeric_limits<uint16_t>::max(); }
 
@@ -62,21 +62,21 @@ bool CSCALCTDigi::operator>(const CSCALCTDigi& rhs) const {
   bool returnValue = false;
 
   // Early ALCTs are always preferred to the ones found at later bx's.
-  if (getBX() < rhs.getBX()) {
+  if (bx() < rhs.bx()) {
     returnValue = true;
   }
-  if (getBX() != rhs.getBX()) {
+  if (bx() != rhs.bx()) {
     return returnValue;
   }
 
   // The > operator then checks the quality of ALCTs.
   // If two qualities are equal, the ALCT furthest from the beam axis
   // (lowest eta, highest wire group number) is selected.
-  uint16_t quality1 = getQuality();
-  uint16_t quality2 = rhs.getQuality();
+  uint16_t quality1 = quality();
+  uint16_t quality2 = rhs.quality();
   if (quality1 > quality2) {
     returnValue = true;
-  } else if (quality1 == quality2 && getKeyWG() > rhs.getKeyWG()) {
+  } else if (quality1 == quality2 && keyWireGroup() > rhs.keyWireGroup()) {
     returnValue = true;
   }
   return returnValue;
@@ -85,9 +85,9 @@ bool CSCALCTDigi::operator>(const CSCALCTDigi& rhs) const {
 bool CSCALCTDigi::operator==(const CSCALCTDigi& rhs) const {
   // Exact equality.
   bool returnValue = false;
-  if (isValid() == rhs.isValid() && getQuality() == rhs.getQuality() && getAccelerator() == rhs.getAccelerator() &&
-      getCollisionB() == rhs.getCollisionB() && getKeyWG() == rhs.getKeyWG() && getBX() == rhs.getBX() &&
-      getHMT() == rhs.getHMT()) {
+  if (isValid() == rhs.isValid() && quality() == rhs.quality() && accelerator() == rhs.accelerator() &&
+      collisionB() == rhs.collisionB() && keyWireGroup() == rhs.keyWireGroup() && bx() == rhs.bx() &&
+      hmt() == rhs.hmt()) {
     returnValue = true;
   }
   return returnValue;
@@ -104,19 +104,18 @@ bool CSCALCTDigi::operator!=(const CSCALCTDigi& rhs) const {
 /// Debug
 void CSCALCTDigi::print() const {
   if (isValid()) {
-    edm::LogVerbatim("CSCDigi") << "CSC ALCT #" << setw(1) << getTrknmb() << ": Valid = " << setw(1) << isValid()
-                                << " Quality = " << setw(2) << getQuality() << " Accel. = " << setw(1)
-                                << getAccelerator() << " PatternB = " << setw(1) << getCollisionB()
-                                << " Key wire group = " << setw(3) << getKeyWG() << " BX = " << setw(2) << getBX()
-                                << " Full BX = " << std::setw(1) << getFullBX() << " HMT = " << std::setw(1)
-                                << getHMT();
+    edm::LogVerbatim("CSCDigi") << "CSC ALCT #" << setw(1) << trackNumber() << ": Valid = " << setw(1) << isValid()
+                                << " Quality = " << setw(2) << quality() << " Accel. = " << setw(1) << accelerator()
+                                << " PatternB = " << setw(1) << collisionB() << " Key wire group = " << setw(3)
+                                << keyWireGroup() << " BX = " << setw(2) << bx() << " Full BX = " << std::setw(1)
+                                << fullBX() << " HMT = " << std::setw(1) << hmt();
   } else {
     edm::LogVerbatim("CSCDigi") << "Not a valid Anode LCT.";
   }
 }
 
 std::ostream& operator<<(std::ostream& o, const CSCALCTDigi& digi) {
-  return o << "CSC ALCT #" << digi.getTrknmb() << ": Valid = " << digi.isValid() << " Quality = " << digi.getQuality()
-           << " Accel. = " << digi.getAccelerator() << " PatternB = " << digi.getCollisionB()
-           << " Key wire group = " << digi.getKeyWG() << " BX = " << digi.getBX() << " HMT = " << digi.getHMT();
+  return o << "CSC ALCT #" << digi.trackNumber() << ": Valid = " << digi.isValid() << " Quality = " << digi.quality()
+           << " Accel. = " << digi.accelerator() << " PatternB = " << digi.collisionB()
+           << " Key wire group = " << digi.keyWireGroup() << " BX = " << digi.bx() << " HMT = " << digi.hmt();
 }

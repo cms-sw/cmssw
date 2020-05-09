@@ -44,70 +44,70 @@ public:
   void clear();
 
   /// return track number
-  uint16_t getTrknmb() const { return trknmb; }
+  uint16_t trackNumber() const { return trackNumber_; }
 
   /// return valid pattern bit
-  bool isValid() const { return valid; }
+  bool isValid() const { return valid_; }
 
   /// return the Quality
-  uint16_t getQuality() const { return quality; }
+  uint16_t quality() const { return quality_; }
 
   /// return the key wire group. counts from 0.
-  uint16_t getKeyWG() const { return keywire; }
+  uint16_t keyWireGroup() const { return keyWireGroup_; }
 
   /// return the key halfstrip from 0,159
-  uint16_t getStrip(uint16_t n = 2) const;
+  uint16_t strip(uint16_t n = 2) const;
 
   /// set single quart strip bit
   void setQuartStrip(const bool quartStrip);
 
   /// get single quart strip bit
-  bool getQuartStrip() const;
+  bool quartStrip() const;
 
   /// set single eight strip bit
   void setEightStrip(const bool eightStrip);
 
   /// get single eight strip bit
-  bool getEightStrip() const;
+  bool eightStrip() const;
 
   /// return the fractional strip. counts from 0.25
-  float getFractionalStrip(uint16_t n = 2) const;
+  float fractionalStrip(uint16_t n = 2) const;
 
   /// Legacy: return pattern ID
   /// Run-3: return the bending angle value
-  uint16_t getPattern() const { return pattern; }
+  uint16_t pattern() const { return pattern_; }
 
   /// return left/right bending
-  uint16_t getBend() const { return bend; }
+  uint16_t bend() const { return bend_; }
 
   /// return BX
-  uint16_t getBX() const { return bx; }
+  uint16_t bx() const { return bx_; }
 
   /// return CLCT pattern number (in use again Feb 2011)
   /// This function should not be used for Run-3
-  uint16_t getCLCTPattern() const;
+  uint16_t clctPattern() const;
 
   /// return strip type (obsolete since mid-2008)
-  uint16_t getStripType() const { return ((pattern & 0x8) >> 3); }
+  uint16_t stripType() const { return ((pattern_ & 0x8) >> 3); }
 
   /// return MPC link number, 0 means not sorted, 1-3 give MPC sorting rank
-  uint16_t getMPCLink() const { return mpclink; }
+  uint16_t mpcLink() const { return mpcLink_; }
 
-  uint16_t getCSCID() const { return cscID; }
-  uint16_t getBX0() const { return bx0; }
-  uint16_t getSyncErr() const { return syncErr; }
+  uint16_t cscID() const { return cscID_; }
+  uint16_t bx0() const { return bx0_; }
+  uint16_t syncErr() const { return syncErr_; }
 
   /// Run-3 introduces high-multiplicity bits for CSCs.
   /// The allocation is different for ME1/1 and non-ME1/1
   /// chambers. Both LCTs in a chamber are needed for the complete
   /// high-multiplicity trigger information
-  uint16_t getHMT() const;
+  uint16_t hmt() const;
 
   /// Set track number (1,2) after sorting LCTs.
-  void setTrknmb(const uint16_t number) { trknmb = number; }
+  void setTrknmb(const uint16_t number) { trackNumber_ = number; }
 
   /// Set mpc link number after MPC sorting
-  void setMPCLink(const uint16_t& link) { mpclink = link; }
+  void setMPCLink(const uint16_t& link) { mpcLink_ = link; }
 
   /// Print content of correlated LCT digi
   void print() const;
@@ -117,34 +117,34 @@ public:
   bool operator!=(const CSCCorrelatedLCTDigi& rhs) const { return !(this->operator==(rhs)); }
 
   /// set wiregroup number
-  void setWireGroup(const uint16_t wiregroup) { keywire = wiregroup; }
+  void setWireGroup(const uint16_t wiregroup) { keyWireGroup_ = wiregroup; }
 
   /// set quality code
-  void setQuality(const uint16_t q) { quality = q; }
+  void setQuality(const uint16_t q) { quality_ = q; }
 
   /// set valid
-  void setValid(const uint16_t v) { valid = v; }
+  void setValid(const uint16_t v) { valid_ = v; }
 
   /// set strip
-  void setStrip(const uint16_t s) { strip = s; }
+  void setStrip(const uint16_t s) { strip_ = s; }
 
   /// set pattern
-  void setPattern(const uint16_t p) { pattern = p; }
+  void setPattern(const uint16_t p) { pattern_ = p; }
 
   /// set bend
-  void setBend(const uint16_t b) { bend = b; }
+  void setBend(const uint16_t b) { bend_ = b; }
 
   /// set bx
-  void setBX(const uint16_t b) { bx = b; }
+  void setBX(const uint16_t b) { bx_ = b; }
 
   /// set bx0
-  void setBX0(const uint16_t b) { bx0 = b; }
+  void setBX0(const uint16_t b) { bx0_ = b; }
 
   /// set syncErr
-  void setSyncErr(const uint16_t s) { syncErr = s; }
+  void setSyncErr(const uint16_t s) { syncErr_ = s; }
 
   /// set cscID
-  void setCSCID(const uint16_t c) { cscID = c; }
+  void setCSCID(const uint16_t c) { cscID_ = c; }
 
   /// set high-multiplicity bits
   void setHMT(const uint16_t h);
@@ -166,7 +166,7 @@ public:
     ALCTONLY       // Missing CLCT
   };
 
-  int getType() const { return type_; }
+  int type() const { return type_; }
 
   void setType(int type) { type_ = type; }
 
@@ -185,40 +185,40 @@ private:
   // more information, please check "DN-20-016".
 
   // Run-1, Run-2 and Run-3 trknmb is either 1 or 2.
-  uint16_t trknmb;
+  uint16_t trackNumber_;
   // In Run-3, the valid will be encoded as a quality
   // value "000" or "00".
-  uint16_t valid;
+  uint16_t valid_;
   // In Run-3, the LCT quality number will be 2 or 3 bits
   // For ME1/1 chambers: 3 bits
   // For non-ME1/1 chambers: 2 bits
-  uint16_t quality;
+  uint16_t quality_;
   // 7-bit key wire
-  uint16_t keywire;
+  uint16_t keyWireGroup_;
   // In Run-3, the strip number receives two additional bits
   // strip[7:0] -> 1/2 strip value
   // strip[8]   -> 1/4 strip bit
   // strip[9]   -> 1/8 strip bit
-  uint16_t strip;
+  uint16_t strip_;
   // In Run-3, the 4-bit pattern number is reinterpreted as the
   // 4-bit bending value. There will be 16 bending values * 2 (left/right)
-  uint16_t pattern;
+  uint16_t pattern_;
   // Common definition for left/right bending in Run-1, Run-2 and Run-3.
   // 0: right; 1: left
-  uint16_t bend;
-  uint16_t bx;
-  uint16_t mpclink;
-  uint16_t bx0;
+  uint16_t bend_;
+  uint16_t bx_;
+  uint16_t mpcLink_;
+  uint16_t bx0_;
   // The synchronization bit is actually not used by MPC or EMTF
-  uint16_t syncErr;
+  uint16_t syncErr_;
   // 4-bit CSC chamber identifier
-  uint16_t cscID;
+  uint16_t cscID_;
   // In Run-3, LCT data will be carrying the high-multiplicity bits
   // for chamber. These bits may indicate the observation of "exotic" events
   // Depending on the chamber type 2 or 3 bits will be repurposed
   // in the 32-bit LCT data word from the synchronization bit and
   // quality bits.
-  uint16_t hmt;
+  uint16_t hmt_;
 
   /// SIMULATION ONLY ////
   int type_;

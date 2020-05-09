@@ -59,12 +59,12 @@ bool CSCCLCTPreTriggerDigi::operator>(const CSCCLCTPreTriggerDigi& rhs) const {
   // the latest one, used in TMB-07 firmware (w/o distrips).
   bool returnValue = false;
 
-  int quality1 = getQuality();
-  int quality2 = rhs.getQuality();
+  int quality1 = quality();
+  int quality2 = rhs.quality();
   // The bend-direction bit pid[0] is ignored (left and right bends have
   // equal quality).
-  int pattern1 = getPattern() & 14;
-  int pattern2 = rhs.getPattern() & 14;
+  int pattern1 = pattern() & 14;
+  int pattern2 = rhs.pattern() & 14;
 
   // Better-quality CLCTs are preferred.
   // If two qualities are equal, larger pattern id (i.e., straighter pattern)
@@ -73,7 +73,7 @@ bool CSCCLCTPreTriggerDigi::operator>(const CSCCLCTPreTriggerDigi& rhs) const {
   // If both qualities and pattern id's are the same, lower keystrip
   // is preferred.
   if ((quality1 > quality2) || (quality1 == quality2 && pattern1 > pattern2) ||
-      (quality1 == quality2 && pattern1 == pattern2 && getKeyStrip() < rhs.getKeyStrip())) {
+      (quality1 == quality2 && pattern1 == pattern2 && keyStrip() < rhs.keyStrip())) {
     returnValue = true;
   }
 
@@ -83,9 +83,8 @@ bool CSCCLCTPreTriggerDigi::operator>(const CSCCLCTPreTriggerDigi& rhs) const {
 bool CSCCLCTPreTriggerDigi::operator==(const CSCCLCTPreTriggerDigi& rhs) const {
   // Exact equality.
   bool returnValue = false;
-  if (isValid() == rhs.isValid() && getQuality() == rhs.getQuality() && getPattern() == rhs.getPattern() &&
-      getKeyStrip() == rhs.getKeyStrip() && getStripType() == rhs.getStripType() && getBend() == getBend() &&
-      getBX() == rhs.getBX()) {
+  if (isValid() == rhs.isValid() && quality() == rhs.quality() && pattern() == rhs.pattern() &&
+      keyStrip() == rhs.keyStrip() && stripType() == rhs.stripType() && bend() == bend() && bx() == rhs.bx()) {
     returnValue = true;
   }
   return returnValue;
@@ -102,24 +101,24 @@ bool CSCCLCTPreTriggerDigi::operator!=(const CSCCLCTPreTriggerDigi& rhs) const {
 /// Debug
 void CSCCLCTPreTriggerDigi::print() const {
   if (isValid()) {
-    char stripType = (getStripType() == 0) ? 'D' : 'H';
-    char bend = (getBend() == 0) ? 'L' : 'R';
+    char stripTypeChar = (stripType() == 0) ? 'D' : 'H';
+    char bendChar = (bend() == 0) ? 'L' : 'R';
 
-    edm::LogVerbatim("CSCDigi") << " CSC CLCT #" << std::setw(1) << getTrknmb() << ": Valid = " << std::setw(1)
-                                << isValid() << " Key Strip = " << std::setw(3) << getKeyStrip()
-                                << " Strip = " << std::setw(2) << getStrip() << " Quality = " << std::setw(1)
-                                << getQuality() << " Pattern = " << std::setw(1) << getPattern()
-                                << " Bend = " << std::setw(1) << bend << " Strip type = " << std::setw(1) << stripType
-                                << " CFEB ID = " << std::setw(1) << getCFEB() << " BX = " << std::setw(1) << getBX()
-                                << " Full BX= " << std::setw(1) << getFullBX();
+    edm::LogVerbatim("CSCDigi") << " CSC CLCT #" << std::setw(1) << trackNumber() << ": Valid = " << std::setw(1)
+                                << isValid() << " Key Strip = " << std::setw(3) << keyStrip()
+                                << " Strip = " << std::setw(2) << strip() << " Quality = " << std::setw(1) << quality()
+                                << " Pattern = " << std::setw(1) << pattern() << " Bend = " << std::setw(1) << bendChar
+                                << " Strip type = " << std::setw(1) << stripTypeChar << " CFEB ID = " << std::setw(1)
+                                << cfeb() << " BX = " << std::setw(1) << bx() << " Full BX= " << std::setw(1)
+                                << fullBX();
   } else {
     edm::LogVerbatim("CSCDigi") << "Not a valid Cathode LCT.";
   }
 }
 
 std::ostream& operator<<(std::ostream& o, const CSCCLCTPreTriggerDigi& digi) {
-  return o << "CSC CLCT #" << digi.getTrknmb() << ": Valid = " << digi.isValid() << " Quality = " << digi.getQuality()
-           << " Pattern = " << digi.getPattern() << " StripType = " << digi.getStripType()
-           << " Bend = " << digi.getBend() << " Strip = " << digi.getStrip() << " KeyStrip = " << digi.getKeyStrip()
-           << " CFEB = " << digi.getCFEB() << " BX = " << digi.getBX();
+  return o << "CSC CLCT #" << digi.trackNumber() << ": Valid = " << digi.isValid() << " Quality = " << digi.quality()
+           << " Pattern = " << digi.pattern() << " StripType = " << digi.stripType() << " Bend = " << digi.bend()
+           << " Strip = " << digi.strip() << " KeyStrip = " << digi.keyStrip() << " CFEB = " << digi.cfeb()
+           << " BX = " << digi.bx();
 }
