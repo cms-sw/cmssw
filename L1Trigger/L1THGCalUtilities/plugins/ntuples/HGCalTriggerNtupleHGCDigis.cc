@@ -199,7 +199,7 @@ void HGCalTriggerNtupleHGCDigis::fill(const edm::Event& e, const edm::EventSetup
     vector<int> hgcdigi_isadc(digi.size());
     for (int i = 0; i < digi.size(); i++) {
       hgcdigi_data[i] = digi[i].data();
-      hgcdigi_isadc[i] = (digi[i].mode() ? 0 : 1);
+      hgcdigi_isadc[i] = !digi[i].mode();
     }
     hgcdigi_data_.emplace_back(hgcdigi_data);
     hgcdigi_isadc_.emplace_back(hgcdigi_isadc);
@@ -239,7 +239,7 @@ void HGCalTriggerNtupleHGCDigis::fill(const edm::Event& e, const edm::EventSetup
     vector<int> hgcdigi_isadc(digi.size());
     for (int i = 0; i < digi.size(); i++) {
       hgcdigi_data[i] = digi[i].data();
-      hgcdigi_isadc[i] = (digi[i].mode() ? 0 : 1);
+      hgcdigi_isadc[i] = !digi[i].mode();
     }
     hgcdigi_data_.emplace_back(hgcdigi_data);
     hgcdigi_isadc_.emplace_back(hgcdigi_isadc);
@@ -280,7 +280,7 @@ void HGCalTriggerNtupleHGCDigis::fill(const edm::Event& e, const edm::EventSetup
     vector<int> bhdigi_isadc(digi.size());
     for (int i = 0; i < digi.size(); i++) {
       bhdigi_data[i] = digi[i].data();
-      bhdigi_isadc[i] = (digi[i].mode() ? 0 : 1);
+      bhdigi_isadc[i] = !digi[i].mode();
     }
     bhdigi_data_.emplace_back(bhdigi_data);
     bhdigi_isadc_.emplace_back(bhdigi_isadc);

@@ -59,7 +59,7 @@ vfe_proc = cms.PSet( ProcessorName = cms.string('HGCalVFEProcessorSums'),
                      adcnBits_sc = adcNbits_sc,
                      tdcsaturation_sc = tdcSaturation_sc,
                      linnBits = cms.uint32(16),
-                     oot_coefficients = cms.vdouble(0., 0.), # (bx-2, bx-1)
+                     oot_coefficients = cms.vdouble(0., 0.), # OOT PU subtraction coeffs for samples (bx-2, bx-1). (0,0) = no OOT PU subtraction
                      siliconCellLSB_fC =  cms.double( triggerCellLsbBeforeCompression*(2**triggerCellTruncationBits) ),
                      scintillatorCellLSB_MIP = cms.double(float(adcSaturation_sc.value())/(2**float(adcNbits_sc.value()))),
                      noiseSilicon = cms.PSet(),

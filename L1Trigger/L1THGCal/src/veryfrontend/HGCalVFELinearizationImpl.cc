@@ -15,7 +15,7 @@ HGCalVFELinearizationImpl::HGCalVFELinearizationImpl(const edm::ParameterSet& co
       tdcsaturation_sc_(conf.getParameter<double>("tdcsaturation_sc")),
       linnBits_(conf.getParameter<uint32_t>("linnBits")),
       oot_coefficients_(conf.getParameter<std::vector<double>>("oot_coefficients")) {
-  const int kOot_order = 2;
+  constexpr int kOot_order = 2;
   if (oot_coefficients_.size() != kOot_order) {
     throw cms::Exception("BadConfiguration") << "OOT subtraction needs " << kOot_order << " coefficients";
   }
@@ -28,7 +28,9 @@ HGCalVFELinearizationImpl::HGCalVFELinearizationImpl(const edm::ParameterSet& co
 
 void HGCalVFELinearizationImpl::linearize(const std::vector<HGCDataFrame<DetId, HGCSample>>& dataframes,
                                           std::vector<std::pair<DetId, uint32_t>>& linearized_dataframes) {
-  const int kIntimeSample = 2;
+  constexpr int kIntimeSample = 2;
+  constexpr int kOuttime1Sample = 1;  // in time - 1;
+  constexpr int kOuttime2Sample = 0;  // in time - 2;
 
   for (const auto& frame : dataframes) {  //loop on DIGI
     double amplitude = 0.;
@@ -48,10 +50,10 @@ void HGCalVFELinearizationImpl::linearize(const std::vector<HGCDataFrame<DetId, 
       } else {  //ADC mode
         double data = frame[kIntimeSample].data();
         // applies OOT PU subtraction only in the ADC mode
-        if (!frame[kIntimeSample - 1].mode()) {
-          data += oot_coefficients_[kIntimeSample - 1] * frame[kIntimeSample - 1].data();
-          if (!frame[kIntimeSample - 2].mode()) {
-            data += oot_coefficients_[kIntimeSample - 2] * frame[kIntimeSample - 2].data();
+        if (!frame[kOuttime1Sample].mode()) {
+          data += oot_coefficients_[kOuttime1Sample] * frame[kOuttime1Sample].data();
+          if (!frame[kOuttime2Sample].mode()) {
+            data += oot_coefficients_[kOuttime2Sample] * frame[kOuttime2Sample].data();
           }
         }
         amplitude = std::max(0., data) * adcLSB;
