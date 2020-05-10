@@ -3145,8 +3145,7 @@ void CSCValidation::doTimeMonitoring(edm::Handle<CSCRecHit2DCollection> recHits,
       if ((*digiIt).isValid()) {
         n_alcts++;
         histos->fill1DHist((*digiIt).bx(), "ALCT_bx", "ALCT.bx()", 11, -0.5, 10.5, "TimeMonitoring");
-        histos->fill1DHist(
-            (*digiIt).fullBX(), "ALCT_fullBX", "ALCT.fullBX()", 3601, -0.5, 3600.5, "TimeMonitoring");
+        histos->fill1DHist((*digiIt).fullBX(), "ALCT_fullBX", "ALCT.fullBX()", 3601, -0.5, 3600.5, "TimeMonitoring");
         //if we don't already have digi information stored for this chamber, then we fill it
         if (ALCT_KeyWG_map.find(idALCT.chamberId()) == ALCT_KeyWG_map.end()) {
           ALCT_KeyWG_map[idALCT.chamberId()] = (*digiIt).keyWireGroup();
@@ -3169,8 +3168,7 @@ void CSCValidation::doTimeMonitoring(edm::Handle<CSCRecHit2DCollection> recHits,
       if ((*digiIt).isValid()) {
         n_clcts++;
         histos->fill1DHist((*digiIt).bx(), "CLCT_getBX", "CLCT.getBX()", 11, -0.5, 10.5, "TimeMonitoring");
-        histos->fill1DHist(
-            (*digiIt).fullBX(), "CLCT_fullBX", "CLCT.fullBX()", 3601, -0.5, 3600.5, "TimeMonitoring");
+        histos->fill1DHist((*digiIt).fullBX(), "CLCT_fullBX", "CLCT.fullBX()", 3601, -0.5, 3600.5, "TimeMonitoring");
         //if we don't already have digi information stored for this chamber, then we fill it
         if (CLCT_getFullBx_map.find(idCLCT.chamberId()) == CLCT_getFullBx_map.end()) {
           CLCT_getFullBx_map[idCLCT.chamberId()] = (*digiIt).fullBX();

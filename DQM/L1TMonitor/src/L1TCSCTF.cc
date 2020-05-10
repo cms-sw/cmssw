@@ -1022,8 +1022,8 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c) {
 
         gblphidat gblPhi;
         try {
-          gblPhi =
-              srLUTs_[fpga][EndCapLUT][sector]->globalPhiME(lclPhi.phi_local, lct->keyWireGroup(), cscId + 1, gangedME11a_);
+          gblPhi = srLUTs_[fpga][EndCapLUT][sector]->globalPhiME(
+              lclPhi.phi_local, lct->keyWireGroup(), cscId + 1, gangedME11a_);
         } catch (cms::Exception&) {
           bzero(&gblPhi, sizeof(gblPhi));
         }

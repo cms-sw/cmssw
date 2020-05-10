@@ -284,8 +284,7 @@ void L1Analysis::L1AnalysisCSCTF::SetLCTs(const edm::Handle<CSCCorrelatedLCTDigi
 */
       try {
         csctf_.lctstripNum.push_back(lct->strip());
-        lclPhi =
-            srLUTs_[FPGALct][endcap]->localPhi(lct->strip(), lct->pattern(), lct->quality(), lct->bend());
+        lclPhi = srLUTs_[FPGALct][endcap]->localPhi(lct->strip(), lct->pattern(), lct->quality(), lct->bend());
 
         csctf_.lctlocalPhi.push_back(lclPhi.phi_local);
         //csctf_.lctlocalPhi_bend.push_back(lclPhi.phi_bend_local);
@@ -324,8 +323,8 @@ void L1Analysis::L1AnalysisCSCTF::SetLCTs(const edm::Handle<CSCCorrelatedLCTDigi
       gbletadat gblEta;
 
       try {
-        gblEta =
-            srLUTs_[FPGALct][endcap]->globalEtaME(lclPhi.phi_bend_local, lclPhi.phi_local, lct->keyWireGroup(), CscIdLct);
+        gblEta = srLUTs_[FPGALct][endcap]->globalEtaME(
+            lclPhi.phi_bend_local, lclPhi.phi_local, lct->keyWireGroup(), CscIdLct);
         //std::cout <<"gblEta: lclPhi.phi_bend_local = " << lclPhi.phi_bend_local << std::endl;
         csctf_.lctglobalEta.push_back(gblEta.global_eta);
         csctf_.lctCLCT_pattern.push_back(gblEta.global_bend);
@@ -367,8 +366,8 @@ void L1Analysis::L1AnalysisCSCTF::SetDTStubs(const edm::Handle<CSCTriggerContain
   //iterate through DT Stubs
   for (std::vector<csctf::TrackStub>::const_iterator stub = vstubs.begin(); stub != vstubs.end(); stub++) {
     csctf_.dtBXN.push_back(stub->bx());
-    csctf_.dtFLAG.push_back(stub->strip());  //strip() is actually the "FLAG" bit
-    csctf_.dtCAL.push_back(stub->keyWireGroup());   //keyWireGroup() is actually the "CAL" bit
+    csctf_.dtFLAG.push_back(stub->strip());        //strip() is actually the "FLAG" bit
+    csctf_.dtCAL.push_back(stub->keyWireGroup());  //keyWireGroup() is actually the "CAL" bit
 
     csctf_.dtSector.push_back(6 * (stub->endcap() - 1) + stub->sector());
     csctf_.dtSubSector.push_back(stub->subsector());

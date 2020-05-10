@@ -204,7 +204,8 @@ int CSCTMBData::UnpackTMB(const uint16_t* buf) {
   int currentPosition = theTMBHeader.sizeInWords();
   int theFirmwareVersion = theTMBHeader.FirmwareVersion();
 
-  theComparatorData = CSCComparatorData(theTMBHeader.NCFEBs(), theTMBHeader.NTBins(), buf + e0bLine + 1, theFirmwareVersion);
+  theComparatorData =
+      CSCComparatorData(theTMBHeader.NCFEBs(), theTMBHeader.NTBins(), buf + e0bLine + 1, theFirmwareVersion);
 
   if (!theComparatorData.check()) {
     LogTrace("CSCTMBData|CSCRawToDigi") << "+++ CSCTMBData warning: Bad CLCT data";

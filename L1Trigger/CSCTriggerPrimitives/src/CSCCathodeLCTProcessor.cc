@@ -1221,7 +1221,6 @@ CSCCLCTDigi CSCCathodeLCTProcessor::getBestCLCT(int bx) const {
   return lct;
 }
 
-
 CSCCLCTDigi CSCCathodeLCTProcessor::getSecondCLCT(int bx) const {
   CSCCLCTDigi lct = CLCTContainer_[bx][1];
   lct.setBX(lct.bx() + alctClctOffset_);

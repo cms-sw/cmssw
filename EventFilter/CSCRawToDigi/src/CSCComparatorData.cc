@@ -13,7 +13,8 @@ bool CSCComparatorData::debug = false;
 std::atomic<bool> CSCComparatorData::debug{false};
 #endif
 
-CSCComparatorData::CSCComparatorData(const CSCTMBHeader* tmbHeader) : ncfebs_(tmbHeader->NCFEBs()), ntbins_(tmbHeader->NTBins()) {
+CSCComparatorData::CSCComparatorData(const CSCTMBHeader* tmbHeader)
+    : ncfebs_(tmbHeader->NCFEBs()), ntbins_(tmbHeader->NTBins()) {
   if (tmbHeader != nullptr)
     theFirmwareVersion = tmbHeader->FirmwareVersion();
   else
@@ -147,7 +148,7 @@ std::vector<CSCComparatorDigi> CSCComparatorData::comparatorDigis(uint32_t idlay
 
       if (debug)
         LogTrace("CSCComparatorData|CSCRawToDigi") << "fillComparatorOutputs: cfeb_corr = " << cfeb_corr
-                                             << " distrip_corr = " << distrip_corr << " strip = " << strip;
+                                                   << " distrip_corr = " << distrip_corr << " strip = " << strip;
 
       if (doStripSwapping && ((me1a && zplus) || (me1b && !zplus))) {
         // Half-strips need to be flipped too.
