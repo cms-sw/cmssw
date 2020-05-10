@@ -1,4 +1,4 @@
-#include "Geometry/MTDNumberingBuilder/plugins/DDDCmsMTDConstruction.h"
+#include "Geometry/MTDNumberingBuilder/plugins/DDCmsMTDConstruction.h"
 
 #include <utility>
 #include <sstream>
@@ -9,7 +9,7 @@
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
 #include "Geometry/MTDNumberingBuilder/interface/GeometricTimingDet.h"
-#include "Geometry/MTDNumberingBuilder/plugins/ExtractStringFromDDD.h"
+#include "Geometry/MTDNumberingBuilder/plugins/ExtractStringFromDD.h"
 #include "Geometry/MTDNumberingBuilder/plugins/CmsMTDConstruction.h"
 
 #include "DataFormats/ForwardDetId/interface/BTLDetId.h"
@@ -39,7 +39,7 @@ private:
   std::vector<std::string> veto_;
 };
 
-std::unique_ptr<GeometricTimingDet> DDDCmsMTDConstruction::construct(const DDCompactView& cpv) {
+std::unique_ptr<GeometricTimingDet> DDCmsMTDConstruction::construct(const DDCompactView& cpv) {
   std::string attribute{"CMSCutsRegion"};
   DDNameFilter filter;
   filter.add("mtd:");
@@ -69,13 +69,13 @@ std::unique_ptr<GeometricTimingDet> DDDCmsMTDConstruction::construct(const DDCom
 
   CmsMTDStringToEnum theCmsMTDStringToEnum;
 
-  auto check_root = theCmsMTDStringToEnum.type(ExtractStringFromDDD<DDFilteredView>::getString(attribute, &fv));
+  auto check_root = theCmsMTDStringToEnum.type(ExtractStringFromDD<DDFilteredView>::getString(attribute, &fv));
   if (check_root != GeometricTimingDet::MTD) {
     fv.firstChild();
-    auto check_child = theCmsMTDStringToEnum.type(ExtractStringFromDDD<DDFilteredView>::getString(attribute, &fv));
+    auto check_child = theCmsMTDStringToEnum.type(ExtractStringFromDD<DDFilteredView>::getString(attribute, &fv));
     if (check_child != GeometricTimingDet::MTD) {
       throw cms::Exception("Configuration") << " The first child of the DDFilteredView is not what is expected \n"
-                                            << ExtractStringFromDDD<DDFilteredView>::getString(attribute, &fv) << "\n";
+                                            << ExtractStringFromDD<DDFilteredView>::getString(attribute, &fv) << "\n";
     }
     fv.parent();
   }
@@ -205,7 +205,7 @@ std::unique_ptr<GeometricTimingDet> DDDCmsMTDConstruction::construct(const DDCom
   return mtd;
 }
 
-std::unique_ptr<GeometricTimingDet> DDDCmsMTDConstruction::construct(const cms::DDCompactView& cpv) {
+std::unique_ptr<GeometricTimingDet> DDCmsMTDConstruction::construct(const cms::DDCompactView& cpv) {
   cms::DDFilteredView fv(cpv.detector(), cpv.detector()->worldVolume());
 
   fv.next(0);
@@ -214,7 +214,7 @@ std::unique_ptr<GeometricTimingDet> DDDCmsMTDConstruction::construct(const cms::
 
   cms::DDSpecParRefs ref;
   const cms::DDSpecParRegistry& mypar = cpv.specpars();
-  std::string attribute("MtdDDDStructure");
+  std::string attribute("MtdDDStructure");
   mypar.filter(ref, attribute, "BarrelTimingLayer");
   mypar.filter(ref, attribute, "EndcapTimingLayer");
   fv.mergedSpecifics(ref);

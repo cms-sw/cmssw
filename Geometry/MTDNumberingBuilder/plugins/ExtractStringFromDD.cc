@@ -1,4 +1,4 @@
-#include "Geometry/MTDNumberingBuilder/plugins/ExtractStringFromDDD.h"
+#include "Geometry/MTDNumberingBuilder/plugins/ExtractStringFromDD.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -6,7 +6,7 @@
 #include <string>
 
 template <>
-std::string ExtractStringFromDDD<DDFilteredView>::getString(const std::string &s, DDFilteredView *fv) {
+std::string ExtractStringFromDD<DDFilteredView>::getString(const std::string &s, DDFilteredView *fv) {
   DDValue val(s);
   std::vector<const DDsvalues_type *> result;
   fv->specificsV(result);
@@ -28,7 +28,7 @@ std::string ExtractStringFromDDD<DDFilteredView>::getString(const std::string &s
 }
 
 template <>
-std::string ExtractStringFromDDD<cms::DDFilteredView>::getString(const std::string &s, cms::DDFilteredView *fv) {
+std::string ExtractStringFromDD<cms::DDFilteredView>::getString(const std::string &s, cms::DDFilteredView *fv) {
   auto result = fv->getString(s);
   return {result.data(), result.size()};
 }

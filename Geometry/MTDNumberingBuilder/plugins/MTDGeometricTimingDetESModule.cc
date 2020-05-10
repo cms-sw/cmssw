@@ -1,4 +1,4 @@
-#include "Geometry/MTDNumberingBuilder/plugins/DDDCmsMTDConstruction.h"
+#include "Geometry/MTDNumberingBuilder/plugins/DDCmsMTDConstruction.h"
 #include "Geometry/MTDNumberingBuilder/plugins/CondDBCmsMTDConstruction.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
@@ -65,10 +65,10 @@ void MTDGeometricTimingDetESModule::fillDescriptions(edm::ConfigurationDescripti
 std::unique_ptr<GeometricTimingDet> MTDGeometricTimingDetESModule::produce(const IdealGeometryRecord& iRecord) {
   if (fromDDD_) {
     edm::ESTransientHandle<DDCompactView> cpv = iRecord.getTransientHandle(ddCompactToken_);
-    return DDDCmsMTDConstruction::construct((*cpv));
+    return DDCmsMTDConstruction::construct((*cpv));
   } else if (fromDD4hep_) {
     edm::ESTransientHandle<cms::DDCompactView> cpv = iRecord.getTransientHandle(dd4hepToken_);
-    return DDDCmsMTDConstruction::construct((*cpv));
+    return DDCmsMTDConstruction::construct((*cpv));
   } else {
     PGeometricTimingDet const& pgd = iRecord.get(pGTDetToken_);
     return CondDBCmsMTDConstruction::construct(pgd);

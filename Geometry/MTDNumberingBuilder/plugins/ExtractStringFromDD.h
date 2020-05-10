@@ -1,5 +1,5 @@
-#ifndef Geometry_MTDNumberingBuilder_ExtractStringFromDDD_H
-#define Geometry_MTDNumberingBuilder_ExtractStringFromDDD_H
+#ifndef Geometry_MTDNumberingBuilder_ExtractStringFromDD_H
+#define Geometry_MTDNumberingBuilder_ExtractStringFromDD_H
 
 #include "FWCore/ParameterSet/interface/types.h"
 #include <string>
@@ -9,7 +9,7 @@
  * first one and complains if more than 1 is found.
  */
 template <class FilteredView>
-class ExtractStringFromDDD {
+class ExtractStringFromDD {
 public:
   static std::string getString(const std::string &, FilteredView *);
 };

@@ -64,7 +64,7 @@ public:
   } GeometricTimingEnumType;
 
   /**
-   * Constructors to be used when looping over DDD
+   * Constructors to be used when looping over DD
    */
   GeometricTimingDet(DDFilteredView* fv, GeometricTimingEnumType dd);
   GeometricTimingDet(cms::DDFilteredView* fv, GeometricTimingEnumType dd);
