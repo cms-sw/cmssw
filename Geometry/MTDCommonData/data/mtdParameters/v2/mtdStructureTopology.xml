@@ -8,14 +8,14 @@
    <PartSelector path="//BModule1Layer1.*ZTimingwafer"/>
    <PartSelector path="//BModule17Layer1.*ZTimingwafer"/>
    <PartSelector path="//BModule33Layer1.*ZTimingwafer"/>
-   <Parameter name="MtdDDDStructure" value="BarrelTimingLayer"/>
+   <Parameter name="MtdDDStructure" value="BarrelTimingLayer"/>
 </SpecPar>
 <SpecPar name="etlStructure">
    <PartSelector path="//EndcapTimingLayer"/>
    <PartSelector path="//Disc1Timing"/>
    <PartSelector path="//Disc2Timing"/>
    <PartSelector path="//EModule_Timingactive"/>
-   <Parameter name="MtdDDDStructure" value="EndcapTimingLayer"/>
+   <Parameter name="MtdDDStructure" value="EndcapTimingLayer"/>
 </SpecPar>
 
 <SpecPar name="mtdNumbering">

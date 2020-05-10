@@ -1,5 +1,5 @@
-#ifndef Geometry_MTDNumberingBuilder_DDDCmsMTDConstruction_H
-#define Geometry_MTDNumberingBuilder_DDDCmsMTDConstruction_H
+#ifndef Geometry_MTDNumberingBuilder_DDCmsMTDConstruction_H
+#define Geometry_MTDNumberingBuilder_DDCmsMTDConstruction_H
 
 #include "Geometry/MTDNumberingBuilder/interface/CmsMTDStringToEnum.h"
 #include "FWCore/ParameterSet/interface/types.h"
@@ -19,9 +19,9 @@ namespace cms {
  * then call subdet builders
  */
 
-class DDDCmsMTDConstruction {
+class DDCmsMTDConstruction {
 public:
-  DDDCmsMTDConstruction() = delete;
+  DDCmsMTDConstruction() = delete;
   static std::unique_ptr<GeometricTimingDet> construct(const DDCompactView& cpv);
   static std::unique_ptr<GeometricTimingDet> construct(const cms::DDCompactView& cpv);
 

@@ -1,7 +1,7 @@
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "Geometry/MTDNumberingBuilder/plugins/CmsMTDConstruction.h"
-#include "Geometry/MTDNumberingBuilder/plugins/ExtractStringFromDDD.h"
+#include "Geometry/MTDNumberingBuilder/plugins/ExtractStringFromDD.h"
 
 #include "DataFormats/ForwardDetId/interface/BTLDetId.h"
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"
