@@ -1363,6 +1363,7 @@ def _appendTrackingPlots(lastDirName, name, algoPlots, onlyForPileup=False, only
         plotter.appendTable(summaryName, folders, TrackingSummaryTable(section="ak4PFJets", collection=TrackingSummaryTable.AK4PFJets))
 _appendTrackingPlots("Track", "", _simBasedPlots+_recoBasedPlots)
 _appendTrackingPlots("TrackTPPtLess09", "tpPtLess09", _simBasedPlots)
+_appendTrackingPlots("TrackTPEtaGreater2p7", "tpEtaGreater2p7", _simBasedPlots)
 _appendTrackingPlots("TrackAllTPEffic", "allTPEffic", _simBasedPlots, onlyForPileup=True)
 _appendTrackingPlots("TrackFromPV", "fromPV", _simBasedPlots+_recoBasedPlots, onlyForPileup=True)
 _appendTrackingPlots("TrackFromPVAllTP", "fromPVAllTP", _simBasedPlots+_recoBasedPlots, onlyForPileup=True)
