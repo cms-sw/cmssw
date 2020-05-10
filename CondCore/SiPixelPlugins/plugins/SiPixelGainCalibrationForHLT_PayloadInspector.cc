@@ -16,6 +16,20 @@ namespace {
       gainCalibHelper::SiPixelGainCalibrationValues<gainCalibHelper::gainCalibPI::t_pedestal,
                                                     SiPixelGainCalibrationForHLT>;
 
+  using SiPixelGainCalibrationForHLTGainsValuesBarrel = gainCalibHelper::
+      SiPixelGainCalibrationValuesPerRegion<true, gainCalibHelper::gainCalibPI::t_gain, SiPixelGainCalibrationForHLT>;
+  using SiPixelGainCalibrationForHLTGainsValuesEndcap = gainCalibHelper::
+      SiPixelGainCalibrationValuesPerRegion<false, gainCalibHelper::gainCalibPI::t_gain, SiPixelGainCalibrationForHLT>;
+
+  using SiPixelGainCalibrationForHLTPedestalsValuesBarrel =
+      gainCalibHelper::SiPixelGainCalibrationValuesPerRegion<true,
+                                                             gainCalibHelper::gainCalibPI::t_pedestal,
+                                                             SiPixelGainCalibrationForHLT>;
+  using SiPixelGainCalibrationForHLTPedestalsValuesEndcap =
+      gainCalibHelper::SiPixelGainCalibrationValuesPerRegion<false,
+                                                             gainCalibHelper::gainCalibPI::t_pedestal,
+                                                             SiPixelGainCalibrationForHLT>;
+
   using SiPixelGainCalibrationForHLTCorrelations =
       gainCalibHelper::SiPixelGainCalibrationCorrelations<SiPixelGainCalibrationForHLT>;
 
@@ -71,6 +85,10 @@ namespace {
 PAYLOAD_INSPECTOR_MODULE(SiPixelGainCalibrationForHLT) {
   PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibrationForHLTGainsValues);
   PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibrationForHLTPedestalsValues);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibrationForHLTGainsValuesBarrel);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibrationForHLTGainsValuesEndcap);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibrationForHLTPedestalsValuesBarrel);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibrationForHLTPedestalsValuesEndcap);
   PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibrationForHLTCorrelations);
   PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibrationForHLTGainsByPart);
   PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibrationForHLTPedestalsByPart);

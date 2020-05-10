@@ -10,6 +10,7 @@
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationOffline.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationForHLT.h"
+#include "CondCore/SiPixelPlugins/interface/PixelRegionContainers.h"
 
 #include <type_traits>
 #include <memory>
@@ -40,9 +41,14 @@ namespace gainCalibHelper {
     template <typename PayloadType>
     static void fillTheHisto(const std::shared_ptr<PayloadType>& payload,
                              std::shared_ptr<TH1F> h1,
-                             gainCalibPI::type theType) {
+                             gainCalibPI::type theType,
+                             const std::vector<uint32_t>& wantedIds = {}) {
       std::vector<uint32_t> detids;
-      payload->getDetIds(detids);
+      if (wantedIds.empty()) {
+        payload->getDetIds(detids);
+      } else {
+        detids.assign(wantedIds.begin(), wantedIds.end());
+      }
 
       for (const auto& d : detids) {
         auto range = payload->getRange(d);
@@ -281,6 +287,143 @@ namespace gainCalibHelper {
       ltx.DrawLatexNDC(gPad->GetLeftMargin() + 0.1,
                        1 - gPad->GetTopMargin() + 0.01,
                        ("SiPixel Gain Calibration IOV:" + std::to_string(std::get<0>(iov))).c_str());
+
+      std::string fileName(this->m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }
+
+  protected:
+    bool isForHLT_;
+    std::string label_;
+  };
+
+  /*******************************************************************
+    1d histograms per region of SiPixelGainCalibration for Gains of 1 IOV
+  ********************************************************************/
+  template <bool isBarrel, gainCalibPI::type myType, class PayloadType>
+  class SiPixelGainCalibrationValuesPerRegion : public cond::payloadInspector::PlotImage<PayloadType> {
+  public:
+    SiPixelGainCalibrationValuesPerRegion()
+        : cond::payloadInspector::PlotImage<PayloadType>(
+              Form("SiPixelGainCalibration %s Values Per Region", TypeName[myType])) {
+      this->setSingleIov(true);
+      if constexpr (std::is_same_v<PayloadType, SiPixelGainCalibrationOffline>) {
+        isForHLT_ = false;
+        label_ = "SiPixelGainCalibrationOffline_PayloadInspector";
+      } else {
+        isForHLT_ = true;
+        label_ = "SiPixelGainCalibrationForHLT_PayloadInspector";
+      }
+    }
+
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
+      gStyle->SetOptStat("emr");
+
+      auto iov = iovs.front();
+      std::shared_ptr<PayloadType> payload = this->fetchPayload(std::get<1>(iov));
+
+      std::vector<uint32_t> detids;
+      payload->getDetIds(detids);
+
+      float minimum(9999.);
+      float maximum(-9999.);
+
+      switch (myType) {
+        case gainCalibPI::t_gain:
+          maximum = payload->getGainHigh();
+          minimum = payload->getGainLow();
+          break;
+        case gainCalibPI::t_pedestal:
+          maximum = payload->getPedHigh();
+          minimum = payload->getPedLow();
+          break;
+        default:
+          edm::LogError(label_) << "Unrecognized type " << myType << std::endl;
+          break;
+      }
+
+      TCanvas canvas("Canv", "Canv", isBarrel ? 1400 : 1800, 1200);
+      canvas.Divide(isBarrel ? 2 : 4, isBarrel ? 2 : 3);
+      canvas.cd();
+
+      const char* path_toTopologyXML = (detids.size() == SiPixelPI::phase0size)
+                                           ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
+                                           : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      TrackerTopology tTopo =
+          StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
+
+      auto myPlots = PixelRegions::PixelRegionContainers(&tTopo, (detids.size() == SiPixelPI::phase1size));
+      myPlots.bookAll(Form("SiPixel Gain Calibration %s - %s", (isForHLT_ ? "ForHLT" : "Offline"), TypeName[myType]),
+                      Form("per %s %s", (isForHLT_ ? "Column" : "Pixel"), TypeName[myType]),
+                      Form("# %ss", (isForHLT_ ? "column" : "pixel")),
+                      200,
+                      minimum,
+                      maximum);
+
+      canvas.Modified();
+
+      // fill the histograms
+      for (const auto& pixelId : PixelRegions::PixelIDs) {
+        auto wantedDets = PixelRegions::attachedDets(pixelId, &tTopo, (detids.size() == SiPixelPI::phase1size));
+        gainCalibPI::fillTheHisto(payload, myPlots.getHistoFromMap(pixelId), myType, wantedDets);
+      }
+
+      myPlots.beautify();
+      myPlots.draw(canvas, isBarrel);
+
+      /*
+      canvas.cd()->SetLogy();
+      h1->SetTitle("");
+      h1->GetYaxis()->SetRangeUser(0.1, h1->GetMaximum() * 10.);
+      h1->SetFillColor(kBlue);
+      h1->SetMarkerStyle(20);
+      h1->SetMarkerSize(1);
+      h1->Draw("bar2");
+
+      SiPixelPI::makeNicePlotStyle(h1.get());
+      h1->SetStats(true);
+
+      canvas.Update();
+      */
+
+      TLegend legend = TLegend(0.40, 0.88, 0.94, 0.93);
+      legend.SetHeader(("Payload hash: #bf{" + (std::get<1>(iov)) + "}").c_str(),
+                       "C");  // option "C" allows to center the header
+      //legend.AddEntry(h1.get(), ("IOV: " + std::to_string(std::get<0>(iov))).c_str(), "PL");
+      legend.SetLineColor(10);
+      legend.SetTextSize(0.025);
+      legend.Draw("same");
+
+      unsigned int maxPads = isBarrel ? 4 : 12;
+      for (unsigned int c = 1; c <= maxPads; c++) {
+        canvas.cd(c);
+        SiPixelPI::adjustCanvasMargins(canvas.cd(c), 0.07, 0.12, 0.12, 0.05);
+        legend.Draw("same");
+        canvas.cd(c)->Update();
+      }
+
+      myPlots.stats();
+
+      /*
+      TPaveStats* st = (TPaveStats*)h1->FindObject("stats");
+      st->SetTextSize(0.03);
+      SiPixelPI::adjustStats(st, 0.15, 0.83, 0.39, 0.93);
+      */
+
+      auto ltx = TLatex();
+      ltx.SetTextFont(62);
+      ltx.SetTextSize(0.05);
+      ltx.SetTextAlign(11);
+
+      for (unsigned int c = 1; c <= maxPads; c++) {
+        auto index = isBarrel ? c - 1 : c + 3;
+        canvas.cd(c);
+        ltx.DrawLatexNDC(gPad->GetLeftMargin() + 0.1,
+                         1 - gPad->GetTopMargin() + 0.01,
+                         (PixelRegions::IDlabels.at(index) + ", IOV:" + std::to_string(std::get<0>(iov))).c_str());
+      }
 
       std::string fileName(this->m_imageFileName);
       canvas.SaveAs(fileName.c_str());
