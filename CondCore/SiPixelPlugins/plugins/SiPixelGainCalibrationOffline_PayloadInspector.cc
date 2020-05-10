@@ -17,6 +17,20 @@ namespace {
       gainCalibHelper::SiPixelGainCalibrationValues<gainCalibHelper::gainCalibPI::t_pedestal,
                                                     SiPixelGainCalibrationOffline>;
 
+  using SiPixelGainCalibrationOfflineGainsValuesBarrel = gainCalibHelper::
+      SiPixelGainCalibrationValuesPerRegion<true, gainCalibHelper::gainCalibPI::t_gain, SiPixelGainCalibrationOffline>;
+  using SiPixelGainCalibrationOfflineGainsValuesEndcap = gainCalibHelper::
+      SiPixelGainCalibrationValuesPerRegion<false, gainCalibHelper::gainCalibPI::t_gain, SiPixelGainCalibrationOffline>;
+
+  using SiPixelGainCalibrationOfflinePedestalsValuesBarrel =
+      gainCalibHelper::SiPixelGainCalibrationValuesPerRegion<true,
+                                                             gainCalibHelper::gainCalibPI::t_pedestal,
+                                                             SiPixelGainCalibrationOffline>;
+  using SiPixelGainCalibrationOfflinePedestalsValuesEndcap =
+      gainCalibHelper::SiPixelGainCalibrationValuesPerRegion<false,
+                                                             gainCalibHelper::gainCalibPI::t_pedestal,
+                                                             SiPixelGainCalibrationOffline>;
+
   using SiPixelGainCalibrationOfflineCorrelations =
       gainCalibHelper::SiPixelGainCalibrationCorrelations<SiPixelGainCalibrationOffline>;
 
@@ -74,6 +88,10 @@ namespace {
 PAYLOAD_INSPECTOR_MODULE(SiPixelGainCalibrationOffline) {
   PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibrationOfflineGainsValues);
   PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibrationOfflinePedestalsValues);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibrationOfflineGainsValuesBarrel);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibrationOfflineGainsValuesEndcap);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibrationOfflinePedestalsValuesBarrel);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibrationOfflinePedestalsValuesEndcap);
   PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibrationOfflineCorrelations);
   PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibrationOfflineGainsByPart);
   PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibrationOfflinePedestalsByPart);
