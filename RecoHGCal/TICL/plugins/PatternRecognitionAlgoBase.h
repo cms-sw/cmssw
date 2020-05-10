@@ -21,7 +21,7 @@ namespace edm {
 }  // namespace edm
 
 namespace ticl {
-  template <typename TILE>
+  template <typename TILES>
   class PatternRecognitionAlgoBaseT {
   public:
     PatternRecognitionAlgoBaseT (const edm::ParameterSet& conf, const CacheBase* cache)
@@ -34,7 +34,7 @@ namespace ticl {
       const std::vector<reco::CaloCluster>& layerClusters;
       const std::vector<float>& mask;
       const edm::ValueMap<std::pair<float, float>>& layerClustersTime;
-      const TILE& tiles;
+      const TILES& tiles;
       const std::vector<TICLSeedingRegion>& regions;
 
       Inputs(const edm::Event& eV,
@@ -42,7 +42,7 @@ namespace ticl {
              const std::vector<reco::CaloCluster>& lC,
              const std::vector<float>& mS,
              const edm::ValueMap<std::pair<float, float>>& lT,
-             const TILE& tL,
+             const TILES& tL,
              const std::vector<TICLSeedingRegion>& rG)
           : ev(eV), es(eS), layerClusters(lC), mask(mS), layerClustersTime(lT), tiles(tL), regions(rG) {}
     };

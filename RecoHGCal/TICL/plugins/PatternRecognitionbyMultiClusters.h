@@ -14,15 +14,15 @@ namespace edm {
 }  // namespace edm
 
 namespace ticl {
-  template <typename TILE>
-  class PatternRecognitionbyMultiClusters final : public PatternRecognitionAlgoBaseT<TILE> {
+  template <typename TILES>
+  class PatternRecognitionbyMultiClusters final : public PatternRecognitionAlgoBaseT<TILES> {
 
   public:
     PatternRecognitionbyMultiClusters(const edm::ParameterSet& conf, const CacheBase* cache)
-        : PatternRecognitionAlgoBaseT<TILE>(conf, cache) {}
+        : PatternRecognitionAlgoBaseT<TILES>(conf, cache) {}
     ~PatternRecognitionbyMultiClusters() override{};
 
-    void makeTracksters(const typename PatternRecognitionAlgoBaseT<TILE>::Inputs& input,
+    void makeTracksters(const typename PatternRecognitionAlgoBaseT<TILES>::Inputs& input,
                         std::vector<Trackster>& result,
                         std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation) override;
   };
