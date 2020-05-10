@@ -68,5 +68,6 @@ hgcalBackEndLayer1Producer = cms.EDProducer(
     ProcessorParameters = be_proc.clone()
     )
 
-hgcalBackEndLayer1ProducerHFNose = hgcalBackEndLayer1Producer.clone()
-hgcalBackEndLayer1ProducerHFNose.InputTriggerCells = cms.InputTag('hgcalConcentratorProducerHFNose:HGCalConcentratorProcessorSelection')
+hgcalBackEndLayer1ProducerHFNose = hgcalBackEndLayer1Producer.clone(
+    InputTriggerCells = cms.InputTag('hgcalConcentratorProducerHFNose:HGCalConcentratorProcessorSelection')
+)

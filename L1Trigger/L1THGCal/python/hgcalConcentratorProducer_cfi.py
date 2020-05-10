@@ -163,7 +163,8 @@ hgcalConcentratorProducer = cms.EDProducer(
     )
 
 
-hgcalConcentratorProducerHFNose = hgcalConcentratorProducer.clone()
-hgcalConcentratorProducerHFNose.InputTriggerCells = cms.InputTag('hfnoseVFEProducer:HGCalVFEProcessorSums')
-hgcalConcentratorProducerHFNose.InputTriggerSums = cms.InputTag('hfnoseVFEProducer:HGCalVFEProcessorSums')
+hgcalConcentratorProducerHFNose = hgcalConcentratorProducer.clone(
+    InputTriggerCells = cms.InputTag('hfnoseVFEProducer:HGCalVFEProcessorSums'),
+    InputTriggerSums = cms.InputTag('hfnoseVFEProducer:HGCalVFEProcessorSums')
+)
 

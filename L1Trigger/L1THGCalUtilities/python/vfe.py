@@ -8,11 +8,12 @@ def create_compression(process,
        rounding=vfe_proc.rounding,
        oot_coefficients=vfe_proc.oot_coefficients
         ):
-    producer = process.hgcalVFEProducer.clone() 
-    producer.ProcessorParameters = vfe_proc.clone(
+    producer = process.hgcalVFEProducer.clone(
+        ProcessorParameters = vfe_proc.clone(
             exponentBits = exponent,
             mantissaBits = mantissa,
             rounding = rounding,
             oot_coefficients = oot_coefficients
-            )
+        )
+    )
     return producer

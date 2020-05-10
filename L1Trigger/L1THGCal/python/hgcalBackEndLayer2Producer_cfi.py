@@ -169,15 +169,17 @@ hgcalBackEndLayer2Producer = cms.EDProducer(
     )
 
 
-hgcalBackEndLayer2ProducerHFNose = hgcalBackEndLayer2Producer.clone()
-hgcalBackEndLayer2ProducerHFNose.InputCluster = cms.InputTag('hgcalBackEndLayer1ProducerHFNose:HGCalBackendLayer1Processor2DClustering')
-
-binSumsNose = cms.vuint32(13,11,9,9)
-
-hgcalBackEndLayer2ProducerHFNose.ProcessorParameters.C3d_parameters.histoMax_C3d_seeding_parameters = dict(
-    ## note in #Phi same bin size for HGCAL and HFNose
-    nBins_X1_histo_multicluster = 4, # R bin size: 5 FullModules * 8 TP
-    binSumsHisto = binSumsNose,
-    kROverZMin = 0.025,
-    kROverZMax = 0.1
+hgcalBackEndLayer2ProducerHFNose = hgcalBackEndLayer2Producer.clone(
+    InputCluster = cms.InputTag('hgcalBackEndLayer1ProducerHFNose:HGCalBackendLayer1Processor2DClustering'),
+    ProcessorParameters = dict(
+        C3d_parameters = dict(
+            histoMax_C3d_seeding_parameters = dict(
+                ## note in #Phi same bin size for HGCAL and HFNose
+                nBins_X1_histo_multicluster = 4, # R bin size: 5 FullModules * 8 TP
+                binSumsHisto = cms.vuint32(13,11,9,9),
+                kROverZMin = 0.025,
+                kROverZMax = 0.1
+            )
+        )
+    )
 )
