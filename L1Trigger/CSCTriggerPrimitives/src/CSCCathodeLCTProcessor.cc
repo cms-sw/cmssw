@@ -1216,14 +1216,14 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::getCLCTs() const {
 // to make a proper comparison with ALCTs we need
 // CLCT and ALCT to have the central BX in the same bin
 CSCCLCTDigi CSCCathodeLCTProcessor::getBestCLCT(int bx) const {
-  CSCCLCTDigi lct = CLCTCont()ainer_[bx][0];
+  CSCCLCTDigi lct = CLCTContainer_[bx][0];
   lct.setBX(lct.bx() + alctClctOffset_);
   return lct;
 }
 
 
 CSCCLCTDigi CSCCathodeLCTProcessor::getSecondCLCT(int bx) const {
-  CSCCLCTDgetSecondCLCTCLCTContainer_[bx][1];
+  CSCCLCTDigi lct = CLCTContainer_[bx][1];
   lct.setBX(lct.bx() + alctClctOffset_);
   return lct;
 }
