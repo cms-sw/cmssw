@@ -153,6 +153,13 @@ namespace {
       auto extrema = SiPixelPI::findMinMaxInMap(LAMap_);
 
       TCanvas canvas("Canv", "Canv", isBarrel ? 1400 : 1800, 1200);
+      if(LAMap_.size() > SiPixelPI::phase1size){
+	SiPixelPI::displayNotSupported(canvas, LAMap_.size());
+        std::string fileName(this->m_imageFileName);
+        canvas.SaveAs(fileName.c_str());
+	return false;
+      }
+
       canvas.Divide(isBarrel ? 2 : 4, isBarrel ? 2 : 3);
       canvas.cd();
 
@@ -374,6 +381,12 @@ namespace {
       std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
 
       TCanvas canvas("Comparison", "Comparison", 1600, 800);
+      if(f_LAMap_.size() > SiPixelPI::phase1size || l_LAMap_.size() > SiPixelPI::phase1size){
+	SiPixelPI::displayNotSupported(canvas, std::max(f_LAMap_.size(),l_LAMap_.size()));
+        std::string fileName(this->m_imageFileName);
+        canvas.SaveAs(fileName.c_str());
+	return false;
+      }
 
       std::map<SiPixelPI::regions, std::shared_ptr<TH1F>> FirstLA_spectraByRegion;
       std::map<SiPixelPI::regions, std::shared_ptr<TH1F>> LastLA_spectraByRegion;
