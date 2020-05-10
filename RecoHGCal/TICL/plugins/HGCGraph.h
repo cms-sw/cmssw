@@ -11,10 +11,10 @@
 #include "DataFormats/HGCalReco/interface/TICLSeedingRegion.h"
 #include "HGCDoublet.h"
 
-template <typename TILE>
+template <typename TILES>
 class HGCGraphT {
 public:
-  void makeAndConnectDoublets(const TILE &h,
+  void makeAndConnectDoublets(const TILES &h,
                               const std::vector<TICLSeedingRegion> &regions,
                               int nEtaBins,
                               int nPhiBins,

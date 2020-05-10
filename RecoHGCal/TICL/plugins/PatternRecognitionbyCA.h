@@ -10,13 +10,13 @@
 #include "HGCGraph.h"
 
 namespace ticl {
-  template <typename TILE>
-  class PatternRecognitionbyCA final : public PatternRecognitionAlgoBaseT<TILE> {
+  template <typename TILES>
+  class PatternRecognitionbyCA final : public PatternRecognitionAlgoBaseT<TILES> {
   public:
     PatternRecognitionbyCA(const edm::ParameterSet& conf, const CacheBase* cache);
     ~PatternRecognitionbyCA() override;
 
-    void makeTracksters(const typename PatternRecognitionAlgoBaseT<TILE>::Inputs& input,
+    void makeTracksters(const typename PatternRecognitionAlgoBaseT<TILES>::Inputs& input,
                         std::vector<Trackster>& result,
                         std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation) override;
 
@@ -30,7 +30,7 @@ namespace ticl {
                             const std::vector<reco::CaloCluster>&,
                             std::vector<Trackster>&,
                             std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation) const;
-    const std::unique_ptr<HGCGraphT<TILE>> theGraph_;
+    const std::unique_ptr<HGCGraphT<TILES>> theGraph_;
     const bool oneTracksterPerTrackSeed_;
     const bool promoteEmptyRegionToTrackster_;
     const bool out_in_dfs_;

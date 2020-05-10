@@ -7,8 +7,8 @@
 #include "HGCGraph.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
-template <typename TILE>
-void HGCGraphT<TILE>::makeAndConnectDoublets(const TILE &histo,
+template <typename TILES>
+void HGCGraphT<TILES>::makeAndConnectDoublets(const TILES &histo,
                                       const std::vector<TICLSeedingRegion> &regions,
                                       int nEtaBins,
                                       int nPhiBins,
@@ -190,8 +190,8 @@ void HGCGraphT<TILE>::makeAndConnectDoublets(const TILE &histo,
   // #endif
 }
 
-template <typename TILE>
-bool HGCGraphT<TILE>::areTimeCompatible(int innerIdx,
+template <typename TILES>
+bool HGCGraphT<TILES>::areTimeCompatible(int innerIdx,
                                  int outerIdx,
                                  const edm::ValueMap<std::pair<float, float>> &layerClustersTime,
                                  float maxDeltaTime) {
@@ -205,8 +205,8 @@ bool HGCGraphT<TILE>::areTimeCompatible(int innerIdx,
 }
 
 //also return a vector of seedIndex for the reconstructed tracksters
-template <typename TILE>
-void HGCGraphT<TILE>::findNtuplets(std::vector<HGCDoublet::HGCntuplet> &foundNtuplets,
+template <typename TILES>
+void HGCGraphT<TILES>::findNtuplets(std::vector<HGCDoublet::HGCntuplet> &foundNtuplets,
                             std::vector<int> &seedIndices,
                             const unsigned int minClustersPerNtuplet,
                             const bool outInDFS,

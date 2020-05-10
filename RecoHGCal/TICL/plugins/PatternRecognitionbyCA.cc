@@ -13,10 +13,10 @@
 
 using namespace ticl;
 
-template <typename TILE>
-PatternRecognitionbyCA<TILE>::PatternRecognitionbyCA(const edm::ParameterSet &conf, const CacheBase *cache)
-  : PatternRecognitionAlgoBaseT<TILE>(conf, cache),
-    theGraph_(std::make_unique<HGCGraphT<TILE>>()),
+template <typename TILES>
+PatternRecognitionbyCA<TILES>::PatternRecognitionbyCA(const edm::ParameterSet &conf, const CacheBase *cache)
+  : PatternRecognitionAlgoBaseT<TILES>(conf, cache),
+    theGraph_(std::make_unique<HGCGraphT<TILES>>()),
       oneTracksterPerTrackSeed_(conf.getParameter<bool>("oneTracksterPerTrackSeed")),
       promoteEmptyRegionToTrackster_(conf.getParameter<bool>("promoteEmptyRegionToTrackster")),
       out_in_dfs_(conf.getParameter<bool>("out_in_dfs")),
@@ -43,11 +43,11 @@ PatternRecognitionbyCA<TILE>::PatternRecognitionbyCA(const edm::ParameterSet &co
   eidSession_ = tensorflow::createSession(trackstersCache->eidGraphDef);
 }
 
-template <typename TILE>
-PatternRecognitionbyCA<TILE>::~PatternRecognitionbyCA(){};
+template <typename TILES>
+PatternRecognitionbyCA<TILES>::~PatternRecognitionbyCA(){};
 
-template <typename TILE>
-void PatternRecognitionbyCA<TILE>::makeTracksters(const typename PatternRecognitionAlgoBaseT<TILE>::Inputs &input,
+template <typename TILES>
+void PatternRecognitionbyCA<TILES>::makeTracksters(const typename PatternRecognitionAlgoBaseT<TILES>::Inputs &input,
                                             std::vector<Trackster> &result,
                                             std::unordered_map<int, std::vector<int>> &seedToTracksterAssociation) {
   // Protect from events with no seeding regions
@@ -56,9 +56,9 @@ void PatternRecognitionbyCA<TILE>::makeTracksters(const typename PatternRecognit
 
   rhtools_.getEventSetup(input.es);
 
-  theGraph_->setVerbosity(PatternRecognitionAlgoBaseT<TILE>::algo_verbosity_);
+  theGraph_->setVerbosity(PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_);
   theGraph_->clear();
-  if (PatternRecognitionAlgoBaseT<TILE>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILE>::None) {
+  if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::None) {
     LogDebug("HGCPatternRecoByCA") << "Making Tracksters with CA" << std::endl;
   }
 
@@ -120,7 +120,7 @@ void PatternRecognitionbyCA<TILE>::makeTracksters(const typename PatternRecognit
         }
       }
 
-      if (PatternRecognitionAlgoBaseT<TILE>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILE>::Advanced) {
+      if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
         LogDebug("HGCPatternRecoByCA") << " New doublet " << doublet << " for trackster: " << result.size()
                                        << " InnerCl " << innerCluster << " " << input.layerClusters[innerCluster].x()
                                        << " " << input.layerClusters[innerCluster].y() << " "
@@ -132,7 +132,7 @@ void PatternRecognitionbyCA<TILE>::makeTracksters(const typename PatternRecognit
     }
     for (auto const i : effective_cluster_idx) {
       layer_cluster_usage[i]++;
-      if (PatternRecognitionAlgoBaseT<TILE>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILE>::Basic)
+      if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Basic)
         LogDebug("HGCPatternRecoByCA") << "LayerID: " << i << " count: " << (int)layer_cluster_usage[i] << std::endl;
     }
     // Put back indices, in the form of a Trackster, into the results vector
@@ -159,7 +159,7 @@ void PatternRecognitionbyCA<TILE>::makeTracksters(const typename PatternRecognit
     assert(trackster.vertices().size() <= trackster.vertex_multiplicity().size());
     for (size_t i = 0; i < trackster.vertices().size(); ++i) {
       trackster.vertex_multiplicity()[i] = layer_cluster_usage[trackster.vertices(i)];
-      if (PatternRecognitionAlgoBaseT<TILE>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILE>::Basic)
+      if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Basic)
         LogDebug("HGCPatternRecoByCA") << "LayerID: " << trackster.vertices(i)
                                        << " count: " << (int)trackster.vertex_multiplicity(i) << std::endl;
     }
@@ -183,7 +183,7 @@ void PatternRecognitionbyCA<TILE>::makeTracksters(const typename PatternRecognit
     emptyTrackstersFromSeedsTRK(result, seedToTracksterAssociation, input.regions[0].collectionID);
   }
 
-  if (PatternRecognitionAlgoBaseT<TILE>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILE>::Advanced) {
+  if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
     for (auto &trackster : result) {
       LogDebug("HGCPatternRecoByCA") << "Trackster characteristics: " << std::endl;
       LogDebug("HGCPatternRecoByCA") << "Size: " << trackster.vertices().size() << std::endl;
@@ -195,8 +195,8 @@ void PatternRecognitionbyCA<TILE>::makeTracksters(const typename PatternRecognit
   }
 }
 
-template <typename TILE>
-void PatternRecognitionbyCA<TILE>::mergeTrackstersTRK(
+template <typename TILES>
+void PatternRecognitionbyCA<TILES>::mergeTrackstersTRK(
     const std::vector<Trackster> &input,
     const std::vector<reco::CaloCluster> &layerClusters,
     std::vector<Trackster> &output,
@@ -213,7 +213,7 @@ void PatternRecognitionbyCA<TILE>::mergeTrackstersTRK(
       for (unsigned int j = 1; j < numberOfTrackstersInSeed; ++j) {
         auto &thisTrackster = input[tracksters[j]];
         updated_size += thisTrackster.vertices().size();
-        if (PatternRecognitionAlgoBaseT<TILE>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILE>::Basic) {
+        if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Basic) {
           LogDebug("HGCPatternRecoByCA") << "Updated size: " << updated_size << std::endl;
         }
         outTrackster.vertices().reserve(updated_size);
@@ -231,8 +231,8 @@ void PatternRecognitionbyCA<TILE>::mergeTrackstersTRK(
   output.shrink_to_fit();
 }
 
-template <typename TILE>
-void PatternRecognitionbyCA<TILE>::emptyTrackstersFromSeedsTRK(
+template <typename TILES>
+void PatternRecognitionbyCA<TILES>::emptyTrackstersFromSeedsTRK(
     std::vector<Trackster> &tracksters,
     std::unordered_map<int, std::vector<int>> &seedToTracksterAssociation,
     const edm::ProductID &collectionID) const {
@@ -249,8 +249,8 @@ void PatternRecognitionbyCA<TILE>::emptyTrackstersFromSeedsTRK(
   }
 }
 
-template <typename TILE>
-void PatternRecognitionbyCA<TILE>::energyRegressionAndID(const std::vector<reco::CaloCluster> &layerClusters,
+template <typename TILES>
+void PatternRecognitionbyCA<TILES>::energyRegressionAndID(const std::vector<reco::CaloCluster> &layerClusters,
                                                    std::vector<Trackster> &tracksters) {
   // Energy regression and particle identification strategy:
   //
