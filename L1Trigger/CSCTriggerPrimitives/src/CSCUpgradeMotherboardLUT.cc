@@ -32,8 +32,8 @@ bool CSCMotherboardLUTME11::doesALCTCrossCLCT(const CSCALCTDigi &a,
                                               bool gangedME1a) const {
   if (!c.isValid() || !a.isValid())
     return false;
-  int key_hs = c.getKeyStrip();
-  int key_wg = a.getKeyWG();
+  int key_hs = c.keyStrip();
+  int key_wg = a.keyWireGroup();
   return doesWiregroupCrossStrip(key_wg, key_hs, theEndcap, gangedME1a);
 }
 

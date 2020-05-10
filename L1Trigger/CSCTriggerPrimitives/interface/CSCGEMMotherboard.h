@@ -247,16 +247,16 @@ void CSCGEMMotherboard::matchingPads(const CSCALCTDigi& alct, matches<T>& result
     return;
 
   // Get the corresponding roll numbers for a given ALCT
-  std::pair<int, int> alctRoll = (getLUT()->get_csc_wg_to_gem_roll(theParity))[alct.getKeyWG()];
+  std::pair<int, int> alctRoll = (getLUT()->get_csc_wg_to_gem_roll(theParity))[alct.keyWireGroup()];
 
   // Get the pads in the ALCT bx
   const matchesBX<T>& lut = getPads<T>();
 
   // If no pads in that bx...
-  if (lut.count(alct.getBX()) == 0)
+  if (lut.count(alct.bx()) == 0)
     return;
 
-  for (const auto& p : lut.at(alct.getBX())) {
+  for (const auto& p : lut.at(alct.bx())) {
     auto padRoll(getRoll(p));
 
     int delta;
@@ -266,7 +266,7 @@ void CSCGEMMotherboard::matchingPads(const CSCALCTDigi& alct, matches<T>& result
     // pad bx needs to match to ALCT bx
     int pad_bx = getBX(p.second) + CSCConstants::LCT_CENTRAL_BX;
 
-    if (std::abs(alct.getBX() - pad_bx) > getMaxDeltaBX<T>())
+    if (std::abs(alct.bx() - pad_bx) > getMaxDeltaBX<T>())
       continue;
 
     // gem roll number if invalid
@@ -295,10 +295,10 @@ void CSCGEMMotherboard::matchingPads(const CSCCLCTDigi& clct, matches<T>& result
   if (not clct.isValid())
     return;
 
-  auto part(getCSCPart(clct.getKeyStrip()));
+  auto part(getCSCPart(clct.keyStrip()));
   // Get the corresponding pad numbers for a given CLCT
   const auto& mymap = (getLUT()->get_csc_hs_to_gem_pad(theParity, part));
-  int keyStrip = clct.getKeyStrip();
+  int keyStrip = clct.keyStrip();
   //ME1A part, convert halfstrip from 128-223 to 0-95
   if (part == CSCPart::ME1A and keyStrip > CSCConstants::MAX_HALF_STRIP_ME1B)
     keyStrip = keyStrip - CSCConstants::MAX_HALF_STRIP_ME1B - 1;
@@ -309,13 +309,13 @@ void CSCGEMMotherboard::matchingPads(const CSCCLCTDigi& clct, matches<T>& result
   const matchesBX<T>& lut = getPads<T>();
 
   // If no pads in that bx...
-  if (lut.count(clct.getBX()) == 0)
+  if (lut.count(clct.bx()) == 0)
     return;
 
-  for (const auto& p : lut.at(clct.getBX())) {
+  for (const auto& p : lut.at(clct.bx())) {
     // pad bx needs to match to CLCT bx
     int pad_bx = getBX(p.second) + CSCConstants::LCT_CENTRAL_BX;
-    if (std::abs(clct.getBX() - pad_bx) > getMaxDeltaBX<T>())
+    if (std::abs(clct.bx() - pad_bx) > getMaxDeltaBX<T>())
       continue;
 
     // pad number must match
@@ -404,7 +404,7 @@ S CSCGEMMotherboard::bestMatchingPad(const CSCCLCTDigi& clct, const matches<S>& 
   if (not clct.isValid())
     return result;
 
-  auto part(getCSCPart(clct.getKeyStrip()));
+  auto part(getCSCPart(clct.keyStrip()));
 
   // return the pad with the smallest bending angle
   float averagePadNumberCSC = getPad(clct, part);
@@ -432,7 +432,7 @@ S CSCGEMMotherboard::bestMatchingPad(const CSCALCTDigi& alct1, const CSCCLCTDigi
     return result;
   }
 
-  auto part(getCSCPart(clct1.getKeyStrip()));
+  auto part(getCSCPart(clct1.keyStrip()));
 
   // return the pad with the smallest bending angle
   float averagePadNumberCSC = getPad(clct1, part);

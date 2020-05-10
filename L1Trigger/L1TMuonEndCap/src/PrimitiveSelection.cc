@@ -93,12 +93,12 @@ void PrimitiveSelection::process(CSCTag tag,
         edm::LogWarning("L1T") << "Found 3 CSC trigger primitives in the same chamber";
         for (int ii = 0; ii < 3; ii++) {
           TriggerPrimitive tp_err = (ii < 2 ? selected_csc_map[selected_csc].at(ii) : new_tp);
-          edm::LogWarning("L1T") << "LCT #" << ii + 1 << ": BX " << tp_err.getBX() << ", endcap "
+          edm::LogWarning("L1T") << "LCT #" << ii + 1 << ": BX " << tp_err.bx() << ", endcap "
                                  << tp_err.detId<CSCDetId>().endcap() << ", sector "
                                  << tp_err.detId<CSCDetId>().triggerSector() << ", station "
                                  << tp_err.detId<CSCDetId>().station() << ", ring " << tp_err.detId<CSCDetId>().ring()
                                  << ", chamber " << tp_err.detId<CSCDetId>().chamber() << ", CSC ID "
-                                 << tp_err.getCSCData().cscID << ": strip " << tp_err.getStrip() << ", wire "
+                                 << tp_err.getCSCData().cscID << ": strip " << tp_err.strip() << ", wire "
                                  << tp_err.getWire();
         }
         edm::LogWarning("L1T") << "************************* ONLY KEEP FIRST TWO *************************\n\n";
@@ -134,7 +134,7 @@ void PrimitiveSelection::process(CSCTag tag,
       }
 
       if (tmp_primitives.size() == 2) {
-        if ((tmp_primitives.at(0).getStrip() != tmp_primitives.at(1).getStrip()) &&
+        if ((tmp_primitives.at(0).strip() != tmp_primitives.at(1).strip()) &&
             (tmp_primitives.at(0).getWire() != tmp_primitives.at(1).getWire())) {
           // Swap wire numbers
           TriggerPrimitive tp0 = tmp_primitives.at(0);  // (s1,w1)

@@ -409,13 +409,13 @@ inline void L1EmulBias::ModifyCollection(std::unique_ptr<CSCCorrelatedLCTDigiCol
       ///modify digi
       CSCCorrelatedLCTDigi dg = *vit;
       //dg.clear;
-      uint16_t tn = dg.getTrknmb();
+      uint16_t tn = dg.trackNumber();
       if (tn == 2)
         tn--;
       dg.setTrknmb(tn);
       //dg.setTrknmb   (dg.getTrknmb   ());
       //dg.setMPCLink  (dg.getMPCLink  ());
-      //dg.setWireGroup(dg.getWireGroup());
+      //dg.setWireGroup(dg.wireGroup());
       ///append digi
       data->insertDigi(did, dg);
     }
@@ -452,7 +452,7 @@ inline void L1EmulBias::ModifyCollection(std::unique_ptr<L1CSCTrackCollection>& 
       //for (vecIt vit = ctpRange.first; vit != ctpRange.second; vit++) {
       for (vecIt vit = ldc.get((*mit).first).first; vit != ldc.get((*mit).first).second; vit++) {
         CSCCorrelatedLCTDigi dg = *vit;
-        uint16_t tn = dg.getTrknmb();
+        uint16_t tn = dg.trackNumber();
         if (tn == 2)
           tn--;
         dg.setTrknmb(tn);

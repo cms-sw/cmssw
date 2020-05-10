@@ -279,7 +279,7 @@ OMTFinput OMTFinputMaker::processCSC(const CSCCorrelatedLCTDigiCollection *cscDi
     auto dend = (*chamber).second.second;
     for (; digi != dend; ++digi) {
       ///Check if LCT trigger primitive has the right BX.
-      if (digi->getBX() - CSCConstants::LCT_CENTRAL_BX != bxTrg)
+      if (digi->bx() - CSCConstants::LCT_CENTRAL_BX != bxTrg)
         continue;
 
       unsigned int hwNumber = myOmtfConfig->getLayerNumber(rawid);

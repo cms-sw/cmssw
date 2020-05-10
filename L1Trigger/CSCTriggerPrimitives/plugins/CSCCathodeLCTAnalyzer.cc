@@ -30,9 +30,9 @@ vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::getSimInfo(const CSCCLCTDigi&
                                                   << ", exceeds max expected, " << CSCConstants::NUM_LAYERS << " +++\n";
   }
   //  not a good check for high PU
-  //if (clctInfo.size() != (unsigned)clct.getQuality()) {
+  //if (clctInfo.size() != (unsigned)clct.quality()) {
   //  edm::LogWarning("L1CSCTPEmulatorWrongValues")
-  //    << "+++ Warning: mismatch between CLCT quality, " << clct.getQuality()
+  //    << "+++ Warning: mismatch between CLCT quality, " << clct.quality()
   //    << ", and the number of layers with digis, " << clctInfo.size()
   //    << ", in clctInfo! +++\n";
   //}
@@ -61,10 +61,10 @@ vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::lctDigis(const CSCCLCTDigi& c
   vector<CSCCathodeLayerInfo> vectInfo;
 
   // Inquire the clct for its key half-strip, strip type and pattern number.
-  int clct_keystrip = clct.getKeyStrip();
-  int clct_stripType = clct.getStripType();
-  int clct_pattern = clct.getPattern();
-  int clct_bx = clct.getBX();
+  int clct_keystrip = clct.keyStrip();
+  int clct_stripType = clct.stripType();
+  int clct_pattern = clct.pattern();
+  int clct_bx = clct.bx();
 
   // Re-scale the key di-strip number to the count used in the search.
   if (clct_stripType == 0)

@@ -265,7 +265,7 @@ int AngleConverter::getProcessorPhi(unsigned int iProcessor,
     phiHalfStrip0 += 2 * M_PI;
   int offsetLoc = lround((phiHalfStrip0 - phi15deg) / hsPhiPitch);
 
-  int halfStrip = digi.getStrip();  // returns halfStrip 0..159
+  int halfStrip = digi.strip();  // returns halfStrip 0..159
   //FIXME: to be checked (only important for ME1/3) keep more bits for offset, truncate at the end
 
   // a quick fix for towards geometry changes due to global tag.
@@ -443,9 +443,9 @@ int AngleConverter::getGlobalEta(unsigned int rawid, const CSCCorrelatedLCTDigi 
   std::unique_ptr<const CSCLayerGeometry> layer_geom(chamb->layer(CSCConstants::KEY_ALCT_LAYER)->geometry());
   std::unique_ptr<const CSCLayer> layer(chamb->layer(CSCConstants::KEY_ALCT_LAYER));
 
-  const uint16_t halfstrip = aDigi.getStrip();
-  const uint16_t pattern = aDigi.getPattern();
-  const uint16_t keyWG = aDigi.getKeyWG();
+  const uint16_t halfstrip = aDigi.strip();
+  const uint16_t pattern = aDigi.pattern();
+  const uint16_t keyWG = aDigi.keyWireGroup();
   //const unsigned maxStrips = layer_geom->numberOfStrips();
 
   // so we can extend this later

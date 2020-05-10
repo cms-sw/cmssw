@@ -105,24 +105,24 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
 
   // Determine the case and assign properties depending on the LCT dataformat (old/new)
   if (alct.isValid() and clct.isValid() and gem1.isValid() and not gem2.isValid()) {
-    pattern = encodePattern(clct.getPattern());
+    pattern = encodePattern(clct.pattern());
     quality = findQualityGEM(alct, clct, 1);
-    bx = alct.getBX();
-    keyStrip = clct.getKeyStrip();
-    keyWG = alct.getKeyWG();
-    bend = clct.getBend();
+    bx = alct.bx();
+    keyStrip = clct.keyStrip();
+    keyWG = alct.keyWireGroup();
+    bend = clct.bend();
     thisLCT.setALCT(getBXShiftedALCT(alct));
     thisLCT.setCLCT(getBXShiftedCLCT(clct));
     thisLCT.setGEM1(gem1);
     thisLCT.setType(CSCCorrelatedLCTDigi::ALCTCLCTGEM);
     valid = doesWiregroupCrossStrip(keyWG, keyStrip) ? 1 : 0;
   } else if (alct.isValid() and clct.isValid() and not gem1.isValid() and gem2.isValid()) {
-    pattern = encodePattern(clct.getPattern());
+    pattern = encodePattern(clct.pattern());
     quality = findQualityGEM(alct, clct, 2);
-    bx = alct.getBX();
-    keyStrip = clct.getKeyStrip();
-    keyWG = alct.getKeyWG();
-    bend = clct.getBend();
+    bx = alct.bx();
+    keyStrip = clct.keyStrip();
+    keyWG = alct.keyWireGroup();
+    bend = clct.bend();
     thisLCT.setALCT(getBXShiftedALCT(alct));
     thisLCT.setCLCT(getBXShiftedCLCT(clct));
     thisLCT.setGEM1(gem2.first());
@@ -138,7 +138,7 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
 
     auto p(getCSCPart(-1));  //use -1 as fake halfstrip, it returns ME11 if station==1 && (ring==1 or ring==4)
     if (p == CSCPart::ME11) {
-      if (alct.getKeyWG() >= 10)
+      if (alct.keyWireGroup() >= 10)
         p = CSCPart::ME1B;
       else
         p = CSCPart::ME1A;
@@ -151,7 +151,7 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
     keyStrip = mymap1[gem2.pad(2) - 1];
     if (p == CSCPart::ME1A and keyStrip <= CSCConstants::MAX_HALF_STRIP_ME1B)
       keyStrip += CSCConstants::MAX_HALF_STRIP_ME1B + 1;
-    keyWG = alct.getKeyWG();
+    keyWG = alct.keyWireGroup();
 
     if ((not doesWiregroupCrossStrip(keyWG, keyStrip)) and p == CSCPart::ME1B and keyWG <= 15) {
       //try ME1A as strip and WG do not cross
@@ -162,7 +162,7 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
 
     pattern = promoteALCTGEMpattern_ ? 10 : 0;
     quality = promoteALCTGEMquality_ ? 15 : 11;
-    bx = alct.getBX();
+    bx = alct.bx();
     thisLCT.setALCT(getBXShiftedALCT(alct));
     thisLCT.setGEM1(gem2.first());
     thisLCT.setGEM2(gem2.second());
@@ -170,13 +170,13 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
     valid = true;
   } else if (clct.isValid() and gem2.isValid() and not alct.isValid()) {
     const auto& mymap2 = getLUT()->get_gem_roll_to_csc_wg(theParity);
-    pattern = encodePattern(clct.getPattern());
+    pattern = encodePattern(clct.pattern());
     quality = promoteCLCTGEMquality_ ? 15 : 11;
     bx = gem2.bx(1) + CSCConstants::LCT_CENTRAL_BX;
-    keyStrip = clct.getKeyStrip();
+    keyStrip = clct.keyStrip();
     // choose the corresponding wire-group in the middle of the partition
     keyWG = mymap2[gem2.roll() - 1];
-    bend = clct.getBend();
+    bend = clct.bend();
     thisLCT.setCLCT(clct);
     thisLCT.setGEM1(gem2.first());
     thisLCT.setGEM2(gem2.second());
@@ -240,8 +240,8 @@ int CSCGEMMotherboard::getRoll(const GEMPadDigiId& p) const { return GEMDetId(p.
 int CSCGEMMotherboard::getRoll(const GEMCoPadDigiId& p) const { return p.second.roll(); }
 
 std::pair<int, int> CSCGEMMotherboard::getRolls(const CSCALCTDigi& alct) const {
-  return std::make_pair((getLUT()->get_csc_wg_to_gem_roll(theParity))[alct.getKeyWG()].first,
-                        (getLUT()->get_csc_wg_to_gem_roll(theParity))[alct.getKeyWG()].second);
+  return std::make_pair((getLUT()->get_csc_wg_to_gem_roll(theParity))[alct.keyWireGroup()].first,
+                        (getLUT()->get_csc_wg_to_gem_roll(theParity))[alct.keyWireGroup()].second);
 }
 
 float CSCGEMMotherboard::getPad(const GEMPadDigi& p) const { return p.pad(); }
@@ -253,7 +253,7 @@ float CSCGEMMotherboard::getPad(const GEMCoPadDigi& p) const {
 
 float CSCGEMMotherboard::getPad(const CSCCLCTDigi& clct, enum CSCPart part) const {
   const auto& mymap = (getLUT()->get_csc_hs_to_gem_pad(theParity, part));
-  int keyStrip = clct.getKeyStrip();
+  int keyStrip = clct.keyStrip();
   //ME1A part, convert halfstrip from 128-223 to 0-95
   if (part == CSCPart::ME1A and keyStrip > CSCConstants::MAX_HALF_STRIP_ME1B)
     keyStrip = keyStrip - CSCConstants::MAX_HALF_STRIP_ME1B - 1;
@@ -324,7 +324,7 @@ unsigned int CSCGEMMotherboard::findQualityGEM(const CSCALCTDigi& aLCT, const CS
   }
   // Both ALCT and CLCT are valid
   else {
-    const int pattern(cLCT.getPattern());
+    const int pattern(cLCT.pattern());
 
     // Layer-trigger in CLCT
     if (pattern == 1)
@@ -337,14 +337,14 @@ unsigned int CSCGEMMotherboard::findQualityGEM(const CSCALCTDigi& aLCT, const CS
 
       // Case of ME11 with GEMs: require 4 layers for ALCT
       if (theStation == 1)
-        a4 = aLCT.getQuality() >= 1;
+        a4 = aLCT.quality() >= 1;
 
       // Case of ME21 with GEMs: require 4 layers for ALCT+GEM
       if (theStation == 2)
-        a4 = aLCT.getQuality() + gemlayers >= 1;
+        a4 = aLCT.quality() + gemlayers >= 1;
 
       // CLCT quality is the number of layers hit.
-      const bool c4((cLCT.getQuality() >= 4) or (cLCT.getQuality() >= 3 and gemlayers >= 1));
+      const bool c4((cLCT.quality() >= 4) or (cLCT.quality() >= 3 and gemlayers >= 1));
 
       // quality = 4; "reserved for low-quality muons in future"
 
@@ -362,7 +362,7 @@ unsigned int CSCGEMMotherboard::findQualityGEM(const CSCALCTDigi& aLCT, const CS
 
       // HQ muon, but accelerator ALCT
       else if (a4 && c4) {
-        if (aLCT.getAccelerator())
+        if (aLCT.accelerator())
           return LCT_Quality::HQ_ACCEL_ALCT;
 
         else {

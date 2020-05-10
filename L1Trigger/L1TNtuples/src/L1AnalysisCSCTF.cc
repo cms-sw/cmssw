@@ -109,8 +109,8 @@ void L1Analysis::L1AnalysisCSCTF::SetTracks(const edm::Handle<L1CSCTrackCollecti
         csctf_.trLctSubSector[nTrk - 1][LctTrkId_] =
             CSCTriggerNumbering::triggerSubSectorFromLabels((*lctOfTrks).first);
         ;
-        csctf_.trLctBx[nTrk - 1][LctTrkId_] = lctTrk->getBX();
-        csctf_.trLctBx0[nTrk - 1][LctTrkId_] = lctTrk->getBX0();
+        csctf_.trLctBx[nTrk - 1][LctTrkId_] = lctTrk->bx();
+        csctf_.trLctBx0[nTrk - 1][LctTrkId_] = lctTrk->bx0();
 
         csctf_.trLctStation[nTrk - 1][LctTrkId_] = (*lctOfTrks).first.station();
         csctf_.trLctRing[nTrk - 1][LctTrkId_] = (*lctOfTrks).first.ring();
@@ -145,16 +145,16 @@ void L1Analysis::L1AnalysisCSCTF::SetTracks(const edm::Handle<L1CSCTrackCollecti
         lclphidat lclPhi;
 
         try {
-          csctf_.trLctstripNum[nTrk - 1][LctTrkId_] = lctTrk->getStrip();
+          csctf_.trLctstripNum[nTrk - 1][LctTrkId_] = lctTrk->strip();
           lclPhi = srLUTs_[FPGALctTrk][endcap]->localPhi(
-              lctTrk->getStrip(), lctTrk->getPattern(), lctTrk->getQuality(), lctTrk->getBend());
+              lctTrk->strip(), lctTrk->pattern(), lctTrk->quality(), lctTrk->bend());
 
           csctf_.trLctlocalPhi[nTrk - 1][LctTrkId_] = lclPhi.phi_local;
           //csctf_.trLctlocalPhi_bend[nTrk-1][LctTrkId_] = lclPhi.phi_bend_local;
           //csctf_.trLctCLCT_pattern[nTrk-1][LctTrkId_] = lctTrk->getPattern();
-          csctf_.trLctQuality[nTrk - 1][LctTrkId_] = lctTrk->getQuality();
+          csctf_.trLctQuality[nTrk - 1][LctTrkId_] = lctTrk->quality();
 
-          //std::cout <<"lctTrk->getPattern() =  " << lctTrk->getPattern() << std::endl;
+          //std::cout <<"lctTrk->pattern() =  " << lctTrk->pattern() << std::endl;
         } catch (...) {
           bzero(&lclPhi, sizeof(lclPhi));
           csctf_.trLctlocalPhi[nTrk - 1][LctTrkId_] = -999;
@@ -175,8 +175,8 @@ void L1Analysis::L1AnalysisCSCTF::SetTracks(const edm::Handle<L1CSCTrackCollecti
         gblphidat gblPhi;
 
         try {
-          csctf_.trLctwireGroup[nTrk - 1][LctTrkId_] = lctTrk->getKeyWG();
-          gblPhi = srLUTs_[FPGALctTrk][endcap]->globalPhiME(lclPhi.phi_local, lctTrk->getKeyWG(), CscIdLctTrk);
+          csctf_.trLctwireGroup[nTrk - 1][LctTrkId_] = lctTrk->keyWireGroup();
+          gblPhi = srLUTs_[FPGALctTrk][endcap]->globalPhiME(lclPhi.phi_local, lctTrk->keyWireGroup(), CscIdLctTrk);
 
           csctf_.trLctglobalPhi[nTrk - 1][LctTrkId_] = gblPhi.global_phi;
 
@@ -190,7 +190,7 @@ void L1Analysis::L1AnalysisCSCTF::SetTracks(const edm::Handle<L1CSCTrackCollecti
 
         try {
           gblEta = srLUTs_[FPGALctTrk][endcap]->globalEtaME(
-              lclPhi.phi_bend_local, lclPhi.phi_local, lctTrk->getKeyWG(), CscIdLctTrk);
+              lclPhi.phi_bend_local, lclPhi.phi_local, lctTrk->keyWireGroup(), CscIdLctTrk);
           csctf_.trLctglobalEta[nTrk - 1][LctTrkId_] = gblEta.global_eta;
           csctf_.trLctCLCT_pattern[nTrk - 1][LctTrkId_] = gblEta.global_bend;
         } catch (...) {
@@ -235,8 +235,8 @@ void L1Analysis::L1AnalysisCSCTF::SetLCTs(const edm::Handle<CSCCorrelatedLCTDigi
         csctf_.lctSector.push_back(6 + (*corrLct).first.triggerSector());
 
       csctf_.lctSubSector.push_back(CSCTriggerNumbering::triggerSubSectorFromLabels((*corrLct).first));
-      csctf_.lctBx.push_back(lct->getBX());
-      csctf_.lctBx0.push_back(lct->getBX0());
+      csctf_.lctBx.push_back(lct->bx());
+      csctf_.lctBx0.push_back(lct->bx0());
 
       csctf_.lctStation.push_back((*corrLct).first.station());
       csctf_.lctRing.push_back((*corrLct).first.ring());
@@ -270,29 +270,29 @@ void L1Analysis::L1AnalysisCSCTF::SetLCTs(const edm::Handle<CSCCorrelatedLCTDigi
 
       /*
 	try {
-	  
-	  csctf_.lctstripNum.push_back(lct->getStrip());
 
-	  
+	  csctf_.lctstripNum.push_back(lct->strip());
+
+
 	  csctf_.lctlocalPhi.push_back(lclPhi.phi_local);
-	} 
-	catch(...) { 
-	  bzero(&lclPhi,sizeof(lclPhi)); 
+	}
+	catch(...) {
+	  bzero(&lclPhi,sizeof(lclPhi));
 	  csctf_.lctlocalPhi.push_back(-999);
 	}
-		
+
 */
       try {
-        csctf_.lctstripNum.push_back(lct->getStrip());
+        csctf_.lctstripNum.push_back(lct->strip());
         lclPhi =
-            srLUTs_[FPGALct][endcap]->localPhi(lct->getStrip(), lct->getPattern(), lct->getQuality(), lct->getBend());
+            srLUTs_[FPGALct][endcap]->localPhi(lct->strip(), lct->pattern(), lct->quality(), lct->bend());
 
         csctf_.lctlocalPhi.push_back(lclPhi.phi_local);
         //csctf_.lctlocalPhi_bend.push_back(lclPhi.phi_bend_local);
         //csctf_.lctCLCT_pattern.push_back(lct->getPattern());
-        csctf_.lctQuality.push_back(lct->getQuality());
+        csctf_.lctQuality.push_back(lct->quality());
         //std::cout <<"localPhi: lclPhi.phi_bend_local = " << lclPhi.phi_bend_local << std::endl;
-        //std::cout <<"localPhi: lct->getBend() = " << lct->getBend() << std::endl;
+        //std::cout <<"localPhi: lct->bend() = " << lct->bend() << std::endl;
 
       } catch (...) {
         bzero(&lclPhi, sizeof(lclPhi));
@@ -306,13 +306,13 @@ void L1Analysis::L1AnalysisCSCTF::SetLCTs(const edm::Handle<CSCCorrelatedLCTDigi
       gblphidat gblPhi;
 
       try {
-        csctf_.lctwireGroup.push_back(lct->getKeyWG());
+        csctf_.lctwireGroup.push_back(lct->keyWireGroup());
 
         //std::cout << "lclPhi.phi_local: " << lclPhi.phi_local << std::endl;
-        //std::cout << "lct->getKeyWG(): " << lct->getKeyWG() << std::endl;
+        //std::cout << "lct->keyWireGroup(): " << lct->keyWireGroup() << std::endl;
         //std::cout << "CscIdLct: " << CscIdLct << std::endl;
 
-        gblPhi = srLUTs_[FPGALct][endcap]->globalPhiME(lclPhi.phi_local, lct->getKeyWG(), CscIdLct);
+        gblPhi = srLUTs_[FPGALct][endcap]->globalPhiME(lclPhi.phi_local, lct->keyWireGroup(), CscIdLct);
         csctf_.lctglobalPhi.push_back(gblPhi.global_phi);
 
       } catch (...) {
@@ -325,7 +325,7 @@ void L1Analysis::L1AnalysisCSCTF::SetLCTs(const edm::Handle<CSCCorrelatedLCTDigi
 
       try {
         gblEta =
-            srLUTs_[FPGALct][endcap]->globalEtaME(lclPhi.phi_bend_local, lclPhi.phi_local, lct->getKeyWG(), CscIdLct);
+            srLUTs_[FPGALct][endcap]->globalEtaME(lclPhi.phi_bend_local, lclPhi.phi_local, lct->keyWireGroup(), CscIdLct);
         //std::cout <<"gblEta: lclPhi.phi_bend_local = " << lclPhi.phi_bend_local << std::endl;
         csctf_.lctglobalEta.push_back(gblEta.global_eta);
         csctf_.lctCLCT_pattern.push_back(gblEta.global_bend);
@@ -366,17 +366,17 @@ void L1Analysis::L1AnalysisCSCTF::SetDTStubs(const edm::Handle<CSCTriggerContain
   std::vector<csctf::TrackStub> vstubs = dtStubs->get();
   //iterate through DT Stubs
   for (std::vector<csctf::TrackStub>::const_iterator stub = vstubs.begin(); stub != vstubs.end(); stub++) {
-    csctf_.dtBXN.push_back(stub->BX());
-    csctf_.dtFLAG.push_back(stub->getStrip());  //getStrip() is actually the "FLAG" bit
-    csctf_.dtCAL.push_back(stub->getKeyWG());   //getKeyWG() is actually the "CAL" bit
+    csctf_.dtBXN.push_back(stub->bx());
+    csctf_.dtFLAG.push_back(stub->strip());  //strip() is actually the "FLAG" bit
+    csctf_.dtCAL.push_back(stub->keyWireGroup());   //keyWireGroup() is actually the "CAL" bit
 
     csctf_.dtSector.push_back(6 * (stub->endcap() - 1) + stub->sector());
     csctf_.dtSubSector.push_back(stub->subsector());
 
-    csctf_.dtBX0.push_back(stub->getBX0());  //it is unclear what this variable is...
-    csctf_.dtPhiBend.push_back(stub->getBend());
+    csctf_.dtBX0.push_back(stub->bx0());  //it is unclear what this variable is...
+    csctf_.dtPhiBend.push_back(stub->bend());
     csctf_.dtPhiPacked.push_back(stub->phiPacked());
-    csctf_.dtQuality.push_back(stub->getQuality());
+    csctf_.dtQuality.push_back(stub->quality());
   }
 
   csctf_.dtSize = vstubs.size();

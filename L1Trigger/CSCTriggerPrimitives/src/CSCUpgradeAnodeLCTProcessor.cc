@@ -132,12 +132,12 @@ void CSCUpgradeAnodeLCTProcessor::ghostCancellationLogicOneWire(const int key_wi
       // Previous wire.
       int dt = -1;
       for (auto& p : lct_list) {
-        if (not(p.isValid() and p.getKeyWG() == key_wire - 1 and 1 - p.getAccelerator() == i_pattern))
+        if (not(p.isValid() and p.keyWireGroup() == key_wire - 1 and 1 - p.accelerator() == i_pattern))
           continue;
 
         bool ghost_cleared_prev = false;
-        int qual_prev = p.getQuality();
-        int first_bx_prev = p.getBX();
+        int qual_prev = p.quality();
+        int first_bx_prev = p.bx();
         if (infoV > 1)
           LogTrace("CSCAnodeLCTProcessor")
               << "ghost concellation logic " << ((i_pattern == 0) ? "Accelerator" : "Collision") << " key_wire "

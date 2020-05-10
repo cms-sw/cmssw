@@ -319,7 +319,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::run(const CSCComparatorDigiColl
   // this shift does not affect the readout of the CLCTs
   // emulated CLCTs put in the event should be centered at bin 7 (as in data)
   for (auto& p : tmpV) {
-    p.setBX(p.getBX() + alctClctOffset_);
+    p.setBX(p.bx() + alctClctOffset_);
   }
 
   return tmpV;
@@ -342,7 +342,7 @@ void CSCCathodeLCTProcessor::run(
   int CLCTIndex_[CSCConstants::MAX_CLCT_TBINS] = {};
 
   for (const auto& p : CLCTlist) {
-    const int bx = p.getBX();
+    const int bx = p.bx();
     if (bx >= CSCConstants::MAX_CLCT_TBINS) {
       if (infoV > 0)
         edm::LogWarning("L1CSCTPEmulatorOutOfTimeCLCT")
@@ -1109,12 +1109,12 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTs(int nMaxCLCTs) con
     if (!p.isValid())
       continue;
 
-    const int bx = p.getBX();
+    const int bx = p.bx();
     // Skip CLCTs found too early relative to L1Accept.
     if (bx <= early_tbins) {
       if (infoV > 1)
         LogDebug("CSCCathodeLCTProcessor")
-            << " Do not report CLCT on key halfstrip " << p.getKeyStrip() << ": found at bx " << bx
+            << " Do not report CLCT on key halfstrip " << p.keyStrip() << ": found at bx " << bx
             << ", whereas the earliest allowed bx is " << early_tbins + 1;
       continue;
     }
@@ -1123,7 +1123,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTs(int nMaxCLCTs) con
     if (bx > late_tbins) {
       if (infoV > 1)
         LogDebug("CSCCathodeLCTProcessor")
-            << " Do not report CLCT on key halfstrip " << p.getKeyStrip() << ": found at bx " << bx
+            << " Do not report CLCT on key halfstrip " << p.keyStrip() << ": found at bx " << bx
             << ", whereas the latest allowed bx is " << late_tbins;
       continue;
     }
@@ -1157,7 +1157,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTsME1a(int nMaxCLCTs)
     return tmpV;
   const std::vector<CSCCLCTDigi>& allCLCTs = readoutCLCTs(nMaxCLCTs);
   for (const auto& clct : allCLCTs)
-    if (clct.getCFEB() >= 4)
+    if (clct.cfeb() >= 4)
       tmpV.push_back(clct);
   return tmpV;
 }
@@ -1170,7 +1170,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTsME1b(int nMaxCLCTs)
     return tmpV;
   const std::vector<CSCCLCTDigi>& allCLCTs = readoutCLCTs(nMaxCLCTs);
   for (const auto& clct : allCLCTs)
-    if (clct.getCFEB() < 4)
+    if (clct.cfeb() < 4)
       tmpV.push_back(clct);
   return tmpV;
 }
@@ -1181,7 +1181,7 @@ std::vector<CSCCLCTPreTriggerDigi> CSCCathodeLCTProcessor::preTriggerDigisME1a()
     return tmpV;
   const std::vector<CSCCLCTPreTriggerDigi>& allPretriggerdigis = preTriggerDigis();
   for (const auto& preclct : allPretriggerdigis)
-    if (preclct.getCFEB() >= 4)
+    if (preclct.cfeb() >= 4)
       tmpV.push_back(preclct);
   return tmpV;
 }
@@ -1192,7 +1192,7 @@ std::vector<CSCCLCTPreTriggerDigi> CSCCathodeLCTProcessor::preTriggerDigisME1b()
     return tmpV;
   const std::vector<CSCCLCTPreTriggerDigi>& allPretriggerdigis = preTriggerDigis();
   for (const auto& preclct : allPretriggerdigis)
-    if (preclct.getCFEB() < 4)
+    if (preclct.cfeb() < 4)
       tmpV.push_back(preclct);
   return tmpV;
 }
@@ -1216,13 +1216,14 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::getCLCTs() const {
 // to make a proper comparison with ALCTs we need
 // CLCT and ALCT to have the central BX in the same bin
 CSCCLCTDigi CSCCathodeLCTProcessor::getBestCLCT(int bx) const {
-  CSCCLCTDigi lct = CLCTContainer_[bx][0];
-  lct.setBX(lct.getBX() + alctClctOffset_);
+  CSCCLCTDigi lct = CLCTCont()ainer_[bx][0];
+  lct.setBX(lct.bx() + alctClctOffset_);
   return lct;
 }
 
+
 CSCCLCTDigi CSCCathodeLCTProcessor::getSecondCLCT(int bx) const {
-  CSCCLCTDigi lct = CLCTContainer_[bx][1];
-  lct.setBX(lct.getBX() + alctClctOffset_);
+  CSCCLCTDgetSecondCLCTCLCTContainer_[bx][1];
+  lct.setBX(lct.bx() + alctClctOffset_);
   return lct;
 }

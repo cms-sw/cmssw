@@ -60,7 +60,7 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
-#include "EventFilter/CSCRawToDigi/interface/CSCCLCTData.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCComparatorData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCExaminer.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCEventData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDDUEventData.h"
@@ -231,12 +231,12 @@ private:
   MonitorElement *hSensitiveAreaEvt;
 
   // BX monitoring
-  MonitorElement *hALCTgetBX;
-  MonitorElement *hALCTgetBXSerial;
-  //  MonitorElement *hALCTgetBXChamberMeans;
-  //  MonitorElement *hALCTgetBX2DMeans;
-  MonitorElement *hALCTgetBX2Denominator;
-  MonitorElement *hALCTgetBX2DNumerator;
+  MonitorElement *hALCTbx;
+  MonitorElement *hALCTbxSerial;
+  //  MonitorElement *hALCTbxChamberMeans;
+  //  MonitorElement *hALCTbx2DMeans;
+  MonitorElement *hALCTbx2Denominator;
+  MonitorElement *hALCTbx2DNumerator;
 
   MonitorElement *hALCTMatch;
   MonitorElement *hALCTMatchSerial;

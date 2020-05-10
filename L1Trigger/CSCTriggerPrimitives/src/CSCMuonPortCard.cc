@@ -38,7 +38,7 @@ std::vector<csctf::TrackStub> CSCMuonPortCard::sort(
 
   // Make sure no Quality 0 or non-valid LCTs come through the portcard.
   for (LCT = result.begin(); LCT != result.end(); LCT++) {
-    if ((drop_invalid_stubs_ && !LCT->isValid()) || (drop_low_quality_stubs_ && LCT->getQuality() == 0))
+    if ((drop_invalid_stubs_ && !LCT->isValid()) || (drop_low_quality_stubs_ && LCT->quality() == 0))
       result.erase(LCT, LCT);
   }
 

@@ -739,18 +739,18 @@ void CSCOfflineMonitor::bookHistograms(DQMStore::IBooker& ibooker,
   // bx monitor for trigger synchronization
   ibooker.setCurrentFolder("CSC/CSCOfflineMonitor/BXMonitor");
 
-  hALCTgetBX = ibooker.book1D("hALCTgetBX", "ALCT position in ALCT-L1A match window [BX]", 7, -0.5, 6.5);
-  //      hALCTgetBXChamberMeans = ibooker.book1D("hALCTgetBXChamberMeans","Chamber Mean ALCT position in ALCT-L1A match window [BX]",60,0,6);
-  hALCTgetBXSerial =
-      ibooker.book2D("hALCTgetBXSerial", "ALCT position in ALCT-L1A match window [BX]", 601, -0.5, 600.5, 7, -0.5, 6.5);
-  hALCTgetBXSerial->setAxisTitle("Chamber Serial Number");
-  hALCTgetBX2DNumerator = ibooker.book2D(
-      "hALCTgetBX2DNumerator", "ALCT position in ALCT-L1A match window [BX] (sum)", 36, 0.5, 36.5, 20, 0.5, 20.5);
-  //      hALCTgetBX2DMeans = ibooker.book2D("hALCTgetBX2DMeans","ALCT position in ALCT-L1A match window [BX]",36,0.5,36.5,20,0.5,20.5);
-  hALCTgetBX2Denominator =
-      ibooker.book2D("hALCTgetBX2Denominator", "Number of ALCT Digis checked", 36, 0.5, 36.5, 20, 0.5, 20.5);
-  //      hALCTgetBX2DMeans->setAxisTitle("Chamber #");
-  hALCTgetBX2Denominator->setAxisTitle("Chamber #");
+  hALCTbx = ibooker.book1D("hALCTbx", "ALCT position in ALCT-L1A match window [BX]", 7, -0.5, 6.5);
+  //      hALCTbxChamberMeans = ibooker.book1D("hALCTbxChamberMeans","Chamber Mean ALCT position in ALCT-L1A match window [BX]",60,0,6);
+  hALCTbxSerial =
+      ibooker.book2D("hALCTbxSerial", "ALCT position in ALCT-L1A match window [BX]", 601, -0.5, 600.5, 7, -0.5, 6.5);
+  hALCTbxSerial->setAxisTitle("Chamber Serial Number");
+  hALCTbx2DNumerator = ibooker.book2D(
+      "hALCTbx2DNumerator", "ALCT position in ALCT-L1A match window [BX] (sum)", 36, 0.5, 36.5, 20, 0.5, 20.5);
+  //      hALCTbx2DMeans = ibooker.book2D("hALCTbx2DMeans","ALCT position in ALCT-L1A match window [BX]",36,0.5,36.5,20,0.5,20.5);
+  hALCTbx2Denominator =
+      ibooker.book2D("hALCTbx2Denominator", "Number of ALCT Digis checked", 36, 0.5, 36.5, 20, 0.5, 20.5);
+  //      hALCTbx2DMeans->setAxisTitle("Chamber #");
+  hALCTbx2Denominator->setAxisTitle("Chamber #");
   hALCTMatch = ibooker.book1D("hALCTMatch", "ALCT position in ALCT-CLCT match window [BX]", 7, -0.5, 6.5);
   //      hALCTMatchChamberMeans = ibooker.book1D("hALCTMatchChamberMeans","Chamber Mean ALCT position in ALCT-CLCT match window [BX]",60,0,6);
   hALCTMatchSerial = ibooker.book2D(
@@ -794,8 +794,8 @@ void CSCOfflineMonitor::bookHistograms(DQMStore::IBooker& ibooker,
   //      applyCSClabels(hWireEff2, SMALL, Y);
   applyCSClabels(hWireSTE2, EXTENDED, Y);
   applyCSClabels(hSensitiveAreaEvt, EXTENDED, Y);
-  //      applyCSClabels(hALCTgetBX2DMeans, EXTENDED, Y);
-  applyCSClabels(hALCTgetBX2Denominator, EXTENDED, Y);
+  //      applyCSClabels(hALCTbx2DMeans, EXTENDED, Y);
+  applyCSClabels(hALCTbx2Denominator, EXTENDED, Y);
   //      applyCSClabels(hALCTMatch2DMeans, EXTENDED, Y);
   applyCSClabels(hALCTMatch2Denominator, EXTENDED, Y);
   //      applyCSClabels(hCLCTL1A2DMeans, EXTENDED, Y);
@@ -886,7 +886,7 @@ void CSCOfflineMonitor::doOccupancies(edm::Handle<CSCStripDigiCollection> strips
       // Valid digi in the chamber (or in neighbouring chamber)
       if ((*digiIt).isValid()) {
         //Check whether this CLCT came from ME11a
-        if (kStation == 1 && kRing == 1 && (*digiIt).getKeyStrip() > 128)
+        if (kStation == 1 && kRing == 1 && (*digiIt).keyStrip() > 128)
           kRing = 4;
         clcto[kEndcap - 1][kStation - 1][kRing - 1][kChamber - 1] = true;
       }
@@ -1791,10 +1791,10 @@ void CSCOfflineMonitor::doBXMonitor(edm::Handle<CSCALCTDigiCollection> alcts,
     for (CSCALCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; ++digiIt) {
       // Valid digi in the chamber (or in neighbouring chamber)
       if ((*digiIt).isValid()) {
-        hALCTgetBX->Fill((*digiIt).getBX());
-        hALCTgetBXSerial->Fill(chamberSerial(idALCT), (*digiIt).getBX());
-        hALCTgetBX2DNumerator->Fill(idALCT.chamber(), typeIndex(idALCT, 2), (*digiIt).getBX());
-        hALCTgetBX2Denominator->Fill(idALCT.chamber(), typeIndex(idALCT, 2));
+        hALCTbx->Fill((*digiIt).bx());
+        hALCTbxSerial->Fill(chamberSerial(idALCT), (*digiIt).bx());
+        hALCTbx2DNumerator->Fill(idALCT.chamber(), typeIndex(idALCT, 2), (*digiIt).bx());
+        hALCTbx2Denominator->Fill(idALCT.chamber(), typeIndex(idALCT, 2));
       }
     }
   }  // end ALCT Digi loop
@@ -1932,7 +1932,7 @@ void CSCOfflineMonitor::doBXMonitor(edm::Handle<CSCALCTDigiCollection> alcts,
             bool goodTMB = false;
             if (nclct && cscData[iCSC].tmbData()) {
               if (cscData[iCSC].tmbHeader()->check()) {
-                if (cscData[iCSC].clctData()->check())
+                if (cscData[iCSC].comparatorData()->check())
                   goodTMB = true;
               }
             }
@@ -1943,7 +1943,7 @@ void CSCOfflineMonitor::doBXMonitor(edm::Handle<CSCALCTDigiCollection> alcts,
               if (clcts.empty() || !(clcts[0].isValid()))
                 continue;
               // Check if the CLCT was in ME11a (ring 4)
-              if (layer.station() == 1 && layer.ring() == 1 && clcts[0].getKeyStrip() > 128) {
+              if (layer.station() == 1 && layer.ring() == 1 && clcts[0].keyStrip() > 128) {
                 layer = CSCDetId(layer.endcap(), layer.station(), 4, layer.chamber());
               }
               hALCTMatch->Fill(tmbHead->ALCTMatchTime());
@@ -1955,7 +1955,7 @@ void CSCOfflineMonitor::doBXMonitor(edm::Handle<CSCALCTDigiCollection> alcts,
                 hALCTMatch2Denominator->Fill(layer.chamber(), typeIndex(layer, 2));
               }
 
-              int TMB_CLCTpre_rel_L1A = tmbHead->BXNCount() - clcts[0].getFullBX();
+              int TMB_CLCTpre_rel_L1A = tmbHead->BXNCount() - clcts[0].fullBX();
               if (TMB_CLCTpre_rel_L1A > 3563)
                 TMB_CLCTpre_rel_L1A = TMB_CLCTpre_rel_L1A - 3564;
               if (TMB_CLCTpre_rel_L1A < 0)

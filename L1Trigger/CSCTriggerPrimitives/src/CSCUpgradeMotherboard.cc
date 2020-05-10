@@ -277,7 +277,7 @@ void CSCUpgradeMotherboard::debugLUTs() {
 }
 
 bool CSCUpgradeMotherboard::sortLCTsByQuality(const CSCCorrelatedLCTDigi& lct1, const CSCCorrelatedLCTDigi& lct2) {
-  return lct1.getQuality() > lct2.getQuality();
+  return lct1.quality() > lct2.quality();
 }
 
 bool CSCUpgradeMotherboard::sortLCTsByGEMDphi(const CSCCorrelatedLCTDigi& lct1, const CSCCorrelatedLCTDigi& lct2) {

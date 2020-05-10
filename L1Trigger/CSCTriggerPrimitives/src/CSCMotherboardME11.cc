@@ -254,7 +254,7 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::readoutLCTs(int me1ab) con
     if (!plct->isValid())
       continue;
 
-    int bx = (*plct).getBX();
+    int bx = (*plct).bx();
     // Skip LCTs found too early relative to L1Accept.
     if (bx <= early_tbins)
       continue;
@@ -284,7 +284,7 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::getLCTs1b() const {
     for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++) {
       for (int i = 0; i < CSCConstants::MAX_LCTS_PER_CSC; i++) {
         const CSCCorrelatedLCTDigi& lct = allLCTs.data[bx][mbx][i];
-        if (lct.isValid() and lct.getStrip() < CSCConstants::MAX_HALF_STRIP_ME1B) {
+        if (lct.isValid() and lct.strip() < CSCConstants::MAX_HALF_STRIP_ME1B) {
           tmpV.push_back(lct);
         }
       }
@@ -305,7 +305,7 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::getLCTs1a() const {
     for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++) {
       for (int i = 0; i < CSCConstants::MAX_LCTS_PER_CSC; i++) {
         const CSCCorrelatedLCTDigi& lct = allLCTs.data[bx][mbx][i];
-        if (lct.isValid() and lct.getStrip() >= CSCConstants::MAX_HALF_STRIP_ME1B) {
+        if (lct.isValid() and lct.strip() >= CSCConstants::MAX_HALF_STRIP_ME1B) {
           tmpV.push_back(lct);
         }
       }

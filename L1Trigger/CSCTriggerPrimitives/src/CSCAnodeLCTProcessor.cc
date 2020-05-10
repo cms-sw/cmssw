@@ -806,12 +806,12 @@ void CSCAnodeLCTProcessor::ghostCancellationLogicOneWire(const int key_wire, int
         //ignore whether ALCT is valid or not in ghost cancellation
         //if wiregroup 10, 11, 12 all have trigger and same quality, only wiregroup 10 can keep the trigger
         //this met with firmware
-        if (not(p.getKeyWG() == key_wire - 1 and 1 - p.getAccelerator() == i_pattern))
+        if (not(p.keyWireGroup() == key_wire - 1 and 1 - p.accelerator() == i_pattern))
           continue;
 
         bool ghost_cleared_prev = false;
-        int qual_prev = p.getQuality();
-        int first_bx_prev = p.getBX();
+        int qual_prev = p.quality();
+        int first_bx_prev = p.bx();
         if (infoV > 1)
           LogTrace("CSCAnodeLCTProcessor")
               << "ghost concellation logic " << ((i_pattern == 0) ? "Accelerator" : "Collision") << " key_wire "
@@ -868,11 +868,11 @@ void CSCAnodeLCTProcessor::lctSearch() {
   if (infoV > 0) {
     int n_alct_all = 0, n_alct = 0;
     for (const auto& p : lct_list) {
-      if (p.isValid() && p.getBX() == CSCConstants::LCT_CENTRAL_BX)
+      if (p.isValid() && p.bx() == CSCConstants::LCT_CENTRAL_BX)
         n_alct_all++;
     }
     for (const auto& p : fourBest) {
-      if (p.isValid() && p.getBX() == CSCConstants::LCT_CENTRAL_BX)
+      if (p.isValid() && p.bx() == CSCConstants::LCT_CENTRAL_BX)
         n_alct++;
     }
 
@@ -883,7 +883,7 @@ void CSCAnodeLCTProcessor::lctSearch() {
   // Select two best of four per time bin, based on quality and
   // accel_mode parameter.
   for (const auto& p : fourBest) {
-    const int bx = p.getBX();
+    const int bx = p.bx();
     if (bx >= CSCConstants::MAX_ALCT_TBINS) {
       if (infoV > 0)
         edm::LogWarning("CSCAnodeLCTProcessor|OutOfTimeALCT")
@@ -906,7 +906,8 @@ void CSCAnodeLCTProcessor::lctSearch() {
     if (bestALCT[bx].isValid()) {
       bestALCT[bx].setTrknmb(1);
       if (infoV > 0) {
-        LogDebug("CSCAnodeLCTProcessor") << bestALCT[bx] << " fullBX = " << bestALCT[bx].getFullBX() << " found in "
+        LogDebug("CSCAnodeLCTProcessor") << "\n"
+                                         << bestALCT[bx] << " fullBX = " << bestALCT[bx].fullBX() << " found in "
                                          << theCSCName_ << " (sector " << theSector << " subsector " << theSubsector
                                          << " trig id. " << theTrigChamber << ")"
                                          << "\n";
@@ -915,8 +916,8 @@ void CSCAnodeLCTProcessor::lctSearch() {
         secondALCT[bx].setTrknmb(2);
         if (infoV > 0) {
           LogDebug("CSCAnodeLCTProcessor")
-              << secondALCT[bx] << " fullBX = " << secondALCT[bx].getFullBX() << " found in " << theCSCName_
-              << " (sector " << theSector << " subsector " << theSubsector << " trig id. " << theTrigChamber << ")"
+              << secondALCT[bx] << " fullBX = " << secondALCT[bx].fullBX() << " found in " << theCSCName_ << " (sector "
+              << theSector << " subsector " << theSubsector << " trig id. " << theTrigChamber << ")"
               << "\n";
         }
       }
@@ -965,16 +966,16 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::bestTrackSelector(const std::vect
     // the priority is given to the ALCT with larger wiregroup number
     // in the search for tA (collision and accelerator), and to the ALCT
     // with smaller wiregroup number in the search for tB.
-    int bx = p.getBX();
-    int accel = p.getAccelerator();
-    int qual = p.getQuality();
-    int wire = p.getKeyWG();
+    int bx = p.bx();
+    int accel = p.accelerator();
+    int qual = p.quality();
+    int wire = p.keyWireGroup();
     bool vA = tA[bx][accel].isValid();
     bool vB = tB[bx][accel].isValid();
-    int qA = tA[bx][accel].getQuality();
-    int qB = tB[bx][accel].getQuality();
-    int wA = tA[bx][accel].getKeyWG();
-    int wB = tB[bx][accel].getKeyWG();
+    int qA = tA[bx][accel].quality();
+    int qB = tB[bx][accel].quality();
+    int wA = tA[bx][accel].keyWireGroup();
+    int wB = tB[bx][accel].keyWireGroup();
     if (!vA || qual > qA || (qual == qA && wire > wA)) {
       tA[bx][accel] = p;
     }
@@ -994,7 +995,7 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::bestTrackSelector(const std::vect
         bestALCTs[bx][accel] = tA[bx][accel];
 
         // If tA exists, tB exists too.
-        if (tA[bx][accel] != tB[bx][accel] && tA[bx][accel].getQuality() == tB[bx][accel].getQuality()) {
+        if (tA[bx][accel] != tB[bx][accel] && tA[bx][accel].quality() == tB[bx][accel].quality()) {
           secondALCTs[bx][accel] = tB[bx][accel];
         } else {
           // Funny part: if tA and tB are the same, or the quality of tB
@@ -1002,10 +1003,9 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::bestTrackSelector(const std::vect
           // not tB.  Instead it is the largest-wiregroup ALCT among those
           // ALCT whose qualities are lower than the quality of the best one.
           for (const auto& p : all_alcts) {
-            if (p.isValid() && p.getAccelerator() == accel && p.getBX() == bx &&
-                p.getQuality() < bestALCTs[bx][accel].getQuality() &&
-                p.getQuality() >= secondALCTs[bx][accel].getQuality() &&
-                p.getKeyWG() >= secondALCTs[bx][accel].getKeyWG()) {
+            if (p.isValid() && p.accelerator() == accel && p.bx() == bx &&
+                p.quality() < bestALCTs[bx][accel].quality() && p.quality() >= secondALCTs[bx][accel].quality() &&
+                p.keyWireGroup() >= secondALCTs[bx][accel].keyWireGroup()) {
               secondALCTs[bx][accel] = p;
             }
           }
@@ -1048,16 +1048,16 @@ bool CSCAnodeLCTProcessor::isBetterALCT(const CSCALCTDigi& lhsALCT, const CSCALC
 
   // ALCTs found at earlier bx times are ranked higher than ALCTs found at
   // later bx times regardless of the quality.
-  if (lhsALCT.getBX() < rhsALCT.getBX()) {
+  if (lhsALCT.bx() < rhsALCT.bx()) {
     returnValue = true;
   }
-  if (lhsALCT.getBX() != rhsALCT.getBX()) {
+  if (lhsALCT.bx() != rhsALCT.bx()) {
     return returnValue;
   }
 
   // First check the quality of ALCTs.
-  const int qual1 = lhsALCT.getQuality();
-  const int qual2 = rhsALCT.getQuality();
+  const int qual1 = lhsALCT.quality();
+  const int qual2 = rhsALCT.quality();
   if (qual1 > qual2) {
     returnValue = true;
   }
@@ -1065,14 +1065,14 @@ bool CSCAnodeLCTProcessor::isBetterALCT(const CSCALCTDigi& lhsALCT, const CSCALC
   // If they are not the same, rank according to accel_mode value.
   // If they are the same, keep the track selector assignment.
   //else if (qual1 == qual2 &&
-  //         lhsALCT.getAccelerator() != rhsALCT.getAccelerator() &&
-  //         quality[lhsALCT.getKeyWG()][1-lhsALCT.getAccelerator()] >
-  //         quality[rhsALCT.getKeyWG()][1-rhsALCT.getAccelerator()])
+  //         lhsALCT.accelerator() != rhsALCT.accelerator() &&
+  //         quality[lhsALCT.keyWireGroup()][1-lhsALCT.accelerator()] >
+  //         quality[rhsALCT.keyWireGroup()][1-rhsALCT.accelerator()])
   //  {returnValue = true;}
-  else if (qual1 == qual2 && lhsALCT.getAccelerator() != rhsALCT.getAccelerator()) {
-    if ((accel_mode == 0 || accel_mode == 1) && rhsALCT.getAccelerator() == 0)
+  else if (qual1 == qual2 && lhsALCT.accelerator() != rhsALCT.accelerator()) {
+    if ((accel_mode == 0 || accel_mode == 1) && rhsALCT.accelerator() == 0)
       returnValue = true;
-    if ((accel_mode == 2 || accel_mode == 3) && lhsALCT.getAccelerator() == 0)
+    if ((accel_mode == 2 || accel_mode == 3) && lhsALCT.accelerator() == 0)
       returnValue = true;
   }
 
@@ -1254,20 +1254,20 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::readoutALCTs(int nMaxALCTs) const
     if (!p.isValid())
       continue;
 
-    int bx = p.getBX();
+    int bx = p.bx();
     // Skip ALCTs found too early relative to L1Accept.
     if (bx <= early_tbins) {
       if (infoV > 1)
-        LogDebug("CSCAnodeLCTProcessor") << " Do not report ALCT on keywire " << p.getKeyWG() << ": found at bx " << bx
-                                         << ", whereas the earliest allowed bx is " << early_tbins + 1;
+        LogDebug("CSCAnodeLCTProcessor") << " Do not report ALCT on keywire " << p.keyWireGroup() << ": found at bx "
+                                         << bx << ", whereas the earliest allowed bx is " << early_tbins + 1;
       continue;
     }
 
     // Skip ALCTs found too late relative to L1Accept.
     if (bx > late_tbins) {
       if (infoV > 1)
-        LogDebug("CSCAnodeLCTProcessor") << " Do not report ALCT on keywire " << p.getKeyWG() << ": found at bx " << bx
-                                         << ", whereas the latest allowed bx is " << late_tbins;
+        LogDebug("CSCAnodeLCTProcessor") << " Do not report ALCT on keywire " << p.keyWireGroup() << ": found at bx "
+                                         << bx << ", whereas the latest allowed bx is " << late_tbins;
       continue;
     }
 
@@ -1281,7 +1281,7 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::readoutALCTs(int nMaxALCTs) const
   // but right before we put emulated ALCTs in the event, we shift the BX
   // by -5 to make sure they are compatible with real data ALCTs!
   for (auto& p : tmpV) {
-    p.setBX(p.getBX() - (CSCConstants::LCT_CENTRAL_BX - l1a_window_width / 2));
+    p.setBX(p.bx() - (CSCConstants::LCT_CENTRAL_BX - l1a_window_width / 2));
   }
   return tmpV;
 }

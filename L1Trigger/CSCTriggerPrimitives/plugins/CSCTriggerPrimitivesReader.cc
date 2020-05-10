@@ -1141,18 +1141,18 @@ void CSCTriggerPrimitivesReader::fillALCTHistos(const CSCALCTDigiCollection* alc
       bool alct_valid = (*digiIt).isValid();
       hAlctValid->Fill(alct_valid);
       if (alct_valid) {
-        hAlctQuality->Fill((*digiIt).getQuality());
-        hAlctAccel->Fill((*digiIt).getAccelerator());
-        hAlctCollis->Fill((*digiIt).getCollisionB());
-        hAlctKeyGroup->Fill((*digiIt).getKeyWG());
-        hAlctBXN->Fill((*digiIt).getBX());
+        hAlctQuality->Fill((*digiIt).quality());
+        hAlctAccel->Fill((*digiIt).accelerator());
+        hAlctCollis->Fill((*digiIt).collisionB());
+        hAlctKeyGroup->Fill((*digiIt).keyWireGroup());
+        hAlctBXN->Fill((*digiIt).bx());
 
         int csctype = getCSCType(id);
         hAlctPerCSC->Fill(csctype);
         hAlctCsc[id.endcap() - 1][csctype]->Fill(id.chamber());
 
         if (csctype == 0)
-          hAlctKeyGroupME11->Fill((*digiIt).getKeyWG());
+          hAlctKeyGroupME11->Fill((*digiIt).keyWireGroup());
 
         nValidALCTs++;
         nValidALCTsPerCSC++;
@@ -1188,17 +1188,17 @@ void CSCTriggerPrimitivesReader::fillCLCTHistos(const CSCCLCTDigiCollection* clc
       bool clct_valid = (*digiIt).isValid();
       hClctValid->Fill(clct_valid);
       if (clct_valid) {
-        int striptype = (*digiIt).getStripType();
-        int keystrip = (*digiIt).getKeyStrip();  // halfstrip #
+        int striptype = (*digiIt).stripType();
+        int keystrip = (*digiIt).keyStrip();  // halfstrip #
         if (striptype == 0)
           keystrip /= 4;  // distrip # for distrip ptns
-        hClctQuality->Fill((*digiIt).getQuality());
+        hClctQuality->Fill((*digiIt).quality());
         hClctStripType->Fill(striptype);
-        hClctSign->Fill((*digiIt).getBend());
-        hClctCFEB->Fill((*digiIt).getCFEB());
-        hClctBXN->Fill((*digiIt).getBX());
+        hClctSign->Fill((*digiIt).bend());
+        hClctCFEB->Fill((*digiIt).cfeb());
+        hClctBXN->Fill((*digiIt).bx());
         hClctKeyStrip[striptype]->Fill(keystrip);
-        hClctPattern[striptype]->Fill((*digiIt).getPattern());
+        hClctPattern[striptype]->Fill((*digiIt).pattern());
 
         int csctype = getCSCType(id);
         hClctPerCSC->Fill(csctype);
@@ -1208,7 +1208,7 @@ void CSCTriggerPrimitivesReader::fillCLCTHistos(const CSCCLCTDigiCollection* clc
           hClctKeyStripME11->Fill(keystrip);
 
         int phibend;
-        int pattern = (*digiIt).getPattern();
+        int pattern = (*digiIt).pattern();
         phibend = ptype_TMB07[pattern];
         hClctBendCsc[csctype][striptype]->Fill(abs(phibend));
 
@@ -1256,21 +1256,21 @@ void CSCTriggerPrimitivesReader::fillLCTTMBHistos(const CSCCorrelatedLCTDigiColl
         hLctTMBRing->Fill(id.ring());
         hLctTMBChamber[id.station() - 1]->Fill(id.triggerCscId());
 
-        int quality = (*digiIt).getQuality();
+        int quality = (*digiIt).quality();
         hLctTMBQuality->Fill(quality);
-        hLctTMBBXN->Fill((*digiIt).getBX());
+        hLctTMBBXN->Fill((*digiIt).bx());
 
         alct_valid = (quality != 0 && quality != 2);
         if (alct_valid) {
-          hLctTMBKeyGroup->Fill((*digiIt).getKeyWG());
+          hLctTMBKeyGroup->Fill((*digiIt).keyWireGroup());
         }
 
         clct_valid = (quality != 0 && quality != 1);
         if (clct_valid) {
-          hLctTMBKeyStrip->Fill((*digiIt).getStrip());
+          hLctTMBKeyStrip->Fill((*digiIt).strip());
           hLctTMBStripType->Fill(1.);
-          hLctTMBPattern->Fill((*digiIt).getPattern());
-          hLctTMBBend->Fill((*digiIt).getBend());
+          hLctTMBPattern->Fill((*digiIt).pattern());
+          hLctTMBBend->Fill((*digiIt).bend());
         }
 
         int csctype = getCSCType(id);
@@ -1281,10 +1281,10 @@ void CSCTriggerPrimitivesReader::fillLCTTMBHistos(const CSCCorrelatedLCTDigiColl
           hCorrLctTMBPerCSC->Fill(csctype);
 
         if (alct_valid && csctype == 0) {
-          hLctTMBKeyGroupME11->Fill((*digiIt).getKeyWG());
+          hLctTMBKeyGroupME11->Fill((*digiIt).keyWireGroup());
         }
         if (clct_valid && csctype == 0) {
-          hLctTMBKeyStripME11->Fill((*digiIt).getStrip());
+          hLctTMBKeyStripME11->Fill((*digiIt).strip());
         }
 
         nValidLCTs++;
@@ -1327,21 +1327,21 @@ void CSCTriggerPrimitivesReader::fillLCTMPCHistos(const CSCCorrelatedLCTDigiColl
         hLctMPCRing->Fill(id.ring());
         hLctMPCChamber[id.station() - 1]->Fill(id.triggerCscId());
 
-        int quality = (*digiIt).getQuality();
+        int quality = (*digiIt).quality();
         hLctMPCQuality->Fill(quality);
-        hLctMPCBXN->Fill((*digiIt).getBX());
+        hLctMPCBXN->Fill((*digiIt).bx());
 
         alct_valid = (quality != 0 && quality != 2);
         if (alct_valid) {
-          hLctMPCKeyGroup->Fill((*digiIt).getKeyWG());
+          hLctMPCKeyGroup->Fill((*digiIt).keyWireGroup());
         }
 
         clct_valid = (quality != 0 && quality != 1);
         if (clct_valid) {
-          hLctMPCKeyStrip->Fill((*digiIt).getStrip());
+          hLctMPCKeyStrip->Fill((*digiIt).strip());
           hLctMPCStripType->Fill(1.);
-          hLctMPCPattern->Fill((*digiIt).getPattern());
-          hLctMPCBend->Fill((*digiIt).getBend());
+          hLctMPCPattern->Fill((*digiIt).pattern());
+          hLctMPCBend->Fill((*digiIt).bend());
         }
 
         int csctype = getCSCType(id);
@@ -1351,10 +1351,10 @@ void CSCTriggerPrimitivesReader::fillLCTMPCHistos(const CSCCorrelatedLCTDigiColl
           hCorrLctMPCPerCSC->Fill(csctype);
 
         if (alct_valid && csctype == 0) {
-          hLctMPCKeyGroupME11->Fill((*digiIt).getKeyWG());
+          hLctMPCKeyGroupME11->Fill((*digiIt).keyWireGroup());
         }
         if (clct_valid && csctype == 0) {
-          hLctMPCKeyStripME11->Fill((*digiIt).getStrip());
+          hLctMPCKeyStripME11->Fill((*digiIt).strip());
         }
 
         nValidLCTs++;
@@ -1447,14 +1447,14 @@ void CSCTriggerPrimitivesReader::compareALCTs(const CSCALCTDigiCollection* alcts
                     << detid.triggerCscId() << "):\n";
             strstrm << "  **** " << ndata << " valid data ALCTs found:\n";
             for (pd = alctV_data.begin(); pd != alctV_data.end(); pd++) {
-              strstrm << "     " << (*pd) << " Full BX = " << (*pd).getFullBX() << "\n";
+              strstrm << "     " << (*pd) << " Full BX = " << (*pd).fullBX() << "\n";
             }
             strstrm << "  **** " << nemul << " valid emul ALCTs found:\n";
             for (pe = alctV_emul.begin(); pe != alctV_emul.end(); pe++) {
               strstrm << "     " << (*pe);
               for (pd = alctV_data.begin(); pd != alctV_data.end(); pd++) {
-                if ((*pd).getTrknmb() == (*pe).getTrknmb()) {
-                  int emul_bx = (*pe).getBX();
+                if ((*pd).trackNumber() == (*pe).trackNumber()) {
+                  int emul_bx = (*pe).bx();
                   emul_corr_bx = emul_bx - rawhit_tbin_offset + register_delay;
                   strstrm << " Corr BX = " << emul_corr_bx;
                   break;
@@ -1528,12 +1528,12 @@ void CSCTriggerPrimitivesReader::compareALCTs(const CSCALCTDigiCollection* alcts
           for (int i = 0; i < ndata; i++) {
             if (alctV_data[i].isValid() == 0)
               continue;
-            int data_trknmb = alctV_data[i].getTrknmb();
-            //int data_quality   = alctV_data[i].getQuality();
-            //int data_accel     = alctV_data[i].getAccelerator();
-            //int data_collB     = alctV_data[i].getCollisionB();
-            int data_wiregroup = alctV_data[i].getKeyWG();
-            int data_bx = alctV_data[i].getBX();
+            int data_trknmb = alctV_data[i].trackNumber();
+            //int data_quality   = alctV_data[i].quality();
+            //int data_accel     = alctV_data[i].accelerator();
+            //int data_collB     = alctV_data[i].collisionB();
+            int data_wiregroup = alctV_data[i].keyWireGroup();
+            int data_bx = alctV_data[i].bx();
 
             stubs_comparison[0].init(RUN_, Event_);
             stubs_comparison[0].firstfill = firstfill;
@@ -1550,10 +1550,10 @@ void CSCTriggerPrimitivesReader::compareALCTs(const CSCALCTDigiCollection* alcts
             stubs_comparison[0].totStubs_emul_readout = nemul;
             stubs_comparison[0].nStub_data = i + 1;
             stubs_comparison[0].has_data = true;
-            stubs_comparison[0].quality_data = alctV_data[i].getQuality();
-            stubs_comparison[0].key_WG_data = alctV_data[i].getKeyWG();
+            stubs_comparison[0].quality_data = alctV_data[i].quality();
+            stubs_comparison[0].key_WG_data = alctV_data[i].keyWireGroup();
             stubs_comparison[0].bx_data = data_bx;
-            stubs_comparison[0].fullbx_data = alctV_data[i].getFullBX();
+            stubs_comparison[0].fullbx_data = alctV_data[i].fullBX();
             stubs_comparison[0].trknmb_data = data_trknmb;
             GlobalPoint gp_alct_data(getGlobalPosition(detid.rawId(), data_wiregroup, 60));
             stubs_comparison[0].eta_data = gp_alct_data.eta();
@@ -1563,12 +1563,12 @@ void CSCTriggerPrimitivesReader::compareALCTs(const CSCALCTDigiCollection* alcts
               if (bookedalctV_emul[j])
                 continue;  //used alct
 
-              int emul_trknmb = alctV_emul[j].getTrknmb();
-              //int emul_quality   = alctV_emul[j].getQuality();
-              //int emul_accel     = alctV_emul[j].getAccelerator();
-              //int emul_collB     = alctV_emul[j].getCollisionB();
-              int emul_wiregroup = alctV_emul[j].getKeyWG();
-              int emul_bx = alctV_emul[j].getBX();
+              int emul_trknmb = alctV_emul[j].trackNumber();
+              //int emul_quality   = alctV_emul[j].quality();
+              //int emul_accel     = alctV_emul[j].accelerator();
+              //int emul_collB     = alctV_emul[j].collisionB();
+              int emul_wiregroup = alctV_emul[j].keyWireGroup();
+              int emul_bx = alctV_emul[j].bx();
               // Emulator BX re-calculated for comparison with BX in the data.
               emul_corr_bx = emul_bx - rawhit_tbin_offset + register_delay;
               if (dataIsAnotherMC_)
@@ -1599,9 +1599,9 @@ void CSCTriggerPrimitivesReader::compareALCTs(const CSCALCTDigiCollection* alcts
                   LogTrace("CSCTriggerPrimitivesReader") << "       Identical ALCTs #" << data_trknmb;
                 stubs_comparison[0].nStub_emul = j + 1;
                 stubs_comparison[0].has_emul = true;
-                stubs_comparison[0].quality_emul = alctV_emul[j].getQuality();
-                stubs_comparison[0].key_WG_emul = alctV_emul[j].getKeyWG();
-                stubs_comparison[0].bx_emul = alctV_emul[j].getBX();
+                stubs_comparison[0].quality_emul = alctV_emul[j].quality();
+                stubs_comparison[0].key_WG_emul = alctV_emul[j].keyWireGroup();
+                stubs_comparison[0].bx_emul = alctV_emul[j].bx();
                 stubs_comparison[0].trknmb_emul = emul_trknmb;
                 GlobalPoint gp_alct_emul(getGlobalPosition(detid.rawId(), emul_wiregroup, 60));
                 stubs_comparison[0].eta_emul = gp_alct_emul.eta();
@@ -1626,7 +1626,7 @@ void CSCTriggerPrimitivesReader::compareALCTs(const CSCALCTDigiCollection* alcts
           for (int i = 0; i < nemul; i++) {
             if (alctV_emul[i].isValid() == 0 or bookedalctV_emul[i])
               continue;
-            int emul_bx = alctV_emul[i].getBX();
+            int emul_bx = alctV_emul[i].bx();
             stubs_comparison[0].init(RUN_, Event_);
             stubs_comparison[0].firstfill = firstfill;
             if (firstfill)
@@ -1644,12 +1644,12 @@ void CSCTriggerPrimitivesReader::compareALCTs(const CSCALCTDigiCollection* alcts
             stubs_comparison[0].nStub_emul = i + 1;
             stubs_comparison[0].has_data = false;
             stubs_comparison[0].has_emul = true;
-            stubs_comparison[0].trknmb_emul = alctV_emul[i].getTrknmb();
-            stubs_comparison[0].quality_emul = alctV_emul[i].getQuality();
-            stubs_comparison[0].key_WG_emul = alctV_emul[i].getKeyWG();
-            stubs_comparison[0].bx_emul = alctV_emul[i].getBX();
-            stubs_comparison[0].fullbx_emul = alctV_emul[i].getFullBX();
-            GlobalPoint gp_alct_emul(getGlobalPosition(detid.rawId(), alctV_emul[i].getKeyWG(), 60));
+            stubs_comparison[0].trknmb_emul = alctV_emul[i].trackNumber();
+            stubs_comparison[0].quality_emul = alctV_emul[i].quality();
+            stubs_comparison[0].key_WG_emul = alctV_emul[i].keyWireGroup();
+            stubs_comparison[0].bx_emul = alctV_emul[i].bx();
+            stubs_comparison[0].fullbx_emul = alctV_emul[i].fullBX();
+            GlobalPoint gp_alct_emul(getGlobalPosition(detid.rawId(), alctV_emul[i].keyWireGroup(), 60));
             stubs_comparison[0].eta_emul = gp_alct_emul.eta();
             // Emulator BX re-calculated for comparison with BX in the data.
             emul_corr_bx = emul_bx - rawhit_tbin_offset + register_delay;
@@ -1704,7 +1704,7 @@ void CSCTriggerPrimitivesReader::compareCLCTs(const CSCCLCTDigiCollection* clcts
           for (auto digiIt = erange.first; digiIt != erange.second; digiIt++) {
             if ((*digiIt).isValid()) {
               for (auto pclct : clctV_emul) {
-                if (digiIt->getBX() != pclct.getBX() and abs(digiIt->getBX() - pclct.getBX()) < 5)
+                if (digiIt->bx() != pclct.bx() and abs(digiIt->bx() - pclct.bx()) < 5)
                   LogTrace("CSCTriggerPrimitivesReader")
                       << "Two CLCTs very close in timing!!! Special event: first clct " << pclct << " second clct "
                       << *digiIt << std::endl;
@@ -1730,10 +1730,10 @@ void CSCTriggerPrimitivesReader::compareCLCTs(const CSCCLCTDigiCollection* clcts
           int nemul_readout = 0;
           for (pe = clctV_emul.begin(); pe != clctV_emul.end(); pe++) {
             for (pd = clctV_data.begin(); pd != clctV_data.end(); pd++) {
-              int emul_bx = (*pe).getBX();
-              int corr_bx = ((*pd).getFullBX() + emul_bx - tbin_cathode_offset) & 0x03;
-              int bx_data = pd->getBX();
-              //if (corr_bx == bx_data or abs(pe->getKeyStrip() - pd->getKeyStrip())<=1){//if emulated BX after correction is same as data bx, it will be readout
+              int emul_bx = (*pe).bx();
+              int corr_bx = ((*pd).fullBX() + emul_bx - tbin_cathode_offset) & 0x03;
+              int bx_data = pd->bx();
+              //if (corr_bx == bx_data or abs(pe->keyStrip() - pd->keyStrip())<=1){//if emulated BX after correction is same as data bx, it will be readout
               if (corr_bx == bx_data) {  //if emulated BX after correction is same as data bx, it will be readout
                 nemul_readout++;
                 break;
@@ -1750,15 +1750,15 @@ void CSCTriggerPrimitivesReader::compareCLCTs(const CSCCLCTDigiCollection* clcts
                     << detid.triggerCscId() << "):\n";
             strstrm << "  **** " << ndata << " valid data CLCTs found:\n";
             for (pd = clctV_data.begin(); pd != clctV_data.end(); pd++) {
-              strstrm << "     " << (*pd) << " Full BX = " << (*pd).getFullBX() << "\n";
+              strstrm << "     " << (*pd) << " Full BX = " << (*pd).fullBX() << "\n";
             }
             strstrm << "  **** " << nemul << " valid emul CLCTs found:\n";
             for (pe = clctV_emul.begin(); pe != clctV_emul.end(); pe++) {
               strstrm << "     " << (*pe);
               for (pd = clctV_data.begin(); pd != clctV_data.end(); pd++) {
-                if ((*pd).getTrknmb() == (*pe).getTrknmb() or abs((*pe).getKeyStrip() - (*pd).getKeyStrip()) < 5) {
-                  int emul_bx = (*pe).getBX();
-                  int corr_bx = ((*pd).getFullBX() + emul_bx - tbin_cathode_offset) & 0x03;
+                if ((*pd).trackNumber() == (*pe).trackNumber() or abs((*pe).keyStrip() - (*pd).keyStrip()) < 5) {
+                  int emul_bx = (*pe).bx();
+                  int corr_bx = ((*pd).fullBX() + emul_bx - tbin_cathode_offset) & 0x03;
                   strstrm << " Corr BX = " << corr_bx;
                   break;
                 }
@@ -1832,15 +1832,15 @@ void CSCTriggerPrimitivesReader::compareCLCTs(const CSCCLCTDigiCollection* clcts
             i++;
             if ((*pd).isValid() == 0)
               continue;
-            int data_trknmb = (*pd).getTrknmb();
-            int data_quality = (*pd).getQuality();
-            int data_pattern = (*pd).getPattern();
-            int data_striptype = (*pd).getStripType();
-            int data_bend = (*pd).getBend();
-            int data_keystrip = (*pd).getKeyStrip();
-            int data_cfeb = (*pd).getCFEB();
-            int data_bx = (*pd).getBX();
-            int fullBX = (*pd).getFullBX();  // 12-bit full BX
+            int data_trknmb = (*pd).trackNumber();
+            int data_quality = (*pd).quality();
+            int data_pattern = (*pd).pattern();
+            int data_striptype = (*pd).stripType();
+            int data_bend = (*pd).bend();
+            int data_keystrip = (*pd).keyStrip();
+            int data_cfeb = (*pd).cfeb();
+            int data_bx = (*pd).bx();
+            int fullBX = (*pd).fullBX();  // 12-bit full BX
 
             if (data_keystrip >= 128 and stat == 1 and ring == 1)
               testwg = 5;
@@ -1862,14 +1862,14 @@ void CSCTriggerPrimitivesReader::compareCLCTs(const CSCCLCTDigiCollection* clcts
             stubs_comparison[1].totStubs_emul_readout = nemul_readout;
             stubs_comparison[1].nStub_data = i + 1;
             stubs_comparison[1].has_data = true;
-            stubs_comparison[1].quality_data = (*pd).getQuality();
-            stubs_comparison[1].key_hs_data = (*pd).getKeyStrip();
-            stubs_comparison[1].bend_data = (*pd).getBend();
-            stubs_comparison[1].pattern_data = (*pd).getPattern();
-            stubs_comparison[1].bx_data = (*pd).getBX();
-            stubs_comparison[1].fullbx_data = (*pd).getFullBX();
+            stubs_comparison[1].quality_data = (*pd).quality();
+            stubs_comparison[1].key_hs_data = (*pd).keyStrip();
+            stubs_comparison[1].bend_data = (*pd).bend();
+            stubs_comparison[1].pattern_data = (*pd).pattern();
+            stubs_comparison[1].bx_data = (*pd).bx();
+            stubs_comparison[1].fullbx_data = (*pd).fullBX();
             stubs_comparison[1].trknmb_data = data_trknmb;
-            GlobalPoint gp_clct_data(getGlobalPosition(detid.rawId(), testwg, (*pd).getKeyStrip()));
+            GlobalPoint gp_clct_data(getGlobalPosition(detid.rawId(), testwg, (*pd).keyStrip()));
             stubs_comparison[1].phi_data = gp_clct_data.phi();
 
             int j = -1;
@@ -1879,14 +1879,14 @@ void CSCTriggerPrimitivesReader::compareCLCTs(const CSCCLCTDigiCollection* clcts
                 continue;
               if (bookedclctV_emul[j])
                 continue;  //used alct
-              int emul_trknmb = (*pe).getTrknmb();
-              int emul_quality = (*pe).getQuality();
-              int emul_pattern = (*pe).getPattern();
-              int emul_striptype = (*pe).getStripType();
-              int emul_bend = (*pe).getBend();
-              int emul_keystrip = (*pe).getKeyStrip();
-              int emul_cfeb = (*pe).getCFEB();
-              int emul_bx = (*pe).getBX();
+              int emul_trknmb = (*pe).trackNumber();
+              int emul_quality = (*pe).quality();
+              int emul_pattern = (*pe).pattern();
+              int emul_striptype = (*pe).stripType();
+              int emul_bend = (*pe).bend();
+              int emul_keystrip = (*pe).keyStrip();
+              int emul_cfeb = (*pe).cfeb();
+              int emul_bx = (*pe).bx();
 
               if (abs(data_keystrip - emul_keystrip) <= 2) {
                 // Emulator BX re-calculated using 12-bit full BX number.
@@ -1924,27 +1924,27 @@ void CSCTriggerPrimitivesReader::compareCLCTs(const CSCCLCTDigiCollection* clcts
                 }
                 stubs_comparison[1].nStub_emul = j + 1;
                 stubs_comparison[1].has_emul = true;
-                stubs_comparison[1].quality_emul = (*pe).getQuality();
-                stubs_comparison[1].key_hs_emul = (*pe).getKeyStrip();
-                stubs_comparison[1].bend_emul = (*pe).getBend();
-                stubs_comparison[1].pattern_emul = (*pe).getPattern();
-                stubs_comparison[1].bx_emul = (*pe).getBX();
+                stubs_comparison[1].quality_emul = (*pe).quality();
+                stubs_comparison[1].key_hs_emul = (*pe).keyStrip();
+                stubs_comparison[1].bend_emul = (*pe).bend();
+                stubs_comparison[1].pattern_emul = (*pe).pattern();
+                stubs_comparison[1].bx_emul = (*pe).bx();
                 stubs_comparison[1].bx_corr_emul = emul_corr_bx;
                 stubs_comparison[1].trknmb_emul = emul_trknmb;
-                GlobalPoint gp_clct_emul(getGlobalPosition(detid.rawId(), testwg, (*pe).getKeyStrip()));
+                GlobalPoint gp_clct_emul(getGlobalPosition(detid.rawId(), testwg, (*pe).keyStrip()));
                 stubs_comparison[1].phi_emul = gp_clct_emul.phi();
                 bookedclctV_emul[j] = true;
 
                 //int mingap_trig_pretrig = pretrig_trig_zone*2;
                 int num_pretrig = 0;
                 for (pretrig = pretrigV_emul.begin(); pretrig != pretrigV_emul.end(); pretrig++) {
-                  if ((*pretrig).getBX() != (*pe).getBX())
+                  if ((*pretrig).bx() != (*pe).bx())
                     continue;
-                  int hsgap = std::abs((*pretrig).getKeyStrip() - (*pe).getKeyStrip());
+                  int hsgap = std::abs((*pretrig).keyStrip() - (*pe).keyStrip());
                   bool samechamber = true;
                   if (stat == 1 and ring == 1)
-                    samechamber = (((*pretrig).getKeyStrip() < 128 and (*pe).getKeyStrip() < 128) ||
-                                   ((*pretrig).getKeyStrip() >= 128 and (*pe).getKeyStrip() >= 128));
+                    samechamber = (((*pretrig).keyStrip() < 128 and (*pe).keyStrip() < 128) ||
+                                   ((*pretrig).keyStrip() >= 128 and (*pe).keyStrip() >= 128));
                   if (not samechamber)
                     continue;
 
@@ -1952,14 +1952,14 @@ void CSCTriggerPrimitivesReader::compareCLCTs(const CSCCLCTDigiCollection* clcts
                     num_pretrig++;
                   else
                     continue;
-                  if ((*pretrig).getPattern() > stubs_comparison[1].maxpattern_pretrig)
-                    stubs_comparison[1].maxpattern_pretrig = (*pretrig).getPattern();
-                  if ((*pretrig).getQuality() > stubs_comparison[1].maxquality_pretrig) {
-                    stubs_comparison[1].quality_pretrig = (*pretrig).getQuality();
-                    stubs_comparison[1].key_hs_pretrig = (*pretrig).getKeyStrip();
-                    stubs_comparison[1].bend_pretrig = (*pretrig).getBend();
-                    stubs_comparison[1].pattern_pretrig = (*pretrig).getPattern();
-                    stubs_comparison[1].bx_pretrig = (*pretrig).getBX();
+                  if ((*pretrig).pattern() > stubs_comparison[1].maxpattern_pretrig)
+                    stubs_comparison[1].maxpattern_pretrig = (*pretrig).pattern();
+                  if ((*pretrig).quality() > stubs_comparison[1].maxquality_pretrig) {
+                    stubs_comparison[1].quality_pretrig = (*pretrig).quality();
+                    stubs_comparison[1].key_hs_pretrig = (*pretrig).keyStrip();
+                    stubs_comparison[1].bend_pretrig = (*pretrig).bend();
+                    stubs_comparison[1].pattern_pretrig = (*pretrig).pattern();
+                    stubs_comparison[1].bx_pretrig = (*pretrig).bx();
                   }
                 }
                 stubs_comparison[1].npretrig = num_pretrig;
@@ -1992,23 +1992,23 @@ void CSCTriggerPrimitivesReader::compareCLCTs(const CSCCLCTDigiCollection* clcts
             stubs_comparison[1].totStubs_data = ndata;
             stubs_comparison[1].totStubs_emul = nemul;
             stubs_comparison[1].totStubs_emul_readout = nemul_readout;
-            stubs_comparison[1].trknmb_emul = clctV_emul[i].getTrknmb();
+            stubs_comparison[1].trknmb_emul = clctV_emul[i].trackNumber();
             stubs_comparison[1].nStub_data = -1;
             stubs_comparison[1].has_data = false;
             stubs_comparison[1].nStub_emul = k + 1;
             stubs_comparison[1].has_emul = true;
-            stubs_comparison[1].quality_emul = clctV_emul[k].getQuality();
-            stubs_comparison[1].key_hs_emul = clctV_emul[k].getKeyStrip();
-            stubs_comparison[1].bend_emul = clctV_emul[k].getBend();
-            stubs_comparison[1].pattern_emul = clctV_emul[k].getPattern();
-            stubs_comparison[1].bx_emul = clctV_emul[k].getBX();
-            stubs_comparison[1].fullbx_emul = clctV_emul[k].getFullBX();
-            if (clctV_emul[k].getKeyStrip() >= 128 and stat == 1 and ring == 1)
+            stubs_comparison[1].quality_emul = clctV_emul[k].quality();
+            stubs_comparison[1].key_hs_emul = clctV_emul[k].keyStrip();
+            stubs_comparison[1].bend_emul = clctV_emul[k].bend();
+            stubs_comparison[1].pattern_emul = clctV_emul[k].pattern();
+            stubs_comparison[1].bx_emul = clctV_emul[k].bx();
+            stubs_comparison[1].fullbx_emul = clctV_emul[k].fullBX();
+            if (clctV_emul[k].keyStrip() >= 128 and stat == 1 and ring == 1)
               testwg = 5;
             else
               testwg = 20;
             // Emulator BX NOT Known from  the data.
-            GlobalPoint gp_clct_emul(getGlobalPosition(detid.rawId(), testwg, clctV_emul[k].getKeyStrip()));
+            GlobalPoint gp_clct_emul(getGlobalPosition(detid.rawId(), testwg, clctV_emul[k].keyStrip()));
             stubs_comparison[1].phi_emul = gp_clct_emul.phi();
             bookedclctV_emul[k] = true;
             stub_tree[1]->Fill();
@@ -2063,9 +2063,9 @@ void CSCTriggerPrimitivesReader::compareLCTs(const CSCCorrelatedLCTDigiCollectio
           int nemul_readout = 0;
           for (pe = lctV_emul.begin(); pe != lctV_emul.end(); pe++) {
             for (pd = lctV_data.begin(); pd != lctV_data.end(); pd++) {
-              int bx_data = pd->getBX();
-              int bx_corr = convertBXofLCT((*pe).getBX(), detid, alcts_data, clcts_data);
-              if ((bx_data == bx_corr) or (abs(pe->getKeyWG() - pd->getKeyWG()) <= 2)) {
+              int bx_data = pd->bx();
+              int bx_corr = convertBXofLCT((*pe).bx(), detid, alcts_data, clcts_data);
+              if ((bx_data == bx_corr) or (abs(pe->keyWireGroup() - pd->keyWireGroup()) <= 2)) {
                 nemul_readout++;
                 break;
               }
@@ -2086,8 +2086,8 @@ void CSCTriggerPrimitivesReader::compareLCTs(const CSCCorrelatedLCTDigiCollectio
             strstrm << "\n  **** " << nemul << " valid emul LCTs found:\n";
             for (pe = lctV_emul.begin(); pe != lctV_emul.end(); pe++) {
               strstrm << "     " << (*pe);
-              strstrm << "    corr BX = " << convertBXofLCT((*pe).getBX(), detid, alcts_data, clcts_data);
-              strstrm << " LCT pattern = " << (*pe).getPattern();
+              strstrm << "    corr BX = " << convertBXofLCT((*pe).bx(), detid, alcts_data, clcts_data);
+              strstrm << " LCT pattern = " << (*pe).pattern();
               strstrm << "\n";
             }
             LogTrace("CSCTriggerPrimitivesReader") << strstrm.str();
@@ -2157,14 +2157,14 @@ void CSCTriggerPrimitivesReader::compareLCTs(const CSCCorrelatedLCTDigiCollectio
             i++;
             if ((*pd).isValid() == 0)
               continue;
-            int data_trknmb = (*pd).getTrknmb();
-            int data_quality = (*pd).getQuality();
-            int data_wiregroup = (*pd).getKeyWG();
-            int data_keystrip = (*pd).getStrip();
-            int data_pattern = (*pd).getCLCTPattern();
-            int data_striptype = (*pd).getStripType();
-            int data_bend = (*pd).getBend();
-            int data_bx = (*pd).getBX();
+            int data_trknmb = (*pd).trackNumber();
+            int data_quality = (*pd).quality();
+            int data_wiregroup = (*pd).keyWireGroup();
+            int data_keystrip = (*pd).strip();
+            int data_pattern = (*pd).clctPattern();
+            int data_striptype = (*pd).stripType();
+            int data_bend = (*pd).bend();
+            int data_bx = (*pd).bx();
 
             stubs_comparison[2].init(RUN_, Event_);
             stubs_comparison[2].firstfill = firstfill;
@@ -2181,16 +2181,16 @@ void CSCTriggerPrimitivesReader::compareLCTs(const CSCCorrelatedLCTDigiCollectio
             stubs_comparison[2].totStubs_emul_readout = nemul_readout;
             stubs_comparison[2].nStub_data = i + 1;
             stubs_comparison[2].has_data = true;
-            stubs_comparison[2].quality_data = (*pd).getQuality();
-            stubs_comparison[2].key_WG_data = (*pd).getKeyWG();
-            stubs_comparison[2].key_hs_data = (*pd).getStrip();
+            stubs_comparison[2].quality_data = (*pd).quality();
+            stubs_comparison[2].key_WG_data = (*pd).keyWireGroup();
+            stubs_comparison[2].key_hs_data = (*pd).strip();
             //cout <<" CSC detid "<< detid <<" LCT in data "<< (*pd) <<" do doesALCTCrossCLCT "<< endl;
-            stubs_comparison[2].WGcrossHS_data = doesALCTCrossCLCT(detid, (*pd).getKeyWG(), (*pd).getStrip());
-            stubs_comparison[2].bend_data = (*pd).getBend();
-            stubs_comparison[2].pattern_data = (*pd).getCLCTPattern();
-            stubs_comparison[2].bx_data = (*pd).getBX();
+            stubs_comparison[2].WGcrossHS_data = doesALCTCrossCLCT(detid, (*pd).keyWireGroup(), (*pd).strip());
+            stubs_comparison[2].bend_data = (*pd).bend();
+            stubs_comparison[2].pattern_data = (*pd).clctPattern();
+            stubs_comparison[2].bx_data = (*pd).bx();
             stubs_comparison[2].trknmb_data = data_trknmb;
-            GlobalPoint gp_lct_data(getGlobalPosition(detid.rawId(), (*pd).getKeyWG(), (*pd).getStrip()));
+            GlobalPoint gp_lct_data(getGlobalPosition(detid.rawId(), (*pd).keyWireGroup(), (*pd).strip()));
             stubs_comparison[2].eta_data = gp_lct_data.eta();
             stubs_comparison[2].phi_data = gp_lct_data.phi();
             int j = -1;
@@ -2200,14 +2200,14 @@ void CSCTriggerPrimitivesReader::compareLCTs(const CSCCorrelatedLCTDigiCollectio
                 continue;
               if (bookedlctV_emul[j])
                 continue;  //used alct
-              int emul_trknmb = (*pe).getTrknmb();
-              int emul_quality = (*pe).getQuality();
-              int emul_wiregroup = (*pe).getKeyWG();
-              int emul_keystrip = (*pe).getStrip();
-              int emul_pattern = (*pe).getCLCTPattern();
-              int emul_striptype = (*pe).getStripType();
-              int emul_bend = (*pe).getBend();
-              int emul_bx = (*pe).getBX();
+              int emul_trknmb = (*pe).trackNumber();
+              int emul_quality = (*pe).quality();
+              int emul_wiregroup = (*pe).keyWireGroup();
+              int emul_keystrip = (*pe).strip();
+              int emul_pattern = (*pe).clctPattern();
+              int emul_striptype = (*pe).stripType();
+              int emul_bend = (*pe).bend();
+              int emul_bx = (*pe).bx();
               if (abs(data_keystrip - emul_keystrip) <= 2 || abs(data_wiregroup - emul_wiregroup) <= 2) {
                 // Convert emulator BX into hardware BX using full 12-bit
                 // BX words in ALCT and CLCT digi collections.
@@ -2246,17 +2246,17 @@ void CSCTriggerPrimitivesReader::compareLCTs(const CSCCorrelatedLCTDigiCollectio
                 }
                 stubs_comparison[2].nStub_emul = j + 1;
                 stubs_comparison[2].has_emul = true;
-                stubs_comparison[2].quality_emul = (*pe).getQuality();
-                stubs_comparison[2].key_WG_emul = (*pe).getKeyWG();
-                stubs_comparison[2].key_hs_emul = (*pe).getStrip();
-                stubs_comparison[2].bend_emul = (*pe).getBend();
-                stubs_comparison[2].pattern_emul = (*pe).getCLCTPattern();
-                stubs_comparison[2].bx_emul = (*pe).getBX();
+                stubs_comparison[2].quality_emul = (*pe).quality();
+                stubs_comparison[2].key_WG_emul = (*pe).keyWireGroup();
+                stubs_comparison[2].key_hs_emul = (*pe).strip();
+                stubs_comparison[2].bend_emul = (*pe).bend();
+                stubs_comparison[2].pattern_emul = (*pe).clctPattern();
+                stubs_comparison[2].bx_emul = (*pe).bx();
                 //cout <<" CSC detid "<< detid <<" LCT in emul "<< (*pe) <<" do doesALCTCrossCLCT "<< endl;
-                stubs_comparison[2].WGcrossHS_emul = doesALCTCrossCLCT(detid, (*pe).getKeyWG(), (*pe).getStrip());
+                stubs_comparison[2].WGcrossHS_emul = doesALCTCrossCLCT(detid, (*pe).keyWireGroup(), (*pe).strip());
                 stubs_comparison[2].bx_corr_emul = emul_corr_bx;
                 stubs_comparison[2].trknmb_emul = emul_trknmb;
-                GlobalPoint gp_lct_emul(getGlobalPosition(detid.rawId(), (*pe).getKeyWG(), (*pe).getStrip()));
+                GlobalPoint gp_lct_emul(getGlobalPosition(detid.rawId(), (*pe).keyWireGroup(), (*pe).strip()));
                 stubs_comparison[2].eta_emul = gp_lct_emul.eta();
                 stubs_comparison[2].phi_emul = gp_lct_emul.phi();
                 bookedlctV_emul[j] = true;
@@ -2285,22 +2285,23 @@ void CSCTriggerPrimitivesReader::compareLCTs(const CSCCorrelatedLCTDigiCollectio
             stubs_comparison[2].totStubs_data = ndata;
             stubs_comparison[2].totStubs_emul = nemul;
             stubs_comparison[2].totStubs_emul_readout = nemul_readout;
-            stubs_comparison[2].trknmb_emul = lctV_emul[i].getTrknmb();
+            stubs_comparison[2].trknmb_emul = lctV_emul[i].trackNumber();
             stubs_comparison[2].nStub_data = -1;
             stubs_comparison[2].has_data = false;
             stubs_comparison[2].nStub_emul = k + 1;
             stubs_comparison[2].has_emul = true;
             stubs_comparison[2].WGcrossHS_emul =
-                doesALCTCrossCLCT(detid, lctV_emul[k].getKeyWG(), lctV_emul[k].getStrip());
-            stubs_comparison[2].quality_emul = lctV_emul[k].getQuality();
-            stubs_comparison[2].key_WG_emul = lctV_emul[k].getKeyWG();
-            stubs_comparison[2].key_hs_emul = lctV_emul[k].getStrip();
-            stubs_comparison[2].bend_emul = lctV_emul[k].getBend();
-            stubs_comparison[2].pattern_emul = lctV_emul[k].getCLCTPattern();
-            stubs_comparison[2].bx_emul = lctV_emul[k].getBX();
-            //stubs_comparison[2].fullbx_emul = lctV_emul[k].getFullBX();
+                doesALCTCrossCLCT(detid, lctV_emul[k].keyWireGroup(), lctV_emul[k].strip());
+            stubs_comparison[2].quality_emul = lctV_emul[k].quality();
+            stubs_comparison[2].key_WG_emul = lctV_emul[k].keyWireGroup();
+            stubs_comparison[2].key_hs_emul = lctV_emul[k].strip();
+            stubs_comparison[2].bend_emul = lctV_emul[k].bend();
+            stubs_comparison[2].pattern_emul = lctV_emul[k].clctPattern();
+            stubs_comparison[2].bx_emul = lctV_emul[k].bx();
+            //stubs_comparison[2].fullbx_emul = lctV_emul[k].fullBX();
             // Emulator BX NOT Known from  the data.
-            GlobalPoint gp_lct_emul(getGlobalPosition(detid.rawId(), lctV_emul[k].getKeyWG(), lctV_emul[k].getStrip()));
+            GlobalPoint gp_lct_emul(
+                getGlobalPosition(detid.rawId(), lctV_emul[k].keyWireGroup(), lctV_emul[k].strip()));
             stubs_comparison[2].eta_emul = gp_lct_emul.eta();
             stubs_comparison[2].phi_emul = gp_lct_emul.phi();
             bookedlctV_emul[k] = true;
@@ -2366,8 +2367,8 @@ void CSCTriggerPrimitivesReader::compareMPCLCTs(const CSCCorrelatedLCTDigiCollec
             strstrm << "\n  **** " << nemul << " valid emul LCTs found:\n";
             for (pe = lctV_emul.begin(); pe != lctV_emul.end(); pe++) {
               strstrm << "     " << (*pe);
-              strstrm << "    corr BX = " << convertBXofLCT((*pe).getBX(), detid, alcts_data, clcts_data);
-              strstrm << " LCT pattern = " << (*pe).getPattern();
+              strstrm << "    corr BX = " << convertBXofLCT((*pe).bx(), detid, alcts_data, clcts_data);
+              strstrm << " LCT pattern = " << (*pe).pattern();
               strstrm << "\n";
             }
             LogTrace("CSCTriggerPrimitivesReader") << strstrm.str();
@@ -2396,14 +2397,14 @@ void CSCTriggerPrimitivesReader::compareMPCLCTs(const CSCCorrelatedLCTDigiCollec
             i++;
             if ((*pd).isValid() == 0)
               continue;
-            int data_trknmb = (*pd).getTrknmb();
-            int data_quality = (*pd).getQuality();
-            int data_wiregroup = (*pd).getKeyWG();
-            int data_keystrip = (*pd).getStrip();
-            int data_pattern = (*pd).getCLCTPattern();
-            int data_striptype = (*pd).getStripType();
-            int data_bend = (*pd).getBend();
-            int data_bx = (*pd).getBX();
+            int data_trknmb = (*pd).trackNumber();
+            int data_quality = (*pd).quality();
+            int data_wiregroup = (*pd).keyWireGroup();
+            int data_keystrip = (*pd).strip();
+            int data_pattern = (*pd).clctPattern();
+            int data_striptype = (*pd).stripType();
+            int data_bend = (*pd).bend();
+            int data_bx = (*pd).bx();
 
             stubs_comparison[3].init(RUN_, Event_);
             stubs_comparison[3].firstfill = firstfill;
@@ -2419,15 +2420,15 @@ void CSCTriggerPrimitivesReader::compareMPCLCTs(const CSCCorrelatedLCTDigiCollec
             stubs_comparison[3].totStubs_emul = nemul;
             stubs_comparison[3].nStub_data = i + 1;
             stubs_comparison[3].has_data = true;
-            stubs_comparison[3].WGcrossHS_data = doesALCTCrossCLCT(detid, (*pd).getKeyWG(), (*pd).getStrip());
-            stubs_comparison[3].quality_data = (*pd).getQuality();
-            stubs_comparison[3].key_WG_data = (*pd).getKeyWG();
-            stubs_comparison[3].key_hs_data = (*pd).getStrip();
-            stubs_comparison[3].bend_data = (*pd).getBend();
-            stubs_comparison[3].pattern_data = (*pd).getCLCTPattern();
-            stubs_comparison[3].bx_data = (*pd).getBX();
+            stubs_comparison[3].WGcrossHS_data = doesALCTCrossCLCT(detid, (*pd).keyWireGroup(), (*pd).strip());
+            stubs_comparison[3].quality_data = (*pd).quality();
+            stubs_comparison[3].key_WG_data = (*pd).keyWireGroup();
+            stubs_comparison[3].key_hs_data = (*pd).strip();
+            stubs_comparison[3].bend_data = (*pd).bend();
+            stubs_comparison[3].pattern_data = (*pd).clctPattern();
+            stubs_comparison[3].bx_data = (*pd).bx();
             stubs_comparison[3].trknmb_data = data_trknmb;
-            GlobalPoint gp_lct_data(getGlobalPosition(detid.rawId(), (*pd).getKeyWG(), (*pd).getStrip()));
+            GlobalPoint gp_lct_data(getGlobalPosition(detid.rawId(), (*pd).keyWireGroup(), (*pd).strip()));
             stubs_comparison[3].eta_data = gp_lct_data.eta();
             stubs_comparison[3].phi_data = gp_lct_data.phi();
             int j = -1;
@@ -2435,14 +2436,14 @@ void CSCTriggerPrimitivesReader::compareMPCLCTs(const CSCCorrelatedLCTDigiCollec
               j++;
               if ((*pe).isValid() == 0)
                 continue;
-              int emul_trknmb = (*pe).getTrknmb();
-              int emul_quality = (*pe).getQuality();
-              int emul_wiregroup = (*pe).getKeyWG();
-              int emul_keystrip = (*pe).getStrip();
-              int emul_pattern = (*pe).getCLCTPattern();
-              int emul_striptype = (*pe).getStripType();
-              int emul_bend = (*pe).getBend();
-              int emul_bx = (*pe).getBX();
+              int emul_trknmb = (*pe).trackNumber();
+              int emul_quality = (*pe).quality();
+              int emul_wiregroup = (*pe).keyWireGroup();
+              int emul_keystrip = (*pe).strip();
+              int emul_pattern = (*pe).clctPattern();
+              int emul_striptype = (*pe).stripType();
+              int emul_bend = (*pe).bend();
+              int emul_bx = (*pe).bx();
               if (data_trknmb == emul_trknmb) {
                 // Convert emulator BX into hardware BX using full 12-bit
                 // BX words in ALCT and CLCT digi collections.
@@ -2479,16 +2480,16 @@ void CSCTriggerPrimitivesReader::compareMPCLCTs(const CSCCorrelatedLCTDigiCollec
                     LogTrace("CSCTriggerPrimitivesReader") << "       Identical LCTs #" << data_trknmb;
                   stubs_comparison[3].nStub_emul = j + 1;
                   stubs_comparison[3].has_emul = true;
-                  stubs_comparison[3].WGcrossHS_emul = doesALCTCrossCLCT(detid, (*pe).getKeyWG(), (*pe).getStrip());
-                  stubs_comparison[3].quality_emul = (*pe).getQuality();
-                  stubs_comparison[3].key_WG_emul = (*pe).getKeyWG();
-                  stubs_comparison[3].key_hs_emul = (*pe).getStrip();
-                  stubs_comparison[3].bend_emul = (*pe).getBend();
-                  stubs_comparison[3].pattern_emul = (*pe).getCLCTPattern();
-                  stubs_comparison[3].bx_emul = (*pe).getBX();
+                  stubs_comparison[3].WGcrossHS_emul = doesALCTCrossCLCT(detid, (*pe).keyWireGroup(), (*pe).strip());
+                  stubs_comparison[3].quality_emul = (*pe).quality();
+                  stubs_comparison[3].key_WG_emul = (*pe).keyWireGroup();
+                  stubs_comparison[3].key_hs_emul = (*pe).strip();
+                  stubs_comparison[3].bend_emul = (*pe).bend();
+                  stubs_comparison[3].pattern_emul = (*pe).clctPattern();
+                  stubs_comparison[3].bx_emul = (*pe).bx();
                   stubs_comparison[3].bx_corr_emul = emul_corr_bx;
                   stubs_comparison[3].trknmb_emul = emul_trknmb;
-                  GlobalPoint gp_lct_emul(getGlobalPosition(detid.rawId(), (*pe).getKeyWG(), (*pe).getStrip()));
+                  GlobalPoint gp_lct_emul(getGlobalPosition(detid.rawId(), (*pe).keyWireGroup(), (*pe).strip()));
                   stubs_comparison[3].eta_emul = gp_lct_emul.eta();
                   stubs_comparison[3].phi_emul = gp_lct_emul.phi();
                   bookedlctV_emul[j] = true;
@@ -2523,22 +2524,23 @@ void CSCTriggerPrimitivesReader::compareMPCLCTs(const CSCCorrelatedLCTDigiCollec
             stubs_comparison[3].chambertype = detid.iChamberType();
             stubs_comparison[3].totStubs_data = ndata;
             stubs_comparison[3].totStubs_emul = nemul;
-            stubs_comparison[3].trknmb_emul = lctV_emul[i].getTrknmb();
+            stubs_comparison[3].trknmb_emul = lctV_emul[i].trackNumber();
             stubs_comparison[3].nStub_data = -1;
             stubs_comparison[3].has_data = false;
             stubs_comparison[3].nStub_emul = k + 1;
             stubs_comparison[3].has_emul = true;
             stubs_comparison[3].WGcrossHS_emul =
-                doesALCTCrossCLCT(detid, lctV_emul[k].getKeyWG(), lctV_emul[k].getStrip());
-            stubs_comparison[3].quality_emul = lctV_emul[k].getQuality();
-            stubs_comparison[3].key_WG_emul = lctV_emul[k].getKeyWG();
-            stubs_comparison[3].key_hs_emul = lctV_emul[k].getStrip();
-            stubs_comparison[3].bend_emul = lctV_emul[k].getBend();
-            stubs_comparison[3].pattern_emul = lctV_emul[k].getCLCTPattern();
-            stubs_comparison[3].bx_emul = lctV_emul[k].getBX();
-            //stubs_comparison[2].fullbx_emul = lctV_emul[k].getFullBX();
+                doesALCTCrossCLCT(detid, lctV_emul[k].keyWireGroup(), lctV_emul[k].strip());
+            stubs_comparison[3].quality_emul = lctV_emul[k].quality();
+            stubs_comparison[3].key_WG_emul = lctV_emul[k].keyWireGroup();
+            stubs_comparison[3].key_hs_emul = lctV_emul[k].strip();
+            stubs_comparison[3].bend_emul = lctV_emul[k].bend();
+            stubs_comparison[3].pattern_emul = lctV_emul[k].clctPattern();
+            stubs_comparison[3].bx_emul = lctV_emul[k].bx();
+            //stubs_comparison[2].fullbx_emul = lctV_emul[k].fullBX();
             // Emulator BX NOT Known from  the data.
-            GlobalPoint gp_lct_emul(getGlobalPosition(detid.rawId(), lctV_emul[k].getKeyWG(), lctV_emul[k].getStrip()));
+            GlobalPoint gp_lct_emul(
+                getGlobalPosition(detid.rawId(), lctV_emul[k].keyWireGroup(), lctV_emul[k].strip()));
             stubs_comparison[3].eta_emul = gp_lct_emul.eta();
             stubs_comparison[3].phi_emul = gp_lct_emul.phi();
             bookedlctV_emul[k] = true;
@@ -2563,7 +2565,7 @@ int CSCTriggerPrimitivesReader::convertBXofLCT(const int emul_bx,
   const auto& arange = alcts_data->get(detid);
   for (auto digiIt = arange.first; digiIt != arange.second; digiIt++) {
     if ((*digiIt).isValid()) {
-      full_anode_bx = (*digiIt).getFullBX();
+      full_anode_bx = (*digiIt).fullBX();
       break;
     }
   }
@@ -2572,7 +2574,7 @@ int CSCTriggerPrimitivesReader::convertBXofLCT(const int emul_bx,
   const auto& crange = clcts_data->get(detid);
   for (auto digiIt = crange.first; digiIt != crange.second; digiIt++) {
     if ((*digiIt).isValid()) {
-      //full_cathode_bx = (*digiIt).getFullBX();
+      //full_cathode_bx = (*digiIt).fullBX();
       break;
     }
   }
@@ -2739,7 +2741,7 @@ void CSCTriggerPrimitivesReader::calcResolution(const CSCALCTDigiCollection* alc
         int hitWG = alct_analyzer.nearestWG(alctInfo, hitPhi, hitEta);
         if (hitWG >= 0.) {
           // Key wire group and key layer id.
-          int wiregroup = (*digiIt).getKeyWG();
+          int wiregroup = (*digiIt).keyWireGroup();
 
           CSCDetId layerId(id.endcap(), id.station(), id.ring(), id.chamber(), CSCConstants::KEY_ALCT_LAYER);
           int endc = id.endcap();
@@ -2792,10 +2794,10 @@ void CSCTriggerPrimitivesReader::calcResolution(const CSCALCTDigiCollection* alc
         int hitHS = clct_analyzer.nearestHS(clctInfo, hitPhi, hitEta);
         if (hitHS >= 0.) {
           // Key strip and key layer id.
-          int halfstrip = (*digiIt).getKeyStrip();
+          int halfstrip = (*digiIt).keyStrip();
           int strip = halfstrip / 2;
           int distrip = halfstrip / 4;
-          int stripType = (*digiIt).getStripType();
+          int stripType = (*digiIt).stripType();
 
           CSCDetId layerId(id.endcap(), id.station(), id.ring(), id.chamber(), key_layer);
           int endc = id.endcap();
@@ -2853,7 +2855,7 @@ void CSCTriggerPrimitivesReader::calcResolution(const CSCALCTDigiCollection* alc
           if (stripType == 1) {                      // half-strips
             double hsperrad = getHsPerRad(csctype);  // halfstrips-per-radian
             if ((endc == 1 && (stat == 1 || stat == 2)) || (endc == 2 && (stat == 3 || stat == 4))) {
-              hPhiDiffPattern[(*digiIt).getPattern()]->Fill(deltaPhi / 1000 * hsperrad);
+              hPhiDiffPattern[(*digiIt).pattern()]->Fill(deltaPhi / 1000 * hsperrad);
             }
           }
         }
@@ -4648,7 +4650,7 @@ GlobalPoint CSCTriggerPrimitivesReader::getGlobalPosition(unsigned int rawId, in
   auto cscChamber = geom_->chamber(cscId);
   float fractional_strip = 0.5 * (keyHS + 1) - 0.25;
   auto layer_geo = cscChamber->layer(CSCConstants::KEY_CLCT_LAYER)->geometry();
-  // LCT::getKeyWG() also starts from 0
+  // LCT::keyWireGroup() also starts from 0
   float wire = layer_geo->middleWireOfGroup(keyWg + 1);
   LocalPoint csc_intersect = layer_geo->intersectionOfStripAndWire(fractional_strip, wire);
   GlobalPoint csc_gp = geom_->idToDet(key_id)->surface().toGlobal(csc_intersect);

@@ -30,9 +30,9 @@ vector<CSCAnodeLayerInfo> CSCAnodeLCTAnalyzer::getSimInfo(const CSCALCTDigi& alc
                                                 << ", exceeds max expected, " << CSCConstants::NUM_LAYERS << " +++\n";
   }
   // not a good check for high PU
-  //if (alctInfo.size() != (unsigned)alct.getQuality()+3) {
+  //if (alctInfo.size() != (unsigned)alct.quality()+3) {
   //  edm::LogWarning("L1CSCTPEmulatorWrongValues")
-  //    << "+++ Warning: mismatch between ALCT quality, " << alct.getQuality()
+  //    << "+++ Warning: mismatch between ALCT quality, " << alct.quality()
   //    << ", and the number of layers with digis, " << alctInfo.size()
   //    << ", in alctInfo! +++\n";
   //}
@@ -58,10 +58,10 @@ vector<CSCAnodeLayerInfo> CSCAnodeLCTAnalyzer::lctDigis(const CSCALCTDigi& alct,
 
   // Inquire the alct for its pattern and key wiregroup.
   int alct_pattern = 0;
-  if (!alct.getAccelerator())
-    alct_pattern = alct.getCollisionB() + 1;
-  int alct_keywire = alct.getKeyWG();
-  int alct_bx = alct.getBX();
+  if (!alct.accelerator())
+    alct_pattern = alct.collisionB() + 1;
+  int alct_keywire = alct.keyWireGroup();
+  int alct_bx = alct.bx();
 
   // Choose pattern envelope.
   int MESelection = (alctId.station() < 3) ? 0 : 1;

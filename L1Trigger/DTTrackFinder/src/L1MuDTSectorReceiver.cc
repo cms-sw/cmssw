@@ -241,7 +241,7 @@ void L1MuDTSectorReceiver::receiveCSCData(int bx, const edm::Event& e, const edm
   int ncsc = 0;
   for (csc_iter = csc_list.begin(); csc_iter != csc_list.end(); csc_iter++) {
     bool etaFlag = (csc_iter->etaPacked() > 17);
-    int qualCSC = csc_iter->getQuality();
+    int qualCSC = csc_iter->quality();
 
     // convert CSC quality code to DTBX quality code
     unsigned int qual = 7;

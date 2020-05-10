@@ -366,12 +366,12 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboard::readoutLCTs() const {
     if (!plct->isValid())
       continue;
 
-    int bx = (*plct).getBX();
+    int bx = (*plct).bx();
     // Skip LCTs found too early relative to L1Accept.
     if (bx <= early_tbins) {
       if (infoV > 1)
-        LogDebug("CSCMotherboard") << " Do not report correlated LCT on key halfstrip " << plct->getStrip()
-                                   << " and key wire " << plct->getKeyWG() << ": found at bx " << bx
+        LogDebug("CSCMotherboard") << " Do not report correlated LCT on key halfstrip " << plct->strip()
+                                   << " and key wire " << plct->keyWireGroup() << ": found at bx " << bx
                                    << ", whereas the earliest allowed bx is " << early_tbins + 1;
       continue;
     }
@@ -379,8 +379,8 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboard::readoutLCTs() const {
     // Skip LCTs found too late relative to L1Accept.
     if (bx > late_tbins) {
       if (infoV > 1)
-        LogDebug("CSCMotherboard") << " Do not report correlated LCT on key halfstrip " << plct->getStrip()
-                                   << " and key wire " << plct->getKeyWG() << ": found at bx " << bx
+        LogDebug("CSCMotherboard") << " Do not report correlated LCT on key halfstrip " << plct->strip()
+                                   << " and key wire " << plct->keyWireGroup() << ": found at bx " << bx
                                    << ", whereas the latest allowed bx is " << late_tbins;
       continue;
     }
@@ -409,10 +409,10 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboard::getLCTs() const {
   // Do not report LCTs found in ME1/A if mpc_block_me1/a is set.
   for (int bx = 0; bx < CSCConstants::MAX_LCT_TBINS; bx++) {
     if (firstLCT[bx].isValid())
-      if (!mpc_block_me1a || (!isME11_ || firstLCT[bx].getStrip() <= 127))
+      if (!mpc_block_me1a || (!isME11_ || firstLCT[bx].strip() <= 127))
         tmpV.push_back(firstLCT[bx]);
     if (secondLCT[bx].isValid())
-      if (!mpc_block_me1a || (!isME11_ || secondLCT[bx].getStrip() <= 127))
+      if (!mpc_block_me1a || (!isME11_ || secondLCT[bx].strip() <= 127))
         tmpV.push_back(secondLCT[bx]);
   }
   return tmpV;
@@ -444,7 +444,7 @@ void CSCMotherboard::correlateLCTs(
   if ((alct_trig_enable && bestALCT.isValid()) || (clct_trig_enable && bestCLCT.isValid()) ||
       (match_trig_enable && bestALCT.isValid() && bestCLCT.isValid())) {
     const CSCCorrelatedLCTDigi& lct = constructLCTs(bestALCT, bestCLCT, type, 1);
-    int bx = lct.getBX();
+    int bx = lct.bx();
     if (bx >= 0 && bx < CSCConstants::MAX_LCT_TBINS) {
       firstLCT[bx] = lct;
     } else {
@@ -459,7 +459,7 @@ void CSCMotherboard::correlateLCTs(
       ((alct_trig_enable && secondALCT.isValid()) || (clct_trig_enable && secondCLCT.isValid()) ||
        (match_trig_enable && secondALCT.isValid() && secondCLCT.isValid()))) {
     const CSCCorrelatedLCTDigi& lct = constructLCTs(secondALCT, secondCLCT, type, 2);
-    int bx = lct.getBX();
+    int bx = lct.bx();
     if (bx >= 0 && bx < CSCConstants::MAX_LCT_TBINS) {
       secondLCT[bx] = lct;
     } else {
@@ -478,31 +478,21 @@ CSCCorrelatedLCTDigi CSCMotherboard::constructLCTs(const CSCALCTDigi& aLCT,
                                                    int type,
                                                    int trknmb) const {
   // CLCT pattern number
-  unsigned int pattern = encodePattern(cLCT.getPattern());
+  unsigned int pattern = encodePattern(cLCT.pattern());
 
   // LCT quality number
   unsigned int quality = findQuality(aLCT, cLCT);
 
   // Bunch crossing: get it from cathode LCT if anode LCT is not there.
-  int bx = aLCT.isValid() ? aLCT.getBX() : cLCT.getBX();
+  int bx = aLCT.isValid() ? aLCT.bx() : cLCT.bx();
 
   // in Run-3 we plan to use the synchronization error bit
   // to denote the presence of exotic signatures in the chamber
   unsigned int syncErr = useHighMultiplicityBits_ ? highMultiplicityBits_ : 0;
 
   // construct correlated LCT
-  CSCCorrelatedLCTDigi thisLCT(trknmb,
-                               1,
-                               quality,
-                               aLCT.getKeyWG(),
-                               cLCT.getKeyStrip(),
-                               pattern,
-                               cLCT.getBend(),
-                               bx,
-                               0,
-                               0,
-                               syncErr,
-                               theTrigChamber);
+  CSCCorrelatedLCTDigi thisLCT(
+      trknmb, 1, quality, aLCT.keyWireGroup(), cLCT.keyStrip(), pattern, cLCT.bend(), bx, 0, 0, syncErr, theTrigChamber);
   thisLCT.setType(type);
   // make sure to shift the ALCT BX from 8 to 3 and the CLCT BX from 8 to 7!
   thisLCT.setALCT(getBXShiftedALCT(aLCT));
@@ -533,14 +523,14 @@ unsigned int CSCMotherboard::findQuality(const CSCALCTDigi& aLCT, const CSCCLCTD
     else
       quality = 0;  // both absent; should never happen.
   } else {
-    int pattern = cLCT.getPattern();
+    int pattern = cLCT.pattern();
     if (pattern == 1)
       quality = 3;  // layer-trigger in CLCT
     else {
       // CLCT quality is the number of layers hit minus 3.
       // CLCT quality is the number of layers hit.
-      bool a4 = (aLCT.getQuality() >= 1);
-      bool c4 = (cLCT.getQuality() >= 4);
+      bool a4 = (aLCT.quality() >= 1);
+      bool c4 = (cLCT.quality() >= 4);
       //              quality = 4; "reserved for low-quality muons in future"
       if (!a4 && !c4)
         quality = 5;  // marginal anode and cathode
@@ -549,7 +539,7 @@ unsigned int CSCMotherboard::findQuality(const CSCALCTDigi& aLCT, const CSCCLCTD
       else if (!a4 && c4)
         quality = 7;  // HQ cathode, but marginal anode
       else if (a4 && c4) {
-        if (aLCT.getAccelerator())
+        if (aLCT.accelerator())
           quality = 8;  // HQ muon, but accel ALCT
         else {
           // quality =  9; "reserved for HQ muons with future patterns
@@ -617,13 +607,13 @@ void CSCMotherboard::dumpConfigParams() const {
 
 CSCALCTDigi CSCMotherboard::getBXShiftedALCT(const CSCALCTDigi& aLCT) const {
   CSCALCTDigi aLCT_shifted = aLCT;
-  aLCT_shifted.setBX(aLCT_shifted.getBX() - (CSCConstants::LCT_CENTRAL_BX - tmb_l1a_window_size / 2));
+  aLCT_shifted.setBX(aLCT_shifted.bx() - (CSCConstants::LCT_CENTRAL_BX - tmb_l1a_window_size / 2));
   return aLCT_shifted;
 }
 
 CSCCLCTDigi CSCMotherboard::getBXShiftedCLCT(const CSCCLCTDigi& cLCT) const {
   CSCCLCTDigi cLCT_shifted = cLCT;
-  cLCT_shifted.setBX(cLCT_shifted.getBX() - alctClctOffset_);
+  cLCT_shifted.setBX(cLCT_shifted.bx() - alctClctOffset_);
   return cLCT_shifted;
 }
 

@@ -174,7 +174,7 @@ void CSCGEMMotherboardME11::run(const CSCWireDigiCollection* wiredc,
                                      alctProc->getSecondALCT(bx_alct),
                                      mCoPads);
 
-          const bool lowQualityCLCT(clctProc->getBestCLCT(bx_clct).getQuality() <= 3);
+          const bool lowQualityCLCT(clctProc->getBestCLCT(bx_clct).quality() <= 3);
           const bool hasMatchingPads(!mPads.empty() or !mCoPads.empty());
           // Low quality LCTs have at most 3 layers. Check if there is a matching GEM pad to keep the CLCT
           if (dropLowQualityCLCTsNoGEMs_ME1b_ and lowQualityCLCT and !hasMatchingPads) {
@@ -218,9 +218,9 @@ void CSCGEMMotherboardME11::run(const CSCWireDigiCollection* wiredc,
                 LogTrace("CSCGEMMotherboardME11") << "LCT #1 " << allLCTs(bx_alct, mbx, 0) << std::endl;
                 LogTrace("CSCGEMMotherboardME11") << allLCTs(bx_alct, mbx, 0).getALCT() << std::endl;
                 LogTrace("CSCGEMMotherboardME11") << allLCTs(bx_alct, mbx, 0).getCLCT() << std::endl;
-                if (allLCTs(bx_alct, mbx, 0).getType() == 2)
+                if (allLCTs(bx_alct, mbx, 0).type() == 2)
                   LogTrace("CSCGEMMotherboardME11") << allLCTs(bx_alct, mbx, 0).getGEM1() << std::endl;
-                if (allLCTs(bx_alct, mbx, 0).getType() == 3)
+                if (allLCTs(bx_alct, mbx, 0).type() == 3)
                   LogTrace("CSCGEMMotherboardME11")
                       << allLCTs(bx_alct, mbx, 0).getGEM1() << " " << allLCTs(bx_alct, mbx, 0).getGEM2() << std::endl;
               }
@@ -229,9 +229,9 @@ void CSCGEMMotherboardME11::run(const CSCWireDigiCollection* wiredc,
                 LogTrace("CSCGEMMotherboardME11") << "LCT #2 " << allLCTs(bx_alct, mbx, 1) << std::endl;
                 LogTrace("CSCGEMMotherboardME11") << allLCTs(bx_alct, mbx, 1).getALCT() << std::endl;
                 LogTrace("CSCGEMMotherboardME11") << allLCTs(bx_alct, mbx, 1).getCLCT() << std::endl;
-                if (allLCTs(bx_alct, mbx, 1).getType() == 2)
+                if (allLCTs(bx_alct, mbx, 1).type() == 2)
                   LogTrace("CSCGEMMotherboardME11") << allLCTs(bx_alct, mbx, 1).getGEM1() << std::endl;
-                if (allLCTs(bx_alct, mbx, 1).getType() == 3)
+                if (allLCTs(bx_alct, mbx, 1).type() == 3)
                   LogTrace("CSCGEMMotherboardME11")
                       << allLCTs(bx_alct, mbx, 1).getGEM1() << " " << allLCTs(bx_alct, mbx, 1).getGEM2() << std::endl;
               }
@@ -283,7 +283,7 @@ void CSCGEMMotherboardME11::run(const CSCWireDigiCollection* wiredc,
               if (allLCTs(bx_alct, 0, 0).isValid()) {
                 LogTrace("CSCGEMMotherboardME11") << "LCT #1 " << allLCTs(bx_alct, 0, 0) << std::endl;
                 LogTrace("CSCGEMMotherboardME11") << allLCTs(bx_alct, 0, 0).getALCT() << std::endl;
-                if (allLCTs(bx_alct, 0, 0).getType() == 4)
+                if (allLCTs(bx_alct, 0, 0).type() == 4)
                   LogTrace("CSCGEMMotherboardME11")
                       << allLCTs(bx_alct, 0, 0).getGEM1() << " " << allLCTs(bx_alct, 0, 0).getGEM2() << std::endl
                       << std::endl;
@@ -294,7 +294,7 @@ void CSCGEMMotherboardME11::run(const CSCWireDigiCollection* wiredc,
               if (allLCTs(bx_alct, 0, 1).isValid()) {
                 LogTrace("CSCGEMMotherboardME11") << "LCT #2 " << allLCTs(bx_alct, 0, 1) << std::endl;
                 LogTrace("CSCGEMMotherboardME11") << allLCTs(bx_alct, 0, 1).getALCT() << std::endl;
-                if (allLCTs(bx_alct, 0, 1).getType() == 4)
+                if (allLCTs(bx_alct, 0, 1).type() == 4)
                   LogTrace("CSCGEMMotherboardME11")
                       << allLCTs(bx_alct, 0, 1).getGEM1() << " " << allLCTs(bx_alct, 0, 1).getGEM2() << std::endl
                       << std::endl;
@@ -347,7 +347,7 @@ void CSCGEMMotherboardME11::run(const CSCWireDigiCollection* wiredc,
             if (drop_used_clcts and used_clct_mask[bx_clct])
               continue;
             if (clctProc->getBestCLCT(bx_clct).isValid()) {
-              const int quality(clctProc->getBestCLCT(bx_clct).getQuality());
+              const int quality(clctProc->getBestCLCT(bx_clct).quality());
               // only use high-Q stubs for the time being
               if (quality < 4)
                 continue;
@@ -370,14 +370,14 @@ void CSCGEMMotherboardME11::run(const CSCWireDigiCollection* wiredc,
 
                   LogTrace("CSCGEMMotherboardME11") << "LCT #1 " << allLCTs(bx_alct, mbx, 0) << std::endl;
                   LogTrace("CSCGEMMotherboardME11") << allLCTs(bx_alct, mbx, 0).getALCT() << std::endl;
-                  if (allLCTs(bx_alct, mbx, 0).getType() == 5)
+                  if (allLCTs(bx_alct, mbx, 0).type() == 5)
                     LogTrace("CSCGEMMotherboardME11")
                         << allLCTs(bx_alct, mbx, 0).getGEM1() << " " << allLCTs(bx_alct, mbx, 0).getGEM2() << std::endl
                         << std::endl;
 
                   LogTrace("CSCGEMMotherboardME11") << "LCT #2 " << allLCTs(bx_alct, mbx, 1) << std::endl;
                   LogTrace("CSCGEMMotherboardME11") << allLCTs(bx_alct, mbx, 1).getALCT() << std::endl;
-                  if (allLCTs(bx_alct, mbx, 1).getType() == 5)
+                  if (allLCTs(bx_alct, mbx, 1).type() == 5)
                     LogTrace("CSCGEMMotherboardME11")
                         << allLCTs(bx_alct, mbx, 1).getGEM1() << " " << allLCTs(bx_alct, mbx, 1).getGEM2() << std::endl
                         << std::endl;
@@ -455,7 +455,7 @@ std::vector<CSCCorrelatedLCTDigi> CSCGEMMotherboardME11::readoutLCTsME11(enum CS
     if (!lct.isValid())
       continue;
 
-    int bx = lct.getBX();
+    int bx = lct.bx();
     // Skip LCTs found too early relative to L1Accept.
     if (bx <= early_tbins)
       continue;
@@ -464,8 +464,8 @@ std::vector<CSCCorrelatedLCTDigi> CSCGEMMotherboardME11::readoutLCTsME11(enum CS
     if (bx > late_tbins)
       continue;
 
-    if ((me1ab == CSCPart::ME1B and lct.getStrip() > CSCConstants::MAX_HALF_STRIP_ME1B) or
-        (me1ab == CSCPart::ME1A and lct.getStrip() <= CSCConstants::MAX_HALF_STRIP_ME1B))
+    if ((me1ab == CSCPart::ME1B and lct.strip() > CSCConstants::MAX_HALF_STRIP_ME1B) or
+        (me1ab == CSCPart::ME1A and lct.strip() <= CSCConstants::MAX_HALF_STRIP_ME1B))
       continue;
 
     // If (readout_earliest_2) take only LCTs in the earliest bx in the read-out window:
@@ -525,9 +525,9 @@ void CSCGEMMotherboardME11::correlateLCTsGEM(const CSCALCTDigi& bALCT,
                                              const GEMCoPadDigiIds& copads,
                                              CSCCorrelatedLCTDigi& lct1,
                                              CSCCorrelatedLCTDigi& lct2) const {
-  CSCALCTDigi bestALCT = bALCT;
+  const CSCALCTDigi& bestALCT = bALCT;
   CSCALCTDigi secondALCT = sALCT;
-  CSCCLCTDigi bestCLCT = bCLCT;
+  const CSCCLCTDigi& bestCLCT = bCLCT;
   CSCCLCTDigi secondCLCT = sCLCT;
 
   // assume that always anodeBestValid and cathodeBestValid
