@@ -59,15 +59,11 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const& conf,
   TruncatePixelCharge_ = conf.getParameter<bool>("TruncatePixelCharge");
   IrradiationBiasCorrection_ = conf.getParameter<bool>("IrradiationBiasCorrection");
   DoCosmics_ = conf.getParameter<bool>("DoCosmics");
-  //LoadTemplatesFromDB_       = conf.getParameter<bool>("LoadTemplatesFromDB");
 
   // Upgrade means phase 2
-  isUpgrade_ = false;
-  if (conf.getParameter<bool>("Upgrade"))
-    isUpgrade_ = true;
+  isUpgrade_ = conf.getParameter<bool>("Upgrade");
 
-  // Select the position error source
-  // For upgrde and cosmics force the use simple errors
+  // For cosmics force the use of simple errors
   if ((DoCosmics_))
     UseErrorsFromTemplates_ = false;
 
