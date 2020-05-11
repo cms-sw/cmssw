@@ -53,7 +53,6 @@ namespace {
   /************************************************
     test class
   *************************************************/
-
   class SiPixelTemplateDBObjectTest : public cond::payloadInspector::Histogram1D<SiPixelTemplateDBObject> {
   public:
     SiPixelTemplateDBObjectTest()
@@ -69,9 +68,10 @@ namespace {
         std::shared_ptr<SiPixelTemplateDBObject> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           if (!SiPixelTemplate::pushfile(*payload, thePixelTemp_)) {
-            throw cms::Exception("") << "\nERROR: Templates not filled correctly. Check the sqlite file. Using "
-                                        "SiPixelTemplateDBObject version "
-                                     << payload->version() << "\n\n";
+            throw cms::Exception("SiPixelTemplateDBObject_PayloadInspector")
+                << "\nERROR: Templates not filled correctly. Check the conditions. Using "
+                   "SiPixelTemplateDBObject version "
+                << payload->version() << "\n\n";
           }
 
           SiPixelTemplate templ(thePixelTemp_);
@@ -114,11 +114,11 @@ namespace {
   /************************************************
   // header plotting
   *************************************************/
-  class SiPixelTemplateHeader : public cond::payloadInspector::PlotImage<SiPixelTemplateDBObject> {
+  class SiPixelTemplateHeaderTable : public cond::payloadInspector::PlotImage<SiPixelTemplateDBObject> {
   public:
-    SiPixelTemplateHeader()
-        : cond::payloadInspector::PlotImage<SiPixelTemplateDBObject>("SiPixelTemplate assumed value of uH") {
-      setSingleIov(true);
+    SiPixelTemplateHeaderTable()
+        : cond::payloadInspector::PlotImage<SiPixelTemplateDBObject>("SiPixelTemplateDBObject Header summary") {
+      Base::setSingleIov(true);
     }
 
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
@@ -129,46 +129,75 @@ namespace {
 
       if (payload.get()) {
         if (!SiPixelTemplate::pushfile(*payload, thePixelTemp_)) {
-          throw cms::Exception("") << "\nERROR: Templates not filled correctly. Check the sqlite file. Using "
-                                      "SiPixelTemplateDBObject version "
-                                   << payload->version() << "\n\n";
+          throw cms::Exception("SiPixelTemplateDBObject_PayloadInspector")
+              << "\nERROR: Templates not filled correctly. Check the conditions. Using "
+                 "SiPixelTemplateDBObject version "
+              << payload->version() << "\n\n";
         }
 
         // store the map of ID / interesting quantities
         SiPixelTemplate templ(thePixelTemp_);
-        TCanvas canvas("Beam Spot Parameters Summary", "BeamSpot Parameters summary", 1000, 1000);
+        TCanvas canvas("Template Header Summary", "Template Header summary", 1400, 1000);
         canvas.cd();
 
         unsigned int tempSize = thePixelTemp_.size();
 
         canvas.SetTopMargin(0.07);
         canvas.SetBottomMargin(0.06);
-        canvas.SetLeftMargin(0.15);
+        canvas.SetLeftMargin(0.17);
         canvas.SetRightMargin(0.03);
         canvas.Modified();
         canvas.SetGrid();
 
-        auto h2_TemplateHeaders =
-            std::unique_ptr<TH2F>(new TH2F("Header", "Template Header summary", 5, 0.0, 5.0, tempSize, 0, tempSize));
+        auto h2_TemplateHeaders = std::unique_ptr<TH2F>(new TH2F("Header", ";;", tempSize, 0, tempSize, 6, 0., 6.));
         h2_TemplateHeaders->SetStats(false);
 
         for (const auto& theTemp : thePixelTemp_ | boost::adaptors::indexed(1)) {
           auto tempValue = theTemp.value();
           auto tempIndex = theTemp.index();
-          h2_TemplateHeaders->SetBinContent(1, tempIndex, tempValue.head.ID);
-          h2_TemplateHeaders->SetBinContent(2, tempIndex, tempValue.head.Bfield);
-          h2_TemplateHeaders->SetBinContent(3, tempIndex, tempValue.head.xsize);
-          h2_TemplateHeaders->SetBinContent(4, tempIndex, tempValue.head.ysize);
-          h2_TemplateHeaders->SetBinContent(5, tempIndex, tempValue.head.zsize);
+          float uH = roundoff(tempValue.head.lorxwidth / tempValue.head.zsize / tempValue.head.Bfield, 4);
+          h2_TemplateHeaders->SetBinContent(tempIndex, 6, tempValue.head.ID);
+          h2_TemplateHeaders->SetBinContent(tempIndex, 5, tempValue.head.Bfield);
+          h2_TemplateHeaders->SetBinContent(tempIndex, 4, uH);
+          h2_TemplateHeaders->SetBinContent(tempIndex, 3, tempValue.head.xsize);
+          h2_TemplateHeaders->SetBinContent(tempIndex, 2, tempValue.head.ysize);
+          h2_TemplateHeaders->SetBinContent(tempIndex, 1, tempValue.head.zsize);
+          h2_TemplateHeaders->GetYaxis()->SetBinLabel(6, "TemplateID");
+          h2_TemplateHeaders->GetYaxis()->SetBinLabel(5, "B-field [T]");
+          h2_TemplateHeaders->GetYaxis()->SetBinLabel(4, "#mu_{H} [1/T]");
+          h2_TemplateHeaders->GetYaxis()->SetBinLabel(3, "x-size [#mum]");
+          h2_TemplateHeaders->GetYaxis()->SetBinLabel(2, "y-size [#mum]");
+          h2_TemplateHeaders->GetYaxis()->SetBinLabel(1, "z-size [#mum]");
+          h2_TemplateHeaders->GetXaxis()->SetBinLabel(tempIndex, "");
         }
+
+        h2_TemplateHeaders->GetXaxis()->LabelsOption("h");
+        h2_TemplateHeaders->GetXaxis()->SetNdivisions(500 + tempSize, false);
+        h2_TemplateHeaders->GetYaxis()->SetLabelSize(0.05);
+        h2_TemplateHeaders->SetMarkerSize(1.5);
 
         canvas.cd();
         h2_TemplateHeaders->Draw("TEXT");
+
+        auto ltx = TLatex();
+        ltx.SetTextFont(62);
+        ltx.SetTextColor(kBlue);
+        ltx.SetTextSize(0.05);
+        ltx.SetTextAlign(11);
+        ltx.DrawLatexNDC(gPad->GetLeftMargin(),
+                         1 - gPad->GetTopMargin() + 0.01,
+                         ("SiPixelTemplate IOV:" + std::to_string(std::get<0>(iov))).c_str());
+
         std::string fileName(m_imageFileName);
         canvas.SaveAs(fileName.c_str());
       }
       return true;
-    }  // fill
+    }
+
+    float roundoff(float value, unsigned char prec) {
+      float pow_10 = pow(10.0f, (float)prec);
+      return round(value * pow_10) / pow_10;
+    }
   };
 
   /************************************************
@@ -208,9 +237,10 @@ namespace {
 
       if (payload.get()) {
         if (!SiPixelTemplate::pushfile(*payload, thePixelTemp_)) {
-          throw cms::Exception("") << "\nERROR: Templates not filled correctly. Check the sqlite file. Using "
-                                      "SiPixelTemplateDBObject version "
-                                   << payload->version() << "\n\n";
+          throw cms::Exception("SiPixelTemplateDBObject_PayloadInspector")
+              << "\nERROR: Templates not filled correctly. Check the conditions. Using "
+                 "SiPixelTemplateDBObject version "
+              << payload->version() << "\n\n";
         }
 
         // store the map of ID / interesting quantities
@@ -375,7 +405,7 @@ namespace {
 // Register the classes as boost python plugin
 PAYLOAD_INSPECTOR_MODULE(SiPixelTemplateDBObject) {
   PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateDBObjectTest);
-  //PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateHeader);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateHeaderTable);
   PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateIDsBPixMap);
   PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateIDsFPixMap);
   PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateLABPixMap);
