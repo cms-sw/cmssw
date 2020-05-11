@@ -21,7 +21,6 @@
 <use name="RecoLocalCalo/EcalRecAlgos"/>
 <use name="RecoLocalCalo/EcalRecProducers"/>
 <use name="Utilities/StorageFactory"/>
-
 <export>
   <lib name="1"/>
 </export>
