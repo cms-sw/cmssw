@@ -162,7 +162,7 @@ def modulesInSequences(* sequences):
 
 
 def moduleLabelsInSequences(* sequences):
-  return [module.label() for module in modulesInSequences(* sequences)]
+  return [module.label_() for module in modulesInSequences(* sequences)]
 
 def createTaskWithAllProducersAndFilters(process):
   from FWCore.ParameterSet.Config import Task
