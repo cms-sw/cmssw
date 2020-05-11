@@ -59,7 +59,7 @@ public:
 
   bool feMajHistosEnabled();
 
-  void fillLumiHistograms(const std::vector<unsigned int>& nTotal, const std::vector<unsigned int>& nErrors);
+  void fillLumiHistograms(const std::vector<unsigned int> &nTotal, const std::vector<unsigned int> &nErrors);
 
   bool cmHistosEnabled();
 

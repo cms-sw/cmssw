@@ -880,7 +880,7 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore::IBooker& ibooker,
               42241,  //total number of channels
               "Time",
               "# APVs with APVAddressError");
-  
+
   //book map after, as it creates a new folder...
   if (tkMapConfig_.enabled) {
     tkmapFED_ = std::make_unique<TkHistoMap>(tkDetMap, topFolderName, "TkHMap_FractionOfBadChannels", 0., true);
