@@ -62,7 +62,7 @@ SiStripZeroSuppression::SiStripZeroSuppression(edm::ParameterSet const& conf)
                                               "configured with APVInspectMode='HybridEmulation'";
 
   if ((!hybridInputs.empty()) && produceRawDigis) {
-    edm::LogWarning("SiStripZeroSuppression") << "Raw digis will not be saved for hybrid inputs";
+    edm::LogInfo("SiStripZeroSuppression") << "Raw digis will not be saved for hybrid inputs";
   }
 
   if (!(rawInputs.empty() && hybridInputs.empty())) {
