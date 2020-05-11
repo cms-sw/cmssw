@@ -1,9 +1,9 @@
 #ifndef SimCalorimetry_HGCSimProducers_HGCDigiProducer_h
 #define SimCalorimetry_HGCSimProducers_HGCDigiProducer_h
 
-#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCDigitizer.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 
 #include <vector>
 
@@ -35,6 +35,7 @@ public:
 
 private:
   //the digitizer
+  bool premixStage1_, premixStage2_;
   HGCDigitizer theDigitizer_;
   CLHEP::HepRandomEngine* randomEngine_ = nullptr;
 };
