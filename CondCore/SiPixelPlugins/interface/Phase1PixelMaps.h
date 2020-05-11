@@ -30,17 +30,17 @@ public:
   //============================================================================
   void bookBarrelHistograms(const std::string& currentHistoName, const char* what) {
     std::string histName;
-    TH2Poly* th2p;
+    std::shared_ptr<TH2Poly> th2p;
 
     for (unsigned i = 0; i < 4; ++i) {
       histName = "barrel_layer_";
 
-      th2p = new TH2Poly((histName + std::to_string(i + 1)).c_str(),
-                         Form("PXBMap of %s - Layer %i", what, i + 1),
-                         -15.0,
-                         15.0,
-                         0.0,
-                         5.0);
+      th2p = std::make_shared<TH2Poly>((histName + std::to_string(i + 1)).c_str(),
+                                       Form("PXBMap of %s - Layer %i", what, i + 1),
+                                       -15.0,
+                                       15.0,
+                                       0.0,
+                                       5.0);
 
       th2p->SetFloat();
 
@@ -53,7 +53,7 @@ public:
       pxbTh2PolyBarrel[currentHistoName].push_back(th2p);
     }
 
-    th2p = new TH2Poly("barrel_summary", "PXBMap", -5.0, 5.0, 0.0, 5.0);
+    th2p = std::make_shared<TH2Poly>("barrel_summary", "PXBMap", -5.0, 5.0, 0.0, 5.0);
     th2p->SetFloat();
 
     th2p->GetXaxis()->SetTitle("");
@@ -66,18 +66,18 @@ public:
   //============================================================================
   void bookForwardHistograms(const std::string& currentHistoName, const char* what) {
     std::string histName;
-    TH2Poly* th2p;
+    std::shared_ptr<TH2Poly> th2p;
 
     for (unsigned side = 1; side <= 2; ++side) {
       for (unsigned disk = 1; disk <= 3; ++disk) {
         histName = "forward_disk_";
 
-        th2p = new TH2Poly((histName + std::to_string((side == 1 ? -(int(disk)) : (int)disk))).c_str(),
-                           Form("PXFMap of %s - Side %i Disk %i", what, side, disk),
-                           -15.0,
-                           15.0,
-                           -15.0,
-                           15.0);
+        th2p = std::make_shared<TH2Poly>((histName + std::to_string((side == 1 ? -(int(disk)) : (int)disk))).c_str(),
+                                         Form("PXFMap of %s - Side %i Disk %i", what, side, disk),
+                                         -15.0,
+                                         15.0,
+                                         -15.0,
+                                         15.0);
         th2p->SetFloat();
         th2p->GetXaxis()->SetTitle("x [cm]");
         th2p->GetYaxis()->SetTitle("y [cm]");
@@ -89,7 +89,7 @@ public:
       }
     }
 
-    th2p = new TH2Poly("forward_summary", "PXFMap", -40.0, 50.0, -20.0, 90.0);
+    th2p = std::make_shared<TH2Poly>("forward_summary", "PXFMap", -40.0, 50.0, -20.0, 90.0);
     th2p->SetFloat();
 
     th2p->GetXaxis()->SetTitle("");
@@ -118,7 +118,7 @@ public:
       float vertX[] = {theVectX[0], theVectX[1], theVectX[2], theVectX[3], theVectX[4]};
       float vertY[] = {(ladder - 1.0f), (ladder - 1.0f), (float)ladder, (float)ladder, (ladder - 1.0f)};
 
-      bins[id] = new TGraph(5, vertX, vertY);
+      bins[id] = std::make_shared<TGraph>(5, vertX, vertY);
       bins[id]->SetName(TString::Format("%u", id));
 
       // Summary plot
@@ -127,7 +127,7 @@ public:
         vertY[k] += ((layer > 2) ? 30.0f : 0.0f);
       }
 
-      binsSummary[id] = new TGraph(5, vertX, vertY);
+      binsSummary[id] = std::make_shared<TGraph>(5, vertX, vertY);
       binsSummary[id]->SetName(TString::Format("%u", id));
 
       pxbTh2PolyBarrel[currentHistoName][layer - 1]->AddBin(bins[id]->Clone());
@@ -156,7 +156,7 @@ public:
       float vertX[] = {theVectX[0], theVectX[1], theVectX[2], theVectX[3]};
       float vertY[] = {theVectY[0], theVectY[1], theVectY[2], theVectY[3]};
 
-      bins[id] = new TGraph(4, vertX, vertY);
+      bins[id] = std::make_shared<TGraph>(4, vertX, vertY);
       bins[id]->SetName(TString::Format("%u", id));
 
       // Summary plot
@@ -165,7 +165,7 @@ public:
         vertY[k] += (disk - 1) * 35.0f;
       }
 
-      binsSummary[id] = new TGraph(4, vertX, vertY);
+      binsSummary[id] = std::make_shared<TGraph>(4, vertX, vertY);
       binsSummary[id]->SetName(TString::Format("%u", id));
 
       pxfTh2PolyForward[currentHistoName][mapIdx]->AddBin(bins[id]->Clone());
@@ -205,7 +205,7 @@ public:
   void beautifyAllHistograms() {
     for (const auto& vec : pxbTh2PolyBarrel) {
       for (const auto& plot : vec.second) {
-        SiPixelPI::makeNicePlotStyle(plot);
+        SiPixelPI::makeNicePlotStyle(plot.get());
         plot->GetXaxis()->SetTitleOffset(0.9);
         plot->GetYaxis()->SetTitleOffset(0.9);
       }
@@ -213,7 +213,7 @@ public:
 
     for (const auto& vec : pxfTh2PolyForward) {
       for (const auto& plot : vec.second) {
-        SiPixelPI::makeNicePlotStyle(plot);
+        SiPixelPI::makeNicePlotStyle(plot.get());
         plot->GetXaxis()->SetTitleOffset(0.9);
         plot->GetYaxis()->SetTitleOffset(0.9);
       }
@@ -254,11 +254,11 @@ private:
   Option_t* m_option;
   TrackerTopology m_trackerTopo;
 
-  std::map<uint32_t, TGraph*> bins, binsSummary;
-  std::map<std::string, std::vector<TH2Poly*>> pxbTh2PolyBarrel;
-  std::map<std::string, TH2Poly*> pxbTh2PolyBarrelSummary;
-  std::map<std::string, std::vector<TH2Poly*>> pxfTh2PolyForward;
-  std::map<std::string, TH2Poly*> pxfTh2PolyForwardSummary;
+  std::map<uint32_t, std::shared_ptr<TGraph>> bins, binsSummary;
+  std::map<std::string, std::vector<std::shared_ptr<TH2Poly>>> pxbTh2PolyBarrel;
+  std::map<std::string, std::shared_ptr<TH2Poly>> pxbTh2PolyBarrelSummary;
+  std::map<std::string, std::vector<std::shared_ptr<TH2Poly>>> pxfTh2PolyForward;
+  std::map<std::string, std::shared_ptr<TH2Poly>> pxfTh2PolyForwardSummary;
 
   std::vector<edm::FileInPath> m_cornersBPIX;
   std::vector<edm::FileInPath> m_cornersFPIX;
