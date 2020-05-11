@@ -25,7 +25,8 @@ L1RPCConeBuilder::~L1RPCConeBuilder() {}
 
 std::pair<L1RPCConeBuilder::TStripConVec::const_iterator, L1RPCConeBuilder::TStripConVec::const_iterator>
 L1RPCConeBuilder::getConVec(uint32_t det, unsigned char strip) const {
-  L1RPCConeBuilder::TStripConVec::const_iterator itBeg = L1RPCConeBuilder::TStripConVec().end();
+  L1RPCConeBuilder::TStripConVec tmp;
+  L1RPCConeBuilder::TStripConVec::const_iterator itBeg = tmp.end();
   L1RPCConeBuilder::TStripConVec::const_iterator itEnd = itBeg;
 
   TConMap::const_iterator it1 = m_coneConnectionMap->find(det);
@@ -42,7 +43,8 @@ L1RPCConeBuilder::getConVec(uint32_t det, unsigned char strip) const {
 
 std::pair<L1RPCConeBuilder::TCompressedConVec::const_iterator, L1RPCConeBuilder::TCompressedConVec::const_iterator>
 L1RPCConeBuilder::getCompConVec(uint32_t det) const {
-  L1RPCConeBuilder::TCompressedConVec::const_iterator itBeg = L1RPCConeBuilder::TCompressedConVec().end();
+  L1RPCConeBuilder::TCompressedConVec tmp;
+  L1RPCConeBuilder::TCompressedConVec::const_iterator itBeg = tmp.end();
   L1RPCConeBuilder::TCompressedConVec::const_iterator itEnd = itBeg;
 
   if (m_compressedConeConnectionMap->find(det) != m_compressedConeConnectionMap->end()) {
