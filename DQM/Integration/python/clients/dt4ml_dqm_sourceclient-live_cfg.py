@@ -39,6 +39,8 @@ process.dqmSaver.tag = "DT"
 
 # prepare the output directory
 filePath = "/globalscratch/dqm4ml_" + process.dqmRunConfig.type.value()
+if unitTest:
+    filePath = "./dqm4ml_" + process.dqmRunConfig.type.value()
 try:
     os.makedirs(filePath)
 except:
@@ -47,8 +49,7 @@ except:
 process.dqmSaver.backupLumiCount = 10
 process.dqmSaver.keepBackupLumi = True
 
-if not unitTest:
-    process.dqmSaver.path = filePath
+process.dqmSaver.path = filePath
 
 # disable DQM gui
 print("old:",process.DQM.collectorHost)
