@@ -34,8 +34,13 @@ DQMOfflineL1TEgamma = cms.Sequence( l1TriggerEgDqmOffline )
 DQMOfflineL1TMuon = cms.Sequence( l1TriggerMuonDqmOffline )
 
 #DPGs
-DQMOfflineEcal = cms.Sequence( ecal_dqm_source_offline *
-				es_dqm_source_offline )
+DQMOfflineEcalOnly = cms.Sequence(
+    ecalOnly_dqm_source_offline +
+    es_dqm_source_offline )
+
+DQMOfflineEcal = cms.Sequence(
+    ecal_dqm_source_offline +
+    es_dqm_source_offline )
 
 DQMOfflineHcal = cms.Sequence( hcalOfflineSourceSequence )
 
