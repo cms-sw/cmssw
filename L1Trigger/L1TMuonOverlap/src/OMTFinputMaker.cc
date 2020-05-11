@@ -217,7 +217,7 @@ OMTFinput OMTFinputMaker::processDT(const L1MuDTChambPhContainer *dtPhDigis,
   if (!dtPhDigis)
     return result;
 
-  for (const auto digiIt : *dtPhDigis->getContainer()) {
+  for (const auto &digiIt : *dtPhDigis->getContainer()) {
     DTChamberId detid(digiIt.whNum(), digiIt.stNum(), digiIt.scNum() + 1);
 
     ///Check it the data fits into given processor input range
