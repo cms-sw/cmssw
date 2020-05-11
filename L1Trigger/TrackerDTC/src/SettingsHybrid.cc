@@ -139,7 +139,7 @@ namespace trackerDTC {
     const TrackerTopology* trackerTopology = settings->trackerTopology_;
     // assess layerIds connected to each DTC per region, accumulated over all regions
     vector<set<int>> layerIdEncodings(settings->numDTCsPerRegion_);
-    for (const pair<DetId, int>& map : settings->cablingMap_) {
+    for (const auto& map : settings->cablingMap_) {
       const bool barrel = map.first.subdetId() == StripSubdetector::TOB;
       const int layerId = barrel ? trackerTopology->layer(map.first) : trackerTopology->tidWheel(map.first) + 10;
       const int dtcId = (map.second / settings->numModulesPerDTC_) % settings->numDTCsPerRegion_;
