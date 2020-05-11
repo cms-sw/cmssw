@@ -79,6 +79,8 @@ def putype(t):
 #------------------------------------------------------------------------------------------
 #thereleases = { "CMSSW 11_1_X" : ["CMSSW_11_1_0_pre4_GEANT4","CMSSW_11_1_0_pre3","CMSSW_11_1_0_pre2"] }
 thereleases = { "CMSSW 11_1_X" : [
+    "CMSSW_11_1_0_pre6_raw1100_vs_CMSSW_11_1_0_pre6",
+    "CMSSW_11_1_0_pre6_raw1100_vs_CMSSW_11_1_0_pre5_raw1100",
     "CMSSW_11_1_0_pre6_vs_CMSSW_11_1_0_pre5",
     "CMSSW_11_1_0_pre5_vs_CMSSW_11_1_0_pre4",
     "CMSSW_11_1_0_pre5_raw1100_vs_CMSSW_11_1_0_pre5",
@@ -88,11 +90,11 @@ thereleases = { "CMSSW 11_1_X" : [
     "CMSSW_11_1_0_pre4_GEANT4","CMSSW_11_1_0_pre4"
 ] }
 
-RefRelease='CMSSW_11_1_0_pre5'
+RefRelease='CMSSW_11_1_0_pre6'
 
 NewRelease='CMSSW_11_1_0_pre6'
 
-NotNormalRelease = "normal"
+NotNormalRelease = "raw"
 NotNormalRefRelease = "normal"
 
 if ( os.path.isdir('%s/%s' %(opt.WWWAREA, NewRelease))) : 
@@ -101,13 +103,13 @@ if ( os.path.isdir('%s/%s' %(opt.WWWAREA, NewRelease))) :
     exit()
 
 if "raw" in NotNormalRelease: 
-   appendglobaltag = "_raw1100"
+   appendglobaltag = "_2026D49noPU_raw1100_rsb"
 else: 
    appendglobaltag = "_2026D49noPU"
 
 #Until the final list of RelVals settles down the following sample list is under constant review
 '''
-phase2samples_noPU = [
+phase2samples_noPU_oldnaming = [
 #    Sample("RelValCloseByParticleGun_CE_H_Fine_300um", dqmVersion="0002", scenario="2026D49", appendGlobalTag=appendglobaltag ),
     Sample("RelValCloseByParticleGun_CE_H_Fine_300um", scenario="2026D49", appendGlobalTag=appendglobaltag ),
     Sample("RelValCloseByParticleGun_CE_H_Fine_200um", scenario="2026D49", appendGlobalTag=appendglobaltag ),
@@ -148,7 +150,6 @@ phase2samples_noPU = [
     Sample("RelValH125GGgluonfusion", midfix="14", scenario="2026D49", appendGlobalTag=appendglobaltag ),
     Sample("RelValNuGun", scenario="2026D49", appendGlobalTag=appendglobaltag )
     ]
-
 '''
 
 #Main workflow RelVals
@@ -160,7 +161,7 @@ phase2samples_noPU = [
     Sample("RelValZEE", midfix="14", scenario="2026D49", appendGlobalTag=appendglobaltag ),
     Sample("RelValTenTau_15_500", scenario="2026D49", appendGlobalTag=appendglobaltag  ),
     Sample("RelValTTbar", midfix="14TeV", scenario="2026D49", appendGlobalTag=appendglobaltag ),
-    Sample("RelValQCD_Pt15To7000_Flat", midfix="14", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    #Sample("RelValQCD_Pt15To7000_Flat", midfix="14", scenario="2026D49", appendGlobalTag=appendglobaltag ),
     Sample("RelValNuGun", scenario="2026D49", appendGlobalTag=appendglobaltag ),
     #Sample("RelValMinBias", midfix="14TeV", scenario="2026D49", appendGlobalTag=appendglobaltag ),
     Sample("RelValH125GGgluonfusion", midfix="14", scenario="2026D49", appendGlobalTag=appendglobaltag )
@@ -207,6 +208,7 @@ phase2samples_noPU_extend_more = [
 '''
 phase2samples_noPU.extend(phase2samples_noPU_extend)
 #phase2samples_noPU.extend(phase2samples_noPU_extend_more)
+#phase2samples_noPU.extend(phase2samples_noPU_oldnaming)
 
 #For the PU samples 
 phase2samples_PU = [
@@ -271,9 +273,11 @@ if (opt.OBJ == 'hgcalLayerClusters' or opt.OBJ == 'hitCalibration' or opt.OBJ ==
         if RefRelease == None:
             cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename)+ ' --collection %s' %(opt.HTMLVALNAME)
         elif "raw" in NotNormalRelease and "normal" in NotNormalRefRelease:
-            cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease).replace("mcRun4_realistic_v3_raw1100-v1","mcRun4_realistic_v3_2026D49noPU-v1") + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
+            #cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease).replace("mcRun4_realistic_v3_raw1100-v1","mcRun4_realistic_v3_2026D49noPU-v1") + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
+            cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease).replace("mcRun4_realistic_v3_2026D49noPU_raw1100_rsb-v1","mcRun4_realistic_v3_2026D49noPU-v1") + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
         elif "raw" in NotNormalRelease and "raw" in NotNormalRefRelease:
-            cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease) + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
+            #cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease) + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
+            cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease).replace("_2026D49noPU_raw1100_rsb","_raw1100") + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
         elif "normal" in NotNormalRelease and "normal" in NotNormalRefRelease:
             cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease) + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
         else: 
@@ -365,7 +369,8 @@ if (opt.OBJ == 'hitValidation'):
         elif "raw" in NotNormalRelease and "normal" in NotNormalRefRelease:
             cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease).replace("mcRun4_realistic_v3_raw1100-v1","mcRun4_realistic_v3_2026D49noPU-v1") + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
         elif "raw" in NotNormalRelease and "raw" in NotNormalRefRelease:
-            cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease) + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
+            #cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease) + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
+            cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease).replace("_2026D49noPU_raw1100_rsb","_raw1100") + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
         elif "normal" in NotNormalRelease and "normal" in NotNormalRefRelease:
             cmd = 'python Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease) + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
         else: 
