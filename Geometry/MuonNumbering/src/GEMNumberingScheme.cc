@@ -93,7 +93,7 @@ int GEMNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
       }
     }
   } else {  // GE0 encodes the layer
-    station = 0;
+    station = GEMDetId::minStationId0;
     layer = num.getBaseNo(theRingLevel);
     chamber = num.getBaseNo(theSectorLevel) + 1;
     roll = num.getBaseNo(theRollLevel) + 1;
