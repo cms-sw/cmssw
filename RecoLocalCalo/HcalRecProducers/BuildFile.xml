@@ -1,8 +1,8 @@
-<flags   EDM_PLUGIN="1"/>
-<use   name="CalibCalorimetry/HcalAlgos"/>
-<use   name="CalibFormats/HcalObjects"/>
-<use   name="RecoLocalCalo/HcalRecAlgos"/>
-<use   name="FWCore/Framework"/>
-<use   name="DataFormats/Common"/>
-<use   name="Geometry/Records"/>
-<use   name="boost"/>
+<flags EDM_PLUGIN="1"/>
+<use name="CalibCalorimetry/HcalAlgos"/>
+<use name="CalibFormats/HcalObjects"/>
+<use name="RecoLocalCalo/HcalRecAlgos"/>
+<use name="FWCore/Framework"/>
+<use name="DataFormats/Common"/>
+<use name="Geometry/Records"/>
+<use name="boost"/>
