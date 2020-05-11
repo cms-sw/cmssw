@@ -680,7 +680,7 @@ void FEDErrors::fillBadChannelList(const bool doTkHistoMap,
                                    unsigned int& aNBadChannels,
                                    unsigned int& aNBadActiveChannels,
                                    unsigned int& aNBadChannels_perFEDID,
-                                   std::vector<unsigned int>& nTotal, 
+                                   std::vector<unsigned int>& nTotal,
                                    std::vector<unsigned int>& nErrors) {
   uint32_t lPrevId = 0;
   uint16_t nBad = 0;
@@ -779,7 +779,10 @@ void FEDErrors::fillBadChannelList(const bool doTkHistoMap,
 
 void FEDErrors::fillEventProperties(long long dbx) { eventProp_.deltaBX = dbx; }
 
-void FEDErrors::incrementLumiErrors(const bool hasError, const unsigned int aSubDet, std::vector<unsigned int>& nTotal, std::vector<unsigned int>& nErrors) {
+void FEDErrors::incrementLumiErrors(const bool hasError,
+                                    const unsigned int aSubDet,
+                                    std::vector<unsigned int>& nTotal,
+                                    std::vector<unsigned int>& nErrors) {
   if (nTotal.empty())
     return;
   if (aSubDet >= nTotal.size()) {

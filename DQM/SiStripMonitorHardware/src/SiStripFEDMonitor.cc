@@ -65,8 +65,8 @@ namespace sifedmon {
     std::vector<unsigned int> nTotal;
     std::vector<unsigned int> nErrors;
   };
-}
-class SiStripFEDMonitorPlugin : public DQMOneEDAnalyzer< edm::LuminosityBlockCache<sifedmon::LumiErrors> > {
+}  // namespace sifedmon
+class SiStripFEDMonitorPlugin : public DQMOneEDAnalyzer<edm::LuminosityBlockCache<sifedmon::LumiErrors> > {
 public:
   explicit SiStripFEDMonitorPlugin(const edm::ParameterSet&);
   ~SiStripFEDMonitorPlugin() override;
@@ -74,10 +74,11 @@ public:
 private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  std::shared_ptr<sifedmon::LumiErrors> globalBeginLuminosityBlock(const edm::LuminosityBlock &lumi,const edm::EventSetup &iSetup) const override;
- 
-  void globalEndLuminosityBlock(const edm::LuminosityBlock &lumi, const edm::EventSetup &iSetup) override;
- 
+  std::shared_ptr<sifedmon::LumiErrors> globalBeginLuminosityBlock(const edm::LuminosityBlock& lumi,
+                                                                   const edm::EventSetup& iSetup) const override;
+
+  void globalEndLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& iSetup) override;
+
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
   //update the cabling if necessary
@@ -122,9 +123,9 @@ private:
   FEDErrors fedErrors_;
   unsigned int maxFedBufferSize_;
   bool fullDebugMode_;
- 
+
   bool enableFEDerrLumi_;
-  MonitorElement *lumiErrfac_;
+  MonitorElement* lumiErrfac_;
 };
 
 //
@@ -146,8 +147,9 @@ SiStripFEDMonitorPlugin::SiStripFEDMonitorPlugin(const edm::ParameterSet& iConfi
   rawDataToken_ = consumes<FEDRawDataCollection>(rawDataTag_);
   heToken_ = consumes<EventWithHistory>(edm::InputTag("consecutiveHEs"));
 
-  if(iConfig.exists("ErrorFractionByLumiBlockHistogramConfig")) {
-    const edm::ParameterSet& ps = iConfig.getUntrackedParameter<edm::ParameterSet>("ErrorFractionByLumiBlockHistogramConfig");
+  if (iConfig.exists("ErrorFractionByLumiBlockHistogramConfig")) {
+    const edm::ParameterSet& ps =
+        iConfig.getUntrackedParameter<edm::ParameterSet>("ErrorFractionByLumiBlockHistogramConfig");
     enableFEDerrLumi_ = (ps.exists("Enabled") ? ps.getUntrackedParameter<bool>("Enabled") : true);
   }
   //print config to debug log
@@ -200,7 +202,7 @@ void SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent, const edm::Event
   edm::Handle<FEDRawDataCollection> rawDataCollectionHandle;
   iEvent.getByToken(rawDataToken_, rawDataCollectionHandle);
   const FEDRawDataCollection& rawDataCollection = *rawDataCollectionHandle;
-  
+
   fedErrors_.initialiseEvent();
 
   //add the deltaBX value if the product exist
@@ -208,9 +210,9 @@ void SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent, const edm::Event
   edm::Handle<EventWithHistory> he;
   iEvent.getByToken(heToken_, he);
 
- //get the fedErrors object for each LS
+  //get the fedErrors object for each LS
   auto lumiErrors = luminosityBlockCache(iEvent.getLuminosityBlock().index());
-  auto& nToterr = lumiErrors->nTotal; 
+  auto& nToterr = lumiErrors->nTotal;
   auto& nErr = lumiErrors->nErrors;
 
   if (he.isValid() && !he.failedToGet()) {
@@ -327,7 +329,9 @@ void SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent, const edm::Event
                                   fedHists_.getFedvsAPVpointer(),
                                   lNTotBadChannels,
                                   lNTotBadActiveChannels,
-                                  lNBadChannels_perFEDID, nToterr, nErr);
+                                  lNBadChannels_perFEDID,
+                                  nToterr,
+                                  nErr);
     fedHists_.fillFEDHistograms(fedErrors_, lSize, fullDebugMode_, aLumiSection, lNBadChannels_perFEDID);
   }  //loop over FED IDs
 
@@ -485,13 +489,14 @@ void SiStripFEDMonitorPlugin::bookHistograms(DQMStore::IBooker& ibooker,
 
   if (fillAllDetailedHistograms_)
     fedHists_.bookAllFEDHistograms(ibooker, fullDebugMode_);
-  
-  if(enableFEDerrLumi_) {
+
+  if (enableFEDerrLumi_) {
     ibooker.cd();
-    ibooker.setCurrentFolder("SiStrip/ReadoutView/PerLumiSection"); 
+    ibooker.setCurrentFolder("SiStrip/ReadoutView/PerLumiSection");
     {
       auto scope = DQMStore::IBooker::UseRunScope(ibooker);
-      lumiErrfac_ = ibooker.book1D("lumiErrorFraction", "Fraction of error per lumi section vs subdetector", 6, 0.5, 6.5);
+      lumiErrfac_ =
+          ibooker.book1D("lumiErrorFraction", "Fraction of error per lumi section vs subdetector", 6, 0.5, 6.5);
       lumiErrfac_->setAxisTitle("SubDetId", 1);
       lumiErrfac_->setBinLabel(1, "TECB");
       lumiErrfac_->setBinLabel(2, "TECF");
@@ -505,20 +510,22 @@ void SiStripFEDMonitorPlugin::bookHistograms(DQMStore::IBooker& ibooker,
   }
 }
 
-std::shared_ptr<sifedmon::LumiErrors> SiStripFEDMonitorPlugin::globalBeginLuminosityBlock(const edm::LuminosityBlock &lumi,const edm::EventSetup &iSetup) const{
+std::shared_ptr<sifedmon::LumiErrors> SiStripFEDMonitorPlugin::globalBeginLuminosityBlock(
+    const edm::LuminosityBlock& lumi, const edm::EventSetup& iSetup) const {
   auto lumiErrors = std::make_shared<sifedmon::LumiErrors>();
   lumiErrors->nTotal.resize(6, 0);
   lumiErrors->nErrors.resize(6, 0);
   return lumiErrors;
 }
 
-void SiStripFEDMonitorPlugin::globalEndLuminosityBlock(const edm::LuminosityBlock &lumi, const edm::EventSetup &iSetup)  {
+void SiStripFEDMonitorPlugin::globalEndLuminosityBlock(const edm::LuminosityBlock& lumi,
+                                                       const edm::EventSetup& iSetup) {
   auto lumiErrors = luminosityBlockCache(lumi.index());
-  if(enableFEDerrLumi_ && lumiErrfac_) {
+  if (enableFEDerrLumi_ && lumiErrfac_) {
     for (unsigned int iD(0); iD < lumiErrors->nTotal.size(); iD++) {
-      if (lumiErrors->nTotal[iD] > 0) 
-        lumiErrfac_->Fill(iD+1, static_cast<float>(lumiErrors->nErrors[iD]) / lumiErrors->nTotal[iD]);
-    }  
+      if (lumiErrors->nTotal[iD] > 0)
+        lumiErrfac_->Fill(iD + 1, static_cast<float>(lumiErrors->nErrors[iD]) / lumiErrors->nTotal[iD]);
+    }
   }
 }
 

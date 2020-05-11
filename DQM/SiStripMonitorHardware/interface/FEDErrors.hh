@@ -181,7 +181,7 @@ public:
                           unsigned int& aNBadChannels,
                           unsigned int& aNBadActiveChannels,
                           unsigned int& aNBadChannels_perFEDID,
-                          std::vector<unsigned int>& nTotal, 
+                          std::vector<unsigned int>& nTotal,
                           std::vector<unsigned int>& nErrors);
 
   void fillEventProperties(long long dbx);
@@ -239,7 +239,10 @@ public:
 
 protected:
 private:
-  void incrementLumiErrors(const bool hasError, const unsigned int aSubDet, std::vector<unsigned int>& nTotal, std::vector<unsigned int>& nErrors);
+  void incrementLumiErrors(const bool hasError,
+                           const unsigned int aSubDet,
+                           std::vector<unsigned int>& nTotal,
+                           std::vector<unsigned int>& nErrors);
 
   void processDet(const uint32_t aPrevId,
                   const uint16_t aPrevTot,
