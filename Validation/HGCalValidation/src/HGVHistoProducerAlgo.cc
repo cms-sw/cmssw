@@ -1246,6 +1246,9 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
     }
 
     for (unsigned int layerId = 0; layerId < layers * 2; ++layerId) {
+      if (!cPEnergyOnLayer[layerId])
+        continue;
+
       auto getLCLayerId = [&](const unsigned int lcId){
         const std::vector<std::pair<DetId, float>>& hits_and_fractions = clusters[lcId].hitsAndFractions();
         const auto firstHitDetId = hits_and_fractions[0].first;
