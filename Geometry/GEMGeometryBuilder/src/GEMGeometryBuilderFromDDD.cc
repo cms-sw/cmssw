@@ -160,7 +160,7 @@ void GEMGeometryBuilderFromDDD::build(GEMGeometry& theGeometry,
           int nlayers = ge0Station ? GEMDetId::maxLayerId0 : GEMDetId::maxLayerId;
 
           // GEMDetId::minLayerId is to id the superchamber, so minLayerId+1 is the first layer
-          for (int la = GEMDetId::minLayerId+1; la <= nlayers; ++la) {
+          for (int la = GEMDetId::minLayerId + 1; la <= nlayers; ++la) {
             GEMDetId chId(detId.region(), detId.ring(), detId.station(), la, detId.chamber(), 0);
             auto chamber = theGeometry.chamber(chId);
             if (!chamber) {
