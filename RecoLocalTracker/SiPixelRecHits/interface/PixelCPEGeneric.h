@@ -121,7 +121,6 @@ private:
 
   bool UseErrorsFromTemplates_;
   bool DoCosmics_;
-  //bool LoadTemplatesFromDB_;
   bool TruncatePixelCharge_;
   bool IrradiationBiasCorrection_;
   bool isUpgrade_;
