@@ -9,9 +9,11 @@ from helpers import MEDescription
 from service import GUIService
 from storage import GUIDataStore
 from aiohttp import web, WSCloseCode
+from layouts.layout_manager import LayoutManager
 
 
 service = GUIService()
+layout_manager = LayoutManager()
 
 
 async def index(request):
@@ -42,6 +44,15 @@ async def archive(request):
 
     data = await service.get_archive(run, dataset, path, search)
     return web.json_response(data)
+
+
+async def layouts(request):
+    """Returns all monitor elements present in the layout of a given name"""
+
+    name = request.rel_url.query.get('name')
+    contents = layout_manager.get_layout_contents(name)
+
+    return web.json_response(contents)
 
 
 async def render(request):
@@ -122,6 +133,7 @@ def config_and_start_webserver():
     app.add_routes([web.get('/', index),
                     web.get('/data/json/samples', samples),
                     web.get(r'/data/json/archive/{run}/{path:.+}', archive),
+                    web.get('/data/json/layouts', layouts),
                     web.get(r'/plotfairy/archive/{run}/{path:.+}', render),
                     web.get(r'/plotfairy/overlay', render_overlay)])
     app.add_routes([web.static('/', '../data/', show_index=True)])

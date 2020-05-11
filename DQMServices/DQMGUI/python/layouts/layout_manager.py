@@ -16,6 +16,14 @@ class LayoutManager:
         cls.__layouts.append(layout)
 
 
+    @classmethod
+    def get_layout_contents(cls, name):
+        if not name:
+            return []
+
+        return [{'source': x.source, 'destination': x.destination} for x in cls.__layouts if x.name == name]
+
+
 class Layout:
     def __init__(self, source, destination, name='default'):
         if not source or not destination or not name:
