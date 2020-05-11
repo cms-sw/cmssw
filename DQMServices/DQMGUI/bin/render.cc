@@ -62,14 +62,44 @@ struct Bucket {
   DataBlob data;
 };
 
-// ROOT uses global state in many places, ut not to report errors...
+// ROOT uses global state in many places, but not to report errors...
 // We set a custom error handler to know if any errors happend, but then call
-// the default handler. The `haderror` flag is then reported to the client.
+// the default handler. The flag that is then reported to the client depends
+// on the flags that we set in this method after parsing the error.
 ErrorHandlerFunc_t defaulterrorhandler;
 bool haderror = false;
+bool hadmissingstreamers = false;
 void RootErrorHandler(int level, Bool_t abort, const char *location, const char *msg) {
-  haderror = true;  // TOOD: mayb check level here?
+  haderror = true;
+
+  // Check for a specific kind of error. Other errors could be identified here as well
+  if (std::string(msg).find("Could not find the StreamerInfo") != std::string::npos) {
+    hadmissingstreamers = true;
+  }
+  
   defaulterrorhandler(level, abort, location, msg);
+}
+
+// This method parses the flags set by RootErrorHandler and creates a single 
+// status code. Currently used codes:
+// 0 - OK
+// 1 - Streamers are missing
+// 2 - Some other ROOT error
+int getReturnCode() {
+  int returnCode = 0;
+  if (hadmissingstreamers) {
+    returnCode = 1;
+  }
+  else if (haderror) {
+    returnCode = 2;
+  }
+  return returnCode;
+}
+
+// Any new error flags must be reset here
+void resetErrorFlags() {
+  haderror = false;
+  hadmissingstreamers = false;
 }
 
 //----------------------------------------------------------------------
@@ -533,8 +563,8 @@ protected:
     size_t namepos = (slash == std::string::npos ? 0 : slash + 1);
     std::string dirpart(name, 0, dirpos);
 
-    // reset global error flag, then check in the end if there were errors.
-    ::haderror = false;
+    // reset global error flags, then check in the end if there were errors.
+    ::resetErrorFlags();
 
     // if a file name/URL was passed, open this file first to get its streamers.
     // the data in the file is not actually used.
@@ -577,7 +607,7 @@ protected:
     DataBlob imgdata;
     bool blacklisted = false;
     blacklisted = doRender(info, &objs[0], numobjs, imgdata);
-    uint32_t returncode = ::haderror ? 1 : 0;
+    uint32_t returncode = ::getReturnCode();
     uint32_t imgsize = imgdata.size();
     msg->data.reserve(imgsize + sizeof(returncode) + sizeof(imgsize));
     copydata(msg, &returncode, sizeof(returncode));
@@ -599,7 +629,7 @@ protected:
             << (hadref ? "" : " no") << " reference, in " << /*((end - start).ns() * 1e-3)*/ "TODO"
             << "us" << (::haderror ? " (ERROR)" : " (OK)") << "\n";
 
-    ::haderror = false;
+    ::resetErrorFlags();
     return true;
   }
 
@@ -792,7 +822,7 @@ private:
     t1->SetNDC(kTRUE);
     t2->SetNDC(kTRUE);
     t1->SetTextSize(0.10);
-    t2->SetTextSize(0.10);
+    t2->SetTextSize(0.08);
     t1->SetTextAlign(22);
     t2->SetTextAlign(22);
     t1->SetTextColor(c);
@@ -1302,16 +1332,23 @@ private:
 
     // It's there and wasn't black-listed, paint it.
     else {
-      // Real drawing
-      switch (i.reference) {
-        case DQM_REF_STACKED:
-          doRenderStacked(c, i, objs, numobjs, ri, nukem);
-          break;
-        case DQM_REF_OVERLAY_RATIO:
-          doRenderOverlayAndRatio(c, i, objs, numobjs, ri, nukem);
-          break;
-        default:
-          doRenderOrdinary(c, i, objs, numobjs, ri, nukem);
+
+      try {
+        // Real drawing
+        switch (i.reference) {
+          case DQM_REF_STACKED:
+            doRenderStacked(c, i, objs, numobjs, ri, nukem);
+            break;
+          case DQM_REF_OVERLAY_RATIO:
+            doRenderOverlayAndRatio(c, i, objs, numobjs, ri, nukem);
+            break;
+          default:
+            doRenderOrdinary(c, i, objs, numobjs, ri, nukem);
+        }
+      } 
+      catch (const std::exception& e) {
+        Color_t c = TColor::GetColor(178, 32, 32);
+        doRenderMsg(o.name, e.what(), c, nukem);
       }
 
       // If the stats are bad draw alert on top.
