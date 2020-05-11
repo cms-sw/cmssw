@@ -94,12 +94,6 @@ namespace PixelRegions {
   }
 
   //============================================================================
-  static const int getPixelSubDetector(const unsigned int pixid) {
-    // subdetId: BPix=1, FPix=2
-    return (pixid / 1000) % 10;
-  }
-
-  //============================================================================
   static const PixelId detIdToPixelId(const unsigned int detid, const TrackerTopology* trackTopo, const bool phase1) {
     DetId detId = DetId(detid);
     unsigned int subid = detId.subdetId();
@@ -122,9 +116,9 @@ namespace PixelRegions {
   }
 
   //============================================================================
-  static const std::vector<uint32_t> attachedDets(const PixelRegions::PixelId theId,
-                                                  const TrackerTopology* trackTopo,
-                                                  const bool phase1) {
+  const std::vector<uint32_t> attachedDets(const PixelRegions::PixelId theId,
+                                           const TrackerTopology* trackTopo,
+                                           const bool phase1) {
     std::vector<uint32_t> out = {};
     edm::FileInPath m_fp;
     if (phase1) {
