@@ -21,6 +21,7 @@ public:
   // static methods for handling the global cache
   static std::unique_ptr<DeepMETCache> initializeGlobalCache(const edm::ParameterSet&);
   static void globalEndJob(DeepMETCache*);
+
 private:
   const edm::EDGetTokenT<std::vector<pat::PackedCandidate> > pf_token_;
   float norm_;
@@ -33,25 +34,26 @@ private:
   std::unordered_map<int, int32_t> pdg_id_embedding_;
 };
 
-
 namespace {
   float divide_and_rm_outlier(float val, float norm) {
-    float ret_val = val/norm;
+    float ret_val = val / norm;
     if (ret_val > 1e6 || ret_val < -1e6)
       return 0.;
     return ret_val;
   }
-}
+}  // namespace
 
-DeepMETProducer::DeepMETProducer(const edm::ParameterSet& cfg, const DeepMETCache* cache) :
-  pf_token_(consumes<std::vector<pat::PackedCandidate> >(cfg.getParameter<edm::InputTag>("pf_src"))),
-  norm_(cfg.getParameter<double>("norm_factor")), 
-  ignore_leptons_(cfg.getParameter<bool>("ignore_leptons")),
-  max_n_pf_(cfg.getParameter<unsigned int>("max_n_pf")) {
-    session_ = tensorflow::createSession(cache->graph_def);
-    produces<pat::METCollection>();
-    charge_embedding_ = {{-1, 0}, {0, 1}, {1, 2}};
-    pdg_id_embedding_ = {{-211, 0}, {-13, 1}, {-11, 2}, {0, 3}, {1, 4}, {2, 5}, {11, 6}, {13, 7}, {22, 8}, {130, 9}, {211, 10}};;
+DeepMETProducer::DeepMETProducer(const edm::ParameterSet& cfg, const DeepMETCache* cache)
+    : pf_token_(consumes<std::vector<pat::PackedCandidate> >(cfg.getParameter<edm::InputTag>("pf_src"))),
+      norm_(cfg.getParameter<double>("norm_factor")),
+      ignore_leptons_(cfg.getParameter<bool>("ignore_leptons")),
+      max_n_pf_(cfg.getParameter<unsigned int>("max_n_pf")) {
+  session_ = tensorflow::createSession(cache->graph_def);
+  produces<pat::METCollection>();
+  charge_embedding_ = {{-1, 0}, {0, 1}, {1, 2}};
+  pdg_id_embedding_ = {
+      {-211, 0}, {-13, 1}, {-11, 2}, {0, 3}, {1, 4}, {2, 5}, {11, 6}, {13, 7}, {22, 8}, {130, 9}, {211, 10}};
+  ;
 }
 
 void DeepMETProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
@@ -69,7 +71,8 @@ void DeepMETProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
   tensorflow::TensorShape out_shape({1, 2});
   tensorflow::Tensor output(tensorflow::DT_FLOAT, out_shape);
 
-  tensorflow::NamedTensorList input_list = {{"input", input}, {"input_cat0", input_cat0}, {"input_cat1", input_cat1}, {"input_cat2", input_cat2}};
+  tensorflow::NamedTensorList input_list = {
+      {"input", input}, {"input_cat0", input_cat0}, {"input_cat1", input_cat1}, {"input_cat2", input_cat2}};
 
   // Set all inputs to zero
   input.flat<float>().setZero();
@@ -81,7 +84,6 @@ void DeepMETProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
   float px_leptons = 0.;
   float py_leptons = 0.;
   for (const auto& pf : *pf_h) {
-
     if (ignore_leptons_) {
       int pdg_id = std::abs(pf.pdgId());
       if (pdg_id == 11 || pdg_id == 13) {
@@ -89,7 +91,7 @@ void DeepMETProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
         py_leptons += pf.py();
         continue;
       }
-    } 
+    }
 
     // fill the tensor
     float* ptr = &input.tensor<float, 3>()(0, i_pf, 0);
@@ -106,9 +108,8 @@ void DeepMETProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
     input_cat2.tensor<float, 3>()(0, i_pf, 0) = pf.fromPV();
 
     ++i_pf;
-    if (i_pf > max_n_pf_)
-    {
-      break; // output a warning?
+    if (i_pf > max_n_pf_) {
+      break;  // output a warning?
     }
   }
 
@@ -126,7 +127,7 @@ void DeepMETProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
   py -= py_leptons;
 
   auto pf_mets = std::make_unique<pat::METCollection>();
-  reco::LeafCandidate::LorentzVector p4(px, py, 0., std::sqrt(px*px + py*py));
+  reco::LeafCandidate::LorentzVector p4(px, py, 0., std::sqrt(px * px + py * py));
   const reco::Candidate::Point vtx(0.0, 0.0, 0.0);
   pf_mets->emplace_back(reco::MET(p4, vtx));
   event.put(std::move(pf_mets));
@@ -146,9 +147,7 @@ std::unique_ptr<DeepMETCache> DeepMETProducer::initializeGlobalCache(const edm::
   return cache;
 }
 
-void DeepMETProducer::globalEndJob(DeepMETCache* cache) {
-  delete cache->graph_def;
-}
+void DeepMETProducer::globalEndJob(DeepMETCache* cache) { delete cache->graph_def; }
 
 void DeepMETProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
