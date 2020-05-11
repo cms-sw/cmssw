@@ -21,6 +21,9 @@ using namespace std;
 using namespace edm;
 
 namespace {
+  // A thread-local cache is accepted because MagneticField is used by several other ESProducts
+  // via member variable, MagneticField and the other ESProducts are widely used, and migrating
+  // all the uses of all those was deemed to have very high cost.
   std::atomic<int> instanceCounter(0);
   thread_local int localInstance = 0;
   thread_local MagVolume const* lastVolume = nullptr;
