@@ -142,6 +142,8 @@ namespace muon {
       {"LowPtMvaMedium", reco::Muon::LowPtMvaMedium},
       {nullptr, (reco::Muon::Selector)-1}};
 
+  reco::Muon::Selector selectorFromString(const std::string& label);
+
   /// main GoodMuon wrapper call
   bool isGoodMuon(const reco::Muon& muon,
                   SelectionType type,
