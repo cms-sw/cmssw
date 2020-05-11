@@ -76,8 +76,7 @@ class GUIService:
                     continue # This is a secondary item, not a main ME name
 
                 if subsequent_segment.is_file:
-                    # TODO path has to be full path to the ME, not only to a folder
-                    objs.add((subsequent_segment.name, path[:-1], None))
+                    objs.add((subsequent_segment.name, path + subsequent_segment.name, None))
                 else:
                     dirs.add(subsequent_segment.name)
 
