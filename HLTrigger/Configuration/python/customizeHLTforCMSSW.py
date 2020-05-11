@@ -205,8 +205,11 @@ def customiseFor29658(process):
 # Use 8p fit (PR29617) and don't apply HB- correction (PR26177)
 def customiseFor29617(process):
     for producer in producers_by_type(process, "HBHEPhase1Reconstructor"):
-        producer.algorithm.chiSqSwitch = cms.double(-1.0)
         producer.algorithm.applyLegacyHBMCorrection = cms.bool( False )
+        from Configuration.Eras.Modifier_run2_HE_2017_cff import run2_HE_2017
+        from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
+        #--- >= Run3 modification:
+        (run3_HB & run2_HE_2017).toModify(producer.algorithm, chiSqSwitch = -1)
     return process
 
 # CMSSW version specific customizations
