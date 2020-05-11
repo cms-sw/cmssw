@@ -1,29 +1,21 @@
 #include <iostream>
 
-// framework
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-//#include "HeterogeneousCore/Producer/interface/HeterogeneousEDProducer.h"
-//#include "HeterogeneousCore/Producer/interface/HeterogeneousEvent.h"
-
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-#include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CUDADataFormats/EcalDigi/interface/DigisCollection.h"
+#include "CondFormats/DataRecord/interface/EcalMappingElectronicsRcd.h"
+#include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "EventFilter/EcalRawToDigi/interface/DeclsForKernels.h"
+#include "EventFilter/EcalRawToDigi/interface/ElectronicsMappingGPU.h"
+#include "EventFilter/EcalRawToDigi/interface/UnpackGPU.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
-// algorithm specific
-
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "CUDADataFormats/EcalDigi/interface/DigisCollection.h"
-
-#include "CondFormats/DataRecord/interface/EcalMappingElectronicsRcd.h"
-
-#include "EventFilter/EcalRawToDigi/interface/ElectronicsMappingGPU.h"
-
-#include "EventFilter/EcalRawToDigi/interface/DeclsForKernels.h"
-#include "EventFilter/EcalRawToDigi/interface/UnpackGPU.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
 class EcalCPUDigisProducer : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
@@ -36,9 +28,34 @@ private:
   void produce(edm::Event&, edm::EventSetup const&) override;
 
 private:
-  edm::EDGetTokenT<cms::cuda::Product<ecal::DigisCollection>> digisInEBToken_, digisInEEToken_;
+  // input digi collections in GPU-friendly format
+  edm::EDGetTokenT<cms::cuda::Product<ecal::DigisCollection>> digisInEBToken_;
+  edm::EDGetTokenT<cms::cuda::Product<ecal::DigisCollection>> digisInEEToken_;
+
+  // output digi collections in legacy format
   edm::EDPutTokenT<EBDigiCollection> digisOutEBToken_;
   edm::EDPutTokenT<EEDigiCollection> digisOutEEToken_;
+
+  // whether to produce dummy integrity collections
+  bool produceDummyIntegrityCollections_;
+
+  // dummy SRP collections
+  edm::EDPutTokenT<EBSrFlagCollection> ebSrFlagToken_;
+  edm::EDPutTokenT<EESrFlagCollection> eeSrFlagToken_;
+
+  // dummy integrity for xtal data
+  edm::EDPutTokenT<EBDetIdCollection> ebIntegrityGainErrorsToken_;
+  edm::EDPutTokenT<EBDetIdCollection> ebIntegrityGainSwitchErrorsToken_;
+  edm::EDPutTokenT<EBDetIdCollection> ebIntegrityChIdErrorsToken_;
+
+  // dummy integrity for xtal data - EE specific (to be rivisited towards EB+EE common collection)
+  edm::EDPutTokenT<EEDetIdCollection> eeIntegrityGainErrorsToken_;
+  edm::EDPutTokenT<EEDetIdCollection> eeIntegrityGainSwitchErrorsToken_;
+  edm::EDPutTokenT<EEDetIdCollection> eeIntegrityChIdErrorsToken_;
+
+  // dummy integrity errors
+  edm::EDPutTokenT<EcalElectronicsIdCollection> integrityTTIdErrorsToken_;
+  edm::EDPutTokenT<EcalElectronicsIdCollection> integrityBlockSizeErrorsToken_;
 
   // FIXME better way to pass pointers from acquire to produce?
   std::vector<uint32_t, CUDAHostAllocator<uint32_t>> idsebtmp, idseetmp;
@@ -53,17 +70,55 @@ void EcalCPUDigisProducer::fillDescriptions(edm::ConfigurationDescriptions& conf
   desc.add<std::string>("digisOutLabelEB", "ebDigis");
   desc.add<std::string>("digisOutLabelEE", "eeDigis");
 
+  desc.add<bool>("produceDummyIntegrityCollections", false);
+
   std::string label = "ecalCPUDigisProducer";
   confDesc.add(label, desc);
 }
 
 EcalCPUDigisProducer::EcalCPUDigisProducer(const edm::ParameterSet& ps)
-    : digisInEBToken_{consumes<cms::cuda::Product<ecal::DigisCollection>>(
-          ps.getParameter<edm::InputTag>("digisInLabelEB"))},
+    :  // input digi collections in GPU-friendly format
+      digisInEBToken_{
+          consumes<cms::cuda::Product<ecal::DigisCollection>>(ps.getParameter<edm::InputTag>("digisInLabelEB"))},
       digisInEEToken_{
           consumes<cms::cuda::Product<ecal::DigisCollection>>(ps.getParameter<edm::InputTag>("digisInLabelEE"))},
+      // output digi collections in legacy format
       digisOutEBToken_{produces<EBDigiCollection>(ps.getParameter<std::string>("digisOutLabelEB"))},
-      digisOutEEToken_{produces<EEDigiCollection>(ps.getParameter<std::string>("digisOutLabelEE"))} {}
+      digisOutEEToken_{produces<EEDigiCollection>(ps.getParameter<std::string>("digisOutLabelEE"))},
+      // whether to produce dummy integrity collections
+      produceDummyIntegrityCollections_{ps.getParameter<bool>("produceDummyIntegrityCollections")},
+      // dummy SRP collections
+      ebSrFlagToken_{produceDummyIntegrityCollections_ ? produces<EBSrFlagCollection>()
+                                                       : edm::EDPutTokenT<EBSrFlagCollection>{}},
+      eeSrFlagToken_{produceDummyIntegrityCollections_ ? produces<EESrFlagCollection>()
+                                                       : edm::EDPutTokenT<EESrFlagCollection>{}},
+      // dummy integrity for xtal data
+      ebIntegrityGainErrorsToken_{produceDummyIntegrityCollections_
+                                      ? produces<EBDetIdCollection>("EcalIntegrityGainErrors")
+                                      : edm::EDPutTokenT<EBDetIdCollection>{}},
+      ebIntegrityGainSwitchErrorsToken_{produceDummyIntegrityCollections_
+                                            ? produces<EBDetIdCollection>("EcalIntegrityGainSwitchErrors")
+                                            : edm::EDPutTokenT<EBDetIdCollection>{}},
+      ebIntegrityChIdErrorsToken_{produceDummyIntegrityCollections_
+                                      ? produces<EBDetIdCollection>("EcalIntegrityChIdErrors")
+                                      : edm::EDPutTokenT<EBDetIdCollection>{}},
+      // dummy integrity for xtal data - EE specific (to be rivisited towards EB+EE common collection)
+      eeIntegrityGainErrorsToken_{produceDummyIntegrityCollections_
+                                      ? produces<EEDetIdCollection>("EcalIntegrityGainErrors")
+                                      : edm::EDPutTokenT<EEDetIdCollection>{}},
+      eeIntegrityGainSwitchErrorsToken_{produceDummyIntegrityCollections_
+                                            ? produces<EEDetIdCollection>("EcalIntegrityGainSwitchErrors")
+                                            : edm::EDPutTokenT<EEDetIdCollection>{}},
+      eeIntegrityChIdErrorsToken_{produceDummyIntegrityCollections_
+                                      ? produces<EEDetIdCollection>("EcalIntegrityChIdErrors")
+                                      : edm::EDPutTokenT<EEDetIdCollection>{}},
+      // dummy integrity errors
+      integrityTTIdErrorsToken_{produceDummyIntegrityCollections_
+                                    ? produces<EcalElectronicsIdCollection>("EcalIntegrityTTIdErrors")
+                                    : edm::EDPutTokenT<EcalElectronicsIdCollection>{}},
+      integrityBlockSizeErrorsToken_{produceDummyIntegrityCollections_
+                                         ? produces<EcalElectronicsIdCollection>("EcalIntegrityBlockSizeErrors")
+                                         : edm::EDPutTokenT<EcalElectronicsIdCollection>{}} {}
 
 EcalCPUDigisProducer::~EcalCPUDigisProducer() {}
 
@@ -118,6 +173,23 @@ void EcalCPUDigisProducer::produce(edm::Event& event, edm::EventSetup const& set
 
   event.put(digisOutEBToken_, std::move(digisEB));
   event.put(digisOutEEToken_, std::move(digisEE));
+
+  if (produceDummyIntegrityCollections_) {
+    // dummy SRP collections
+    event.put(ebSrFlagToken_, std::make_unique<EBSrFlagCollection>());
+    event.put(eeSrFlagToken_, std::make_unique<EESrFlagCollection>());
+    // dummy integrity for xtal data
+    event.put(ebIntegrityGainErrorsToken_, std::make_unique<EBDetIdCollection>());
+    event.put(ebIntegrityGainSwitchErrorsToken_, std::make_unique<EBDetIdCollection>());
+    event.put(ebIntegrityChIdErrorsToken_, std::make_unique<EBDetIdCollection>());
+    // dummy integrity for xtal data - EE specific (to be rivisited towards EB+EE common collection)
+    event.put(eeIntegrityGainErrorsToken_, std::make_unique<EEDetIdCollection>());
+    event.put(eeIntegrityGainSwitchErrorsToken_, std::make_unique<EEDetIdCollection>());
+    event.put(eeIntegrityChIdErrorsToken_, std::make_unique<EEDetIdCollection>());
+    // dummy integrity errors
+    event.put(integrityTTIdErrorsToken_, std::make_unique<EcalElectronicsIdCollection>());
+    event.put(integrityBlockSizeErrorsToken_, std::make_unique<EcalElectronicsIdCollection>());
+  }
 }
 
 DEFINE_FWK_MODULE(EcalCPUDigisProducer);
