@@ -2,12 +2,12 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
 
   <ConstantsSection label="etl.xml" eval="true/false">
-    <Constant name="ETLcenter" value="3024.5*mm"/> 
+    <Constant name="ETLrmin" value="[caloBase:Rmin100]"/>   <!-- 26.3 cm -->
+    <Constant name="ETLrmax" value="[caloBase:Rmax100]"/>   <!-- 125.525 cm -->
+    <Constant name="ETLthickness" value="7.7*cm"/>
+    <Constant name="ETLcenter" value="3024.5*mm"/>
     <Constant name="Disc1center" value="2999.62*mm"/>
     <Constant name="Disc2center" value="3029.62*mm"/>
-    <Constant name="ETLrmin" value="[caloBase:Rmin100]"/>   <!-- 26.3 cm -->
-    <Constant name="ETLrmax" value="[caloBase:Rmax100]"/>   <!-- 125.525 cm --> 
-    <Constant name="ETLthickness" value="7.7*cm"/> 
     <Constant name="Disc_thickness" value="1.894"/>  <!-- thickness of one Disc comprising modules, service hybrids on both faces, mounted on the Al and MIC6-Al rings. Fig 3.73 TDR and line 354 Ulascan ETLDetectorDimensions.cc -->
     <Constant name="DiscSector_thickness" value="0.585"/> <!-- this is the service hybrid height according to TDR table 3.9 -->
     <!-- LGAD and ETROC values taken from Ulascan code (line 103 on in ETLDetectorDimensions.cc), same values in the TDR -->
@@ -34,7 +34,6 @@
     <Constant name="DeltaY" value="0.05"/>
     <Constant name="DeltaY_ServiceLong_ServiceShort" value="19.57"/>
   </ConstantsSection>
-
 
   <SolidSection label="etl.xml">
     <Tubs name="EndcapTimingLayer" rMin="[ETLrmin]" rMax="[ETLrmax]" dz="0.5*[ETLthickness]*cm" startPhi="0*deg" deltaPhi="360*deg"/>
@@ -70,7 +69,6 @@
     <Rotation name="Reverse" thetaX="90*deg" phiX="0*deg" thetaY="90*deg" phiY="270*deg" thetaZ="180*deg" phiZ="0*deg"/>
   </RotationSection>
 
-
   <LogicalPartSection label="etl.xml">
     <LogicalPart name="EndcapTimingLayer" category="unspecified">
       <rSolid name="etl:EndcapTimingLayer"/>
@@ -84,7 +82,7 @@
       <rSolid name="etl:Disc"/>
       <rMaterial name="materials:Air"/>
     </LogicalPart>
-	<LogicalPart name="Aluminium_Disc" category="unspecified">
+    <LogicalPart name="Aluminium_Disc" category="unspecified">
       <rSolid name="etl:Aluminium_Disc"/>
       <rMaterial name="materials:Aluminium"/>
     </LogicalPart>
@@ -173,27 +171,25 @@
     </LogicalPart>
   </LogicalPartSection>
 
-
-  
-  <PosPartSection label="etl.xml">                                     
-    <PosPart copyNumber="1">                                           
-      <rParent name="caloBase:CALOECFront"/>                         
-      <rChild name="etl:EndcapTimingLayer"/>  
-      <Translation x="0." y="0." z="[ETLcenter]" />  
+  <PosPartSection label="etl.xml">
+    <PosPart copyNumber="1">
+      <rParent name="caloBase:CALOECFront"/>
+      <rChild name="etl:EndcapTimingLayer"/>
+      <Translation x="0." y="0." z="[ETLcenter]" />
     </PosPart>
-    <PosPart copyNumber="1">                                           
-      <rParent name="etl:EndcapTimingLayer"/>                         
-      <rChild name="etl:Disc1Timing"/>  
-      <Translation x="0." y="0." z="[Disc1center]-[ETLcenter]" /> 
-    </PosPart> 
-    <PosPart copyNumber="1">                                           
-      <rParent name="etl:EndcapTimingLayer"/>                         
-      <rChild name="etl:Disc2Timing"/>  
-      <Translation x="0." y="0." z="[Disc2center]-[ETLcenter]" /> 
-    </PosPart> 
-    <PosPart copyNumber="1">                                           
-      <rParent name="etl:Disc1Timing"/>                         
-      <rChild name="etl:Aluminium_Disc"/>  
+    <PosPart copyNumber="1">
+      <rParent name="etl:EndcapTimingLayer"/>
+      <rChild name="etl:Disc1Timing"/>
+      <Translation x="0." y="0." z="[Disc1center]-[ETLcenter]" />
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:EndcapTimingLayer"/>
+      <rChild name="etl:Disc2Timing"/>
+      <Translation x="0." y="0." z="[Disc2center]-[ETLcenter]" />
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="etl:Disc1Timing"/>
+      <rChild name="etl:Aluminium_Disc"/>
       <Translation x="0." y="0." z="0.3175*cm" />
     </PosPart>
     <PosPart copyNumber="1">
@@ -202,15 +198,15 @@
       <Translation x="0." y="0." z="-0.0445*cm" />
     </PosPart>
     <!-- Sectors in both Disc1Timing and Disc2Timing (Front/Back faces) are placed anti-clockwise (Quarter 1 is on top right, Quarter 2 top left...) -->
-    <PosPart copyNumber="1">                                           
-      <rParent name="etl:Disc1Timing"/>                         
-      <rChild name="etl:DiscSector_Front"/> 
-      <rRotation name="etl:0"/> 
-      <Translation x="0*cm" y="0*cm" z="-0.6545*cm" />  
-    </PosPart> 
-    <PosPart copyNumber="2">                                           
-      <rParent name="etl:Disc1Timing"/>                         
-      <rChild name="etl:DiscSector_Front"/>  
+    <PosPart copyNumber="1">
+      <rParent name="etl:Disc1Timing"/>
+      <rChild name="etl:DiscSector_Front"/>
+      <rRotation name="etl:0"/>
+      <Translation x="0*cm" y="0*cm" z="-0.6545*cm" />
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="etl:Disc1Timing"/>
+      <rChild name="etl:DiscSector_Front"/>
       <rRotation name="etl:270"/>
       <Translation x="0*cm" y="0*cm" z="-0.6545*cm" />
     </PosPart>
@@ -467,12 +463,8 @@
     </PosPart>
   </PosPartSection>
 
-
-
-
-
   <!-- Algorithm Section begins -->
-    <!-- Disc1Timing Front face -->
+  <!-- Disc1Timing Front face -->
   <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiscSector_Front"/>
     <String name="ChildName" value="etl:SensorModule_Front_Left"/>
@@ -692,7 +684,7 @@
     <Numeric name="Theta" value="90.*deg"/>
     <Numeric name="Phi" value="90.*deg"/>
     <Numeric name="Theta_obj" value="90.*deg"/>
-	<Numeric name="Phi_obj" value="0.*deg"/>
+ <Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm> -->
   <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiscSector_Front"/>
@@ -1047,7 +1039,7 @@
   </Algorithm>
 
 
-    <!-- Disc1Timing Back face -->
+  <!-- Disc1Timing Back face -->
   <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiscSector_Back"/>
     <String name="ChildName" value="etl:ServiceHybrid"/>
@@ -1634,7 +1626,7 @@
     <Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
 
- 	<!-- Disc2Timing Front face -->
+  <!-- Disc2Timing Front face -->
   <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiscSector_Front_2"/>
     <String name="ChildName" value="etl:SensorModule_Front_Right"/>
@@ -2209,7 +2201,7 @@
   </Algorithm>
 
 
-    <!-- Disc2Timing Back face -->
+  <!-- Disc2Timing Back face -->
   <Algorithm name="mtd:DDMTDLinear">
     <rParent name="etl:DiscSector_Back_2"/>
     <String name="ChildName" value="etl:ServiceHybrid"/>
@@ -2795,8 +2787,5 @@
     <Numeric name="Theta_obj" value="90.*deg"/>
     <Numeric name="Phi_obj" value="0.*deg"/>
   </Algorithm>
-
-
-
 
 </DDDefinition>
