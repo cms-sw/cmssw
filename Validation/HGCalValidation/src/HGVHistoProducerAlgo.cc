@@ -1303,7 +1303,6 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
       histograms.h_denom_caloparticle_phi_perlayer.at(layerId)->Fill(cP[cpId].g4Tracks()[0].momentum().phi());
     }
   }
-#define LogDebug(id) true ? edm::Suppress_LogDebug_() : edm::Suppress_LogDebug_()
 }
 
 void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histograms,
