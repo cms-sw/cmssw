@@ -72,57 +72,57 @@ void PrintGeomInfoAction::update(const BeginOfJob *job) {
       (*job)()->get<IdealGeometryRecord>().get(pDD);
 
       G4cout << "PrintGeomInfoAction::Get Printout of Sensitive Volumes "
-	     << "for " << names_.size() << " Readout Units" << G4endl;
+             << "for " << names_.size() << " Readout Units" << G4endl;
       for (unsigned int i = 0; i < names_.size(); i++) {
-	std::string sd = names_[i];
-	const cms::DDFilter filter("ReadOutName", sd);
-	cms::DDFilteredView fv(*pDD, filter);
-	G4cout << "PrintGeomInfoAction:: Get Filtered view for ReadOutName = " << sd << G4endl;
+        std::string sd = names_[i];
+        const cms::DDFilter filter("ReadOutName", sd);
+        cms::DDFilteredView fv(*pDD, filter);
+        G4cout << "PrintGeomInfoAction:: Get Filtered view for ReadOutName = " << sd << G4endl;
 
-	std::string spaces = spacesFromLeafDepth(1);
+        std::string spaces = spacesFromLeafDepth(1);
 
-	while (fv.firstChild()) {
-	  auto tran = fv.translation();
-	  std::vector<int> copy = fv.copyNos();
-	  auto lvname = fv.name();
-	  unsigned int leafDepth = copy.size();
-	  G4cout << leafDepth << spaces << "### VOLUME = " << lvname << " Copy No";
-	  for (unsigned int k = 0; k < leafDepth; ++k)
-	    G4cout << " " << copy[k];
-	  G4cout << " Centre at " << tran << " (r = " << tran.Rho() << ", phi = " << tran.phi() / CLHEP::deg << ")"
-		 << G4endl;
-	}
+        while (fv.firstChild()) {
+          auto tran = fv.translation();
+          std::vector<int> copy = fv.copyNos();
+          auto lvname = fv.name();
+          unsigned int leafDepth = copy.size();
+          G4cout << leafDepth << spaces << "### VOLUME = " << lvname << " Copy No";
+          for (unsigned int k = 0; k < leafDepth; ++k)
+            G4cout << " " << copy[k];
+          G4cout << " Centre at " << tran << " (r = " << tran.Rho() << ", phi = " << tran.phi() / CLHEP::deg << ")"
+                 << G4endl;
+        }
       }
     } else {
       edm::ESTransientHandle<DDCompactView> pDD;
       (*job)()->get<IdealGeometryRecord>().get(pDD);
 
       G4cout << "PrintGeomInfoAction::Get Printout of Sensitive Volumes "
-	     << "for " << names_.size() << " Readout Units" << G4endl;
+             << "for " << names_.size() << " Readout Units" << G4endl;
       for (unsigned int i = 0; i < names_.size(); i++) {
-	std::string attribute = "ReadOutName";
-	std::string sd = names_[i];
-	DDSpecificsMatchesValueFilter filter{DDValue(attribute, sd, 0)};
-	DDFilteredView fv(*pDD, filter);
-	G4cout << "PrintGeomInfoAction:: Get Filtered view for " << attribute << " = " << sd << G4endl;
-	bool dodet = fv.firstChild();
+        std::string attribute = "ReadOutName";
+        std::string sd = names_[i];
+        DDSpecificsMatchesValueFilter filter{DDValue(attribute, sd, 0)};
+        DDFilteredView fv(*pDD, filter);
+        G4cout << "PrintGeomInfoAction:: Get Filtered view for " << attribute << " = " << sd << G4endl;
+        bool dodet = fv.firstChild();
 
-	std::string spaces = spacesFromLeafDepth(1);
+        std::string spaces = spacesFromLeafDepth(1);
 
-	while (dodet) {
-	  const DDLogicalPart &log = fv.logicalPart();
-	  std::string lvname = log.name().name();
-	  DDTranslation tran = fv.translation();
-	  std::vector<int> copy = fv.copyNumbers();
+        while (dodet) {
+          const DDLogicalPart &log = fv.logicalPart();
+          std::string lvname = log.name().name();
+          DDTranslation tran = fv.translation();
+          std::vector<int> copy = fv.copyNumbers();
 
-	  unsigned int leafDepth = copy.size();
-	  G4cout << leafDepth << spaces << "### VOLUME = " << lvname << " Copy No";
-	  for (int k = leafDepth - 1; k >= 0; k--)
-	    G4cout << " " << copy[k];
-	  G4cout << " Centre at " << tran << " (r = " << tran.Rho() << ", phi = " << tran.phi() / CLHEP::deg << ")"
-		 << G4endl;
-	  dodet = fv.next();
-	}
+          unsigned int leafDepth = copy.size();
+          G4cout << leafDepth << spaces << "### VOLUME = " << lvname << " Copy No";
+          for (int k = leafDepth - 1; k >= 0; k--)
+            G4cout << " " << copy[k];
+          G4cout << " Centre at " << tran << " (r = " << tran.Rho() << ", phi = " << tran.phi() / CLHEP::deg << ")"
+                 << G4endl;
+          dodet = fv.next();
+        }
       }
     }
   }
