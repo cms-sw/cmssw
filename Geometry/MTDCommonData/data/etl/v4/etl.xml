@@ -4,7 +4,7 @@
   <ConstantsSection label="etl.xml" eval="true/false">
     <Constant name="ETLrmin" value="[caloBase:Rmin100]"/>   <!-- 26.3 cm -->
     <Constant name="ETLrmax" value="[caloBase:Rmax100]"/>   <!-- 125.525 cm -->
-    <Constant name="ETLthickness" value="7.7*cm"/>
+    <Constant name="ETLthickness" value="7.7"/>
     <Constant name="ETLcenter" value="3024.5*mm"/>
     <Constant name="Disc1center" value="2999.62*mm"/>
     <Constant name="Disc2center" value="3029.62*mm"/>
