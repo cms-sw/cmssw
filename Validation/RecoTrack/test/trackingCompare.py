@@ -70,14 +70,15 @@ ignore09 = LimitTrackAlgo(None) # ignore Pt09 plots
 # "plot set" is not in the dictionary, full set of plots will be
 # produced for it
 limitSubFolders = {
-    "":            limit,  # The default set (signal TrackingParticles for efficiency, all TrackingParticles for fakes)
-    "tpPtLess09":  limit,  # Efficiency for TrackingParticles with pT < 0.9 GeV
-    "allTPEffic":  ignore, # Efficiency with all TrackingParticles
-    "bhadron":     limit,  # Efficiency with B-hadron TrackingParticles
-    "fromPV":      limit,  # Tracks from PV, signal TrackingParticles for efficiency and fakes
-    "fromPVAllTP": limit,  # Tracks from PV, all TrackingParticles for fakes
-    "building":    ignore, # Built tracks (as opposed to selected tracks in above)
-    "seeding":     ignore, # Seeds
+    "":                limit,  # The default set (signal TrackingParticles for efficiency, all TrackingParticles for fakes)
+    "tpPtLess09":      limit,  # Efficiency for TrackingParticles with pT < 0.9 GeV
+    "tpEtaGreater2p7": limit,  # Efficiency for TrackingParticles with |eta| > 2.7 (phase 2)
+    "allTPEffic":      ignore, # Efficiency with all TrackingParticles
+    "bhadron":         limit,  # Efficiency with B-hadron TrackingParticles
+    "fromPV":          limit,  # Tracks from PV, signal TrackingParticles for efficiency and fakes
+    "fromPVAllTP":     limit,  # Tracks from PV, all TrackingParticles for fakes
+    "building":        ignore, # Built tracks (as opposed to selected tracks in above)
+    "seeding":         ignore, # Seeds
 }
 # arguments to be passed to tracking val.doPlots() below
 kwargs_tracking["limitSubFoldersOnlyTo"]=limitSubFolders
