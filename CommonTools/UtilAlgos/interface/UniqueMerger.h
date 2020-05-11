@@ -1,21 +1,22 @@
-#ifndef UtilAlgos_SetMerger_h
-#define UtilAlgos_SetMerger_h
-/** \class SetMerger
+#ifndef UtilAlgos_UniqueMerger_h
+#define UtilAlgos_UniqueMerger_h
+/** \class UniqueMerger
  *
  * Merges an arbitrary number of collections
- * into a single collection.
+ * into a single collection, without duplicates. Based on logic from Merger.h.
+ * This class template differs from Merger.h in that it uses a set instead of std::vector.
+ * This requires the OutputCollection type to be sortable, which allows us to search for elements downstream efficiently.
  *
  * Template parameters:
  * - C : collection type
  * - P : policy class that specifies how objects
  *       in the collection are are cloned
  *
- * \author Luca Lista, INFN
+ * \author Lauren Hay
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.1 $
  *
- * $Id: SetMerger.h,v 1.2 2010/02/20 20:55:21 wmtan Exp $
- *
+ * 
  */
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -28,13 +29,13 @@
 template <typename InputCollection,
           typename OutputCollection = InputCollection,
           typename P = typename edm::clonehelper::CloneTrait<InputCollection>::type>
-class SetMerger : public edm::global::EDProducer<> {
+class UniqueMerger : public edm::global::EDProducer<> {
 public:
   typedef std::set<typename OutputCollection::value_type> set_type;
   /// constructor from parameter set
-  explicit SetMerger(const edm::ParameterSet&);
+  explicit UniqueMerger(const edm::ParameterSet&);
   /// destructor
-  ~SetMerger() override;
+  ~UniqueMerger() override;
 
 private:
   /// process an event
@@ -46,17 +47,17 @@ private:
 };
 
 template <typename InputCollection, typename OutputCollection, typename P>
-SetMerger<InputCollection, OutputCollection, P>::SetMerger(const edm::ParameterSet& par)
+UniqueMerger<InputCollection, OutputCollection, P>::UniqueMerger(const edm::ParameterSet& par)
     : srcToken_(edm::vector_transform(par.template getParameter<std::vector<edm::InputTag> >("src"),
                                       [this](edm::InputTag const& tag) { return consumes<InputCollection>(tag); })) {
   produces<OutputCollection>();
 }
 
 template <typename InputCollection, typename OutputCollection, typename P>
-SetMerger<InputCollection, OutputCollection, P>::~SetMerger() {}
+UniqueMerger<InputCollection, OutputCollection, P>::~UniqueMerger() {}
 
 template <typename InputCollection, typename OutputCollection, typename P>
-void SetMerger<InputCollection, OutputCollection, P>::produce(edm::StreamID,
+void UniqueMerger<InputCollection, OutputCollection, P>::produce(edm::StreamID,
                                                               edm::Event& evt,
                                                               const edm::EventSetup&) const {
   set_type coll_set;
