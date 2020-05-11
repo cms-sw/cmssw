@@ -359,11 +359,11 @@ namespace gainCalibHelper {
       }
 
       TCanvas canvas("Canv", "Canv", isBarrel ? 1400 : 1800, 1200);
-      if(detids.size() > SiPixelPI::phase1size){
-	SiPixelPI::displayNotSupported(canvas, detids.size());
+      if (detids.size() > SiPixelPI::phase1size) {
+        SiPixelPI::displayNotSupported(canvas, detids.size());
         std::string fileName(this->m_imageFileName);
         canvas.SaveAs(fileName.c_str());
-	return false;
+        return false;
       }
 
       canvas.Divide(isBarrel ? 2 : 4, isBarrel ? 2 : 3);
