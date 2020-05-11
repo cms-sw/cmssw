@@ -287,7 +287,7 @@ namespace trackerDTC {
     for (int dtcId = 0; dtcId < numDTCs_; dtcId++)
       dtcModules_[dtcId] = vector<Module*>(modIds.at(dtcId), nullptr);
     modules_.reserve(cablingMap_.size());
-    for (const pair<DetId, int>& map : cablingMap_) {
+    for (const auto& map : cablingMap_) {
       const int dtcId = map.second / numModulesPerDTC_;
       const int modId = map.second % numModulesPerDTC_;
       modules_.emplace_back(this, map.first, dtcId);
