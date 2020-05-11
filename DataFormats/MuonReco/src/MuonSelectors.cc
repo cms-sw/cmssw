@@ -20,6 +20,21 @@ namespace muon {
       throw cms::Exception("MuonSelectorError") << label << " is not a recognized SelectionType";
     return value;
   }
+
+  reco::Muon::Selector selectorFromString(const std::string& label) {
+    reco::Muon::Selector value = (reco::Muon::Selector)-1;
+    bool found = false;
+    for (int i = 0; selectorStringToEnumMap[i].label && (!found); ++i)
+      if (!strcmp(label.c_str(), selectorStringToEnumMap[i].label)) {
+        found = true;
+        value = selectorStringToEnumMap[i].value;
+      }
+
+    // in case of unrecognized selection type
+    if (!found)
+      throw cms::Exception("MuonSelectorError") << label << " is not a recognized reco::Muon::Selector";
+    return value;
+  }
 }  // namespace muon
 
 unsigned int muon::RequiredStationMask(const reco::Muon& muon,
