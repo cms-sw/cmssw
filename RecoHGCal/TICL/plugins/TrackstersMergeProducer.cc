@@ -440,7 +440,7 @@ void TrackstersMergeProducer::energyRegressionAndID(const std::vector<reco::Calo
         float *features = &input.tensor<float, inputDimension>()(i, j, seenClusters[j], 0);
 
         // fill features
-        *(features++) = float(cluster.energy()/float(trackster.vertex_multiplicity(k)));
+        *(features++) = float(cluster.energy() / float(trackster.vertex_multiplicity(k)));
         *(features++) = float(std::abs(cluster.eta()));
         *(features) = float(cluster.phi());
 
