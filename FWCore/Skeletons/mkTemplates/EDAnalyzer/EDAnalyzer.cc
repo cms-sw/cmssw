@@ -58,6 +58,9 @@ private:
 
   // ----------member data ---------------------------
   edm::EDGetTokenT<TrackCollection> tracksToken_;  //used to select what tracks to read from configuration file
+#ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
+  edm::ESGetToken<SetupData, SetupRecord> setupToken_;
+#endif
 @example_histo  TH1I* histo;
 };
 
@@ -74,6 +77,9 @@ private:
 //
 __class__::__class__(const edm::ParameterSet& iConfig)
     : tracksToken_(consumes<TrackCollection>(iConfig.getUntrackedParameter<edm::InputTag>("tracks"))) {
+#ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
+  setupDataToken_ = esConsumes<SetupData, SetupRecord>();
+#endif
   //now do what ever initialization is needed
 @example_histo  usesResource("TFileService");
 @example_histo  edm::Service<TFileService> fs;
@@ -83,6 +89,8 @@ __class__::__class__(const edm::ParameterSet& iConfig)
 __class__::~__class__() {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
+  //
+  // please remove this method altogether if it would be left empty
 }
 
 //
@@ -100,17 +108,21 @@ void __class__::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
 #ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
-  ESHandle<SetupData> pSetup;
-  iSetup.get<SetupRecord>().get(pSetup);
+  // if the SetupData is always needed
+  auto setup = iSetup.getData(setupToken_);
+  // if need the ESHandle to check if the SetupData was there or not
+  auto pSetup = iSetup.getHandle(setupToken_);
 #endif
 }
 
 // ------------ method called once each job just before starting event loop  ------------
 void __class__::beginJob() {
+  // please remove this method if not needed
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void __class__::endJob() {
+  // please remove this method if not needed
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
