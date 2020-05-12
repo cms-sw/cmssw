@@ -106,8 +106,8 @@
     <Include ref="Geometry/CSCGeometryBuilder/data/cscSpecsFilter.xml"/>
     <Include ref="Geometry/CSCGeometryBuilder/data/cscSpecs.xml"/>
     <Include ref="Geometry/RPCGeometryBuilder/data/2026/v1/RPCSpecs.xml"/>
-    <Include ref="Geometry/GEMGeometryBuilder/data/v7/GEMSpecsFilter.xml"/>
-    <Include ref="Geometry/GEMGeometryBuilder/data/v7/GEMSpecs.xml"/>
+    <Include ref="Geometry/GEMGeometryBuilder/data/v10/GEMSpecsFilter.xml"/>
+    <Include ref="Geometry/GEMGeometryBuilder/data/v10/GEMSpecs.xml"/>
     <Include ref="Geometry/ForwardCommonData/data/brmsens.xml"/>
     <Include ref="Geometry/ForwardSimData/data/zdcsens.xml"/>
     <Include ref="Geometry/MTDSimData/data/CrystalBarPhiFlat/mtdsens.xml"/>
