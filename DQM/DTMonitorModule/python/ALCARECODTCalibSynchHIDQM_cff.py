@@ -30,5 +30,8 @@ from CalibMuon.DTCalibration.ALCARECODtCalibHI_cff import ALCARECODtCalibHIHLTFi
 #ALCARECODTCalibSynchHIDQM = cms.Sequence( dtPreCalibrationTaskAlcaHI +
 #                                          dtAlcaResolutionMonitorHI + 
 #                                          ALCARECODtCalibHIHLTDQM )
-ALCARECODTCalibSynchHIDQM = cms.Sequence( dtPreCalibrationTaskAlcaHI +
-                                          dtAlcaResolutionMonitorHI )
+
+# Short-term workaround to preserve the "run for every event" while removing the use of convertToUnscheduled()
+# To be reverted in a subsequent PR
+ALCARECODTCalibSynchHIDQMTask = cms.Task(dtPreCalibrationTaskAlcaHI, dtAlcaResolutionMonitorHI)
+ALCARECODTCalibSynchHIDQM = cms.Sequence(ALCARECODTCalibSynchHIDQMTask)
