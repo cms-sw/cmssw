@@ -114,7 +114,6 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
       denSelection_(iConfig.getParameter<std::string>("denCut")),
       pvNDOF_(iConfig.getParameter<int>("pvNDOF")),
       forceSCAL_(iConfig.getParameter<bool>("forceSCAL")) {
-
   edm::ConsumesCollector c{consumesCollector()};
   theTrackAnalyzer = new tadqm::TrackAnalyzer(iConfig, c);
 
@@ -747,15 +746,14 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   MEFolderName = conf->getParameter<std::string>("FolderName");
   std::string Folder = MEFolderName.substr(0, 2);
   float lumi = -1.;
-  if(forceSCAL_){
+  if (forceSCAL_) {
     edm::Handle<LumiScalersCollection> lumiScalers;
     iEvent.getByToken(lumiscalersToken_, lumiScalers);
     if (lumiScalers.isValid() && !lumiScalers->empty()) {
       LumiScalersCollection::const_iterator scalit = lumiScalers->begin();
       lumi = scalit->instantLumi();
     }
-  }
-  else{
+  } else {
     edm::Handle<OnlineLuminosityRecord> metaData;
     iEvent.getByToken(metaDataToken_, metaData);
     if (metaData.isValid())

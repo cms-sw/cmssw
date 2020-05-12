@@ -347,7 +347,7 @@ void PrimaryVertexResolution::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.addUntracked<edm::InputTag>("beamspotSrc", edm::InputTag("offlineBeamSpot"));
   desc.addUntracked<edm::InputTag>("lumiScalersSrc", edm::InputTag("scalersRawToDigi"));
   desc.addUntracked<edm::InputTag>("metaDataSrc", edm::InputTag("onlineMetaDataDigis"));
-  desc.addUntracked<bool>("forceSCAL",true);
+  desc.addUntracked<bool>("forceSCAL", true);
   desc.addUntracked<std::string>("rootFolder", "OfflinePV/Resolution");
   desc.addUntracked<std::string>("transientTrackBuilder", "TransientTrackBuilder");
 
@@ -401,7 +401,7 @@ void PrimaryVertexResolution::analyze(const edm::Event& iEvent, const edm::Event
   iEvent.getByToken(beamspotSrc_, hbeamspot);
   const reco::BeamSpot& beamspot = *hbeamspot;
 
-  float lumi= -1.;
+  float lumi = -1.;
   if (forceSCAL_) {
     edm::Handle<LumiScalersCollection> lumiScalers;
     iEvent.getByToken(lumiScalersSrc_, lumiScalers);
@@ -409,14 +409,12 @@ void PrimaryVertexResolution::analyze(const edm::Event& iEvent, const edm::Event
       LumiScalersCollection::const_iterator scalit = lumiScalers->begin();
       lumi = scalit->instantLumi();
     }
-  }
-  else{
+  } else {
     edm::Handle<OnlineLuminosityRecord> metaData;
     iEvent.getByToken(metaDataSrc_, metaData);
     if (metaData.isValid())
-      lumi=metaData->instLumi();
+      lumi = metaData->instLumi();
   }
-
 
   edm::ESHandle<TransientTrackBuilder> ttBuilderHandle;
   iSetup.get<TransientTrackRecord>().get(transientTrackBuilder_, ttBuilderHandle);
@@ -520,7 +518,6 @@ void PrimaryVertexResolution::Plots::calculateAndFillResolution(const std::vecto
   }
 
   hDiff_instLumiScal_.fill(res, lumi);
-  
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
