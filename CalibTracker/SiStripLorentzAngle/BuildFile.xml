@@ -1,3 +1,4 @@
+<use name="CommonTools/ConditionDBWriter"/>
 <use name="DataFormats/SiStripDetId"/>
 <use name="root"/>
 <use name="DataFormats/TrackerCommon"/>
