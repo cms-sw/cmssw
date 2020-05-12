@@ -43,15 +43,14 @@ void HGCalCLUEAlgoT<T>::populate(const HGCRecHitCollection& hits) {
     float sigmaNoise = 1.f;
     if (dependSensor_) {
       int thickness_index = rhtools_.getSiThickIndex(detid);
-      double storedThreshold = 9999.;
+      if (thickness_index == -1)
+        thickness_index = 6;      
+      double storedThreshold = thresholds_[layerOnSide][thickness_index];
       if ( detid.det() == DetId::HGCalEE  || detid.subdetId() == HGCEE ){
 	storedThreshold = thresholds_[layerOnSide][thickness_index];
       } else if ( detid.det() == DetId::HGCalHSi || detid.subdetId() == HGCHEF){
 	storedThreshold = thresholds_[layerOnSide][thickness_index + deltasi_index_regemfac_];
-      } else if ( thickness_index == -1 ){
-        thickness_index = 6;	
-	storedThreshold = thresholds_[layerOnSide][thickness_index];
-      }
+      } 
       sigmaNoise = v_sigmaNoise_[layerOnSide][thickness_index];
 
       if (hgrh.energy() < storedThreshold)
