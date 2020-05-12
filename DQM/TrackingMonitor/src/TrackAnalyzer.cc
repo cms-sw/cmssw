@@ -1119,7 +1119,7 @@ void TrackAnalyzer::setBX(const edm::Event& iEvent) { bx_ = iEvent.bunchCrossing
 void TrackAnalyzer::setLumi(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // as done by pixelLumi http://cmslxr.fnal.gov/source/DQM/PixelLumi/plugins/PixelLumiDQM.cc
 
-  if(forceSCAL_){
+  if (forceSCAL_) {
     edm::Handle<LumiScalersCollection> lumiScalers;
     iEvent.getByToken(lumiscalersToken_, lumiScalers);
     if (lumiScalers.isValid() && !lumiScalers->empty()) {
@@ -1127,14 +1127,13 @@ void TrackAnalyzer::setLumi(const edm::Event& iEvent, const edm::EventSetup& iSe
       scal_lumi_ = scalit->instantLumi();
     } else
       scal_lumi_ = -1;
-  }
-  else{
+  } else {
     edm::Handle<OnlineLuminosityRecord> metaData;
     iEvent.getByToken(metaDataToken_, metaData);
     if (metaData.isValid())
       scal_lumi_ = metaData->instLumi();
     else
-      scal_lumi_ = -1;    
+      scal_lumi_ = -1;
   }
 
   edm::Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClusters;
