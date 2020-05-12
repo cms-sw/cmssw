@@ -58,6 +58,7 @@ namespace {
       Base::setSingleIov(true);
     }
 
+    using cond::payloadInspector::Histogram1D<SiStripThreshold>::fill;
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
       for (auto const& iov : iovs) {
         std::shared_ptr<SiStripThreshold> payload = Base::fetchPayload(std::get<1>(iov));
@@ -96,6 +97,7 @@ namespace {
       Base::setSingleIov(true);
     }
 
+    using cond::payloadInspector::Histogram1D<SiStripThreshold>::fill;
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
       edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
       SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
@@ -141,6 +143,7 @@ namespace {
       Base::setSingleIov(true);
     }
 
+    using cond::payloadInspector::Histogram1D<SiStripThreshold>::fill;
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
       edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
       SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());

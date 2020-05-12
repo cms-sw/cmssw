@@ -53,6 +53,7 @@ namespace {
       Base::setSingleIov(true);
     }
 
+    using cond::payloadInspector::Histogram1D<SiStripApvGain>::fill;
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
       for (auto const& iov : iovs) {
         std::shared_ptr<SiStripApvGain> payload = Base::fetchPayload(std::get<1>(iov));
@@ -92,6 +93,7 @@ namespace {
       Base::setSingleIov(true);
     }
 
+    using cond::payloadInspector::Histogram1D<SiStripApvGain>::fill;
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
       for (auto const& iov : iovs) {
         std::shared_ptr<SiStripApvGain> payload = Base::fetchPayload(std::get<1>(iov));
@@ -155,6 +157,7 @@ namespace {
       Base::setSingleIov(true);
     }
 
+    using cond::payloadInspector::Histogram2D<SiStripApvGain>::fill;
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
       for (auto const& iov : iovs) {
         std::shared_ptr<SiStripApvGain> payload = Base::fetchPayload(std::get<1>(iov));
@@ -200,6 +203,7 @@ namespace {
       Base::setSingleIov(true);
     }
 
+    using cond::payloadInspector::Histogram1D<SiStripApvGain>::fill;
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
       for (auto const& iov : iovs) {
         std::shared_ptr<SiStripApvGain> payload = Base::fetchPayload(std::get<1>(iov));
@@ -269,6 +273,7 @@ namespace {
       Base::setSingleIov(true);
     }
 
+    using cond::payloadInspector::Histogram1D<SiStripApvGain>::fill;
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
       for (auto const& iov : iovs) {
         std::shared_ptr<SiStripApvGain> payload = Base::fetchPayload(std::get<1>(iov));
@@ -340,6 +345,7 @@ namespace {
       Base::setSingleIov(true);
     }
 
+    using cond::payloadInspector::Histogram2D<SiStripApvGain>::fill;
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
       for (auto const& iov : iovs) {
         std::shared_ptr<SiStripApvGain> payload = Base::fetchPayload(std::get<1>(iov));
@@ -399,6 +405,7 @@ namespace {
       Base::setSingleIov(true);
     }
 
+    using cond::payloadInspector::Histogram2D<SiStripApvGain>::fill;
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
       for (auto const& iov : iovs) {
         std::shared_ptr<SiStripApvGain> payload = Base::fetchPayload(std::get<1>(iov));
@@ -1162,6 +1169,7 @@ namespace {
       Base::setSingleIov(true);
     }
 
+    using cond::payloadInspector::Histogram1D<SiStripApvGain>::fill;
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
       for (auto const& iov : iovs) {
         std::shared_ptr<SiStripApvGain> payload = Base::fetchPayload(std::get<1>(iov));

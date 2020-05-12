@@ -56,6 +56,7 @@ namespace {
       Base::setSingleIov(true);
     }
 
+    using cond::payloadInspector::Histogram2D<EcalIntercalibConstants>::fill;
     // Histogram2D::fill (virtual) needs be overridden - the implementation should use fillWithValue
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
       for (auto const& iov : iovs) {
@@ -105,6 +106,7 @@ namespace {
       Base::setSingleIov(true);
     }
 
+    using cond::payloadInspector::Histogram2D<EcalIntercalibConstants>::fill;
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
       for (auto const& iov : iovs) {
         std::shared_ptr<EcalIntercalibConstants> payload = Base::fetchPayload(std::get<1>(iov));
