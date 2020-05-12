@@ -180,7 +180,7 @@ bool HGCalRecHitWorkerSimple::run(const edm::Event& evt,
       break;
     case hgcbh:
       rechitMaker_->setADCToGeVConstant(float(hgchebUncalib2GeV_));
-      sigmaNoiseGeV = 1e-3 * hgcHEB_noise_MIP_ * weights_[layer];
+      sigmaNoiseGeV = 1e-3 * hgcHEB_noise_MIP_ * weights_[layer] * rcorrscint_;
       break;
     case hgchfnose:
       rechitMaker_->setADCToGeVConstant(float(hgchfnoseUncalib2GeV_));
