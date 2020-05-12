@@ -20,7 +20,7 @@
 
 class DDCompactView;
 class CSCGeometry;
-class MuonDDDConstants;
+class MuonGeometryConstants;
 namespace cms {
   class DDFilteredView;
   class DDCompactView;
@@ -36,7 +36,7 @@ public:
   virtual ~CSCGeometryBuilderFromDDD();
 
   // Build the geometry DDD
-  void build(CSCGeometry& geom, const DDCompactView* fv, const MuonDDDConstants& muonConstants);
+  void build(CSCGeometry& geom, const DDCompactView* fv, const MuonGeometryConstants& muonConstants);
 
   // Build the geometry dd4hep
   void build(CSCGeometry& geom, const cms::DDCompactView* cview, const cms::MuonNumbering& muonConstants);

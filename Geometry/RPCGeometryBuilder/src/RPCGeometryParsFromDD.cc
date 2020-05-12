@@ -27,7 +27,7 @@ RPCGeometryParsFromDD::RPCGeometryParsFromDD() {}
 RPCGeometryParsFromDD::~RPCGeometryParsFromDD() {}
 
 void RPCGeometryParsFromDD::build(const DDCompactView* cview,
-                                  const MuonDDDConstants& muonConstants,
+                                  const MuonGeometryConstants& muonConstants,
                                   RecoIdealGeometry& rgeo) {
   const std::string attribute = "ReadOutName";
   const std::string value = "MuonRPCHits";
@@ -40,7 +40,7 @@ void RPCGeometryParsFromDD::build(const DDCompactView* cview,
 }
 
 void RPCGeometryParsFromDD::buildGeometry(DDFilteredView& fview,
-                                          const MuonDDDConstants& muonConstants,
+                                          const MuonGeometryConstants& muonConstants,
                                           RecoIdealGeometry& rgeo) {
   for (bool doSubDets = fview.firstChild(); doSubDets == true; doSubDets = fview.nextSibling()) {
     // Get the Base Muon Number
