@@ -55,7 +55,8 @@ namespace cms {
     }
 
     template <typename Histo>
-    inline void launchZero(Histo *__restrict__ h,
+    inline __attribute__((always_inline))
+     void launchZero(Histo *__restrict__ h,
                            cudaStream_t stream
 #ifndef __CUDACC__
                            = cudaStreamDefault
@@ -70,7 +71,8 @@ namespace cms {
     }
 
     template <typename Histo>
-    inline void launchFinalize(Histo *__restrict__ h,
+    inline __attribute__((always_inline))
+    void launchFinalize(Histo *__restrict__ h,
                                uint8_t *__restrict__ ws
 #ifndef __CUDACC__
                                = cudaStreamDefault
@@ -93,7 +95,8 @@ namespace cms {
     }
 
     template <typename Histo, typename T>
-    inline void fillManyFromVector(Histo *__restrict__ h,
+    inline __attribute__((always_inline))
+    void fillManyFromVector(Histo *__restrict__ h,
                                    uint8_t *__restrict__ ws,
                                    uint32_t nh,
                                    T const *__restrict__ v,
@@ -186,7 +189,7 @@ namespace cms {
 
       static constexpr auto histOff(uint32_t nh) { return NBINS * nh; }
 
-      __host__ static size_t wsSize() {
+      __host__ __forceinline__ static size_t wsSize() {
 #ifdef __CUDACC__
         uint32_t *v = nullptr;
         void *d_temp_storage = nullptr;
@@ -209,7 +212,7 @@ namespace cms {
           i = 0;
       }
 
-      __host__ __device__ void add(CountersOnly const &co) {
+      __host__ __device__ __forceinline__ void add(CountersOnly const &co) {
         for (uint32_t i = 0; i < totbins(); ++i) {
 #ifdef __CUDA_ARCH__
           atomicAdd(off + i, co.off[i]);
