@@ -51,6 +51,12 @@ private:
   //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
   // ----------member data ---------------------------
+#ifdef THIS_IS_AN_EVENT_EXAMPLE
+  edm::EDGetTokenT<ExampleData> exampleToken_;
+#endif
+#ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
+  edm::ESGetToken<SetupData, SetupRecord> setupToken_;
+#endif
 };
 
 //
@@ -66,11 +72,19 @@ private:
 //
 __class__::__class__(const edm::ParameterSet& iConfig) {
   //now do what ever initialization is needed
+#ifdef THIS_IS_AN_EVENT_EXAMPLE
+  exampleToken_ = consumes<ExampleData>(iConfig.getParameter<edm::InputTag>("examples"));
+#endif
+#ifdef THIS_IS_EN_EVENTSETUP_EXAMPLE
+  setupToken_ = esConsumes<SetupData, SetupRecord>();
+#endif
 }
 
 __class__::~__class__() {
   // do anything here that needs to be done at destruction time
   // (e.g. close files, deallocate resources etc.)
+  //
+  // please remove this method altogether if it would be left empty
 }
 
 //
@@ -81,23 +95,23 @@ __class__::~__class__() {
 bool __class__::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 #ifdef THIS_IS_AN_EVENT_EXAMPLE
-  Handle<ExampleData> pIn;
-  iEvent.getByLabel("example", pIn);
+  ExampleData const& in = iEvent.get(exampleToken_);
 #endif
 
 #ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
-  ESHandle<SetupData> pSetup;
-  iSetup.get<SetupRecord>().get(pSetup);
+  SetupData const& setup = iSetup.getData(setupToken_);
 #endif
   return true;
 }
 
 // ------------ method called once each stream before processing any runs, lumis or events  ------------
 void __class__::beginStream(edm::StreamID) {
+  // please remove this method if not needed
 }
 
 // ------------ method called once each stream after processing all runs, lumis and events  ------------
 void __class__::endStream() {
+  // please remove this method if not needed
 }
 
 // ------------ method called when starting to processes a run  ------------
