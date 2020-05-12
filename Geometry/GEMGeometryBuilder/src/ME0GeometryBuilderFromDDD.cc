@@ -24,7 +24,7 @@ ME0GeometryBuilderFromDDD::ME0GeometryBuilderFromDDD() {}
 
 ME0GeometryBuilderFromDDD::~ME0GeometryBuilderFromDDD() {}
 
-ME0Geometry* ME0GeometryBuilderFromDDD::build(const DDCompactView* cview, const MuonDDDConstants& muonConstants) {
+ME0Geometry* ME0GeometryBuilderFromDDD::build(const DDCompactView* cview, const MuonGeometryConstants& muonConstants) {
   std::string attribute = "MuStructure";
   std::string value = "MuonEndCapME0";
 
@@ -35,7 +35,7 @@ ME0Geometry* ME0GeometryBuilderFromDDD::build(const DDCompactView* cview, const 
   return this->buildGeometry(fview, muonConstants);
 }
 
-ME0Geometry* ME0GeometryBuilderFromDDD::buildGeometry(DDFilteredView& fv, const MuonDDDConstants& muonConstants) {
+ME0Geometry* ME0GeometryBuilderFromDDD::buildGeometry(DDFilteredView& fv, const MuonGeometryConstants& muonConstants) {
   ME0Geometry* geometry = new ME0Geometry();
 
   LogTrace("ME0GeometryBuilderFromDDD") << "Building the geometry service";

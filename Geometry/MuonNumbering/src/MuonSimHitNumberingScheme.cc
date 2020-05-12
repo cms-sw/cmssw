@@ -6,12 +6,9 @@
 #include "Geometry/MuonNumbering/interface/ME0NumberingScheme.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/MuonSubDetector.h"
-#include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 
-MuonSimHitNumberingScheme::MuonSimHitNumberingScheme(MuonSubDetector* d, const DDCompactView& cpv)
-    : MuonSimHitNumberingScheme(d, MuonDDDConstants(cpv)) {}
-
-MuonSimHitNumberingScheme::MuonSimHitNumberingScheme(MuonSubDetector* d, const MuonDDDConstants& muonConstants) {
+MuonSimHitNumberingScheme::MuonSimHitNumberingScheme(MuonSubDetector* d, const MuonGeometryConstants& muonConstants) {
   theDetector = d;
   if (theDetector->isBarrel()) {
     theNumbering = new DTNumberingScheme(muonConstants);

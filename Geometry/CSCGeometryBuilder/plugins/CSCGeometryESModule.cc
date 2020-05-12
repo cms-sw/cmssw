@@ -67,7 +67,7 @@ CSCGeometryESModule::CSCGeometryESModule(const edm::ParameterSet& p)
   useDDD_ = p.getParameter<bool>("useDDD");
   if (useDDD_) {
     cpvToken_ = cc.consumesFrom<DDCompactView, IdealGeometryRecord>(edm::ESInputTag{});
-    mdcToken_ = cc.consumesFrom<MuonDDDConstants, MuonNumberingRecord>(edm::ESInputTag{});
+    mdcToken_ = cc.consumesFrom<MuonGeometryConstants, IdealGeometryRecord>(edm::ESInputTag{});
   } else if (useDD4hep_) {
     cpvTokendd4hep_ = cc.consumesFrom<cms::DDCompactView, IdealGeometryRecord>(edm::ESInputTag{});
     mdcTokendd4hep_ = cc.consumesFrom<cms::MuonNumbering, MuonNumberingRecord>(edm::ESInputTag{});

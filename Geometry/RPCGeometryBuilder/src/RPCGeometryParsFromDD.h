@@ -17,7 +17,7 @@ class DDCompactView;
 class DDFilteredView;
 class RPCDetId;
 class RPCRoll;
-class MuonDDDConstants;
+class MuonGeometryConstants;
 class RecoIdealGeometry;
 class RPCGeometryParsFromDD {
 public:
@@ -25,10 +25,10 @@ public:
 
   ~RPCGeometryParsFromDD();
 
-  void build(const DDCompactView* cview, const MuonDDDConstants& muonConstants, RecoIdealGeometry& rgeo);
+  void build(const DDCompactView* cview, const MuonGeometryConstants& muonConstants, RecoIdealGeometry& rgeo);
 
 private:
-  void buildGeometry(DDFilteredView& fview, const MuonDDDConstants& muonConstants, RecoIdealGeometry& rgeo);
+  void buildGeometry(DDFilteredView& fview, const MuonGeometryConstants& muonConstants, RecoIdealGeometry& rgeo);
 };
 
 #endif

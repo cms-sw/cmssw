@@ -19,7 +19,7 @@
 
 class CSCGeometry;
 class DDCompactView;
-class MuonDDDConstants;
+class MuonGeometryConstants;
 class RecoIdealGeometry;
 class CSCRecoDigiParameters;
 
@@ -40,7 +40,7 @@ public:
   /// Build the geometry returning the RecoIdealGeometry and the CSCRecoDigiParameters objects
   // as built from the DDD.
   bool build(const DDCompactView* cview,
-             const MuonDDDConstants& muonConstants,
+             const MuonGeometryConstants& muonConstants,
              RecoIdealGeometry& rig,
              CSCRecoDigiParameters& rdp);
   //dd4hep

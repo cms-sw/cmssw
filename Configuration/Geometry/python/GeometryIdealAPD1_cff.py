@@ -14,6 +14,7 @@ from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *
 from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
 
 #Muon
+from Geometry.MuonNumbering.muonGeometryConstants_cff import *
 from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *
 from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
 

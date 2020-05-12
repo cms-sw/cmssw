@@ -3,7 +3,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 int MuonGeometryConstants::getValue(const std::string& name) const {
 #ifdef EDM_ML_DEBUG
