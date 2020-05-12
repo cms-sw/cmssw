@@ -21,7 +21,7 @@ process.load("Configuration.Geometry.GeometryExtended2026D50_cff")
 process.load("Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cff")
 
 process.load("Geometry.MTDNumberingBuilder.mtdTopology_cfi")
-process.load("Geometry.MTDGeometryBuilder.mtdParameters_cfi")
+process.load("Geometry.MTDGeometryBuilder.mtdParameters_cff")
 
 process.load("Geometry.MTDGeometryBuilder.mtdGeometry_cfi")
 process.mtdGeometry.applyAlignment = cms.bool(False)
