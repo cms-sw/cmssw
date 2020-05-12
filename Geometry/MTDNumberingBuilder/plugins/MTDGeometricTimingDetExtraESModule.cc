@@ -1,4 +1,4 @@
-#include "Geometry/MTDNumberingBuilder/plugins/DDDCmsMTDConstruction.h"
+#include "Geometry/MTDNumberingBuilder/plugins/DDCmsMTDConstruction.h"
 #include "CondFormats/GeometryObjects/interface/PGeometricTimingDet.h"
 #include "CondFormats/GeometryObjects/interface/PGeometricTimingDetExtra.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -6,7 +6,7 @@
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
-#include "ExtractStringFromDDD.h"
+#include "Geometry/MTDNumberingBuilder/plugins/ExtractStringFromDD.h"
 #include "CondDBCmsMTDConstruction.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"

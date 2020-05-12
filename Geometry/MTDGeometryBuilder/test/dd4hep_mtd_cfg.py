@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
 
-process = cms.Process("GeometryTest")
+process = cms.Process("GeometryTest",dd4hep)
 
 process.source = cms.Source("EmptyIOVSource",
                             lastValue = cms.uint64(1),
@@ -16,7 +17,19 @@ process.maxEvents = cms.untracked.PSet(
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.INFO.limit = -1
 
-process.load("Configuration.Geometry.GeometryExtended2026D50_cff")
+
+process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
+                                            confGeomXMLFiles = cms.FileInPath('Geometry/MTDCommonData/data/dd4hep/cms-mtdD50-geometry.xml'),
+                                            appendToDataLabel = cms.string('')
+)
+
+process.DDCompactViewESProducer = cms.ESProducer("DDCompactViewESProducer",
+                                                 appendToDataLabel = cms.string('')
+)
+
+process.DDSpecParRegistryESProducer = cms.ESProducer("DDSpecParRegistryESProducer",
+                                                     appendToDataLabel = cms.string('')
+)
 
 process.load("Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cff")
 

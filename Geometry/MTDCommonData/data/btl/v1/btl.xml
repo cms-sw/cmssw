@@ -48,7 +48,7 @@
     <Box name="BModule33Layer1NegativeZFSide" dx="92*mm" dy="26.1*mm" dz="0.8*mm"/>
     <Box name="BModule33Layer1NegativeZSupportPlate" dx="92*mm" dy="26.1*mm" dz="1.5*mm"/>
     <Box name="Rod1" dx="9.01*mm" dy="92.01*mm" dz="2505.61*mm"/>
-    <Tubs name="Layer1" rMin="1165.48*mm" rMax="1187.09*mm" dz="2505.62*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="Layer1Timing" rMin="1165.48*mm" rMax="1187.09*mm" dz="2505.62*mm" startPhi="0*deg" deltaPhi="360*deg"/>
   </SolidSection>
 
   <LogicalPartSection label="btl.xml">
@@ -168,8 +168,8 @@
       <rSolid name="btl:Rod1"/>
       <rMaterial name="materials:Air"/>
     </LogicalPart>
-    <LogicalPart name="Layer1" category="unspecified">
-      <rSolid name="btl:Layer1"/>
+    <LogicalPart name="Layer1Timing" category="unspecified">
+      <rSolid name="btl:Layer1Timing"/>
       <rMaterial name="materials:Air"/>
     </LogicalPart>
   </LogicalPartSection>
@@ -2569,10 +2569,10 @@
     </PosPart>
     <PosPart copyNumber="1">
       <rParent name="btl:BarrelTimingLayer"/>
-      <rChild name="btl:Layer1"/>
+      <rChild name="btl:Layer1Timing"/>
     </PosPart>
     <Algorithm name="track:DDTrackerPhiAltAlgo">
-      <rParent name="btl:Layer1"/>
+      <rParent name="btl:Layer1Timing"/>
       <String name="ChildName" value="btl:Rod1"/>
       <Numeric name="Tilt" value="90*deg"/>
       <Numeric name="StartAngle" value="6.88889*deg"/>
@@ -2585,7 +2585,7 @@
       <Numeric name="IncrCopyNo" value="1"/>
     </Algorithm>
     <Algorithm name="track:DDTrackerPhiAltAlgo">
-      <rParent name="btl:Layer1"/>
+      <rParent name="btl:Layer1Timing"/>
       <String name="ChildName" value="btl:Rod1"/>
       <Numeric name="Tilt" value="90*deg"/>
       <Numeric name="StartAngle" value="-173.111*deg"/>
