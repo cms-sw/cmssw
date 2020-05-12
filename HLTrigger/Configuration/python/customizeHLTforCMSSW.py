@@ -76,6 +76,12 @@ def synchronizeHCALHLTofflineRun3on2018data(process):
         producer.setNoiseFlagsQIE8 = cms.bool( True )
         producer.setPulseShapeFlagsQIE8 = cms.bool( True )
 
+    #----------------------------------------------------------
+    # Use 1+8p fit (PR29617) and apply HB- correction (PR26177)
+    for producer in producers_by_type(process, "HBHEPhase1Reconstructor"):
+        producer.algorithm.applyLegacyHBMCorrection = cms.bool( True )
+        producer.algorithm.chiSqSwitch = cms.double(15.0)
+
     return process
 
 def synchronizeHCALHLTofflineRun2(process):
@@ -166,7 +172,7 @@ def customiseFor2017DtUnpacking(process):
 
 def customiseFor29512(process):
     """Refresh configuration of ElectronNHitSeedProducer instances.
-    
+
     Loops over some parameters of ElectronNHitSeedProducer instances and changes their type from string to ESInputTag.
 
     For PR https://github.com/cms-sw/cmssw/pull/29512 "ElectronNHitSeedProducer modernization"
@@ -196,6 +202,13 @@ def customiseFor29658(process):
 
     return process
 
+# Use 8p fit (PR29617) and don't apply HB- correction (PR26177)
+def customiseFor29617(process):
+    for producer in producers_by_type(process, "HBHEPhase1Reconstructor"):
+        producer.algorithm.chiSqSwitch = cms.double(-1.0)
+        producer.algorithm.applyLegacyHBMCorrection = cms.bool( False )
+    return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -203,5 +216,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # process = customiseFor12718(process)
     process = customiseFor29512(process)
     process = customiseFor29658(process)
+    process = customiseFor29617(process)
 
     return process
