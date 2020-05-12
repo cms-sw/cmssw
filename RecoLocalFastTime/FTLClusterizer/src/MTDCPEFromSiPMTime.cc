@@ -9,8 +9,7 @@ using namespace std;
 //
 //-----------------------------------------------------------------------------
 MTDCPEFromSiPMTime::MTDCPEFromSiPMTime(edm::ParameterSet const& conf, const MTDGeometry& geom)
-    : MTDCPEBase(conf, geom) {
-}
+    : MTDCPEBase(conf, geom) {}
 
 LocalPoint MTDCPEFromSiPMTime::localPosition(DetParam const& dp, ClusterParam& cp) const {
   MeasurementPoint pos(cp.theCluster->x(), cp.theCluster->y());

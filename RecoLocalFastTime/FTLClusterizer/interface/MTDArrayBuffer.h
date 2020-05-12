@@ -26,7 +26,7 @@ public:
 
   inline void setSize(uint rows, uint cols);
 
-  //add SubDet to identify whether the Hit is in BTL(+1) or ETL(-1), if not clear then use 0
+  //use SubDet to identify whether the Hit is in BTL or ETL
   inline GeomDetEnumerators::Location SubDet(uint row, uint col) const;
   inline GeomDetEnumerators::Location SubDet(const FTLCluster::FTLHitPos&) const;
   inline float energy(uint row, uint col) const;
@@ -136,7 +136,9 @@ void MTDArrayBuffer::setSize(uint rows, uint cols) {
 bool MTDArrayBuffer::inside(uint row, uint col) const { return (row < nrows && col < ncols); }
 
 GeomDetEnumerators::Location MTDArrayBuffer::SubDet(uint row, uint col) const { return hitSubDet_vec[index(row, col)]; }
-GeomDetEnumerators::Location MTDArrayBuffer::SubDet(const FTLCluster::FTLHitPos& pix) const { return hitSubDet_vec[index(pix)]; }
+GeomDetEnumerators::Location MTDArrayBuffer::SubDet(const FTLCluster::FTLHitPos& pix) const {
+  return hitSubDet_vec[index(pix)];
+}
 
 float MTDArrayBuffer::energy(uint row, uint col) const { return hitEnergy_vec[index(row, col)]; }
 float MTDArrayBuffer::energy(const FTLCluster::FTLHitPos& pix) const { return hitEnergy_vec[index(pix)]; }
@@ -187,8 +189,12 @@ void MTDArrayBuffer::set(const FTLCluster::FTLHitPos& pix,
   set(pix.row(), pix.col(), SubDet, energy, time, time_error, local_error, global_point);
 }
 
-void MTDArrayBuffer::set_SubDet(uint row, uint col, GeomDetEnumerators::Location SubDet) { hitSubDet_vec[index(row, col)] = SubDet; }
-void MTDArrayBuffer::set_SubDet(const FTLCluster::FTLHitPos& pix, GeomDetEnumerators::Location SubDet) { hitSubDet_vec[index(pix)] = SubDet; }
+void MTDArrayBuffer::set_SubDet(uint row, uint col, GeomDetEnumerators::Location SubDet) {
+  hitSubDet_vec[index(row, col)] = SubDet;
+}
+void MTDArrayBuffer::set_SubDet(const FTLCluster::FTLHitPos& pix, GeomDetEnumerators::Location SubDet) {
+  hitSubDet_vec[index(pix)] = SubDet;
+}
 
 void MTDArrayBuffer::set_energy(uint row, uint col, float energy) { hitEnergy_vec[index(row, col)] = energy; }
 void MTDArrayBuffer::set_energy(const FTLCluster::FTLHitPos& pix, float energy) { hitEnergy_vec[index(pix)] = energy; }
