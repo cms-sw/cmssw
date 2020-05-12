@@ -96,7 +96,7 @@ public:
     iDesc.addUntracked<unsigned int>("verbosity", 3);
     iDesc.add<std::vector<double>>("dEdXweights", {});
     iDesc.add<std::vector<double>>("thicknessCorrection", {});
-    iDesc.add<double>("sciThicknessCorrection", 1.0);
+    iDesc.add<double>("sciThicknessCorrection", 0.9);
     iDesc.add<int>("deltasi_index_regemfac", 3);
     iDesc.add<std::vector<double>>("fcPerMip", {});
     iDesc.add<double>("fcPerEle", 0.0);
