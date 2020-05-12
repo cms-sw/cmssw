@@ -54,31 +54,44 @@ int GEMNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
   //  ring    = num.getSuperNo(theRingLevel);
   // GEM are only on the first ring
   ring = 1;
-  station = num.getSuperNo(theStationLevel);
+
+  // GE0 has the layer encoded in the ring level
+  if (num.getBaseNo(theRingLevel) == 0) {  // 0 => GE1/1, GE2/1
+    station = num.getSuperNo(theStationLevel);
 #ifdef LOCAL_DEBUG
-  edm::LogVerbatim("GEMNumberingScheme") << "GEMNumbering: Ring " << ring << " Station "
-                                         << num.getSuperNo(theStationLevel) << ":" << station;
+    edm::LogVerbatim("GEMNumberingScheme")
+        << "GEMNumbering: Ring " << ring << " Station " << num.getSuperNo(theStationLevel) << ":" << station;
 #endif
 
-  roll = num.getBaseNo(theRollLevel) + 1;
-  const int copyno = num.getBaseNo(theSectorLevel) + 1;
-  if (copyno < 50) {
-    if (copyno % 2 == 0) {
-      layer = 2;
-      chamber = copyno - 1;
+    roll = num.getBaseNo(theRollLevel) + 1;
+    const int copyno = num.getBaseNo(theSectorLevel) + 1;
+    // Half the chambers are flipped back to front, this is encoded in
+    // the chamber number, which affects the layer numbering. Layer 1
+    // is always the closest layer to the interaction point.
+    const int layerDemarcation = 50;
+    if (copyno < layerDemarcation) {
+      if (copyno % 2 == 0) {
+        layer = 2;
+        chamber = copyno - 1;
+      } else {
+        layer = 1;
+        chamber = copyno;
+      }
     } else {
-      layer = 1;
-      chamber = copyno;
+      int copynp = copyno - layerDemarcation;
+      if (copynp % 2 != 0) {
+        layer = 2;
+        chamber = copynp - 1;
+      } else {
+        layer = 1;
+        chamber = copynp;
+      }
     }
-  } else {
-    int copynp = copyno - 50;
-    if (copynp % 2 != 0) {
-      layer = 2;
-      chamber = copynp - 1;
-    } else {
-      layer = 1;
-      chamber = copynp;
-    }
+  } else {  // GE0 encodes the layer
+    station = GEMDetId::minStationId0;
+    layer = num.getBaseNo(theRingLevel);
+    chamber = num.getBaseNo(theSectorLevel) + 1;
+    roll = num.getBaseNo(theRollLevel) + 1;
   }
 
   // collect all info
