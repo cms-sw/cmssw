@@ -11,7 +11,10 @@ import FWCore.ParameterSet.Config as cms
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalEtaCalib_cff import *
 from DQMOffline.Configuration.AlCaRecoDQM_cff import *
 
-pathALCARECOEcalCalEtaCalib = cms.Path(seqALCARECOEcalCalEtaCalib*ALCARECOEcalCalEtaCalibDQM)
+# Short-term workaround to preserve the "run for every event" while removing the use of convertToUnscheduled()
+# To be reverted in a subsequent PR
+pathALCARECOEcalCalEtaCalibTask = cms.Task(ALCARECOEcalCalEtaCalibDQM)
+pathALCARECOEcalCalEtaCalib = cms.Path(seqALCARECOEcalCalEtaCalib, pathALCARECOEcalCalEtaCalibTask)
 
 from Configuration.EventContent.AlCaRecoOutput_cff import *
 
@@ -28,7 +31,10 @@ ALCARECOStreamEcalCalEtaCalib = cms.FilteredStream(
 # ECAL calibration with pi0
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalPi0Calib_cff import *
 
-pathALCARECOEcalCalPi0Calib = cms.Path(seqALCARECOEcalCalPi0Calib*ALCARECOEcalCalPi0CalibDQM)
+# Short-term workaround to preserve the "run for every event" while removing the use of convertToUnscheduled()
+# To be reverted in a subsequent PR
+pathALCARECOEcalCalPi0CalibTask = cms.Task(ALCARECOEcalCalPi0CalibDQM)
+pathALCARECOEcalCalPi0Calib = cms.Path(seqALCARECOEcalCalPi0Calib, pathALCARECOEcalCalPi0CalibTask)
 
 from Configuration.EventContent.AlCaRecoOutput_cff import *
 
@@ -44,7 +50,10 @@ ALCARECOStreamEcalCalPi0Calib = cms.FilteredStream(
 # HCAL calibration with min.bias
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalMinBias_cff import *
 
-pathALCARECOHcalCalMinBias = cms.Path(seqALCARECOHcalCalMinBiasDigi*seqALCARECOHcalCalMinBias*ALCARECOHcalCalPhisymDQM)
+# Short-term workaround to preserve the "run for every event" while removing the use of convertToUnscheduled()
+# To be reverted in a subsequent PR
+pathALCARECOHcalCalMinBiasTask = cms.Task(ALCARECOHcalCalPhisymDQM)
+pathALCARECOHcalCalMinBias = cms.Path(seqALCARECOHcalCalMinBiasDigi*seqALCARECOHcalCalMinBias, pathALCARECOHcalCalMinBiasTask)
 
 from Configuration.EventContent.AlCaRecoOutput_cff import *
 
@@ -60,7 +69,10 @@ ALCARECOStreamHcalCalMinBias = cms.FilteredStream(
 # HCAL Pedestals
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalPedestal_cff import *
 
-pathALCARECOHcalCalPedestal = cms.Path(seqALCARECOHcalCalPedestalDigi*seqALCARECOHcalCalPedestal*ALCARECOHcalCalPhisymDQM)
+# Short-term workaround to preserve the "run for every event" while removing the use of convertToUnscheduled()
+# To be reverted in a subsequent PR
+pathALCARECOHcalCalPedestalTask = cms.Task(ALCARECOHcalCalPhisymDQM)
+pathALCARECOHcalCalPedestal = cms.Path(seqALCARECOHcalCalPedestalDigi*seqALCARECOHcalCalPedestal, pathALCARECOHcalCalPedestalTask)
 
 from Configuration.EventContent.AlCaRecoOutput_cff import *
 
