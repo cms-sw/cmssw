@@ -21,6 +21,8 @@
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DataFormats/Math/interface/Rounding.h"
+
 // class declaration
 
 class MTDDigiGeometryAnalyzer : public edm::one::EDAnalyzer<> {
@@ -36,6 +38,8 @@ private:
   void analyseRectangle(const GeomDetUnit& det);
   void checkRotation(const GeomDetUnit& det);
 };
+
+using cms_rounding::roundIfNear0, cms_rounding::roundVecIfNear0;
 
 // ------------ method called to produce the data  ------------
 void MTDDigiGeometryAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -99,11 +103,23 @@ void MTDDigiGeometryAnalyzer::analyseRectangle(const GeomDetUnit& det) {
   if (outerMiddle.perp() < innerMiddle.perp())
     std::swap(outerMiddle, innerMiddle);
 
+  auto fround = [&](double in) {
+    std::stringstream ss;
+    ss << std::fixed << std::setw(14) << roundIfNear0(in);
+    return ss.str();
+  };
+
+  auto fvecround = [&](GlobalPoint vecin) {
+    std::stringstream ss;
+    ss << std::fixed << std::setw(14) << roundVecIfNear0(vecin);
+    return ss.str();
+  };
+
   edm::LogVerbatim("MTDDigigeometryAnalyzer")
-      << "Det at pos " << pos << " radius " << std::sqrt(pos.x() * pos.x() + pos.y() * pos.y()) << " has length "
-      << length << " width " << width << " thickness " << thickness << "\n"
+      << "Det at pos " << fvecround(pos) << " radius " << fround(std::sqrt(pos.x() * pos.x() + pos.y() * pos.y()))
+      << " has length " << fround(length) << " width " << fround(width) << " thickness " << fround(thickness) << "\n"
       << "det center inside bounds? " << tb->inside(det.surface().toLocal(pos)) << "\n"
-      << "outerMiddle " << outerMiddle;
+      << "outerMiddle " << fvecround(outerMiddle);
 
   checkRotation(det);
 }

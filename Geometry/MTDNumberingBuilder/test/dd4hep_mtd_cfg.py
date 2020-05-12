@@ -31,8 +31,12 @@ process.DDSpecParRegistryESProducer = cms.ESProducer("DDSpecParRegistryESProduce
                                                      appendToDataLabel = cms.string('')
 )
 
+process.load("Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cff")
+
 process.load("Geometry.MTDNumberingBuilder.mtdTopology_cfi")
 process.load("Geometry.MTDGeometryBuilder.mtdParameters_cff")
+
+process.prod = cms.EDAnalyzer("GeometricTimingDetAnalyzer")
 
 process.prod1 = cms.EDAnalyzer("DD4hep_MTDTopologyAnalyzer",
                                DDDetector = cms.ESInputTag('',''),
@@ -40,4 +44,4 @@ process.prod1 = cms.EDAnalyzer("DD4hep_MTDTopologyAnalyzer",
 
 process.Timing = cms.Service("Timing")
 
-process.p1 = cms.Path(process.prod1)
+process.p1 = cms.Path(process.prod+process.prod1)
