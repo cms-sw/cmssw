@@ -7,7 +7,6 @@
 
 #include "RecoLocalFastTime/FTLClusterizer/interface/MTDCPEBase.h"
 
-
 class MTDCPEFromSiPMTime : public MTDCPEBase {
 public:
   MTDCPEFromSiPMTime(edm::ParameterSet const& conf, const MTDGeometry& geom);

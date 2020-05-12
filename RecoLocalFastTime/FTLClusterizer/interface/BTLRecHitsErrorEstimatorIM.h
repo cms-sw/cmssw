@@ -22,7 +22,8 @@ public:
   BTLRecHitsErrorEstimatorIM(const MTDGeomDet* det, const LocalPoint& lp) : det_(det), lp_(lp) {}
   LocalError localError() const {
     if (GeomDetEnumerators::isEndcap(det_->type().subDetector())) {
-      throw cms::Exception("BTLRecHitsErrorEstimatorIM") << "This is an object from Endcap. Only use it for the Barrel!" << std::endl;
+      throw cms::Exception("BTLRecHitsErrorEstimatorIM")
+          << "This is an object from Endcap. Only use it for the Barrel!" << std::endl;
       return LocalError(0, 0, 0);
     }
     const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(det_->topology());
