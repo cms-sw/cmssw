@@ -176,19 +176,19 @@ void EcalCPUDigisProducer::produce(edm::Event& event, edm::EventSetup const& set
 
   if (produceDummyIntegrityCollections_) {
     // dummy SRP collections
-    event.put(ebSrFlagToken_, std::make_unique<EBSrFlagCollection>());
-    event.put(eeSrFlagToken_, std::make_unique<EESrFlagCollection>());
+    event.emplace(ebSrFlagToken_);
+    event.emplace(eeSrFlagToken_);
     // dummy integrity for xtal data
-    event.put(ebIntegrityGainErrorsToken_, std::make_unique<EBDetIdCollection>());
-    event.put(ebIntegrityGainSwitchErrorsToken_, std::make_unique<EBDetIdCollection>());
-    event.put(ebIntegrityChIdErrorsToken_, std::make_unique<EBDetIdCollection>());
+    event.emplace(ebIntegrityGainErrorsToken_);
+    event.emplace(ebIntegrityGainSwitchErrorsToken_);
+    event.emplace(ebIntegrityChIdErrorsToken_);
     // dummy integrity for xtal data - EE specific (to be rivisited towards EB+EE common collection)
-    event.put(eeIntegrityGainErrorsToken_, std::make_unique<EEDetIdCollection>());
-    event.put(eeIntegrityGainSwitchErrorsToken_, std::make_unique<EEDetIdCollection>());
-    event.put(eeIntegrityChIdErrorsToken_, std::make_unique<EEDetIdCollection>());
+    event.emplace(eeIntegrityGainErrorsToken_);
+    event.emplace(eeIntegrityGainSwitchErrorsToken_);
+    event.emplace(eeIntegrityChIdErrorsToken_);
     // dummy integrity errors
-    event.put(integrityTTIdErrorsToken_, std::make_unique<EcalElectronicsIdCollection>());
-    event.put(integrityBlockSizeErrorsToken_, std::make_unique<EcalElectronicsIdCollection>());
+    event.emplace(integrityTTIdErrorsToken_);
+    event.emplace(integrityBlockSizeErrorsToken_);
   }
 }
 
