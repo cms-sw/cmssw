@@ -167,7 +167,7 @@ void EgammaHLTExtraProducer::produce(edm::StreamID streamID,
   event.getManyByType(valueMapHandles);
 
   auto egTrigObjs = std::make_unique<reco::EgTrigSumObjCollection>();
-  for(size_t candNr=0;candNr<ecalCandsHandle->size();candNr++){
+  for(size_t candNr=0;ecalCandsHandle.isValid() && candNr<ecalCandsHandle->size();candNr++){
     reco::RecoEcalCandidateRef candRef(ecalCandsHandle,candNr);
     egTrigObjs->push_back(*candRef);
     auto& egTrigObj = egTrigObjs->back();
