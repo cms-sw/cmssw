@@ -13,7 +13,10 @@ import FWCore.ParameterSet.Config as cms
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalEtaCalib_cff import *
 from DQMOffline.Configuration.AlCaRecoDQMHI_cff import *
 
-pathALCARECOEcalCalEtaCalib = cms.Path(seqALCARECOEcalCalEtaCalib*ALCARECOEcalCalEtaCalibDQM)
+# Short-term workaround to preserve the "run for every event" while removing the use of convertToUnscheduled()
+# To be reverted in a subsequent PR
+pathALCARECOEcalCalEtaCalibTask = cms.Task(ALCARECOEcalCalEtaCalibDQM)
+pathALCARECOEcalCalEtaCalib = cms.Path(seqALCARECOEcalCalEtaCalib, pathALCARECOEcalCalEtaCalibTask)
 
 from Configuration.EventContent.AlCaRecoOutput_cff import *
 
@@ -33,7 +36,10 @@ ALCARECOStreamEcalCalEtaCalib = cms.FilteredStream(
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalPi0Calib_cff import *
 from DQMOffline.Configuration.AlCaRecoDQMHI_cff import *
 
-pathALCARECOEcalCalPi0Calib = cms.Path(seqALCARECOEcalCalPi0Calib*ALCARECOEcalCalPi0CalibDQM)
+# Short-term workaround to preserve the "run for every event" while removing the use of convertToUnscheduled()
+# To be reverted in a subsequent PR
+pathALCARECOEcalCalPi0CalibDQM = cms.Task(ALCARECOEcalCalPi0CalibDQM)
+pathALCARECOEcalCalPi0Calib = cms.Path(seqALCARECOEcalCalPi0Calib, pathALCARECOEcalCalPi0CalibDQM)
 
 from Configuration.EventContent.AlCaRecoOutput_cff import *
 
@@ -51,7 +57,10 @@ from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalMinBiasHI_cff import *
 
 from DQMOffline.Configuration.AlCaRecoDQMHI_cff import *
 
-pathALCARECOHcalCalMinBias = cms.Path(seqALCARECOHcalCalMinBiasDigi*seqALCARECOHcalCalMinBias*ALCARECOHcalCalPhisymDQM)
+# Short-term workaround to preserve the "run for every event" while removing the use of convertToUnscheduled()
+# To be reverted in a subsequent PR
+pathALCARECOHcalCalMinBiasTask = cms.Task(ALCARECOHcalCalPhisymDQM)
+pathALCARECOHcalCalMinBias = cms.Path(seqALCARECOHcalCalMinBiasDigi*seqALCARECOHcalCalMinBias, pathALCARECOHcalCalMinBiasTask)
 
 from Configuration.EventContent.AlCaRecoOutput_cff import *
 
