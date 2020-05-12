@@ -1,8 +1,13 @@
+"""
+This service provides the logic of the API endpoints. It relies on other services to perform certain tasks.
+"""
+
 import time
 import struct
 
 from functools import lru_cache
 from async_lru import alru_cache
+from collections import namedtuple
 
 from rendering import GUIRenderer
 from DQMServices.DQMGUI import nanoroot
@@ -10,6 +15,13 @@ from storage import GUIDataStore
 from helpers import MERenderingInfo, PathUtil
 
 from layouts.layout_manager import LayoutManager
+
+
+# These named tuples will be returned from the service
+Sample = namedtuple('Sample', ['run', 'dataset'])
+RootDir = namedtuple('RootDir', ['name'])
+RootObj = namedtuple('RootObj', ['name', 'path', 'layout'])
+RootDirContent = namedtuple('RootDirContent', ['dirs', 'objs'])
 
 
 class GUIService:
@@ -27,19 +39,8 @@ class GUIService:
             dataset = None
         
         results = await cls.store.get_samples(run, dataset)
+        return [Sample(*x) for x in results]
 
-        # TODO: offline_data should probably be removed. No GUI flavor distinction is required.
-        samples = {
-            'samples': [{
-                'type': 'offline_data',
-                'items': [{
-                    'run': row[0],
-                    'dataset': row[1]
-                } for row in results]
-            }]
-        }
-
-        return samples
 
     @classmethod
     @alru_cache(maxsize=10)
@@ -58,8 +59,8 @@ class GUIService:
         lines = await cls.__get_melist(run, dataset)
 
         regex = re.compile(search) if search else None
-        objs = set()
         dirs = set()
+        objs = set()
 
         path_util = PathUtil()
 
@@ -71,14 +72,14 @@ class GUIService:
             if subsequent_segment:
                 if regex and not regex.match(line.split('/')[-1]):
                     continue # Regex is provided and ME name doesn't match it
-                
+
                 if '\0' in line:
                     continue # This is a secondary item, not a main ME name
 
                 if subsequent_segment.is_file:
-                    objs.add((subsequent_segment.name, path + subsequent_segment.name, None))
+                    objs.add(RootObj(name=subsequent_segment.name, path=path + subsequent_segment.name, layout=None))
                 else:
-                    dirs.add(subsequent_segment.name)
+                    dirs.add(RootDir(name=subsequent_segment.name))
 
         # Add MEs from layouts
         # Layouts will be filtered against the search regex on their destination name.
@@ -92,17 +93,12 @@ class GUIService:
                     continue # Regex is provided and destination ME name doesn't match it
 
                 if subsequent_segment.is_file:
-                    objs.add((subsequent_segment.name, layout.source, layout.name))
+                    objs.add(RootObj(name=subsequent_segment.name, path=layout.source, layout=layout.name))
                 else:
-                    dirs.add(subsequent_segment.name)
+                    dirs.add(RootDir(name=subsequent_segment.name))
 
-
-
-        # Put results to a list to be returned
-        data = {'contents': []}
-        data['contents'].extend({'subdir': x} for x in dirs)
-        data['contents'].extend({'obj': name, 'dir': fullpath, 'layout': layoutname} for name, fullpath, layoutname in objs)
-
+        # Format results to a named tuple
+        data = RootDirContent(dirs, objs)
         return data
 
 

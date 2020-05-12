@@ -17,11 +17,10 @@ class LayoutManager:
 
 
     @classmethod
-    def get_layout_contents(cls, name):
+    def get_layouts_by_name(cls, name):
         if not name:
             return []
-
-        return [{'source': x.source, 'destination': x.destination} for x in cls.__layouts if x.name == name]
+        return [x for x in cls.__layouts if x.name == name]
 
 
 class Layout:

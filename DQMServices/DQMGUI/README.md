@@ -61,3 +61,88 @@ It will listen on `http://localhost:8889` (and you can't just change that, see b
 The frontend is developed here: https://github.com/cms-DQM/dqmgui_frontend
 
 This package contains compiled code from there, which is served from the web server to get a working GUI. It is hardcoded to `localhost:8889`, so you can't easily change the port number in the server.
+
+## API documentation
+
+This is the future version of the DQM GUI API and it is preferred for all services over the legacy API.
+
+#### Samples endpoint
+
+Returns run/dataset pairs available in the GUI. Both arguments are optional and support regex.
+
+`http://localhost:8889/api/v1/samples?run=295120&dataset=Run2017A`
+
+```json
+{
+  "data": [
+    {
+      "run": 295120,
+      "dataset": "/Cosmics/Run2017A-PromptReco-v1/DQMIO"
+    },
+    {
+      "run": 295120,
+      "dataset": "/StreamExpressCosmics/Run2017A-Express-v1/DQMIO"
+    }
+  ]
+}
+```
+
+#### ROOT file directory listing endpoint
+
+Run, full dataset and a path has to be provided in the URL.
+
+If `layout` is `null`, ME is not coming from a layout. Otherwise, `layout` contains the name of the layout this ME comes from. 
+
+`http://localhost:8889/api/v1/archive/316142/StreamExpress/Run2018A-Express-v1/DQMIO/PixelPhase1`
+
+```json
+{
+  "data": [
+    {
+      "subdir": "Summary"
+    },
+    {
+      "subdir": "ClusterShape"
+    },
+    {
+      "name": "num_feddigistrend_per_LumiBlock_per_FED",
+      "path": "PixelPhase1/num_feddigistrend_per_LumiBlock_per_FED",
+      "layout": null
+    },
+    {
+      "name": "deadRocTotal",
+      "path": "PixelPhase1/deadRocTotal",
+      "layout": null
+    },
+  ]
+}
+```
+
+#### Layouts endpoint
+
+Returns all layouts with the same name. Used for quick collections.
+
+`http://localhost:8889/api/v1/layouts?name=layout1`
+
+```json
+{
+  "data": [
+    {
+      "source": "Hcal/TPTask/EtEmul/TTSubdet/HBHE",
+      "destination": "Hcal/Layouts/EtEmul/TP/TTSubdet/HBHE_changed_name"
+    }
+  ]
+}
+```
+
+#### Rendering endpoint
+
+Renders a PNG of a histogram.
+
+`http://localhost:8889/api/v1/render/316142/StreamExpress/Run2018A-Express-v1/DQMIO/PixelPhase1/EventInfo/reportSummaryMap?w=266&h=200&stats=false&norm=false&errors=true`
+
+#### Overlay rendering endpoint
+
+Overlays multiple (or one) histograms and renders an overlay to a PNG.
+
+`http://localhost:8889/api/v1/render_overlay?obj=archive/316142/StreamExpress/Run2018A-Express-v1/DQMIO/PixelPhase1/EventInfo/reportSummary&obj=archive/316144/StreamExpress/Run2018A-Express-v1/DQMIO/PixelPhase1/EventInfo/reportSummary&w=266&h=200&stats=false&norm=false&errors=true`
