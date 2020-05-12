@@ -53,6 +53,10 @@ bool Py8InterfaceBase::readSettings( int )
    fDecayer.reset(new Pythia);
 
    //add settings for resonance decay filter
+   fMasterGen->settings.addFlag("BiasedTauDecayer:filter", false);
+   fMasterGen->settings.addFlag("BiasedTauDecayer:eMuDecays", true);
+
+   //add settings for resonance decay filter
    fMasterGen->settings.addFlag("ResonanceDecayFilter:filter",false);
    fMasterGen->settings.addFlag("ResonanceDecayFilter:exclusive",false);
    fMasterGen->settings.addFlag("ResonanceDecayFilter:eMuAsEquivalent",false);
