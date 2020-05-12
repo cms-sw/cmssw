@@ -7,7 +7,7 @@
 #include "Geometry/GEMGeometryBuilder/src/ME0GeometryBuilderFromCondDB.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 
 #include "Geometry/Records/interface/ME0RecoGeometryRcd.h"
@@ -39,7 +39,7 @@ public:
 
 private:
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> cpvToken_;
-  edm::ESGetToken<MuonDDDConstants, MuonNumberingRecord> mdcToken_;
+  edm::ESGetToken<MuonGeometryConstants, IdealGeometryRecord> mdcToken_;
   edm::ESGetToken<RecoIdealGeometry, ME0RecoGeometryRcd> rigme0Token_;
   // use the DDD as Geometry source
   bool useDDD_;

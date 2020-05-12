@@ -46,7 +46,7 @@ GEMGeometryBuilderFromDDD::~GEMGeometryBuilderFromDDD() {}
 // DDD
 void GEMGeometryBuilderFromDDD::build(GEMGeometry& theGeometry,
                                       const DDCompactView* cview,
-                                      const MuonDDDConstants& muonConstants) {
+                                      const MuonGeometryConstants& muonConstants) {
   std::string attribute = "MuStructure";
   std::string value = "MuonEndCapGEM";
 

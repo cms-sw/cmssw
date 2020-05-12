@@ -17,7 +17,7 @@
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 
 #include <Geometry/Records/interface/IdealGeometryRecord.h>
-#include <Geometry/MuonNumbering/interface/MuonDDDConstants.h>
+#include <Geometry/MuonNumbering/interface/MuonGeometryConstants.h>
 #include <Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h>
 #include <DetectorDescription/Core/interface/DDCompactView.h>
 #include <DetectorDescription/DDCMS/interface/DDCompactView.h>
@@ -36,7 +36,7 @@ public:
 private:
   //DDD
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> idealGeomToken_;
-  edm::ESGetToken<MuonDDDConstants, MuonNumberingRecord> dddConstantsToken_;
+  edm::ESGetToken<MuonGeometryConstants, IdealGeometryRecord> dddConstantsToken_;
   // dd4hep
   edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> idealDD4hepGeomToken_;
   edm::ESGetToken<cms::MuonNumbering, MuonNumberingRecord> dd4hepConstantsToken_;

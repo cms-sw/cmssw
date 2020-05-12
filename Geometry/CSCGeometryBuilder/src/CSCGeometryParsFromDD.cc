@@ -18,7 +18,7 @@
 #include "Geometry/MuonNumbering/interface/CSCNumberingScheme.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/MuonDDDNumbering.h"
-#include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 
 #include "Geometry/CSCGeometry/src/CSCWireGroupPackage.h"
 #include "CondFormats/GeometryObjects/interface/CSCRecoDigiParameters.h"
@@ -46,7 +46,7 @@ CSCGeometryParsFromDD::CSCGeometryParsFromDD() : myName("CSCGeometryParsFromDD")
 CSCGeometryParsFromDD::~CSCGeometryParsFromDD() {}
 
 bool CSCGeometryParsFromDD::build(const DDCompactView* cview,
-                                  const MuonDDDConstants& muonConstants,
+                                  const MuonGeometryConstants& muonConstants,
                                   RecoIdealGeometry& rig,
                                   CSCRecoDigiParameters& rdp) {
   std::string attribute = "MuStructure";  // could come from outside
