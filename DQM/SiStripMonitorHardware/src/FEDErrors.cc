@@ -18,14 +18,7 @@ FEDErrors::FEDErrors() {
 
 FEDErrors::~FEDErrors() {}
 
-void FEDErrors::initialiseLumiBlock() {
-  lumiErr_.nTotal.clear();
-  lumiErr_.nErrors.clear();
-  //6 subdetectors:
-  //TECB,TECF,TIB,TIDB,TIDF,TOB
-  lumiErr_.nTotal.resize(6, 0);
-  lumiErr_.nErrors.resize(6, 0);
-}
+void FEDErrors::initialiseLumiBlock() {}
 
 void FEDErrors::initialiseEvent() {
   fedID_ = 0;
@@ -686,7 +679,9 @@ void FEDErrors::fillBadChannelList(const bool doTkHistoMap,
                                    MonitorElement* aFedIdVsApvId,
                                    unsigned int& aNBadChannels,
                                    unsigned int& aNBadActiveChannels,
-                                   unsigned int& aNBadChannels_perFEDID) {
+                                   unsigned int& aNBadChannels_perFEDID,
+                                   std::vector<unsigned int>& nTotal,
+                                   std::vector<unsigned int>& nErrors) {
   uint32_t lPrevId = 0;
   uint16_t nBad = 0;
   uint16_t lPrevTot = 0;
@@ -760,7 +755,7 @@ void FEDErrors::fillBadChannelList(const bool doTkHistoMap,
     }
 
     bool lHasErr = lFailFED || isBadFE || isBadChan;
-    incrementLumiErrors(lHasErr, subDetId_[feNumber]);
+    incrementLumiErrors(lHasErr, subDetId_[feNumber], nTotal, nErrors);
 
     if (lHasErr) {
       nBad++;
@@ -784,16 +779,19 @@ void FEDErrors::fillBadChannelList(const bool doTkHistoMap,
 
 void FEDErrors::fillEventProperties(long long dbx) { eventProp_.deltaBX = dbx; }
 
-void FEDErrors::incrementLumiErrors(const bool hasError, const unsigned int aSubDet) {
-  if (lumiErr_.nTotal.empty())
+void FEDErrors::incrementLumiErrors(const bool hasError,
+                                    const unsigned int aSubDet,
+                                    std::vector<unsigned int>& nTotal,
+                                    std::vector<unsigned int>& nErrors) {
+  if (nTotal.empty())
     return;
-  if (aSubDet >= lumiErr_.nTotal.size()) {
+  if (aSubDet >= nTotal.size()) {
     edm::LogError("SiStripMonitorHardware") << " -- FED " << fedID_ << ", invalid subdetid : " << aSubDet
-                                            << ", size of lumiErr : " << lumiErr_.nTotal.size() << std::endl;
+                                            << ", size of lumiErr : " << nTotal.size() << std::endl;
   } else {
     if (hasError)
-      lumiErr_.nErrors[aSubDet]++;
-    lumiErr_.nTotal[aSubDet]++;
+      nErrors[aSubDet]++;
+    nTotal[aSubDet]++;
   }
 }
 
@@ -854,8 +852,6 @@ std::vector<FEDErrors::ChannelLevelErrors>& FEDErrors::getChannelLevelErrors() {
 std::vector<FEDErrors::APVLevelErrors>& FEDErrors::getAPVLevelErrors() { return apvErrors_; }
 
 std::vector<std::pair<unsigned int, bool> >& FEDErrors::getBadChannels() { return chErrors_; }
-
-const FEDErrors::LumiErrors& FEDErrors::getLumiErrors() { return lumiErr_; }
 
 void FEDErrors::addBadFE(const FEDErrors::FELevelErrors& aFE) {
   if (aFE.Overflow) {

@@ -59,7 +59,7 @@ public:
 
   bool feMajHistosEnabled();
 
-  void fillLumiHistograms(const FEDErrors::LumiErrors &aLumErr);
+  void fillLumiHistograms(const std::vector<unsigned int> &nTotal, const std::vector<unsigned int> &nErrors);
 
   bool cmHistosEnabled();
 
@@ -152,8 +152,6 @@ private:
 
   HistogramConfig tkMapConfig_;
   std::unique_ptr<TkHistoMap> tkmapFED_;
-
-  HistogramConfig lumiErrorFraction_;
 
 };  //class
 
