@@ -66,6 +66,8 @@ This package contains compiled code from there, which is served from the web ser
 
 This is the future version of the DQM GUI API and it is preferred for all services over the legacy API.
 
+**This API specification is not yet final and is subject to change!!!**
+
 #### Samples endpoint
 
 Returns run/dataset pairs available in the GUI. Both arguments are optional and support regex.
