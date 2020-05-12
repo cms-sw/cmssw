@@ -19,6 +19,8 @@
 #include <cmath>
 #include <sstream>
 #include <cstring>
+#include <vector>
+#include <string>
 
 class BeamSpotOnlineObjects : public BeamSpotObjects {
 public:
@@ -27,9 +29,13 @@ public:
     lastAnalyzedLumi_ = 0;
     lastAnalyzedRun_ = 0;
     lastAnalyzedFill_ = 0;
+    intParams_.resize(ISIZE, std::vector<int>(1, 0));
   }
 
   ~BeamSpotOnlineObjects() override {}
+
+  /// Enums
+  enum IntParamIndex { NUM_TRACKS = 0, NUM_PVS = 1, ISIZE = 2 };
 
   /// Setters Methods
   // set lastAnalyzedLumi_, last analyzed lumisection
@@ -41,6 +47,12 @@ public:
   // set lastAnalyzedFill_, fill of the last analyzed lumisection
   void SetLastAnalyzedFill(int val) { lastAnalyzedFill_ = val; }
 
+  // set number of tracks used in the BeamSpot fit
+  void SetNumTracks(int val);
+
+  // set number of Primary Vertices used in the BeamSpot fit
+  void SetNumPVs(int val);
+
   /// Getters Methods
   // get lastAnalyzedLumi_, last analyzed lumisection
   int GetLastAnalyzedLumi() const { return lastAnalyzedLumi_; }
@@ -51,6 +63,12 @@ public:
   // get lastAnalyzedFill_, fill of the last analyzed lumisection
   int GetLastAnalyzedFill() const { return lastAnalyzedFill_; }
 
+  // get number of tracks used in the BeamSpot fit
+  int GetNumTracks() const;
+
+  // get number of Primary Vertices used in the BeamSpot fit
+  int GetNumPVs() const;
+
   /// Print BeamSpotOnline parameters
   void print(std::stringstream& ss) const;
 
@@ -58,6 +76,9 @@ private:
   int lastAnalyzedLumi_;
   int lastAnalyzedRun_;
   int lastAnalyzedFill_;
+  std::vector<std::vector<int> > intParams_;
+  std::vector<std::vector<float> > floatParams_;
+  std::vector<std::vector<std::string> > stringParams_;
 
   COND_SERIALIZABLE;
 };
