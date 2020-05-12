@@ -35,6 +35,7 @@ Fast Timing system:
 * I10: Same as I9 w/ material adjustments
 * I11: Same as I10, xml reorganized, comparison base for new ETL and DD4hep migration
 * I12: Starting from I11, new ETL layout from MTD TDR
+* I13: Starting from I12, new ETL layout implementing half-disks instead of quarters
 
 The script also handles the common and forward elements of the geometry:
 * O2: detailed cavern description

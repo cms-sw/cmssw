@@ -1479,6 +1479,34 @@ timingDict = {
         ],
         "era" : "phase2_timing, phase2_timing_layer",
     },
+    "I13" : {
+        1 : [
+            'Geometry/MTDCommonData/data/mtdMaterial/v2/mtdMaterial.xml',
+            'Geometry/MTDCommonData/data/btl/v1/btl.xml',
+            'Geometry/MTDCommonData/data/etl/v5/etl.xml',
+            'Geometry/MTDCommonData/data/mtdParameters/v2/mtdStructureTopology.xml',
+            'Geometry/MTDCommonData/data/mtdParameters/v2/mtdParameters.xml',
+            ],
+        3 : [
+            'Geometry/MTDSimData/data/v2/mtdsens.xml'
+            ],
+        4 : [
+            'Geometry/MTDSimData/data/v2/mtdProdCuts.xml'
+            ],
+        "sim" : [
+            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cff import *',
+        ],
+        "reco" :[
+            'from RecoMTD.DetLayers.mtdDetLayerGeometry_cfi import *',
+            'from Geometry.MTDGeometryBuilder.mtdParameters_cff import *',
+            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cff import *',
+            'from Geometry.MTDNumberingBuilder.mtdTopology_cfi import *',
+            'from Geometry.MTDGeometryBuilder.mtdGeometry_cfi import *',
+            'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',
+            'mtdGeometry.applyAlignment = cms.bool(False)'
+        ],
+        "era" : "phase2_timing, phase2_timing_layer",
+    },
 }
 
 allDicts = [ commonDict, trackerDict, caloDict, muonDict, forwardDict, timingDict ]
