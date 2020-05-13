@@ -1,9 +1,7 @@
 #include <TMath.h>
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
 #include "DataFormats/Math/interface/deltaPhi.h"

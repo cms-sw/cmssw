@@ -1,4 +1,4 @@
-#include "RecoEgamma/EgammaTools/interface/EffectiveAreas.h"
+#include "CommonTools/Utils/interface/EffectiveAreas.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <cmath>

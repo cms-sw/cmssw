@@ -1,8 +1,7 @@
-#ifndef RecoEgamma_EgammaTools_EffectiveAreas_H
-#define RecoEgamma_EgammaTools_EffectiveAreas_H
+#ifndef CommonTools_Utils_EffectiveAreas_H
+#define CommonTools_Utils_EffectiveAreas_H
 
 #include <vector>
-
 #include <string>
 
 class EffectiveAreas {

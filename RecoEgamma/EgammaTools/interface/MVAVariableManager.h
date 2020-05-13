@@ -2,10 +2,9 @@
 #define RecoEgamma_EgammaTools_MVAVariableManager_H
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
-#include "RecoEgamma/EgammaTools/interface/ThreadSafeStringCut.h"
+#include "CommonTools/Utils/interface/StringObjectFunction.h"
+#include "CommonTools/Utils/interface/ThreadSafeFunctor.h"
 #include "RecoEgamma/EgammaTools/interface/MVAVariableHelper.h"
 
 #include <fstream>
@@ -114,7 +113,7 @@ private:
   int nVars_;
 
   std::vector<MVAVariableInfo> variableInfos_;
-  std::vector<ThreadSafeStringCut<StringObjectFunction<ParticleType>, ParticleType>> functions_;
+  std::vector<ThreadSafeFunctor<StringObjectFunction<ParticleType>>> functions_;
   std::vector<std::string> formulas_;
   std::vector<std::string> names_;
   std::map<std::string, int> indexMap_;
