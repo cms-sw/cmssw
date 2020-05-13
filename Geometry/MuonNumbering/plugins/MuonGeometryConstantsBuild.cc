@@ -63,10 +63,10 @@ bool MuonGeometryConstantsBuild::build(const cms::DDCompactView* cpv, MuonGeomet
       if (l.first == "OnlyForMuonNumbering") {
         for (const auto& k : it->second.numpars) {
           for (const auto& ik : k.second) {
-	    php.addValue(k.first, static_cast<int>(ik));
+            php.addValue(k.first, static_cast<int>(ik));
 #ifdef EDM_ML_DEBUG
-	    edm::LogVerbatim("Geometry") << "MuonGeometryConstantsBuild::adding DDConstant of " << k.first << " = "
-					 << static_cast<int>(ik);
+            edm::LogVerbatim("Geometry") << "MuonGeometryConstantsBuild::adding DDConstant of " << k.first << " = "
+                                         << static_cast<int>(ik);
 #endif
           }
         }
