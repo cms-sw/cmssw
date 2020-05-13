@@ -36,8 +36,8 @@ void SiPixelVCalDB::analyze(const edm::Event& e, const edm::EventSetup& iSetup) 
 
       // FILL BPIX
       if (subid==static_cast<int>(PixelSubdetector::PixelBarrel)) {
-        int layer = tTopo->pxbLayer(detid); // 1, 2, 3, 4
-        int ladder = tTopo->pxbLadder(detid);
+        int layer = tTopo->pxbLayer(detid);   // 1, 2, 3, 4
+        int ladder = tTopo->pxbLadder(detid); // 1-12/28/44/64
         std::cout << " pixel barrel:" << " detId=" << rawDetId 
                                       << ", layer=" << layer << ", ladder=" << ladder;
         for (Parameters::iterator it=BPixParameters_.begin(); it!=BPixParameters_.end(); ++it) {
@@ -55,10 +55,10 @@ void SiPixelVCalDB::analyze(const edm::Event& e, const edm::EventSetup& iSetup) 
       // FILL FPIX
       } else if (subid==static_cast<int>(PixelSubdetector::PixelEndcap)) {
         PixelEndcapName fpix(detid,tTopo,phase1);
-        int side = tTopo->pxfSide(detid); // 1 (-z), 2 for (+z)
-        int disk = fpix.diskName(); // 1, 2, 3
+        int side = tTopo->pxfSide(detid);  // 1 (-z), 2 for (+z)
+        int disk = fpix.diskName();        // 1, 2, 3
         int disk2 = tTopo->pxfDisk(detid); // 1, 2, 3
-        int ring = fpix.ringName(); // 1 (lower), 2 (upper)
+        int ring = fpix.ringName();        // 1 (lower), 2 (upper)
         if (disk!=disk2) {
           edm::LogError("SiPixelVCalDB::analyze") << "Found contradicting FPIX disk number: "
                                                   << disk <<" vs." << disk2 << std::endl;
