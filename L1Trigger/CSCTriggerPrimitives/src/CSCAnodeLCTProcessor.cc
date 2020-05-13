@@ -195,6 +195,9 @@ void CSCAnodeLCTProcessor::clear() {
   for (int bx = 0; bx < CSCConstants::MAX_ALCT_TBINS; bx++) {
     bestALCT[bx].clear();
     secondALCT[bx].clear();
+    for (int iALCT = 0; iALCT < CSCConstants::MAX_ALCTS_PER_PROCESSOR; iALCT++) {
+      ALCTContainer_[bx][iALCT].clear();
+    }
   }
   lct_list.clear();
 }
@@ -291,6 +294,9 @@ void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAY
   // Check if there are any in-time hits and do the pulse extension.
   bool chamber_empty = pulseExtension(wire);
 
+  // Take the best MAX_CLCTS_PER_PROCESSOR candidates per bx.
+  int ALCTIndex_[CSCConstants::MAX_ALCT_TBINS] = {};
+
   // Only do the rest of the processing if chamber is not empty.
   // Stop drift_delay bx's short of fifo_tbins since at later bx's we will
   // not have a full set of hits to start pattern search anyway.
@@ -313,10 +319,13 @@ void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAY
               edm::LogError("CSCAnodeLCTProcessor")
                   << " bx of valid trigger : " << bx << " > max allowed value " << CSCConstants::MAX_ALCT_TBINS;
 
-            //acceloration mode
+            //acceleration mode
             if (quality[i_wire][0] > 0 and bx < CSCConstants::MAX_ALCT_TBINS) {
               int valid = (ghost_cleared[0] == 0) ? 1 : 0;  //cancelled, valid=0, otherwise it is 1
-              lct_list.push_back(CSCALCTDigi(valid, quality[i_wire][0], 1, 0, i_wire, bx));
+              const auto& newALCT(CSCALCTDigi(valid, quality[i_wire][0], 1, 0, i_wire, bx));
+              lct_list.push_back(newALCT);
+              ALCTContainer_[bx][ALCTIndex_[bx]] = newALCT;
+              ALCTIndex_[bx]++;
               if (infoV > 1)
                 LogTrace("CSCAnodeLCTProcessor") << "Add one ALCT to list " << lct_list.back();
             }
@@ -324,7 +333,10 @@ void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAY
             //collision mode
             if (quality[i_wire][1] > 0 and bx < CSCConstants::MAX_ALCT_TBINS) {
               int valid = (ghost_cleared[1] == 0) ? 1 : 0;  //cancelled, valid=0, otherwise it is 1
-              lct_list.push_back(CSCALCTDigi(valid, quality[i_wire][1], 0, quality[i_wire][2], i_wire, bx));
+              const auto& newALCT(CSCALCTDigi(valid, quality[i_wire][1], 0, quality[i_wire][2], i_wire, bx));
+              lct_list.push_back(newALCT);
+              ALCTContainer_[bx][ALCTIndex_[bx]] = newALCT;
+              ALCTIndex_[bx]++;
               if (infoV > 1)
                 LogTrace("CSCAnodeLCTProcessor") << "Add one ALCT to list " << lct_list.back();
             }
@@ -559,6 +571,8 @@ bool CSCAnodeLCTProcessor::preTrigger(const int key_wire, const int start_bx) {
                 }
                 // make a new pre-trigger
                 nPreTriggers++;
+                // make a new pre-trigger digi
+                // useful for calculating DAQ rates
                 thePreTriggerDigis.emplace_back(
                     CSCALCTPreTriggerDigi(1, layers_hit - 3, 0, 0, this_wire, bx_time, nPreTriggers));
                 return true;
@@ -892,8 +906,7 @@ void CSCAnodeLCTProcessor::lctSearch() {
     if (bestALCT[bx].isValid()) {
       bestALCT[bx].setTrknmb(1);
       if (infoV > 0) {
-        LogDebug("CSCAnodeLCTProcessor") << "\n"
-                                         << bestALCT[bx] << " fullBX = " << bestALCT[bx].getFullBX() << " found in "
+        LogDebug("CSCAnodeLCTProcessor") << bestALCT[bx] << " fullBX = " << bestALCT[bx].getFullBX() << " found in "
                                          << theCSCName_ << " (sector " << theSector << " subsector " << theSubsector
                                          << " trig id. " << theTrigChamber << ")"
                                          << "\n";
@@ -904,6 +917,21 @@ void CSCAnodeLCTProcessor::lctSearch() {
           LogDebug("CSCAnodeLCTProcessor")
               << secondALCT[bx] << " fullBX = " << secondALCT[bx].getFullBX() << " found in " << theCSCName_
               << " (sector " << theSector << " subsector " << theSubsector << " trig id. " << theTrigChamber << ")"
+              << "\n";
+        }
+      }
+    }
+  }
+
+  // set track number for the other ALCTs
+  for (int bx = 0; bx < CSCConstants::MAX_ALCT_TBINS; bx++) {
+    for (int iALCT = 0; iALCT < CSCConstants::MAX_ALCTS_PER_PROCESSOR; iALCT++) {
+      if (ALCTContainer_[bx][iALCT].isValid()) {
+        ALCTContainer_[bx][iALCT].setTrknmb(iALCT + 1);
+        if (infoV > 0) {
+          LogDebug("CSCAnodeLCTProcessor")
+              << ALCTContainer_[bx][iALCT] << " found in " << theCSCName_ << " (sector " << theSector << " subsector "
+              << theSubsector << " trig id. " << theTrigChamber << ")"
               << "\n";
         }
       }
@@ -1191,23 +1219,17 @@ void CSCAnodeLCTProcessor::dumpDigis(
 
 // Returns vector of read-out ALCTs, if any.  Starts with the vector of
 // all found ALCTs and selects the ones in the read-out time window.
-std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::readoutALCTs() const {
+std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::readoutALCTs(int nMaxALCTs) const {
   std::vector<CSCALCTDigi> tmpV;
 
   // The number of LCT bins in the read-out is given by the
   // l1a_window_width parameter, but made even by setting the LSB of
   // l1a_window_width to 0.
-  const int lct_bins =
-      //    (l1a_window_width%2 == 0) ? l1a_window_width : l1a_window_width-1;
-      l1a_window_width;
+  const int lct_bins = l1a_window_width;
   static std::atomic<int> late_tbins{early_tbins + lct_bins};
 
   static std::atomic<int> ifois{0};
   if (ifois == 0) {
-    //std::cout<<"ALCT early_tbins="<<early_tbins<<"  lct_bins="<<lct_bins<<"  l1a_window_width="<<l1a_window_width<<"  late_tbins="<<late_tbins<<std::endl;
-    //std::cout<<"**** ALCT readoutALCTs config dump ****"<<std::endl;
-    //dumpConfigParams();
-
     if (infoV >= 0 && early_tbins < 0) {
       edm::LogWarning("CSCAnodeLCTProcessor|SuspiciousParameters")
           << "+++ fifo_pretrig = " << fifo_pretrig << "; in-time ALCTs are not getting read-out!!! +++"
@@ -1227,7 +1249,7 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::readoutALCTs() const {
 
   // Start from the vector of all found ALCTs and select those within
   // the ALCT*L1A coincidence window.
-  const std::vector<CSCALCTDigi>& all_alcts = getALCTs();
+  const std::vector<CSCALCTDigi>& all_alcts = getALCTs(nMaxALCTs);
   for (const auto& p : all_alcts) {
     if (!p.isValid())
       continue;
@@ -1265,13 +1287,21 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::readoutALCTs() const {
 }
 
 // Returns vector of all found ALCTs, if any.  Used in ALCT-CLCT matching.
-std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::getALCTs() const {
+std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::getALCTs(int nMaxALCTs) const {
   std::vector<CSCALCTDigi> tmpV;
   for (int bx = 0; bx < CSCConstants::MAX_ALCT_TBINS; bx++) {
-    if (bestALCT[bx].isValid())
-      tmpV.push_back(bestALCT[bx]);
-    if (secondALCT[bx].isValid())
-      tmpV.push_back(secondALCT[bx]);
+    if (nMaxALCTs == CSCConstants::MAX_ALCTS_READOUT) {
+      if (bestALCT[bx].isValid())
+        tmpV.push_back(bestALCT[bx]);
+      if (secondALCT[bx].isValid())
+        tmpV.push_back(secondALCT[bx]);
+    } else {
+      for (int iALCT = 0; iALCT < CSCConstants::MAX_ALCTS_PER_PROCESSOR; iALCT++) {
+        if (ALCTContainer_[bx][iALCT].isValid()) {
+          tmpV.push_back(ALCTContainer_[bx][iALCT]);
+        }
+      }
+    }
   }
   return tmpV;
 }

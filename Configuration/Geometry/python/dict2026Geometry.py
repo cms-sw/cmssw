@@ -806,6 +806,9 @@ muonDict = {
         4 : [
             'Geometry/MuonSimData/data/PhaseII/muonProdCuts.xml',
         ],
+        "sim" : [
+            'from Geometry.MuonNumbering.muonGeometryConstants_cff import *',
+        ],
         "reco" : [
             'from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *',
             'from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *',
@@ -847,6 +850,9 @@ muonDict = {
         ],
         4 : [
             'Geometry/MuonSimData/data/PhaseII/muonProdCuts.xml',
+        ],
+        "sim" : [
+            'from Geometry.MuonNumbering.muonGeometryConstants_cff import *',
         ],
         "reco" : [
             'from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *',
@@ -893,6 +899,9 @@ muonDict = {
         4 : [
             'Geometry/MuonSimData/data/PhaseII/muonProdCuts.xml',
         ],
+        "sim" : [
+            'from Geometry.MuonNumbering.muonGeometryConstants_cff import *',
+        ],
         "reco" : [
             'from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *',
             'from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *',
@@ -937,6 +946,9 @@ muonDict = {
         ],
         4 : [
             'Geometry/MuonSimData/data/PhaseII/muonProdCuts.xml',
+        ],
+        "sim" : [
+            'from Geometry.MuonNumbering.muonGeometryConstants_cff import *',
         ],
         "reco" : [
             'from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *',
@@ -1141,12 +1153,12 @@ timingDict = {
             'Geometry/MTDSimData/data/v1/mtdProdCuts.xml'
             ],
         "sim" : [
-            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *',
+            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cff import *',
         ],
         "reco" :[
             'from RecoMTD.DetLayers.mtdDetLayerGeometry_cfi import *',
-            'from Geometry.MTDGeometryBuilder.mtdParameters_cfi import *',
-            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *',
+            'from Geometry.MTDGeometryBuilder.mtdParameters_cff import *',
+            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cff import *',
             'from Geometry.MTDNumberingBuilder.mtdTopology_cfi import *',
             'from Geometry.MTDGeometryBuilder.mtdGeometry_cfi import *',
             'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',
@@ -1169,12 +1181,12 @@ timingDict = {
             'Geometry/MTDSimData/data/v2/mtdProdCuts.xml'
             ],
         "sim" : [
-            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *',
+            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cff import *',
         ],
         "reco" :[
             'from RecoMTD.DetLayers.mtdDetLayerGeometry_cfi import *',
-            'from Geometry.MTDGeometryBuilder.mtdParameters_cfi import *',
-            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *',
+            'from Geometry.MTDGeometryBuilder.mtdParameters_cff import *',
+            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cff import *',
             'from Geometry.MTDNumberingBuilder.mtdTopology_cfi import *',
             'from Geometry.MTDGeometryBuilder.mtdGeometry_cfi import *',
             'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',

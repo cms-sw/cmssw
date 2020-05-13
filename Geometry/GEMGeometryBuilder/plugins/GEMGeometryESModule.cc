@@ -11,7 +11,7 @@
 #include "Geometry/GEMGeometryBuilder/src/GEMGeometryBuilderFromCondDB.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 
 #include "Geometry/Records/interface/GEMRecoGeometryRcd.h"
@@ -63,7 +63,7 @@ private:
   bool applyAlignment_;
   const std::string alignmentsLabel_;
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> cpvToken_;
-  edm::ESGetToken<MuonDDDConstants, MuonNumberingRecord> mdcToken_;
+  edm::ESGetToken<MuonGeometryConstants, IdealGeometryRecord> mdcToken_;
   edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> dd4hepcpvToken_;
   edm::ESGetToken<cms::MuonNumbering, MuonNumberingRecord> dd4hepmdcToken_;
   edm::ESGetToken<RecoIdealGeometry, GEMRecoGeometryRcd> riggemToken_;

@@ -30,7 +30,7 @@ namespace cms {
 class RPCGeometry;
 class RPCDetId;
 class RPCRoll;
-class MuonDDDConstants;
+class MuonGeometryConstants;
 
 class RPCGeometryBuilderFromDDD {
 public:
@@ -39,13 +39,13 @@ public:
   ~RPCGeometryBuilderFromDDD();
 
   // for DDD
-  RPCGeometry* build(const DDCompactView* cview, const MuonDDDConstants& muonConstants);
+  RPCGeometry* build(const DDCompactView* cview, const MuonGeometryConstants& muonConstants);
   // for DD4hep
   RPCGeometry* build(const cms::DDCompactView* cview, const cms::MuonNumbering& muonConstants);
 
 private:
   // for DDD
-  RPCGeometry* buildGeometry(DDFilteredView& fview, const MuonDDDConstants& muonConstants);
+  RPCGeometry* buildGeometry(DDFilteredView& fview, const MuonGeometryConstants& muonConstants);
   // for DD4hep
   RPCGeometry* buildGeometry(cms::DDFilteredView& fview, const cms::MuonNumbering& muonConstants);
 

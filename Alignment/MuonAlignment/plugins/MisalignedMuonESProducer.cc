@@ -90,8 +90,8 @@ edm::ESProducts<std::unique_ptr<DTGeometry>, std::unique_ptr<CSCGeometry> > Misa
   edm::ESTransientHandle<DDCompactView> cpv;
   iRecord.getRecord<IdealGeometryRecord>().get(cpv);
 
-  edm::ESHandle<MuonDDDConstants> mdc;
-  iRecord.getRecord<MuonNumberingRecord>().get(mdc);
+  edm::ESHandle<MuonGeometryConstants> mdc;
+  iRecord.getRecord<IdealGeometryRecord>().get(mdc);
 
   DTGeometryBuilderFromDDD DTGeometryBuilder;
   CSCGeometryBuilderFromDDD CSCGeometryBuilder;

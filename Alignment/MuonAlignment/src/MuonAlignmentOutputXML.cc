@@ -123,8 +123,8 @@ void MuonAlignmentOutputXML::write(AlignableMuon *alignableMuon, const edm::Even
     edm::ESTransientHandle<DDCompactView> cpv;
     iSetup.get<IdealGeometryRecord>().get(cpv);
 
-    edm::ESHandle<MuonDDDConstants> mdc;
-    iSetup.get<MuonNumberingRecord>().get(mdc);
+    edm::ESHandle<MuonGeometryConstants> mdc;
+    iSetup.get<IdealGeometryRecord>().get(mdc);
     DTGeometryBuilderFromDDD DTGeometryBuilder;
     CSCGeometryBuilderFromDDD CSCGeometryBuilder;
 

@@ -46,7 +46,7 @@ GEMGeometryBuilderFromDDD::~GEMGeometryBuilderFromDDD() {}
 // DDD
 void GEMGeometryBuilderFromDDD::build(GEMGeometry& theGeometry,
                                       const DDCompactView* cview,
-                                      const MuonDDDConstants& muonConstants) {
+                                      const MuonGeometryConstants& muonConstants) {
   std::string attribute = "MuStructure";
   std::string value = "MuonEndCapGEM";
 
@@ -83,12 +83,12 @@ void GEMGeometryBuilderFromDDD::build(GEMGeometry& theGeometry,
     // only 2 chambers are present separated by a gap.
     // making superchamber out of the first chamber layer including the gap between chambers
     if (detIdCh.layer() == 1) {  // only make superChambers when doing layer 1
-
       GEMSuperChamber* gemSuperChamber = buildSuperChamber(fv, detIdCh);
       superChambers.push_back(gemSuperChamber);
     }
-
-    GEMChamber* gemChamber = buildChamber(fv, detIdCh);
+    GEMChamber* gemChamber = nullptr;
+    if (detIdCh.station() != GEMDetId::minStationId0)
+      gemChamber = buildChamber(fv, detIdCh);
 
     // loop over chambers
     // only 1 chamber
@@ -97,6 +97,17 @@ void GEMGeometryBuilderFromDDD::build(GEMGeometry& theGeometry,
 
     while (doChambers) {
       loopExecuted = true;
+
+      if (detIdCh.station() == GEMDetId::minStationId0) {
+        fv.firstChild();
+        MuonDDDNumbering mdddnum(muonConstants);
+        GEMNumberingScheme ge0Num(muonConstants);
+        int rawId = ge0Num.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
+        GEMDetId detId = GEMDetId(rawId);
+        fv.parent();
+
+        gemChamber = buildChamber(fv, detId);
+      }
 
       // loop over GEMEtaPartitions
       bool doEtaPart = fv.firstChild();
@@ -122,18 +133,22 @@ void GEMGeometryBuilderFromDDD::build(GEMGeometry& theGeometry,
 
     doSuper = fv.nextSibling();
 
-    if (!loopExecuted)
+    if (!loopExecuted) {
       delete gemChamber;
+    }
   }
 
   // construct the regions, stations and rings.
   for (int re = -1; re <= 1; re = re + 2) {
     GEMRegion* region = new GEMRegion(re);
-    for (int st = 1; st <= GEMDetId::maxStationId; ++st) {
+    for (int st = GEMDetId::minStationId0; st <= GEMDetId::maxStationId; ++st) {
+      bool ge0Station = st == GEMDetId::minStationId0;
       GEMStation* station = new GEMStation(re, st);
       std::string sign(re == -1 ? "-" : "");
-      std::string name("GE" + sign + std::to_string(st) + "/1");
+      std::string suffix = ge0Station ? "" : "/1";
+      std::string name = "GE" + sign + std::to_string(st) + suffix;
       station->setName(name);
+      bool foundSuperChamber = false;
       for (int ri = 1; ri <= 1; ++ri) {
         GEMRing* ring = new GEMRing(re, st, ri);
         for (auto superChamber : superChambers) {
@@ -141,10 +156,18 @@ void GEMGeometryBuilderFromDDD::build(GEMGeometry& theGeometry,
           if (detId.region() != re || detId.station() != st || detId.ring() != ri)
             continue;
 
-          superChamber->add(
-              theGeometry.chamber(GEMDetId(detId.region(), detId.ring(), detId.station(), 1, detId.chamber(), 0)));
-          superChamber->add(
-              theGeometry.chamber(GEMDetId(detId.region(), detId.ring(), detId.station(), 2, detId.chamber(), 0)));
+          foundSuperChamber = true;
+          int nlayers = ge0Station ? GEMDetId::maxLayerId0 : GEMDetId::maxLayerId;
+
+          // GEMDetId::minLayerId is to id the superchamber, so minLayerId+1 is the first layer
+          for (int la = GEMDetId::minLayerId + 1; la <= nlayers; ++la) {
+            GEMDetId chId(detId.region(), detId.ring(), detId.station(), la, detId.chamber(), 0);
+            auto chamber = theGeometry.chamber(chId);
+            if (!chamber) {
+              edm::LogWarning("GEMGeometryBuilderFromDDD") << "Missing chamber " << chId << std::endl;
+            }
+            superChamber->add(chamber);
+          }
           ring->add(superChamber);
           theGeometry.add(superChamber);
           LogDebug("GEMGeometryBuilderFromDDD") << "Adding super chamber " << detId << " to ring: "
@@ -152,12 +175,21 @@ void GEMGeometryBuilderFromDDD::build(GEMGeometry& theGeometry,
         }
         LogDebug("GEMGeometryBuilderFromDDD") << "Adding ring " << ri << " to station "
                                               << "re " << re << " st " << st << std::endl;
-        station->add(ring);
-        theGeometry.add(ring);
+        if (!foundSuperChamber) {
+          delete ring;
+        } else {
+          station->add(ring);
+          theGeometry.add(ring);
+        }
       }
-      LogDebug("GEMGeometryBuilderFromDDD") << "Adding station " << st << " to region " << re << std::endl;
-      region->add(station);
-      theGeometry.add(station);
+      if (!foundSuperChamber) {
+        LogDebug("GEMGeometryBuilderFromDDD") << "No superchamber found: re:" << re << " st:" << st << std::endl;
+        delete station;
+      } else {
+        LogDebug("GEMGeometryBuilderFromDDD") << "Adding station " << st << " to region " << re << std::endl;
+        region->add(station);
+        theGeometry.add(station);
+      }
     }
     LogDebug("GEMGeometryBuilderFromDDD") << "Adding region " << re << " to the geometry " << std::endl;
 
@@ -170,21 +202,25 @@ GEMSuperChamber* GEMGeometryBuilderFromDDD::buildSuperChamber(DDFilteredView& fv
                                         << std::endl;
 
   DDBooleanSolid solid = (DDBooleanSolid)(fv.logicalPart().solid());
-  std::vector<double> dpar = solid.solidA().parameters();
+  bool ge0Station = detId.station() == GEMDetId::minStationId0;
+  std::vector<double> dpar = ge0Station ? solid.parameters() : solid.solidA().parameters();
 
   double dy = geant_units::operators::convertMmToCm(dpar[0]);   //length is along local Y
   double dz = geant_units::operators::convertMmToCm(dpar[3]);   // thickness is long local Z
   double dx1 = geant_units::operators::convertMmToCm(dpar[4]);  // bottom width is along local X
   double dx2 = geant_units::operators::convertMmToCm(dpar[8]);  // top width is along local X
 
-  const int nch = 2;
-  const double chgap = 2.105;
+  if (!ge0Station) {
+    const int nch = 2;
+    const double chgap = 2.105;
 
-  dpar = solid.solidB().parameters();
+    dpar = solid.solidB().parameters();
 
-  dz += geant_units::operators::convertMmToCm(dpar[3]);  // chamber thickness
-  dz *= nch;                                             // 2 chambers in superchamber
-  dz += chgap;                                           // gap between chambers
+    dz += geant_units::operators::convertMmToCm(dpar[3]);  // chamber thickness
+    dz *= nch;                                             // 2 chambers in superchamber
+    dz += chgap;                                           // gap between chambers
+  }
+
   bool isOdd = detId.chamber() % 2;
   RCPBoundPlane surf(boundPlane(fv, new TrapezoidalPlaneBounds(dx1, dx2, dy, dz), isOdd));
 
@@ -199,16 +235,20 @@ GEMChamber* GEMGeometryBuilderFromDDD::buildChamber(DDFilteredView& fv, GEMDetId
                                         << std::endl;
 
   DDBooleanSolid solid = (DDBooleanSolid)(fv.logicalPart().solid());
-  std::vector<double> dpar = solid.solidA().parameters();
+  bool ge0Station = detId.station() == GEMDetId::minStationId0;
+  std::vector<double> dpar = ge0Station ? solid.parameters() : solid.solidA().parameters();
 
   double dy = geant_units::operators::convertMmToCm(dpar[0]);   //length is along local Y
   double dz = geant_units::operators::convertMmToCm(dpar[3]);   // thickness is long local Z
   double dx1 = geant_units::operators::convertMmToCm(dpar[4]);  // bottom width is along local X
   double dx2 = geant_units::operators::convertMmToCm(dpar[8]);  // top width is along local X
-  dpar = solid.solidB().parameters();
-  dz += geant_units::operators::convertMmToCm(dpar[3]);  // chamber thickness
 
-  bool isOdd = detId.chamber() % 2;
+  if (!ge0Station) {
+    dpar = solid.solidB().parameters();
+    dz += geant_units::operators::convertMmToCm(dpar[3]);  // chamber thickness
+  }
+
+  bool isOdd = ge0Station ? false : detId.chamber() % 2;
 
   RCPBoundPlane surf(boundPlane(fv, new TrapezoidalPlaneBounds(dx1, dx2, dy, dz), isOdd));
 

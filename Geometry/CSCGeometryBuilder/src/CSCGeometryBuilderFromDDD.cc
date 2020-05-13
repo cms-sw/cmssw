@@ -31,7 +31,7 @@ CSCGeometryBuilderFromDDD::~CSCGeometryBuilderFromDDD() {}
 // DDD
 void CSCGeometryBuilderFromDDD::build(CSCGeometry& geom,
                                       const DDCompactView* cview,
-                                      const MuonDDDConstants& muonConstants) {
+                                      const MuonGeometryConstants& muonConstants) {
   RecoIdealGeometry rig;
   CSCRecoDigiParameters rdp;
 

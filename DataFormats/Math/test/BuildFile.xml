@@ -86,6 +86,7 @@
 </bin>
 
 <bin file="CholeskyInvert_t.cpp" name="CholeskyInvert_t">
+  <flags CXXFLAGS="-O3"/>
 </bin>
 
 <bin file="testGraph.cpp">

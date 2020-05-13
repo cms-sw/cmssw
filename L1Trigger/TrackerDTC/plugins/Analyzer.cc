@@ -253,7 +253,7 @@ namespace trackerDTC {
   void Analyzer::convert(const map<TPPtr, set<TTStubRef>>& mapTPsStubs, map<TTStubRef, set<TPPtr>>& mapStubsTPs) {
     int nTPsReco(0);
     int nTPsEff(0);
-    for (const pair<TPPtr, set<TTStubRef>>& mapTPStubs : mapTPsStubs) {
+    for (const auto& mapTPStubs : mapTPsStubs) {
       if (!reconstructable(mapTPStubs.second))
         continue;
       nTPsReco++;
@@ -379,7 +379,7 @@ namespace trackerDTC {
   // analyze survived TPs
   void Analyzer::analyzeTPs(const map<TPPtr, set<TTStubRef>>& mapTPsStubs) {
     int nTPs(0);
-    for (const pair<TPPtr, set<TTStubRef>>& mapTPStubs : mapTPsStubs) {
+    for (const auto& mapTPStubs : mapTPsStubs) {
       if (!reconstructable(mapTPStubs.second))
         continue;
       nTPs++;

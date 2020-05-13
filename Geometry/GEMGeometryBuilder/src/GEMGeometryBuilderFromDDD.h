@@ -31,7 +31,7 @@ class GEMDetId;
 class GEMSuperChamber;
 class GEMChamber;
 class GEMEtaPartition;
-class MuonDDDConstants;
+class MuonGeometryConstants;
 
 class GEMGeometryBuilderFromDDD {
 public:
@@ -40,7 +40,7 @@ public:
   ~GEMGeometryBuilderFromDDD();
 
   // for DDD
-  void build(GEMGeometry& theGeometry, const DDCompactView* cview, const MuonDDDConstants& muonConstants);
+  void build(GEMGeometry& theGeometry, const DDCompactView* cview, const MuonGeometryConstants& muonConstants);
   // for DD4hep
   void build(GEMGeometry& theGeometry, const cms::DDCompactView* cview, const cms::MuonNumbering& muonConstants);
 

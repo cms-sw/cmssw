@@ -27,7 +27,7 @@
 #include "Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h"
 #include "Geometry/Records/interface/CSCRecoGeometryRcd.h"
 #include "Geometry/Records/interface/CSCRecoDigiParametersRcd.h"
-#include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "CondFormats/GeometryObjects/interface/RecoIdealGeometry.h"
 #include "CondFormats/GeometryObjects/interface/CSCRecoDigiParameters.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
@@ -61,7 +61,7 @@ private:
   edm::ReusableObjectHolder<HostType> holder_;
   // DDD
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> cpvToken_;
-  edm::ESGetToken<MuonDDDConstants, MuonNumberingRecord> mdcToken_;
+  edm::ESGetToken<MuonGeometryConstants, IdealGeometryRecord> mdcToken_;
   //dd4hep
   edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> cpvTokendd4hep_;
   edm::ESGetToken<cms::MuonNumbering, MuonNumberingRecord> mdcTokendd4hep_;

@@ -1,12 +1,12 @@
 #include "Geometry/MuonNumbering/interface/MuonDDDNumbering.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
-#include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //#define LOCAL_DEBUG
 
-MuonDDDNumbering::MuonDDDNumbering(const MuonDDDConstants &muonConstants) {
-  //  MuonDDDConstants muonConstants;
+MuonDDDNumbering::MuonDDDNumbering(const MuonGeometryConstants &muonConstants) {
+  //  Get constant values from muonConstants
   theLevelPart = muonConstants.getValue("level");
   theSuperPart = muonConstants.getValue("super");
   theBasePart = muonConstants.getValue("base");
