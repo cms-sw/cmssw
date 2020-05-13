@@ -243,5 +243,5 @@ GeometricDet::Rotation GeometricDet::rotationBounds() const {
 std::unique_ptr<Bounds> GeometricDet::bounds() const {
   const std::vector<double>& par = _params;
   TrackerShapeToBounds shapeToBounds;
-  return std::unique_ptr<Bounds>(shapeToBounds.buildBounds(DDSolidShape(static_cast<int>(_shape)), par));
+  return std::unique_ptr<Bounds>(shapeToBounds.buildBounds(cms::DDSolidShape(static_cast<int>(_shape)), par));
 }

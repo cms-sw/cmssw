@@ -2,7 +2,7 @@
 #define Geometry_TrackerNumberingBuilder_TrackerShapeToBounds_H
 
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
-#include "DetectorDescription/Core/interface/DDSolidShapes.h"
+#include "DetectorDescription/DDCMS/interface/DDSolidShapes.h"
 #include <vector>
 #include <algorithm>
 /**
@@ -13,7 +13,7 @@ public:
   /**
    *buildBounds() return the Bounds.
    */
-  Bounds* buildBounds(const DDSolidShape&, const std::vector<double>&) const;
+  Bounds* buildBounds(const cms::DDSolidShape&, const std::vector<double>&) const;
 
 private:
   Bounds* buildBox(const std::vector<double>&) const;

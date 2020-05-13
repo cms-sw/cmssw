@@ -11,6 +11,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include <DetectorDescription/Core/interface/DDCompactView.h>
+#include <DetectorDescription/DDCMS/interface/DDCompactView.h>
 #include <DetectorDescription/Core/interface/DDExpandedView.h>
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -37,7 +38,7 @@ void GeometricDetLoader::beginRun(edm::Run const& /* iEvent */, edm::EventSetup 
     std::cout << "PoolDBOutputService unavailable" << std::endl;
     return;
   }
-  edm::ESHandle<DDCompactView> pDD;
+  edm::ESHandle<cms::DDCompactView> pDD;
   edm::ESHandle<GeometricDet> rDD;
   es.get<IdealGeometryRecord>().get(pDD);
   es.get<IdealGeometryRecord>().get(rDD);
