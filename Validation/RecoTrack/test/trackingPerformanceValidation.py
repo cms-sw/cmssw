@@ -206,6 +206,7 @@ kwargs_tracking = {
         # filter out the pT>0.9 GeV track selection
         "": limitRelVal,
         "tpPtLess09": limitRelVal,
+        "tpEtaGreater2p7": limitRelVal,
         "allTPEffic": limitRelVal,
         "fromPV": limitRelVal,
         "fromPVAllTP": limitRelVal,

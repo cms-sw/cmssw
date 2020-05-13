@@ -70,8 +70,8 @@ std::shared_ptr<DTGeometry> MuonAlignmentInputMethod::idealDTGeometry(const edm:
   edm::ESTransientHandle<DDCompactView> cpv;
   iSetup.get<IdealGeometryRecord>().get(cpv);
 
-  edm::ESHandle<MuonDDDConstants> mdc;
-  iSetup.get<MuonNumberingRecord>().get(mdc);
+  edm::ESHandle<MuonGeometryConstants> mdc;
+  iSetup.get<IdealGeometryRecord>().get(mdc);
   DTGeometryBuilderFromDDD DTGeometryBuilder;
 
   auto boost_dtGeometry = std::make_shared<DTGeometry>();
@@ -84,8 +84,8 @@ std::shared_ptr<CSCGeometry> MuonAlignmentInputMethod::idealCSCGeometry(const ed
   edm::ESTransientHandle<DDCompactView> cpv;
   iSetup.get<IdealGeometryRecord>().get(cpv);
 
-  edm::ESHandle<MuonDDDConstants> mdc;
-  iSetup.get<MuonNumberingRecord>().get(mdc);
+  edm::ESHandle<MuonGeometryConstants> mdc;
+  iSetup.get<IdealGeometryRecord>().get(mdc);
   CSCGeometryBuilderFromDDD CSCGeometryBuilder;
 
   auto boost_cscGeometry = std::make_shared<CSCGeometry>();

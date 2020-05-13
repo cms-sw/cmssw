@@ -1,19 +1,14 @@
 #include "Geometry/MuonNumbering/interface/RPCNumberingScheme.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
-#include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //#define LOCAL_DEBUG
 
-RPCNumberingScheme::RPCNumberingScheme(const MuonDDDConstants& muonConstants) { initMe(muonConstants); }
+RPCNumberingScheme::RPCNumberingScheme(const MuonGeometryConstants& muonConstants) { initMe(muonConstants); }
 
-RPCNumberingScheme::RPCNumberingScheme(const DDCompactView& cpv) {
-  MuonDDDConstants muonConstants(cpv);
-  initMe(muonConstants);
-}
-
-void RPCNumberingScheme::initMe(const MuonDDDConstants& muonConstants) {
+void RPCNumberingScheme::initMe(const MuonGeometryConstants& muonConstants) {
   int theLevelPart = muonConstants.getValue("level");
   theRegionLevel = muonConstants.getValue("mr_region") / theLevelPart;
   theBWheelLevel = muonConstants.getValue("mr_bwheel") / theLevelPart;

@@ -122,7 +122,7 @@ pfJetPFBRECOSequence = cms.Sequence(
 from CommonTools.ParticleFlow.pfTaus_cff import *
 
 from CommonTools.ParticleFlow.pfMET_cfi import *
-pfMETPFBRECO = pfMET.clone( jets = 'pfJetsPFBRECO' )
+pfMETPFBRECO = pfMET.clone( srcJets = 'pfJetsPFBRECO' )
 
 ##delta beta weighting
 #from CommonTools.ParticleFlow.deltaBetaWeights_cfi import *

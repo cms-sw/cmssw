@@ -158,12 +158,12 @@ void DD4hep_MTDTopologyAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
       }
     };
 
-    if (level > 0 && fv.navPos().size() < level) {
+    if (level > 0 && fv.copyNos().size() < level) {
       level = 0;
       ddtop.clear();
     }
     if (fv.name() == "BarrelTimingLayer" || fv.name() == "EndcapTimingLayer") {
-      level = fv.navPos().size();
+      level = fv.copyNos().size();
     }
 
     if (!ddtop.empty()) {
@@ -209,9 +209,9 @@ void DD4hep_MTDTopologyAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 
 void DD4hep_MTDTopologyAnalyzer::theBaseNumber(cms::DDFilteredView& fv) {
   thisN_.reset();
-  thisN_.setSize(fv.navPos().size());
+  thisN_.setSize(fv.copyNos().size());
 
-  for (uint ii = 0; ii < fv.navPos().size(); ii++) {
+  for (uint ii = 0; ii < fv.copyNos().size(); ii++) {
     std::string name((fv.geoHistory()[ii])->GetName());
     name.assign(name.erase(name.rfind('_')));
     int copyN(fv.copyNos()[ii]);

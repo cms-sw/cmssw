@@ -547,10 +547,13 @@ std::string_view DDFilteredView::getString(const std::string& key) const {
 }
 
 DDFilteredView::nav_type DDFilteredView::navPos() const {
-  Int_t level = it_.back().GetLevel();
-  nav_type pos(level);
-  for (Int_t i = 1; i <= level; ++i)
-    pos[i] = it_.back().GetIndex(i);
+  nav_type pos;
+
+  if (not it_.empty()) {
+    int level = it_.back().GetLevel();
+    for (int i = 1; i <= level; ++i)
+      pos.emplace_back(it_.back().GetIndex(i));
+  }
 
   return pos;
 }

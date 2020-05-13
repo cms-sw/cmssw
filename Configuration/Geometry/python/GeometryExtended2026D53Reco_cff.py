@@ -51,8 +51,8 @@ from Geometry.ForwardGeometry.ForwardGeometry_cfi import *
 
 # timing
 from RecoMTD.DetLayers.mtdDetLayerGeometry_cfi import *
-from Geometry.MTDGeometryBuilder.mtdParameters_cfi import *
-from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *
+from Geometry.MTDGeometryBuilder.mtdParameters_cff import *
+from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cff import *
 from Geometry.MTDNumberingBuilder.mtdTopology_cfi import *
 from Geometry.MTDGeometryBuilder.mtdGeometry_cfi import *
 from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *

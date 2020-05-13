@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from RecoMET.METProducers.pfMet_cfi import pfMet
 
 ##____________________________________________________________________________||
 particleFlowForChargedMET = cms.EDProducer(
@@ -10,12 +11,9 @@ particleFlowForChargedMET = cms.EDProducer(
     )
 
 ##____________________________________________________________________________||
-pfChMet = cms.EDProducer(
-    "PFMETProducer",
-    src = cms.InputTag("particleFlowForChargedMET"),
-    alias = cms.string('pfChMet'),
-    globalThreshold = cms.double(0.0),
-    calculateSignificance = cms.bool(False),
+pfChMet = pfMet.clone(
+    src = "particleFlowForChargedMET",
+    alias = 'pfChMet',
     )
 
 ##____________________________________________________________________________||

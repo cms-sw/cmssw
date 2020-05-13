@@ -812,7 +812,7 @@ void HcalTriggerPrimitiveAlgo::addUpgradeFG(const HcalTrigTowerDetId& id,
 }
 
 void HcalTriggerPrimitiveAlgo::setPeakFinderAlgorithm(int algo) {
-  if (algo <= 0 && algo > 2)
+  if (algo <= 0 || algo > 2)
     throw cms::Exception("ERROR: Only algo 1 & 2 are supported.") << std::endl;
   peak_finder_algorithm_ = algo;
 }

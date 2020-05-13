@@ -36,7 +36,7 @@ DTGeometryBuilderFromDDD::~DTGeometryBuilderFromDDD() {}
 
 void DTGeometryBuilderFromDDD::build(DTGeometry& theGeometry,
                                      const DDCompactView* cview,
-                                     const MuonDDDConstants& muonConstants) {
+                                     const MuonGeometryConstants& muonConstants) {
   //  cout << "DTGeometryBuilderFromDDD::build" << endl;
   //   static const string t0 = "DTGeometryBuilderFromDDD::build";
   //   TimeMe timer(t0,true);
@@ -53,7 +53,7 @@ void DTGeometryBuilderFromDDD::build(DTGeometry& theGeometry,
 
 void DTGeometryBuilderFromDDD::buildGeometry(DTGeometry& theGeometry,
                                              DDFilteredView& fv,
-                                             const MuonDDDConstants& muonConstants) const {
+                                             const MuonGeometryConstants& muonConstants) const {
   bool doChamber = fv.firstChild();
 
   // Loop on chambers
@@ -104,7 +104,7 @@ void DTGeometryBuilderFromDDD::buildGeometry(DTGeometry& theGeometry,
 
 DTChamber* DTGeometryBuilderFromDDD::buildChamber(DDFilteredView& fv,
                                                   const string& type,
-                                                  const MuonDDDConstants& muonConstants) const {
+                                                  const MuonGeometryConstants& muonConstants) const {
   MuonDDDNumbering mdddnum(muonConstants);
   DTNumberingScheme dtnum(muonConstants);
   int rawid = dtnum.getDetId(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
@@ -129,7 +129,7 @@ DTChamber* DTGeometryBuilderFromDDD::buildChamber(DDFilteredView& fv,
 DTSuperLayer* DTGeometryBuilderFromDDD::buildSuperLayer(DDFilteredView& fv,
                                                         DTChamber* chamber,
                                                         const std::string& type,
-                                                        const MuonDDDConstants& muonConstants) const {
+                                                        const MuonGeometryConstants& muonConstants) const {
   MuonDDDNumbering mdddnum(muonConstants);
   DTNumberingScheme dtnum(muonConstants);
   int rawid = dtnum.getDetId(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
@@ -158,7 +158,7 @@ DTSuperLayer* DTGeometryBuilderFromDDD::buildSuperLayer(DDFilteredView& fv,
 DTLayer* DTGeometryBuilderFromDDD::buildLayer(DDFilteredView& fv,
                                               DTSuperLayer* sl,
                                               const std::string& type,
-                                              const MuonDDDConstants& muonConstants) const {
+                                              const MuonGeometryConstants& muonConstants) const {
   MuonDDDNumbering mdddnum(muonConstants);
   DTNumberingScheme dtnum(muonConstants);
   int rawid = dtnum.getDetId(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));

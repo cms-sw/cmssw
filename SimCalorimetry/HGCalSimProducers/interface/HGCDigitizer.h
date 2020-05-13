@@ -53,15 +53,23 @@ public:
      @short handle SimHit accumulation
    */
   void accumulate(edm::Event const& e, edm::EventSetup const& c, CLHEP::HepRandomEngine* hre);
+  void accumulate_forPreMix(edm::Event const& e, edm::EventSetup const& c, CLHEP::HepRandomEngine* hre);
+
   void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, CLHEP::HepRandomEngine* hre);
+  void accumulate_forPreMix(PileUpEventPrincipal const& e, edm::EventSetup const& c, CLHEP::HepRandomEngine* hre);
+
   template <typename GEOM>
   void accumulate(edm::Handle<edm::PCaloHitContainer> const& hits,
                   int bxCrossing,
                   const GEOM* geom,
                   CLHEP::HepRandomEngine* hre);
-  // for premixing
-  void accumulate(const PHGCSimAccumulator& simAccumulator);
+  template <typename GEOM>
+  void accumulate_forPreMix(edm::Handle<edm::PCaloHitContainer> const& hits,
+                            int bxCrossing,
+                            const GEOM* geom,
+                            CLHEP::HepRandomEngine* hre);
 
+  void accumulate_forPreMix(const PHGCSimAccumulator& simAccumulator, const bool minbiasFlag);
   /**
      @short actions at the start/end of event
    */
@@ -86,8 +94,6 @@ public:
 private:
   uint32_t getType() const;
   bool getWeight(std::array<float, 3>& tdcForToAOnset, float& keV2fC) const;
-
-  //input/output names
   std::string hitCollection_, digiCollection_;
 
   //geometry type (0 pre-TDR; 1 TDR)
@@ -108,8 +114,9 @@ private:
   int maxSimHitsAccTime_;
   double bxTime_, ev_per_eh_pair_;
   std::unique_ptr<hgc::HGCSimHitDataAccumulator> simHitAccumulator_;
+  std::unique_ptr<hgc::HGCPUSimHitDataAccumulator> pusimHitAccumulator_;
   void resetSimHitDataAccumulator();
-
+  void resetPUSimHitDataAccumulator();
   //debug position
   void checkPosition(const HGCalDigiCollection* digis) const;
 
@@ -141,9 +148,12 @@ private:
   std::array<double, 4> averageOccupancies_;
   uint32_t nEvents_;
 
+  //maxBx limit beyond which the Digitizer should filter out all hits
+  static const unsigned int maxBx_ = 14;
+  static const unsigned int thisBx_ = 9;
   std::vector<float> cce_;
-
-  std::map<uint32_t, std::vector<std::pair<float, float> > > hitRefs_bx0;
+  std::unordered_map<uint32_t, std::vector<std::pair<float, float> > > hitRefs_bx0;
+  std::unordered_map<uint32_t, bool> hitOrder_monitor;
 };
 
 #endif

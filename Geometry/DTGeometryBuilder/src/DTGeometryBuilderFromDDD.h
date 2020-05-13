@@ -21,7 +21,7 @@ class DTChamber;
 class DTSuperLayer;
 class DTLayer;
 class Bounds;
-class MuonDDDConstants;
+class MuonGeometryConstants;
 
 namespace dtGeometryBuilder {
   // Helper function from DTGeometryBuilderFromCondDB.cc
@@ -37,23 +37,25 @@ public:
   virtual ~DTGeometryBuilderFromDDD();
 
   // Operations
-  void build(DTGeometry& theGeometry, const DDCompactView* cview, const MuonDDDConstants& muonConstants);
+  void build(DTGeometry& theGeometry, const DDCompactView* cview, const MuonGeometryConstants& muonConstants);
 
 private:
   /// create the chamber
-  DTChamber* buildChamber(DDFilteredView& fv, const std::string& type, const MuonDDDConstants& muonConstants) const;
+  DTChamber* buildChamber(DDFilteredView& fv,
+                          const std::string& type,
+                          const MuonGeometryConstants& muonConstants) const;
 
   /// create the SL
   DTSuperLayer* buildSuperLayer(DDFilteredView& fv,
                                 DTChamber* chamber,
                                 const std::string& type,
-                                const MuonDDDConstants& muonConstants) const;
+                                const MuonGeometryConstants& muonConstants) const;
 
   /// create the layer
   DTLayer* buildLayer(DDFilteredView& fv,
                       DTSuperLayer* sl,
                       const std::string& type,
-                      const MuonDDDConstants& muonConstants) const;
+                      const MuonGeometryConstants& muonConstants) const;
 
   /// get parameter also for boolean solid.
   std::vector<double> extractParameters(DDFilteredView& fv) const;
@@ -62,6 +64,6 @@ private:
 
   RCPPlane plane(const DDFilteredView& fv, Bounds* bounds) const;
 
-  void buildGeometry(DTGeometry& theGeometry, DDFilteredView& fv, const MuonDDDConstants& muonConstants) const;
+  void buildGeometry(DTGeometry& theGeometry, DDFilteredView& fv, const MuonGeometryConstants& muonConstants) const;
 };
 #endif

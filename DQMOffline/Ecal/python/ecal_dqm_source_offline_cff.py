@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQM.EcalMonitorTasks.EcalMonitorTask_cfi import *
+from DQM.EcalMonitorTasks.EcalMonitorTaskEcalOnly_cfi import *
 from DQM.EcalMonitorTasks.EcalFEDMonitor_cfi import *
 from DQMOffline.Ecal.ESRecoSummary_cfi import *
 from DQMOffline.Ecal.EcalZmassTask_cfi import *
@@ -12,17 +13,21 @@ dqmInfoEcal = DQMEDAnalyzer('DQMEventInfo',
 )
 
 ## standard
-ecalOnly_dqm_source_offline = cms.Sequence(
+ecal_dqm_source_offline = cms.Sequence(
     dqmInfoEcal +
+    ecalMonitorTask +
     ecalFEDMonitor +
     ecalPreshowerRecoSummary +
-    ecalzmasstask
+    ecalzmasstask +
+    ecalPileUpDepMonitor
 )
 
-ecal_dqm_source_offline = cms.Sequence(
-    ecalOnly_dqm_source_offline +
-    ecalMonitorTask +
-    ecalPileUpDepMonitor
+## ECAL-only
+ecalOnly_dqm_source_offline = cms.Sequence(
+    dqmInfoEcal +
+    ecalMonitorTaskEcalOnly +
+    ecalFEDMonitor +
+    ecalzmasstask
 )
 
 ecalMonitorTask.workerParameters.TrigPrimTask.params.runOnEmul = False
