@@ -24,9 +24,11 @@ from DQMOffline.L1Trigger.L1TriggerDqmOfflineMC_cff import *
 for tracks in selectedTracks :
     label = 'TrackerCollisionSelectedTrackMonCommon' + str(tracks)
     locals()[label].doEffFromHitPatternVsBX = False
+    locals()[label].doEffFromHitPatternVsLUMI = False
 
     label = 'TrackerCollisionSelectedTrackMonMB' + str(tracks)
     locals()[label].doEffFromHitPatternVsBX = False
+    locals()[label].doEffFromHitPatternVsLUMI = False
 
 from PhysicsTools.NanoAOD.nanoDQM_cff import nanoDQMMC
 DQMOfflineNanoAOD.replace(nanoDQM, nanoDQMMC)
