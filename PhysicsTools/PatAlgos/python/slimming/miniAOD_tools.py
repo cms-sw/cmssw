@@ -54,16 +54,13 @@ def miniAOD_customizeCommon(process):
     process.patElectrons.usePfCandidateMultiMap = True
     process.patElectrons.pfCandidateMultiMap    = cms.InputTag("reducedEgamma","reducedGsfElectronPfCandMap")
     process.patElectrons.electronIDSources = cms.PSet()
+
     from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
-    run2_miniAOD_80XLegacy.toModify(process.patElectrons,
-                                    addPFClusterIso = cms.bool(True),
-                                    ecalPFClusterIsoMap = cms.InputTag("reducedEgamma", "eleEcalPFClusIso"),
-                                    hcalPFClusterIsoMap = cms.InputTag("reducedEgamma", "eleHcalPFClusIso"))
     from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
-    run2_miniAOD_94XFall17.toModify(process.patElectrons,
-                                    addPFClusterIso = cms.bool(True),
-                                    ecalPFClusterIsoMap = cms.InputTag("reducedEgamma", "eleEcalPFClusIso"),
-                                    hcalPFClusterIsoMap = cms.InputTag("reducedEgamma", "eleHcalPFClusIso"))
+    (run2_miniAOD_80XLegacy | run2_miniAOD_94XFall17).toModify(process.patElectrons,
+                                                               addPFClusterIso = True,
+                                                               ecalPFClusterIsoMap = "reducedEgamma:eleEcalPFClusIso",
+                                                               hcalPFClusterIsoMap = "reducedEgamma:eleHcalPFClusIso")
 
     #add puppi isolation in miniAOD
     process.patElectrons.addPuppiIsolation = cms.bool(True)
@@ -94,21 +91,15 @@ def miniAOD_customizeCommon(process):
     process.patPhotons.puppiIsolationNeutralHadrons = cms.InputTag("egmPhotonPUPPIIsolation","h0-DR030-")
     process.patPhotons.puppiIsolationPhotons        = cms.InputTag("egmPhotonPUPPIIsolation","gamma-DR030-")
 
-    from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
-    run2_miniAOD_80XLegacy.toModify(process.patPhotons,
-                                    addPFClusterIso = cms.bool(True),
-                                    ecalPFClusterIsoMap = cms.InputTag("reducedEgamma", "phoEcalPFClusIso"),
-                                    hcalPFClusterIsoMap = cms.InputTag("reducedEgamma", "phoHcalPFClusIso"))
-    from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
-    run2_miniAOD_94XFall17.toModify(process.patPhotons,
-                                    addPFClusterIso = cms.bool(True),
-                                    ecalPFClusterIsoMap = cms.InputTag("reducedEgamma", "phoEcalPFClusIso"),
-                                    hcalPFClusterIsoMap = cms.InputTag("reducedEgamma", "phoHcalPFClusIso"))
+    (run2_miniAOD_80XLegacy | run2_miniAOD_94XFall17).toModify(process.patPhotons,
+                                                               addPFClusterIso = True,
+                                                               ecalPFClusterIsoMap = "reducedEgamma:phoEcalPFClusIso",
+                                                               hcalPFClusterIsoMap = "reducedEgamma:phoHcalPFClusIso")
     #the 80X legacy customsations are done in ootPhotonProducer for OOT photons
     run2_miniAOD_94XFall17.toModify(process.patOOTPhotons,
-                                    addPFClusterIso = cms.bool(True),
-                                    ecalPFClusterIsoMap = cms.InputTag("reducedEgamma", "ootPhoEcalPFClusIso"),
-                                    hcalPFClusterIsoMap = cms.InputTag("reducedEgamma", "ootPhoHcalPFClusIso"))
+                                    addPFClusterIso = True,
+                                    ecalPFClusterIsoMap = "reducedEgamma:ootPhoEcalPFClusIso",
+                                    hcalPFClusterIsoMap = "reducedEgamma:ootPhoHcalPFClusIso")
 
 
     process.patPhotons.photonSource = cms.InputTag("reducedEgamma","reducedGedPhotons")
@@ -323,7 +314,6 @@ def miniAOD_customizeCommon(process):
     process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
     process.load("RecoTauTag.Configuration.HPSPFTaus_cff")
     #-- Adding customization for 94X 2017 legacy reMniAOD
-    from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
     _makePatTausTaskWithRetrainedMVATauID = process.makePatTausTask.copy()
     _makePatTausTaskWithRetrainedMVATauID.add(process.hpsPFTauBasicDiscriminatorsTask,
                                               process.hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTTask,
@@ -333,7 +323,8 @@ def miniAOD_customizeCommon(process):
                                               process.hpsPFTauDiscriminationByMVA6rawElectronRejection,
                                               process.hpsPFTauDiscriminationByMVA6ElectronRejection,
                                               process.hpsPFTauDiscriminationByMuonRejection3)
-    run2_miniAOD_94XFall17.toReplaceWith(
+    from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
+    (run2_miniAOD_94XFall17 | run2_miniAOD_UL).toReplaceWith(
         process.makePatTausTask, _makePatTausTaskWithRetrainedMVATauID
         )
     #-- Adding DeepTauID
@@ -357,7 +348,6 @@ def miniAOD_customizeCommon(process):
     task.add(process.deepTauIDTask)
 
     #-- Adding customization for 80X 2016 legacy reMiniAOD and 2018 heavy ions
-    from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
     from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
     _makePatTausTaskWithTauReReco = process.makePatTausTask.copy()
     _makePatTausTaskWithTauReReco.add(process.PFTauTask)
@@ -410,18 +400,14 @@ def miniAOD_customizeCommon(process):
 
     # Embed pixelClusterTagInfos in slimmedJets
     process.patJets.addTagInfos = True
-    process.patJets.tagInfoSources = cms.VInputTag( cms.InputTag("pixelClusterTagInfos") )
+    process.patJets.tagInfoSources = ["pixelClusterTagInfos"]
     process.slimmedJetsNoDeepFlavour.dropTagInfos = '0'
     process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour.addTagInfos = True
-    process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour.tagInfoSources = cms.VInputTag( cms.InputTag("pixelClusterTagInfos") )
+    process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour.tagInfoSources = ["pixelClusterTagInfos"]
 
-    from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
-    run2_miniAOD_80XLegacy.toModify(process.patJets, addTagInfos = False )
-    run2_miniAOD_80XLegacy.toModify(process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour, addTagInfos = False )
- 
-    from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
-    run2_miniAOD_94XFall17.toModify(process.patJets, addTagInfos = False )
-    run2_miniAOD_94XFall17.toModify(process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour, addTagInfos = False )
+    _run2_miniAOD_ANY = (run2_miniAOD_80XLegacy | run2_miniAOD_94XFall17 | run2_miniAOD_UL)
+    _run2_miniAOD_ANY.toModify(process.patJets, addTagInfos = False )
+    _run2_miniAOD_ANY.toModify(process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour, addTagInfos = False )
     
     ## puppi met
     process.load('RecoMET.METProducers.pfMetPuppi_cfi')
