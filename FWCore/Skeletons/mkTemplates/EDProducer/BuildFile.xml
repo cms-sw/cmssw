@@ -1,8 +1,8 @@
+@example_myparticle<use name="DataFormats/Candidate"/>
+@example_myparticle<use name="DataFormats/EgammaCandidates"/>
+@example_myparticle<use name="DataFormats/MuonReco"/>
 <use name="FWCore/Framework"/>
-<use name="FWCore/PluginManager"/>
 <use name="FWCore/ParameterSet"/>
-@example_myparticle <use name="PhysicsTools/UtilAlgos"/>
-@example_myparticle <use name="DataFormats/MuonReco"/>
-@example_myparticle <use name="DataFormats/EgammaCandidates"/>
-@example_myparticle <use name="DataFormats/Candidate"/>
+<use name="FWCore/PluginManager"/>
+@example_myparticle<use name="PhysicsTools/UtilAlgos"/>
 <flags EDM_PLUGIN="1"/>
