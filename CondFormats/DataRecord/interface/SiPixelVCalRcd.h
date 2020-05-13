@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class SiPixelVCalRcd : public edm::eventsetup::EventSetupRecordImplementation<SiPixelVCalRcd> {};
+class SiPixelVCalRcd
+    : public edm::eventsetup::EventSetupRecordImplementation<SiPixelVCalRcd> {};
 
 #endif

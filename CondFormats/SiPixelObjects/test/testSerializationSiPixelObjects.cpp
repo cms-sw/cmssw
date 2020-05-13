@@ -11,7 +11,7 @@ int main() {
   testSerialization<SiPixelCalibConfiguration>();
   testSerialization<SiPixelDbItem>();
   testSerialization<SiPixelDisabledModules>();
-  //testSerialization<SiPixelFedCabling>(); abstract
+  // testSerialization<SiPixelFedCabling>(); abstract
   testSerialization<SiPixelFedCablingMap>();
   testSerialization<SiPixelFedCablingMap::Key>();
   testSerialization<SiPixelGainCalibration>();
@@ -30,14 +30,16 @@ int main() {
   testSerialization<SiPixelQuality>();
   testSerialization<SiPixelFEDChannelContainer>();
   testSerialization<SiPixelFEDChannelContainer::SiPixelFEDChannelCollection>();
-  //testSerialization<std::unordered_map<std::string,SiPixelFEDChannelCollection>();
+  // testSerialization<std::unordered_map<std::string,SiPixelFEDChannelCollection>();
   testSerialization<SiPixelQuality::disabledModuleType>();
   testSerialization<SiPixelQualityProbabilities>();
   testSerialization<SiPixelTemplateDBObject>();
   testSerialization<sipixelobjects::PixelROC>();
-  testSerialization<std::map<SiPixelFedCablingMap::Key, sipixelobjects::PixelROC>>();
+  testSerialization<
+      std::map<SiPixelFedCablingMap::Key, sipixelobjects::PixelROC>>();
   testSerialization<std::map<int, std::vector<SiPixelDbItem>>>();
-  testSerialization<std::pair<const SiPixelFedCablingMap::Key, sipixelobjects::PixelROC>>();
+  testSerialization<
+      std::pair<const SiPixelFedCablingMap::Key, sipixelobjects::PixelROC>>();
   testSerialization<std::vector<SiPixelCPEGenericErrorParm::DbEntry>>();
   testSerialization<std::vector<SiPixelCPEGenericErrorParm::DbEntryBinSize>>();
   testSerialization<std::vector<SiPixelDbItem>>();
