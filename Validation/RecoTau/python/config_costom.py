@@ -36,7 +36,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32( -1 )
 )
 
-process.load('Validation.RecoTau.RecoTauValidation_cff')
+process.load('Validation.RecoTau.RecoTauValidationMiniAOD_cff')
 #process.load('Validation.RecoTau.DQMSequences_cfi')
 #process.load('Validation.RecoTau.RecoTauValidationMiniAOD_cfi')
 

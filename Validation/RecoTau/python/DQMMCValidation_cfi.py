@@ -8,7 +8,7 @@ from Validation.RecoTau.dataTypes.ValidateTausOnZEE_cff import *
 from Validation.RecoTau.dataTypes.ValidateTausOnZMM_cff import *
 from Validation.RecoTau.dataTypes.ValidateTausOnZTTFastSim_cff import *
 from Validation.RecoTau.dataTypes.ValidateTausOnZTT_cff import *
-from Validation.RecoTau.RecoTauValidation_cff import *
+from Validation.RecoTau.RecoTauValidationMiniAOD_cff import *
 
 pfTauRunDQMValidation = cms.Sequence(
     TauValNumeratorAndDenominatorQCD+
