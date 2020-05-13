@@ -21,6 +21,8 @@ def applySubstructure( process, postfix="" ) :
     setattr(process,'ak8PFJetsPuppiSoftDropMass'+postfix, ak8PFJetsPuppiSoftDropMass.clone())
     from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
     from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
+    from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
+    _run2_miniAOD_ANY = (run2_miniAOD_80XLegacy | run2_miniAOD_94XFall17 | run2_miniAOD_UL)
     from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
     from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
     if postfix=='':
@@ -30,7 +32,7 @@ def applySubstructure( process, postfix="" ) :
                                 getattr(process,'ak8PFJetsPuppiConstituents'),
                                 getattr(process,'ak8PFJetsPuppiSoftDrop'),
                                 getattr(process,'ak8PFJetsPuppiSoftDropMass'))
-      (run2_miniAOD_80XLegacy | run2_miniAOD_94XFall17 | pA_2016 | pp_on_AA_2018).toReplaceWith(task, _rerun_puppijets_task)
+      (_run2_miniAOD_ANY | pA_2016 | pp_on_AA_2018).toReplaceWith(task, _rerun_puppijets_task)
     else:
       task.add(getattr(process,'ak8PFJetsPuppi'+postfix),
                getattr(process,'ak8PFJetsPuppiConstituents'+postfix),
