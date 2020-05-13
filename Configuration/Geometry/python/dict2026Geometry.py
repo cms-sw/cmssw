@@ -1206,7 +1206,7 @@ forwardDict = {
     },
     "F4" : {
         1 : [
-            'Geometry/ForwardCommonData/data/forwardshield/2017/v2/forwardshield.xml',
+            'Geometry/ForwardCommonData/data/forwardshield/2026/v2/forwardshield.xml',
             'Geometry/ForwardCommonData/data/brmrotations.xml',
             'Geometry/ForwardCommonData/data/PostLS2/brm.xml',
             'Geometry/ForwardCommonData/data/zdcmaterials.xml',
@@ -1231,7 +1231,7 @@ forwardDict = {
     },
     "F5" : {
         1 : [
-            'Geometry/ForwardCommonData/data/forwardshield/2026/v2/forwardshield.xml',
+            'Geometry/ForwardCommonData/data/forwardshield/2026/v3/forwardshield.xml',
             'Geometry/ForwardCommonData/data/brmrotations.xml',
             'Geometry/ForwardCommonData/data/brm/2026/v2/brm.xml',
             'Geometry/ForwardCommonData/data/zdcmaterials.xml',
