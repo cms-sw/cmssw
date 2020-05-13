@@ -22,8 +22,9 @@
 
 #include "PhysicsTools/SelectorUtils/interface/CutApplicatorBase.h"
 
-#include "RecoEgamma/EgammaTools/interface/EffectiveAreas.h"
-#include <DataFormats/BeamSpot/interface/BeamSpot.h>
+#include "CommonTools/Utils/interface/EffectiveAreas.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+
 enum EleIDCutNames {
   SIGMAIETA,
   DETAINSEED,

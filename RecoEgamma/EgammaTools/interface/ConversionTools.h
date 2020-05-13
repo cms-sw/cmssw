@@ -20,18 +20,14 @@
 #ifndef EgammaTools_ConversionTools_h
 #define EgammaTools_ConversionTools_h
 
-#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/Math/interface/Point3D.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/Math/interface/Point3D.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
+
 class ConversionTools {
 public:
   ConversionTools() {}
