@@ -19,7 +19,7 @@ void PtMinTrackCountFilter::fillDescriptions(edm::ConfigurationDescriptions& des
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag("tracks"));
   desc.add<double>("ptMin", 0.);
-  desc.add<std::string>  ( "cut", "" );
+  desc.add<std::string>( "cut", "" );
   descriptions.add("ptMinTrackCountFilter", desc);
 }
 
