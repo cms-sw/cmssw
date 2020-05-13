@@ -17,7 +17,10 @@ namespace trackerDTC {
     typedef std::vector<Stubss> Stubsss;
 
   public:
-    DTC(const edm::ParameterSet& iConfig, const Setup& setup, int dtcId, const std::vector<std::vector<TTStubRef>>& stubsDTC);
+    DTC(const edm::ParameterSet& iConfig,
+        const Setup& setup,
+        int dtcId,
+        const std::vector<std::vector<TTStubRef>>& stubsDTC);
     ~DTC() {}
     // board level routing in two steps and products filling
     void produce(TTDTC& accepted, TTDTC& lost);

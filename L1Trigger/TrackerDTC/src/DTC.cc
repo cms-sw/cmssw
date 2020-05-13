@@ -10,15 +10,17 @@ using namespace edm;
 
 namespace trackerDTC {
 
-  DTC::DTC(const ParameterSet& iConfig, const Setup& setup, int dtcId, const std::vector<std::vector<TTStubRef>>& stubsDTC) :
-    setup_(&setup),
-    enableTruncation_(iConfig.getParameter<bool>("EnableTruncation")),
-    region_(dtcId / setup.numDTCsPerRegion()),
-    board_(dtcId % setup.numDTCsPerRegion()),
-    modules_(setup.dtcModules(dtcId)),
-    input_(setup.dtcNumRoutingBlocks(), Stubss(setup.dtcNumModulesPerRoutingBlock())),
-    lost_(setup.numOverlappingRegions())
-  {
+  DTC::DTC(const ParameterSet& iConfig,
+           const Setup& setup,
+           int dtcId,
+           const std::vector<std::vector<TTStubRef>>& stubsDTC)
+      : setup_(&setup),
+        enableTruncation_(iConfig.getParameter<bool>("EnableTruncation")),
+        region_(dtcId / setup.numDTCsPerRegion()),
+        board_(dtcId % setup.numDTCsPerRegion()),
+        modules_(setup.dtcModules(dtcId)),
+        input_(setup.dtcNumRoutingBlocks(), Stubss(setup.dtcNumModulesPerRoutingBlock())),
+        lost_(setup.numOverlappingRegions()) {
     // count number of stubs on this dtc
     auto acc = [](int& sum, const vector<TTStubRef>& stubsModule) { return sum += stubsModule.size(); };
     const int nStubs = accumulate(stubsDTC.begin(), stubsDTC.end(), 0, acc);

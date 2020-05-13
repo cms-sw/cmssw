@@ -9,7 +9,7 @@
 namespace trackerDTC {
 
   // representation of a stub
-  class Stub {  
+  class Stub {
   public:
     Stub(const edm::ParameterSet&, const Setup&, SensorModule*, const TTStubRef&);
     ~Stub() {}
