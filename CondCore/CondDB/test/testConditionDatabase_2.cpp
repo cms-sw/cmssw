@@ -60,7 +60,7 @@ int run(const std::string& connectionString) {
     std::string tag0("MyTag0");
     if (!session.existsIov(tag0)) {
       editor = session.createIov<std::string>(tag0, cond::runnumber);
-      editor.setDescription(tag0+" Test for timestamp selection");
+      editor.setDescription(tag0 + " Test for timestamp selection");
       editor.insert(100, p0);
       editor.insert(200, p1);
       editor.insert(1001, p0);
@@ -75,7 +75,7 @@ int run(const std::string& connectionString) {
     std::string tag1("MyTag1");
     if (!session.existsIov(tag1)) {
       editor = session.createIov<std::string>(tag1, cond::runnumber);
-      editor.setDescription(tag1+" Test for timestamp selection");
+      editor.setDescription(tag1 + " Test for timestamp selection");
       editor.insert(100, p0);
       std::cout << "> inserted 1 iovs..." << std::endl;
       editor.flush();
@@ -87,7 +87,7 @@ int run(const std::string& connectionString) {
     session.transaction().start();
     IOVProxy proxy = session.readIov(tag0);
     auto md = proxy.getMetadata();
-    std::cout <<tag0<<" description is \""<<std::get<0>(md)<<"\""<<std::endl;
+    std::cout << tag0 << " description is \"" << std::get<0>(md) << "\"" << std::endl;
     readIov(proxy, 1, false);
     readIov(proxy, 100, true);
     readIov(proxy, 1499, true);
@@ -100,20 +100,20 @@ int run(const std::string& connectionString) {
     }
     proxy = session.readIov(tag1);
     md = proxy.getMetadata();
-    std::cout <<tag1<<" description is \""<<std::get<0>(md)<<"\""<<std::endl;
+    std::cout << tag1 << " description is \"" << std::get<0>(md) << "\"" << std::endl;
     readIov(proxy, 1, false);
     readIov(proxy, 100, true);
     session.transaction().commit();
 
     session.transaction().start(false);
-    auto ed = session.editIov( tag1);
-    ed.setDescription("Changed description for tag "+tag1);
+    auto ed = session.editIov(tag1);
+    ed.setDescription("Changed description for tag " + tag1);
     ed.flush();
     session.transaction().commit();
 
     session.transaction().start();
     md = session.readIov(tag1).getMetadata();
-    std::cout <<tag1<<" description is \""<<std::get<0>(md)<<"\""<<std::endl;
+    std::cout << tag1 << " description is \"" << std::get<0>(md) << "\"" << std::endl;
     session.transaction().commit();
 
   } catch (const std::exception& e) {

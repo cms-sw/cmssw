@@ -42,8 +42,8 @@ namespace cond {
                           cond::Time_t lastValidatedTime,
                           const boost::posix_time::ptime& updateTime) = 0;
       virtual void updateMetadata(const std::string& name,
-				  const std::string& description,
-				  const boost::posix_time::ptime& updateTime) = 0;
+                                  const std::string& description,
+                                  const boost::posix_time::ptime& updateTime) = 0;
       virtual void updateValidity(const std::string& name,
                                   cond::Time_t lastValidatedTime,
                                   const boost::posix_time::ptime& updateTime) = 0;

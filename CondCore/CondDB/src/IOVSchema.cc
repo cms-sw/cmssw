@@ -130,8 +130,8 @@ namespace cond {
     }
 
     void TAG::Table::updateMetadata(const std::string& name,
-				    const std::string& description,
-				    const boost::posix_time::ptime& updateTime) {
+                                    const std::string& description,
+                                    const boost::posix_time::ptime& updateTime) {
       UpdateBuffer buffer;
       buffer.setColumnData<DESCRIPTION, MODIFICATION_TIME>(std::tie(description, updateTime));
       buffer.addWhereCondition<NAME>(name);

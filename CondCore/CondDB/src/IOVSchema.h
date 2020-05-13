@@ -50,10 +50,10 @@ namespace cond {
                     cond::SynchronizationType synchronizationType,
                     cond::Time_t& endOfValidity,
                     cond::Time_t lastValidatedTime,
-		    const boost::posix_time::ptime& updateTime) override;
-	void updateMetadata(const std::string& name,
-			    const std::string& description,
-			    const boost::posix_time::ptime& updateTime) override;
+                    const boost::posix_time::ptime& updateTime) override;
+        void updateMetadata(const std::string& name,
+                            const std::string& description,
+                            const boost::posix_time::ptime& updateTime) override;
         void updateValidity(const std::string& name,
                             cond::Time_t lastValidatedTime,
                             const boost::posix_time::ptime& updateTime) override;
