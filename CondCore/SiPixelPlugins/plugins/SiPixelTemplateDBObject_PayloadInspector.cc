@@ -61,10 +61,10 @@ namespace {
       Base::setSingleIov(true);
     }
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      for (auto const& iov : iovs) {
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      for (auto iov : tag.iovs) {
         std::vector<SiPixelTemplateStore> thePixelTemp_;
-
         std::shared_ptr<SiPixelTemplateDBObject> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           if (!SiPixelTemplate::pushfile(*payload, thePixelTemp_)) {
