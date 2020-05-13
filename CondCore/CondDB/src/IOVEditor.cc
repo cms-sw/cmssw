@@ -198,18 +198,16 @@ namespace cond {
           m_data->exists = true;
           ret = true;
         } else {
-          if(m_data->change){
-	    m_session->iovSchema().tagTable().update(m_data->tag,
-						     m_data->synchronizationType,
-						     m_data->endOfValidity,
-						     m_data->lastValidatedTime,
-						     operationTime);
-	  }
-	  if(m_data->metadataChange){
-	    m_session->iovSchema().tagTable().updateMetadata(m_data->tag,
-							     m_data->description,
-							     operationTime);
-	  }
+          if (m_data->change) {
+            m_session->iovSchema().tagTable().update(m_data->tag,
+                                                     m_data->synchronizationType,
+                                                     m_data->endOfValidity,
+                                                     m_data->lastValidatedTime,
+                                                     operationTime);
+          }
+          if (m_data->metadataChange) {
+            m_session->iovSchema().tagTable().updateMetadata(m_data->tag, m_data->description, operationTime);
+          }
           if (m_session->iovSchema().tagLogTable().exists()) {
             std::string action("Tag header updated. Changes involve: ");
             size_t i = 0;
