@@ -26,6 +26,7 @@ Muon system:
 * M3: same as M2 with change to the number of iRPC strips from 192 to 96 as in TDR
 * M4: same as M3 but no Overlaps inside the Muon System and MB4Shields completed
 * M5: same as M4 but with: the right value for YE3 size, no "hidden" overlaps inside the Muon System and iRPC updated.
+* M6: same as M4 but with adjustment of ME0 in view of updated boundaries
 
 Fast Timing system:
 * I5: Fast Timing detector (LYSO barrel, silicon endcap), full description with passive materials, LYSO bars along z flat
@@ -61,6 +62,6 @@ Several detector combinations have been generated:
 * D54 = T19+C9+M4+I10+O4+F2
 * D55 = T19+C9+M5+I10+O4+F2
 * D56 = T20+C9+M4+I10+O4+F2
-* D57 = T19+C11+M5+I12+O5+F3
-* D58 = T19+C12+M5+I12+O5+F4
+* D57 = T19+C11+M6+I12+O5+F4
+* D58 = T19+C12+M6+I12+O5+F5
 D35 is the MTD TDR baseline, D41 is the L1T TDR baseline, and D49 is the HLT TDR baseline.
