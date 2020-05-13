@@ -90,6 +90,8 @@ private:
   void matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection&);
   void matchMPLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection&);
 
+  void clear();
+
   edm::EDGetTokenT<CSCCLCTDigiCollection> clctToken_;
   edm::EDGetTokenT<CSCALCTDigiCollection> alctToken_;
   edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> lctToken_;
