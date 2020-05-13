@@ -361,7 +361,7 @@ __global__ void kernel_classifyTracks(HitContainer const *__restrict__ tuples,
     // if the fit has any invalid parameters, mark it as bad
     bool isNaN = false;
     for (int i = 0; i < 5; ++i) {
-      isNaN |= isnan(tracks->stateAtBS.state(it)(i));
+      isNaN |= std::isnan(tracks->stateAtBS.state(it)(i));
     }
     if (isNaN) {
 #ifdef NTUPLE_DEBUG
