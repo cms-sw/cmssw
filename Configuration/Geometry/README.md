@@ -18,6 +18,8 @@ Calorimeters:
 * C8: HGCal (v10 post TDR HGCal Geometry) + Phase2 HCAL and EB + Tracker cables in calorimeter region
 * C9: HGCal (v11 post TDR HGCal Geometry same as C8 + corner centering for HE part)
 * C10: HGCal (as in C9) + HFNose with corrected wafer size + Phase2 HCAL and EB
+* C11: HGCal (v12 post TDR HGCal Geometry same as C9 + modified support structure + full list of masked wafers)
+* C12: HGCal (as in C11) + HFNose with corrected wafer size + Phase2 HCAL and EB
 
 Muon system:
 * M2: Phase2 muon system for TDR w/ GE2/1, ME0, RE3/1, RE4/1 (incl. granularity in ME0, staggered GE2/1)
@@ -36,9 +38,12 @@ Fast Timing system:
 The script also handles the common and forward elements of the geometry:
 * O2: detailed cavern description
 * O3: O2 + changes due to modified CALO region due to changes in the Endcap part
+* O4: same as O3 but no Overlaps inside the Muon System 
+* O5: same as O4 but with changes needed for new support structure 
 * F2: modifications needed to accommodate detailed cavern, ZDC description is removed.
 * F3: same as F2 but changes due to HFNose
-* O4: same of O3 but no Overlaps inside the Muon System 
+* F4: same as F2 but with modifications needed to forward shield
+* F5: same as F4 but changes due to HFNose
 
 Several detector combinations have been generated:
 * D35 = T6+C4+M2+I5+O2+F2 
@@ -56,5 +61,6 @@ Several detector combinations have been generated:
 * D54 = T19+C9+M4+I10+O4+F2
 * D55 = T19+C9+M5+I10+O4+F2
 * D56 = T20+C9+M4+I10+O4+F2
-
+* D57 = T19+C11+M5+I12+O5+F3
+* D58 = T19+C12+M5+I12+O5+F4
 D35 is the MTD TDR baseline, D41 is the L1T TDR baseline, and D49 is the HLT TDR baseline.
