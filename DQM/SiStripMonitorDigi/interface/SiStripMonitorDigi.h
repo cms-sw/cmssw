@@ -36,9 +36,10 @@ public:
   explicit SiStripMonitorDigi(const edm::ParameterSet&);
   ~SiStripMonitorDigi() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  std::shared_ptr<unsigned int> globalBeginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& iSetup) const override;
+  std::shared_ptr<unsigned int> globalBeginLuminosityBlock(const edm::LuminosityBlock& lumi,
+                                                           const edm::EventSetup& iSetup) const override;
   void globalEndLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& iSetup) override;
-  //void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override; 
+  //void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
   //void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override;
@@ -128,14 +129,14 @@ private:
 
 private:
   edm::ParameterSet conf_;
-  std::vector<edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > > digiProducerTokenList;
+  std::vector<edm::EDGetTokenT<edm::DetSetVector<SiStripDigi>>> digiProducerTokenList;
   std::vector<edm::InputTag> digiProducerList;
   std::map<uint32_t, ModMEs>
       DigiMEs;  // uint32_t me_type: 1=#digis/module; 2=adcs of hottest strip/module; 3= adcs of coolest strips/module.
   bool show_mechanical_structure_view, show_readout_view, show_control_view, select_all_detectors,
       calculate_strip_occupancy, reset_each_run;
 
-  std::map<std::string, std::vector<uint32_t> > LayerDetMap;
+  std::map<std::string, std::vector<uint32_t>> LayerDetMap;
   std::map<std::string, LayerMEs> LayerMEsMap;
   std::map<std::string, SubDetMEs> SubDetMEsMap;
   std::map<std::string, std::string> SubDetPhasePartMap;
