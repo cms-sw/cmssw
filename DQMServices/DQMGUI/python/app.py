@@ -17,10 +17,12 @@ import logging
 from logging.handlers import TimedRotatingFileHandler
 
 from rendering import GUIRenderer
-from helpers import MEDescription
 from service import GUIService
 from storage import GUIDataStore
 from aiohttp import web, WSCloseCode
+
+from gui_types import RenderingOptions, MEDescription
+
 from layouts.layout_manager import LayoutManager
 
 
@@ -135,11 +137,7 @@ async def render_legacy(request):
 
     run = request.match_info['run']
     full_path = request.match_info['path']
-    width = int(request.rel_url.query.get('w', 266))
-    height = int(request.rel_url.query.get('h', 200))
-    stats = int(request.rel_url.query.get('showstats', 1)) == 1
-    normalize = str(request.rel_url.query.get('norm', 'True')) == 'True'
-    error_bars = int(request.rel_url.query.get('showerrbars', 0)) == 1
+    options = RenderingOptions.from_dict_legacy(request.rel_url.query)
 
     # Separate dataset and a path within the root file
     parts = full_path.split('/')
@@ -148,7 +146,7 @@ async def render_legacy(request):
 
     me_description = MEDescription(run, dataset, path)
 
-    data = await service.get_rendered_image([me_description], width, height, stats, normalize, error_bars)
+    data = await service.get_rendered_image([me_description], options)
 
     return web.Response(body=data, content_type='image/png')
 
@@ -158,11 +156,7 @@ async def render_v1(request):
 
     run = request.match_info['run']
     full_path = request.match_info['path']
-    width = int(request.rel_url.query.get('w', 266))
-    height = int(request.rel_url.query.get('h', 200))
-    stats = str(request.rel_url.query.get('stats', 'true')) == 'true'
-    normalize = str(request.rel_url.query.get('norm', 'true')) == 'true'
-    error_bars = str(request.rel_url.query.get('errors', 'false')) == 'true'
+    options = RenderingOptions.from_dict(request.rel_url.query)
 
     # Separate dataset and a path within the root file
     parts = full_path.split('/')
@@ -171,7 +165,7 @@ async def render_v1(request):
 
     me_description = MEDescription(run, dataset, path)
 
-    data = await service.get_rendered_image([me_description], width, height, stats, normalize, error_bars)
+    data = await service.get_rendered_image([me_description], options)
 
     return web.Response(body=data, content_type='image/png')
 
@@ -179,11 +173,7 @@ async def render_v1(request):
 async def render_overlay_legacy(request):
     """Returns a PNG image for provided run/dataset/path combination"""
 
-    width = int(request.rel_url.query.get('w', 200))
-    height = int(request.rel_url.query.get('h', 200))
-    stats = int(request.rel_url.query.get('showstats', 1)) == 1
-    normalize = str(request.rel_url.query.get('norm', 'True')) == 'True'
-    error_bars = int(request.rel_url.query.get('showerrbars', 0)) == 1
+    options = RenderingOptions.from_dict_legacy(request.rel_url.query)
 
     me_descriptions = []
     for obj in request.rel_url.query.getall('obj', []):
@@ -195,7 +185,7 @@ async def render_overlay_legacy(request):
         me_description = MEDescription(run, dataset, path)
         me_descriptions.append(me_description)
 
-    data = await service.get_rendered_image(me_descriptions, width, height, stats, normalize, error_bars)
+    data = await service.get_rendered_image(me_descriptions, options)
 
     return web.Response(body=data, content_type='image/png')
 
@@ -203,11 +193,7 @@ async def render_overlay_legacy(request):
 async def render_overlay_v1(request):
     """Returns a PNG image for provided run/dataset/path combination"""
 
-    width = int(request.rel_url.query.get('w', 200))
-    height = int(request.rel_url.query.get('h', 200))
-    stats = str(request.rel_url.query.get('stats', 'true')) == 'true'
-    normalize = str(request.rel_url.query.get('norm', 'true')) == 'true'
-    error_bars = str(request.rel_url.query.get('errors', 'false')) == 'true'
+    options = RenderingOptions.from_dict(request.rel_url.query)
 
     me_descriptions = []
     for obj in request.rel_url.query.getall('obj', []):
@@ -219,7 +205,7 @@ async def render_overlay_v1(request):
         me_description = MEDescription(run, dataset, path)
         me_descriptions.append(me_description)
 
-    data = await service.get_rendered_image(me_descriptions, width, height, stats, normalize, error_bars)
+    data = await service.get_rendered_image(me_descriptions, options)
 
     return web.Response(body=data, content_type='image/png')
 

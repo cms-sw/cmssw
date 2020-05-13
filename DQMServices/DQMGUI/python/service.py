@@ -7,21 +7,14 @@ import struct
 
 from functools import lru_cache
 from async_lru import alru_cache
-from collections import namedtuple
 
 from rendering import GUIRenderer
 from DQMServices.DQMGUI import nanoroot
 from storage import GUIDataStore
-from helpers import MERenderingInfo, PathUtil
+from helpers import PathUtil
+from gui_types import Sample, RootDir, RootObj, RootDirContent, RenderingInfo
 
 from layouts.layout_manager import LayoutManager
-
-
-# These named tuples will be returned from the service
-Sample = namedtuple('Sample', ['run', 'dataset'])
-RootDir = namedtuple('RootDir', ['name'])
-RootObj = namedtuple('RootObj', ['name', 'path', 'layout'])
-RootDirContent = namedtuple('RootDirContent', ['dirs', 'objs'])
 
 
 class GUIService:
@@ -103,8 +96,10 @@ class GUIService:
 
 
     @classmethod
-    async def get_rendered_image(cls, me_descriptions, width=266, height=200, stats=True, normalize=True, error_bars=False):
-        efficiency = False
+    async def get_rendered_image(cls, me_descriptions, options):
+        """options are defined here: gui_types.RenderingOptions"""
+
+        options.efficiency = False
         rendering_infos = []
 
         for me in me_descriptions:
@@ -123,15 +118,15 @@ class GUIService:
                 continue
             
             # If efficiency flag is set for at least one of the MEs, it will be set for an overlay
-            if not efficiency:
-                efficiency = bytes('%s\0e=1' % me.path, 'utf-8') in me_list
+            if not options.efficiency:
+                options.efficiency = bytes('%s\0e=1' % me.path, 'utf-8') in me_list
 
-            rendering_infos.append(MERenderingInfo(filename=filename, path=me.path, me_info=me_info))
+            rendering_infos.append(RenderingInfo(filename=filename, path=me.path, me_info=me_info))
 
         if not rendering_infos: # No MEs were found
             return await cls.renderer.render_string('ME not found', width=width, height=height)
 
-        return await cls.renderer.render(rendering_infos, width, height, efficiency, stats, normalize, error_bars)
+        return await cls.renderer.render(rendering_infos, options)
 
 
     @classmethod

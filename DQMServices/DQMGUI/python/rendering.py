@@ -8,7 +8,7 @@ import tempfile
 import subprocess
 
 from DQMServices.DQMGUI import nanoroot
-from helpers import MERenderingInfo
+from gui_types import RenderingInfo
 from meinfo import EfficiencyFlag, ScalarValue, QTest
 
 
@@ -45,7 +45,7 @@ class GUIRenderer:
     @classmethod
     async def render_string(cls, string, width=600, height=400):
         """Renders a single string."""
-        rendering_info = MERenderingInfo('', '', '', ScalarValue(b'', string, b''))
+        rendering_info = RenderingInfo('', '', '', ScalarValue(b'', string, b''))
         message = cls.pack_message_for_renderer([rendering_info], width, height)
         png, error = await cls.__render(message)
 
@@ -53,7 +53,7 @@ class GUIRenderer:
     
 
     @classmethod
-    async def render(cls, rendering_infos, width=600, height=400, efficiency=False, stats=True, normalize=True, error_bars=False):
+    async def render(cls, rendering_infos, options):
         """
         This method fetches objects from ROOT files, then it packs the message for the out of process renderer
         and then, calls internal __render method to that talks with out of process renderers to get a png.
@@ -87,17 +87,17 @@ class GUIRenderer:
             raise Exception('Only ScalarValue and TH* can be rendered.')
 
         # Pack the message for rendering context
-        message = cls.pack_message_for_renderer(rendering_infos, width, height, efficiency, stats, normalize, error_bars, False)
+        message = cls.pack_message_for_renderer(rendering_infos, options, False)
         png, error = await cls.__render(message)
         if error == 1: # Missing streamer file - provide it
-            message = cls.pack_message_for_renderer(rendering_infos, width, height, efficiency, stats, normalize, error_bars, True)
+            message = cls.pack_message_for_renderer(rendering_infos, options, True)
             png, error = await cls.__render(message)
 
         return png
 
     
     @classmethod
-    def pack_message_for_renderer(cls, rendering_infos, width=600, height=400, efficiency=False, stats=True, normalize=True, error_bars=False, use_streamerfile=False):
+    def pack_message_for_renderer(cls, rendering_infos, options, use_streamerfile=False):
         """
         Packing is done using struct.pack() method. We essentially pack the bytes that describe what we want to get 
         rendered into a data structure that C++ code running in the out of process renderer can read.
@@ -107,7 +107,6 @@ class GUIRenderer:
 
         flags = 0x0000000f #DQM_PROP_TYPE_SCALAR
         num_objs = 1
-        spec = ''
         data = b''
         name = b''
         streamerfile = b''
@@ -116,18 +115,7 @@ class GUIRenderer:
             # Real type is not needed. It's enough to know that ME is not scalar.
             flags += 1
 
-            # Construct spec string. Sample: showstats=0;showerrbars=1;norm=False
-            if not stats:
-                spec += 'showstats=0;'
-            if not normalize:
-                spec += 'norm=False;'
-            if error_bars:
-                spec += 'showerrbars=1;'
-
-            if spec.endswith(';'):
-                spec = spec[:-1]
-
-            if efficiency:
+            if options.efficiency:
                 flags |= 0x00200000
             
             for info in rendering_infos:
@@ -153,8 +141,8 @@ class GUIRenderer:
         vhigh = 0
         q_length = 0
 
-        separator = ';' if spec else ''
-        spec = f'h={height:d};w={width:d}{separator}{spec}'.encode('utf-8')
+        # Get spec string containing rendering options
+        spec = options.get_spec_string().encode('utf-8')
 
         file_length = len(streamerfile)
         name_length = len(name)
