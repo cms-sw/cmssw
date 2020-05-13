@@ -26,6 +26,7 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/PatCandidates/interface/Photon.h"
+#include "RecoEgamma/EgammaTools/interface/MVAVariableHelper.h"
 #include "RecoEgamma/EgammaTools/interface/MVAVariableManager.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
@@ -176,7 +177,7 @@ PhotonMVANtuplizer::PhotonMVANtuplizer(const edm::ParameterSet& iConfig)
       mvaValues_(nValMaps_),
       mvaCats_(nCats_),
       variableHelper_(consumesCollector()),
-      mvaVarMngr_(iConfig.getParameter<std::string>("variableDefinition")),
+      mvaVarMngr_(iConfig.getParameter<std::string>("variableDefinition"), MVAVariableHelper::indexMap()),
       nVars_(mvaVarMngr_.getNVars()),
       vars_(nVars_),
       doEnergyMatrix_(iConfig.getParameter<bool>("doEnergyMatrix")),
