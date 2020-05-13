@@ -707,6 +707,7 @@ bool DAClusterizerInZT_vect::merge(vertex_t& y, track_t& tks, double& beta) cons
   double rho = y.pk_ptr[k1_min] + y.pk_ptr[k2_min];
 
 #ifdef DEBUG
+  assert((k1_min < nv) && (k2_min < nv));
   if (DEBUGLEVEL > 1) {
     std::cout << "merging (" << setw(8) << fixed << setprecision(4) << y.z_ptr[k1_min] << ',' << y.t_ptr[k1_min]
               << ") and (" << y.z_ptr[k2_min] << ',' << y.t_ptr[k2_min] << ")"
@@ -790,6 +791,7 @@ bool DAClusterizerInZT_vect::purge(vertex_t& y, track_t& tks, double& rho0, cons
 
   if (k0 != nv) {
 #ifdef DEBUG
+    assert(k0 < y.getSize());
     if (DEBUGLEVEL > 1) {
       std::cout << "eliminating prototype at " << std::setw(10) << std::setprecision(4) << y.z_ptr[k0] << ","
                 << y.t_ptr[k0] << " with sump=" << sumpmin << "  rho*nt =" << y.pk_ptr[k0] * nt << endl;
@@ -1008,6 +1010,7 @@ bool DAClusterizerInZT_vect::split(const double beta, track_t& tks, vertex_t& y,
     }
 
 #ifdef DEBUG
+    assert(k < nv);
     if (DEBUGLEVEL > 1) {
       if (std::fabs(y.z_ptr[k] - zdumpcenter_) < zdumpwidth_) {
         std::cout << " T= " << std::setw(10) << std::setprecision(1) << 1. / beta << " Tc= " << critical[ic].first
@@ -1047,9 +1050,11 @@ bool DAClusterizerInZT_vect::split(const double beta, track_t& tks, vertex_t& y,
       y.removeItem(k, tks);
       unsigned int k2 = y.insertOrdered(z2, t2, pk2, tks);
 
+#ifdef DEBUG
       if (k2 < k) {
         std::cout << "unexpected z-ordering in split" << std::endl;
       }
+#endif
 
       // adjust pointers if necessary
       if (!(k == k2)) {
@@ -1147,6 +1152,7 @@ vector<TransientVertex> DAClusterizerInZT_vect::vertices(const vector<reco::Tran
   }
 
 #ifdef DEBUG
+  verify(y, tks);
   if (DEBUGLEVEL > 0) {
     std::cout << "DAClusterizerInZT_vect::vertices :"
               << "splitting/merging at T=" << 1 / beta << std::endl;
@@ -1223,6 +1229,7 @@ vector<TransientVertex> DAClusterizerInZT_vect::vertices(const vector<reco::Tran
   }
 
 #ifdef DEBUG
+  verify(y, tks);
   if (DEBUGLEVEL > 0) {
     std::cout << "DAClusterizerInZT_vect::vertices :"
               << "purging at T=" << 1 / beta << std::endl;
@@ -1238,6 +1245,7 @@ vector<TransientVertex> DAClusterizerInZT_vect::vertices(const vector<reco::Tran
   }
 
 #ifdef DEBUG
+  verify(y, tks);
   if (DEBUGLEVEL > 0) {
     std::cout << "DAClusterizerInZT_vect::vertices :"
               << "last cooling T=" << 1 / beta << std::endl;

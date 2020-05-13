@@ -16,7 +16,7 @@ using namespace std;
 
 //#define DEBUG
 #ifdef DEBUG
-#define DEBUGLEVEL 1
+#define DEBUGLEVEL 0
 #endif
 
 DAClusterizerInZ_vect::DAClusterizerInZ_vect(const edm::ParameterSet& conf) {
@@ -352,6 +352,11 @@ double DAClusterizerInZ_vect::update(double beta, track_t& gtracks, vertex_t& gv
     unsigned int kmin = gtracks.kmin[itrack];
     unsigned int kmax = gtracks.kmax[itrack];
 
+#ifdef DEBUG
+    assert((kmin < kmax) && (kmax <= nv));
+    assert(itrack < gtracks.Z_sum.size());
+#endif
+
     kernel_calc_exp_arg_range(itrack, gtracks, gvertices, kmin, kmax);
     local_exp_list_range(gvertices.ei_cache_ptr, gvertices.ei_ptr, kmin, kmax);
     gtracks.Z_sum_ptr[itrack] = kernel_add_Z_range(gvertices, kmin, kmax);
@@ -607,6 +612,7 @@ bool DAClusterizerInZ_vect::merge(vertex_t& y, track_t& tks, double& beta) const
 
     if (Tc * beta < 1) {
 #ifdef DEBUG
+      assert((k + 1) < nv);
       if (DEBUGLEVEL > 1) {
         std::cout << "merging " << fixed << setprecision(4) << y.z_ptr[k + 1] << " and " << y.z_ptr[k]
                   << "  Tc = " << Tc << "  sw = " << y.sw_ptr[k] + y.sw_ptr[k + 1] << std::endl;
@@ -667,6 +673,7 @@ bool DAClusterizerInZ_vect::purge(vertex_t& y, track_t& tks, double& rho0, const
 
   if (k0 != nv) {
 #ifdef DEBUG
+    assert(k0 < y.getSize());
     if (DEBUGLEVEL > 1) {
       std::cout << "eliminating prototype at " << std::setw(10) << std::setprecision(4) << y.z_ptr[k0]
                 << " with sump=" << sumpmin << "  rho*nt =" << y.pk_ptr[k0] * nt << endl;
@@ -809,6 +816,7 @@ bool DAClusterizerInZ_vect::split(const double beta, track_t& tks, vertex_t& y, 
     }
 
 #ifdef DEBUG
+    assert(k < nv);
     if (DEBUGLEVEL > 1) {
       if (std::fabs(y.z_ptr[k] - zdumpcenter_) < zdumpwidth_) {
         std::cout << " T= " << std::setw(8) << 1. / beta << " Tc= " << critical[ic].first << "    splitting "
@@ -838,7 +846,7 @@ bool DAClusterizerInZ_vect::split(const double beta, track_t& tks, vertex_t& y, 
 
       // adjust remaining pointers
       for (unsigned int jc = ic; jc < critical.size(); jc++) {
-        if (critical[jc].second > k) {
+        if (critical[jc].second >= k) {
           critical[jc].second++;
         }
       }
@@ -957,6 +965,7 @@ vector<TransientVertex> DAClusterizerInZ_vect::vertices(const vector<reco::Trans
   }
 
 #ifdef DEBUG
+  verify(y, tks);
   if (DEBUGLEVEL > 0) {
     std::cout << "DAClusterizerInZ_vect::vertices :"
               << "after merging with outlier rejection at T=" << 1 / beta << std::endl;
@@ -973,6 +982,7 @@ vector<TransientVertex> DAClusterizerInZ_vect::vertices(const vector<reco::Trans
   }
 
 #ifdef DEBUG
+  verify(y, tks);
   if (DEBUGLEVEL > 0) {
     std::cout << "DAClusterizerInZ_vect::vertices :"
               << "purging at T=" << 1 / beta << std::endl;
@@ -985,6 +995,7 @@ vector<TransientVertex> DAClusterizerInZ_vect::vertices(const vector<reco::Trans
   }
 
 #ifdef DEBUG
+  verify(y, tks);
   if (DEBUGLEVEL > 0) {
     std::cout << "DAClusterizerInZ_vect::vertices :"
               << "last cooling T=" << 1 / beta << std::endl;

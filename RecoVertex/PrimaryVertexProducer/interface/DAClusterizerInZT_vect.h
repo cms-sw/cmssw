@@ -34,7 +34,7 @@ public:
       pi.push_back(new_pi);  // track weight
       Z_sum.push_back(1.0);  // Z[i]   for DA clustering, initial value as done in ::fill
       kmin.push_back(0);
-      kmax.push_back(1);
+      kmax.push_back(0);
     }
 
     unsigned int getSize() const { return z.size(); }
@@ -136,7 +136,6 @@ public:
 
       extractRaw();
     }
-
     void insertItem(unsigned int k, double new_z, double new_t, double new_pk, track_t &tks) {
       z.insert(z.begin() + k, new_z);
       t.insert(t.begin() + k, new_t);
@@ -161,36 +160,13 @@ public:
         if (tks.kmin[i] > k) {
           tks.kmin[i]++;
         }
-        if ((tks.kmax[i] > k) || (tks.kmax[i] == tks.kmin[i])) {
+        if ((tks.kmax[i] >= k) || (tks.kmax[i] == tks.kmin[i])) {
           tks.kmax[i]++;
         }
       }
 
       extractRaw();
     }
-
-    void removeItem(unsigned int k) {
-      z.erase(z.begin() + k);
-      t.erase(t.begin() + k);
-      pk.erase(pk.begin() + k);
-      dt2.erase(dt2.begin() + k);
-      sumw.erase(sumw.begin() + k);
-
-      ei_cache.erase(ei_cache.begin() + k);
-      ei.erase(ei.begin() + k);
-      swz.erase(swz.begin() + k);
-      swt.erase(swt.begin() + k);
-      se.erase(se.begin() + k);
-
-      nuz.erase(nuz.begin() + k);
-      nut.erase(nut.begin() + k);
-      szz.erase(szz.begin() + k);
-      stt.erase(stt.begin() + k);
-      szt.erase(szt.begin() + k);
-
-      extractRaw();
-    }
-
     void removeItem(unsigned int k, track_t &tks) {
       z.erase(z.begin() + k);
       t.erase(t.begin() + k);
@@ -212,11 +188,11 @@ public:
 
       // adjust vertex lists of tracks
       for (unsigned int i = 0; i < tks.getSize(); i++) {
-        if (tks.kmin[i] > k) {
-          tks.kmin[i]--;
-        }
-        if ((tks.kmax[i] > k) && (tks.kmax[i] > (tks.kmin[i] + 1))) {
+        if (tks.kmax[i] > k) {
           tks.kmax[i]--;
+        }
+        if ((tks.kmin[i] > k) || (((tks.kmax[i] < (tks.kmin[i] + 1)) && (tks.kmin[i] > 0)))) {
+          tks.kmin[i]--;
         }
       }
 
