@@ -143,8 +143,6 @@
 	</RotationSection>
 	<SolidSection label="forwardshield.xml">
 		<Polycone name="OQUA" startPhi="0*deg" deltaPhi="360*deg">
-			<ZSection z="[cms:MuonBeamZ2]" rMin="[cms:ForwdBeamR1]" rMax="[cms:CMSR3]"/>
-			<ZSection z="[cms:ForwdVcalZ1]" rMin="[cms:ForwdBeamR1]" rMax="[cms:CMSR3]"/>
 			<ZSection z="[cms:ForwdVcalZ1]" rMin="[cms:ForwdVcalR1]" rMax="[cms:CMSR3]"/>
 			<ZSection z="[cms:ForwdVcalZ2]" rMin="[cms:ForwdVcalR1]" rMax="[cms:CMSR3]"/>
 			<ZSection z="[cms:ForwdVcalZ2]" rMin="[cms:ForwdBeamR1]" rMax="[cms:CMSR3]"/>
@@ -167,11 +165,8 @@
 		<Box name="VcalElecRBX" dx="[VcalEleBoxDx]" dy="[VcalEleBoxDy]" dz="[VcalEleBoxDz]"/>
                 <Box name="VcalElecPMT" dx="[VcalPMTx]/2" dy="[VcalPMTy]/2" dz="[VcalPMTz]/2"/>
                 <Box name="VcalElecCathode" dx="[VcalCathx]/2" dy="[VcalCathy]/2" dz="[VcalCathz]/2"/>
-		<Tubs name="FixedShield01" rMin="[cms:ForwdBeamR2]" rMax="[FixShldR1]" dz="([FixShldZ2]-[FixShldZ1])/2" startPhi="0*deg" deltaPhi="360*deg"/>
 		<Polycone name="FixedShield02" startPhi="0*deg" deltaPhi="360*deg">
-			<ZSection z="[cms:MuonBeamZ2]" rMin="[FixShldR1]" rMax="[FixShldR5]"/>
-			<ZSection z="[FixShldZ2]" rMin="[FixShldR1]" rMax="[FixShldR5]"/>
-			<ZSection z="[FixShldZ2]" rMin="[FixShldR2]" rMax="[FixShldR5]"/>
+			<ZSection z="[cms:ForwdVcalZ1]" rMin="[FixShldR2]" rMax="[FixShldR5]"/>
 			<ZSection z="[cms:ForwdVcalZ2]" rMin="[FixShldR2]" rMax="[FixShldR5]"/>
 			<ZSection z="[FixShldZ3]" rMin="[FixShldR3]" rMax="[FixShldR5]"/>
 			<ZSection z="[FixShldZ3]" rMin="[FixShldR3]" rMax="[FixShldR6]"/>
@@ -180,12 +175,12 @@
 			<ZSection z="[ForwdZv01]" rMin="[FixShldR4]" rMax="[FixShldR6]"/>
 		</Polycone>
 		<Polycone name="FixedShield03" startPhi="0*deg" deltaPhi="360*deg">
-			<ZSection z="[cms:MuonBeamZ2]" rMin="[FixShldR5]" rMax="[FixShldR7]"/>
+			<ZSection z="[cms:ForwdVcalZ1]" rMin="[FixShldR5]" rMax="[FixShldR7]"/>
 			<ZSection z="[FixShldZ3]" rMin="[FixShldR5]" rMax="[FixShldR7]"/>
 			<ZSection z="[FixShldZ3]" rMin="[FixShldR6]" rMax="[FixShldR7]"/>
 			<ZSection z="[ForwdZv01]" rMin="[FixShldR6]" rMax="[FixShldR7]"/>
 		</Polycone>
-		<Tubs name="FixedShield04" rMin="[FixShldR7]" rMax="[FixShldR8]" dz="([ForwdZv01]-[cms:MuonBeamZ2])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="FixedShield04" rMin="[FixShldR7]" rMax="[FixShldR8]" dz="([ForwdZv01]-[cms:ForwdVcalZ1])/2" startPhi="0*deg" deltaPhi="360*deg"/>
 		<Tubs name="FibreContainer" rMin="[FixRotRad]" rMax="[FixShldR3]" dz="[FibreDz]/2" startPhi="0*deg" deltaPhi="360*deg"/>
 		<Tubs name="FixedShield05" rMin="[FixRotRad]" rMax="[FixShldR3]" dz="([FixShldZ4]-[CalShldZ2])/2" startPhi="0*deg" deltaPhi="360*deg"/>
 		<Tubs name="FixedShield06" rMin="[FixRotRad]" rMax="[FixShldR3]" dz="([FixShldZ5]-[FixShldZ4])/2" startPhi="0*deg" deltaPhi="360*deg"/>
@@ -347,10 +342,6 @@
 		<LogicalPart name="VcalElecCathode" category="unspecified">
 			<rSolid name="VcalElecCathode"/>
 			<rMaterial name="materials:PhotoCathode"/>
-		</LogicalPart>
-		<LogicalPart name="FixedShield01" category="unspecified">
-			<rSolid name="FixedShield01"/>
-			<rMaterial name="materials:Polyethylene"/>
 		</LogicalPart>
 		<LogicalPart name="FixedShield02" category="unspecified">
 			<rSolid name="FixedShield02"/>
@@ -671,12 +662,6 @@
 		</PosPart>
 		<PosPart copyNumber="1">
 			<rParent name="forwardshield:OQUA"/>
-			<rChild name="forwardshield:FixedShield01"/>
-			<rRotation name="rotations:000D"/>
-			<Translation x="0*fm" y="0*fm" z="([FixShldZ2]+[FixShldZ1])/2"/>
-		</PosPart>
-		<PosPart copyNumber="1">
-			<rParent name="forwardshield:OQUA"/>
 			<rChild name="forwardshield:FixedShield02"/>
 			<rRotation name="rotations:000D"/>
 		</PosPart>
@@ -689,7 +674,7 @@
 			<rParent name="forwardshield:OQUA"/>
 			<rChild name="forwardshield:FixedShield04"/>
 			<rRotation name="rotations:000D"/>
-			<Translation x="0*fm" y="0*fm" z="([ForwdZv01]+[cms:MuonBeamZ2])/2"/>
+			<Translation x="0*fm" y="0*fm" z="([ForwdZv01]+[cms:ForwdVcalZ1])/2"/>
 		</PosPart>
 		<PosPart copyNumber="1">
 			<rParent name="forwardshield:OQUA"/>
