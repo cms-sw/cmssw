@@ -192,7 +192,7 @@ void CTPPSDirectProtonSimulation::produce(edm::Event &iEvent, const edm::EventSe
   std::unique_ptr<std::vector<CTPPSLocalTrackLite>> pTracks(new std::vector<CTPPSLocalTrackLite>());
 
   // loop over event vertices
-  auto evt = new HepMC::GenEvent(*hepmc_prod->GetEvent());
+  auto evt = hepmc_prod->GetEvent();
   for (auto it_vtx = evt->vertices_begin(); it_vtx != evt->vertices_end(); ++it_vtx) {
     auto vtx = *(it_vtx);
 
