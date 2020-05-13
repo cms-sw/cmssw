@@ -30,7 +30,7 @@ public:
       Z_sum.push_back(1.0);  // Z[i]   for DA clustering, initial value as done in ::fill
 
       kmin.push_back(0);
-      kmax.push_back(1);
+      kmax.push_back(0);
     }
 
     void addItemSorted(double new_z, double new_dz2, const reco::TransientTrack *new_tt, double new_pi) {
@@ -51,7 +51,7 @@ public:
 
       Z_sum.insert(Z_sum.begin() + i, 1.0);  // Z[i]   for DA clustering, initial value as done in ::fill
       kmin.insert(kmin.begin() + i, 0);
-      kmax.insert(kmax.begin() + i, 1);
+      kmax.insert(kmax.begin() + i, 0);
     }
 
     unsigned int getSize() const { return z.size(); }
@@ -137,7 +137,7 @@ public:
         if (tks.kmin[i] > k) {
           tks.kmin[i]++;
         }
-        if ((tks.kmax[i] > k) || (tks.kmax[i] == tks.kmin[i])) {
+        if ((tks.kmax[i] >= k) || (tks.kmax[i] == tks.kmin[i])) {
           tks.kmax[i]++;
         }
       }
@@ -158,11 +158,11 @@ public:
 
       // adjust vertex lists of tracks
       for (unsigned int i = 0; i < tks.getSize(); i++) {
-        if (tks.kmin[i] > k) {
-          tks.kmin[i]--;
-        }
-        if ((tks.kmax[i] > k) && (tks.kmax[i] > (tks.kmin[i] + 1))) {
+        if (tks.kmax[i] > k) {
           tks.kmax[i]--;
+        }
+        if ((tks.kmin[i] > k) || (((tks.kmax[i] < (tks.kmin[i] + 1)) && (tks.kmin[i] > 0)))) {
+          tks.kmin[i]--;
         }
       }
 
