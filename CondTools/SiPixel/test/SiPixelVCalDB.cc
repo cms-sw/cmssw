@@ -4,8 +4,7 @@ using namespace std;
 using namespace edm;
 
 SiPixelVCalDB::SiPixelVCalDB(edm::ParameterSet const& iConfig) {
-  recordName_ =
-      iConfig.getUntrackedParameter<std::string>("record", "SiPixelVCalRcd");
+  recordName_ = iConfig.getUntrackedParameter<std::string>("record", "SiPixelVCalRcd");
   BPixParameters_ = iConfig.getUntrackedParameter<Parameters>("BPixParameters");
   FPixParameters_ = iConfig.getUntrackedParameter<Parameters>("FPixParameters");
 }
@@ -15,8 +14,7 @@ void SiPixelVCalDB::beginJob() {}
 void SiPixelVCalDB::endJob() {}
 
 // Analyzer: Functions that gets called by framework every event
-void SiPixelVCalDB::analyze(const edm::Event& e,
-                            const edm::EventSetup& iSetup) {
+void SiPixelVCalDB::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
   SiPixelVCal* vcal = new SiPixelVCal();
   bool phase1 = true;
 
@@ -28,8 +26,7 @@ void SiPixelVCalDB::analyze(const edm::Event& e,
   // Retrieve old style tracker geometry from geometry
   edm::ESHandle<TrackerGeometry> pDD;
   iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
-  std::cout << " There are " << pDD->detUnits().size() << " modules"
-            << std::endl;
+  std::cout << " There are " << pDD->detUnits().size() << " modules" << std::endl;
 
   for (const auto& it : pDD->detUnits()) {
     if (dynamic_cast<PixelGeomDetUnit const*>(it) != 0) {
@@ -42,12 +39,9 @@ void SiPixelVCalDB::analyze(const edm::Event& e,
         int layer = tTopo->pxbLayer(detid);    // 1, 2, 3, 4
         int ladder = tTopo->pxbLadder(detid);  // 1-12/28/44/64
         std::cout << " pixel barrel:"
-                  << " detId=" << rawDetId << ", layer=" << layer
-                  << ", ladder=" << ladder;
-        for (Parameters::iterator it = BPixParameters_.begin();
-             it != BPixParameters_.end(); ++it) {
-          if (it->getParameter<int>("layer") == layer &&
-              it->getParameter<int>("ladder") == ladder) {
+                  << " detId=" << rawDetId << ", layer=" << layer << ", ladder=" << ladder;
+        for (Parameters::iterator it = BPixParameters_.begin(); it != BPixParameters_.end(); ++it) {
+          if (it->getParameter<int>("layer") == layer && it->getParameter<int>("ladder") == ladder) {
             float slope = (float)it->getParameter<double>("slope");
             float offset = (float)it->getParameter<double>("offset");
             std::cout << ";  VCal slope " << slope << ", offset " << offset;
@@ -67,16 +61,12 @@ void SiPixelVCalDB::analyze(const edm::Event& e,
         int ring = fpix.ringName();         // 1 (lower), 2 (upper)
         if (disk != disk2) {
           edm::LogError("SiPixelVCalDB::analyze")
-              << "Found contradicting FPIX disk number: " << disk << " vs."
-              << disk2 << std::endl;
+              << "Found contradicting FPIX disk number: " << disk << " vs." << disk2 << std::endl;
         }
         std::cout << " pixel endcap:"
-                  << " detId=" << rawDetId << ", side=" << side
-                  << ", disk=" << disk << ", ring=" << ring;
-        for (Parameters::iterator it = FPixParameters_.begin();
-             it != FPixParameters_.end(); ++it) {
-          if (it->getParameter<int>("side") == side &&
-              it->getParameter<int>("disk") == disk &&
+                  << " detId=" << rawDetId << ", side=" << side << ", disk=" << disk << ", ring=" << ring;
+        for (Parameters::iterator it = FPixParameters_.begin(); it != FPixParameters_.end(); ++it) {
+          if (it->getParameter<int>("side") == side && it->getParameter<int>("disk") == disk &&
               it->getParameter<int>("ring") == ring) {
             float slope = (float)it->getParameter<double>("slope");
             float offset = (float)it->getParameter<double>("offset");
@@ -89,8 +79,7 @@ void SiPixelVCalDB::analyze(const edm::Event& e,
         std::cout << std::endl;
 
       } else {
-        edm::LogError("SiPixelVCalDB::analyze")
-            << "detid is Pixel but neither bpix nor fpix" << std::endl;
+        edm::LogError("SiPixelVCalDB::analyze") << "detid is Pixel but neither bpix nor fpix" << std::endl;
       }
     }
   }
@@ -100,18 +89,14 @@ void SiPixelVCalDB::analyze(const edm::Event& e,
   if (mydbservice.isAvailable()) {
     try {
       if (mydbservice->isNewTagRequest(recordName_)) {
-        mydbservice->createNewIOV<SiPixelVCal>(vcal, mydbservice->beginOfTime(),
-                                               mydbservice->endOfTime(),
-                                               recordName_);
+        mydbservice->createNewIOV<SiPixelVCal>(vcal, mydbservice->beginOfTime(), mydbservice->endOfTime(), recordName_);
       } else {
-        mydbservice->appendSinceTime<SiPixelVCal>(
-            vcal, mydbservice->currentTime(), recordName_);
+        mydbservice->appendSinceTime<SiPixelVCal>(vcal, mydbservice->currentTime(), recordName_);
       }
     } catch (const cond::Exception& er) {
       edm::LogError("SiPixelVCalDB") << er.what() << std::endl;
     } catch (const std::exception& er) {
-      edm::LogError("SiPixelVCalDB")
-          << "caught std::exception " << er.what() << std::endl;
+      edm::LogError("SiPixelVCalDB") << "caught std::exception " << er.what() << std::endl;
     } catch (...) {
       edm::LogError("SiPixelVCalDB") << "Funny error" << std::endl;
     }

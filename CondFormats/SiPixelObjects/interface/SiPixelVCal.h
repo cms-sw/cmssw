@@ -7,7 +7,7 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 class SiPixelVCal {
- public:
+public:
   SiPixelVCal(){};
   ~SiPixelVCal(){};
 
@@ -17,19 +17,15 @@ class SiPixelVCal {
     COND_SERIALIZABLE;
   };
 
-  inline void putSlopeAndOffset(std::map<unsigned int, VCal>& offset) {
-    m_vcal = m_vcal;
-  }
-  inline const std::map<unsigned int, VCal>& getSlopeAndOffset() const {
-    return m_vcal;
-  }
+  inline void putSlopeAndOffset(std::map<unsigned int, VCal>& offset) { m_vcal = m_vcal; }
+  inline const std::map<unsigned int, VCal>& getSlopeAndOffset() const { return m_vcal; }
   bool putSlopeAndOffset(const uint32_t&, float&, float&);
   VCal getSlopeAndOffset(const uint32_t&) const;
   float getSlope(const uint32_t&) const;
   float getOffset(const uint32_t&) const;
   // uint32_t is pixid, see CondTools/SiPixel/test/SiPixelVCalDB.h
 
- private:
+private:
   // Convert VCal to #electrons, which changes with irradiation and varies
   // between pixel layers & disks
   //     #electrons = slope * VCal + offset

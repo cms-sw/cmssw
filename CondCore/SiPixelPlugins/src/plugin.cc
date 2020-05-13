@@ -45,18 +45,17 @@
 #include "CondFormats/DataRecord/interface/SiPixelVCalSimRcd.h"
 
 namespace {
-struct InitRocs {
-  void operator()(SiPixelFedCablingMap& m) { m.initializeRocs(); }
-};
-template <typename G>
-struct InitGains {
-  void operator()(G& g) { g.initialize(); }
-};
+  struct InitRocs {
+    void operator()(SiPixelFedCablingMap& m) { m.initializeRocs(); }
+  };
+  template <typename G>
+  struct InitGains {
+    void operator()(G& g) { g.initialize(); }
+  };
 }  // namespace
 
 REGISTER_PLUGIN_INIT(SiPixelFedCablingMapRcd, SiPixelFedCablingMap, InitRocs);
-REGISTER_PLUGIN_INIT(SiPixelGainCalibrationRcd, SiPixelGainCalibration,
-                     InitGains<SiPixelGainCalibration>);
+REGISTER_PLUGIN_INIT(SiPixelGainCalibrationRcd, SiPixelGainCalibration, InitGains<SiPixelGainCalibration>);
 REGISTER_PLUGIN_INIT(SiPixelGainCalibrationForHLTRcd,
                      SiPixelGainCalibrationForHLT,
                      InitGains<SiPixelGainCalibrationForHLT>);
@@ -78,8 +77,7 @@ REGISTER_PLUGIN(SiPixelCalibConfigurationRcd, SiPixelCalibConfiguration);
 REGISTER_PLUGIN(SiPixelPerformanceSummaryRcd, SiPixelPerformanceSummary);
 REGISTER_PLUGIN(SiPixelQualityFromDbRcd, SiPixelQuality);
 REGISTER_PLUGIN(SiPixelStatusScenariosRcd, SiPixelFEDChannelContainer);
-REGISTER_PLUGIN(SiPixelStatusScenarioProbabilityRcd,
-                SiPixelQualityProbabilities);
+REGISTER_PLUGIN(SiPixelStatusScenarioProbabilityRcd, SiPixelQualityProbabilities);
 REGISTER_PLUGIN(SiPixelCPEGenericErrorParmRcd, SiPixelCPEGenericErrorParm);
 REGISTER_PLUGIN(SiPixelTemplateDBObjectRcd, SiPixelTemplateDBObject);
 REGISTER_PLUGIN(SiPixel2DTemplateDBObjectRcd, SiPixel2DTemplateDBObject);
