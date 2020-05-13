@@ -21,7 +21,7 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
 
-#include "tbb/task_arena.h"
+#include "FWCore/Framework/src/esTaskArenas.h"
 namespace edm {
   namespace eventsetup {
 
@@ -97,7 +97,7 @@ namespace edm {
         auto waitTask = edm::make_empty_waiting_task();
         waitTask->set_ref_count(2);
         auto waitTaskPtr = waitTask.get();
-        tbb::this_task_arena::isolate([this, waitTaskPtr, &iRecord, &iKey, iEventSetupImpl]() {
+        edm::esTaskArena().execute([this, waitTaskPtr, &iRecord, &iKey, iEventSetupImpl]() {
           prefetchAsync(waitTaskPtr, iRecord, iKey, iEventSetupImpl);
           waitTaskPtr->decrement_ref_count();
           waitTaskPtr->wait_for_all();

@@ -8,6 +8,7 @@
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
+#include "FWCore/Framework/src/esTaskArenas.h"
 
 namespace edm {
   namespace {
@@ -282,7 +283,7 @@ namespace edm {
       if (recs[i] != ESRecordIndex{}) {
         auto rec = iImpl.findImpl(recs[i]);
         if (rec) {
-          rec->doGet(items[i], &iImpl, true);
+          esTaskArena().execute([&]() { rec->doGet(items[i], &iImpl, true); });
         }
       }
     }
