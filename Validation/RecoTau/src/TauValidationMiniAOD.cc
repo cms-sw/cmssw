@@ -463,7 +463,10 @@ void TauValidationMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSet
     
     for (unsigned iTau = 0; iTau < taus->size(); iTau++) {
       pat::TauRef tau(taus, iTau);
-    
+
+      //const reco::GenParticle* genTau = getGenTau(tau);
+      //std::cout << "***** Generated Tau!! : " << genTau->decaymode();
+ 
       //for (pat::TauCollection::const_iterator tau = taus->begin(); tau != taus->end(); tau++) {
       //pat::TauRef matchedTau(*tau);
       
@@ -512,7 +515,10 @@ void TauValidationMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSet
       } else if (matchedTau->decayMode() == 11) {
         mtau_dm11Map.find("")->second->Fill(matchedTau->mass());
       }
-
+      //std::cout << "Tau leading Track PT: \n";
+      //std::cout<< matchedTau->ptLeadChargedCand(); 
+      //std::cout << "matched Tau PT: \n";
+      //std::cout<< matchedTau->pt(); 
       //Fill decay mode migration 2D histograms
       //First do a gen Matching
       int genindex = 0;
