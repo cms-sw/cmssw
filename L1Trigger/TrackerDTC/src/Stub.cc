@@ -10,13 +10,8 @@ using namespace std;
 
 namespace trackerDTC {
 
-  Stub::Stub(const ParameterSet& iConfig, const Setup& setup, SensorModule* sm, const TTStubRef& ttStubRef) :
-    setup_(&setup),
-    sm_(sm),
-    ttStubRef_(ttStubRef),
-    hybrid_(iConfig.getParameter<bool>("UseHybrid")),
-    valid_(true)
-  {
+  Stub::Stub(const ParameterSet& iConfig, const Setup& setup, SensorModule* sm, const TTStubRef& ttStubRef)
+      : setup_(&setup), sm_(sm), ttStubRef_(ttStubRef), hybrid_(iConfig.getParameter<bool>("UseHybrid")), valid_(true) {
     regions_.reserve(setup.numOverlappingRegions());
     // get stub local coordinates
     const MeasurementPoint& mp = ttStubRef->clusterRef(0)->findAverageLocalCoordinatesCentered();
@@ -141,9 +136,7 @@ namespace trackerDTC {
   }
 
   // returns bit accurate representation of Stub
-  TTDTC::BV Stub::frame(int region) const {
-    return hybrid_ ? formatHybrid(region) : formatTMTT(region);
-  }
+  TTDTC::BV Stub::frame(int region) const { return hybrid_ ? formatHybrid(region) : formatTMTT(region); }
 
   // returns true if stub belongs to region
   bool Stub::inRegion(int region) const { return find(regions_.begin(), regions_.end(), region) != regions_.end(); }

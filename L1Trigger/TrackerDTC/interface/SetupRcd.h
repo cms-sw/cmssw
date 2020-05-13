@@ -14,10 +14,16 @@
 
 namespace trackerDTC {
 
-  typedef boost::mpl::vector<TrackerDigiGeometryRecord, TrackerTopologyRcd, IdealMagneticFieldRecord, IdealGeometryRecord, TrackerDetToDTCELinkCablingMapRcd, TTStubAlgorithmRecord> Rcds;
+  typedef boost::mpl::vector<TrackerDigiGeometryRecord,
+                             TrackerTopologyRcd,
+                             IdealMagneticFieldRecord,
+                             IdealGeometryRecord,
+                             TrackerDetToDTCELinkCablingMapRcd,
+                             TTStubAlgorithmRecord>
+      Rcds;
 
   class SetupRcd : public edm::eventsetup::DependentRecordImplementation<SetupRcd, Rcds> {};
 
-} // namsespace trackerDTC
+}  // namespace trackerDTC
 
 #endif

@@ -34,15 +34,14 @@ namespace trackerDTC {
     ESGetToken<DDCompactView, IdealGeometryRecord> getTokenGeometryConfiguration_;
   };
 
-  ProducerES::ProducerES(const ParameterSet& iConfig) :
-    iConfig_(iConfig)
-  {
-    setWhatProduced(this).setConsumes(getTokenTTStubAlgorithm_)
-                         .setConsumes(getTokenMagneticField_)
-                         .setConsumes(getTokenTrackerGeometry_)
-                         .setConsumes(getTokenTrackerTopology_)
-                         .setConsumes(getTokenCablingMap_)
-                         .setConsumes(getTokenGeometryConfiguration_);
+  ProducerES::ProducerES(const ParameterSet& iConfig) : iConfig_(iConfig) {
+    setWhatProduced(this)
+        .setConsumes(getTokenTTStubAlgorithm_)
+        .setConsumes(getTokenMagneticField_)
+        .setConsumes(getTokenTrackerGeometry_)
+        .setConsumes(getTokenTrackerTopology_)
+        .setConsumes(getTokenCablingMap_)
+        .setConsumes(getTokenGeometryConfiguration_);
   }
 
   unique_ptr<Setup> ProducerES::produce(const SetupRcd& setupRcd) {
@@ -54,7 +53,8 @@ namespace trackerDTC {
     const ESHandle<DDCompactView> handleGeometryConfiguration = setupRcd.getHandle(getTokenGeometryConfiguration_);
     const ParameterSetID& pSetIdTTStubAlgorithm = handleStubAlgorithm.description()->pid_;
     const ParameterSetID& pSetIdGeometryConfiguration = handleGeometryConfiguration.description()->pid_;
-    const StubAlgorithmOfficial& stubAlgoritm = *dynamic_cast<const StubAlgorithmOfficial*>(&setupRcd.get(getTokenTTStubAlgorithm_));
+    const StubAlgorithmOfficial& stubAlgoritm =
+        *dynamic_cast<const StubAlgorithmOfficial*>(&setupRcd.get(getTokenTTStubAlgorithm_));
     const ParameterSet& pSetStubAlgorithm = getParameterSet(handleStubAlgorithm.description()->pid_);
     const ParameterSet& pSetGeometryConfiguration = getParameterSet(handleGeometryConfiguration.description()->pid_);
     return make_unique<Setup>(iConfig_,
@@ -69,6 +69,6 @@ namespace trackerDTC {
                               pSetIdGeometryConfiguration);
   }
 
-} // namespace trackerDTC
+}  // namespace trackerDTC
 
 DEFINE_FWK_EVENTSETUP_MODULE(trackerDTC::ProducerES);

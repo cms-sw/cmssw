@@ -8,10 +8,6 @@
 #include <utility>
 #include <vector>
 
-namespace trackerDTC {
-  class Setup;
-}
-
 /*! 
  * \class  TTDTC
  * \brief  Class to store hardware like structured TTStub Collection used by Track Trigger emulators
@@ -30,7 +26,7 @@ public:
   typedef std::vector<Stream> Streams;
 
   TTDTC() {}
-  TTDTC(const trackerDTC::Setup& setup);
+  TTDTC(int numRegions, int numOverlappingRegions, int numDTCsPerRegion);
   ~TTDTC() {}
 
   // all regions [default 0..8]

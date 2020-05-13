@@ -1,17 +1,16 @@
 #include "DataFormats/L1TrackTrigger/interface/TTDTC.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "L1Trigger/TrackerDTC/interface/Setup.h"
 
 #include <numeric>
 
 using namespace std;
 using namespace edm;
 
-TTDTC::TTDTC(const trackerDTC::Setup& setup)
-    : numRegions_(setup.numRegions()),
-      numOverlappingRegions_(setup.numOverlappingRegions()),
-      numDTCsPerRegion_(setup.numDTCsPerRegion()),
-      numDTCsPerTFP_(setup.numDTCsPerTFP()),
+TTDTC::TTDTC(int numRegions, int numOverlappingRegions, int numDTCsPerRegion)
+    : numRegions_(numRegions),
+      numOverlappingRegions_(numOverlappingRegions),
+      numDTCsPerRegion_(numDTCsPerRegion),
+      numDTCsPerTFP_(numOverlappingRegions * numDTCsPerRegion),
       regions_(numRegions_),
       channels_(numDTCsPerTFP_),
       streams_(numRegions_ * numDTCsPerTFP_) {

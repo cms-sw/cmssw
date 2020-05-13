@@ -12,18 +12,17 @@ using namespace edm;
 
 namespace trackerDTC {
 
-  SensorModule::SensorModule(const Setup& setup, const DetId& detId, int dtcId, int modId) :
-      detId_(detId),
-      dtcId_(dtcId),
-      modId_(modId)
-  {
+  SensorModule::SensorModule(const Setup& setup, const DetId& detId, int dtcId, int modId)
+      : detId_(detId), dtcId_(dtcId), modId_(modId) {
     const TrackerGeometry* trackerGeometry = setup.trackerGeometry();
     const TrackerTopology* trackerTopology = setup.trackerTopology();
     const GeomDetUnit* geomDetUnit = trackerGeometry->idToDetUnit(detId);
-    const PixelTopology* pixelTopology = dynamic_cast<const PixelTopology*>(&(dynamic_cast<const PixelGeomDetUnit*>(geomDetUnit)->specificTopology()));
+    const PixelTopology* pixelTopology =
+        dynamic_cast<const PixelTopology*>(&(dynamic_cast<const PixelGeomDetUnit*>(geomDetUnit)->specificTopology()));
     const Plane& plane = dynamic_cast<const PixelGeomDetUnit*>(geomDetUnit)->surface();
     const GlobalPoint pos0 = GlobalPoint(geomDetUnit->position());
-    const GlobalPoint pos1 = GlobalPoint(trackerGeometry->idToDetUnit(trackerTopology->partnerDetId(detId))->position());
+    const GlobalPoint pos1 =
+        GlobalPoint(trackerGeometry->idToDetUnit(trackerTopology->partnerDetId(detId))->position());
     // detector region [0-8]
     const int region = dtcId_ / setup.numDTCsPerRegion();
     // module radius in cm
@@ -58,7 +57,8 @@ namespace trackerDTC {
     // cosinus of module tilt measured w.r.t. beam axis (+-1=endcap), tk layout measures w.r.t. radial axis
     cos_ = std::cos(tilt_);
     // layer id [barrel: 0-5, endcap: 0-4]
-    const int layer = (barrel_ ? trackerTopology->layer(detId) : trackerTopology->tidWheel(detId)) - setup.offsetLayerId();
+    const int layer =
+        (barrel_ ? trackerTopology->layer(detId) : trackerTopology->tidWheel(detId)) - setup.offsetLayerId();
     // layer id [1-6,11-15]
     layerId_ = layer + setup.offsetLayerId() + (barrel_ ? 0 : setup.offsetLayerDisks());
     // TTStub row needs flip of sign
@@ -89,7 +89,7 @@ namespace trackerDTC {
       offsetZ_ = 0.;
     } else {
       offsetR_ = 0.;
-      offsetZ_ = side_ ? setup.hybridDiskZ(layer) : - setup.hybridDiskZ(layer);
+      offsetZ_ = side_ ? setup.hybridDiskZ(layer) : -setup.hybridDiskZ(layer);
     }
     // getting bend window size
     double windowSize(-1.);
@@ -117,4 +117,4 @@ namespace trackerDTC {
     encodedLayerId_ = distance(encodingLayerId.begin(), pos);
   }
 
-} // namespace trackerDTC
+}  // namespace trackerDTC

@@ -112,7 +112,6 @@ namespace trackerDTC {
     EDGetTokenT<TTClusterAssMap> getTokenTTClusterAssMap_;
     // Setup token
     ESGetToken<Setup, SetupRcd> esGetToken_;
-
     // stores, calculates and provides run-time constants
     Setup setup_;
     // selector to partly select TPs for efficiency measurements
@@ -141,10 +140,8 @@ namespace trackerDTC {
     stringstream log_;
   };
 
-  Analyzer::Analyzer(const ParameterSet& iConfig) :
-    useMCTruth_(iConfig.getParameter<bool>("UseMCTruth")),
-    hybrid_(iConfig.getParameter<bool>("UseHybrid"))
-  {
+  Analyzer::Analyzer(const ParameterSet& iConfig)
+      : useMCTruth_(iConfig.getParameter<bool>("UseMCTruth")), hybrid_(iConfig.getParameter<bool>("UseHybrid")) {
     usesResource("TFileService");
     // book in- and output ED products
     const auto& inputTagAccepted = iConfig.getParameter<InputTag>("InputTagAccepted");

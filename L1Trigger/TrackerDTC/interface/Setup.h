@@ -79,6 +79,8 @@ namespace trackerDTC {
     GlobalPoint stubPos(bool hybrid, const TTDTC::Frame& frame, int tfpRegion, int tfpChannel) const;
     // returns global TTStub position
     GlobalPoint stubPos(const TTStubRef& ttStubRef) const;
+    // empty trackerDTC EDProduct
+    TTDTC ttDTC() const { return TTDTC(numRegions_, numOverlappingRegions_, numDTCsPerRegion_); }
 
     // Common track finding parameter
 
@@ -182,9 +184,13 @@ namespace trackerDTC {
     // stub bend window sizes for flat barrel layer in full pitch units
     double windowSizeBarrelLayer(int layerId) const { return windowSizeBarrelLayers_.at(layerId); };
     // stub bend window sizes for tilted barrel layer rings in full pitch units
-    double windowSizeTiltedLayerRing(int layerId, int ring) const { return windowSizeTiltedLayerRings_.at(layerId).at(ring); };
+    double windowSizeTiltedLayerRing(int layerId, int ring) const {
+      return windowSizeTiltedLayerRings_.at(layerId).at(ring);
+    };
     // stub bend window sizes for endcap disks rings in full pitch units
-    double windowSizeEndcapDisksRing(int layerId, int ring) const { return windowSizeEndcapDisksRings_.at(layerId).at(ring); };
+    double windowSizeEndcapDisksRing(int layerId, int ring) const {
+      return windowSizeEndcapDisksRings_.at(layerId).at(ring);
+    };
     // precision of window sizes in pitch units
     double baseWindowSize() const { return baseWindowSize_; }
     // index = encoded bend, value = decoded bend for given window size and module type
@@ -398,10 +404,13 @@ namespace trackerDTC {
     double drBasePhi0() const { return drBasePhi0_; }
     double drBaseCot() const { return drBaseCot_; }
     double drBaseZ0() const { return drBaseZ0_; }
-  private:
 
+  private:
     // checks consitency between history and current configuration for a specific module
-    void checkHistory(const edm::ProcessHistory&, const edm::pset::Registry*, const std::string&, const edm::ParameterSetID&) const;
+    void checkHistory(const edm::ProcessHistory&,
+                      const edm::pset::Registry*,
+                      const std::string&,
+                      const edm::ParameterSetID&) const;
     // dumps pSetHistory where incosistent lines with pSetProcess are highlighted
     std::string dumpDiff(const edm::ParameterSet& pSetHistory, const edm::ParameterSet& pSetProcess) const;
     // check if bField is supported
@@ -823,9 +832,9 @@ namespace trackerDTC {
     std::vector<std::vector<SensorModule*>> dtcModules_;
     // hepler to convert Stubs quickly
     std::unordered_map<DetId, SensorModule*> detIdToSensorModule_;
-  
+
     // GP
-  
+
     // phi sector size in rad
     double baseSector_;
     // cut on zT
@@ -869,9 +878,9 @@ namespace trackerDTC {
     double sfBaseCot_;
     // zT precision in cm
     double sfBaseZT_;
-  
+
     // KF
-  
+
     double kfBasem0_;
     double kfBasem1_;
     double kfBasev0_;
@@ -923,8 +932,8 @@ namespace trackerDTC {
     double drBaseZ0_;
   };
 
-} // namsespace trackerDTC
+}  // namespace trackerDTC
 
-EVENTSETUP_DATA_DEFAULT_RECORD(trackerDTC::Setup,trackerDTC::SetupRcd);
+EVENTSETUP_DATA_DEFAULT_RECORD(trackerDTC::Setup, trackerDTC::SetupRcd);
 
-# endif
+#endif
