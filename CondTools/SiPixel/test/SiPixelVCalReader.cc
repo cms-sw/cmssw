@@ -10,8 +10,7 @@ SiPixelVCalReader::~SiPixelVCalReader() {}
 void SiPixelVCalReader::beginJob() {}
 void SiPixelVCalReader::endJob() {}
 
-void SiPixelVCalReader::analyze(const edm::Event& e,
-                                const edm::EventSetup& iSetup) {
+void SiPixelVCalReader::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
   edm::ESHandle<SiPixelVCal> siPixelVCal;
 
   // Get record & file service
@@ -19,8 +18,7 @@ void SiPixelVCalReader::analyze(const edm::Event& e,
     iSetup.get<SiPixelVCalSimRcd>().get(siPixelVCal);
   else
     iSetup.get<SiPixelVCalRcd>().get(siPixelVCal);
-  edm::LogInfo("SiPixelVCalReader")
-      << "[SiPixelVCalReader::analyze] End Reading SiPixelVCal" << std::endl;
+  edm::LogInfo("SiPixelVCalReader") << "[SiPixelVCalReader::analyze] End Reading SiPixelVCal" << std::endl;
   edm::Service<TFileService> fs;
 
   // Retrieve tracker topology from geometry
@@ -31,8 +29,7 @@ void SiPixelVCalReader::analyze(const edm::Event& e,
   // Retrieve old style tracker geometry from geometry
   edm::ESHandle<TrackerGeometry> pDD;
   iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
-  std::cout << " There are " << pDD->detUnits().size() << " modules"
-            << std::endl;
+  std::cout << " There are " << pDD->detUnits().size() << " modules" << std::endl;
 
   // Phase
   bool phase1 = true;
@@ -52,23 +49,16 @@ void SiPixelVCalReader::analyze(const edm::Event& e,
   tree->Branch("offset", &offset, "offset/D");
 
   // Prepare histograms
-  slopeBPix_ = fs->make<TH1F>("VCalSlopeBarrelPixel", "VCalSlopeBarrelPixel",
-                              150, 0, 100);
-  slopeFPix_ = fs->make<TH1F>("VCalSlopeForwardPixel", "VCalSlopeForwardPixel",
-                              150, 0, 100);
-  offsetBPix_ = fs->make<TH1F>("VCalOffsetBarrelPixel", "VCalOffsetBarrelPixel",
-                               200, -900, 100);
-  offsetFPix_ = fs->make<TH1F>("VCalOffsetForwardPixel",
-                               "VCalOffsetForwardPixel", 200, -900, 100);
-  std::map<unsigned int, SiPixelVCal::VCal> vcal =
-      siPixelVCal->getSlopeAndOffset();
+  slopeBPix_ = fs->make<TH1F>("VCalSlopeBarrelPixel", "VCalSlopeBarrelPixel", 150, 0, 100);
+  slopeFPix_ = fs->make<TH1F>("VCalSlopeForwardPixel", "VCalSlopeForwardPixel", 150, 0, 100);
+  offsetBPix_ = fs->make<TH1F>("VCalOffsetBarrelPixel", "VCalOffsetBarrelPixel", 200, -900, 100);
+  offsetFPix_ = fs->make<TH1F>("VCalOffsetForwardPixel", "VCalOffsetForwardPixel", 200, -900, 100);
+  std::map<unsigned int, SiPixelVCal::VCal> vcal = siPixelVCal->getSlopeAndOffset();
   std::map<unsigned int, SiPixelVCal::VCal>::const_iterator it;
 
   // Fill histograms
-  std::cout << std::setw(12) << "detid" << std::setw(8) << "subdet"
-            << std::setw(8) << "layer" << std::setw(8) << "disk"
-            << std::setw(14) << "VCal slope" << std::setw(8) << "offset"
-            << std::endl;
+  std::cout << std::setw(12) << "detid" << std::setw(8) << "subdet" << std::setw(8) << "layer" << std::setw(8) << "disk"
+            << std::setw(14) << "VCal slope" << std::setw(8) << "offset" << std::endl;
   for (it = vcal.begin(); it != vcal.end(); it++) {
     detid = it->first;
     slope = it->second.slope;
@@ -81,9 +71,8 @@ void SiPixelVCalReader::analyze(const edm::Event& e,
     side = tTopo->pxfSide(detIdObj);      // 1, 2
     disk = tTopo->pxfDisk(detIdObj);      // 1, 2, 3
     ring = fpix.ringName();               // 1 (lower), 2 (upper)
-    std::cout << std::setw(12) << detid << std::setw(8) << subdet
-              << std::setw(8) << layer << std::setw(8) << disk << std::setw(14)
-              << slope << std::setw(8) << offset << std::endl;
+    std::cout << std::setw(12) << detid << std::setw(8) << subdet << std::setw(8) << layer << std::setw(8) << disk
+              << std::setw(14) << slope << std::setw(8) << offset << std::endl;
     // std::cout << "detid " << detid << ", subdet " << subdet << ", layer " <<
     // layer << ", disk " << disk
     //          << ", VCal slope " << slope << ", offset " << offset <<

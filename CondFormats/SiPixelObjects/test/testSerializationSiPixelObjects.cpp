@@ -35,11 +35,9 @@ int main() {
   testSerialization<SiPixelQualityProbabilities>();
   testSerialization<SiPixelTemplateDBObject>();
   testSerialization<sipixelobjects::PixelROC>();
-  testSerialization<
-      std::map<SiPixelFedCablingMap::Key, sipixelobjects::PixelROC>>();
+  testSerialization<std::map<SiPixelFedCablingMap::Key, sipixelobjects::PixelROC>>();
   testSerialization<std::map<int, std::vector<SiPixelDbItem>>>();
-  testSerialization<
-      std::pair<const SiPixelFedCablingMap::Key, sipixelobjects::PixelROC>>();
+  testSerialization<std::pair<const SiPixelFedCablingMap::Key, sipixelobjects::PixelROC>>();
   testSerialization<std::vector<SiPixelCPEGenericErrorParm::DbEntry>>();
   testSerialization<std::vector<SiPixelCPEGenericErrorParm::DbEntryBinSize>>();
   testSerialization<std::vector<SiPixelDbItem>>();

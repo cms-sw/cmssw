@@ -35,14 +35,14 @@
 //#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
 class SiPixelVCalReader : public edm::EDAnalyzer {
- public:
+public:
   explicit SiPixelVCalReader(const edm::ParameterSet&);
   ~SiPixelVCalReader();
   virtual void beginJob();
   virtual void endJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
- private:
+private:
   bool printdebug_;
   bool useSimRcd_;
   TH1F* slopeBPix_;
