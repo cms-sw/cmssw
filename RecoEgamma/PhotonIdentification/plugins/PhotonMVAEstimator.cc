@@ -7,6 +7,7 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "CommonTools/Utils/interface/EffectiveAreas.h"
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "RecoEgamma/EgammaTools/interface/MVAVariableHelper.h"
 #include "RecoEgamma/EgammaTools/interface/MVAVariableManager.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "CommonTools/Utils/interface/ThreadSafeFunctor.h"
@@ -49,7 +50,8 @@ private:
 };
 
 PhotonMVAEstimator::PhotonMVAEstimator(const edm::ParameterSet& conf)
-    : AnyMVAEstimatorRun2Base(conf), mvaVarMngr_(conf.getParameter<std::string>("variableDefinition")) {
+    : AnyMVAEstimatorRun2Base(conf),
+      mvaVarMngr_(conf.getParameter<std::string>("variableDefinition"), MVAVariableHelper::indexMap()) {
   //
   // Construct the MVA estimators
   //
