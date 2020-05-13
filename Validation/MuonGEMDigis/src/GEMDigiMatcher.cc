@@ -415,18 +415,18 @@ GlobalPoint GEMDigiMatcher::getGlobalPointPad(unsigned int rawId, const GEMPadDi
   return gem_gp;
 }
 
-void GEMDigiMatcher::clear(){
-   detid_to_digis_.clear();
-   chamber_to_digis_.clear();
-   superchamber_to_digis_.clear();
+void GEMDigiMatcher::clear() {
+  detid_to_digis_.clear();
+  chamber_to_digis_.clear();
+  superchamber_to_digis_.clear();
 
-   detid_to_pads_.clear();
-   chamber_to_pads_.clear();
-   superchamber_to_pads_.clear();
+  detid_to_pads_.clear();
+  chamber_to_pads_.clear();
+  superchamber_to_pads_.clear();
 
-   detid_to_clusters_.clear();
-   chamber_to_clusters_.clear();
-   superchamber_to_clusters_.clear();
+  detid_to_clusters_.clear();
+  chamber_to_clusters_.clear();
+  superchamber_to_clusters_.clear();
 
-   superchamber_to_copads_.clear();
+  superchamber_to_copads_.clear();
 }

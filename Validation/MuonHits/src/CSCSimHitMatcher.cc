@@ -343,6 +343,4 @@ std::set<unsigned int> CSCSimHitMatcher::chamberIdsStation(int station) const {
   return result;
 }
 
-void CSCSimHitMatcher::clear() {
-  MuonSimHitMatcher::clear();
-}
+void CSCSimHitMatcher::clear() { MuonSimHitMatcher::clear(); }
