@@ -2,6 +2,8 @@
 #include "L1Trigger/TrackFindingTMTT/interface/TP.h"
 #include "L1Trigger/TrackFindingTMTT/interface/Stub.h"
 
+using namespace std;
+
 namespace tmtt {
 
   //=== Initialization with cfg params,
@@ -9,48 +11,40 @@ namespace tmtt {
   //=== and the bin number of the cell along the q/Pt axis of the r-phi HT array,
   //=== and a flag indicating if this cell is the merge of smaller HT cells.
 
-  void HTcell::init(const Settings* settings,
-                    unsigned int iPhiSec,
-                    unsigned int iEtaReg,
-                    float etaMinSector,
-                    float etaMaxSector,
-                    float qOverPt,
-                    unsigned int ibin_qOverPt,
-                    bool mergedCell,
-                    bool miniHTcell) {
-    settings_ = settings;
-
-    // Sector number
-    iPhiSec_ = iPhiSec;
-    iEtaReg_ = iEtaReg;
-
-    // Note track q/Pt.
-    // In this case of an r-phi HT, each cell corresponds to a unique q/Pt.
-    // In the case of an r-z HT, it is assumed that we know q/Pt from previously run r-phi HT.
-    qOverPtCell_ = qOverPt;
-    // Note bin number of cell along q/Pt axis of r-phi HT array. (Not used if r-z HT).
-    ibin_qOverPt_ = ibin_qOverPt;
-    mergedCell_ = mergedCell;
-    // Is cell in Mini-HT?
-    miniHTcell_ = miniHTcell;
-    // Rapidity range of sector.
-    etaMinSector_ = etaMinSector;
-    etaMaxSector_ = etaMaxSector;
-
-    invPtToDphi_ = settings->invPtToDphi();  // B*c/2E11
-
-    // Use filter in each HT cell using only stubs which have consistent bend?
-    useBendFilter_ = settings->useBendFilter();
-
+  HTcell::HTcell(const Settings* settings,
+                 unsigned int iPhiSec,
+                 unsigned int iEtaReg,
+                 float etaMinSector,
+                 float etaMaxSector,
+                 float qOverPt,
+                 unsigned int ibin_qOverPt,
+                 bool mergedCell,
+                 bool miniHTcell)
+      : settings_(settings),
+        // Sector number
+        iPhiSec_(iPhiSec),
+        iEtaReg_(iEtaReg),
+        // Rapidity range of sector.
+        etaMinSector_(etaMinSector),
+        etaMaxSector_(etaMaxSector),
+        // Track q/Pt.
+        qOverPtCell_(qOverPt),
+        // Note bin number of cell along q/Pt axis of r-phi HT array. (Not used if r-z HT).
+        ibin_qOverPt_(ibin_qOverPt),
+        mergedCell_(mergedCell),
+        // Is cell in Mini-HT?
+        miniHTcell_(miniHTcell),
+        invPtToDphi_(settings->invPtToDphi()),  // B*c/2E11
+        // Use filter in each HT cell using only stubs which have consistent bend?
+        useBendFilter_(settings->useBendFilter()),
+        // Check if subsectors are being used within each sector. These are only ever used for r-phi HT.
+        numSubSecs_(settings->numSubSecsEta()) {
     // A filter is used each HT cell, which prevents more than the specified number of stubs being stored in the cell. (Reflecting memory limit of hardware).
     if (miniHTcell_) {
       maxStubsInCell_ = settings->maxStubsInCellMiniHough();
     } else {
       maxStubsInCell_ = settings->maxStubsInCell();
     }
-
-    // Check if subsectors are being used within each sector. These are only ever used for r-phi HT.
-    numSubSecs_ = settings->numSubSecsEta();
   }
 
   //=== Termination. Search for track in this HT cell etc.
@@ -68,7 +62,8 @@ namespace tmtt {
 
     // Prevent too many stubs being stored in a single HT cell if requested (to reflect hardware memory limits).
     // N.B. This MUST be the last filter applied.
-    if (maxStubsInCell_ <= 99)
+    constexpr unsigned int disableThreshold = 999;
+    if (maxStubsInCell_ < disableThreshold)
       vFilteredStubs_ = this->maxStubCountFilter(vFilteredStubs_);
 
     // Calculate the number of layers the filtered stubs in this cell are in.
@@ -105,10 +100,10 @@ namespace tmtt {
   //=== Produce a filtered collection of stubs in this cell that all have consistent bend.
   //=== Only called for r-phi Hough transform.
 
-  vector<const Stub*> HTcell::bendFilter(const vector<const Stub*>& stubs) const {
+  vector<Stub*> HTcell::bendFilter(const vector<Stub*>& stubs) const {
     // Create bend-filtered stub collection.
-    vector<const Stub*> filteredStubs;
-    for (const Stub* s : stubs) {
+    vector<Stub*> filteredStubs;
+    for (Stub* s : stubs) {
       // Require stub bend to be consistent with q/Pt of this cell.
 
       unsigned int minBin = s->min_qOverPt_bin();
@@ -116,8 +111,6 @@ namespace tmtt {
       if (mergedCell_) {
         if (minBin % 2 == 1)
           minBin--;
-        // Next line not wanted with current m-bin range definition in Stub::calcQoverPtRange().
-        //if ( maxBin % 2 == 1 ) maxBin++;
       }
       if (minBin <= ibin_qOverPt_ && ibin_qOverPt_ <= maxBin)
         filteredStubs.push_back(s);
@@ -129,8 +122,8 @@ namespace tmtt {
   //=== Filter stubs so as to prevent more than specified number of stubs being stored in one cell.
   //=== This reflects finite memory of hardware.
 
-  vector<const Stub*> HTcell::maxStubCountFilter(const vector<const Stub*>& stubs) const {
-    vector<const Stub*> filteredStubs;
+  vector<Stub*> HTcell::maxStubCountFilter(const vector<Stub*>& stubs) const {
+    vector<Stub*> filteredStubs;
     // If there are too many stubs in a cell, the hardware keeps (maxStubsInCell - 1) of the first stubs in the list
     // plus the last stub.
     if (stubs.size() > maxStubsInCell_) {

@@ -1,20 +1,18 @@
 #include "L1Trigger/TrackFindingTMTT/interface/Settings.h"
 #include "L1Trigger/TrackFindingTMTT/interface/DigitalTrack.h"
+#include "L1Trigger/TrackFindingTMTT/interface/L1fittedTrack.h"
 
 #include "DataFormats/Math/interface/deltaPhi.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
-#include <map>
+using namespace std;
 
 namespace tmtt {
 
   //=== Note configuration parameters.
 
-  DigitalTrack::DigitalTrack(const Settings* settings)
+  DigitalTrack::DigitalTrack(const Settings* settings, const string& fitterName, const L1fittedTrack* fitTrk)
       :
-
-        // Check DigitalTrack correctly initialized.
-        ranInit_(false),
-        ranMake_(false),
 
         // Digitization configuration parameters
         settings_(settings),
@@ -30,13 +28,77 @@ namespace tmtt {
 
         // Number of q/Pt bins in Hough  transform array.
         nbinsPt_((int)settings->houghNbinsPt()),
-        invPtToDPhi_(settings->invPtToDphi()) {}
+        invPtToDPhi_(settings->invPtToDphi()),
 
-  //=== Get digitisation configuration parameters for the specific track fitter being used here.
+        // Info about fitted track
+        fitterName_(fitterName),
+        nHelixParams_(fitTrk->nHelixParam()),
 
-  void DigitalTrack::getDigiCfg(const string& fitterName) {
-    if (fitterName == "SimpleLR") {
-      // SimpleLR track fitter
+        nlayers_(fitTrk->numLayers()),
+        iPhiSec_(fitTrk->iPhiSec()),
+        iEtaReg_(fitTrk->iEtaReg()),
+        mBin_(int(fitTrk->cellLocationHT().first) - floor(settings_->houghNbinsPt() / 2)),
+        cBin_(int(fitTrk->cellLocationHT().second) - floor(settings_->houghNbinsPhi() / 2)),
+        mBinhelix_(int(fitTrk->cellLocationFit().first) - floor(settings_->houghNbinsPt() / 2)),
+        cBinhelix_(int(fitTrk->cellLocationFit().second) - floor(settings_->houghNbinsPhi() / 2)),
+        hitPattern_(fitTrk->hitPattern()),
+        consistent_(fitTrk->consistentHTcell()),
+        consistentSect_(fitTrk->consistentSector()),
+        accepted_(fitTrk->accepted()),
+
+        qOverPt_orig_(fitTrk->qOverPt()),
+        oneOver2r_orig_(fitTrk->qOverPt() * invPtToDPhi_),
+        d0_orig_(fitTrk->d0()),
+        phi0_orig_(fitTrk->phi0()),
+        tanLambda_orig_(fitTrk->tanLambda()),
+        z0_orig_(fitTrk->z0()),
+        chisquaredRphi_orig_(fitTrk->chi2rphi()),
+        chisquaredRz_orig_(fitTrk->chi2rz()),
+
+        // Same again with beam-spot constraint.
+        qOverPt_bcon_orig_(fitTrk->qOverPt_bcon()),
+        oneOver2r_bcon_orig_(fitTrk->qOverPt_bcon() * invPtToDPhi_),
+        phi0_bcon_orig_(fitTrk->phi0_bcon()),
+        chisquaredRphi_bcon_orig_(fitTrk->chi2rphi_bcon()) {
+    // Get digitisation parameters for this particular track fitter.
+    this->loadDigiCfg(fitterName);
+
+    // Complete storage of info about fitted track & truth particle.
+    double phiCentreSec0 = -M_PI / float(numPhiNonants_) + M_PI / float(numPhiSectors_);
+    phiSectorCentre_ = phiSectorWidth_ * float(iPhiSec_) + phiCentreSec0;
+    phi0rel_orig_ = reco::deltaPhi(fitTrk->phi0(), phiSectorCentre_);
+    phi0rel_bcon_orig_ = reco::deltaPhi(fitTrk->phi0_bcon(), phiSectorCentre_);
+
+    // FIX: Remove this BODGE once BCHI increased to 11 in KFstate.h
+    if (chisquaredRphi_orig_ >= chisquaredRange_)
+      chisquaredRphi_orig_ = chisquaredRange_ - 0.1;
+    if (chisquaredRphi_bcon_orig_ >= chisquaredRange_)
+      chisquaredRphi_bcon_orig_ = chisquaredRange_ - 0.1;
+
+    // Associated truth, if any.
+    const TP* tp = fitTrk->matchedTP();
+    bool tpOK = (tp != nullptr);
+    tp_tanLambda_ = tpOK ? tp->tanLambda() : 0;
+    tp_qoverpt_ = tpOK ? tp->qOverPt() : 0;
+    tp_pt_ = tpOK ? tp->pt() : 0;
+    tp_d0_ = tpOK ? tp->d0() : 0;
+    tp_eta_ = tpOK ? tp->eta() : 0;
+    tp_phi0_ = tpOK ? tp->phi0() : 0;
+    tp_z0_ = tpOK ? tp->z0() : 0;
+    tp_index_ = tpOK ? tp->index() : -1;
+    tp_useForAlgEff_ = tpOK ? tp->useForAlgEff() : 0;
+    tp_useForEff_ = tpOK ? tp->useForEff() : 0;
+    tp_pdgId_ = tpOK ? tp->pdgId() : 0;
+
+    // Digitize track.
+    this->makeDigitalTrack();
+  }
+
+  //=== Load digitisation configuration parameters for the specific track fitter being used here.
+
+  void DigitalTrack::loadDigiCfg(const string& fitterName) {
+    if (fitterName == "SimpleLR4") {
+      // SimpleLR4 track fitter
       skipTrackDigi_ = settings_->slr_skipTrackDigi();
       oneOver2rBits_ = settings_->slr_oneOver2rBits();
       oneOver2rRange_ = settings_->slr_oneOver2rRange();
@@ -81,108 +143,9 @@ namespace tmtt {
     chisquaredMult_ = pow(2., chisquaredBits_) / chisquaredRange_;
   }
 
-  //=== Initialize track with original, floating point track params
-
-  void DigitalTrack::init(const string& fitterName,
-                          unsigned int nHelixParams,
-                          unsigned int iPhiSec,
-                          unsigned int iEtaReg,
-                          int mbin,
-                          int cbin,
-                          int mBinhelix,
-                          int cBinhelix,
-                          unsigned int hitPattern,
-                          float qOverPt_orig,
-                          float d0_orig,
-                          float phi0_orig,
-                          float tanLambda_orig,
-                          float z0_orig,
-                          float chisquaredRphi_orig,
-                          float chisquaredRz_orig,
-                          float qOverPt_bcon_orig,
-                          float phi0_bcon_orig,
-                          float chisquaredRphi_bcon_orig,  // beam-spot constrained values.
-                          unsigned int nLayers,
-                          bool consistent,
-                          bool consistentSect,
-                          bool accepted,
-                          float tp_qOverPt,
-                          float tp_d0,
-                          float tp_phi0,
-                          float tp_tanLambda,
-                          float tp_z0,
-                          float tp_eta,
-                          int tp_index,
-                          bool tp_useForAlgEff,
-                          bool tp_useForEff,
-                          int tp_pdgId) {
-    ranInit_ = true;  // Note we ran init().
-
-    fitterName_ = fitterName;
-    nHelixParams_ = nHelixParams;
-
-    // Get digitisation parameters for this particular track fitter.
-    this->getDigiCfg(fitterName);
-
-    double phiCentreSec0 = -M_PI / float(numPhiNonants_) + M_PI / float(numPhiSectors_);
-    phiSectorCentre_ = phiSectorWidth_ * float(iPhiSec) + phiCentreSec0;
-
-    // FIX: Remove this BODGE once BCHI increased to 11 in KFstate.h
-    if (chisquaredRphi_orig >= chisquaredRange_)
-      chisquaredRphi_orig = chisquaredRange_ - 0.1;
-    if (chisquaredRphi_bcon_orig >= chisquaredRange_)
-      chisquaredRphi_bcon_orig = chisquaredRange_ - 0.1;
-
-    qOverPt_orig_ = qOverPt_orig;
-    oneOver2r_orig_ = qOverPt_orig * invPtToDPhi_;
-    d0_orig_ = d0_orig;
-    phi0_orig_ = phi0_orig;
-    phi0rel_orig_ = reco::deltaPhi(phi0_orig_, phiSectorCentre_);
-    tanLambda_orig_ = tanLambda_orig;
-    z0_orig_ = z0_orig;
-    chisquaredRphi_orig_ = chisquaredRphi_orig;
-    chisquaredRz_orig_ = chisquaredRz_orig;
-
-    // Same again with beam-spot constraint.
-    qOverPt_bcon_orig_ = qOverPt_bcon_orig;
-    oneOver2r_bcon_orig_ = qOverPt_bcon_orig * invPtToDPhi_;
-    phi0_bcon_orig_ = phi0_bcon_orig;
-    phi0rel_bcon_orig_ = reco::deltaPhi(phi0_bcon_orig_, phiSectorCentre_);
-    chisquaredRphi_bcon_orig_ = chisquaredRphi_bcon_orig;
-
-    nlayers_ = nLayers;
-    iPhiSec_ = iPhiSec;
-    iEtaReg_ = iEtaReg;
-    mBin_ = mbin;
-    cBin_ = cbin;
-    mBinhelix_ = mBinhelix;
-    cBinhelix_ = cBinhelix;
-    hitPattern_ = hitPattern;
-
-    consistent_ = consistent;
-    consistentSect_ = consistentSect;
-    accepted_ = accepted;
-    tp_tanLambda_ = tp_tanLambda;
-    tp_qoverpt_ = tp_qOverPt;
-    tp_pt_ = 1. / (1.0e-6 + fabs(tp_qOverPt));
-    tp_d0_ = tp_d0;
-    tp_eta_ = tp_eta;
-    tp_phi0_ = tp_phi0;
-    tp_z0_ = tp_z0;
-    tp_index_ = tp_index;
-    tp_useForAlgEff_ = tp_useForAlgEff;
-    tp_useForEff_ = tp_useForEff;
-    tp_pdgId_ = tp_pdgId;
-  }
-
   //=== Digitize track
 
   void DigitalTrack::makeDigitalTrack() {
-    if (!ranInit_)
-      throw cms::Exception("DigitalTrack: You forgot to call init() before makeDigitalTrack()!");
-
-    ranMake_ = true;  // Note we ran makeDigitalTrack()
-
     if (skipTrackDigi_) {
       // Optionally skip track digitisaton if done internally inside track fitting code, so
       // retain original helix params.
@@ -240,11 +203,6 @@ namespace tmtt {
       if (!accepted_)
         iDigi_chisquaredRphi_bcon_ = pow(2., chisquaredBits_) - 1;
 
-      // if(settings_->digitizeSLR()){
-      //   mBinhelix_ = floor(iDigi_1over2r_/pow(2,5));
-      //   cBinhelix_ = floor(iDigi_phiT_/pow(2,7));
-      // }
-
       //--- Determine floating point track params from digitized numbers (so with degraded resolution).
 
       oneOver2r_ = (iDigi_oneOver2r_ + 0.5) / oneOver2rMult_;
@@ -288,37 +246,41 @@ namespace tmtt {
 
   void DigitalTrack::checkInRange() const {
     if (accepted_) {  // Don't bother apply to tracks rejected by the fitter.
-      if (fabs(oneOver2r_orig_) >= 0.5 * oneOver2rRange_)
-        throw cms::Exception("DigitalTrack: Track oneOver2r is out of assumed digitization range.")
-            << " |oneOver2r| = " << fabs(oneOver2r_orig_) << " > " << 0.5 * oneOver2rRange_
-            << "; Fitter=" << fitterName_ << "; track accepted = " << accepted_ << endl;
+      if (std::abs(oneOver2r_orig_) >= 0.5 * oneOver2rRange_)
+        throw cms::Exception("BadConfig")
+            << "DigitalTrack: Track oneOver2r is out of assumed digitization range."
+            << " |oneOver2r| = " << std::abs(oneOver2r_orig_) << " > " << 0.5 * oneOver2rRange_
+            << "; Fitter=" << fitterName_ << "; track accepted = " << accepted_;
       if (consistentSect_) {  // don't bother if track will fail sector consistency cut.
-        if (fabs(phi0rel_orig_) >= 0.5 * phi0Range_)
-          throw cms::Exception("DigitalTrack: Track phi0rel is out of assumed digitization range.")
-              << " |phi0rel| = " << fabs(phi0rel_orig_) << " > " << 0.5 * phi0Range_ << "; Fitter=" << fitterName_
-              << "; track accepted = " << accepted_ << endl;
+        if (std::abs(phi0rel_orig_) >= 0.5 * phi0Range_)
+          throw cms::Exception("BadConfig") << "DigitalTrack: Track phi0rel is out of assumed digitization range."
+                                            << " |phi0rel| = " << std::abs(phi0rel_orig_) << " > " << 0.5 * phi0Range_
+                                            << "; Fitter=" << fitterName_ << "; track accepted = " << accepted_;
       }
-      if (fabs(z0_orig_) >= 0.5 * z0Range_)
-        throw cms::Exception("DigitalTrack:  Track z0 is out of assumed digitization range.")
-            << " |z0| = " << fabs(z0_orig_) << " > " << 0.5 * z0Range_ << "; Fitter=" << fitterName_
-            << "; track accepted = " << accepted_ << endl;
-      if (fabs(d0_orig_) >= 0.5 * d0Range_)
-        throw cms::Exception("DigitalTrack:  Track d0 is out of assumed digitization range.")
-            << " |d0| = " << fabs(d0_orig_) << " > " << 0.5 * d0Range_ << "; Fitter=" << fitterName_
-            << "; track accepted = " << accepted_ << endl;
-      if (fabs(tanLambda_orig_) >= 0.5 * tanLambdaRange_)
-        throw cms::Exception("DigitalTrack: Track tanLambda is out of assumed digitization range.")
-            << " |tanLambda| = " << fabs(tanLambda_orig_) << " > " << 0.5 * tanLambdaRange_
-            << "; Fitter=" << fitterName_ << "; track accepted = " << accepted_ << endl;
+      if (std::abs(z0_orig_) >= 0.5 * z0Range_)
+        throw cms::Exception("BadConfig") << "DigitalTrack:  Track z0 is out of assumed digitization range."
+                                          << " |z0| = " << std::abs(z0_orig_) << " > " << 0.5 * z0Range_
+                                          << "; Fitter=" << fitterName_ << "; track accepted = " << accepted_;
+      if (std::abs(d0_orig_) >= 0.5 * d0Range_)
+        throw cms::Exception("BadConfig") << "DigitalTrack:  Track d0 is out of assumed digitization range."
+                                          << " |d0| = " << std::abs(d0_orig_) << " > " << 0.5 * d0Range_
+                                          << "; Fitter=" << fitterName_ << "; track accepted = " << accepted_;
+      if (std::abs(tanLambda_orig_) >= 0.5 * tanLambdaRange_)
+        throw cms::Exception("BadConfig")
+            << "DigitalTrack: Track tanLambda is out of assumed digitization range."
+            << " |tanLambda| = " << std::abs(tanLambda_orig_) << " > " << 0.5 * tanLambdaRange_
+            << "; Fitter=" << fitterName_ << "; track accepted = " << accepted_;
       if (accepted_) {  // Tracks declared invalid by fitter can have very large original chi2.
         if (chisquaredRphi_orig_ >= chisquaredRange_ or chisquaredRphi_orig_ < 0.)
-          throw cms::Exception("DigitalTrack: Track chisquaredRphi is out of assumed digitization range.")
+          throw cms::Exception("BadConfig")
+              << "DigitalTrack: Track chisquaredRphi is out of assumed digitization range."
               << " chisquaredRphi = " << chisquaredRphi_orig_ << " > " << chisquaredRange_ << " or < 0"
-              << "; Fitter=" << fitterName_ << "; track accepted = " << accepted_ << endl;
+              << "; Fitter=" << fitterName_ << "; track accepted = " << accepted_;
         if (chisquaredRz_orig_ >= chisquaredRange_ or chisquaredRz_orig_ < 0.)
-          throw cms::Exception("DigitalTrack: Track chisquaredRz is out of assumed digitization range.")
+          throw cms::Exception("BadConfig")
+              << "DigitalTrack: Track chisquaredRz is out of assumed digitization range."
               << " chisquaredRz = " << chisquaredRz_orig_ << " > " << chisquaredRange_ << " or < 0"
-              << "; Fitter=" << fitterName_ << "; track accepted = " << accepted_ << endl;
+              << "; Fitter=" << fitterName_ << "; track accepted = " << accepted_;
       }
     }
   }
@@ -335,17 +297,14 @@ namespace tmtt {
       float TF = chisquaredRphi_ - chisquaredRphi_orig_;
       float TG = chisquaredRz_ - chisquaredRz_orig_;
 
-      static thread_local map<string, unsigned int> nErr;  // Count precision errors from each fitter.
-      if (nErr.find(fitterName_) == nErr.end())
-        nErr[fitterName_] = 0;         // Initialize error count.
-      const unsigned int maxErr = 20;  // Print error message only this number of times.
-      if (nErr[fitterName_] < maxErr) {
-        if (fabs(TA) > 0.01 || fabs(TB) > 0.001 || fabs(TC) > 0.05 || fabs(TD) > 0.002 || fabs(TE) > 0.05 ||
-            fabs(TF) > 0.5 || fabs(TG) > 0.5) {
-          nErr[fitterName_]++;
-          cout << "WARNING: DigitalTrack lost precision: " << fitterName_ << " accepted=" << accepted_ << " " << TA
-               << " " << TB << " " << TC << " " << TD << " " << TE << " " << TF << " " << TG << endl;
-        }
+      // Compare to small numbers, representing acceptable precision loss.
+      constexpr float smallTA = 0.01, smallTB = 0.001, smallTC = 0.05, smallTD = 0.002, smallTE = 0.05, smallTF = 0.5,
+                      smallTG = 0.5;
+      if (std::abs(TA) > smallTA || std::abs(TB) > smallTB || std::abs(TC) > smallTC || std::abs(TD) > smallTD ||
+          std::abs(TE) > smallTE || std::abs(TF) > smallTF || std::abs(TG) > smallTG) {
+        throw cms::Exception("LogicError")
+            << "WARNING: DigitalTrack lost precision: " << fitterName_ << " accepted=" << accepted_ << " " << TA << " "
+            << TB << " " << TC << " " << TD << " " << TE << " " << TF << " " << TG;
       }
     }
   }

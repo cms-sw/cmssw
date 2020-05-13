@@ -1,39 +1,47 @@
-///=== This is the Kalman Combinatorial Filter for 4 & 5 helix parameters track fit algorithm.
-
 #ifndef L1Trigger_TrackFindingTMTT_KFParamsComb_h
 #define L1Trigger_TrackFindingTMTT_KFParamsComb_h
 
-#include "L1Trigger/TrackFindingTMTT/interface/L1KalmanComb.h"
-#include <TMatrixD.h>
+#include "L1Trigger/TrackFindingTMTT/interface/KFbase.h"
 #include "L1Trigger/TrackFindingTMTT/interface/L1track3D.h"
+#include "TMatrixD.h"
+
+///=== This is the Kalman Combinatorial Filter for 4 & 5 helix parameters track fit algorithm.
+///=== All variable names & equations come from Fruhwirth KF paper
+///=== http://dx.doi.org/10.1016/0168-9002%2887%2990887-4
 
 namespace tmtt {
 
-  class KFParamsComb : public L1KalmanComb {
+  class KFParamsComb : public KFbase {
   public:
-    enum PAR_IDS { INV2R, PHI0, T, Z0, D0 };
-    enum MEAS_IDS { PHI, Z };
+    KFParamsComb(const Settings* settings, const uint nPar, const std::string& fitterName)
+        : KFbase(settings, nPar, fitterName) {}
 
-  public:
-    KFParamsComb(const Settings* settings, const uint nPar, const string& fitterName);
     virtual ~KFParamsComb() {}
 
   protected:
-    virtual std::map<std::string, double> getTrackParams(const KalmanState* state) const;
-    virtual std::map<std::string, double> getTrackParams_BeamConstr(const KalmanState* state, double& chi2rphi) const;
-    virtual std::vector<double> seedx(const L1track3D& l1track3D) const;
-    virtual TMatrixD seedP(const L1track3D& l1track3D) const;
-    virtual std::vector<double> d(const StubCluster* stubCluster) const;
-    virtual TMatrixD H(const StubCluster* stubCluster) const;
-    virtual TMatrixD dH(const StubCluster* stubCluster) const;
-    virtual TMatrixD F(const StubCluster* stubCluster = 0, const KalmanState* state = 0) const;
-    virtual TMatrixD PxxModel(const KalmanState* state, const StubCluster* stubCluster) const;
-    virtual TMatrixD PddMeas(const StubCluster* stubCluster, const KalmanState* state) const;
-    virtual bool isGoodState(const KalmanState& state) const;
+    //--- Input data
 
-  private:
-    std::vector<double> mapToVec(std::map<std::string, double> x) const;
-    std::map<std::string, double> vecToMap(std::vector<double> x) const;
+    // Seed track helix params & covariance matrix
+    virtual TVectorD seedX(const L1track3D& l1track3D) const;
+    virtual TMatrixD seedC(const L1track3D& l1track3D) const;
+
+    // Stub coordinate measurements & resolution
+    virtual TVectorD vectorM(const Stub* stub) const;
+    virtual TMatrixD matrixV(const Stub* stub, const KalmanState* state) const;
+
+    //--- KF maths matrix multiplications
+
+    // Derivate of helix intercept point w.r.t. helix params.
+    virtual TMatrixD matrixH(const Stub* stub) const;
+    // Kalman helix ref point extrapolation matrix
+    virtual TMatrixD matrixF(const Stub* stub, const KalmanState* state) const;
+
+    // Convert to physical helix params instead of local ones used by KF
+    virtual TVectorD trackParams(const KalmanState* state) const;
+    virtual TVectorD trackParams_BeamConstr(const KalmanState* state, double& chi2rphi) const;
+
+    // Does helix state pass cuts?
+    virtual bool isGoodState(const KalmanState& state) const;
   };
 
 }  // namespace tmtt

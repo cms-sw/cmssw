@@ -2,9 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 #---------------------------------------------------------------------------------------------------------
 # This describes the full TMTT track reconstruction chain with 3 GeV threshold, where:
-# the GP divides the tracker into 18 eta sectors (each sub-divided into 2 virtual eta subsectors);  
-# the HT uses a  32x18 array followed by 2x2 Mini-HT array, with transverese HT readout & multiplexing, 
-# followed by the KF (or optionally SF+SLR) track fit; duplicate track removal (Algo50) is run.
+# the GP divides the tracker into 16 eta sectors;  
+# the HT uses a  32x16 array followed by 2x2 Mini-HT array, with transverese HT readout & multiplexing, 
+# followed by the track fit (KF); and duplicate track removal (Algo1) is run.
 #
 # This usually corresponds to the current firmware.
 #---------------------------------------------------------------------------------------------------------
@@ -13,17 +13,18 @@ import FWCore.ParameterSet.Config as cms
 
 from L1Trigger.TrackFindingTMTT.TMTrackProducer_Defaults_cfi import TMTrackProducer_params
 
-TMTrackProducer = cms.EDProducer('TMTrackProducer',
+TMTrackProducer = cms.EDProducer('tmtt::TMTrackProducer',
   # Load cfg parameters from TMTrackProducer_Defaults_cfi.py
   TMTrackProducer_params
 )
 
 #===================================================================================================
-#=== Parameters changed from their default values.
+# Uncomment the following 2 lines to enable use of MC truth info & output histograms.
+# (This costs CPU, and is unnecessary if you only care about producing TTTrack collection).
 #===================================================================================================
 
-#--- Disable internal digitisation of SimpleLR fitter, as it was never retuned for nonants.
-TMTrackProducer.TrackFitSettings.DigitizeSLR = cms.bool(False)
+#TMTrackProducer.EnableMCtruth = cms.bool(True)
+#TMTrackProducer.EnableHistos  = cms.bool(True)
 
 #===================================================================================================
 #=== All the following parameters already have identical values in TMTrackProducer_Defaults_cfi .
@@ -32,10 +33,8 @@ TMTrackProducer.TrackFitSettings.DigitizeSLR = cms.bool(False)
 
 #--- Configure track fitting
 
-# Use only 4 or 5 parameter helix fit Kalman Filter (which automatically runs on tracks produced with no r-z track filter)
-#TMTrackProducer.TrackFitSettings.TrackFitters = cms.vstring("KF5ParamsComb", "KF4ParamsComb")
-# Use only Linear Regression Fitter (which automatically runs on tracks produced by r-z track filter).
-#TMTrackProducer.TrackFitSettings.TrackFitters = cms.vstring("SimpleLR")
+# Use only 4 parameter helix fit Kalman Filter (which automatically runs on tracks produced with no r-z track filter)
+#TMTrackProducer.TrackFitSettings.TrackFitters = cms.vstring("KF4ParamsComb")
 
 # Allow KF to assign stubs in up to this many layers to fitted tracks.
 #TMTrackProducer.TrackFitSettings.KalmanMaxNumStubs  = cms.uint32(6)
@@ -44,12 +43,10 @@ TMTrackProducer.TrackFitSettings.DigitizeSLR = cms.bool(False)
 #TMTrackProducer.TrackFitSettings.KalmanHOhelixExp   = cms.bool(True)
 #TMTrackProducer.TrackFitSettings.KalmanHOalpha      = cms.uint32(2)
 #TMTrackProducer.TrackFitSettings.KalmanHOprojZcorr  = cms.uint32(2)
-#TMTrackProducer.TrackFitSettings.KalmanHOdodgy      = cms.bool(False)
+#TMTrackProducer.TrackFitSettings.KalmanHOfw      = cms.bool(False)
 
 #--- Switch off parts of the track reconstruction chain.
 
-#TMTrackProducer.DupTrkRemoval.DupTrkAlgRphi   = cms.uint32(0)
-#TMTrackProducer.DupTrkRemoval.DupTrkAlg3D     = cms.uint32(0)
 #TMTrackProducer.DupTrkRemoval.DupTrkAlgFit    = cms.uint32(0)
 #TMTrackProducer.TrackFitSettings.TrackFitters = cms.vstring()
 

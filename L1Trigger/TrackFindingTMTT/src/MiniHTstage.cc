@@ -1,7 +1,8 @@
 #include "L1Trigger/TrackFindingTMTT/interface/MiniHTstage.h"
 #include "L1Trigger/TrackFindingTMTT/interface/Settings.h"
+#include "L1Trigger/TrackFindingTMTT/interface/Sector.h"
 
-#include <L1Trigger/TrackFindingTMTT/interface/Sector.h>
+using namespace std;
 
 namespace tmtt {
 
@@ -32,19 +33,16 @@ namespace tmtt {
         nHTlinksPerNonant_(0) {
     nMiniHTcells_ = miniHoughNbinsPt_ * miniHoughNbinsPhi_;
 
-    if (miniHoughLoadBalance_ > 0) {
-      if (muxOutputsHT_ == 3) {
+    if (miniHoughLoadBalance_ != 0) {
+      if (muxOutputsHT_ == 1) {  // Multiplexer at output of HT enabled.
         nHTlinksPerNonant_ = busySectorMbinRanges_.size() - 1;
-      } else if (muxOutputsHT_ == 2) {
-        nHTlinksPerNonant_ = (busySectorMbinRanges_.size() - 1) * numPhiSecPerNon_;
       } else {
-        throw cms::Exception(
-            "MiniHTState: hard-wired MHT load balancing can't be enabled as assumes HT output MUX scheme >= 2");
+        throw cms::Exception("BadConfig") << "MiniHTstage: Unknown MuxOutputsHT configuration option!";
       }
     }
   }
 
-  void MiniHTstage::exec(matrix<HTrphi>& mHtRphis) {
+  void MiniHTstage::exec(matrix<unique_ptr<HTrphi>>& mHtRphis) {
     for (unsigned int iPhiNon = 0; iPhiNon < numPhiNonants_; iPhiNon++) {
       map<pair<unsigned int, unsigned int>, unsigned int>
           numStubsPerLinkStage1;  // Indices are ([link ID, MHT cell], #stubs).
@@ -54,23 +52,22 @@ namespace tmtt {
       for (unsigned int iSecInNon = 0; iSecInNon < numPhiSecPerNon_; iSecInNon++) {
         unsigned int iPhiSec = iPhiNon * numPhiSecPerNon_ + iSecInNon;
         for (unsigned int iEtaReg = 0; iEtaReg < numEtaRegions_; iEtaReg++) {
-          Sector sector;
-          sector.init(settings_, iPhiSec, iEtaReg);
+          Sector sector(settings_, iPhiSec, iEtaReg);
           const float& phiCentre = sector.phiCentre();
-          HTrphi& htRphi = mHtRphis(iPhiSec, iEtaReg);
-          const vector<L1track2D>& roughTracks = htRphi.trackCands2D();
-          vector<L1track2D> fineTracks;
+          HTrphi* htRphi = mHtRphis(iPhiSec, iEtaReg).get();
+          const list<L1track2D>& roughTracks = htRphi->trackCands2D();
+          list<L1track2D> fineTracks;
 
           for (const L1track2D& roughTrk : roughTracks) {
             float roughTrkPhi =
                 reco::deltaPhi(roughTrk.phi0() - chosenRofPhi_ * invPtToDphi_ * roughTrk.qOverPt() - phiCentre, 0.);
-            const pair<unsigned int, unsigned int>& cell = roughTrk.getCellLocationHT();
-            const vector<const Stub*>& stubs = roughTrk.getStubs();
+            const pair<unsigned int, unsigned int>& cell = roughTrk.cellLocationHT();
+            const vector<Stub*>& stubs = roughTrk.stubs();
             bool fineTrksFound = false;
             bool storeCoarseTrack = false;
             const unsigned int& link = roughTrk.optoLinkID();
 
-            if (fabs(roughTrk.qOverPt()) <
+            if (std::abs(roughTrk.qOverPt()) <
                 1. / miniHoughMinPt_) {  // Not worth using mini-HT at low Pt due to scattering.
 
               for (unsigned int mBin = 0; mBin < miniHoughNbinsPt_; mBin++) {
@@ -80,32 +77,31 @@ namespace tmtt {
                   float phiBin = reco::deltaPhi(roughTrkPhi - binSizePhiTrkAxis_ / 2. +
                                                     (cBin + .5) * binSizePhiTrkAxis_ / settings_->miniHoughNbinsPhi(),
                                                 0.);
-                  HTcell htCell;
                   const bool mergedCell = false;  // This represents mini cell.
                   const bool miniHTcell = true;
-                  htCell.init(settings_,
-                              iPhiSec,
-                              iEtaReg,
-                              sector.etaMin(),
-                              sector.etaMax(),
-                              qOverPtBin,
-                              cell.first + mBin,
-                              mergedCell,
-                              miniHTcell);
+                  HTcell htCell(settings_,
+                                iPhiSec,
+                                iEtaReg,
+                                sector.etaMin(),
+                                sector.etaMax(),
+                                qOverPtBin,
+                                cell.first + mBin,
+                                mergedCell,
+                                miniHTcell);
                   // Firmware doesn't use bend filter in MHT.
                   htCell.disableBendFilter();
 
                   for (auto& stub : stubs) {
                     // Ensure stubs are digitized with respect to the current phi sector.
                     if (settings_->enableDigitize())
-                      (const_cast<Stub*>(stub))->digitizeForHTinput(iPhiSec);
+                      stub->digitize(iPhiSec, Stub::DigiStage::HT);
                     float phiStub = reco::deltaPhi(
                         stub->phi() + invPtToDphi_ * qOverPtBin * (stub->r() - chosenRofPhi_) - phiCentre, 0.);
                     float dPhi = reco::deltaPhi(phiBin - phiStub, 0.);
                     float dPhiMax = binSizePhiTrkAxis_ / miniHoughNbinsPhi_ / 2. +
                                     invPtToDphi_ * binSizeQoverPtAxis_ / (float)miniHoughNbinsPt_ *
-                                        fabs(stub->r() - chosenRofPhi_) / 2.;
-                    if (fabs(dPhi) <= fabs(reco::deltaPhi(dPhiMax, 0.)))
+                                        std::abs(stub->r() - chosenRofPhi_) / 2.;
+                    if (std::abs(dPhi) <= std::abs(reco::deltaPhi(dPhiMax, 0.)))
                       htCell.store(stub, sector.insideEtaSubSecs(stub));
                   }
                   htCell.end();
@@ -121,16 +117,6 @@ namespace tmtt {
                         settings_, htCell.stubs(), cellLocation, helix2D, iPhiSec, iEtaReg, trueLinkID, mergedCell);
                     // Truncation due to output opto-link bandwidth.
                     bool keep(true);
-                    /*
-	          pair<unsigned int, unsigned int> encodedLink;
-		  if (miniHoughLoadBalance_ > 0) {
-		    encodedLink = pair<unsigned int, unsigned int>(newererLink, mhtCell);
-		  } else {
-		    encodedLink = pair<unsigned int, unsigned int>(newererLink, 0);
-		  }
-	          numStubsPerLink[ encodedLink ] += htCell.numStubs();
-	          if ( busySectorKill_ && numStubsPerLink[ encodedLink ] > busySectorNumStubs_ ) keep = false;
-		  */
                     numStubsPerLink[trueLinkID] += htCell.numStubs();
                     if (busySectorKill_ && numStubsPerLink[trueLinkID] > busySectorNumStubs_)
                       keep = false;
@@ -148,7 +134,7 @@ namespace tmtt {
             }
 
             if (storeCoarseTrack || ((not fineTrksFound) && miniHoughDontKill_ &&
-                                     fabs(roughTrk.qOverPt()) < 1. / miniHoughDontKillMinPt_)) {
+                                     std::abs(roughTrk.qOverPt()) < 1. / miniHoughDontKillMinPt_)) {
               // Keeping original track instead of mini-HTtracks.
               // Invent dummy miniHT cells so as to be able to reuse load balancing, trying all combinations to identify the least used link.
               pair<unsigned int, unsigned int> bestCell = {0, 0};
@@ -156,7 +142,7 @@ namespace tmtt {
               for (unsigned int mBin = 0; mBin < miniHoughNbinsPt_; mBin++) {
                 for (unsigned int cBin = 0; cBin < miniHoughNbinsPhi_; cBin++) {
                   unsigned int testLinkID = linkIDLoadBalanced(
-                      link, mBin, cBin, roughTrk.getNumStubs(), numStubsPerLinkStage1, numStubsPerLinkStage2, true);
+                      link, mBin, cBin, roughTrk.numStubs(), numStubsPerLinkStage1, numStubsPerLinkStage2, true);
                   if (numStubsPerLink[testLinkID] < bestNumStubsPerLink) {
                     bestCell = {mBin, cBin};
                     bestNumStubsPerLink = numStubsPerLink[testLinkID];
@@ -168,22 +154,12 @@ namespace tmtt {
               unsigned int trueLinkID = linkIDLoadBalanced(link,
                                                            bestCell.first,
                                                            bestCell.second,
-                                                           roughTrk.getNumStubs(),
+                                                           roughTrk.numStubs(),
                                                            numStubsPerLinkStage1,
                                                            numStubsPerLinkStage2);
 
               bool keep(true);
-              /*
-	    pair<unsigned int, unsigned int> encodedLink;
-	    if (miniHoughLoadBalance_ > 0) {
-	      encodedLink = pair<unsigned int, unsigned int>(link/nMiniHTcells_, link%nMiniHTcells_);
-	    } else {
-	      encodedLink = pair<unsigned int, unsigned int>(link, 0);
-	    }
-            numStubsPerLink[ encodedLink ] += roughTrk.getNumStubs();
-            if ( busySectorKill_ && numStubsPerLink[ encodedLink ] > busySectorNumStubs_ ) keep = false;
-	    */
-              numStubsPerLink[trueLinkID] += roughTrk.getNumStubs();
+              numStubsPerLink[trueLinkID] += roughTrk.numStubs();
               if (busySectorKill_ && numStubsPerLink[trueLinkID] > busySectorNumStubs_)
                 keep = false;
               if (keep) {
@@ -193,7 +169,7 @@ namespace tmtt {
             }
           }
           // Replace all existing tracks inside HT array with new ones.
-          htRphi.replaceTrackCands2D(fineTracks);
+          htRphi->replaceTrackCands2D(fineTracks);
         }
       }
     }
@@ -219,14 +195,16 @@ namespace tmtt {
 
     unsigned int newLink, newerLink, newererLink;
 
-    if (miniHoughLoadBalance_ >= 1) {
+    enum LoadBalancing { None = 0, Static = 1, Dynamic = 2 };  // Load balancing options
+
+    if (miniHoughLoadBalance_ >= LoadBalancing::Static) {
       // Static load balancing, 4 -> 1, with each MHT cell sent to seperate output link.
       newLink = link % nSep;  // newLink in range 0 to nSep-1.
     } else {
       newLink = link;
     }
 
-    if (miniHoughLoadBalance_ >= 2) {
+    if (miniHoughLoadBalance_ >= LoadBalancing::Dynamic) {
       // 2-stage dynamic load balancing amongst links corresponding to same MHT cell.
 
       // Dynamically mix pairs of neighbouring links.
@@ -247,7 +225,6 @@ namespace tmtt {
 
       // Dynamically mix pairs of next-to-neighbouring links.
       unsigned int balancedLinkY = newerLink;
-      //unsigned int balancedLinkZ = (newerLink%4<=1) ? balancedLinkY + 2 : balancedLinkY - 2;
       unsigned int balancedLinkZ = (newerLink + 2) % nSep;
 
       pair<unsigned int, unsigned int> encodedLinkY(balancedLinkY, mhtCell);
@@ -265,7 +242,8 @@ namespace tmtt {
       newerLink = newLink;
       newererLink = newLink;
     }
-    unsigned int trueLinkID = (miniHoughLoadBalance_ > 0) ? nMiniHTcells_ * newererLink + mhtCell : newererLink;
+    unsigned int trueLinkID =
+        (miniHoughLoadBalance_ != LoadBalancing::None) ? nMiniHTcells_ * newererLink + mhtCell : newererLink;
     return trueLinkID;
   }
 

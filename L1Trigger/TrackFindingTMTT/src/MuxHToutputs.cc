@@ -1,15 +1,22 @@
-
 //--- Note that the word "link" appearing in the C++ or comments in this class actually corresponds
 //--- to a pair of links in the hardware.
 
 #include "L1Trigger/TrackFindingTMTT/interface/MuxHToutputs.h"
 #include "L1Trigger/TrackFindingTMTT/interface/Settings.h"
+#include "L1Trigger/TrackFindingTMTT/interface/PrintL1trk.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include <atomic>
+#include <sstream>
+#include <mutex>
+
+using namespace std;
 
 namespace tmtt {
+
+  namespace {
+    std::once_flag printOnce;
+  }
 
   //=== Initialize constants from configuration parameters.
 
@@ -28,21 +35,21 @@ namespace tmtt {
   {
     // Implemented MUX algorithm relies on same number of sectors per nonant.
     if (numPhiSectors_ % numPhiNonants_ != 0)
-      throw cms::Exception("MuxHToutputs: Number of phi sectors is not a multiple of number of nonants!");
+      throw cms::Exception("BadConfig")
+          << "MuxHToutputs: Number of phi sectors is not a multiple of number of nonants!";
 
     if (!busySectorUseMbinRanges_)
-      throw cms::Exception(
-          "MuxHToutputs: The implemented MUX algorithm requires you to be using the busySectorMbinRanges cfg option!");
+      throw cms::Exception("BadConfig") << "MuxHToutputs: The implemented MUX algorithm requires you to be using the "
+                                           "busySectorMbinRanges cfg option!";
 
     // Check that the MUX algorithm implemented in linkID() is not obviously wrong.
     this->sanityCheck();
 
-    static std::atomic<bool> first = true;
-    if (first) {
-      first = false;
-      cout << "=== The R-PHI HT output is multiplexed onto " << this->numLinksPerNonant()
-           << " pairs of opto-links per nonant." << endl;
-    }
+    std::stringstream text;
+    text << "=== The R-PHI HT output is multiplexed onto " << this->numLinksPerNonant()
+         << " pairs of opto-links per nonant.";
+    std::call_once(
+        printOnce, [](string t) { PrintL1trk() << t; }, text.str());
   }
 
   //=== Determine which tracks are transmitted on each HT output optical link, taking into account the multiplexing
@@ -50,7 +57,7 @@ namespace tmtt {
   //=== to output all the tracks within the time-multiplexed period.
   //=== This function replaces the 2D track collection in the r-phi HT with the subset surviving the TM cut.
 
-  void MuxHToutputs::exec(matrix<HTrphi>& mHtRphis) const {
+  void MuxHToutputs::exec(matrix<unique_ptr<HTrphi>>& mHtRphis) const {
     // As this loops over sectors in order of increasing sector number, this MUX algorithm always transmits tracks
     // from the lowest sector numbers on each link first. So the highest sector numbers are more likely to be
     // truncated by the TM period. The algorithm assumes that two or more m-bin ranges from the same sector will never
@@ -64,18 +71,19 @@ namespace tmtt {
         unsigned int iPhiSec = iPhiNon * numPhiSecPerNon_ + iSecInNon;
 
         for (unsigned int iEtaReg = 0; iEtaReg < numEtaRegions_; iEtaReg++) {
-          HTrphi& htRphi = mHtRphis(iPhiSec, iEtaReg);  // Get a mutable version of the r-phi HT.
+          HTrphi* htRphi = mHtRphis(iPhiSec, iEtaReg).get();  // Get a mutable version of the r-phi HT.
 
-          vector<const L1track2D*> keptTracks;
-          vector<L1track2D> tracks = htRphi.trackCands2D();
+          list<L1track2D> keptTracks;
+          const list<L1track2D>& tracks = htRphi->trackCands2D();
 
-          for (L1track2D& trk : tracks) {
-            unsigned int nStubs = trk.getNumStubs();            // #stubs on this track.
-            unsigned int mBinRange = htRphi.getMbinRange(trk);  // Which m bin range is this track in?
+          for (const L1track2D& trk : tracks) {
+            L1track2D trkTmp = trk;
+            unsigned int nStubs = trkTmp.numStubs();                // #stubs on this track.
+            unsigned int mBinRange = htRphi->getMbinRange(trkTmp);  // Which m bin range is this track in?
             // Get the output optical link corresponding to this sector & m-bin range.
             unsigned int link = this->linkID(iSecInNon, iEtaReg, mBinRange);
             // Make a note of opto-link number inside track object.
-            trk.setOptoLinkID(link);
+            trkTmp.setOptoLinkID(link);
 
             numStubsPerLink[link] += nStubs;
             // Check if this track can be output within the time-multiplexed period.
@@ -83,11 +91,11 @@ namespace tmtt {
             // FIX: with 2 GeV threshold, this causes significant truncation.
             // Consider using one output link for each phi sector in nonant
             if (keep)
-              keptTracks.push_back(&trk);
+              keptTracks.push_back(trkTmp);
           }
 
           // Replace the collection of 2D tracks in the r-phi HT with the subset of them surviving the TM cut.
-          htRphi.replaceTrackCands2D(keptTracks);
+          htRphi->replaceTrackCands2D(keptTracks);
         }
       }
     }
@@ -97,11 +105,9 @@ namespace tmtt {
 
   unsigned int MuxHToutputs::muxFactor() const {
     if (muxOutputsHT_ == 1) {
-      return 6;
-    } else if (muxOutputsHT_ == 2) {
-      return numEtaRegions_;
-    } else {
       return numEtaRegions_ * numPhiSecPerNon_;
+    } else {
+      throw cms::Exception("BadConfig") << "MuxHToutputs: Unknown MuxOutputsHT configuration option!";
     }
   }
 
@@ -111,59 +117,19 @@ namespace tmtt {
   unsigned int MuxHToutputs::linkID(unsigned int iSecInNon, unsigned int iEtaReg, unsigned int mBinRange) const {
     unsigned int link;
 
-    // This algorithm multiplexes tracks from different eta sectors onto the a single optical link.
-
     if (muxOutputsHT_ == 1) {
-      //--- This is Mux used for the Dec. 2016 demonstrator.
-
-      // Link 0 contains eta sectors 0, 3, 6, 9, 12 & 15, whilst Link 1 contains eta sectors 1, 4, 7, 10, 13 & 16 etc.
-      // The multiplexing is independent of the phi sector or m-bin range, except in that two tracks that
-      // differ in either of these quantities will always be sent to different Links.
-
-      if (numEtaRegions_ == 18) {
-        link = iEtaReg % 3;                        // In range 0 to 2
-        link += 3 * iSecInNon;                     // In range 0 to (3*numPhiSecPerNon - 1)
-        link += 3 * numPhiSecPerNon_ * mBinRange;  // In range 0 to (3*numPhiSecsPerNon*numMbinRanges - 1)
-      } else {
-        throw cms::Exception("MuxHToutputs: MUX algorithm only implemented for 18 eta sectors!");
-      }
-
-    } else if (muxOutputsHT_ == 2) {
-      //--- This is the Mar. 2018 Mux for the transverse HT readout organised by m-bin. (Each phi sector & m bin range go to a different link).
-
-      link = 0;
-      //link += iSecInNon;
-      //link += numPhiSecPerNon_ * mBinRange;
-
-      // IRT - match firmware, taking into account that fw uses mBin = -mBin relative to sw.
-      // NOT NEEDED ANYMORE, AS NOW FW USES MBIN SAME SIGN AS Q/PT.
-      // unsigned int iCorr = (settings_->miniHTstage()) ? 1 : 0;
-      // Sign flip for FW using opposite
-      //link += (busySectorMbinRanges_.size() - iCorr) - mBinRange - 1;
-      link += mBinRange;
-      link += iSecInNon * (busySectorMbinRanges_.size() - 1);
-
-    } else if (muxOutputsHT_ == 3) {
       //--- This is the Sept. 2019 Mux for the transverse HT readout organised by m-bin. (Each m bin in entire nonant goes to a different link).
 
       link = 0;
-      //link += iSecInNon;
-      //link += numPhiSecPerNon_ * mBinRange;
-
-      // IRT - match firmware, taking into account that fw uses mBin = -mBin relative to sw.
-      // NOT NEEDED ANYMORE, AS NOW FW USES MBIN SAME SIGN AS Q/PT.
-      // unsigned int iCorr = (settings_->miniHTstage()) ? 1 : 0;
-      // Sign flip for FW using opposite
-      //link += (busySectorMbinRanges_.size() - iCorr) - mBinRange - 1;
       link += mBinRange;
 
     } else {
-      throw cms::Exception("MuxHToutputs: Unknown MuxOutputsHT configuration option!");
+      throw cms::Exception("BadConfig") << "MuxHToutputs: Unknown MuxOutputsHT configuration option!";
     }
 
     if (link >= this->numLinksPerNonant())
-      throw cms::Exception("MuxHToutputs: Calculated link ID exceeded expected number of links! ")
-          << link << " " << this->numLinksPerNonant() << endl;
+      throw cms::Exception("LogicError") << "MuxHToutputs: Calculated link ID exceeded expected number of links! "
+                                         << link << " " << this->numLinksPerNonant();
     return link;
   }
 
@@ -171,23 +137,18 @@ namespace tmtt {
 
   void MuxHToutputs::sanityCheck() {
     if (numPhiSecPerNon_ * numEtaRegions_ % this->muxFactor() != 0)
-      throw cms::Exception("MuxHToutputs: Number of sectors per phi nonant is not a multiple of muxFactor().");
+      throw cms::Exception("LogicError")
+          << "MuxHToutputs: Number of sectors per phi nonant is not a multiple of muxFactor().";
 
     vector<unsigned int> nObsElementsPerLink(this->numLinksPerNonant(), 0);
     for (unsigned int iSecInNon = 0; iSecInNon < numPhiSecPerNon_; iSecInNon++) {
       for (unsigned int iEtaReg = 0; iEtaReg < numEtaRegions_; iEtaReg++) {
-        // IRT
         unsigned int iCorr = (settings_->miniHTstage()) ? 1 : 0;
         for (unsigned int mBinRange = 0; mBinRange < busySectorMbinRanges_.size() - iCorr; mBinRange++) {
           unsigned int link = this->linkID(iSecInNon, iEtaReg, mBinRange);
           nObsElementsPerLink[link] += 1;
         }
       }
-    }
-    for (const unsigned int& n : nObsElementsPerLink) {
-      // Assume good algorithms will distribute sectors & m-bin ranges equally across links.
-      // IRT
-      //    if (n != this->muxFactor()) throw cms::Exception("MuxHToutputs: MUX algorithm is not assigning equal numbers of elements per link! ")<<n<<" "<<this->muxFactor()<<endl;
     }
   }
 

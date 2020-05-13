@@ -1,143 +1,76 @@
 #include "L1Trigger/TrackFindingTMTT/interface/ConverterToTTTrack.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-//=== Convert our non-persistent L1track3D object (track candidate found by Hough transform prior to fit)
-//=== to the official persistent CMSSW EDM TTrack format.
+using namespace std;
 
 namespace tmtt {
 
-  TTTrack<Ref_Phase2TrackerDigi_> ConverterToTTTrack::makeTTTrack(const L1track3D& trk,
+  //=== Convert L1fittedTrack or L1track3D (track candidates after/before fit) to TTTrack format.
+
+  TTTrack<Ref_Phase2TrackerDigi_> ConverterToTTTrack::makeTTTrack(const L1trackBase* trk,
                                                                   unsigned int iPhiSec,
                                                                   unsigned int iEtaReg) const {
-    // Get references to stubs on this track.
-    std::vector<TTStubRef> ttstubrefs = this->getStubRefs(trk);
+    unsigned int nPar, hitPattern;
+    double d0, z0, tanL, chi2rphi, chi2rz;
 
-    // Set helix parameters.
-    const unsigned int nPar4 = 4;  // Number of helix parameters determined by HT.
+    const L1fittedTrack* fitTrk = dynamic_cast<const L1fittedTrack*>(trk);
 
-    /*
-  // Create TTTrack object using these stubs. 
-  TTTrack< Ref_Phase2TrackerDigi_ > track(ttstubrefs);
+    // Handle variables that differ for L1fittedTrack & L1track3D
+    if (fitTrk == nullptr) {
+      // This is an L1track3D type (track before fit)
+      nPar = 4;  // Before fit, TMTT algorithm assumes 4 helix params
+      // Set to zero variables that are unavailable for this track type.
+      hitPattern = 0;
+      d0 = 0.;
+      z0 = 0;
+      ;
+      tanL = 0;
+      chi2rphi = 0.;
+      chi2rz = 0;
+    } else {
+      // This is an L1fittedTrack type (track after fit)
+      if (not fitTrk->accepted())
+        throw cms::Exception("LogicError") << "ConverterToTTTrack ERROR: requested to convert invalid L1fittedTrack";
+      nPar = fitTrk->nHelixParam();  // Number of helix parameters in track fit
+      hitPattern = fitTrk->hitPattern();
+      d0 = fitTrk->d0();
+      z0 = fitTrk->z0();
+      tanL = fitTrk->tanLambda();
+      chi2rphi = fitTrk->chi2rphi();
+      chi2rz = fitTrk->chi2rz();
+    }
 
-  // Note which (eta,phi) sector this track was reconstructed in by HT.
-  track.setSector(iPhiSec);
-  track.setWedge(iEtaReg);
+    const double& rinv = invPtToInvR_ * trk->qOverPt();
+    const double& phi0 = trk->phi0();
+    constexpr double mva = -1.;  // MVA quality flags not yet set.
+    const double& magneticField = settings_->magneticField();
 
-  // Set helix parameters.
-  const unsigned int nPar = trk.nHelixParam(); // Number of helix parameters determined by HT.
-  // Get and store fitted track parameters 
-  GlobalPoint bsPosition(-trk.d0()*sin(trk.phi0()),
-			  trk.d0()*cos(trk.phi0()),
-			  trk.z0()); // Point of closest approach of track to beam-line.
-  track.setPOCA(bsPosition, nPar);
-  float pt = trk.pt(); // pt
-  track.setMomentum(
-		    GlobalVector(
-				 GlobalVector::Cylindrical(
-							   pt,
-							   trk.phi0(), // phi
-							   pt*trk.tanLambda()  // pz
-							   )
-				 ),
-		    nPar
-		    );
-  track.setRInv(invPtToInvR_ * trk.qOverPt(), nPar);
-  track.setChi2(trk.chi2(), nPar);
-  track.setStubPtConsistency(-1, nPar);
-  */
-
-    // new TTTrack constructor
-    double tmp_rinv = invPtToInvR_ * trk.qOverPt();
-    double tmp_phi = trk.phi0();
-    double tmp_tanL = trk.tanLambda();
-    double tmp_z0 = trk.z0();
-    double tmp_d0 = trk.d0();
-    double tmp_chi2 = -1;
-    unsigned int tmp_hit = 0;
-    unsigned int tmp_npar = nPar4;
-    double tmp_Bfield = settings_->getBfield();
     TTTrack<Ref_Phase2TrackerDigi_> track(
-        tmp_rinv, tmp_phi, tmp_tanL, tmp_z0, tmp_d0, tmp_chi2, 0, 0, 0, tmp_hit, tmp_npar, tmp_Bfield);
+        rinv, phi0, tanL, z0, d0, chi2rphi, chi2rz, mva, mva, mva, hitPattern, nPar, magneticField);
 
-    // set stub references
+    // Set references to stubs on this track.
+    std::vector<TTStubRef> ttstubrefs = this->stubRefs(trk);
     track.setStubRefs(ttstubrefs);
 
-    // Note which (eta,phi) sector this track was reconstructed in by HT.
+    // Note which (eta,phi) sector this track was reconstructed in.
     track.setPhiSector(iPhiSec);
     track.setEtaSector(iEtaReg);
 
-    track.setStubPtConsistency(-1);  // not filled.
+    track.setStubPtConsistency(-1);  // not yet filled.
 
     return track;
   }
 
-  //=== Convert our non-persistent L1fittedTrack object (fitted track candidate)
-  //=== to the official persistent CMSSW EDM TTrack format.
+  //=== Get references to stubs on track. (Works for either L1track3D or L1fittedTrack).
 
-  TTTrack<Ref_Phase2TrackerDigi_> ConverterToTTTrack::makeTTTrack(const L1fittedTrack& trk,
-                                                                  unsigned int iPhiSec,
-                                                                  unsigned int iEtaReg) const {
-    // Check that this track is valid.
-    if (!trk.accepted())
-      throw cms::Exception("ConverterToTTTrack ERROR: requested to convert invalid L1fittedTrack.");
-
-    // Get references to stubs on this track.
-    std::vector<TTStubRef> ttstubrefs = this->getStubRefs(trk);
-
-    const unsigned int nPar = trk.nHelixParam();  // Number of helix parameters determined by HT.
-
-    /*
-  // Create TTTrack object using these stubs. 
-  TTTrack< Ref_Phase2TrackerDigi_ > track(ttstubrefs);
-
-  // Note which (eta,phi) sector this track was reconstructed in by HT.
-  track.setSector(iPhiSec);
-  track.setWedge(iEtaReg);
-
-  // Set helix parameters.
-  // Get and store fitted track parameters 
-  GlobalPoint bsPosition(-trk.d0()*sin(trk.phi0()),
-			  trk.d0()*cos(trk.phi0()),
-			  trk.z0()); // Point of closest approach of track to beam-line.
-  track.setPOCA(bsPosition, nPar);
-  float pt = trk.pt(); // pt
-  track.setMomentum(
-		    GlobalVector(
-				 GlobalVector::Cylindrical(
-							   pt,
-							   trk.phi0(), // phi
-							   pt*trk.tanLambda()  // pz
-							   )
-				 ),
-		    nPar
-		    );
-  track.setRInv(invPtToInvR_ * trk.qOverPt(), nPar);
-  track.setChi2(trk.chi2(), nPar);
-  track.setStubPtConsistency(-1, nPar);
-  */
-
-    // new TTTrack constructor
-    double tmp_rinv = invPtToInvR_ * trk.qOverPt();
-    double tmp_phi = trk.phi0();
-    double tmp_tanL = trk.tanLambda();
-    double tmp_z0 = trk.z0();
-    double tmp_d0 = trk.d0();
-    double tmp_chi2 = -1;
-    unsigned int tmp_hit = 0;
-    unsigned int tmp_npar = nPar;
-    double tmp_Bfield = settings_->getBfield();
-    TTTrack<Ref_Phase2TrackerDigi_> track(
-        tmp_rinv, tmp_phi, tmp_tanL, tmp_z0, tmp_d0, tmp_chi2, 0, 0, 0, tmp_hit, tmp_npar, tmp_Bfield);
-
-    // set stub references
-    track.setStubRefs(ttstubrefs);
-
-    // Note which (eta,phi) sector this track was reconstructed in by HT.
-    track.setPhiSector(iPhiSec);
-    track.setEtaSector(iEtaReg);
-
-    track.setStubPtConsistency(-1);  // not filled.
-
-    return track;
+  std::vector<TTStubRef> ConverterToTTTrack::stubRefs(const L1trackBase* trk) const {
+    std::vector<TTStubRef> ttstubrefs;
+    const std::vector<Stub*> stubs = trk->stubs();
+    for (Stub* s : stubs) {
+      const TTStubRef& ref = s->ttStubRef();
+      ttstubrefs.push_back(ref);
+    }
+    return ttstubrefs;
   }
+
 }  // namespace tmtt

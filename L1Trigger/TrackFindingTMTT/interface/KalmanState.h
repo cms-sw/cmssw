@@ -1,80 +1,81 @@
 #ifndef L1Trigger_TrackFindingTMTT_KalmanState_h
 #define L1Trigger_TrackFindingTMTT_KalmanState_h
 
-#include <TMatrixD.h>
 #include "L1Trigger/TrackFindingTMTT/interface/Stub.h"
-#include "L1Trigger/TrackFindingTMTT/interface/L1KalmanComb.h"
+#include "L1Trigger/TrackFindingTMTT/interface/KFbase.h"
+#include "TMatrixD.h"
+#include "TVectorD.h"
+
 #include <map>
+
+///=== Represents helix state & last associated stub.
+///=== All variable names & equations come from Fruhwirth KF paper
+///=== http://dx.doi.org/10.1016/0168-9002%2887%2990887-4
 
 namespace tmtt {
 
-  class L1KalmanComb;
+  class KFbase;
   class KalmanState;
-  class StubCluster;
-
-  typedef std::map<std::string, double> (*GET_TRACK_PARAMS)(const L1KalmanComb *p, const KalmanState *state);
+  class Stub;
+  class Settings;
 
   class KalmanState {
   public:
     KalmanState();
-    KalmanState(const L1track3D &candidate,
-                unsigned n_skipped,
-                unsigned kLayer_next,
-                unsigned layerId,
+    KalmanState(const Settings *settings,
+                const L1track3D &candidate,
+                unsigned nSkipped,
+                int kLayer,
                 const KalmanState *last_state,
-                const std::vector<double> &x,
-                const TMatrixD &pxx,
-                const TMatrixD &K,
-                const TMatrixD &dcov,
-                const StubCluster *stubcl,
+                const TVectorD &vecX,
+                const TMatrixD &matC,
+                const TMatrixD &matK,
+                const TMatrixD &matV,
+                Stub *stub,
                 double chi2rphi,
-                double chi2rz,
-                L1KalmanComb *fitter,
-                GET_TRACK_PARAMS f);
+                double chi2rz);
+
     KalmanState(const KalmanState &p);
     ~KalmanState() {}
 
     KalmanState &operator=(const KalmanState &other);
 
-    unsigned nextLayer() const { return kLayerNext_; }
-    unsigned layerId() const { return layerId_; }
-    unsigned endcapRing() const { return endcapRing_; }
+    const Settings *settings() const { return settings_; }
+    // KF layer where next stub to extend this state should be sought.
+    unsigned nextLayer() const { return (1 + kLayer_); }
+    // KF layer of last added stub. (-1 if no stubs yet).
+    int layer() const { return kLayer_; }
     bool barrel() const { return barrel_; }
-    unsigned nSkippedLayers() const { return n_skipped_; }
+    unsigned nSkippedLayers() const { return nSkipped_; }
     // Hit coordinates.
     double r() const { return r_; }
     double z() const { return z_; }
     const KalmanState *last_state() const { return last_state_; }
     // Helix parameters (1/2R, phi relative to sector, z0, tanLambda)
-    std::vector<double> xa() const { return xa_; }
+    const TVectorD &vectorX() const { return vecX_; }
     // Covariance matrix on helix params.
-    TMatrixD pxxa() const { return pxxa_; }
+    const TMatrixD &matrixC() const { return matC_; }
     // Kalman Gain matrix
-    TMatrixD K() const { return K_; }
+    const TMatrixD &matrixK() const { return matK_; }
     // Hit position covariance matrix.
-    TMatrixD dcov() const { return dcov_; }
-    // Hit
-    const StubCluster *stubCluster() const { return stubCluster_; }
+    const TMatrixD &matrixV() const { return matV_; }
+    // Last added stub
+    Stub *stub() const { return stub_; }
+    // Track used to seed KF.
+    const L1track3D &candidate() const { return l1track3D_; }
+
     double chi2() const { return chi2rphi_ + chi2rz_; }
     double chi2scaled() const { return chi2rphi_ / kalmanChi2RphiScale_ + chi2rz_; }  // Improves electron performance.
     double chi2rphi() const { return chi2rphi_; }
     double chi2rz() const { return chi2rz_; }
     unsigned nStubLayers() const { return n_stubs_; }
-    L1track3D candidate() const { return l1track3D_; }
     unsigned int hitPattern() const { return hitPattern_; }  // Bit-encoded KF layers the fitted track has stubs in.
 
     bool good(const TP *tp) const;
     double reducedChi2() const;
     const KalmanState *last_update_state() const;
-    std::vector<const Stub *> stubs() const;
-    L1KalmanComb *fitter() const { return fitter_; }
-    GET_TRACK_PARAMS fXtoTrackParams() const { return fXtoTrackParams_; };
+    std::vector<Stub *> stubs() const;
 
-    static bool orderChi2(const KalmanState *left, const KalmanState *right);
-    static bool orderMinSkipChi2(const KalmanState *left, const KalmanState *right);
-
-    static bool order(const KalmanState *left, const KalmanState *right);
-    void dump(ostream &os, const TP *tp = 0, bool all = 0) const;
     void setChi2(double chi2rphi, double chi2rz) {
       chi2rphi_ = chi2rphi;
       chi2rz_ = chi2rz;
@@ -85,25 +86,22 @@ namespace tmtt {
     //void getHLSselect(unsigned int& mBinHelix, unsigned int& cBinHelix, bool& consistent) const { mBinHelix = mBinHelixHLS_; cBinHelix = cBinHelixHLS_; consistent = consistentHLS_;}
 
   private:
-    unsigned kLayerNext_;
-    unsigned layerId_;
-    unsigned endcapRing_;
+    const Settings *settings_;
+    int kLayer_;
     double r_;
+    double z_;
     const KalmanState *last_state_;
-    std::vector<double> xa_;
-    TMatrixD pxxa_;
-    TMatrixD K_;
-    TMatrixD dcov_;
-    const StubCluster *stubCluster_;
+    TVectorD vecX_;
+    TMatrixD matC_;
+    TMatrixD matK_;
+    TMatrixD matV_;
+    Stub *stub_;
     double chi2rphi_;
     double chi2rz_;
     unsigned int kalmanChi2RphiScale_;
     unsigned n_stubs_;
-    L1KalmanComb *fitter_;
-    GET_TRACK_PARAMS fXtoTrackParams_;
     bool barrel_;
-    unsigned n_skipped_;
-    double z_;
+    unsigned nSkipped_;
     L1track3D l1track3D_;
     unsigned int hitPattern_;
 

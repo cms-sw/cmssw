@@ -6,8 +6,6 @@
 #include <vector>
 #include <unordered_map>
 
-using namespace std;
-
 namespace tmtt {
 
   class Settings;
@@ -15,39 +13,10 @@ namespace tmtt {
 
   class Sector {
   public:
-    Sector()
-        : settings_(nullptr),
-          beamWindowZ_(0),
-          trackerOuterRadius_(0),
-          trackerInnerRadius_(0),
-          trackerHalfLength_(0),
-          handleStripsPhiSec_(0),
-          handleStripsEtaSec_(0),
-          iPhiSec_(0),
-          iEtaReg_(0),
-          etaMin_(0),
-          etaMax_(0),
-          chosenRofZ_(0),
-          rOuterMax_(0),
-          zOuterMax_(0),
-          rOuterMin_(0),
-          zOuterMin_(0),
-          phiCentre_(0),
-          sectorHalfWidth_(0),
-          chosenRofPhi_(0),
-          useStubPhi_(0),
-          minPt_(0),
-          useStubPhiTrk_(0),
-          assumedPhiTrkRes_(0),
-          calcPhiTrkRes_(0),
-          numSubSecsEta_(0),
-          zOuterMinSub_(),
-          zOuterMaxSub_() {}
+    // Initialization.
+    Sector(const Settings* settings, unsigned int iPhiSec, unsigned int iEtaSec);
 
     ~Sector() {}
-
-    // Initialization.
-    void init(const Settings* settings, unsigned int iPhiSec, unsigned int iEtaSec);
 
     // Check if stub within the eta and/or phi boundaries of this sector.
     bool inside(const Stub* stub) const { return (this->insideEta(stub) && this->insidePhi(stub)); }
@@ -55,7 +24,7 @@ namespace tmtt {
     bool insidePhi(const Stub* stub) const;
 
     // Check if stub is within subsectors in eta that sector may be divided into.
-    vector<bool> insideEtaSubSecs(const Stub* stub) const;
+    std::vector<bool> insideEtaSubSecs(const Stub* stub) const;
 
     unsigned int iPhiSec() const { return iPhiSec_; }  // Sector number.
     unsigned int iEtaReg() const { return iEtaReg_; }
@@ -72,7 +41,7 @@ namespace tmtt {
     // For performance studies, note which stubs on given tracking particle are inside the sector.
     // Returns two booleans for each stub, indicating if they are in phi & eta sectors respectively.
     // You can AND them together to check if stub is in (eta,phi) sector.
-    unordered_map<const Stub*, pair<bool, bool>> stubsInside(const TP& tp) const;
+    std::unordered_map<const Stub*, std::pair<bool, bool>> stubsInside(const TP& tp) const;
 
     // Count number of stubs in given tracking particle which are inside this (phi,eta) sector;
     // or inside it if only the eta cuts are applied; or inside it if only the phi cuts are applied.
@@ -84,7 +53,7 @@ namespace tmtt {
 
     // Check if the helix parameters of a tracking particle (truth) are consistent with this sector.
     bool insidePhiSec(const TP& tp) const {
-      return (fabs(tp.trkPhiAtR(chosenRofPhi_) - phiCentre_) < sectorHalfWidth_);
+      return (std::abs(tp.trkPhiAtR(chosenRofPhi_) - phiCentre_) < sectorHalfWidth_);
     }
     bool insideEtaReg(const TP& tp) const {
       return (tp.trkZAtR(chosenRofZ_) > zOuterMin_ && tp.trkZAtR(chosenRofZ_) < zOuterMax_);
@@ -95,31 +64,23 @@ namespace tmtt {
     bool insideEtaRange(const Stub* stub, float zRangeMin, float zRangeMax) const;
 
     // Digitize a floating point number to 2s complement integer, dropping anything after the decimal point. (Kristian Harder)
-    Long64_t forceBitWidth(const float value, const UInt_t nBits) const;
+    int64_t forceBitWidth(const float value, const UInt_t nBits) const;
 
     // Check if stub is within subsectors in eta that sector may be divided into. Uses digitized calculation corresponding to GP firmware. (Kristian Harder)
-    vector<bool> subEtaFwCalc(const int rT, const int z) const;
+    std::vector<bool> subEtaFwCalc(const int rT, const int z) const;
 
   private:
     const Settings* settings_;
 
-    float beamWindowZ_;
-    float trackerOuterRadius_;
-    float trackerInnerRadius_;
-    float trackerHalfLength_;
-    bool handleStripsPhiSec_;
-    bool handleStripsEtaSec_;
-
-    // Define eta region.
-    unsigned int iPhiSec_;  // Sector number
+    // Sector number
+    unsigned int iPhiSec_;
     unsigned int iEtaReg_;
+    float beamWindowZ_;
     float etaMin_;  // Range in eta covered by this sector.
     float etaMax_;
     float chosenRofZ_;  // Use z of track at radius="chosenRofZ" to define eta sectors.
-    float rOuterMax_;   // Larger eta boundary point (r,z)
+    float zOuterMin_;   // z range of sector at reference radius
     float zOuterMax_;
-    float rOuterMin_;  // Smaller eta boundary point (r,z)
-    float zOuterMin_;
 
     // Define phi sector.
     float phiCentre_;        // phi of centre of sector.
@@ -133,8 +94,8 @@ namespace tmtt {
 
     // Possible subsectors in eta within each sector.
     unsigned int numSubSecsEta_;
-    vector<float> zOuterMinSub_;
-    vector<float> zOuterMaxSub_;
+    std::vector<float> zOuterMinSub_;
+    std::vector<float> zOuterMaxSub_;
   };
 
 }  // namespace tmtt

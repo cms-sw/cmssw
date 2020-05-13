@@ -3,16 +3,16 @@
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "L1Trigger/TrackFindingTMTT/interface/TP.h"
+#include "L1Trigger/TrackFindingTMTT/interface/TrackerModule.h"
 #include "L1Trigger/TrackFindingTMTT/interface/Stub.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include <vector>
-
-using namespace std;
+#include <list>
 
 namespace tmtt {
 
   class Settings;
+  class StubWindowSuggest;
 
   //=== Unpacks stub & tracking particle (truth) data into user-friendlier format in Stub & TP classes.
   //=== Also makes B-field available to Settings class.
@@ -21,43 +21,48 @@ namespace tmtt {
   public:
     InputData(const edm::Event& iEvent,
               const edm::EventSetup& iSetup,
-              Settings* settings,
-              const edm::EDGetTokenT<TrackingParticleCollection> tpInputTag,
-              const edm::EDGetTokenT<DetSetVec> stubInputTag,
-              const edm::EDGetTokenT<TTStubAssMap> stubTruthInputTag,
-              const edm::EDGetTokenT<TTClusterAssMap> clusterTruthInputTag,
-              const edm::EDGetTokenT<reco::GenJetCollection> genJetInputTag);
+              const Settings* settings,
+              StubWindowSuggest* stubWindowSuggest,
+              const TrackerGeometry* trackerGeometry,
+              const TrackerTopology* trackerTopology,
+              const std::list<TrackerModule>& listTrackerModule,
+              const edm::EDGetTokenT<TrackingParticleCollection> tpToken,
+              const edm::EDGetTokenT<TTStubDetSetVec> stubToken,
+              const edm::EDGetTokenT<TTStubAssMap> stubTruthToken,
+              const edm::EDGetTokenT<TTClusterAssMap> clusterTruthToken,
+              const edm::EDGetTokenT<reco::GenJetCollection> genJetToken);
+
+    // Info about each tracker module
+    const std::list<TrackerModule>& trackerModules() const { return trackerModules_; };
 
     // Get tracking particles
-    const vector<TP>& getTPs() const { return vTPs_; }
+    const std::list<TP>& getTPs() const { return vTPs_; }
     // Get stubs that would be output by the front-end readout electronics
-    const vector<const Stub*>& getStubs() const { return vStubs_; }
+    const std::list<Stub*>& stubs() const { return vStubs_; }
+    // Ditto but const
+    const std::list<const Stub*>& stubsConst() const { return vStubsConst_; }
 
     //--- of minor importance ...
 
     // Get number of stubs prior to applying tighted front-end readout electronics cuts specified in section StubCuts of Analyze_Defaults_cfi.py. (Only used to measure the efficiency of these cuts).
-    const vector<Stub>& getAllStubs() const { return vAllStubs_; }
-
-  private:
-    // const edm::EDGetTokenT<TrackingParticleCollection> inputTag;
-
-    // Can optionally be used to sort stubs by bend.
-    struct SortStubsInBend {
-      inline bool operator()(const Stub* stub1, const Stub* stub2) {
-        return (fabs(stub1->bend()) < fabs(stub2->bend()));
-      }
-    };
+    const std::list<Stub>& allStubs() const { return vAllStubs_; }
 
   private:
     bool enableMCtruth_;  // Notes if job will use MC truth info.
 
-    vector<TP> vTPs_;             // tracking particles
-    vector<const Stub*> vStubs_;  // stubs that would be output by the front-end readout electronics.
+    std::list<TrackerModule> trackerModules_;  // Info about each tracker module.
 
-    //--- of minor importance ...
+    std::list<TP> vTPs_;                  // tracking particles
+    std::list<Stub*> vStubs_;             // stubs that would be output by the front-end readout electronics.
+    std::list<const Stub*> vStubsConst_;  // ditto but const
 
-    vector<Stub>
-        vAllStubs_;  // all stubs, even those that would fail any tightened front-end readout electronic cuts specified in section StubCuts of Analyze_Defaults_cfi.py. (Only used to measure the efficiency of these cuts).
+    //--- Used for a few minor studies ...
+
+    // all stubs, even those that would fail any tightened front-end readout electronic cuts specified in section StubCuts of Analyze_Defaults_cfi.py. (Only used to measure the efficiency of these cuts).
+    std::list<Stub> vAllStubs_;
+
+    // Recommends optimal FE stub window sizes.
+    StubWindowSuggest* stubWindowSuggest_;
   };
 
 }  // namespace tmtt

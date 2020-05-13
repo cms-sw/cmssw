@@ -1,34 +1,32 @@
+#ifndef L1Trigger_TrackFindingTMTT_SimpleLR4_h
+#define L1Trigger_TrackFindingTMTT_SimpleLR4_h
+
 ///=== This is the simple linear regression with 4 helix parameters (qOverPt, phiT, z0, tanLambda) track fit algorithm.
 
 ///=== Written by: Davide Cieri (davide.cieri@stfc.ac.uk)
-
-#ifndef L1Trigger_TrackFindingTMTT_SimpleLR_h
-#define L1Trigger_TrackFindingTMTT_SimpleLR_h
 
 #include "L1Trigger/TrackFindingTMTT/interface/TrackFitGeneric.h"
 #include "L1Trigger/TrackFindingTMTT/interface/Settings.h"
 #include "L1Trigger/TrackFindingTMTT/interface/L1track3D.h"
 #include "L1Trigger/TrackFindingTMTT/interface/L1fittedTrack.h"
-
 #include "L1Trigger/TrackFindingTMTT/interface/Stub.h"
+
 #include <vector>
 #include <sstream>
 #include <string>
 
 namespace tmtt {
 
-  class SimpleLR : public TrackFitGeneric {
+  class SimpleLR4 : public TrackFitGeneric {
   public:
-    SimpleLR(const Settings* settings) : TrackFitGeneric(settings), settings_(settings){};
+    SimpleLR4(const Settings* settings);
 
-    virtual ~SimpleLR(){};
-
-    virtual void initRun();
+    virtual ~SimpleLR4(){};
 
     L1fittedTrack fit(const L1track3D& l1track3D);
 
   protected:
-    const Settings* settings_;
+    bool debug_;
 
     float phiSectorWidth_;
     float phiSectorCentre_;
@@ -51,6 +49,7 @@ namespace tmtt {
     float chi2cut_;
     float invPtToDPhi_;
     float chosenRofPhi_;
+    unsigned int minStubLayersRed_;
 
     bool digitize_;
     unsigned int dividerBitsHelix_;

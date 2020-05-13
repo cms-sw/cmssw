@@ -5,8 +5,8 @@
 
 #include "boost/numeric/ublas/matrix.hpp"
 #include <vector>
+#include <memory>
 
-using namespace std;
 using boost::numeric::ublas::matrix;
 
 //==================================================================================================
@@ -37,7 +37,7 @@ namespace tmtt {
     // of multiple (eta,phi) sectors onto single links and the truncation of the tracks caused by the requirement
     // to output all the tracks within the time-multiplexed period.
     // This function replaces the 2D track collection in the r-phi HT with the subset surviving the TM cut.
-    void exec(matrix<HTrphi>& mHtRphis) const;
+    void exec(matrix<std::unique_ptr<HTrphi>>& mHtRphis) const;
 
     // Determine number of optical links used to output tracks from each phi nonant
     // (where "link" refers to a pair of links in the hardware).
@@ -68,7 +68,7 @@ namespace tmtt {
     unsigned int numEtaRegions_;
     bool busySectorKill_;
     unsigned int busySectorNumStubs_;
-    vector<unsigned int> busySectorMbinRanges_;
+    std::vector<unsigned int> busySectorMbinRanges_;
     bool busySectorUseMbinRanges_;
   };
 

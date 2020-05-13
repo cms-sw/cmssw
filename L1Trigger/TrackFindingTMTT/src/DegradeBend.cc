@@ -1,4 +1,5 @@
 #include "L1Trigger/TrackFindingTMTT/interface/DegradeBend.h"
+#include "L1Trigger/TrackFindingTMTT/interface/TrackerModule.h"
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
@@ -16,7 +17,7 @@ namespace tmtt {
 
   //--- Stub window sizes copied from L1Trigger/TrackTrigger/python/TTStubAlgorithmRegister_cfi.py
 
-  const std::vector<double> DegradeBend::barrelCut_ = {0, 2.0, 2.0, 3.5, 4.5, 5.5, 6.5};
+  const std::vector<double> DegradeBend::barrelCut_ = {0, 2, 2.5, 3.5, 4.5, 5.5, 7};
   const std::vector<std::vector<double> > DegradeBend::ringCut_ = {  // EndcapCutSet
       {0},
       {0, 1, 2.5, 2.5, 3, 2.5, 3, 3.5, 4, 4, 4.5, 3.5, 4, 4.5, 5, 5.5},
@@ -26,9 +27,9 @@ namespace tmtt {
       {0, 0.5, 1.5, 3, 2.5, 3.5, 3, 3, 3.5, 4, 3.5, 4, 3.5}};
   const std::vector<std::vector<double> > DegradeBend::tiltedCut_ = {  // TiltedBarrelCutSet
       {0},
-      {0, 3, 3, 2.5, 3, 3, 2.5, 2.5, 2, 1.5, 1.5, 1, 1},
-      {0, 3.5, 3, 3, 3, 3, 2.5, 2.5, 3, 3, 2.5, 2.5, 2.5},
-      {0, 4, 4, 4, 3.5, 3.5, 3.5, 3.5, 3, 3, 3, 3, 3}};
+      {0, 3, 3., 2.5, 3., 3., 2.5, 2.5, 2., 1.5, 1.5, 1, 1},
+      {0, 4., 4, 4, 4, 4., 4., 4.5, 5, 4., 3.5, 3.5, 3},
+      {0, 5, 5, 5, 5, 5, 5, 5.5, 5, 5, 5.5, 5.5, 5.5}};
   const std::vector<double> DegradeBend::barrelNTilt_ = {0., 12., 12., 12., 0., 0., 0.};
 
   //--- Given the original bend, flag indicating if this is a PS or 2S module, & detector identifier,
@@ -41,14 +42,10 @@ namespace tmtt {
                             const DetId& stDetId,
                             float windowFEnew,
                             float& degradedBend,
-                            bool& reject,
                             unsigned int& numInGroup) const {
     // Get degraded bend value.
     unsigned int windowHalfStrips;
-    this->work(bend, psModule, stDetId, windowFEnew, degradedBend, reject, numInGroup, windowHalfStrips);
-
-    // Check for mistakes.
-    this->sanityChecks(psModule, stDetId, windowFEnew, degradedBend, numInGroup, windowHalfStrips);
+    this->work(bend, psModule, stDetId, windowFEnew, degradedBend, numInGroup, windowHalfStrips);
   }
 
   //--- Does the actual work of degrading the bend.
@@ -58,7 +55,6 @@ namespace tmtt {
                          const DetId& stDetId,
                          float windowFEnew,
                          float& degradedBend,
-                         bool& reject,
                          unsigned int& numInGroup,
                          unsigned int& windowHalfStrips) const {
     // Calculate stub window size in half-strip units used to produce stubs.
@@ -73,7 +69,7 @@ namespace tmtt {
       int type = 2 * theTrackerTopo_->tobSide(stDetId) - 3;  // -1 for tilted-, 1 for tilted+, 3 for flat
       double corr = 0;
 
-      if (type < 3)  // Only for tilted modules
+      if (type != TrackerModule::BarrelModuleType::flat)  // Only for tilted modules
       {
         corr = (barrelNTilt_.at(layer) + 1) / 2.;
         ladder =
@@ -107,7 +103,6 @@ namespace tmtt {
     int b = std::round(2 * bend);
 
     if ((unsigned int)(abs(b)) <= window) {
-      reject = false;
       float degradedB;
       unsigned int numBends = 2 * window + 1;
       unsigned int numAllowed = (psModule) ? pow(2, bitsPS_) : pow(2, bits2S_);
@@ -122,19 +117,20 @@ namespace tmtt {
         unsigned int numLargeGroups = numBends % numAllowed;
         unsigned int inLargeGroup = inSmallGroup + 1;
         unsigned int numSmallGroups = numAllowed - numLargeGroups;
+        // Bend encoding in groups (some large, some small, one large/small, some small, some large).
         vector<unsigned int> groups;
         for (unsigned int i = 0; i < numLargeGroups / 2; i++)
           groups.push_back(inLargeGroup);
         for (unsigned int i = 0; i < numSmallGroups / 2; i++)
           groups.push_back(inSmallGroup);
         // Only one of numLargeGroups & numSmallGroups can be odd, since numAllowed is odd.
-        // And whichever one is odd is associated to a group with an odd number of elements since numBends is odd,
+        // And whichever is odd is associated to a group with an odd number of elements since numBends is odd,
         if (numLargeGroups % 2 == 1 && inLargeGroup % 2 == 1) {
           groups.push_back(inLargeGroup);
         } else if (numSmallGroups % 2 == 1 && inSmallGroup % 2 == 1) {
           groups.push_back(inSmallGroup);
         } else {
-          throw cms::Exception("DegradeBend: logic error with odd numbers");
+          throw cms::Exception("LogicError") << "DegradeBend: logic error with odd numbers";
         }
         for (unsigned int i = 0; i < numSmallGroups / 2; i++)
           groups.push_back(inSmallGroup);
@@ -152,80 +148,17 @@ namespace tmtt {
           }
         }
         if (degradedB == 999)
-          throw cms::Exception("DegradeResolution: Logic error in loop over groups");
+          throw cms::Exception("LogicError") << "DegradeResolution: Logic error in loop over groups";
       }
 
       // This is degraded bend in full strip units (neglecting bend sign).
       degradedBend = float(degradedB) / 2.;
 
     } else {
-      // This shouldn't happen. If it does, the the window sizes assumed in this code are tighter than the ones
-      // actually used to produce the stubs.
-      reject = true;
+      // This should only happen for stubs subsequently rejected by the FE.
       numInGroup = 0;
-      degradedBend = 99999;
+      constexpr float rejectedStubBend = 99999.;
+      degradedBend = rejectedStubBend;
     }
   }
-
-  //--- Check for mistakes.
-
-  void DegradeBend::sanityChecks(bool psModule,
-                                 const DetId& stDetId,
-                                 float windowFEnew,
-                                 float degradedBend,
-                                 unsigned int numInGroup,
-                                 unsigned int windowHalfStrips) const {
-    pair<unsigned int, bool> p(windowHalfStrips, psModule);
-
-    // Map notes if this (window size, psModule) combination has already been checked.
-    static thread_local map<pair<unsigned int, bool>, bool> checked;
-
-    if (checked.find(p) == checked.end()) {
-      bool wasDegraded = false;  // Was any stub bend encoding required for this window size?
-      set<float> degradedBendTmpValues;
-      set<float> bendTmpMatches;
-
-      // Loop over all bend values allowed within the window size.
-      for (int bendHalfStrips = -int(windowHalfStrips); bendHalfStrips <= int(windowHalfStrips); bendHalfStrips++) {
-        float bendTmp = float(bendHalfStrips) / 2.;
-        float degradedBendTmp;
-        bool rejectTmp;
-        unsigned int numInGroupTmp = 0;
-        unsigned int windowHalfStripsTmp = 0;
-        this->work(
-            bendTmp, psModule, stDetId, windowFEnew, degradedBendTmp, rejectTmp, numInGroupTmp, windowHalfStripsTmp);
-        if (numInGroupTmp > 1)
-          wasDegraded = true;
-        degradedBendTmpValues.insert(degradedBendTmp);
-        if (degradedBend == degradedBendTmp)
-          bendTmpMatches.insert(bendTmp);  // Gives same degraded bend as original problem.
-
-        // Sanity checks.
-        if (rejectTmp)
-          throw cms::Exception("DegradeBend: `rejected' flag set, despite bend being within window")
-              << " fabs(" << bendTmp << ") <= " << float(windowHalfStrips) / 2. << endl;
-        if (4 * fabs(bendTmp - degradedBendTmp) > std::round(numInGroupTmp - 1))
-          throw cms::Exception("DegradeBend: degraded bend differs by more than expected from input bend.")
-              << " bendTmp=" << bendTmp << " degradedBendTmp=" << degradedBendTmp << " numInGroupTmp=" << numInGroupTmp
-              << endl;
-      }
-
-      // Sanity checks.
-      unsigned int numRedValues = degradedBendTmpValues.size();
-      unsigned int maxAllowed = (psModule) ? pow(2, bitsPS_) : pow(2, bits2S_);
-      if (wasDegraded) {
-        if (numRedValues != maxAllowed - 1)
-          throw cms::Exception("DegradeBend: Bend encoding using wrong number of bits")
-              << numRedValues << " > " << maxAllowed << endl;
-      } else {
-        if (numRedValues > maxAllowed)
-          throw cms::Exception("DegradeBend: Bend encoding using too many bits")
-              << numRedValues << " > " << maxAllowed << endl;
-      }
-      if (bendTmpMatches.size() != numInGroup)
-        throw cms::Exception("DegradeBend: number of bend values in group inconsistent.")
-            << bendTmpMatches.size() << " is not equal to " << numInGroup << endl;
-    }
-  }
-
 }  // namespace tmtt

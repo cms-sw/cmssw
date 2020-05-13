@@ -1,19 +1,18 @@
-// Copied from https://raw.githubusercontent.com/EmyrClement/StubKiller/master/StubKiller.cc
-// on 9th May 2018.
-
-// Changed to point to location we put it.
-//#include "StubKiller.h"
 #include "L1Trigger/TrackFindingTMTT/interface/StubKiller.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 using namespace std;
 
 namespace tmtt {
 
-  StubKiller::StubKiller()
-      : killScenario_(0),
-        trackerTopology_(0),
-        trackerGeometry_(0),
-        layersToKill_(vector<int>()),
+  StubKiller::StubKiller(StubKiller::KillOptions killScenario,
+                         const TrackerTopology* trackerTopology,
+                         const TrackerGeometry* trackerGeometry,
+                         const edm::Event& event)
+      : killScenario_(killScenario),
+        trackerTopology_(trackerTopology),
+        trackerGeometry_(trackerGeometry),
         minPhiToKill_(0),
         maxPhiToKill_(0),
         minZToKill_(0),
@@ -22,22 +21,24 @@ namespace tmtt {
         maxRToKill_(0),
         fractionOfStubsToKillInLayers_(0),
         fractionOfStubsToKillEverywhere_(0),
-        fractionOfModulesToKillEverywhere_(0) {}
+        fractionOfModulesToKillEverywhere_(0) {
+    if (rndmService_.isAvailable()) {
+      rndmEngine_ = &(rndmService_->getEngine(event.streamID()));
+    } else {
+      throw cms::Exception("BadConfig")
+          << "StubKiller: requires RandomNumberGeneratorService, not present in cfg file, namely:" << endl
+          << "process.RandomNumberGeneratorService=cms.Service('RandomNumberGeneratorService',TMTrackProducer=cms.PSet("
+             "initialSeed=cms.untracked.uint32(12345)))";
+    }
 
-  void StubKiller::initialise(unsigned int killScenario,
-                              const TrackerTopology* trackerTopology,
-                              const TrackerGeometry* trackerGeometry) {
-    killScenario_ = killScenario;
-    trackerTopology_ = trackerTopology;
-    trackerGeometry_ = trackerGeometry;
+    // These scenarios correspond to slide 12 of  https://indico.cern.ch/event/719985/contributions/2970687/attachments/1634587/2607365/StressTestTF-Acosta-Apr18.pdf
+    // Scenario 1
 
-    // These sceanrios correspond to slide 12 of  https://indico.cern.ch/event/719985/contributions/2970687/attachments/1634587/2607365/StressTestTF-Acosta-Apr18.pdf
-    // Sceanrio 1
     // kill layer 5 in one quadrant +5 % random module loss to connect to what was done before
-    if (killScenario_ == 1) {
+    if (killScenario_ == KillOptions::layer5) {
       layersToKill_ = {5};
       minPhiToKill_ = 0;
-      maxPhiToKill_ = TMath::PiOver2();
+      maxPhiToKill_ = 0.5 * M_PI;
       minZToKill_ = -1000;
       maxZToKill_ = 0;
       minRToKill_ = 0;
@@ -46,12 +47,12 @@ namespace tmtt {
       fractionOfStubsToKillEverywhere_ = 0;
       fractionOfModulesToKillEverywhere_ = 0.05;
     }
-    // Sceanrio 2
+    // Scenario 2
     // kill layer 1 in one quadrant +5 % random module loss
-    else if (killScenario_ == 2) {
+    else if (killScenario_ == KillOptions::layer1) {
       layersToKill_ = {1};
       minPhiToKill_ = 0;
-      maxPhiToKill_ = TMath::PiOver2();
+      maxPhiToKill_ = 0.5 * M_PI;
       minZToKill_ = -1000;
       maxZToKill_ = 0;
       minRToKill_ = 0;
@@ -62,10 +63,10 @@ namespace tmtt {
     }
     // Scenario 3
     // kill layer 1 + layer 2, both in same quadrant
-    else if (killScenario_ == 3) {
+    else if (killScenario_ == KillOptions::layer1layer2) {
       layersToKill_ = {1, 2};
       minPhiToKill_ = 0;
-      maxPhiToKill_ = TMath::PiOver2();
+      maxPhiToKill_ = 0.5 * M_PI;
       minZToKill_ = -1000;
       maxZToKill_ = 0;
       minRToKill_ = 0;
@@ -76,10 +77,10 @@ namespace tmtt {
     }
     // Scenario 4
     // kill layer 1 and disk 1, both in same quadrant
-    else if (killScenario_ == 4) {
+    else if (killScenario_ == KillOptions::layer1disk1) {
       layersToKill_ = {1, 11};
       minPhiToKill_ = 0;
-      maxPhiToKill_ = TMath::PiOver2();
+      maxPhiToKill_ = 0.5 * M_PI;
       minZToKill_ = -1000;
       maxZToKill_ = 0;
       minRToKill_ = 0;
@@ -90,7 +91,7 @@ namespace tmtt {
     }
     // An extra scenario not listed in the slides
     // 5% random module loss throughout tracker
-    else if (killScenario_ == 5) {
+    else if (killScenario_ == KillOptions::random) {
       layersToKill_ = {};
       fractionOfStubsToKillInLayers_ = 0;
       fractionOfStubsToKillEverywhere_ = 0.;
@@ -104,49 +105,10 @@ namespace tmtt {
     this->addDeadLayerModulesToDeadModuleList();
   }
 
-  void StubKiller::chooseModulesToKill() {
-    TRandom randomGenerator;
-    for (const GeomDetUnit* gd : trackerGeometry_->detUnits()) {
-      if (!trackerTopology_->isLower(gd->geographicalId()))
-        continue;
-      if (randomGenerator.Rndm() < fractionOfModulesToKillEverywhere_) {
-        deadModules_[gd->geographicalId()] = 1;
-      }
-    }
-  }
+  // Indicate if given stub was killed by dead tracker module, based on dead module scenario.
 
-  void StubKiller::addDeadLayerModulesToDeadModuleList() {
-    for (const GeomDetUnit* gd : trackerGeometry_->detUnits()) {
-      float moduleR = gd->position().perp();
-      float moduleZ = gd->position().z();
-      float modulePhi = gd->position().phi();
-      DetId geoDetId = gd->geographicalId();
-      bool isInBarrel = geoDetId.subdetId() == StripSubdetector::TOB || geoDetId.subdetId() == StripSubdetector::TIB;
-
-      int layerID = 0;
-      if (isInBarrel) {
-        layerID = trackerTopology_->layer(geoDetId);
-      } else {
-        layerID = 10 * trackerTopology_->side(geoDetId) + trackerTopology_->tidWheel(geoDetId);
-      }
-      if (find(layersToKill_.begin(), layersToKill_.end(), layerID) != layersToKill_.end()) {
-        if (modulePhi < -1.0 * TMath::Pi())
-          modulePhi += 2.0 * TMath::Pi();
-        else if (modulePhi > TMath::Pi())
-          modulePhi -= 2.0 * TMath::Pi();
-
-        if (modulePhi > minPhiToKill_ && modulePhi < maxPhiToKill_ && moduleZ > minZToKill_ && moduleZ < maxZToKill_ &&
-            moduleR > minRToKill_ && moduleR < maxRToKill_) {
-          if (deadModules_.find(gd->geographicalId()) == deadModules_.end()) {
-            deadModules_[gd->geographicalId()] = fractionOfStubsToKillInLayers_;
-          }
-        }
-      }
-    }
-  }
-
-  bool StubKiller::killStub(const TTStub<Ref_Phase2TrackerDigi_>* stub) {
-    if (killScenario_ == 0)
+  bool StubKiller::killStub(const TTStub<Ref_Phase2TrackerDigi_>* stub) const {
+    if (killScenario_ == KillOptions::none)
       return false;
     else {
       bool killStubRandomly = killStub(stub,
@@ -164,6 +126,8 @@ namespace tmtt {
     }
   }
 
+  // Indicate if given stub was killed by dead tracker module, based on dead regions specified here,
+  // and ignoring dead module scenario.
   // layersToKill - a vector stating the layers we are killing stubs in.  Can be an empty vector.
   // Barrel layers are encoded as 1-6. The endcap layers are encoded as 11-15 (-z) and 21-25 (+z)
   // min/max Phi/Z/R - stubs within the region specified by these boundaries and layersToKill are flagged for killing
@@ -171,7 +135,7 @@ namespace tmtt {
   // fractionOfStubsToKillEverywhere - The fraction of stubs to kill throughout the tracker
 
   bool StubKiller::killStub(const TTStub<Ref_Phase2TrackerDigi_>* stub,
-                            const vector<int> layersToKill,
+                            const vector<int>& layersToKill,
                             const double minPhiToKill,
                             const double maxPhiToKill,
                             const double minZToKill,
@@ -179,7 +143,7 @@ namespace tmtt {
                             const double minRToKill,
                             const double maxRToKill,
                             const double fractionOfStubsToKillInLayers,
-                            const double fractionOfStubsToKillEverywhere) {
+                            const double fractionOfStubsToKillEverywhere) const {
     // Only kill stubs in specified layers
     if (layersToKill.size() > 0) {
       // Get the layer the stub is in, and check if it's in the layer you want to kill
@@ -204,12 +168,7 @@ namespace tmtt {
         LocalPoint clustlp = topol->localPosition(measurementPoint);
         GlobalPoint pos = theGeomDet->surface().toGlobal(clustlp);
 
-        // Just in case phi is outside of -pi -> pi
-        double stubPhi = pos.phi();
-        if (stubPhi < -1.0 * TMath::Pi())
-          stubPhi += 2.0 * TMath::Pi();
-        else if (stubPhi > TMath::Pi())
-          stubPhi -= 2.0 * TMath::Pi();
+        double stubPhi = reco::deltaPhi(pos.phi(), 0.);
 
         if (stubPhi > minPhiToKill && stubPhi < maxPhiToKill && pos.z() > minZToKill && pos.z() < maxZToKill &&
             pos.perp() > minRToKill && pos.perp() < maxRToKill) {
@@ -217,8 +176,7 @@ namespace tmtt {
           if (fractionOfStubsToKillInLayers == 1) {
             return true;
           } else {
-            static thread_local TRandom randomGenerator;
-            if (randomGenerator.Rndm() < fractionOfStubsToKillInLayers) {
+            if (rndmEngine_->flat() < fractionOfStubsToKillInLayers) {
               return true;
             }
           }
@@ -228,8 +186,7 @@ namespace tmtt {
 
     // Kill fraction of stubs throughout tracker
     if (fractionOfStubsToKillEverywhere > 0) {
-      static thread_local TRandom randomGenerator;
-      if (randomGenerator.Rndm() < fractionOfStubsToKillEverywhere) {
+      if (rndmEngine_->flat() < fractionOfStubsToKillEverywhere) {
         return true;
       }
     }
@@ -237,7 +194,9 @@ namespace tmtt {
     return false;
   }
 
-  bool StubKiller::killStubInDeadModule(const TTStub<Ref_Phase2TrackerDigi_>* stub) {
+  // Indicate if given stub was in (partially) dead tracker module, based on dead module scenario.
+
+  bool StubKiller::killStubInDeadModule(const TTStub<Ref_Phase2TrackerDigi_>* stub) const {
     if (deadModules_.size() > 0) {
       DetId stackDetid = stub->getDetId();
       DetId geoDetId(stackDetid.rawId() + 1);
@@ -248,4 +207,42 @@ namespace tmtt {
     return false;
   }
 
+  // Identify modules to be killed, chosen randomly from those in the whole tracker.
+
+  void StubKiller::chooseModulesToKill() {
+    for (const GeomDetUnit* gd : trackerGeometry_->detUnits()) {
+      if (!trackerTopology_->isLower(gd->geographicalId()))
+        continue;
+      if (rndmEngine_->flat() < fractionOfModulesToKillEverywhere_) {
+        deadModules_[gd->geographicalId()] = 1;
+      }
+    }
+  }
+
+  //  Identify modules to be killed, chosen based on location in tracker.
+
+  void StubKiller::addDeadLayerModulesToDeadModuleList() {
+    for (const GeomDetUnit* gd : trackerGeometry_->detUnits()) {
+      float moduleR = gd->position().perp();
+      float moduleZ = gd->position().z();
+      float modulePhi = reco::deltaPhi(gd->position().phi(), 0.);
+      DetId geoDetId = gd->geographicalId();
+      bool isInBarrel = geoDetId.subdetId() == StripSubdetector::TOB || geoDetId.subdetId() == StripSubdetector::TIB;
+
+      int layerID = 0;
+      if (isInBarrel) {
+        layerID = trackerTopology_->layer(geoDetId);
+      } else {
+        layerID = 10 * trackerTopology_->side(geoDetId) + trackerTopology_->tidWheel(geoDetId);
+      }
+      if (find(layersToKill_.begin(), layersToKill_.end(), layerID) != layersToKill_.end()) {
+        if (modulePhi > minPhiToKill_ && modulePhi < maxPhiToKill_ && moduleZ > minZToKill_ && moduleZ < maxZToKill_ &&
+            moduleR > minRToKill_ && moduleR < maxRToKill_) {
+          if (deadModules_.find(gd->geographicalId()) == deadModules_.end()) {
+            deadModules_[gd->geographicalId()] = fractionOfStubsToKillInLayers_;
+          }
+        }
+      }
+    }
+  }
 };  // namespace tmtt

@@ -4,11 +4,9 @@
 #include "L1Trigger/TrackFindingTMTT/interface/L1track2D.h"
 #include "L1Trigger/TrackFindingTMTT/interface/L1track3D.h"
 #include "L1Trigger/TrackFindingTMTT/interface/HTrphi.h"
-#include "L1Trigger/TrackFindingTMTT/interface/KillDupTrks.h"
 
 #include <vector>
-
-using namespace std;
+#include <list>
 
 //=== This class runs filters in track candidates previously found by the r-phi Hough transform,
 //=== which check that each track's stubs are consistent with a straight line in the r-z plane.
@@ -32,47 +30,29 @@ namespace tmtt {
 
   class TrkRZfilter {
   public:
-    TrkRZfilter()
-        : settings_(nullptr),
-          iPhiSec_(0),
-          iEtaReg_(0),
-          etaMinSector_(0),
-          etaMaxSector_(0),
-          phiCentreSector_(0),
-          rzHelix_z0_(0),
-          rzHelix_tanL_(0),
-          rzHelix_set_(false),
-          chosenRofZ_(0),
-          zTrkMinSector_(0),
-          zTrkMaxSector_(0),
-          beamWindowZ_(0) {}
-    ~TrkRZfilter() {}
-
-    struct SortStubsInLayer {
-      inline bool operator()(const Stub* stub1, const Stub* stub2) {
-        return (fabs(stub1->layerId()) < fabs(stub2->layerId()));
-      }
-    };
-
     // Initialize configuration parameters, and note sector number, eta range covered by sector and phi coordinate of its centre.
-    void init(const Settings* settings,
-              unsigned int iPhiSec,
-              unsigned int iEtaReg,
-              float etaMinSector,
-              float etaMaxSector,
-              float phiCentreSector);
+    TrkRZfilter(const Settings* settings,
+                unsigned int iPhiSec,
+                unsigned int iEtaReg,
+                float etaMinSector,
+                float etaMaxSector,
+                float phiCentreSector);
+
+    struct SortStubsByLayer {
+      inline bool operator()(const Stub* stub1, const Stub* stub2) { return (stub1->layerId() < stub2->layerId()); }
+    };
 
     // Filters track candidates (found by the r-phi Hough transform), removing inconsistent stubs from the tracks,
     // also killing some of the tracks altogether if they are left with too few stubs.
     // Also adds an estimate of r-z helix parameters to the selected track objects, returning the tracks as L1track3D type.
     //
-    vector<L1track3D> filterTracks(const vector<L1track2D>& tracks);
+    std::list<L1track3D> filterTracks(const std::list<L1track2D>& tracks);
 
     //=== Extra information about each track input to filter. (Only use after you have first called filterTracks).
 
     // Number of seed combinations considered by the Seed Filter for each input track.
-    vector<unsigned int> numSeedCombsPerTrk() const { return numSeedCombsPerTrk_; }
-    vector<unsigned int> numGoodSeedCombsPerTrk() const {
+    const std::vector<unsigned int>& numSeedCombsPerTrk() const { return numSeedCombsPerTrk_; }
+    const std::vector<unsigned int>& numGoodSeedCombsPerTrk() const {
       return numGoodSeedCombsPerTrk_;
     }  // Only counts seeds compatible with beam-spot.
 
@@ -81,7 +61,7 @@ namespace tmtt {
 
     // Use Seed Filter to produce a filtered collection of stubs on this track candidate that are consistent with a straight line
     // in r-z using tracklet algo.
-    vector<const Stub*> seedFilter(const vector<const Stub*>& stubs, float trkQoverPt, bool print);
+    std::vector<Stub*> seedFilter(const std::vector<Stub*>& stubs, float trkQoverPt, bool print);
 
     //--- Estimate r-z helix parameters from centre of eta-sector if no better estimate provided by r-z filter.
     void estRZhelix();
@@ -109,18 +89,18 @@ namespace tmtt {
     float beamWindowZ_;  // Assumed length of beam spot in z.
 
     // Name of r-z track filter algorithm to run.
-    string rzFilterName_;
+    std::string rzFilterName_;
 
     // Filter stubs in cell using Seed Filter? (a tracklet-like algorithm in r-z plane).
     bool useSeedFilter_;
 
     // Options for Seed filter.
-    float seedResolution_;
+    float seedResCut_;
     bool keepAllSeed_;
 
     // Number of seed combinations considered by the Seed Filter, for each input track.
-    vector<unsigned int> numSeedCombsPerTrk_;
-    vector<unsigned int> numGoodSeedCombsPerTrk_;
+    std::vector<unsigned int> numSeedCombsPerTrk_;
+    std::vector<unsigned int> numGoodSeedCombsPerTrk_;
     unsigned int maxSeedCombinations_;
     unsigned int maxGoodSeedCombinations_;
     unsigned int maxSeedsPerStub_;
@@ -128,9 +108,6 @@ namespace tmtt {
 
     // For debugging
     unsigned int minNumMatchLayers_;
-
-    //=== Contains algorithm used for optional duplicate track removal.
-    KillDupTrks<L1track3D> killDupTrks_;
   };
 
 }  // namespace tmtt

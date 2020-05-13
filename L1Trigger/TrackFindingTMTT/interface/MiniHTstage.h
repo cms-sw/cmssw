@@ -3,8 +3,8 @@
 
 #include "L1Trigger/TrackFindingTMTT/interface/HTrphi.h"
 
-using namespace std;
 using boost::numeric::ublas::matrix;
+#include <memory>
 
 namespace tmtt {
 
@@ -16,17 +16,18 @@ namespace tmtt {
 
     ~MiniHTstage(){};
 
-    void exec(matrix<HTrphi>& mHtRphis);
+    void exec(matrix<std::unique_ptr<HTrphi>>& mHtRphis);
 
   private:
     // Do load balancing
-    unsigned int linkIDLoadBalanced(unsigned int link,
-                                    unsigned int mBin,
-                                    unsigned int cBin,
-                                    unsigned int numStubs,
-                                    map<pair<unsigned int, unsigned int>, unsigned int>& numStubsPerLinkStage1,
-                                    map<pair<unsigned int, unsigned int>, unsigned int>& numStubsPerLinkStage2,
-                                    bool test = false) const;
+    unsigned int linkIDLoadBalanced(
+        unsigned int link,
+        unsigned int mBin,
+        unsigned int cBin,
+        unsigned int numStubs,
+        std::map<std::pair<unsigned int, unsigned int>, unsigned int>& numStubsPerLinkStage1,
+        std::map<std::pair<unsigned int, unsigned int>, unsigned int>& numStubsPerLinkStage2,
+        bool test = false) const;
 
   private:
     const Settings* settings_;  // Configuration parameters
@@ -46,7 +47,7 @@ namespace tmtt {
     unsigned int numEtaRegions_;
     bool busySectorKill_;
     unsigned int busySectorNumStubs_;
-    vector<unsigned int> busySectorMbinRanges_;
+    std::vector<unsigned int> busySectorMbinRanges_;
     float chosenRofPhi_;
     float binSizeQoverPtAxis_;
     float binSizePhiTrkAxis_;

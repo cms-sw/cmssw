@@ -19,9 +19,6 @@
 <use name="DataFormats/JetReco"/>
 <use name="boost"/>
 <use name="roothistmatrix"/>
-<!-- Add no-misleading-indentation option to avoid warnings about bug in Boost library. -->
-<flags CXXFLAGS="-g -Wno-unused-variable -Wno-misleading-indentation -Wno-maybe-uninitialized"/>
-
 <export>
     <lib name="1"/>
 </export>

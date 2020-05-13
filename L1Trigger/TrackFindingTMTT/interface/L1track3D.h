@@ -15,8 +15,6 @@
 #include <unordered_set>
 #include <utility>
 
-using namespace std;
-
 //=== L1 track candidate found in 3 dimensions.
 //=== Gives access to all stubs on track and to its 3D helix parameters.
 //=== Also calculates & gives access to associated truth particle (Tracking Particle) if any.
@@ -25,11 +23,15 @@ namespace tmtt {
 
   class L1track3D : public L1trackBase {
   public:
+    // Seeding layers of tracklet pattern reco.
+    enum TrackletSeedType { L1L2, L2L3, L3L4, L5L6, D1D2, D3D4, L1D1, L2D1, L3L4L2, L5L6L4, L2L3D1, D1D2L2, NONE };
+
+  public:
     L1track3D(const Settings* settings,
-              const vector<const Stub*>& stubs,
-              pair<unsigned int, unsigned int> cellLocationHT,
-              pair<float, float> helixRphi,
-              pair<float, float> helixRz,
+              const std::vector<Stub*>& stubs,
+              std::pair<unsigned int, unsigned int> cellLocationHT,
+              std::pair<float, float> helixRphi,
+              std::pair<float, float> helixRz,
               float helixD0,
               unsigned int iPhiSec,
               unsigned int iEtaReg,
@@ -38,6 +40,7 @@ namespace tmtt {
         : L1trackBase(),
           settings_(settings),
           stubs_(stubs),
+          stubsConst_(stubs_.begin(), stubs_.end()),
           cellLocationHT_(cellLocationHT),
           helixRphi_(helixRphi),
           helixRz_(helixRz),
@@ -46,20 +49,22 @@ namespace tmtt {
           iEtaReg_(iEtaReg),
           optoLinkID_(optoLinkID),
           mergedHTcell_(mergedHTcell),
-          seedLayerType_(999),
+          seedLayerType_(TrackletSeedType::NONE),
           seedPS_(999) {
-      nLayers_ = Utility::countLayers(settings, stubs);  // Count tracker layers these stubs are in
+      nLayers_ = Utility::countLayers(settings, stubs_);  // Count tracker layers these stubs are in
       matchedTP_ = Utility::matchingTP(settings,
-                                       stubs,
+                                       stubs_,
                                        nMatchedLayers_,
                                        matchedStubs_);  // Find associated truth particle & calculate info about match.
     }
 
+    // TMTT tracking: constructor
+
     L1track3D(const Settings* settings,
-              const vector<const Stub*>& stubs,
-              pair<unsigned int, unsigned int> cellLocationHT,
-              pair<float, float> helixRphi,
-              pair<float, float> helixRz,
+              const std::vector<Stub*>& stubs,
+              std::pair<unsigned int, unsigned int> cellLocationHT,
+              std::pair<float, float> helixRphi,
+              std::pair<float, float> helixRz,
               unsigned int iPhiSec,
               unsigned int iEtaReg,
               unsigned int optoLinkID,
@@ -67,16 +72,15 @@ namespace tmtt {
         : L1track3D(
               settings, stubs, cellLocationHT, helixRphi, helixRz, 0.0, iPhiSec, iEtaReg, optoLinkID, mergedHTcell) {}
 
-    L1track3D() : L1trackBase(){};  // Creates track object, but doesn't set any variables.
+    L1track3D() : L1trackBase(){};  // Creates track object, but doesn't std::set any variables.
 
     ~L1track3D() {}
 
     //--- Set/get optional info for tracklet tracks.
 
-    // Tracklet seeding layer pair (from FPGATracklet::seedIndex())
-    // 0-7 = "L1L2","L2L3","L3L4","L5L6","D1D2","D3D4","L1D1","L2D1"
-    void setSeedLayerType(unsigned int seedLayerType) { seedLayerType_ = seedLayerType; }
-    unsigned int seedLayerType() const { return seedLayerType_; }
+    // Tracklet seeding layer pair (from Tracklet::calcSeedIndex())
+    void setSeedLayerType(unsigned int seedLayerType) { seedLayerType_ = static_cast<TrackletSeedType>(seedLayerType); }
+    TrackletSeedType seedLayerType() const { return seedLayerType_; }
 
     // Tracklet seed stub pair uses PS modules (from FPGATracket::PSseed())
     void setSeedPS(unsigned int seedPS) { seedPS_ = seedPS; }
@@ -89,22 +93,23 @@ namespace tmtt {
     //--- Get information about the reconstructed track.
 
     // Get stubs on track candidate.
-    const vector<const Stub*>& getStubs() const { return stubs_; }
+    const std::vector<const Stub*>& stubsConst() const { return stubsConst_; }
+    const std::vector<Stub*>& stubs() const { return stubs_; }
     // Get number of stubs on track candidate.
-    unsigned int getNumStubs() const { return stubs_.size(); }
+    unsigned int numStubs() const { return stubs_.size(); }
     // Get number of tracker layers these stubs are in.
-    unsigned int getNumLayers() const { return nLayers_; }
+    unsigned int numLayers() const { return nLayers_; }
     // Get cell location of track candidate in r-phi Hough Transform array in units of bin number.
-    pair<unsigned int, unsigned int> getCellLocationHT() const { return cellLocationHT_; }
+    std::pair<unsigned int, unsigned int> cellLocationHT() const { return cellLocationHT_; }
     // The two conventionally agreed track helix parameters relevant in r-phi plane. i.e. (q/Pt, phi0)
-    pair<float, float> getHelixRphi() const { return helixRphi_; }
+    std::pair<float, float> helixRphi() const { return helixRphi_; }
     // The two conventionally agreed track helix parameters relevant in r-z plane. i.e. (z0, tan_lambda)
-    pair<float, float> getHelixRz() const { return helixRz_; }
+    std::pair<float, float> helixRz() const { return helixRz_; }
 
     //--- Return chi variables, (both digitized & undigitized), which are the stub coords. relative to track.
 
-    vector<float> getChiPhi() {
-      vector<float> result;
+    std::vector<float> chiPhi() {
+      std::vector<float> result;
       for (const Stub* s : stubs_) {
         float chi_phi = reco::deltaPhi(s->phi(), this->phi0() - s->r() * this->qOverPt() * settings_->invPtToDphi());
         result.push_back(chi_phi);
@@ -112,18 +117,18 @@ namespace tmtt {
       return result;
     }
 
-    vector<int> getChiPhiDigi() {
-      vector<int> result;
+    std::vector<int> chiPhiDigi() {
+      std::vector<int> result;
       const float phiMult = pow(2, settings_->phiSBits()) / settings_->phiSRange();
-      for (const float& chi_phi : this->getChiPhi()) {
+      for (const float& chi_phi : this->chiPhi()) {
         int iDigi_chi_phi = floor(chi_phi * phiMult);
         result.push_back(iDigi_chi_phi);
       }
       return result;
     }
 
-    vector<float> getChiZ() {
-      vector<float> result;
+    std::vector<float> chiZ() {
+      std::vector<float> result;
       for (const Stub* s : stubs_) {
         float chi_z = s->z() - (this->z0() + s->r() * this->tanLambda());
         result.push_back(chi_z);
@@ -131,10 +136,10 @@ namespace tmtt {
       return result;
     }
 
-    vector<int> getChiZDigi() {
-      vector<int> result;
+    std::vector<int> chiZDigi() {
+      std::vector<int> result;
       const float zMult = pow(2, settings_->zBits()) / settings_->zRange();
-      for (const float& chi_z : this->getChiZ()) {
+      for (const float& chi_z : this->chiZ()) {
         int iDigi_chi_z = floor(chi_z * zMult);
         result.push_back(iDigi_chi_z);
       }
@@ -145,9 +150,13 @@ namespace tmtt {
 
     float qOverPt() const { return helixRphi_.first; }
     float charge() const { return (this->qOverPt() > 0 ? 1 : -1); }
-    float invPt() const { return fabs(this->qOverPt()); }
-    float pt() const { return 1. / (1.0e-6 + this->invPt()); }  // includes protection against 1/pt = 0.
-    float d0() const { return helixD0_; }                       // Hough transform assumes d0 = 0.
+    float invPt() const { return std::abs(this->qOverPt()); }
+    // Protect pt against 1/pt = 0.
+    float pt() const {
+      constexpr float small = 1.0e-6;
+      return 1. / (small + this->invPt());
+    }
+    float d0() const { return helixD0_; }  // Hough transform assumes d0 = 0.
     float phi0() const { return helixRphi_.second; }
     float z0() const { return helixRz_.first; }
     float tanLambda() const { return helixRz_.second; }
@@ -176,15 +185,15 @@ namespace tmtt {
     //--- Get information about its association (if any) to a truth Tracking Particle.
 
     // Get best matching tracking particle (=nullptr if none).
-    const TP* getMatchedTP() const { return matchedTP_; }
+    const TP* matchedTP() const { return matchedTP_; }
     // Get the matched stubs with this Tracking Particle
-    const vector<const Stub*>& getMatchedStubs() const { return matchedStubs_; }
+    const std::vector<const Stub*>& matchedStubs() const { return matchedStubs_; }
     // Get number of matched stubs with this Tracking Particle
-    unsigned int getNumMatchedStubs() const { return matchedStubs_.size(); }
+    unsigned int numMatchedStubs() const { return matchedStubs_.size(); }
     // Get number of tracker layers with matched stubs with this Tracking Particle
-    unsigned int getNumMatchedLayers() const { return nMatchedLayers_; }
+    unsigned int numMatchedLayers() const { return nMatchedLayers_; }
     // Get purity of stubs on track candidate (i.e. fraction matching best Tracking Particle)
-    float getPurity() const { return getNumMatchedStubs() / float(getNumStubs()); }
+    float purity() const { return numMatchedStubs() / float(numStubs()); }
 
     //--- For debugging purposes.
 
@@ -195,9 +204,9 @@ namespace tmtt {
     bool cheat() {
       bool keep = false;
 
-      vector<const Stub*> stubsSel;
+      std::vector<Stub*> stubsSel;
       if (matchedTP_ != nullptr) {  // Genuine track
-        for (const Stub* s : stubs_) {
+        for (Stub* s : stubs_) {
           const TP* tp = s->assocTP();
           if (tp != nullptr) {
             if (matchedTP_->index() == tp->index()) {
@@ -207,6 +216,7 @@ namespace tmtt {
         }
       }
       stubs_ = stubsSel;
+      stubsConst_ = std::vector<const Stub*>(stubs_.begin(), stubs_.end());
 
       nLayers_ = Utility::countLayers(settings_, stubs_);  // Count tracker layers these stubs are in
       matchedTP_ = Utility::matchingTP(settings_,
@@ -217,19 +227,17 @@ namespace tmtt {
       bool genuine = (matchedTP_ != nullptr);
 
       if (genuine && matchedTP_->useForAlgEff()) {
-        Sector secTmp;
-        HTrphi htRphiTmp;
-        secTmp.init(settings_, iPhiSec_, iEtaReg_);
-        htRphiTmp.init(settings_, iPhiSec_, iEtaReg_, secTmp.etaMin(), secTmp.etaMax(), secTmp.phiCentre());
-        pair<unsigned int, unsigned int> trueCell = htRphiTmp.trueCell(matchedTP_);
+        Sector secTmp(settings_, iPhiSec_, iEtaReg_);
+        HTrphi htRphiTmp(settings_, iPhiSec_, iEtaReg_, secTmp.etaMin(), secTmp.etaMax(), secTmp.phiCentre());
+        std::pair<unsigned int, unsigned int> trueCell = htRphiTmp.trueCell(matchedTP_);
 
-        pair<unsigned int, unsigned int> htCell = this->getCellLocationHT();
+        std::pair<unsigned int, unsigned int> htCell = this->cellLocationHT();
         bool consistent = (htCell == trueCell);  // If true, track is probably not a duplicate.
         if (mergedHTcell_) {
           // If this is a merged cell, check other elements of merged cell.
-          pair<unsigned int, unsigned int> htCell10(htCell.first + 1, htCell.second);
-          pair<unsigned int, unsigned int> htCell01(htCell.first, htCell.second + 1);
-          pair<unsigned int, unsigned int> htCell11(htCell.first + 1, htCell.second + 1);
+          std::pair<unsigned int, unsigned int> htCell10(htCell.first + 1, htCell.second);
+          std::pair<unsigned int, unsigned int> htCell01(htCell.first, htCell.second + 1);
+          std::pair<unsigned int, unsigned int> htCell11(htCell.first + 1, htCell.second + 1);
           if (htCell10 == trueCell)
             consistent = true;
           if (htCell01 == trueCell)
@@ -249,12 +257,13 @@ namespace tmtt {
     const Settings* settings_;
 
     //--- Information about the reconstructed track.
-    vector<const Stub*> stubs_;
-    unordered_set<const Stub*> bestStubs_;
+    std::vector<Stub*> stubs_;
+    std::vector<const Stub*> stubsConst_;
+    std::unordered_set<const Stub*> bestStubs_;
     unsigned int nLayers_;
-    pair<unsigned int, unsigned int> cellLocationHT_;
-    pair<float, float> helixRphi_;
-    pair<float, float> helixRz_;
+    std::pair<unsigned int, unsigned int> cellLocationHT_;
+    std::pair<float, float> helixRphi_;
+    std::pair<float, float> helixRz_;
     float helixD0_;
     unsigned int iPhiSec_;
     unsigned int iEtaReg_;
@@ -262,12 +271,12 @@ namespace tmtt {
     bool mergedHTcell_;
 
     //--- Optional info used for tracklet tracks.
-    unsigned int seedLayerType_;
+    TrackletSeedType seedLayerType_;
     unsigned int seedPS_;
 
     //--- Information about its association (if any) to a truth Tracking Particle.
     const TP* matchedTP_;
-    vector<const Stub*> matchedStubs_;
+    std::vector<const Stub*> matchedStubs_;
     unsigned int nMatchedLayers_;
   };
 

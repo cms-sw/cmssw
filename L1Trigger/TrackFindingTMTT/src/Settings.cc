@@ -1,11 +1,14 @@
-#include <L1Trigger/TrackFindingTMTT/interface/Settings.h>
+#include "L1Trigger/TrackFindingTMTT/interface/Settings.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <set>
 #include <cmath>
 
+using namespace std;
+
 namespace tmtt {
 
-  // Set config params for HYBRID TRACKING via hard-wired consts to allow use outside CMSSW.
+  ///=== Hybrid Tracking
+  ///=== Set config params for HYBRID TRACKING via hard-wired consts to allow use outside CMSSW.
 
   Settings::Settings() {
     //
@@ -21,7 +24,6 @@ namespace tmtt {
     stubMatchStrict_ = false;
     minStubLayers_ = 4;
     minPtToReduceLayers_ = 99999.;
-    deadReduceLayers_ = false;
     kalmanMinNumStubs_ = 4;
     kalmanMaxNumStubs_ = 6;
     numPhiNonants_ = 9;
@@ -56,39 +58,36 @@ namespace tmtt {
     chosenRofPhi_ = 67.240;
     chosenRofZ_ = 50.0;
     houghNbinsPt_ = 48;  // Mini HT bins in 2 GeV HT array
-    handleStripsPhiSec_ = 1;
     useApproxB_ = true;
     kalmanHOtilted_ = true;
     kalmanHOhelixExp_ = true;
     kalmanHOalpha_ = 1;
-    kalmanHOdodgy_ = false;
+    kalmanHOfw_ = false;
     kalmanHOprojZcorr_ = 1;
     bApprox_gradient_ = 0.886454;
     bApprox_intercept_ = 0.504148;
-    handleStripsEtaSec_ = false;
-    kalmanFillInternalHists_ = false;
     kalmanMultiScattTerm_ = 0.00075;
     kalmanChi2RphiScale_ = 8;
     //
     // Cfg params & constants required only for HYBRID tracking (as taken from DB for TMTT).
     //
     hybrid_ = true;
-    psStripPitch_ = 0.01;
+    psPixelPitch_ = 0.01;
     psNStrips_ = 960;
     psPixelLength_ = 0.1467;
     ssStripPitch_ = 0.009;
     ssNStrips_ = 1016;
     ssStripLength_ = 5.0250;
-    zMaxNonTilted_[1] = 15.3;  // max z at which non-tilted modules are found in inner 3 barrel layers.
-    zMaxNonTilted_[2] = 24.6;
-    zMaxNonTilted_[3] = 33.9;
+    // max z at which non-tilted modules are found in 3 barrel PS layers. (Element 0 not used).
+    zMaxNonTilted_ = {0, 15.3, 24.6, 33.9};
 
-    bField_ = 3.81120228767395;
+    magneticField_ = 3.81120228767395;
 
     // Stub digitization params for hybrid (copied from TrackFindingTMTT/interface/HLS/KFconstants.h
-    double rMult_hybrid = 1. / 0.02929688;
-    double phiSMult_hybrid = 1. / (7.828293e-6 * 8);
-    double zMult_hybrid = rMult_hybrid / 2;  // In KF VHDL, z/r mult = 1/2, whereas in HLS, they are identical.
+    constexpr double rMult_hybrid = 1. / 0.02929688;
+    constexpr double phiSMult_hybrid = 1. / (7.828293e-6 * 8);
+    constexpr double zMult_hybrid =
+        rMult_hybrid / 2;  // In KF VHDL, z/r mult = 1/2, whereas in HLS, they are identical.
     // Number of bits copied from TrackFindingTMTT/interface/HLS/KFstub.h (BR1, BPHI, BZ)
     rtBits_ = 12;
     phiSBits_ = 14;
@@ -99,12 +98,13 @@ namespace tmtt {
 
     if (hybrid_) {
       if (not useApproxB_) {
-        std::cout << "TMTT Settings Error: module tilt angle unknown, so must set useApproxB = true" << std::endl;
-        exit(1);
+        throw cms::Exception("BadConfig")
+            << "TMTT Settings Error: module tilt angle unknown, so must set useApproxB = true";
       }
     }
   }
 
+  ///=== TMTT tracking.
   ///=== Get configuration parameters from python cfg for TMTT tracking.
 
   Settings::Settings(const edm::ParameterSet& iConfig)
@@ -112,10 +112,21 @@ namespace tmtt {
 
         // See either Analyze_Defaults_cfi.py or Settings.h for description of these parameters.
 
+        //=== Tags for Input ES & ED data.
+        magneticFieldInputTag_(iConfig.getParameter<edm::ESInputTag>("magneticFieldInputTag")),
+        trackerGeometryInputTag_(iConfig.getParameter<edm::ESInputTag>("trackerGeometryInputTag")),
+        trackerTopologyInputTag_(iConfig.getParameter<edm::ESInputTag>("trackerTopologyInputTag")),
+        stubInputTag_(iConfig.getParameter<edm::InputTag>("stubInputTag")),
+        tpInputTag_(iConfig.getParameter<edm::InputTag>("tpInputTag")),
+        stubTruthInputTag_(iConfig.getParameter<edm::InputTag>("stubTruthInputTag")),
+        clusterTruthInputTag_(iConfig.getParameter<edm::InputTag>("clusterTruthInputTag")),
+        genJetInputTag_(iConfig.getParameter<edm::InputTag>("genJetInputTag")),
+
         //=== Parameter sets for differents types of configuration parameter.
         genCuts_(iConfig.getParameter<edm::ParameterSet>("GenCuts")),
         stubCuts_(iConfig.getParameter<edm::ParameterSet>("StubCuts")),
         stubDigitize_(iConfig.getParameter<edm::ParameterSet>("StubDigitize")),
+        trackerModuleType_(iConfig.getParameter<edm::ParameterSet>("TrackerModuleType")),
         geometricProc_(iConfig.getParameter<edm::ParameterSet>("GeometricProc")),
         phiSectors_(iConfig.getParameter<edm::ParameterSet>("PhiSectors")),
         etaSectors_(iConfig.getParameter<edm::ParameterSet>("EtaSectors")),
@@ -133,6 +144,7 @@ namespace tmtt {
 
         enableMCtruth_(iConfig.getParameter<bool>("EnableMCtruth")),
         enableHistos_(iConfig.getParameter<bool>("EnableHistos")),
+        enableOutputIntermediateTTTracks_(iConfig.getParameter<bool>("EnableOutputIntermediateTTTracks")),
 
         //=== Cuts on MC truth tracks used for tracking efficiency measurements.
 
@@ -150,8 +162,8 @@ namespace tmtt {
         maxStubEta_(stubCuts_.getParameter<double>("MaxStubEta")),
         killLowPtStubs_(stubCuts_.getParameter<bool>("KillLowPtStubs")),
         printStubWindows_(stubCuts_.getParameter<bool>("PrintStubWindows")),
-        bendResolution_(stubCuts_.getParameter<double>("BendResolution")),
-        bendResolutionExtra_(stubCuts_.getParameter<double>("BendResolutionExtra")),
+        bendCut_(stubCuts_.getParameter<double>("BendCut")),
+        bendCutExtra_(stubCuts_.getParameter<double>("BendCutExtra")),
         orderStubsByBend_(stubCuts_.getParameter<bool>("OrderStubsByBend")),
 
         //=== Optional stub digitization.
@@ -167,9 +179,16 @@ namespace tmtt {
         zBits_(stubDigitize_.getParameter<unsigned int>("ZBits")),
         zRange_(stubDigitize_.getParameter<double>("ZRange")),
         //--- Parameters available in GP board (excluding any in common with MP specified above).
-        phiOBits_(stubDigitize_.getParameter<unsigned int>("PhiOBits")),
-        phiORange_(stubDigitize_.getParameter<double>("PhiORange")),
+        phiNBits_(stubDigitize_.getParameter<unsigned int>("PhiNBits")),
+        phiNRange_(stubDigitize_.getParameter<double>("PhiNRange")),
         bendBits_(stubDigitize_.getParameter<unsigned int>("BendBits")),
+
+        //=== Tracker Module Type for FW.
+        pitchVsType_(trackerModuleType_.getParameter<vector<double>>("PitchVsType")),
+        spaceVsType_(trackerModuleType_.getParameter<vector<double>>("SpaceVsType")),
+        barrelVsTypeTmp_(trackerModuleType_.getParameter<vector<unsigned int>>("BarrelVsType")),
+        psVsTypeTmp_(trackerModuleType_.getParameter<vector<unsigned int>>("PSVsType")),
+        tiltedVsTypeTmp_(trackerModuleType_.getParameter<vector<unsigned int>>("TiltedVsType")),
 
         //=== Configuration of Geometric Processor.
         useApproxB_(geometricProc_.getParameter<bool>("UseApproxB")),
@@ -184,20 +203,17 @@ namespace tmtt {
         useStubPhiTrk_(phiSectors_.getParameter<bool>("UseStubPhiTrk")),
         assumedPhiTrkRes_(phiSectors_.getParameter<double>("AssumedPhiTrkRes")),
         calcPhiTrkRes_(phiSectors_.getParameter<bool>("CalcPhiTrkRes")),
-        handleStripsPhiSec_(phiSectors_.getParameter<bool>("HandleStripsPhiSec")),
 
         //=== Division of Tracker into eta sectors.
         etaRegions_(etaSectors_.getParameter<vector<double>>("EtaRegions")),
         chosenRofZ_(etaSectors_.getParameter<double>("ChosenRofZ")),
         beamWindowZ_(etaSectors_.getParameter<double>("BeamWindowZ")),
-        handleStripsEtaSec_(etaSectors_.getParameter<bool>("HandleStripsEtaSec")),
         allowOver2EtaSecs_(etaSectors_.getParameter<bool>("AllowOver2EtaSecs")),
 
         //=== r-phi Hough transform array specifications.
         houghMinPt_(htArraySpecRphi_.getParameter<double>("HoughMinPt")),
         houghNbinsPt_(htArraySpecRphi_.getParameter<unsigned int>("HoughNbinsPt")),
         houghNbinsPhi_(htArraySpecRphi_.getParameter<unsigned int>("HoughNbinsPhi")),
-        houghNcellsRphi_(htArraySpecRphi_.getParameter<int>("HoughNcellsRphi")),
         enableMerge2x2_(htArraySpecRphi_.getParameter<bool>("EnableMerge2x2")),
         maxPtToMerge2x2_(htArraySpecRphi_.getParameter<double>("MaxPtToMerge2x2")),
         numSubSecsEta_(htArraySpecRphi_.getParameter<unsigned int>("NumSubSecsEta")),
@@ -211,7 +227,6 @@ namespace tmtt {
         miniHoughLoadBalance_(htArraySpecRphi_.getParameter<unsigned int>("MiniHoughLoadBalance")),
 
         //=== Rules governing how stubs are filled into the r-phi Hough Transform array.
-        handleStripsRphiHT_(htFillingRphi_.getParameter<bool>("HandleStripsRphiHT")),
         killSomeHTCellsRphi_(htFillingRphi_.getParameter<unsigned int>("KillSomeHTCellsRphi")),
         useBendFilter_(htFillingRphi_.getParameter<bool>("UseBendFilter")),
         maxStubsInCell_(htFillingRphi_.getParameter<unsigned int>("MaxStubsInCell")),
@@ -228,7 +243,7 @@ namespace tmtt {
         //=== Options controlling r-z track filters (or any other track filters run after the Hough transform, as opposed to inside it).
 
         rzFilterName_(rzFilterOpts_.getParameter<string>("RZFilterName")),
-        seedResolution_(rzFilterOpts_.getParameter<double>("SeedResolution")),
+        seedResCut_(rzFilterOpts_.getParameter<double>("SeedResCut")),
         keepAllSeed_(rzFilterOpts_.getParameter<bool>("KeepAllSeed")),
         maxSeedCombinations_(rzFilterOpts_.getParameter<unsigned int>("MaxSeedCombinations")),
         maxGoodSeedCombinations_(rzFilterOpts_.getParameter<unsigned int>("MaxGoodSeedCombinations")),
@@ -246,10 +261,7 @@ namespace tmtt {
 
         //=== Specification of algorithm to eliminate duplicate tracks.
 
-        dupTrkAlgRphi_(dupTrkRemoval_.getParameter<unsigned int>("DupTrkAlgRphi")),
-        dupTrkAlg3D_(dupTrkRemoval_.getParameter<unsigned int>("DupTrkAlg3D")),
         dupTrkAlgFit_(dupTrkRemoval_.getParameter<unsigned int>("DupTrkAlgFit")),
-        dupTrkMinCommonHitsLayers_(dupTrkRemoval_.getParameter<unsigned int>("DupTrkMinCommonHitsLayers")),
 
         //=== Rules for deciding when a reconstructed L1 track matches a MC truth particle (i.e. tracking particle).
 
@@ -270,19 +282,6 @@ namespace tmtt {
         killTrackFitWorstHit_(trackFitSettings_.getParameter<bool>("KillTrackFitWorstHit")),
         generalResidualCut_(trackFitSettings_.getParameter<double>("GeneralResidualCut")),
         killingResidualCut_(trackFitSettings_.getParameter<double>("KillingResidualCut")),
-        maxIterationsLR_(trackFitSettings_.getParameter<unsigned int>("MaxIterationsLR")),
-        LRFillInternalHists_(trackFitSettings_.getParameter<bool>("LRFillInternalHists")),
-        combineResiduals_(trackFitSettings_.getParameter<bool>("CombineResiduals")),
-        lineariseStubPosition_(trackFitSettings_.getParameter<bool>("LineariseStubPosition")),
-        checkSectorConsistency_(trackFitSettings_.getParameter<bool>("CheckSectorConsistency")),
-        checkHTCellConsistency_(trackFitSettings_.getParameter<bool>("CheckHTCellConsistency")),
-        minPSLayers_(trackFitSettings_.getParameter<unsigned int>("MinPSLayers")),
-        digitizeLR_(trackFitSettings_.getParameter<bool>("DigitizeLR")),
-        PhiPrecision_(trackFitSettings_.getParameter<double>("PhiPrecision")),
-        RPrecision_(trackFitSettings_.getParameter<double>("RPrecision")),
-        ZPrecision_(trackFitSettings_.getParameter<double>("ZPrecision")),
-        ZSlopeWidth_(trackFitSettings_.getParameter<unsigned int>("ZSlopeWidth")),
-        ZInterceptWidth_(trackFitSettings_.getParameter<unsigned int>("ZInterceptWidth")),
         //
         digitizeSLR_(trackFitSettings_.getParameter<bool>("DigitizeSLR")),
         dividerBitsHelix_(trackFitSettings_.getParameter<unsigned int>("DividerBitsHelix")),
@@ -298,7 +297,6 @@ namespace tmtt {
         residualCut_(trackFitSettings_.getParameter<double>("ResidualCut")),
         //
         kalmanDebugLevel_(trackFitSettings_.getParameter<unsigned int>("KalmanDebugLevel")),
-        kalmanFillInternalHists_(trackFitSettings_.getParameter<bool>("KalmanFillInternalHists")),
         kalmanMinNumStubs_(trackFitSettings_.getParameter<unsigned int>("KalmanMinNumStubs")),
         kalmanMaxNumStubs_(trackFitSettings_.getParameter<unsigned int>("KalmanMaxNumStubs")),
         kalmanAddBeamConstr_(trackFitSettings_.getParameter<bool>("KalmanAddBeamConstr")),
@@ -313,12 +311,10 @@ namespace tmtt {
         kalmanHOhelixExp_(trackFitSettings_.getParameter<bool>("KalmanHOhelixExp")),
         kalmanHOalpha_(trackFitSettings_.getParameter<unsigned int>("KalmanHOalpha")),
         kalmanHOprojZcorr_(trackFitSettings_.getParameter<unsigned int>("KalmanHOprojZcorr")),
-        kalmanHOdodgy_(trackFitSettings_.getParameter<bool>("KalmanHOdodgy")),
+        kalmanHOfw_(trackFitSettings_.getParameter<bool>("KalmanHOfw")),
 
         //=== Treatment of dead modules.
 
-        deadReduceLayers_(deadModuleOpts_.getParameter<bool>("DeadReduceLayers")),
-        deadSimulateFrac_(deadModuleOpts_.getParameter<double>("DeadSimulateFrac")),
         killScenario_(deadModuleOpts_.getParameter<unsigned int>("KillScenario")),
         killRecover_(deadModuleOpts_.getParameter<bool>("KillRecover")),
 
@@ -355,11 +351,8 @@ namespace tmtt {
         //
         other_skipTrackDigi_(trackDigi_.getParameter<bool>("Other_skipTrackDigi")),
 
-        // Debug printout
-        debug_(iConfig.getParameter<unsigned int>("Debug")),
+        // Plot options
         resPlotOpt_(iConfig.getParameter<bool>("ResPlotOpt")),
-        iPhiPlot_(iConfig.getParameter<unsigned int>("iPhiPlot")),
-        iEtaPlot_(iConfig.getParameter<unsigned int>("iEtaPlot")),
 
         // Name of output EDM file if any.
         // N.B. This parameter does not appear inside TMTrackProducer_Defaults_cfi.py . It is created inside
@@ -367,11 +360,11 @@ namespace tmtt {
         writeOutEdmFile_(iConfig.getUntrackedParameter<bool>("WriteOutEdmFile", true)),
 
         // Bfield in Tesla. (Unknown at job initiation. Set to true value for each event
-        bField_(0.),
+        magneticField_(0.),
 
         // Hybrid tracking
         hybrid_(iConfig.getParameter<bool>("Hybrid")),
-        psStripPitch_(0.),
+        psPixelPitch_(0.),
         psNStrips_(0.),
         psPixelLength_(0.),
         ssStripPitch_(0.),
@@ -399,99 +392,96 @@ namespace tmtt {
     }
     useRZfilter_ = useRZfilterTmp;
 
+    // As python cfg doesn't know type "vbool", fix it here.
+    for (unsigned int i = 0; i < barrelVsTypeTmp_.size(); i++) {
+      barrelVsType_.push_back(bool(barrelVsTypeTmp_[i]));
+      psVsType_.push_back(bool(psVsTypeTmp_[i]));
+      tiltedVsType_.push_back(bool(tiltedVsTypeTmp_[i]));
+    }
+
     //--- Sanity checks
 
     if (!(useStubPhi_ || useStubPhiTrk_))
-      throw cms::Exception(
-          "Settings.cc: Invalid cfg parameters - You cant set both UseStubPhi & useStubPhiTrk to false.");
+      throw cms::Exception("BadConfig")
+          << "Settings: Invalid cfg parameters - You cant set both UseStubPhi & useStubPhiTrk to false.";
 
     if (minNumMatchLayers_ > minStubLayers_)
-      throw cms::Exception(
-          "Settings.cc: Invalid cfg parameters - You are setting the minimum number of layers incorrectly : type A.");
+      throw cms::Exception("BadConfig")
+          << "Settings: Invalid cfg parameters - You are setting the minimum number of layers incorrectly : type A.";
     if (genMinStubLayers_ > minStubLayers_)
-      throw cms::Exception(
-          "Settings.cc: Invalid cfg parameters - You are setting the minimum number of layers incorrectly : type B.");
+      throw cms::Exception("BadConfig")
+          << "Settings: Invalid cfg parameters - You are setting the minimum number of layers incorrectly : type B.";
     if (minNumMatchLayers_ > genMinStubLayers_)
-      throw cms::Exception(
-          "Settings.cc: Invalid cfg parameters - You are setting the minimum number of layers incorrectly : type C.");
+      throw cms::Exception("BadConfig")
+          << "Settings: Invalid cfg parameters - You are setting the minimum number of layers incorrectly : type C.";
 
     // If reducing number of required layers for high Pt tracks, then above checks must be redone.
     bool doReduceLayers = (minPtToReduceLayers_ < 10000. || etaSecsReduceLayers_.size() > 0);
     if (doReduceLayers && minStubLayers_ > 4) {
       if (minNumMatchLayers_ > minStubLayers_ - 1)
-        throw cms::Exception(
-            "Settings.cc: Invalid cfg parameters - You are setting the minimum number of layers incorrectly : type D.");
+        throw cms::Exception("BadConfig")
+            << "Settings: Invalid cfg parameters - You are setting the minimum number of layers incorrectly : type D.";
       if (genMinStubLayers_ > minStubLayers_ - 1)
-        throw cms::Exception(
-            "Settings.cc: Invalid cfg parameters - You are setting the minimum number of layers incorrectly : type E.");
+        throw cms::Exception("BadConfig")
+            << "Settings: Invalid cfg parameters - You are setting the minimum number of layers incorrectly : type E.";
     }
 
     for (const unsigned int& iEtaReg : etaSecsReduceLayers_) {
       if (iEtaReg >= etaRegions_.size())
-        throw cms::Exception(
-            "Settings.cc: You specified an eta sector number in EtaSecsReduceLayers which exceeds the total number of "
-            "eta sectors!")
-            << iEtaReg << " " << etaRegions_.size() << endl;
-    }
-
-    // Duplicate track removal algorithm 50 must not be run in parallel with any other.
-    if (dupTrkAlgFit_ == 50) {
-      if (dupTrkAlgRphi_ != 0 || dupTrkAlg3D_ != 0)
-        throw cms::Exception(
-            "Settings.c: Invalid cfg parameters -- If using DupTrkAlgFit = 50, you must disable all other duplicate "
-            "track removal algorithms.");
+        throw cms::Exception("BadConfig") << "Settings: You specified an eta sector number in EtaSecsReduceLayers "
+                                             "which exceeds the total number of eta sectors! "
+                                          << iEtaReg << " " << etaRegions_.size();
     }
 
     // Chains of m bin ranges for output of HT.
     if (!busySectorMbinOrder_.empty()) {
       // User has specified an order in which the m bins should be chained together. Check if it makes sense.
       if (busySectorMbinOrder_.size() != houghNbinsPt_)
-        throw cms::Exception(
-            "Settings.cc: Invalid cfg parameters - BusySectorMbinOrder used by HT MUX contains wrong number of "
-            "elements. Unless you are optimising the MUX, suggest you configure it to an empty vector.");
+        throw cms::Exception("BadConfig")
+            << "Settings: Invalid cfg parameters - BusySectorMbinOrder used by HT MUX contains wrong number of "
+               "elements. Unless you are optimising the MUX, suggest you configure it to an empty vector.";
       set<unsigned int> mOrderCheck;
       for (const unsigned int& m : busySectorMbinOrder_) {
         mOrderCheck.insert(m);
       }
       if (mOrderCheck.size() != houghNbinsPt_)
-        throw cms::Exception(
-            "Settings.cc: Invalid cfg parameters - BusySectorMbinOrder used by HT MUX contains duplicate elements.");
+        throw cms::Exception("BadConfig")
+            << "Settings: Invalid cfg parameters - BusySectorMbinOrder used by HT MUX contains duplicate elements.";
       unsigned int sum_nr = 0;
       for (unsigned int nr : busySectorMbinRanges_) {
         sum_nr += nr;
       }
       if (sum_nr != houghNbinsPt_)
-        throw cms::Exception(
-            "Settings.cc: Invalid cfg parameters - Sum of entries in BusySectorMbinRanges is incorrect.");
+        throw cms::Exception("BadConfig")
+            << "Settings: Invalid cfg parameters - Sum of entries in BusySectorMbinRanges is incorrect.";
     }
 
     if (miniHTstage_) {
       if (enableMerge2x2_)
-        throw cms::Exception("Settings.cc: it is not allowed to enable both MiniHTstage & EnableMerge2x2 options.");
+        throw cms::Exception("BadConfig")
+            << "Settings: it is not allowed to enable both MiniHTstage & EnableMerge2x2 options.";
       // Options for 2nd stage mini HT
       if (shape_ != 0)
-        throw cms::Exception(
-            "Settings.cc: Invalid cfg parameters - 2nd stage mini HT only allowed for square-shaped cells.");
+        throw cms::Exception("BadConfig")
+            << "Settings: Invalid cfg parameters - 2nd stage mini HT only allowed for square-shaped cells.";
       if (miniHoughNbinsPt_ != 2 || miniHoughNbinsPhi_ != 2)
-        throw cms::Exception("Settings.cc: 2nd mini HT has so dar only been implemented in C++ for 2x2.");
+        throw cms::Exception("BadConfig") << "Settings: 2nd mini HT has so dar only been implemented in C++ for 2x2.";
     }
 
     if (enableMerge2x2_) {
       if (miniHTstage_)
-        throw cms::Exception("Settings.cc: it is not allowed to enable both MiniHTstage & EnableMerge2x2 options.");
+        throw cms::Exception("BadConfig")
+            << "Settings: it is not allowed to enable both MiniHTstage & EnableMerge2x2 options.";
       // Merging of HT cells has not yet been implemented for diamond or hexagonal HT cell shape.
       if (enableMerge2x2_ && shape_ != 0)
-        throw cms::Exception("Settings.cc: Invalid cfg parameters - merging only allowed for square-shaped cells.");
+        throw cms::Exception("BadConfig")
+            << "Settings: Invalid cfg parameters - merging only allowed for square-shaped cells.";
     }
-
-    // Do not use our private dead module emulation together with the communal Tracklet/TMTT dead module emulation
-    // developed for the Stress Test.
-    if (deadSimulateFrac_ > 0. && killScenario_ > 0)
-      throw cms::Exception("Settings.cc: Invalid cfg parameters - don't enable both DeadSimulateFrac and KillScenario");
 
     // Check Kalman fit params.
     if (kalmanMaxNumStubs_ < kalmanMinNumStubs_)
-      throw cms::Exception("Settings.cc: Invalid cfg parameters - KalmanMaxNumStubs is less than KalmanMaxNumStubs.");
+      throw cms::Exception("BadConfig")
+          << "Settings: Invalid cfg parameters - KalmanMaxNumStubs is less than KalmanMaxNumStubs.";
   }
 
   bool Settings::isHTRPhiEtaRegWhitelisted(unsigned const iEtaReg) const {

@@ -4,29 +4,36 @@
 
 #include "DataFormats/Math/interface/deltaPhi.h"
 
-#include <vector>
 #include <unordered_set>
 
 using namespace std;
 
 namespace tmtt {
 
+  // Initialization.
+  HTbase::HTbase(
+      const Settings* settings, unsigned int iPhiSec, unsigned int iEtaReg, unsigned int nBinsX, unsigned int nBinsY)
+      : settings_(settings),
+        iPhiSec_(iPhiSec),
+        iEtaReg_(iEtaReg),
+        nBinsX_(nBinsX),
+        nBinsY_(nBinsY),
+        htArray_(nBinsX, nBinsY),
+        optoLinkID_(this->calcOptoLinkID()) {}
+
   //=== Termination. Causes HT array to search for tracks etc.
 
   void HTbase::end() {
     // Calculate useful info about each cell in array.
-    for (unsigned int i = 0; i < htArray_.size1(); i++) {
-      for (unsigned int j = 0; j < htArray_.size2(); j++) {
-        htArray_(i, j).end();  // Calls HTcell::end()
+    for (unsigned int i = 0; i < nBinsX_; i++) {
+      for (unsigned int j = 0; j < nBinsY_; j++) {
+        htArray_(i, j)->end();  // Calls HTcell::end()
       }
     }
 
     // Produce a list of all track candidates found in this array, each containing all the stubs on each one
     // and the track helix parameters, plus the associated truth particle (if any).
     trackCands2D_ = this->calcTrackCands2D();
-
-    // Run algorithm to kill duplicate tracks (e.g. those sharing many hits in common).
-    trackCands2D_ = killDupTrks_.filter(trackCands2D_);
 
     // If requested, kill those tracks in this sector that can't be read out during the time-multiplexed period, because
     // the HT has associated too many stubs to tracks.
@@ -41,9 +48,9 @@ namespace tmtt {
     unsigned int nStubs = 0;
 
     // Loop over cells in HT array.
-    for (unsigned int i = 0; i < htArray_.size1(); i++) {
-      for (unsigned int j = 0; j < htArray_.size2(); j++) {
-        nStubs += htArray_(i, j).numStubs();  // Calls HTcell::numStubs()
+    for (unsigned int i = 0; i < nBinsX_; i++) {
+      for (unsigned int j = 0; j < nBinsY_; j++) {
+        nStubs += htArray_(i, j)->numStubs();  // Calls HTcell::numStubs()
       }
     }
 
@@ -56,10 +63,10 @@ namespace tmtt {
     unordered_set<unsigned int> stubIDs;  // Each ID stored only once, no matter how often it is added.
 
     // Loop over cells in HT array.
-    for (unsigned int i = 0; i < htArray_.size1(); i++) {
-      for (unsigned int j = 0; j < htArray_.size2(); j++) {
+    for (unsigned int i = 0; i < nBinsX_; i++) {
+      for (unsigned int j = 0; j < nBinsY_; j++) {
         // Loop over stubs in each cells, storing their IDs.
-        const vector<const Stub*>& vStubs = htArray_(i, j).stubs();  // Calls HTcell::stubs()
+        const vector<Stub*>& vStubs = htArray_(i, j)->stubs();  // Calls HTcell::stubs()
         for (const Stub* stub : vStubs) {
           stubIDs.insert(stub->index());
         }
@@ -76,7 +83,7 @@ namespace tmtt {
 
     // Loop over track candidates
     for (const L1track2D& trk : trackCands2D_) {
-      nStubs += trk.getStubs().size();
+      nStubs += trk.stubs().size();
     }
 
     return nStubs;
@@ -90,8 +97,8 @@ namespace tmtt {
 
     // Loop over track candidates, looking for those associated to given TP.
     for (const L1track2D& trk : trackCands2D_) {
-      if (trk.getMatchedTP() != nullptr) {
-        if (trk.getMatchedTP()->index() == tp.index())
+      if (trk.matchedTP() != nullptr) {
+        if (trk.matchedTP()->index() == tp.index())
           assocRecoTrk.push_back(&trk);
       }
     }
@@ -99,25 +106,13 @@ namespace tmtt {
     return assocRecoTrk;
   }
 
-  //=== Function to replace the collection of 2D tracks found by this HT.
-  //=== (This is used by class MuxHToutputs to kill tracks that can't be output in the time-multiplexed period).
-
-  void HTbase::replaceTrackCands2D(const vector<const L1track2D*>& newTracks) {
-    vector<L1track2D> tmpTracks;
-    for (const L1track2D* trk : newTracks) {
-      tmpTracks.push_back(*trk);
-    }
-    trackCands2D_.clear();
-    trackCands2D_ = tmpTracks;
-  }
-
   //=== Disable filters (used for debugging).
 
   void HTbase::disableBendFilter() {
     // Loop over cells in HT array.
-    for (unsigned int i = 0; i < htArray_.size1(); i++) {
-      for (unsigned int j = 0; j < htArray_.size2(); j++) {
-        htArray_(i, j).disableBendFilter();
+    for (unsigned int i = 0; i < nBinsX_; i++) {
+      for (unsigned int j = 0; j < nBinsY_; j++) {
+        htArray_(i, j)->disableBendFilter();
       }
     }
   }
@@ -128,8 +123,7 @@ namespace tmtt {
                                                                        unsigned int nBinsAxis,
                                                                        float coordAxisMin,
                                                                        float coordAxisBinSize,
-                                                                       unsigned int killSomeHTcells,
-                                                                       bool debug) const {
+                                                                       unsigned int killSomeHTcells) const {
     float coordMin = coordRange.first;
     float coordMax = coordRange.second;
     float coordAvg = (coordRange.first + coordRange.second) / 2.;
@@ -157,9 +151,9 @@ namespace tmtt {
         // Calculate fractional amount of min and max bin that this stub uses.
         float extraLow = (lower - coordMin) / coordAxisBinSize;
         float extraUp = (coordMax - upper) / coordAxisBinSize;
-        if (min(extraLow, extraUp) < -0.001 || max(extraLow, extraUp) > 1.001)
-          cout << "THIS SHOULD NOT HAPPEN " << extraLow
-               << endl;  // allowing 0.001 tolerance for floating point precision here.
+        constexpr float small = 0.001;  // allow tolerance on floating point precision.
+        if (min(extraLow, extraUp) < -small || max(extraLow, extraUp) > (1.0 + small))
+          throw cms::Exception("LogicError") << "HTbase: convertCoordRangeToBinRange error";
         if (extraLow < fracCut && (nbins >= 3 || extraLow < extraUp))
           iCoordBinMin += 1;
         if (extraUp < fracCut && (nbins >= 3 || extraUp < extraLow))
@@ -170,23 +164,12 @@ namespace tmtt {
       iCoordBinMin = floor((coordAvg - coordAxisMin) / coordAxisBinSize);
       iCoordBinMax = iCoordBinMin;
     } else {
-      throw cms::Exception("HT: invalid HoughUseFullRange option in cfg");
+      throw cms::Exception("BadConfig") << "HT: invalid KillSomeHTCells option in cfg";
     }
-
-    if (debug)
-      cout << "Initial Coord range: " << coordMin << " " << coordMax << " " << iCoordBinMin << " " << iCoordBinMax
-           << endl;
 
     // Limit range to dimensions of HT array.
     iCoordBinMin = max(iCoordBinMin, 0);
     iCoordBinMax = min(iCoordBinMax, int(nBinsAxis) - 1);
-
-    if (debug) {
-      float downPhiLim = coordAxisMin + iCoordBinMin * coordAxisBinSize;
-      float upPhiLim = coordAxisMin + (iCoordBinMax + 1) * coordAxisBinSize;
-      cout << "Final Coord range: " << downPhiLim << " " << upPhiLim << " " << iCoordBinMin << " " << iCoordBinMax
-           << endl;
-    }
 
     // If whole range is outside HT array, flag this by setting range to specific values with min > max.
     if (iCoordBinMin > int(nBinsAxis) - 1 || iCoordBinMax < 0) {
@@ -200,36 +183,27 @@ namespace tmtt {
   //=== Return a list of all track candidates found in this array, giving access to all the stubs on each one
   //=== and the track helix parameters, plus the associated truth particle (if any).
 
-  vector<L1track2D> HTbase::calcTrackCands2D() const {
-    vector<L1track2D> trackCands2D;
-
-    if (settings_->debug() == 3)
-      cout << "Printing track candidates in an HT array" << endl;
-
-    const unsigned int numRows = htArray_.size1();
-    const unsigned int numCols = htArray_.size2();
+  list<L1track2D> HTbase::calcTrackCands2D() const {
+    list<L1track2D> trackCands2D;
 
     // Check if the hardware processes rows of the HT array in a specific order when outputting track candidates.
     // Currently this is by decreasing Pt for r-phi HT and unordered for r-z HT.
-    const vector<unsigned int> iOrder = this->rowOrder(numRows);
+    const vector<unsigned int> iOrder = this->rowOrder(nBinsX_);
     bool wantOrdering = (iOrder.size() > 0);
 
-    unsigned int numStubsLeft = 0;
-    unsigned int numStubsRight = 0;
-
     // Loop over cells in HT array.
-    for (unsigned int i = 0; i < numRows; i++) {
+    for (unsigned int i = 0; i < nBinsX_; i++) {
       // Access rows in specific order if required.
       unsigned int iPos = wantOrdering ? iOrder[i] : i;
 
-      for (unsigned int j = 0; j < numCols; j++) {
-        if (htArray_(iPos, j).trackCandFound()) {  // track candidate found in this cell.
+      for (unsigned int j = 0; j < nBinsY_; j++) {
+        if (htArray_(iPos, j)->trackCandFound()) {  // track candidate found in this cell.
 
           // Note if this corresponds to a merged HT cell (e.g. 2x2).
-          const bool merged = htArray_(iPos, j).mergedCell();
+          const bool merged = htArray_(iPos, j)->mergedCell();
 
           // Get stubs on this track candidate.
-          const vector<const Stub*>& stubs = htArray_(iPos, j).stubs();
+          const vector<Stub*>& stubs = htArray_(iPos, j)->stubs();
 
           // And note location of cell inside HT array.
           const pair<unsigned int, unsigned int> cellLocation(iPos, j);
@@ -237,20 +211,11 @@ namespace tmtt {
           // Get (q/Pt, phi0) or (tan_lambda, z0) corresponding to middle of this cell.
           const pair<float, float> helixParams2D = this->helix2Dconventional(iPos, j);
 
-          // Store all this reconstruction info about this track.
-          // The L1track2D class automatically finds the associated MC truth Tracking Particle particle (if any)
-          L1track2D l1Trk2D(settings_, stubs, cellLocation, helixParams2D, iPhiSec_, iEtaReg_, optoLinkID_, merged);
-
-          // Store all this info about the track.
-          trackCands2D.push_back(l1Trk2D);
-
-        } else {
-          if (settings_->debug() == 3)
-            cout << " .";  // Indicate no track in this cell.
+          // Create track and store it.
+          trackCands2D.emplace_back(
+              settings_, stubs, cellLocation, helixParams2D, iPhiSec_, iEtaReg_, optoLinkID_, merged);
         }
       }
-      if (settings_->debug() == 3)
-        cout << endl;
     }
 
     return trackCands2D;

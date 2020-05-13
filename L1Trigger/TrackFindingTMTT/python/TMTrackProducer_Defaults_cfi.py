@@ -9,16 +9,25 @@ import FWCore.ParameterSet.Config as cms
 
 TMTrackProducer_params = cms.PSet(
 
+  # Tags for ES products
+  magneticFieldInputTag   = cms.ESInputTag( "VolumeBasedMagneticFieldESProducer", "" ), 
+  trackerGeometryInputTag = cms.ESInputTag( "trackerGeometry", "" ), 
+  trackerTopologyInputTag = cms.ESInputTag( "trackerTopology", "" ), 
+
+  # Tags for ED products
   tpInputTag = cms.InputTag("mix", "MergedTrackTruth"),
   stubInputTag = cms.InputTag("TTStubsFromPhase2TrackerDigis", "StubAccepted"),
   stubTruthInputTag = cms.InputTag("TTStubAssociatorFromPixelDigis", "StubAccepted"),
   clusterTruthInputTag = cms.InputTag("TTClusterAssociatorFromPixelDigis", "ClusterAccepted"),
   genJetInputTag = cms.InputTag("ak4GenJets", ""),
 
+  # Enable output of TTTracks from part-way through tracking chain (after HT & RZ).
+    EnableOutputIntermediateTTTracks = cms.bool(False),
+
   # Enable all use of MC truth info (disable to save CPU)
-  EnableMCtruth = cms.bool(True),
+    EnableMCtruth = cms.bool(False),
   # Enable output histograms & job tracking performance summary (disable to save CPU)
-  EnableHistos = cms.bool(True),
+    EnableHistos = cms.bool(False),
 
   #=== Cuts on MC truth particles (i.e., tracking particles) used for tracking efficiency measurements.
 
@@ -31,9 +40,7 @@ TMTrackProducer_params = cms.PSet(
      GenMaxZ0         = cms.double(999.0), # Max transverse impact parameter.
      GenPdgIds        = cms.vuint32(), # Only particles with these PDG codes used for efficiency measurement.
 
-     # Additional cut on MC truth tracks used for algorithmic tracking efficiency measurements.
-     # You should usually set this equal to value of L1TrackDef.MinStubLayers below, unless L1TrackDef.MinPtToReduceLayers
-     # is < 10000, in which case, set it equal to (L1TrackDef.MinStubLayers - 1).
+     # Cut on MC truth tracks used for algorithmic tracking efficiency measurements.
      GenMinStubLayers = cms.uint32(4)
   ),
 
@@ -47,16 +54,16 @@ TMTrackProducer_params = cms.PSet(
      MaxStubEta     = cms.double(2.4),
      # Don't use stubs whose measured Pt from bend info is significantly below HTArraySpec.HoughMinPt, where "significantly" means allowing for resolution in q/Pt derived from stub bend resolution specified below.
      KillLowPtStubs = cms.bool(True),
-     # Print stub windows corresponding to KillLowPtStubs, in python cfg format used by CMSSW.
+     # Print FE stub window sizes recommended by this code (in python cfg format used by CMSSW).
      PrintStubWindows = cms.bool(False),
      # Bend resolution assumed by bend filter in units of strip pitch. Also used when assigning stubs to sectors if EtaPhiSectors.CalcPhiTrkRes=True. And by the bend filter if HTFillingRphi.UseBendFilter=True.
      # Suggested value: 1.19 if DegradeBendRes = 0, or 1.249 if it > 0.
      # N.B. Avoid 1/4-integer values due to rounding error issues.
-     BendResolution = cms.double(1.249),
+     BendCut = cms.double(1.249),
      # Additional contribution to bend resolution from its encoding into a reduced number of bits.
      # This number is the assumed resolution relative to the naive guess of its value.
      # It is ignored in DegradeBendRes = 0.
-     BendResolutionExtra = cms.double(0.0),
+     BendCutExtra = cms.double(0.0),
      # Order stubs by bend in DTC, such that highest Pt stubs are transmitted first.
      OrderStubsByBend = cms.bool(True)
   ),
@@ -72,15 +79,27 @@ TMTrackProducer_params = cms.PSet(
      PhiSBits        = cms.uint32(14),   # Bits used to store phiS coord. (13 enough?)
      PhiSRange       = cms.double(0.698131700),  # Range phiS coord. covers in radians.
      RtBits          = cms.uint32(12),   # Bits used to store Rt coord.
-      RtRange        = cms.double(91.652837), # Range Rt coord. covers in units of cm.
+     RtRange         = cms.double(91.652837), # Range Rt coord. covers in units of cm.
      ZBits           = cms.uint32(14),   # Bits used to store z coord.
-      ZRange          = cms.double(733.2227), # Range z coord. covers in units of cm.
+     ZRange          = cms.double(733.2227), # Range z coord. covers in units of cm.
      #
      #--- Parameters available in GP board (excluding any in common with MP specified above).
      #
-     PhiOBits        = cms.uint32(15),      # Bits used to store PhiO parameter.
-     PhiORange      = cms.double(1.3962634), # Range PhiO parameter covers.
+     PhiNBits        = cms.uint32(15),      # Bits used to store PhiO parameter.
+     PhiNRange       = cms.double(1.3962634), # Range PhiO parameter covers.
      BendBits        = cms.uint32(6)        # Bits used to store stub bend.
+  ),
+
+  #=== Configuration of tracker module type. Only provides test data for firmware.
+
+  TrackerModuleType = cms.PSet(
+    # Modules matching these criteria are type 0, 1, 2, 3 ...
+    PitchVsType  = cms.vdouble(0.0099, 0.0099, 0.0099, 0.0099, 0.0089, 0.0099, 0.0089, 0.0089),
+    SpaceVsType  = cms.vdouble(0.26  , 0.26  , 0.16  , 0.4   , 0.18  , 0.4   , 0.18  , 0.4   ),
+    # (Type vbool not implemented, so use vuint32 instead ...)
+    BarrelVsType = cms.vuint32( 1    , 1     , 1     , 1     , 1     , 0     , 0     , 0 ),
+    PSVsType     = cms.vuint32( 1    , 1     , 1     , 1     , 0     , 1     , 0     , 0 ),
+    TiltedVsType = cms.vuint32( 0    , 1     , 0     , 1     , 0     , 0     , 0     , 0 ) 
   ),
 
   #=== Configuration of Geometric Processor.
@@ -103,8 +122,7 @@ TMTrackProducer_params = cms.PSet(
      UseStubPhi         = cms.bool(True),  # Require stub phi to be consistent with track of Pt > HTArraySpec.HoughMinPt that crosses HT phi axis?
      UseStubPhiTrk      = cms.bool(True),  # Require stub phi0 (or phi65 etc.) as estimated from stub bend, to lie within HT phi axis, allowing tolerance(s) specified below?
      AssumedPhiTrkRes   = cms.double(0.5), # Tolerance in stub phi0 (or phi65) assumed to be this fraction of phi sector width. (N.B. If > 0.5, then stubs can be shared by more than 2 phi sectors).
-     CalcPhiTrkRes      = cms.bool(True),  # If true, tolerance in stub phi0 (or phi65 etc.) will be reduced below AssumedPhiTrkRes if stub bend resolution specified in StubCuts.BendResolution suggests it is safe to do so.
-     HandleStripsPhiSec = cms.bool(False)  # If True, adjust algorithm to allow for uncertainty in stub (r,z) coordinate caused by length of 2S module strips when assigning stubs to phi sectors.
+     CalcPhiTrkRes      = cms.bool(True)  # If true, tolerance in stub phi0 (or phi65 etc.) will be reduced below AssumedPhiTrkRes if stub bend resolution specified in StubCuts.BendCut suggests it is safe to do so.
   ),
 
   #=== Division of Tracker into eta sectors
@@ -116,7 +134,6 @@ TMTrackProducer_params = cms.PSet(
      EtaRegions = cms.vdouble(-2.4,-2.08,-1.68,-1.26,-0.90,-0.62,-0.41,-0.20,0.0,0.20,0.41,0.62,0.90,1.26,1.68,2.08,2.4), 
      ChosenRofZ  = cms.double(50.),        # Use z of track at this radius for assignment of tracks to eta sectors & also for one of the axes of the r-z HT. Do not set to zero!
      BeamWindowZ = cms.double(15),         # Half-width of window assumed to contain beam-spot in z.
-     HandleStripsEtaSec = cms.bool(False), # If True, adjust algorithm to allow for uncertainty in stub (r,z) coordinate caused by length of 2S module strips when assigning stubs to eta sectors.
      AllowOver2EtaSecs = cms.bool(True)    # If True, the code will not throw an error if a stub is assigned to 3 or more eta sectors.
   ),
 
@@ -125,9 +142,8 @@ TMTrackProducer_params = cms.PSet(
   HTArraySpecRphi = cms.PSet(
      HoughMinPt      = cms.double(3.0), # Min track Pt that Hough Transform must find. Also used by StubCuts.KillLowPtStubs and by EtaPhiSectors.UseStubPhi.
      # If MiniHTstage = True, these refers to mini cells in whole HT array.
-     HoughNbinsPt    = cms.uint32(32),  # HT array dimension in track q/Pt. Ignored if HoughNcellsRphi > 0. (If MiniHTstage = True, this refers to mini cells in whole HT array).
-     HoughNbinsPhi   = cms.uint32(64),  # HT array dimension in track phi0 (or phi65 or any other track phi angle. Ignored if HoughNcellsRphi > 0. (If MiniHTstage = True, this refers to mini cells in whole HT array).
-     HoughNcellsRphi = cms.int32(-1),   # If > 0, then parameters HoughNbinsPt and HoughNbinsPhi will be calculated from the constraints that their product should equal HoughNcellsRphi and their ratio should make the maximum |gradient|" of stub lines in the HT array equal to 1. If <= 0, then HoughNbinsPt and HoughNbinsPhi will be taken from the values configured above.
+     HoughNbinsPt    = cms.uint32(32),  # HT array dimension in track q/Pt. (If MiniHTstage = True, this refers to mini cells in whole HT array).
+     HoughNbinsPhi   = cms.uint32(64),  # HT array dimension in track phi0 (or phi65 or any other track phi angle. (If MiniHTstage = True, this refers to mini cells in whole HT array).
      EnableMerge2x2  = cms.bool(False), # Groups of neighbouring 2x2 cells in HT will be treated as if they are a single large cell? N.B. You can only enable this option if your HT array has even numbers of bins in both dimensions. And this cfg param ignored if MiniHTstage = True.  HISTORIC OPTION. SUGGEST NOT USING!
      MaxPtToMerge2x2 = cms.double(3.5), # but only cells with pt < MaxPtToMerge2x2 will be merged in this way (irrelevant if EnableMerge2x2 = false).
      NumSubSecsEta   = cms.uint32(2),   # Subdivide each sector into this number of subsectors in eta within r-phi HT.
@@ -144,19 +160,17 @@ TMTrackProducer_params = cms.PSet(
   #=== Rules governing how stubs are filled into the r-phi Hough Transform array.
 
   HTFillingRphi = cms.PSet(
-     # If True, adjust algorithm to allow for uncertainty in stub (r,z) coordinate caused by length of 2S module strips when filling r-phi HT with stubs.
-     HandleStripsRphiHT   = cms.bool(False),
      # Take all cells in r-phi HT array crossed by line corresponding to each stub (= 0) or take only some to reduce rate at cost
      # of efficiency ( > 0). If this option is > 0, it can be 1 or 2, corresponding to different algorithms for rejecting
      # some of the cells. "1" is an algorithm invented by Ian, whereas "2" corresponds to Thomas' 1st firmware implementation which only handled 1 cell per HT column.
      # Suggest setting KillSomeHTCellsRphi=1 (=0) if HTArraySpec.ChosenRofPhi=0 (>0)
      KillSomeHTCellsRphi  = cms.uint32(0),
      # Use filter in each r-phi HT cell, filling it only with stubs that have consistent bend information?
-     # The assumed bend resolution is specified in StubCuts.BendResolution.
+     # The assumed bend resolution is specified in StubCuts.BendCut.
      UseBendFilter        = cms.bool(True),
      # Use filter in each HT cell, preventing more than the specified number of stubs being stored in the cell. (Reflecting memory limit of hardware). N.B. Results depend on assumed order of stubs.
      # N.B. If mini-HT is in use, then this cut applies to coarse-HT.
-     #MaxStubsInCell       = cms.uint32(99999), # Setting this to anything more than 99 disables this option
+     #MaxStubsInCell       = cms.uint32(99999), # Setting this to anything more than 999 disables this option
      MaxStubsInCell          = cms.uint32(32),    # set it equal to value used in hardware.
      MaxStubsInCellMiniHough = cms.uint32(16),    # Same type of cut for mini-HT (if in use)
      # If BusySectorKill = True, and more than BusySectorNumStubs stubs are assigned to tracks by an r-phi HT array, then the excess tracks are killed, with lowest Pt ones killed first. This is because HT hardware has finite readout time.
@@ -179,9 +193,8 @@ TMTrackProducer_params = cms.PSet(
      BusyInputSectorKill  = cms.bool(True),
      BusyInputSectorNumStubs  = cms.uint32(162),  #  Or 144 if only 320 MHz FW
      # Multiplex the outputs from several HTs onto a single pair of output optical links?
-     # Options: 0 = disable Mux; 1 = Dec. 2016 Mux; 2 = Mar 2018 Mux (for transverse HT readout by m-bin). 
-     # (The mux algorithm is hard-wired in class MuxHToutputs, and currently only works if option BusySectorMbinRanges is being used); 3 = Sept 2019 Mux (transerse HT readout by m-bin), with single m bin in entire nonant going to each link.
-     MuxOutputsHT = cms.uint32(3),
+     # Options: 0 = disable Mux; 1 = Sept 2019 Mux (transerse HT readout by m-bin), with single m bin in entire nonant going to each link.
+     MuxOutputsHT = cms.uint32(1),
      # If this is non-empty, then only the specified eta sectors are enabled, to study them individually.
      EtaRegWhitelist = cms.vuint32()
   ),
@@ -193,8 +206,8 @@ TMTrackProducer_params = cms.PSet(
      # Specify preferred r-z filter (from those available inside TrkRZfilter.cc) - currently only "SeedFilter".
      RZFilterName        = cms.string("SeedFilter"),
      #--- Options relevant for Seed filter, (so only relevant if rzFilterName="SeedFilter").
-     # Added resolution beyond that estimated from hit resolution. 
-     SeedResolution      = cms.double(0.),
+     # Cut at this many standard deviations on seed resolution.
+      SeedResCut      = cms.double(1.732),
      # Store stubs compatible with all possible good seed.
      KeepAllSeed         = cms.bool(False),
      # Maximum number of seed combinations to bother checking per track candidate.
@@ -217,8 +230,8 @@ TMTrackProducer_params = cms.PSet(
      # Min. number of layers the track must have stubs in.
      MinStubLayers        = cms.uint32(5),
      # Change min. number of layers cut to (MinStubLayers - 1) for tracks with Pt exceeding this cut.
-     # If this is set to > 10000 , this option is disabled.
-     MinPtToReduceLayers  = cms.double(99999.),
+     # If this is set to a -ve number, this option is disabled.
+      MinPtToReduceLayers  = cms.double(-99999.),
      # Change min. number of layers cut to (MinStubLayers - 1) for tracks in these rapidity sectors.
      # (Histogram "AlgEffVsEtaSec" will help you identify which sectors to declare).
      #EtaSecsReduceLayers  = cms.vuint32(),
@@ -232,21 +245,9 @@ TMTrackProducer_params = cms.PSet(
   #=== Specification of algorithm to eliminate duplicate tracks.
 
   DupTrkRemoval = cms.PSet(
-    #--- Specify which duplicate removal algorithm(s) to run:  option 0 means disable duplicate track removal, whilst > 0 runs a specific algorithm (options 8 & 25 are only ones implemented).
-    # Algorithm used for duplicate removal of 2D tracks produced by r-phi HT. Assumed to run before tracks are output from HT board.
-    DupTrkAlgRphi = cms.uint32(0),
-    #DupTrkAlgRphi = cms.uint32(25),
-    # Algorithm run on all 3D tracks within each sector after r-z track filter.
-    # (Ignored if no r-z track filter is run).
-    DupTrkAlg3D = cms.uint32(0),
-    #DupTrkAlg3D = cms.uint32(8),
-    # Algorithm run on tracks after the track helix fit has been done. (Ian's talk in 26/8/2016 meeting)
-    # To use it, you must set DupTrkAlgRphi = DupTrkAlg3D = 0.
-    DupTrkAlgFit   = cms.uint32(50),
-    #--- Options used by individual algorithms.
-    # Parameter for "inverse" OSU duplicate-removal algorithm
-    # Specifies minimum number of common stubs in same number of layers to keep smaller candidate in comparison.
-    DupTrkMinCommonHitsLayers = cms.uint32(5),
+    # Algorithm run on tracks after the track helix fit has been done.
+    # (Disable dup removal = 0; two alternative algos = 1 or 2).
+    DupTrkAlgFit   = cms.uint32(1)
   ),
 
   #=== Rules for deciding when a reconstructed L1 track matches a MC truth particle (i.e. tracking particle).
@@ -273,13 +274,13 @@ TMTrackProducer_params = cms.PSet(
      #
      # Track Fitting algortihms to use. You can run several in parallel.
      # TrackFitLinearAlgo & ChiSquared* are chi2 fits, KF* is a Kalman filter fit, 
-     # & SimpleLR is a linear regression fit that neglects the hit uncertainties. 
+     # & SimpleLR4 is a linear regression fit that neglects the hit uncertainties. 
      # The number 4 or 5 in the name indicates if 4 or 5 helix parameters are fitted.
-     # Options KF4ParamsComb, KF5ParamsComb or SimpleLR are the best ones.
+     # Options KF4ParamsComb, KF5ParamsComb or SimpleLR4 are the best ones.
      # KF*ParamsCombHLS is the HLS version of the code, which only works if linked with Vivado libraries.
      TrackFitters = cms.vstring(
-                                # "ChiSquared4ParamsApprox",
-                                # "SimpleLR",
+                                # "ChiSquaredFit4",
+                                # "SimpleLR4",
                                 # "KF4ParamsCombHLS",
                                 # "KF5ParamsCombHLS",
                                 "KF5ParamsComb",
@@ -288,8 +289,8 @@ TMTrackProducer_params = cms.PSet(
      # Indicate subset of fitters wanting r-z track filter to be run before them. (Irrelevant for those not specified in "TrackFitters"). 
      # Typically, Chi2 & LR fits work best with r-z filter & KF works best without it.
      UseRZfilter = cms.vstring(
-                                "ChiSquared4ParamsApprox",
-                                "SimpleLR"
+                                "ChiSquaredFit4",
+                                "SimpleLR4"
                               ),
      # Print detailed summary of track fit performance at end of job (as opposed to a brief one). 
      DetailedFitOutput = cms.bool(False),
@@ -311,8 +312,6 @@ TMTrackProducer_params = cms.PSet(
      #
      # Maximum allowed number of iterations of LR fitter.
      MaxIterationsLR                 = cms.uint32( 8 ),
-     # Internal histograms are filled if it is True
-     LRFillInternalHists             = cms.bool(False),
      # If False: residual of a stub is the max of its r-phi & r-z residuals. 
      # If True: the residual is the mean of these residuals.
      CombineResiduals                = cms.bool( True ),
@@ -335,7 +334,7 @@ TMTrackProducer_params = cms.PSet(
      #--- Additional options for Davide Cieri's Simple Linear Regression track fitter ---
      #
      # Digitize Simple Linear Regression variables and calculation. (Disabled if EnableDigitize=False).
-     DigitizeSLR         = cms.bool(True),
+     DigitizeSLR         = cms.bool(False), # Disable, as was never retuned for nonants
      # Number of bits to be used in hardware to compute the division needed to calculate the helix  params
      DividerBitsHelix    = cms.uint32(23),
      DividerBitsHelixZ   = cms.uint32(23),
@@ -352,7 +351,7 @@ TMTrackProducer_params = cms.PSet(
      # Number of bits to reduce the z0 parameter calculation weight
      ShiftingBitsZ0      = cms.uint32(16),
      # Fit ChiSquare Cut (tightening reduces fake track rate at cost of efficiency)
-     SLR_chi2cut         = cms.double(100.),
+     SLR_chi2cut         = cms.double(300.),
      # Cut on Rphi Residuals (radians) - stubs killed until only 4 left or all have residuals below this cut.
      ResidualCut         = cms.double(0.0),
      #ResidualCut         = cms.double(0.0005), # This allows more than 4 stubs per track.
@@ -361,13 +360,11 @@ TMTrackProducer_params = cms.PSet(
      #
      # Larger number has more debug printout. "1" is useful for understanding why tracks are lost, best combined with TrackFitCheat=True.
      KalmanDebugLevel        = cms.uint32(0),
-     # Internal histograms are filled if it is True
-     KalmanFillInternalHists  = cms.bool(False),
      # Fit will reject fitted tracks unless it can assign at least this number of stubs to them.
      KalmanMinNumStubs       = cms.uint32(4),
      # Fit will attempt to add up to this nummber of stubs to each fitted tracks, but won't bother adding more.
      KalmanMaxNumStubs       = cms.uint32(4),
-     # For 5-param helix fits, calculate also beam-constrained helix params after fit is complete, & use them for duplicate removal if DupTrkAlgFit=50.
+     # For 5-param helix fits, calculate also beam-constrained helix params after fit is complete, & use them for duplicate removal if DupTrkAlgFit=1.
      KalmanAddBeamConstr     = cms.bool(True),
      # Remove requirement of at least 2 PS layers per track.
      KalmanRemove2PScut      = cms.bool(False),
@@ -392,25 +389,15 @@ TMTrackProducer_params = cms.PSet(
      KalmanHOalpha           = cms.uint32(0),
      # Projection from (r,phi) to (z,phi) for endcap 2S modules. (0=disable correction, 1=correct with offset, 2=correct with non-diagonal stub covariance matrix). -- Option 1 is easier in FPGA, but only works if fit adds PS stubs before 2S ones.
      KalmanHOprojZcorr       = cms.uint32(0),
-     # Use dodgy calculation to account for non-radial endcap 2S modules that was used in Dec. 2016 demonstrator & use no special treatment for tilted modules.
-     KalmanHOdodgy           = cms.bool(True)
+     # Use approx calc to account for non-radial endcap 2S modules corresponding to current FW, with  no special treatment for tilted modules.
+     KalmanHOfw           = cms.bool(True)
   ),
 
   #=== Treatment of dead modules.
 
   DeadModuleOpts = cms.PSet( 
-     #--- Either use this private TMTT way of studying dead modules
-     # In (eta,phi) sectors containing dead modules, reduce the min. number of layers cut on tracks to (MinStubLayers - 1)?
-     # The sectors affected are hard-wired in DeadModuleDB::defineDeadTrackerRegions().
-     DeadReduceLayers  = cms.bool( False ),
-     # Emulate dead modules by killing fraction of stubs given by DeadSimulateFrac in certain layers & angular regions of 
-     # the tracker that are hard-wired in DeadModuleDB::defineDeadSectors(). Disable by setting <= 0. Fully enable by setting to 1.
-     # Do not use if KillScenario > 0.
-     DeadSimulateFrac = cms.double(-999.),
-     #
-     #--- Or this use communal way developed with Tracklet of studying dead modules
      # Emulate dead/inefficient modules using the StubKiller code, with stubs killed according to the scenarios of the Stress Test group. 
-     # (0=Don't kill any stubs; 1-5 = Scenarios from https://github.com/EmyrClement/StubKiller/blob/master/README.md).
+     # (0=Don't kill any stubs; 1-5 = Scenarios described in StubKiller.cc) 
      KillScenario = cms.uint32(0),
      # Modify TMTT tracking to try to recover tracking efficiency in presence of dead modules. (Does nothing if KillScenario = 0).
      KillRecover = cms.bool (True)
@@ -421,7 +408,7 @@ TMTrackProducer_params = cms.PSet(
   TrackDigi=cms.PSet(
     # For firmware reasons, can't use common digitisation cfg for all fitters.
 
-    #======= SimpleLR digi parameters ========
+    #======= SimpleLR4 digi parameters ========
     SLR_skipTrackDigi = cms.bool( False ), # Optionally skip track digitisation if done internally inside fitting code.
     SLR_oneOver2rBits = cms.uint32(13),
     SLR_oneOver2rRange = cms.double(0.01354135),
@@ -433,8 +420,8 @@ TMTrackProducer_params = cms.PSet(
     SLR_z0Range  = cms.double(51.555509),
     SLR_tanlambdaBits = cms.uint32(15),
     SLR_tanlambdaRange = cms.double(32.0),
-    SLR_chisquaredBits = cms.uint32(8),
-    SLR_chisquaredRange = cms.double(128.),
+      SLR_chisquaredBits = cms.uint32(10),
+    SLR_chisquaredRange = cms.double(512.),
     
     #====== Kalman Filter digi parameters ========
     KF_skipTrackDigi = cms.bool( False ), # Optionally skip track digitisation if done internally inside fitting code.
@@ -462,12 +449,8 @@ TMTrackProducer_params = cms.PSet(
   
   Hybrid = cms.bool( False),
 
-  #===== Debug printout & plots
-  Debug  = cms.uint32(1), #(0=none, 1=print #tracks/event, 2+ print more info)
+  #===== Debug plot options
   # When making helix parameter resolution plots, only use particles from the physics event (True)
   # or also use particles from pileup (False) ?
-  ResPlotOpt = cms.bool (True),
-  # Specify sector for which debug histos for hexagonal HT will be made.
-  iPhiPlot = cms.uint32(0),
-  iEtaPlot = cms.uint32(9)
+  ResPlotOpt = cms.bool (True)
 )

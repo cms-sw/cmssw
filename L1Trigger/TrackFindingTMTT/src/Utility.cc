@@ -2,14 +2,23 @@
 #include "L1Trigger/TrackFindingTMTT/interface/TP.h"
 #include "L1Trigger/TrackFindingTMTT/interface/Stub.h"
 #include "L1Trigger/TrackFindingTMTT/interface/Settings.h"
-#include "L1Trigger/TrackFindingTMTT/interface/DeadModuleDB.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
+
+using namespace std;
 
 namespace tmtt {
 
   //=== Count number of tracker layers a given list of stubs are in.
   //=== By default, consider both PS+2S modules, but optionally consider only the PS ones.
+
+  unsigned int Utility::countLayers(const Settings* settings,
+                                    const std::vector<Stub*>& stubs,
+                                    bool disableReducedLayerID,
+                                    bool onlyPS) {
+    std::vector<const Stub*> stubsConst(stubs.begin(), stubs.end());
+    return countLayers(settings, stubsConst, disableReducedLayerID, onlyPS);
+  }
 
   unsigned int Utility::countLayers(const Settings* settings,
                                     const vector<const Stub*>& vstubs,
@@ -41,7 +50,7 @@ namespace tmtt {
           if (layerID >= 0 && layerID < maxLayerID) {
             foundLayers[layerID] = true;
           } else {
-            throw cms::Exception("Utility::invalid layer ID");
+            throw cms::Exception("LogicError") << "Utility::invalid layer ID";
           }
         }
       }
@@ -55,7 +64,7 @@ namespace tmtt {
           if (layerID >= 0 && layerID < maxLayerID) {
             foundLayers[layerID] = true;
           } else {
-            throw cms::Exception("Utility::invalid layer ID");
+            throw cms::Exception("LogicError") << "Utility::invalid layer ID";
           }
         }
       }
@@ -74,6 +83,14 @@ namespace tmtt {
   //=== return the best matching Tracking Particle (if any),
   //=== the number of tracker layers in which one of the stubs matched one from this tracking particle,
   //=== and the list of the subset of the stubs which match those on the tracking particle.
+
+  const TP* Utility::matchingTP(const Settings* settings,
+                                const std::vector<Stub*>& vstubs,
+                                unsigned int& nMatchedLayersBest,
+                                std::vector<const Stub*>& matchedStubsBest) {
+    std::vector<const Stub*> stubsConst(vstubs.begin(), vstubs.end());
+    return matchingTP(settings, stubsConst, nMatchedLayersBest, matchedStubsBest);
+  }
 
   const TP* Utility::matchingTP(const Settings* settings,
                                 const vector<const Stub*>& vstubs,
@@ -105,10 +122,10 @@ namespace tmtt {
 
     // Loop over all the TP that matched the given stubs, looking for the best matching TP.
 
-    nMatchedLayersBest = 0;                     // initialize
-    unsigned int nMatchedLayersStrictBest = 0;  // initialize
-    matchedStubsBest.clear();                   // initialize
-    const TP* tpBest = nullptr;                 // initialize
+    nMatchedLayersBest = 0;
+    unsigned int nMatchedLayersStrictBest = 0;
+    matchedStubsBest.clear();
+    const TP* tpBest = nullptr;
 
     for (const auto& iter : tpsToStubs) {
       const TP* tp = iter.first;
@@ -150,49 +167,49 @@ namespace tmtt {
     return tpBest;
   }
 
-  //=== Determine the minimum number of layers a track candidate must have stubs in to be defined as a track.
-  //=== The first argument indicates from what type of algorithm this function is called: "HT", "SEED", "DUP" or "FIT".
+  //=== Determine min number of layers a track candidate must have stubs in to be defined as a track.
+  //=== 1st argument indicates from which step in chain this function is called: HT, SEED, DUP or FIT.
 
-  unsigned int Utility::numLayerCut(
-      string algo, const Settings* settings, unsigned int iPhiSec, unsigned int iEtaReg, float invPt, float eta) {
-    if (algo == "HT" || algo == "SEED" || algo == "DUP" || algo == "FIT") {
+  unsigned int Utility::numLayerCut(Utility::AlgoStep algo,
+                                    const Settings* settings,
+                                    unsigned int iPhiSec,
+                                    unsigned int iEtaReg,
+                                    float invPt,
+                                    float eta) {
+    if (algo == HT || algo == SEED || algo == DUP || algo == FIT) {
       unsigned int nLayCut = settings->minStubLayers();
 
       //--- Check if should reduce cut on number of layers by 1 for any reason.
 
       bool reduce = false;
 
-      // e.g. To increase efficiency for high Pt tracks.
-      bool applyMinPt = (settings->minPtToReduceLayers() < 10000.);
-      if (applyMinPt && fabs(invPt) < 1 / settings->minPtToReduceLayers())
+      // to increase efficiency for high Pt tracks.
+      bool applyMinPt = (settings->minPtToReduceLayers() > 0);
+      if (applyMinPt && std::abs(invPt) < 1 / settings->minPtToReduceLayers())
         reduce = true;
 
-      // e.g. Or to increase efficiency in the barrel-endcap transition or very forward regions.
+      // or to increase efficiency in the barrel-endcap transition or very forward regions.
       const vector<unsigned int> etaSecsRed = settings->etaSecsReduceLayers();
       if (std::count(etaSecsRed.begin(), etaSecsRed.end(), iEtaReg) != 0)
         reduce = true;
 
-      // e.g. Or to increase efficiency in sectors containing dead modules.
-      if (settings->deadReduceLayers()) {
-        const DeadModuleDB dead;
-        if (dead.reduceLayerCut(iPhiSec, iEtaReg))
-          reduce = true;
-      }
+      // or to increase efficiency in sectors containing dead modules (hard-wired in KF only)
+      // Not implemented here.
 
       if (reduce)
         nLayCut--;
 
-      // Avoid minimum number of layers going below 4.
-      if (nLayCut < 4)
-        nLayCut = 4;
+      constexpr unsigned int minLayCut = 4;  // Minimum viable layer cut.
+      nLayCut = std::max(nLayCut, minLayCut);
 
       // Seed Filter & Track Fitters require only 4 layers.
-      if (algo == "SEED" || algo == "FIT")
-        nLayCut = 4;
+      constexpr unsigned int nFitLayCut = 4;
+      if (algo == SEED || algo == FIT)
+        nLayCut = nFitLayCut;
 
       return nLayCut;
     } else {
-      throw cms::Exception("Utility::numLayerCut() called with invalid algo argument!") << algo << endl;
+      throw cms::Exception("LogicError") << "Utility::numLayerCut() called with invalid algo argument! " << algo;
     }
   }
 

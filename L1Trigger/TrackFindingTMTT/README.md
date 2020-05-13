@@ -1,135 +1,137 @@
-# N.B. THE GIT INSTRUCTIONS HERE APPLY TO THE ORIGINAL TMTT GIT REPO, SO SHOULD BE IGNORED IF USING THE HYBRID REPO.
+Two options:
 
-# Setup instructions to just run
+1) Run the TMTT L1 tracking algorithm (with detailed internal histos)
 
-To checkout and run, or if your modifications won't need to be put into the central repository, do (on an SL7 machine):
+    cd L1Trigger/TrackFindingTMTT/test/
+    cmsRun -n 4 tmtt_tf_analysis_cfg.py 
 
-```
-cmsrel CMSSW_10_6_0
-cd CMSSW_10_6_0/src
-cmsenv
+editing if necessary variables: GEOMETRY (CMS geometry version), inputMCtxt (MC file), makeStubs (regenerate stubs instead of using those from input MC), outputDataSet (write TTTrack collection to file).
 
-git cms-init
-git remote add -t TMTT_1060 TMTT git@github.com:CMS-TMTT/cmssw.git
-git fetch TMTT TMTT_1060
-git cms-checkout-topic CMS-TMTT:TMTT_1060
+- Look at the printout from the job. At the end, it prints the number of track candidates reconstructed
+  and the algorithmic tracking efficiency.
 
-scramv1 b -j 8
+- Look at the performance histograms Hist.root (explained in class "Histos" below)
 
-cd L1Trigger/TrackFindingTMTT/test/
-cmsRun tmtt_tf_analysis_cfg.py inputMC=MCsamples/937/RelVal/TTbar/PU200.txt Events=10
-```
+2) cmsRun -n 4 L1TrackNtupleMaker_cfg.py 
+after editing it to change L1TRACKALGO = 'TMTT'. This writes a TTree with the fitfitted L1 tracks to file in a TTTrack collection, from which tracking performance can be studied with ROOT macro. L1TrackNtuplePlot.C.
 
-Note : In this example, the name of the remote repository is given the label TMTT.  However the ```git cms-checkout-topic``` commands (and related git cms-*-*) use the username of the remote repository (CMS-TMTT).
-Note : that if you want to checkout other packages e.g. the tracklet software, which contains the ntuple maker, you should replace ```git cms-checkout-topic``` with ```git cms-merge-topic```
+N.B. .txt files listing available MC samples can be found in https://github.com/cms-data/L1Trigger-TrackFindingTMTT .
 
-# Setup instructions for making modifications
+-------------
 
-Follow the above instructions.  At this point, you should be on a local branch called TMTT_1060.
+=== Reproducing stubs ===:
 
-Below is a simple example of making modifications, pushing them to your remote repository, and making a pull request back to the repository you want your changes to end up in.  In this example, we will use the following as the "central" repository (something equivalent of trunkSimpleCode9 in svn) : https://github.com/CMS-TMTT/cmssw.git . Follow the link, and fork the repository to your own account.  You then need to add your newly forked repository as a remote repository in your local working area, which we will call ```origin```:
-```
-git remote add origin <url>
-```
-You can get the url by clicking on "Clone or download" on the webpage for YOUR repository, and will be something like ```git@github.com:<GitHubUsername>/cmssw.git```
+The makeStubs option to remake the stubs is very slow. If you need to do this, it may be better to "cmsRun make_stubs.py" to write the new stubs to disk.
 
-Lets change branch to one called "myChanges":
-```
-git checkout -b myChanges
-```
-Modify some files:
-```
-echo "#Hello World" >> L1Trigger/TrackFindingTMTT/test/tmtt_tf_analysis_cfg.py
-```
-Check the status of your modifications:
-```
-git status
-```
-Which should show something like:
-```
-# On branch myChanges
-# Changes not staged for commit:
-#   (use "git add <file>..." to update what will be committed)
-#   (use "git checkout -- <file>..." to discard changes in working directory)
-#
-#	modified:   L1Trigger/TrackFindingTMTT/test/tmtt_tf_analysis_cfg.py
-#
-no changes added to commit (use "git add" and/or "git commit -a")
-```
-You can undo (revert) your changes (as explained in the message for ```git status```) with ```git checkout -- <file1> <file2> ...```
-To see your modifications, you can do:
-```
-git diff L1Trigger/TrackFindingTMTT/test/tmtt_tf_analysis_cfg.py
-#or just
-#git diff
-```
-Which should show something like:
-```diff --git a/L1Trigger/TrackFindingTMTT/test/tmtt_tf_analysis_cfg.py b/L1Trigger/TrackFindingTMTT/test/tmtt_tf_analysis_cfg.py
-index 7b693b9..fc59e07 100644
---- a/L1Trigger/TrackFindingTMTT/test/tmtt_tf_analysis_cfg.py
-+++ b/L1Trigger/TrackFindingTMTT/test/tmtt_tf_analysis_cfg.py
-@@ -189,3 +189,4 @@ if options.outputDataset == 1:
-   process.writeDataset.outputCommands.append('keep  *_TTAssociator*_TML1Tracks*_*')
- 
-   process.schedule = cms.Schedule(process.p, process.pa, process.pd)
-+#Hello World
-```
-Add the files, and commit:
-```
-git add L1Trigger/TrackFindingTMTT/test/tmtt_tf_analysis_cfg.py
-git commit -m "Modification to tmtt_tf_analysis_cfg comfig file"
-```
-Doing ```git status``` will now show:
-```
-# On branch myChanges
-nothing to commit, working directory clean
-```
-Now push these changes to your remote repository.
-```
-git push origin myChanges 
-```
-You are now ready to make a pull request back to the central repository.  Go the webpage for your remote repository, and you should see a box stating you have just pushed some changes to the myChanges branch, and gives the option to "Compare & pull request".  Make the pull request to merge your changes in the myChanges branch to CMS-TMTT/cmssw:TMTT_1060.
+=== Changing configuration options ===:
 
-# Pull changes from the central TMTT repository
-If changes (new commits) have been made to the central CMS-TMTT repository since you first checked it out, you can rebase your branch.  If you have any local changes, you need to ```git add``` and ```git commit``` them first.  Then do:
-```
-git pull --rebase TMTT TMTT_1060
-```
-You may have to resolve conflicts, in the usual git way. Then "git push --force" if you want to submit your changes
+a) The full set of config parameters, which comments explaining what each is, can be found in
+specifiied in L1Trigger/TrackFindingTMTT/python/TMTrackProducer_Defaults_cfi.py. 
 
-Alternatively, if you don't want to commit your local changes, you can do ```git stash```, perform the rebase, and then ```git stash pop```.
+b) The file mentioned on (a) is imported by
+L1Trigger/TrackFindingTMTT/python/TMTrackProducer_cff.py ,
+which can optionally override the values of some parameters. This file lists the subset of the cfg
+parameters that are most useful.
 
-# To run in a newer CMSSW release
-The above repository was setup in CMSSW_10_6_0.  If you want to run our TMTT software in a newer release, e.g. CMSSW_10_3_0, the command above will attempt things like merging all the differences in all packages between CMSSW_10_6_0 and CMSSW_10_3_0.  This can be avoided by performing a ```git cms-rebase-topic```, or by manually performing a spare checkout.  For the former, you can then make a new branch of our software for the new CMSSW release
+e.g. Enable tracking down to 2 GeV, enabled displaced tracking etc.
 
-## Rebase
-This example is moving from CMSSW_10_6_0 (the release the TMTT_1060 branch was created in) to CMSSW_10_7_0
-```
-cmsrel CMSSW_10_7_0
-cd CMSSW_10_7_0/src
-cmsenv
+c) Alternatively, you can use L1Trigger/TrackFindingTMTT/python/TMTrackProducer_Ultimate_cff.py ,
+which is like (b) but includes improvements not yet available in the firmware, such as reducing the
+Pt threshold to 2 GeV. It is suitable for L1 trigger studies.
 
-git cms-init
-git remote add -t TMTT_1060 TMTT git@github.com:CMS-TMTT/cmssw.git
-git cms-rebase-topic -o CMSSW_10_6_0 CMS-TMTT:TMTT_1060
-```
-You will end up on a branch called TMTT_1060, which will have our TMTT software on top of CMSSW_10_3_0.  You can change to a new branch e.g. TMTT_1060_10_3_0, and push the new branch to the remote repository (if you have permissions).  If this new CMSSW release and branch should become the "master" branch everyone should work from, then you should also update the recipes/documentation.
+d) You can also override cfg parameters in tmtt_tf_analysis_cfg.py . A line there illustrates how.
+This file imports TMTrackProducer_cff.py.
 
-## Manual sparse-checkout
-Here you tell git to only consider the TMTT directory when performing a checkout (which is similar in part is what the above checkout/merge topic commands do, as you don't need to checkout all of CMSSW).
+e) The python files in python/ all disable production of histograms & tracking performance summaries to save CPU. However, tmtt_tf_analysis_cfg overrides this default and switches them on via parameters EnableMCtruth & EnableHistos. If you do not care about this analysis information, and only care about producing TTTracks, then keep them switched off.
 
-The difference here is that if you make changes and a pull request, the pull request will be back to the CMS-TMTT:TMTT_1060 branch.
-```
-cmsrel CMSSW_10_7_0
-cd CMSSW_10_7_0/src
-cmsenv
+-------------
 
-git cms-init
-git remote add -t TMTT_1060 TMTT git@github.com:CMS-TMTT/cmssw.git
-git fetch TMTT TMTT_1060
+=== Software structure ===:
 
-echo "/L1Trigger/TrackFindingTMTT" >> .git/info/sparse-checkout
-echo "/TMTrackTrigger/MCsamples" >> .git/info/sparse-checkout
+1) Class "TMTrackProducer" -- This is the main routine, which uses classes: "InputData" to unpack the useful
+data from the MC dataset, and "Sector" & "HTphi" to do the L1 Hough transform track-finding,
+and "Get3Dtracks" to estimate the helix params in 3D, optionally by running an r-z track filter.
+It creates matrices of "Sector", "HTphi" & "Get3Dtracks", where the matrix elements each correspond to 
+a different (phi,eta) sector. It then uses "TrackFitGeneric" to do the track fitting and optionally
+"KillDupFitTrks" to remove duplicate tracks after the fit. It employs "Histos" to create the analysis
+ histograms. 
+   To allow comparison of our tracks with those of the AM & Tracklet groups, it also converts our tracks
+to the agree common TTTrack format, with this conversion done by the "ConverterToTTTrack" class.
 
-git checkout -b myChanges TMTT/TMTT_1060
-```
+2) Class "InputData" -- This unpacks the most useful information from the Stubs and Tracking Particle 
+(truth particles) collections in the MC dataset, and it for convenient access in the "Stub" and "TP"
+classes. Info about tracker silicon modules is stored in "ModuleInfo". The "Stub" class uses a class called "DigitalStub" to digitize and then undigitize again the stub data. This process degrades slightly the resolution, as would happen in the real firmware. The digitisation is optional. It is called from TMTrackProducer after the stubs have been assigned to
+sectors.
+
+3) Class "Sector" -- This knows about the division of the Tracker into (phi,eta) sectors that we use
+for the L1 tracking, and decides which of these sectors each stub belongs to.
+
+4) Class "HTrphi" implements the Hough transforms in the r-phi plane. It inherits from
+a base class "HTbase". The Hough transform array is implemented as a matrix of "HTcell" 
+objects. The HTrphi class stores tracks it finds using the "L1track2D" class. It optionally 
+uses class "KillDupTrks" to attempt to eliminate duplicate tracks. And optionally, class "MuxHToutputs"
+can be used to multiplex the tracks found in different HT arrays (sectors) onto a single output
+optical link pair.
+
+5) Class "HTcell" -- This represents a single cell in an HT array. It provides functions allowing stubs
+to be added to this cell, to check if the stubs in a cell give a good track candidate, and to check
+if this matches a tracking particle (truth).
+
+6) Class "Get3Dtracks" makes an estimate of the track parameters in 3D, stored in the "L1track3D" 
+class, by taking the r-phi track found by the HT, assuming z0 = 0 and that eta is given by the centre 
+of the eta sector that track is in. Optionally it can also create a second collection of L1track3D,
+by running an r-z track filter (from class "TrkRZfilter") on the tracks found by the HT, which gives
+cleaner tracks with more precise r-z helix param info.
+
+7) Class "L1track2D" represents a 2D track, reconstructed in the r-phi or r-z plane by a Hough transform.
+Class "L1track3D" represents a 3D tracks, obtained by combining the information in the 2D tracks
+from r-phi and r-z Hough transforms. These classes give access to the stubs associated to each track,
+to the reconstructed helix parameters, and to the associated truth particle (if any). They represent
+the result of the track finding. Both inherit from a pure virtual class L1trackBase, which contains
+no functionality but imposes common function names.
+
+8) Class "KillDupTrks" contains algorithms for killing duplicate tracks found within a single
+HT array. Class "KillDupFitTrks" contains algorithms for killing duplicate fitted tracks.
+
+9) Class "TrkRZfilter" contains r-z track filters, such as the Seed Filter, that check if the stubs
+on a track are consistent with a straight line in the r-z plane.
+
+10) Class "TrackFitGeneric" does one (or more) helix fit(s) to the track candidates, using various
+other classes that implement linearized chi2, linear regression or Kalman filter fits. These are:
+
+   - ChiSquared4ParamsApprox (chi2 linear fit, with maths simplified for easier use in FPGA)
+   - SimpleLR (linear regression fit, which is similar to chi2 fit, but assumes all hits have same uncertainty).
+   - KFParamsComb: Kalman Filter fit to a 4 or 5 parameter helix.
+
+The fit also uses a classe to represent the helix state + stubs: KalmanState.
+
+11) Class "L1fittedTrack" contains the result of running a track fitter (the algorithm for which is 
+implemented in class "TrackFitAlgo") on the L1track3D track candidate found by the Hough transform. 
+It gives access to the fitted track parameters and chi2, and via a link to the L1track3D candidate 
+that produced it, also to the stubs on the track and the associated truth particle (if any). 
+It inherits from the pure virutal L1trackBase, ensuring it has some common classes with L1track3D and 
+L1track2D.
+
+13) Class "DegradeBend" -- This is used by class "Stub" to degrade the resolution on the stub
+bend information to that expected in the electronics, as opposed to that currently in CMSSW.
+
+14) "Utility" -- contains a few useful functions, that are not part of a class.
+
+15) Class "Settings" -- Reads in the configuration parameters.
+
+16) Class "Histos" -- Books and fills all the histograms. There are several categories of histograms,
+with each category being booked/filled by its own function inside "Histos", and being placed inside its
+own ROOT directory in the output histogram file. The categories are "InputData" = plots made with the 
+Stubs & Tracking Particles; "CheckEtaPhiSectors" = plots checking assignment of stubs to (eta,phi) 
+sectors; "HT" = plots checking how stubs are stored in the Hough Transform arrays; "TrackCands" = plots 
+showing number of track candidates found & investigating why tracking sometimes failed, 
+"EffiAndFakeRate" = plots of tracking efficiency. 
+
+Each user of the code will probably want to book their own set of histograms inside "Histos". So 
+just consider the version of this class in GIT as a set of examples of how to do things. Don't feel
+obliged to understand what every histogram does.
+
+17) Class "StubKiller" emulates dead modules. It was written to
+model the scenarios requested by the Stress Test committee. 
+
+18) Class "GlobalCacheTMTT" contains data shared by all threads. It includes configuration data and histograms.

@@ -11,8 +11,6 @@
 #include <vector>
 #include <utility>
 
-using namespace std;
-
 //=== L1 track cand found in 2 dimensions.
 //=== Gives access to all stubs on track and to its 2D helix parameters.
 //=== Also calculates & gives access to associated truth particle (Tracking Particle) if any.
@@ -23,9 +21,9 @@ namespace tmtt {
   public:
     // Give stubs on track, its cell location inside HT array, its 2D helix parameters.
     L1track2D(const Settings* settings,
-              const vector<const Stub*>& stubs,
-              pair<unsigned int, unsigned int> cellLocationHT,
-              pair<float, float> helix2D,
+              const std::vector<Stub*>& stubs,
+              std::pair<unsigned int, unsigned int> cellLocationHT,
+              std::pair<float, float> helix2D,
               unsigned int iPhiSec,
               unsigned int iEtaReg,
               unsigned int optoLinkID,
@@ -33,6 +31,7 @@ namespace tmtt {
         : L1trackBase(),
           settings_(settings),
           stubs_(stubs),
+          stubsConst_(stubs_.begin(), stubs_.end()),
           cellLocationHT_(cellLocationHT),
           helix2D_(helix2D),
           estValid_(false),
@@ -42,30 +41,31 @@ namespace tmtt {
           iEtaReg_(iEtaReg),
           optoLinkID_(optoLinkID),
           mergedHTcell_(mergedHTcell) {
-      nLayers_ = Utility::countLayers(settings, stubs);  // Count tracker layers these stubs are in
+      nLayers_ = Utility::countLayers(settings, stubs_);  // Count tracker layers these stubs are in
       matchedTP_ = Utility::matchingTP(settings,
-                                       stubs,
+                                       stubs_,
                                        nMatchedLayers_,
                                        matchedStubs_);  // Find associated truth particle & calculate info about match.
     }
 
-    L1track2D() : L1trackBase(){};  // Creates track object, but doesn't set any variables.
+    L1track2D() : L1trackBase(){};  // Creates track object, but doesn't std::set any variables.
 
     ~L1track2D() {}
 
     //--- Get information about the reconstructed track.
 
     // Get stubs on track candidate.
-    const vector<const Stub*>& getStubs() const { return stubs_; }
+    const std::vector<const Stub*>& stubsConst() const { return stubsConst_; }
+    const std::vector<Stub*>& stubs() const { return stubs_; }
     // Get number of stubs on track candidate.
-    unsigned int getNumStubs() const { return stubs_.size(); }
+    unsigned int numStubs() const { return stubs_.size(); }
     // Get number of tracker layers these stubs are in.
-    unsigned int getNumLayers() const { return nLayers_; }
+    unsigned int numLayers() const { return nLayers_; }
     // Get cell location of track candidate in Hough Transform array in units of bin number.
-    pair<unsigned int, unsigned int> getCellLocationHT() const { return cellLocationHT_; }
+    std::pair<unsigned int, unsigned int> cellLocationHT() const { return cellLocationHT_; }
     // The two conventionally agreed track helix parameters relevant in this 2D plane.
     // i.e. (q/Pt, phi0).
-    pair<float, float> getHelix2D() const { return helix2D_; }
+    std::pair<float, float> helix2D() const { return helix2D_; }
 
     //--- User-friendlier access to the helix parameters obtained from track location inside HT array.
 
@@ -73,7 +73,7 @@ namespace tmtt {
     float phi0() const { return helix2D_.second; }
 
     //--- In the case of tracks found by the r-phi HT, a rough estimate of the (z0, tan_lambda) may be provided by any r-z
-    //--- track filter run after the r-phi HT. These two functions give set/get access to these.
+    //--- track filter run after the r-phi HT. These two functions give std::set/get access to these.
     //--- The "get" function returns a boolean indicating if an estimate exists (i.e. "set" has been called).
 
     void setTrkEstZ0andTanLam(float estZ0, float estTanLambda) {
@@ -82,7 +82,7 @@ namespace tmtt {
       estValid_ = true;
     }
 
-    bool getTrkEstZ0andTanLam(float& estZ0, float& estTanLambda) const {
+    bool trkEstZ0andTanLam(float& estZ0, float& estTanLambda) const {
       estZ0 = estZ0_;
       estTanLambda = estTanLambda_;
       return estValid_;
@@ -102,23 +102,24 @@ namespace tmtt {
     //--- Get information about its association (if any) to a truth Tracking Particle.
 
     // Get matching tracking particle (=nullptr if none).
-    const TP* getMatchedTP() const { return matchedTP_; }
+    const TP* matchedTP() const { return matchedTP_; }
     // Get the matched stubs.
-    const vector<const Stub*>& getMatchedStubs() const { return matchedStubs_; }
+    const std::vector<const Stub*>& matchedStubs() const { return matchedStubs_; }
     // Get number of matched stubs.
-    unsigned int getNumMatchedStubs() const { return matchedStubs_.size(); }
+    unsigned int numMatchedStubs() const { return matchedStubs_.size(); }
     // Get number of tracker layers with matched stubs.
-    unsigned int getNumMatchedLayers() const { return nMatchedLayers_; }
+    unsigned int numMatchedLayers() const { return nMatchedLayers_; }
 
   private:
     //--- Configuration parameters
     const Settings* settings_;
 
     //--- Information about the reconstructed track from Hough transform.
-    vector<const Stub*> stubs_;
+    std::vector<Stub*> stubs_;
+    std::vector<const Stub*> stubsConst_;
     unsigned int nLayers_;
-    pair<unsigned int, unsigned int> cellLocationHT_;
-    pair<float, float> helix2D_;
+    std::pair<unsigned int, unsigned int> cellLocationHT_;
+    std::pair<float, float> helix2D_;
 
     //--- Rough estimate of r-z track parameters from r-z filter, which may be present in case of r-phi Hough transform
     bool estValid_;
@@ -133,7 +134,7 @@ namespace tmtt {
 
     //--- Information about its association (if any) to a truth Tracking Particle.
     const TP* matchedTP_;
-    vector<const Stub*> matchedStubs_;
+    std::vector<const Stub*> matchedStubs_;
     unsigned int nMatchedLayers_;
   };
 

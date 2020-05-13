@@ -5,8 +5,6 @@
 
 #include <vector>
 
-using namespace std;
-
 class TrackerTopology;
 
 namespace tmtt {
@@ -28,36 +26,30 @@ namespace tmtt {
   class StubWindowSuggest {
   public:
     // Initialize (for use with TMTT).
-    StubWindowSuggest(const Settings* settings, const TrackerTopology* trackerTopo)
-        : settings_(settings), ptMin_(settings->houghMinPt()), theTrackerTopo_(trackerTopo) {}
-
-    // Initialize (for use with HYBRID)
     StubWindowSuggest(const Settings* settings) : settings_(settings), ptMin_(settings->houghMinPt()) {}
 
     ~StubWindowSuggest() {}
 
     // Analyse stub window required for this stub.
-    void process(const Stub* stub);
+    void process(const TrackerTopology* trackerTopo, const Stub* stub);
 
     // Print results (should be done in endJob();
-    static void printResults();
+    void printResults() const;
 
   private:
     // Update stored stub window size with this stub.
-    void updateStoredWindow(const Stub* stub, double bendWind);
+    void updateStoredWindow(const TrackerTopology* trackerTopo, const Stub* stub, double bendWind);
 
   private:
     // Configuration parameters.
     const Settings* settings_;
     const float ptMin_;
 
-    const TrackerTopology* theTrackerTopo_;
-
     // Stub window sizes as encoded in L1Trigger/TrackTrigger/interface/TTStubAlgorithm_official.h
-    static thread_local std::vector<double> barrelCut_;
-    static thread_local std::vector<std::vector<double> > ringCut_;
-    static thread_local std::vector<std::vector<double> > tiltedCut_;
-    static thread_local std::vector<double> barrelNTilt_;
+    std::vector<double> barrelCut_;
+    std::vector<std::vector<double> > ringCut_;
+    std::vector<std::vector<double> > tiltedCut_;
+    std::vector<double> barrelNTilt_;
   };
 
 }  // namespace tmtt

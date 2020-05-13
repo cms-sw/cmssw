@@ -18,8 +18,7 @@
 #include <set>
 #include <utility>
 #include <string>
-
-using namespace std;
+#include <memory>
 
 //=== This represents a fitted L1 track candidate found in 3 dimensions.
 //=== It gives access to the fitted helix parameters & chi2 etc.
@@ -36,8 +35,8 @@ namespace tmtt {
     // and the number of helix parameters being fitted (=5 if d0 is fitted, or =4 if d0 is not fitted).
     // And if track fit declared this to be a valid track (enough stubs left on track after fit etc.).
     L1fittedTrack(const Settings* settings,
-                  const L1track3D& l1track3D,
-                  const vector<const Stub*>& stubs,
+                  const L1track3D* l1track3D,
+                  const std::vector<Stub*>& stubs,
                   unsigned int hitPattern,
                   float qOverPt,
                   float d0,
@@ -52,6 +51,7 @@ namespace tmtt {
           settings_(settings),
           l1track3D_(l1track3D),
           stubs_(stubs),
+          stubsConst_(stubs_.begin(), stubs_.end()),
           hitPattern_(hitPattern),
           qOverPt_(qOverPt),
           d0_(d0),
@@ -66,48 +66,51 @@ namespace tmtt {
           phi0_bcon_(phi0),
           chi2rphi_bcon_(chi2rphi),
           nHelixParam_(nHelixParam),
-          iPhiSec_(l1track3D.iPhiSec()),
-          iEtaReg_(l1track3D.iEtaReg()),
-          optoLinkID_(l1track3D.optoLinkID()),
           accepted_(accepted),
           nSkippedLayers_(0),
           numUpdateCalls_(0),
-          numIterations_(0),
-          digitizedTrack_(false),
-          digitalTrack_(settings) {
-      // Doesn't make sense to assign stubs to track if fitter rejected it.
-      if (!accepted)
-        stubs_.clear();
-      nLayers_ = Utility::countLayers(settings, stubs);  // Count tracker layers these stubs are in
-      matchedTP_ = Utility::matchingTP(settings,
-                                       stubs,
-                                       nMatchedLayers_,
-                                       matchedStubs_);  // Find associated truth particle & calculate info about match.
+          numIterations_(0) {
+      if (l1track3D != nullptr) {
+        iPhiSec_ = l1track3D->iPhiSec();
+        iEtaReg_ = l1track3D->iEtaReg();
+        optoLinkID_ = l1track3D->optoLinkID();
+      } else {  // Rejected track
+        iPhiSec_ = 0;
+        iEtaReg_ = 0;
+        optoLinkID_ = 0;
+      }
+      if (settings != nullptr) {
+        // Count tracker layers these stubs are in
+        nLayers_ = Utility::countLayers(settings, stubs_);
+        // Find associated truth particle & calculate info about match.
+        matchedTP_ = Utility::matchingTP(settings, stubs_, nMatchedLayers_, matchedStubs_);
+      } else {  // Rejected track
+        nLayers_ = 0;
+        matchedTP_ = nullptr;
+      }
       // Set d0 = 0 for 4 param fit, in case fitter didn't do it.
       if (nHelixParam == 4) {
         d0_ = 0.;
         d0_bcon_ = 0.;
       }
-      if (!settings->hybrid()) {
-        secTmp_.init(settings,
-                     iPhiSec_,
-                     iEtaReg_);  //Sector class used to check if fitted track trajectory is in expected sector.
-        htRphiTmp_.init(
-            settings,
-            iPhiSec_,
-            iEtaReg_,
-            secTmp_.etaMin(),
-            secTmp_.etaMax(),
-            secTmp_.phiCentre());  // HT class used to identify HT cell that corresponds to fitted helix parameters.
+      if (settings != nullptr && not settings->hybrid()) {
+        //Sector class used to check if fitted track trajectory is in expected sector.
+        secTmp_ = std::make_shared<Sector>(settings, iPhiSec_, iEtaReg_);
+        // HT class used to identify HT cell that corresponds to fitted helix parameters.
+        htRphiTmp_ = std::make_shared<HTrphi>(
+            settings, iPhiSec_, iEtaReg_, secTmp_->etaMin(), secTmp_->etaMax(), secTmp_->phiCentre());
+        this->setConsistentHTcell();
+      } else {
+        consistentCell_ = false;
       }
-      this->setConsistentHTcell();
     }
 
-    L1fittedTrack() : L1trackBase(){};  // Creates track object, but doesn't set any variables.
+    // Creates track rejected by fitter.
+    L1fittedTrack() : L1fittedTrack(nullptr, nullptr, noStubs_, 0, 0., 0., 0., 0., 0., 0., 0., 0, false) {}
 
     ~L1fittedTrack() {}
 
-    //--- Optionally set track helix params & chi2 if beam-spot constraint is used (for 5-parameter fit).
+    //--- Optionally std::set track helix params & chi2 if beam-spot constraint is used (for 5-parameter fit).
     void setBeamConstr(float qOverPt_bcon, float phi0_bcon, float chi2rphi_bcon) {
       done_bcon_ = true;
       qOverPt_bcon_ = qOverPt_bcon;
@@ -133,25 +136,25 @@ namespace tmtt {
     }
     void setInfoCHI2() {}
 
-    void getInfoKF(unsigned int& nSkippedLayers, unsigned int& numUpdateCalls) const {
+    void infoKF(unsigned int& nSkippedLayers, unsigned int& numUpdateCalls) const {
       nSkippedLayers = nSkippedLayers_;
       numUpdateCalls = numUpdateCalls_;
     }
-    void getInfoLR(int& numIterations,
-                   std::string& lostMatchingState,
-                   std::unordered_map<std::string, int>& stateCalls) const {
+    void infoLR(int& numIterations,
+                std::string& lostMatchingState,
+                std::unordered_map<std::string, int>& stateCalls) const {
       numIterations = numIterations_;
       lostMatchingState = lostMatchingState_;
       stateCalls = stateCalls_;
     }
-    void getInfoCHI2() const {}
+    void infoCHI2() const {}
 
     //--- Convert fitted track to KFTrackletTrack format, for use with HYBRID.
 
     KFTrackletTrack returnKFTrackletTrack() {
-      KFTrackletTrack trk_(getL1track3D(),
-                           getStubs(),
-                           getHitPattern(),
+      KFTrackletTrack trk_(l1track3D(),
+                           stubsConst(),
+                           hitPattern(),
                            qOverPt(),
                            d0(),
                            phi0(),
@@ -170,46 +173,47 @@ namespace tmtt {
     //--- Provide direct access to some of the info it contains.
 
     // Get track candidate from HT (before fit).
-    const L1track3D& getL1track3D() const { return l1track3D_; }
+    const L1track3D* l1track3D() const { return l1track3D_; }
 
     // Get stubs on fitted track (can differ from those on HT track if track fit kicked out stubs with bad residuals)
-    const vector<const Stub*>& getStubs() const { return stubs_; }
+    const std::vector<const Stub*>& stubsConst() const { return stubsConst_; }
+    const std::vector<Stub*>& stubs() const { return stubs_; }
     // Get number of stubs on fitted track.
-    unsigned int getNumStubs() const { return stubs_.size(); }
+    unsigned int numStubs() const { return stubs_.size(); }
     // Get number of tracker layers these stubs are in.
-    unsigned int getNumLayers() const { return nLayers_; }
+    unsigned int numLayers() const { return nLayers_; }
     // Get number of stubs deleted from track candidate by fitter (because they had large residuals)
-    unsigned int getNumKilledStubs() const { return l1track3D_.getNumStubs() - this->getNumStubs(); }
+    unsigned int numKilledStubs() const { return l1track3D_->numStubs() - this->numStubs(); }
     // Get bit-encoded hit pattern (where layer number assigned by increasing distance from origin, according to layers track expected to cross).
-    unsigned int getHitPattern() const { return hitPattern_; }
+    unsigned int hitPattern() const { return hitPattern_; }
 
     // Get Hough transform cell locations in units of bin number, corresponding to the fitted helix parameters of the track.
     // Always uses the beam-spot constrained helix params if they are available.
     // (If fitted track is outside HT array, it it put in the closest bin inside it).
-    pair<unsigned int, unsigned int> getCellLocationFit() const { return htRphiTmp_.getCell(this); }
+    std::pair<unsigned int, unsigned int> cellLocationFit() const { return htRphiTmp_->cell(this); }
     // Also get HT cell determined by Hough transform.
-    pair<unsigned int, unsigned int> getCellLocationHT() const { return l1track3D_.getCellLocationHT(); }
+    std::pair<unsigned int, unsigned int> cellLocationHT() const { return l1track3D_->cellLocationHT(); }
 
     //--- Get information about its association (if any) to a truth Tracking Particle.
     //--- Can differ from that of corresponding HT track, if track fit kicked out stubs with bad residuals.
 
     // Get best matching tracking particle (=nullptr if none).
-    const TP* getMatchedTP() const { return matchedTP_; }
+    const TP* matchedTP() const { return matchedTP_; }
     // Get the matched stubs with this Tracking Particle
-    const vector<const Stub*>& getMatchedStubs() const { return matchedStubs_; }
+    const std::vector<const Stub*>& matchedStubs() const { return matchedStubs_; }
     // Get number of matched stubs with this Tracking Particle
-    unsigned int getNumMatchedStubs() const { return matchedStubs_.size(); }
+    unsigned int numMatchedStubs() const { return matchedStubs_.size(); }
     // Get number of tracker layers with matched stubs with this Tracking Particle
-    unsigned int getNumMatchedLayers() const { return nMatchedLayers_; }
+    unsigned int numMatchedLayers() const { return nMatchedLayers_; }
     // Get purity of stubs on track (i.e. fraction matching best Tracking Particle)
-    float getPurity() const { return getNumMatchedStubs() / float(getNumStubs()); }
+    float purity() const { return numMatchedStubs() / float(numStubs()); }
     // Get number of stubs matched to correct TP that were deleted from track candidate by fitter.
-    unsigned int getNumKilledMatchedStubs() const {
-      unsigned int nStubCount = l1track3D_.getNumMatchedStubs();
+    unsigned int numKilledMatchedStubs() const {
+      unsigned int nStubCount = l1track3D_->numMatchedStubs();
       if (nStubCount > 0) {  // Original HT track candidate did match a truth particle
-        const TP* tp = l1track3D_.getMatchedTP();
+        const TP* tp = l1track3D_->matchedTP();
         for (const Stub* s : stubs_) {
-          set<const TP*> assTPs = s->assocTPs();
+          std::set<const TP*> assTPs = s->assocTPs();
           if (assTPs.find(tp) != assTPs.end())
             nStubCount--;  // We found a stub matched to original truth particle that survived fit.
         }
@@ -221,8 +225,12 @@ namespace tmtt {
 
     float qOverPt() const { return qOverPt_; }
     float charge() const { return (qOverPt_ > 0 ? 1 : -1); }
-    float invPt() const { return fabs(qOverPt_); }
-    float pt() const { return 1. / (1.0e-6 + this->invPt()); }  // includes protection against 1/pt = 0.
+    float invPt() const { return std::abs(qOverPt_); }
+    // Protect pt against 1/pt = 0.
+    float pt() const {
+      constexpr float small = 1.0e-6;
+      return 1. / (small + this->invPt());
+    }
     float d0() const { return d0_; }
     float phi0() const { return phi0_; }
     float z0() const { return z0_; }
@@ -236,8 +244,12 @@ namespace tmtt {
     bool done_bcon() const { return done_bcon_; }  // Was beam-spot constraint aplied?
     float qOverPt_bcon() const { return qOverPt_bcon_; }
     float charge_bcon() const { return (qOverPt_bcon_ > 0 ? 1 : -1); }
-    float invPt_bcon() const { return fabs(qOverPt_bcon_); }
-    float pt_bcon() const { return 1. / (1.0e-6 + this->invPt_bcon()); }
+    float invPt_bcon() const { return std::abs(qOverPt_bcon_); }
+    // Protect pt against 1/pt = 0.
+    float pt_bcon() const {
+      constexpr float small = 1.0e-6;
+      return 1. / (small + this->invPt_bcon());
+    }
     float phi0_bcon() const { return phi0_bcon_; }
 
     // Phi and z coordinates at which track crosses "chosenR" values used by r-phi HT and rapidity sectors respectively.
@@ -261,9 +273,9 @@ namespace tmtt {
     float nHelixParam() const { return nHelixParam_; }
 
     // Get the fit degrees of freedom, chi2 & chi2/DOF (also in r-phi & r-z planes).
-    unsigned int numDOF() const { return 2 * this->getNumStubs() - nHelixParam_; }
-    unsigned int numDOFrphi() const { return this->getNumStubs() - (nHelixParam_ - 2); }
-    unsigned int numDOFrz() const { return this->getNumStubs() - 2; }
+    unsigned int numDOF() const { return 2 * this->numStubs() - nHelixParam_; }
+    unsigned int numDOFrphi() const { return this->numStubs() - (nHelixParam_ - 2); }
+    unsigned int numDOFrz() const { return this->numStubs() - 2; }
     float chi2rphi() const { return chi2rphi_; }
     float chi2rz() const { return chi2rz_; }
     float chi2() const { return chi2rphi_ + chi2rz_; }
@@ -288,11 +300,6 @@ namespace tmtt {
 
     bool accepted() const { return accepted_; }
 
-    // Comparitor useful for sorting tracks by q/Pt using std::sort().
-    static bool qOverPtSortPredicate(const L1fittedTrack& t1, const L1fittedTrack t2) {
-      return t1.qOverPt() < t2.qOverPt();
-    }
-
     //--- Functions to help eliminate duplicate tracks.
 
     // Is the fitted track trajectory should lie within the same HT cell in which the track was originally found?
@@ -300,22 +307,21 @@ namespace tmtt {
 
     // Determine if the fitted track trajectory should lie within the same HT cell in which the track was originally found?
     void setConsistentHTcell() {
-      //return (max(fabs(this->deltaM()), fabs(this->deltaC())) < 0.5);
       // Use helix params with beam-spot constaint if done in case of 5 param fit.
 
-      pair<unsigned int, unsigned int> htCell = this->getCellLocationHT();
-      bool consistent = (htCell == this->getCellLocationFit());
+      std::pair<unsigned int, unsigned int> htCell = this->cellLocationHT();
+      bool consistent = (htCell == this->cellLocationFit());
 
-      if (l1track3D_.mergedHTcell()) {
+      if (l1track3D_->mergedHTcell()) {
         // If this is a merged cell, check other elements of merged cell.
-        pair<unsigned int, unsigned int> htCell10(htCell.first + 1, htCell.second);
-        pair<unsigned int, unsigned int> htCell01(htCell.first, htCell.second + 1);
-        pair<unsigned int, unsigned int> htCell11(htCell.first + 1, htCell.second + 1);
-        if (htCell10 == this->getCellLocationFit())
+        std::pair<unsigned int, unsigned int> htCell10(htCell.first + 1, htCell.second);
+        std::pair<unsigned int, unsigned int> htCell01(htCell.first, htCell.second + 1);
+        std::pair<unsigned int, unsigned int> htCell11(htCell.first + 1, htCell.second + 1);
+        if (htCell10 == this->cellLocationFit())
           consistent = true;
-        if (htCell01 == this->getCellLocationFit())
+        if (htCell01 == this->cellLocationFit())
           consistent = true;
-        if (htCell11 == this->getCellLocationFit())
+        if (htCell11 == this->cellLocationFit())
           consistent = true;
       }
 
@@ -325,26 +331,28 @@ namespace tmtt {
     // Is the fitted track trajectory within the same (eta,phi) sector of the HT used to find it?
     bool consistentSector() const {
       bool insidePhi =
-          (fabs(reco::deltaPhi(this->phiAtChosenR(done_bcon_), secTmp_.phiCentre())) < secTmp_.sectorHalfWidth());
-      bool insideEta = (this->zAtChosenR() > secTmp_.zAtChosenR_Min() && this->zAtChosenR() < secTmp_.zAtChosenR_Max());
+          (std::abs(reco::deltaPhi(this->phiAtChosenR(done_bcon_), secTmp_->phiCentre())) < secTmp_->sectorHalfWidth());
+      bool insideEta =
+          (this->zAtChosenR() > secTmp_->zAtChosenR_Min() && this->zAtChosenR() < secTmp_->zAtChosenR_Max());
       return (insidePhi && insideEta);
     }
 
     // Digitize track and degrade helix parameter resolution according to effect of digitisation.
-    void digitizeTrack(const string& fitterName);
+    void digitizeTrack(const std::string& fitterName);
 
-    // Access to detailed info about digitized track
-    const DigitalTrack& digitaltrack() const { return digitalTrack_; }
+    // Access to detailed info about digitized track. (Gets nullptr if trk not digitized)
+    const DigitalTrack* digitaltrack() const { return digitalTrack_.get(); }
 
   private:
     //--- Configuration parameters
     const Settings* settings_;
 
     //--- The 3D hough-transform track candidate which was fitted.
-    L1track3D l1track3D_;
+    const L1track3D* l1track3D_;
 
     //--- The stubs on the fitted track (can differ from those on HT track if fit kicked off stubs with bad residuals)
-    vector<const Stub*> stubs_;
+    std::vector<Stub*> stubs_;
+    std::vector<const Stub*> stubsConst_;
     unsigned int nLayers_;
 
     //--- Bit-encoded hit pattern (where layer number assigned by increasing distance from origin, according to layers track expected to cross).
@@ -377,16 +385,16 @@ namespace tmtt {
 
     //--- Information about its association (if any) to a truth Tracking Particle.
     const TP* matchedTP_;
-    vector<const Stub*> matchedStubs_;
+    std::vector<const Stub*> matchedStubs_;
     unsigned int nMatchedLayers_;
 
     //--- Has the track fit declared this to be a valid track?
     bool accepted_;
 
     //--- Sector class used to check if fitted track trajectory is in same sector as HT used to find it.
-    Sector secTmp_;
+    std::shared_ptr<Sector> secTmp_;  // shared so as to allow copy of L1fittedTrack.
     //--- r-phi HT class used to determine HT cell location that corresponds to fitted track helix parameters.
-    HTrphi htRphiTmp_;
+    std::shared_ptr<HTrphi> htRphiTmp_;
 
     //--- Info specific to KF fitter.
     unsigned int nSkippedLayers_;
@@ -396,10 +404,11 @@ namespace tmtt {
     std::string lostMatchingState_;
     std::unordered_map<std::string, int> stateCalls_;
 
-    bool digitizedTrack_;
-    DigitalTrack digitalTrack_;  // Class used to digitize track if required.
+    std::shared_ptr<DigitalTrack> digitalTrack_;  // Class used to digitize track if required.
 
     bool consistentCell_;
+
+    static const std::vector<Stub*> noStubs_;  // Empty vector used to initialize rejected tracks.
   };
 
 }  // namespace tmtt

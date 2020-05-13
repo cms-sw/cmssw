@@ -13,12 +13,12 @@ process = cms.Process("Demo")
 
 GEOMETRY = "D49"
 
-if GEOMETRY == "D41":
-  process.load('Configuration.Geometry.GeometryExtended2026D41Reco_cff')
-  process.load('Configuration.Geometry.GeometryExtended2026D41_cff')
-elif GEOMETRY == "D49":
+if GEOMETRY == "D49":
   process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
   process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
+else:
+  print "this is not a valid geometry!!!"
+  exit
 
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
@@ -26,6 +26,8 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.MessageLogger.categories.append('L1track')
+process.MessageLogger.L1track = cms.untracked.PSet(limit = cms.untracked.int32(-1))
 
 options = VarParsing.VarParsing ('analysis')
 
@@ -33,9 +35,8 @@ def getTxtFile(txtFileName):
   return os.environ['CMSSW_BASE']+'/src/L1Trigger/TrackFindingTMTT/data/'+txtFileName
 
 #--- Specify input MC
-if GEOMETRY == "D41":
-  inputMCtxt = getTxtFile('MCsamples/1060/RelVal/TTbar/PU200.txt')
-elif GEOMETRY == "D49":
+# MC txt files are in https://github.com/cms-data/L1Trigger-TrackFindingTMTT.
+if GEOMETRY == "D49":
   inputMCtxt = getTxtFile('MCsamples/1110/RelVal/TTbar/PU200.txt')
 
 # Fastest to use a local copy ...
@@ -90,19 +91,32 @@ process.source = cms.Source ("PoolSource",
 
 process.Timing = cms.Service("Timing", summaryOnly = cms.untracked.bool(True))
 
+# Random number generator for Stub Killer (dead module emulation)
+process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
+    TMTrackProducer = cms.PSet(
+        initialSeed = cms.untracked.uint32(12345)
+    )
+)
+
 #--- Load code that produces our L1 tracks and makes corresponding histograms.
 #process.load('L1Trigger.TrackFindingTMTT.TMTrackProducer_cff')
 
 #--- Alternative cfg including improvements not yet in the firmware. Aimed at L1 trigger studies.
 process.load('L1Trigger.TrackFindingTMTT.TMTrackProducer_Ultimate_cff')
 #
+# Enable histogramming & use of MC truth (considerably increases CPU)
+process.TMTrackProducer.EnableMCtruth = True
+process.TMTrackProducer.EnableHistos  = True
+#
 #--- Optionally override default configuration parameters here (example given of how).
 
-#process.TMTrackProducer.TrackFitSettings.TrackFitters = cms.vstring(
+#process.TMTrackProducer.TrackFitSettings.TrackFitters = [
 #                                "KF5ParamsComb",
-#                                "KF4ParamsComb",
-#                                "KF4ParamsCombHLS"
-#                                )
+#                                "KF4ParamsComb"
+#                                "KF4ParamsCombHLS",
+#                                "ChiSquaredFit4",
+#                                "SimpleLR4"
+#                                ]
 
 # If the input samples contain stubs and the truth association, then you can just use the following path
 process.p = cms.Path(process.TMTrackProducer)

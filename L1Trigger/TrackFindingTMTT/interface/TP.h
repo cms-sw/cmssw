@@ -12,8 +12,7 @@
 #include "DataFormats/JetReco/interface/GenJet.h"
 
 #include <vector>
-
-using namespace std;
+#include <list>
 
 namespace tmtt {
 
@@ -21,16 +20,19 @@ namespace tmtt {
 
   typedef edm::Ptr<TrackingParticle> TrackingParticlePtr;
 
-  class TP : public TrackingParticlePtr {
+  class TP {
   public:
     // Fill useful info about tracking particle.
     TP(const TrackingParticlePtr& tpPtr, unsigned int index_in_vTPs, const Settings* settings);
     ~TP() {}
 
-    bool operator==(const TP& tpOther) { return (this->index() == tpOther.index()); }
+    // Return pointer to original tracking particle.
+    const TrackingParticlePtr& trackingParticlePtr() const { return trackingParticlePtr_; }
+
+    bool operator==(const TP& tpOther) const { return (this->index() == tpOther.index()); }
 
     // Fill truth info with association from tracking particle to stubs.
-    void fillTruth(const vector<Stub>& vStubs);
+    void fillTruth(const std::list<Stub>& vStubs);
 
     // == Functions for returning info about tracking particles ===
 
@@ -45,7 +47,11 @@ namespace tmtt {
     int charge() const { return charge_; }
     float mass() const { return mass_; }
     float pt() const { return pt_; }
-    float qOverPt() const { return (pt_ > 0) ? charge_ / pt_ : 9.9e9; }
+    // Protect against pt=0;
+    float qOverPt() const {
+      constexpr float big = 9.9e9;
+      return (pt_ > 0) ? charge_ / pt_ : big;
+    }
     float eta() const { return eta_; }
     float theta() const { return theta_; }
     float tanLambda() const { return tanLambda_; }
@@ -71,7 +77,7 @@ namespace tmtt {
     float trkZAtStub(const Stub* stub) const;
 
     // == Functions returning stubs produced by tracking particle.
-    const vector<const Stub*>& assocStubs() const {
+    const std::vector<const Stub*>& assocStubs() const {
       return assocStubs_;
     }  // associated stubs. (Includes those failing tightened front-end electronics cuts supplied by user). (Which stubs are returned is affected by "StubMatchStrict" config param.)
     unsigned int numAssocStubs() const { return assocStubs_.size(); }
@@ -85,11 +91,9 @@ namespace tmtt {
 
     void fillNearestJetInfo(const reco::GenJetCollection* genJets);  // Store info (deltaR, pt) with nearest jet
 
-    float tpInJet() const { return tpInJet_ && nearestJetPt_ > 30; }
-    float tpInHighPtJet() const { return tpInJet_ && nearestJetPt_ > 100; }
-    float tpInVeryHighPtJet() const { return tpInJet_ && nearestJetPt_ > 200; }
-
-    float nearestJetPt() const { return nearestJetPt_; }
+    // Check if TP is in a jet (for performance studies in jets)
+    float tpInJet(float genJetPtCut = 30.) const { return (tpInJet_ && nearestJetPt_ > genJetPtCut); }
+    float nearestJetPt() const { return nearestJetPt_; }  // -ve if no nearest jet.
 
   private:
     void fillUse();           // Fill the use_ flag.
@@ -100,6 +104,8 @@ namespace tmtt {
     void calcNumLayers() { nLayersWithStubs_ = Utility::countLayers(settings_, assocStubs_, false); }
 
   private:
+    TrackingParticlePtr trackingParticlePtr_;  // Pointer to original TrackingParticle.
+
     unsigned int index_in_vTPs_;  // location of this TP in InputData::vTPs
 
     const Settings* settings_;  // Configuration parameters
@@ -124,7 +130,7 @@ namespace tmtt {
     bool useForEff_;     // TP can be used for tracking efficiency measurement.
     bool useForAlgEff_;  // TP can be used for tracking algorithmic efficiency measurement.
 
-    vector<const Stub*> assocStubs_;
+    std::vector<const Stub*> assocStubs_;
     unsigned int nLayersWithStubs_;  // Number of tracker layers with stubs from this TP.
 
     bool tpInJet_;
