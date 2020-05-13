@@ -97,7 +97,7 @@ void CSCStubMatcher::matchCLCTsToSimTrack(const CSCCLCTDigiCollection& clcts) {
 
     // get the comparator digis in this chamber
     std::vector<CSCComparatorDigiContainer> comps;
-    for (int ilayer = 1; ilayer <= 6; ilayer++){
+    for (int ilayer = 1; ilayer <= 6; ilayer++) {
       CSCDetId layerid(ch_id.endcap(), ch_id.station(), ring, ch_id.chamber(), ilayer);
       comps.push_back(cscDigiMatcher_->comparatorDigisInDetId(layerid));
     }
@@ -106,9 +106,9 @@ void CSCStubMatcher::matchCLCTsToSimTrack(const CSCCLCTDigiCollection& clcts) {
     if (verboseCLCT_) {
       cout << "clct: digi_strips " << ch_id2 << endl;
       int layer = 0;
-      for (const auto& p : comps){
+      for (const auto& p : comps) {
         layer++;
-        for (const auto& q : p){
+        for (const auto& q : p) {
           cout << "L" << layer << " " << q << " " << q.getHalfStrip() << " ";
         }
         cout << endl;
@@ -134,10 +134,10 @@ void CSCStubMatcher::matchCLCTsToSimTrack(const CSCCLCTDigiCollection& clcts) {
       // check that at least 3 comparator digis were matched!
       int nMatches = 0;
       int layer = 0;
-      for (const auto& p : comps){
+      for (const auto& p : comps) {
         layer++;
-        for (const auto& q : p){
-          for (const auto& clctComp : (*c).getHits()[layer-1]) {
+        for (const auto& q : p) {
+          for (const auto& clctComp : (*c).getHits()[layer - 1]) {
             if (q.getHalfStrip() == clctComp) {
               nMatches++;
             }
@@ -153,7 +153,7 @@ void CSCStubMatcher::matchCLCTsToSimTrack(const CSCCLCTDigiCollection& clcts) {
         cout << "clctGOOD" << endl;
 
       // store matching CLCTs in this chamber
-      if(std::find(chamber_to_clcts_[id].begin(), chamber_to_clcts_[id].end(), *c) == chamber_to_clcts_[id].end()) {
+      if (std::find(chamber_to_clcts_[id].begin(), chamber_to_clcts_[id].end(), *c) == chamber_to_clcts_[id].end()) {
         chamber_to_clcts_[id].push_back(*c);
       }
     }
@@ -211,7 +211,7 @@ void CSCStubMatcher::matchALCTsToSimTrack(const CSCALCTDigiCollection& alcts) {
         cout << "alctGOOD" << endl;
 
       // store matching ALCTs in this chamber
-      if(std::find(chamber_to_alcts_[id].begin(), chamber_to_alcts_[id].end(), *a) == chamber_to_alcts_[id].end()) {
+      if (std::find(chamber_to_alcts_[id].begin(), chamber_to_alcts_[id].end(), *a) == chamber_to_alcts_[id].end()) {
         chamber_to_alcts_[id].push_back(*a);
       }
     }
@@ -309,7 +309,7 @@ void CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& l
       if (lct_matched) {
         if (verboseLCT_)
           cout << "this LCT matched to simtrack in chamber " << ch_id << endl;
-        if(std::find(chamber_to_lcts_[id].begin(), chamber_to_lcts_[id].end(), lct) == chamber_to_lcts_[id].end()) {
+        if (std::find(chamber_to_lcts_[id].begin(), chamber_to_lcts_[id].end(), lct) == chamber_to_lcts_[id].end()) {
           chamber_to_lcts_[id].emplace_back(lct);
         }
       }
@@ -337,7 +337,8 @@ void CSCStubMatcher::matchMPLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection&
       // check if this stub corresponds with a previously matched stub
       for (const auto& sim_stub : lctsInChamber(id)) {
         if (sim_stub == *lct) {
-          if(std::find(chamber_to_mplcts_[id].begin(), chamber_to_mplcts_[id].end(), *lct) == chamber_to_mplcts_[id].end()) {
+          if (std::find(chamber_to_mplcts_[id].begin(), chamber_to_mplcts_[id].end(), *lct) ==
+              chamber_to_mplcts_[id].end()) {
             chamber_to_mplcts_[id].emplace_back(*lct);
           }
         }

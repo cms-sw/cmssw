@@ -383,8 +383,7 @@ std::set<int> CSCDigiMatcher::wiregroupsInChamber(unsigned int detid, int max_ga
   return result;
 }
 
-void CSCDigiMatcher::clear()
-{
+void CSCDigiMatcher::clear() {
   detid_to_comparators_.clear();
   chamber_to_comparators_.clear();
 
