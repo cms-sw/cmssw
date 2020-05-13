@@ -29,25 +29,25 @@
   3. combine the global rotation from DDD with the rotation defined in 2.   
   */
 
-Bounds* TrackerShapeToBounds::buildBounds(const DDSolidShape& _shape, const std::vector<double>& _par) const {
+Bounds* TrackerShapeToBounds::buildBounds(const cms::DDSolidShape& _shape, const std::vector<double>& _par) const {
   switch (_shape) {
-    case DDSolidShape::ddbox:
+    case cms::DDSolidShape::ddbox:
       return buildBox(_par);
       break;
-    case DDSolidShape::ddtrap:
+    case cms::DDSolidShape::ddtrap:
       return buildTrap(_par);
       break;
-    case DDSolidShape::ddtubs:
+    case cms::DDSolidShape::ddtubs:
       return buildOpen(_par);
       break;
-    case DDSolidShape::ddpolycone_rrz:
+    case cms::DDSolidShape::ddpolycone:
       return buildOpen(_par);
       break;
-    case DDSolidShape::ddsubtraction:
+    case cms::DDSolidShape::ddsubtraction:
       return buildOpen(_par);
       break;
     default:
-      std::cout << "Wrong DDshape to build...." << DDSolidShapesName::name(_shape) << std::endl;
+      std::cout << "Wrong DDshape to build...." << cms::dd::name(cms::DDSolidShapeMap, _shape) << std::endl;
       Bounds* bounds = nullptr;
       return bounds;
   }
