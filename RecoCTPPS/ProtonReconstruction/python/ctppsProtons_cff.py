@@ -51,7 +51,7 @@ def apply2017Settings(ctppsProtons):
 
       xi_cut_apply = True,
       xi_cut_value = 5. * 0.00121,
-      xi_cut_mean = -6.0695e-5,
+      xi_cut_mean = +6.0695e-5,
 
       th_y_cut_apply = False
     ),
@@ -61,11 +61,11 @@ def apply2017Settings(ctppsProtons):
 
       y_cut_apply = True,
       y_cut_value = 5. * 0.14777,
-      y_cut_mean = 0.022612,
+      y_cut_mean = -0.022612,
 
       xi_cut_apply = True,
       xi_cut_value = 5. * 0.0020627,
-      xi_cut_mean = -8.012857e-5,
+      xi_cut_mean = +8.012857e-5,
 
       th_y_cut_apply = False
     )
@@ -86,16 +86,16 @@ def apply2018Settings(ctppsProtons):
   run2_miniAOD_devel.toModify(ctppsProtons,
     association_cuts_45 = dict(
       x_cut_apply = True,
-      x_cut_value = 5. * 0.16008188,
-      x_cut_mean = 0.065194856,
+      x_cut_value = 4. * 0.16008188,
+      x_cut_mean = -0.065194856,
 
       y_cut_apply = True,
-      y_cut_value = 5. * 0.1407986,
-      y_cut_mean = -0.10973631,
+      y_cut_value = 4. * 0.1407986,
+      y_cut_mean = +0.10973631,
 
       xi_cut_apply = True,
-      xi_cut_value = 5. * 0.0012403586,
-      xi_cut_mean = -3.113062e-5,
+      xi_cut_value = 4. * 0.0012403586,
+      xi_cut_mean = +3.113062e-5,
 
       th_y_cut_apply = False
     ),
@@ -103,15 +103,15 @@ def apply2018Settings(ctppsProtons):
     association_cuts_56 = dict(
       x_cut_apply = True,
       x_cut_value = 5. * 0.18126434,
-      x_cut_mean = -0.073016431,
+      x_cut_mean = +0.073016431,
 
       y_cut_apply = True,
       y_cut_value = 5. * 0.14990802,
-      y_cut_mean = -0.064261029,
+      y_cut_mean = +0.064261029,
 
       xi_cut_apply = True,
       xi_cut_value = 5. * 0.002046409,
-      xi_cut_mean = 1.1852528e-5,
+      xi_cut_mean = -1.1852528e-5,
 
       th_y_cut_apply = False
     )
