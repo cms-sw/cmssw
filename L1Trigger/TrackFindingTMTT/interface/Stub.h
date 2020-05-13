@@ -183,12 +183,12 @@ namespace tmtt {
     float sigmaZ() const { return (barrel() ? sigmaPar() : 0.); }
     // Hit resolution perpendicular to strip. Measures phi.
     float sigmaPerp() const {
-      constexpr float f = sqrt(1. / 12);
+      static const float f = sqrt(1. / 12);
       return f * stripPitch_;
     }
     // Hit resolution parallel to strip. Measures r or z.
     float sigmaPar() const {
-      constexpr float f = sqrt(1. / 12.);
+      static const float f = sqrt(1. / 12.);
       return f * stripLength_;
     }
 

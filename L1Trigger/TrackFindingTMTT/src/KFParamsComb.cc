@@ -36,27 +36,20 @@ namespace tmtt {
     // Assumed track seed (from HT) uncertainty in transverse impact parameter.
 
     // Constants optimised by hand for TMTT algo.
-    const float inv2Rsigma2 = pow(0.0314 * invPtToInv2R, 2);
-    constexpr float phi0sigma2 = pow(0.0102, 2);
-    constexpr float z0sigma2 = pow(5.0, 2);
-    constexpr float tanLsigma2 = pow(0.5, 2);
-    constexpr float d0Sigma2 = pow(1.0, 2);
-    matC[INV2R][INV2R] = inv2Rsigma2;
-    matC[PHI0][PHI0] = phi0sigma2;
-    matC[Z0][Z0] = z0sigma2;
-    matC[T][T] = tanLsigma2;
+    const float inv2Rsigma    = 0.0314 * invPtToInv2R;
+    constexpr float phi0sigma = 0.0102;
+    constexpr float z0sigma   = 5.0;
+    constexpr float tanLsigma = 0.5;
+    constexpr float d0Sigma   = 1.0;
+    // (z0, tanL, d0) uncertainties could be smaller for Hybrid, if seeded in PS? -- To check!
+    // if (L1track3D.seedPS() > 0) z0sigma /= 4; ???
+    matC[INV2R][INV2R] = pow(inv2Rsigma, 2);
+    matC[PHI0][PHI0]   = pow(phi0sigma, 2);
+    matC[Z0][Z0]       = pow(z0sigma, 2);
+    matC[T][T]         = pow(tanLsigma, 2);
     if (nPar_ == 5) {
-      matC[D0][D0] = d0Sigma2;
+      matC[D0][D0]     = pow(d0Sigma, 2);
     }
-
-    //if (settings_->hybrid()) {
-    // N.B. (z0, tanL, d0) seed uncertainties could be smaller for hybrid, if seeded in PS? -- not tried
-    //if (l1track3D.seedPS() > 0) { // Tracklet seed used PS layers
-    //  matC[Z0][Z0] /= (4.*4.).;
-    //  matC[T][T] /= (4.*4.);
-    // }
-    //}
-
     return matC;
   }
 

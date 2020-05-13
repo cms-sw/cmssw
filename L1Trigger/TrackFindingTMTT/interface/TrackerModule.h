@@ -84,12 +84,12 @@ namespace tmtt {
     float stripLength() const { return stripLength_; }
     // Hit resolution perpendicular to strip (or to longest pixel axis). Measures phi.
     float sigmaPerp() const {
-      constexpr float f = sqrt(1. / 12.);
+      static const float f = sqrt(1. / 12.);
       return f * stripPitch_;
     }
     // Hit resolution parallel to strip (or to longest pixel axis). Measures r or z.
     float sigmaPar() const {
-      constexpr float f = sqrt(1. / 12.);
+      static const float f = sqrt(1. / 12.);
       return f * stripLength_;
     }
     // Sensor pitch over separation.
