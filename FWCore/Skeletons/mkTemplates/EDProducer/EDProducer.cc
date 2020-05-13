@@ -29,11 +29,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
-@example_myparticle #include "DataFormats/MuonReco/interface/Muon.h"
-@example_myparticle #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
-@example_myparticle #include "DataFormats/Candidate/interface/Particle.h"
-@example_myparticle #include "FWCore/MessageLogger/interface/MessageLogger.h"
-@example_myparticle #include "FWCore/Utilities/interface/InputTag.h"
+@example_myparticle#include "DataFormats/MuonReco/interface/Muon.h"
+@example_myparticle#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+@example_myparticle#include "DataFormats/Candidate/interface/Particle.h"
+@example_myparticle#include "FWCore/MessageLogger/interface/MessageLogger.h"
+@example_myparticle#include "FWCore/Utilities/interface/InputTag.h"
 
 //
 // class declaration
@@ -57,16 +57,17 @@ private:
   //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
   // ----------member data ---------------------------
-@example_myparticle  edm::InputTag muonTags_; 
-@example_myparticle  edm::InputTag electronTags_;
+@example_myparticle  edm::EDGetTokenT<reco::MuonCollection> muonToken_;
+@example_myparticle  edm::EDGetTokenT<reco::PixelMatchGsfElectronCollection> electronToken_;
+@example_myparticle  edm::EDPutTokenT<MyParticleCollection> putToken_;
 };
 
 //
 // constants, enums and typedefs
 //
 
-@example_myparticle       // define container that will be booked into event
-@example_myparticle       typedef std::vector<reco::Particle> MyParticleCollection;
+@example_myparticle// define container that will be booked into event
+@example_myparticletypedef std::vector<reco::Particle> MyParticleCollection;
 
 //
 // static data member definitions
@@ -76,9 +77,9 @@ private:
 // constructors and destructor
 //
 __class__::__class__(const edm::ParameterSet& iConfig)
-@example_myparticle :
-@example_myparticle   muonTags_( iConfig.getParameter<edm::InputTag>( "muons" )),
-@example_myparticle   electronTags_( iConfig.getParameter<edm::InputTag>( "electrons" ))
+@example_myparticle    : muonToken_(consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
+@example_myparticle      electronToken_(consumes<reco::PixelMatchGsfElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons"))),
+@example_myparticle      putToken_(produces<MyParticleCollection>("particles"))
 {
   //register your products
 /* Examples
@@ -90,13 +91,14 @@ __class__::__class__(const edm::ParameterSet& iConfig)
   //if you want to put into the Run
   produces<ExampleData2,InRun>();
 */
-@example_myparticle   produces<MyParticleCollection>( "particles" );
   //now do what ever other initialization is needed
 }
 
 __class__::~__class__() {
   // do anything here that needs to be done at destruction time
   // (e.g. close files, deallocate resources etc.)
+  //
+  // please remove this method altogether if it would be left empty
 }
 
 //
@@ -110,66 +112,57 @@ void __class__::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 @example_myparticle  using namespace std;
 /* This is an event example
   //Read 'ExampleData' from the Event
-  Handle<ExampleData> pIn;
-  iEvent.getByLabel("example",pIn);
+  ExampleData const& in = iEvent.get(inToken_);
 
   //Use the ExampleData to create an ExampleData2 which 
   // is put into the Event
-  iEvent.put(std::make_unique<ExampleData2>(*pIn));
+  iEvent.put(std::make_unique<ExampleData2>(in));
 */
 
 /* this is an EventSetup example
   //Read SetupData from the SetupRecord in the EventSetup
-  ESHandle<SetupData> pSetup;
-  iSetup.get<SetupRecord>().get(pSetup);
+  SetupData& setup = iSetup.getData(setupToken_);
 */
- 
-@example_myparticle  Handle<MuonCollection> muons;
-@example_myparticle  iEvent.getByLabel( muonTags_, muons );
 @example_myparticle
-@example_myparticle  Handle<PixelMatchGsfElectronCollection> electrons;
-@example_myparticle  iEvent.getByLabel( electronTags_, electrons );
+@example_myparticle  auto const& muons = iEvent.get(muonToken_);
+@example_myparticle  auto const& electrons = iEvent.get(electronToken_);
 @example_myparticle
 @example_myparticle  // create a new collection of Particle objects
-@example_myparticle  auto newParticles = std::make_ unique<MyParticleCollection>();
+@example_myparticle  auto newParticles = std::make_unique<MyParticleCollection>();
 @example_myparticle
 @example_myparticle  // if the number of electrons or muons is 4 (or 2 and 2), costruct a new particle
-@example_myparticle  if (muons->size() == 4 || electrons->size() == 4 || ( muons->size() == 2 && electrons->size() == 2 )) {
-@example_myparticle
+@example_myparticle  if (muons.size() == 4 || electrons.size() == 4 || (muons.size() == 2 && electrons.size() == 2)) {
 @example_myparticle    // sums of momenta and charges will be calculated
-@example_myparticle    Particle::LorentzVector totalP4( 0, 0, 0, 0 );
-@example_myparticle    Particle::Charge charge( 0 );
+@example_myparticle    Particle::LorentzVector totalP4(0, 0, 0, 0);
+@example_myparticle    Particle::Charge charge(0);
 @example_myparticle
 @example_myparticle    // loop over muons, sum over p4s and charges. Later same for electrons
-@example_myparticle    for (MuonCollection::const_iterator muon = muons->begin(); muon != muons->end(); ++muon) {
-@example_myparticle      totalP4 += muon->p4();
-@example_myparticle      charge += muon->charge();
+@example_myparticle    for (auto const& muon : muons) {
+@example_myparticle      totalP4 += muon.p4();
+@example_myparticle      charge += muon.charge();
 @example_myparticle    }
 @example_myparticle
-@example_myparticle    for (PixelMatchGsfElectronCollection::const_iterator electron = electrons->begin(); electron != electrons->end(); ++electron) {
-@example_myparticle      totalP4 += electron->p4();
-@example_myparticle      charge += electron->charge();
+@example_myparticle    for (auto const& electron : electrons) {
+@example_myparticle      totalP4 += electron.p4();
+@example_myparticle      charge += electron.charge();
 @example_myparticle    }
 @example_myparticle
-@example_myparticle    // create a particle with momentum and charge from muons and electrons
-@example_myparticle    Particle h;
-@example_myparticle    h.setP4(totalP4);
-@example_myparticle    h.setCharge(charge);
-@example_myparticle
-@example_myparticle    // fill the particles into the vector
-@example_myparticle    newParticles->push_back(h);
+@example_myparticle    // create a particle in the vector with momentum and charge from muons and electrons
+@example_myparticle    newParticles->emplace_back(charge, totalP4);
 @example_myparticle  }
 @example_myparticle
 @example_myparticle  // save the vector
-@example_myparticle  iEvent.put(move(newParticles), "particles");
+@example_myparticle  iEvent.put(putToken_, move(newParticles));
 }
 
 // ------------ method called once each stream before processing any runs, lumis or events  ------------
 void __class__::beginStream(edm::StreamID) {
+  // please remove this method if not needed
 }
 
 // ------------ method called once each stream after processing all runs, lumis and events  ------------
 void __class__::endStream() {
+  // please remove this method if not needed
 }
 
 // ------------ method called when starting to processes a run  ------------
@@ -211,7 +204,7 @@ void __class__::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.setUnknown();
   descriptions.addDefault(desc);
-@example_myparticle  
+@example_myparticle
 @example_myparticle  //Specify that only 'muons' and 'electrons' are allowed
 @example_myparticle  //To use, remove the default given above and uncomment below
 @example_myparticle  //ParameterSetDescription desc;
