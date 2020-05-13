@@ -68,7 +68,7 @@ void SiPixelVCalReader::analyze(const edm::Event& e, const edm::EventSetup& iSet
     PixelEndcapName fpix(detid,tTopo,phase1);
     subdet = detIdObj.subdetId();
     layer  = tTopo->pxbLayer(detIdObj);  // 1, 2, 3, 4
-    ladder = tTopo->pxbLadder(detIdObj); //
+    ladder = tTopo->pxbLadder(detIdObj); // 1-12/28/44/64
     side   = tTopo->pxfSide(detIdObj);   // 1, 2
     disk   = tTopo->pxfDisk(detIdObj);   // 1, 2, 3
     ring   = fpix.ringName();            // 1 (lower), 2 (upper)
