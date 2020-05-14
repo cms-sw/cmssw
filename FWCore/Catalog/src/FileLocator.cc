@@ -42,9 +42,8 @@ namespace {
 }  // namespace
 
 namespace edm {
-
-  FileLocator::FileLocator(std::string const& catUrl, bool fallback) : m_destination("any") {
-    init(catUrl, fallback);
+  FileLocator::FileLocator(std::string const& catUrl, unsigned iCatalog) : m_destination("any") {
+    init(catUrl, iCatalog);
 
     // std::cout << m_protocols.size() << " protocols" << std::endl;
     // std::cout << m_directRules[m_protocols[0]].size() << " rules" << std::endl;
@@ -90,18 +89,17 @@ namespace edm {
     rules[protocol].emplace_back(std::move(rule));
   }
 
-  void FileLocator::init(std::string const& catUrl, bool fallback) {
+  void FileLocator::init(std::string const& catUrl, unsigned iCatalog) {
     std::string m_url = catUrl;
 
     if (m_url.empty()) {
       Service<SiteLocalConfig> localconfservice;
       if (!localconfservice.isAvailable())
         throw cms::Exception("TrivialFileCatalog", "edm::SiteLocalConfigService is not available");
-
-      m_url = (fallback ? localconfservice->fallbackDataCatalog() : localconfservice->dataCatalog());
+      if (iCatalog >= localconfservice->dataCatalogs().size())
+        throw cms::Exception("TrivialFileCatalog", "edm::FileLocator: Request nonexistence data catalog");
+      m_url = localconfservice->dataCatalogs()[iCatalog];
     }
-
-    // std::cout << "Connecting to the catalog " << m_url << std::endl;
 
     if (m_url.find("file:") == std::string::npos) {
       throw cms::Exception("TrivialFileCatalog",
@@ -164,7 +162,6 @@ namespace edm {
       throw cms::Exception("TrivialFileCatalog")
           << "tinyxml file load failed with error : " << doc.ErrorStr() << std::endl;
     }
-
     /* trivialFileCatalog matches the following xml schema
 	 FIXME: write a proper DTD
 	 <storage-mapping>
@@ -175,8 +172,7 @@ namespace edm {
 	 path-match="lfn/guid match regular expression"
 	 result="$1"/>
 	 </storage-mapping>
-      */
-
+    */
     auto rootElement = doc.RootElement();
     /*first of all do the lfn-to-pfn bit*/
     for (auto el = rootElement->FirstChildElement("lfn-to-pfn"); el != nullptr;
