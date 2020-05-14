@@ -1,15 +1,29 @@
 import FWCore.ParameterSet.Config as cms
 
+# customisation for running on CPUs, common parts
+def customise_cpu_common(process):
+
+    # Services
+
+    process.CUDAService = cms.Service("CUDAService",
+        enabled = cms.untracked.bool(False)
+    )
+
+
+    # done
+    return process
+
+
 # customisation for offloading to GPUs, common parts
 def customise_gpu_common(process):
 
     # Services
 
     process.CUDAService = cms.Service("CUDAService",
+        enabled = cms.untracked.bool(True),
         allocator = cms.untracked.PSet(
             devicePreallocate = cms.untracked.vuint32(),
         ),
-        enabled = cms.untracked.bool(True),
         limits = cms.untracked.PSet(
             cudaLimitDevRuntimePendingLaunchCount = cms.untracked.int32(-1),
             cudaLimitDevRuntimeSyncDepth = cms.untracked.int32(-1),
@@ -52,10 +66,18 @@ def customise_cpu_pixel(process):
     )
 
     from RecoPixelVertexing.PixelTriplets.caHitNtupletCUDA_cfi import caHitNtupletCUDA as _caHitNtupletCUDA
-    process.hltPixelTracksSoA = _caHitNtupletCUDA.clone(
+    process.hltPixelTracksHitQuadruplets = _caHitNtupletCUDA.clone(
         idealConditions = False,
         pixelRecHitSrc = "hltSiPixelRecHitSoA",
         onGPU = False
+    )
+
+    process.hltPixelTracksSoA = cms.EDAlias(
+        hltPixelTracksHitQuadruplets = cms.VPSet(
+            cms.PSet(
+                type = cms.string("32768TrackSoATHeterogeneousSoA")
+            )
+        )
     )
 
     from RecoPixelVertexing.PixelTrackFitting.pixelTrackProducerFromSoA_cfi import pixelTrackProducerFromSoA as _pixelTrackProducerFromSoA
@@ -89,7 +111,8 @@ def customise_cpu_pixel(process):
         + process.hltPixelTracksFilter                      # not used here, kept for compatibility with legacy sequences
         + process.hltPixelTracksTrackingRegions             # from the original sequence
         + process.hltSiPixelRecHitSoA                       # pixel rechits on cpu, converted to SoA
-        + process.hltPixelTracksSoA                         # pixel ntuplets on cpu, in SoA format
+        + process.hltPixelTracksHitQuadruplets              # pixel ntuplets on cpu, in SoA format
+        # process.hltPixelTracksSoA                         # alias for hltPixelTracksHitQuadruplets
         + process.hltPixelTracks)                           # pixel tracks on cpu, with conversion to legacy
 
     process.HLTRecopixelvertexingSequence = cms.Sequence(
@@ -276,6 +299,7 @@ def customise_gpu_ecal(process):
 
     # Event Setup
 
+    process.load("EventFilter.EcalRawToDigi.ecalElectronicsMappingGPUESProducer_cfi")
     process.load("RecoLocalCalo.EcalRecProducers.ecalGainRatiosGPUESProducer_cfi")
     process.load("RecoLocalCalo.EcalRecProducers.ecalPedestalsGPUESProducer_cfi")
     process.load("RecoLocalCalo.EcalRecProducers.ecalPulseCovariancesGPUESProducer_cfi")
@@ -287,10 +311,38 @@ def customise_gpu_ecal(process):
 
     # Modules and EDAliases
 
-    process.hltEcalUncalibRecHitSoA = cms.EDProducer("EcalUncalibRecHitProducerGPU",
-        digisLabelEB = cms.InputTag("hltEcalDigis","ebDigis"),
+    process.hltEcalDigisGPU = cms.EDProducer("EcalRawToDigiGPU",
+        InputLabel = cms.InputTag("rawDataCollector"),
+        FEDs = cms.vint32(
+            601, 602, 603, 604, 605,
+            606, 607, 608, 609, 610,
+            611, 612, 613, 614, 615,
+            616, 617, 618, 619, 620,
+            621, 622, 623, 624, 625,
+            626, 627, 628, 629, 630,
+            631, 632, 633, 634, 635,
+            636, 637, 638, 639, 640,
+            641, 642, 643, 644, 645,
+            646, 647, 648, 649, 650,
+            651, 652, 653, 654
+        ),
+        digisLabelEB = cms.string('ebDigis'),
+        digisLabelEE = cms.string('eeDigis'),
+        maxChannels = cms.uint32(20000)
+    )
+
+    process.hltEcalDigis = cms.EDProducer("EcalCPUDigisProducer",
+        digisInLabelEB = cms.InputTag("hltEcalDigisGPU", "ebDigis"),
+        digisInLabelEE = cms.InputTag("hltEcalDigisGPU", "eeDigis"),
+        digisOutLabelEB = cms.string('ebDigis'),
+        digisOutLabelEE = cms.string('eeDigis'),
+        produceDummyIntegrityCollections = cms.bool(True)
+    )
+
+    process.hltEcalUncalibRecHitGPU = cms.EDProducer("EcalUncalibRecHitProducerGPU",
+        digisLabelEB = cms.InputTag("hltEcalDigisGPU", "ebDigis"),
+        digisLabelEE = cms.InputTag("hltEcalDigisGPU", "eeDigis"),
         recHitsLabelEB = cms.string("EcalUncalibRecHitsEB"),
-        digisLabelEE = cms.InputTag("hltEcalDigis","eeDigis"),
         recHitsLabelEE = cms.string("EcalUncalibRecHitsEE"),
         EBamplitudeFitParameters = cms.vdouble(1.138, 1.652),
         EBtimeConstantTerm = cms.double(0.6),
@@ -320,6 +372,14 @@ def customise_gpu_ecal(process):
         shouldTransferToHost = cms.bool(True)
     )
 
+    process.hltEcalUncalibRecHitSoA = cms.EDProducer("EcalCPUUncalibRecHitProducer",
+        containsTimingInformation = cms.bool(False),
+        recHitsInLabelEB = cms.InputTag("hltEcalUncalibRecHitGPU", "EcalUncalibRecHitsEB"),
+        recHitsInLabelEE = cms.InputTag("hltEcalUncalibRecHitGPU", "EcalUncalibRecHitsEE"),
+        recHitsOutLabelEB = cms.string('EcalUncalibRecHitsEB'),
+        recHitsOutLabelEE = cms.string('EcalUncalibRecHitsEE')
+    )
+
     process.hltEcalUncalibRecHit = cms.EDProducer("EcalUncalibRecHitConvertGPU2CPUFormat",
         recHitsLabelGPUEB = cms.InputTag("hltEcalUncalibRecHitSoA", "EcalUncalibRecHitsEB"),
         recHitsLabelGPUEE = cms.InputTag("hltEcalUncalibRecHitSoA", "EcalUncalibRecHitsEE"),
@@ -331,8 +391,10 @@ def customise_gpu_ecal(process):
     # Sequences
 
     process.HLTDoFullUnpackingEgammaEcalMFSequence = cms.Sequence(
-        process.hltEcalDigis
+        process.hltEcalDigisGPU
+      + process.hltEcalDigis
       + process.hltEcalPreshowerDigis
+      + process.hltEcalUncalibRecHitGPU
       + process.hltEcalUncalibRecHitSoA
       + process.hltEcalUncalibRecHit
       + process.hltEcalDetIdToBeRecovered
@@ -340,15 +402,19 @@ def customise_gpu_ecal(process):
       + process.hltEcalPreshowerRecHit)
 
     process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence = cms.Sequence(
-        process.hltEcalDigis
+        process.hltEcalDigisGPU
+      + process.hltEcalDigis
+      + process.hltEcalUncalibRecHitGPU
       + process.hltEcalUncalibRecHitSoA
       + process.hltEcalUncalibRecHit
       + process.hltEcalDetIdToBeRecovered
       + process.hltEcalRecHit)
 
     process.HLTDoFullUnpackingEgammaEcalSequence = cms.Sequence(
-        process.hltEcalDigis
+        process.hltEcalDigisGPU
+      + process.hltEcalDigis
       + process.hltEcalPreshowerDigis
+      + process.hltEcalUncalibRecHitGPU
       + process.hltEcalUncalibRecHitSoA
       + process.hltEcalUncalibRecHit
       + process.hltEcalDetIdToBeRecovered
@@ -362,6 +428,7 @@ def customise_gpu_ecal(process):
 
 # customisation for running on CPUs
 def customise_for_Patatrack_on_cpu(process):
+    process = customise_cpu_common(process)
     process = customise_cpu_pixel(process)
     return process
 
@@ -370,6 +437,6 @@ def customise_for_Patatrack_on_cpu(process):
 def customise_for_Patatrack_on_gpu(process):
     process = customise_gpu_common(process)
     process = customise_gpu_pixel(process)
-    #process = customise_gpu_ecal(process)
+    process = customise_gpu_ecal(process)
     return process
 
