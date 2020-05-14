@@ -66,12 +66,11 @@ MuonBaseNumber MuonDDDNumbering::geoHistoryToBaseNumber(const DDGeoHistory &hist
   return num;
 }
 
-MuonBaseNumber MuonDDDNumbering::geoHistoryToBaseNumber(const cms::ExpandedNodes& nodes) const {
-
+MuonBaseNumber MuonDDDNumbering::geoHistoryToBaseNumber(const cms::ExpandedNodes &nodes) const {
   MuonBaseNumber num;
 
   int ctr(0);
-  for (auto const& it : nodes.tags) {
+  for (auto const &it : nodes.tags) {
     int tag = it / theLevelPart;
     if (tag > 0) {
       int offset = nodes.offsets[ctr];
