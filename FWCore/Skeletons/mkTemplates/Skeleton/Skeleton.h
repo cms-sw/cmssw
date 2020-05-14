@@ -29,6 +29,9 @@ public:
   __class__();
   virtual ~__class__();
 
+  __class__(const __class__&) = delete;                   // stop default
+  const __class__& operator=(const __class__&) = delete;  // stop default
+
   // ---------- const member functions ---------------------
 
   // ---------- static member functions --------------------
@@ -36,9 +39,6 @@ public:
   // ---------- member functions ---------------------------
 
 private:
-  __class__(const __class__&);                   // stop default
-  const __class__& operator=(const __class__&);  // stop default
-
   // ---------- member data --------------------------------
 };
 
