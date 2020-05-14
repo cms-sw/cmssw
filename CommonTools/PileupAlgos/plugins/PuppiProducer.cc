@@ -27,6 +27,7 @@ PuppiProducer::PuppiProducer(const edm::ParameterSet& iConfig) {
   fUseFromPVLooseTight = iConfig.getParameter<bool>("UseFromPVLooseTight");
   fUseDZ = iConfig.getParameter<bool>("UseDeltaZCut");
   fDZCut = iConfig.getParameter<double>("DeltaZCut");
+  fEtaMinUseDZ = iConfig.getParameter<double>("EtaMinUseDeltaZ");
   fPtMaxCharged = iConfig.getParameter<double>("PtMaxCharged");
   fEtaMaxCharged = iConfig.getParameter<double>("EtaMaxCharged");
   fPtMaxPhotons = iConfig.getParameter<double>("PtMaxPhotons");
@@ -165,7 +166,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
               pReco.id = 1;
             else if (std::abs(pReco.eta) > fEtaMaxCharged)
               pReco.id = 1;
-            else if (fUseDZ)
+            else if ((fUseDZ) && (std::abs(pReco.eta) >= fEtaMinUseDZ))
               pReco.id = (std::abs(pDZ) < fDZCut) ? 1 : 2;
             else if (fUseFromPVLooseTight && tmpFromPV == 1)
               pReco.id = 2;
@@ -198,7 +199,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
               pReco.id = 1;
             else if (std::abs(pReco.eta) > fEtaMaxCharged)
               pReco.id = 1;
-            else if (fUseDZ)
+            else if ((fUseDZ) && (std::abs(pReco.eta) >= fEtaMinUseDZ))
               pReco.id = (std::abs(pDZ) < fDZCut) ? 1 : 2;
             else if (fUseFromPVLooseTight && lPack->fromPV() == (pat::PackedCandidate::PVLoose))
               pReco.id = 2;
@@ -365,6 +366,7 @@ void PuppiProducer::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<bool>("UseFromPVLooseTight", false);
   desc.add<bool>("UseDeltaZCut", true);
   desc.add<double>("DeltaZCut", 0.3);
+  desc.add<double>("EtaMinUseDeltaZ", 0.);
   desc.add<double>("PtMaxCharged", -1.);
   desc.add<double>("EtaMaxCharged", 99999.);
   desc.add<double>("PtMaxPhotons", -1.);
