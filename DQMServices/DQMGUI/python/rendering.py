@@ -8,7 +8,7 @@ import tempfile
 import subprocess
 
 from DQMServices.DQMGUI import nanoroot
-from gui_types import RenderingInfo
+from data_types import RenderingInfo
 from meinfo import EfficiencyFlag, ScalarValue, QTest
 
 

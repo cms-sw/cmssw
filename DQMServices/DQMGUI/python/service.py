@@ -4,15 +4,15 @@ This service provides the logic of the API endpoints. It relies on other service
 
 import time
 import struct
+from collections import defaultdict
 
-from functools import lru_cache
 from async_lru import alru_cache
 
 from rendering import GUIRenderer
 from DQMServices.DQMGUI import nanoroot
 from storage import GUIDataStore
 from helpers import PathUtil
-from gui_types import Sample, RootDir, RootObj, RootDirContent, RenderingInfo
+from data_types import Sample, RootDir, RootObj, RootDirContent, RenderingInfo
 
 from layouts.layout_manager import LayoutManager
 
@@ -52,7 +52,10 @@ class GUIService:
         lines = await cls.__get_melist(run, dataset)
 
         regex = re.compile(search) if search else None
-        dirs = set()
+
+        # dir is a dict where key is subdir name and value is a count of 
+        # how many MEs are inside that subdir (in all deeper levels)
+        dirs = defaultdict(int)
         objs = set()
 
         path_util = PathUtil()
@@ -72,7 +75,7 @@ class GUIService:
                 if subsequent_segment.is_file:
                     objs.add(RootObj(name=subsequent_segment.name, path=path + subsequent_segment.name, layout=None))
                 else:
-                    dirs.add(RootDir(name=subsequent_segment.name))
+                    dirs[subsequent_segment.name] += 1
 
         # Add MEs from layouts
         # Layouts will be filtered against the search regex on their destination name.
@@ -88,7 +91,10 @@ class GUIService:
                 if subsequent_segment.is_file:
                     objs.add(RootObj(name=subsequent_segment.name, path=layout.source, layout=layout.name))
                 else:
-                    dirs.add(RootDir(name=subsequent_segment.name))
+                    dirs[subsequent_segment.name] += 1
+
+        # Transform dirs into a list of RootDir objects
+        dirs = [RootDir(name=key, me_count=dirs[key]) for key in dirs]
 
         # Format results to a named tuple
         data = RootDirContent(dirs, objs)
@@ -97,7 +103,7 @@ class GUIService:
 
     @classmethod
     async def get_rendered_image(cls, me_descriptions, options):
-        """options are defined here: gui_types.RenderingOptions"""
+        """options are defined here: data_types.RenderingOptions"""
 
         options.efficiency = False
         rendering_infos = []

@@ -7,7 +7,7 @@ from collections import namedtuple
 
 
 Sample = namedtuple('Sample', ['run', 'dataset'])
-RootDir = namedtuple('RootDir', ['name'])
+RootDir = namedtuple('RootDir', ['name', 'me_count'])
 RootObj = namedtuple('RootObj', ['name', 'path', 'layout'])
 RootDirContent = namedtuple('RootDirContent', ['dirs', 'objs'])
 

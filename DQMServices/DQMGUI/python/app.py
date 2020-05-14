@@ -21,7 +21,7 @@ from service import GUIService
 from storage import GUIDataStore
 from aiohttp import web, WSCloseCode
 
-from gui_types import RenderingOptions, MEDescription
+from data_types import RenderingOptions, MEDescription
 
 from layouts.layout_manager import LayoutManager
 
@@ -90,7 +90,7 @@ async def archive_legacy(request):
     data = await service.get_archive(run, dataset, path, search)
 
     result = {'contents': []}
-    result['contents'].extend({'subdir': x.name} for x in data.dirs)
+    result['contents'].extend({'subdir': name, 'me_count': me_count} for name, me_count in data.dirs)
     result['contents'].extend({'obj': name, 'dir': path, 'layout': layout} for name, path, layout in data.objs)
 
     return web.json_response(result)
@@ -111,7 +111,7 @@ async def archive_v1(request):
     data = await service.get_archive(run, dataset, path, search)
 
     result = {'data': []}
-    result['data'].extend({'subdir': x.name} for x in data.dirs)
+    result['data'].extend({'subdir': name, 'me_count': me_count} for name, me_count in data.dirs)
     result['data'].extend({'name': name, 'path': path, 'layout': layout} for name, path, layout in data.objs)
 
     return web.json_response(result)
