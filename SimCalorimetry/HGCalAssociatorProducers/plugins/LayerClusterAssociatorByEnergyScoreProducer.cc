@@ -24,14 +24,12 @@ private:
   void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
   edm::EDGetTokenT<std::map<DetId, const HGCRecHit*>> hitMapToken_;
   const bool hardScatterOnly_;
-  const int layers_;
   std::shared_ptr<hgcal::RecHitTools> rhtools_;
 };
 
 LayerClusterAssociatorByEnergyScoreProducer::LayerClusterAssociatorByEnergyScoreProducer(const edm::ParameterSet &ps)
   : hitMapToken_(consumes<std::map<DetId, const HGCRecHit*>>(ps.getParameter<edm::InputTag>("hitMapTag"))),
-    hardScatterOnly_(ps.getParameter<bool>("hardScatterOnly")),
-    layers_(ps.getParameter<int>("layers")) {
+    hardScatterOnly_(ps.getParameter<bool>("hardScatterOnly")) {
   rhtools_.reset(new hgcal::RecHitTools());
 
   // Register the product
@@ -50,8 +48,7 @@ void LayerClusterAssociatorByEnergyScoreProducer::produce(edm::StreamID, edm::Ev
     new LayerClusterAssociatorByEnergyScoreImpl(iEvent.productGetter(),
 						hardScatterOnly_,
 						rhtools_,
-						hitMap,
-						layers_));
+						hitMap));
   std::unique_ptr<hgcal::LayerClusterToCaloParticleAssociator> toPut(
       new hgcal::LayerClusterToCaloParticleAssociator(std::move(impl)));
   iEvent.put(std::move(toPut));
@@ -61,7 +58,6 @@ void LayerClusterAssociatorByEnergyScoreProducer::fillDescriptions(edm::Configur
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("hitMapTag", edm::InputTag("HGCRecHitMapProducer"));
   desc.add<bool>("hardScatterOnly", true);
-  desc.add<int>("layers", 52);
 
   cfg.add("layerClusterAssociatorByEnergyScore", desc);
 }
