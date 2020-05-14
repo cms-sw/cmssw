@@ -1,16 +1,16 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.ProcessModifiers.gpu_cff import gpu
 
 # This object is used to selectively make changes for different running
 # scenarios. In this case it makes changes for Run 2.
 
-from EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi import *
+from EventFilter.SiPixelRawToDigi.siPixelDigis_cff import *
 
 from EventFilter.SiStripRawToDigi.SiStripDigis_cfi import *
 
 from SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cff import *
 
-import EventFilter.EcalRawToDigi.EcalUnpackerData_cfi
-ecalDigis = EventFilter.EcalRawToDigi.EcalUnpackerData_cfi.ecalEBunpacker.clone()
+from EventFilter.EcalRawToDigi.ecalDigis_cff import *
 
 import EventFilter.ESRawToDigi.esRawToDigi_cfi
 ecalPreshowerDigis = EventFilter.ESRawToDigi.esRawToDigi_cfi.esRawToDigi.clone()
@@ -46,9 +46,9 @@ from L1Trigger.Configuration.L1TRawToDigi_cff import *
 from EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff import *
 
 RawToDigiTask = cms.Task(L1TRawToDigiTask,
-                         siPixelDigis,
+                         siPixelDigisTask,
                          siStripDigis,
-                         ecalDigis,
+                         ecalDigisTask,
                          ecalPreshowerDigis,
                          hcalDigis,
                          muonCSCDigis,
@@ -61,18 +61,18 @@ RawToDigiTask = cms.Task(L1TRawToDigiTask,
                          )
 RawToDigi = cms.Sequence(RawToDigiTask)
 
-RawToDigiTask_noTk = RawToDigiTask.copyAndExclude([siPixelDigis, siStripDigis])
+RawToDigiTask_noTk = RawToDigiTask.copyAndExclude([siPixelDigisTask, siStripDigis])
 RawToDigi_noTk = cms.Sequence(RawToDigiTask_noTk)
 
-RawToDigiTask_pixelOnly = cms.Task(siPixelDigis)
+RawToDigiTask_pixelOnly = cms.Task(siPixelDigisTask, scalersRawToDigi)
 RawToDigi_pixelOnly = cms.Sequence(RawToDigiTask_pixelOnly)
 
-RawToDigiTask_ecalOnly = cms.Task(ecalDigis, ecalPreshowerDigis, scalersRawToDigi)
+RawToDigiTask_ecalOnly = cms.Task(ecalDigisTask, ecalPreshowerDigis, scalersRawToDigi)
 RawToDigi_ecalOnly = cms.Sequence(RawToDigiTask_ecalOnly)
 
 scalersRawToDigi.scalersInputTag = 'rawDataCollector'
-siPixelDigis.InputLabel = 'rawDataCollector'
-ecalDigis.InputLabel = 'rawDataCollector'
+siPixelDigis.cpu.InputLabel = 'rawDataCollector'
+(~gpu).toModify(ecalDigis, InputLabel='rawDataCollector')
 ecalPreshowerDigis.sourceTag = 'rawDataCollector'
 hcalDigis.InputLabel = 'rawDataCollector'
 muonCSCDigis.InputObjects = 'rawDataCollector'

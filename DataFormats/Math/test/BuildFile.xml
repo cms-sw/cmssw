@@ -125,5 +125,4 @@
     <use name="HeterogeneousCore/CUDAUtilities"/>
     <flags CUDA_FLAGS="-w"/>
   </bin>
-
 </iftool>
