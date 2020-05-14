@@ -17,7 +17,6 @@
 #include <DetectorDescription/DDCMS/interface/DDFilteredView.h>
 #include <DetectorDescription/DDCMS/interface/DDCompactView.h>
 
-#include "Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h"
 #include "Geometry/MuonNumbering/interface/MuonDDDNumbering.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/GEMNumberingScheme.h"
@@ -26,7 +25,6 @@
 #include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 
 #include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
-#include "Geometry/MuonNumbering/interface/DD4hep_GEMNumberingScheme.h"
 
 #include "DataFormats/Math/interface/CMSUnits.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
@@ -341,7 +339,7 @@ GEMGeometryBuilderFromDDD::RCPBoundPlane GEMGeometryBuilderFromDDD::boundPlane(c
 
 void GEMGeometryBuilderFromDDD::build(GEMGeometry& theGeometry,
                                       const cms::DDCompactView* cview,
-                                      const cms::MuonNumbering& muonConstants) {
+                                      const MuonGeometryConstants& muonConstants) {
   std::string attribute = "MuStructure";
   std::string value = "MuonEndCapGEM";
   cms::DDFilteredView fv(cview->detector(), cview->detector()->worldVolume());
@@ -356,26 +354,24 @@ void GEMGeometryBuilderFromDDD::build(GEMGeometry& theGeometry,
   std::vector<GEMSuperChamber*> superChambers;
 
   while (doChambers) {
-    MuonBaseNumber mbn = muonConstants.geoHistoryToBaseNumber(fv.history());
-    cms::GEMNumberingScheme gemnum(muonConstants.values());
-    gemnum.baseNumberToUnitNumber(mbn);
-    GEMDetId detIdCh = GEMDetId(gemnum.getDetId());
+    MuonDDDNumbering mdddnum(muonConstants);
+    GEMNumberingScheme gemNum(muonConstants);
+    int rawidCh = gemNum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.history()));
+    GEMDetId detIdCh = GEMDetId(rawidCh);
 
     if (detIdCh.layer() == 1) {  // only make superChambers when doing layer 1
       GEMSuperChamber* gemSuperChamber = buildSuperChamber(fv, detIdCh);
       superChambers.push_back(gemSuperChamber);
     }
 
-    GEMChamber* gemChamber = buildChamber(fv, detIdCh);
+    GEMChamber* gemChamber = ((detIdCh.station() == GEMDetId::minStationId0) ? nullptr : buildChamber(fv, detIdCh));
 
     fv.down();
     fv.down();
     bool doEtaPart = fv.nextSibling();
     while (doEtaPart) {
-      MuonBaseNumber mbn = muonConstants.geoHistoryToBaseNumber(fv.history());
-      cms::GEMNumberingScheme gemnum(muonConstants.values());
-      gemnum.baseNumberToUnitNumber(mbn);
-      GEMDetId detId = GEMDetId(gemnum.getDetId());
+      int rawid = gemNum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.history()));
+      GEMDetId detId = GEMDetId(rawid);
       GEMEtaPartition* etaPart = buildEtaPartition(fv, detId);
 
       gemChamber->add(etaPart);

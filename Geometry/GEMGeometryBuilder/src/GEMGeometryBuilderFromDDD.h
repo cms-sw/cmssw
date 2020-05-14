@@ -2,8 +2,6 @@
 #define Geometry_GEMGeometry_GEMGeometryBuilderFromDDD_H
 
 #include "DataFormats/GeometrySurface/interface/Plane.h"
-#include "Geometry/MuonNumbering/interface/DD4hep_GEMNumberingScheme.h"
-#include "Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h"
 /*
 //\class GEMGeometryBuilder
 
@@ -42,7 +40,7 @@ public:
   // for DDD
   void build(GEMGeometry& theGeometry, const DDCompactView* cview, const MuonGeometryConstants& muonConstants);
   // for DD4hep
-  void build(GEMGeometry& theGeometry, const cms::DDCompactView* cview, const cms::MuonNumbering& muonConstants);
+  void build(GEMGeometry& theGeometry, const cms::DDCompactView* cview, const MuonGeometryConstants& muonConstants);
 
 private:
   std::map<GEMDetId, std::vector<GEMDetId>> chids;
