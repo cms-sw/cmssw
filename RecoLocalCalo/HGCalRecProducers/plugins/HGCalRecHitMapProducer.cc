@@ -14,7 +14,6 @@
 
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 
-
 class HGCalRecHitMapProducer : public edm::stream::EDProducer<> {
 public:
   HGCalRecHitMapProducer(const edm::ParameterSet&);
@@ -31,8 +30,7 @@ private:
 
 DEFINE_FWK_MODULE(HGCalRecHitMapProducer);
 
-HGCalRecHitMapProducer::HGCalRecHitMapProducer(const edm::ParameterSet& ps)
-{
+HGCalRecHitMapProducer::HGCalRecHitMapProducer(const edm::ParameterSet& ps) {
   hits_ee_token = consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("HGCEEInput"));
   hits_fh_token = consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("HGCFHInput"));
   hits_bh_token = consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("HGCBHInput"));

@@ -35,7 +35,8 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
     label_mclTokens.push_back(consumes<std::vector<reco::HGCalMultiCluster>>(itag));
   }
 
-  LCAssocByEnergyScoreProducer_ = consumes<hgcal::LayerClusterToCaloParticleAssociator>(edm::InputTag("LCAssocByEnergyScoreProducer"));
+  LCAssocByEnergyScoreProducer_ =
+      consumes<hgcal::LayerClusterToCaloParticleAssociator>(edm::InputTag("LCAssocByEnergyScoreProducer"));
 
   cpSelector = CaloParticleSelector(pset.getParameter<double>("ptMinCP"),
                                     pset.getParameter<double>("ptMaxCP"),

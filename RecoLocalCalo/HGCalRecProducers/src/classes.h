@@ -6,6 +6,6 @@
 namespace RecoLocalCalo_HGCalRecProducers {
   struct RecoLocalCalo_HGCalRecProducers {
     // add 'dummy' Wrapper variable for each class type you put into the Event
-    edm::Wrapper<std::map<DetId,HGCRecHit*>> dummy6;
+    edm::Wrapper<std::map<DetId, HGCRecHit*>> dummy6;
   };
 }  // namespace RecoLocalCalo_HGCalRecProducers
