@@ -2,7 +2,7 @@
 //
 // Package:     __subsys__/__pkgname__
 // Class  :     __class__
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -15,7 +15,6 @@
 // user include files
 #include "__incdir____class__.h"
 
-
 //
 // constants, enums and typedefs
 //
@@ -27,8 +26,7 @@
 //
 // constructors and destructor
 //
-__class__::__class__()
-{
+__class__::__class__() {
 }
 
 // __class__::__class__(const __class__& rhs)
@@ -36,8 +34,7 @@ __class__::__class__()
 //    // do actual copying here;
 // }
 
-__class__::~__class__()
-{
+__class__::~__class__() {
 }
 
 //
