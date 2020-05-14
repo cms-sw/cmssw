@@ -37,16 +37,16 @@ namespace {
   *************************************************/
 
   // inherit from one of the predefined plot class: Histogram1D
-  class SiPixelLorentzAngleValue : public cond::payloadInspector::Histogram1D<SiPixelLorentzAngle> {
+  class SiPixelLorentzAngleValue
+      : public cond::payloadInspector::Histogram1D<SiPixelLorentzAngle, cond::payloadInspector::SINGLE_IOV> {
   public:
     SiPixelLorentzAngleValue()
-        : cond::payloadInspector::Histogram1D<SiPixelLorentzAngle>(
-              "SiPixel LorentzAngle values", "SiPixel LorentzAngle values", 100, 0.0, 0.1) {
-      Base::setSingleIov(true);
-    }
+        : cond::payloadInspector::Histogram1D<SiPixelLorentzAngle, cond::payloadInspector::SINGLE_IOV>(
+              "SiPixel LorentzAngle values", "SiPixel LorentzAngle values", 100, 0.0, 0.1) {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>> &iovs) override {
-      for (auto const &iov : iovs) {
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      for (auto const &iov : tag.iovs) {
         std::shared_ptr<SiPixelLorentzAngle> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           std::map<uint32_t, float> LAMap_ = payload->getLorentzAngles();
@@ -63,16 +63,18 @@ namespace {
   /************************************************
     1d histogram of SiPixelLorentzAngle of 1 IOV 
   *************************************************/
-  class SiPixelLorentzAngleValues : public cond::payloadInspector::PlotImage<SiPixelLorentzAngle> {
+  class SiPixelLorentzAngleValues
+      : public cond::payloadInspector::PlotImage<SiPixelLorentzAngle, cond::payloadInspector::SINGLE_IOV> {
   public:
-    SiPixelLorentzAngleValues() : cond::payloadInspector::PlotImage<SiPixelLorentzAngle>("SiPixelLorentzAngle Values") {
-      setSingleIov(true);
-    }
+    SiPixelLorentzAngleValues()
+        : cond::payloadInspector::PlotImage<SiPixelLorentzAngle, cond::payloadInspector::SINGLE_IOV>(
+              "SiPixelLorentzAngle Values") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>> &iovs) override {
+    bool fill() override {
       gStyle->SetOptStat("emr");
 
-      auto iov = iovs.front();
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<SiPixelLorentzAngle> payload = fetchPayload(std::get<1>(iov));
       std::map<uint32_t, float> LAMap_ = payload->getLorentzAngles();
       auto extrema = SiPixelPI::findMinMaxInMap(LAMap_);
@@ -137,17 +139,18 @@ namespace {
     1d histogram of SiPixelLorentzAngle of 1 IOV per region
   *************************************************/
   template <bool isBarrel>
-  class SiPixelLorentzAngleValuesPerRegion : public cond::payloadInspector::PlotImage<SiPixelLorentzAngle> {
+  class SiPixelLorentzAngleValuesPerRegion
+      : public cond::payloadInspector::PlotImage<SiPixelLorentzAngle, cond::payloadInspector::SINGLE_IOV> {
   public:
     SiPixelLorentzAngleValuesPerRegion()
-        : cond::payloadInspector::PlotImage<SiPixelLorentzAngle>("SiPixelLorentzAngle Values per region") {
-      setSingleIov(true);
-    }
+        : cond::payloadInspector::PlotImage<SiPixelLorentzAngle, cond::payloadInspector::SINGLE_IOV>(
+              "SiPixelLorentzAngle Values per region") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>> &iovs) override {
+    bool fill() override {
       gStyle->SetOptStat("emr");
 
-      auto iov = iovs.front();
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<SiPixelLorentzAngle> payload = fetchPayload(std::get<1>(iov));
       std::map<uint32_t, float> LAMap_ = payload->getLorentzAngles();
       auto extrema = SiPixelPI::findMinMaxInMap(LAMap_);
@@ -576,17 +579,18 @@ namespace {
    occupancy style map BPix
   *************************************************/
 
-  class SiPixelBPixLorentzAngleMap : public cond::payloadInspector::PlotImage<SiPixelLorentzAngle> {
+  class SiPixelBPixLorentzAngleMap
+      : public cond::payloadInspector::PlotImage<SiPixelLorentzAngle, cond::payloadInspector::SINGLE_IOV> {
   public:
     SiPixelBPixLorentzAngleMap()
-        : cond::payloadInspector::PlotImage<SiPixelLorentzAngle>("SiPixelLorentzAngle Barrel Pixel Map"),
+        : cond::payloadInspector::PlotImage<SiPixelLorentzAngle, cond::payloadInspector::SINGLE_IOV>(
+              "SiPixelLorentzAngle Barrel Pixel Map"),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
-              edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml").fullPath())} {
-      setSingleIov(true);
-    }
+              edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml").fullPath())} {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>> &iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<SiPixelLorentzAngle> payload = fetchPayload(std::get<1>(iov));
 
       static const int n_layers = 4;
@@ -698,17 +702,18 @@ namespace {
    occupancy style map FPix
   *************************************************/
 
-  class SiPixelFPixLorentzAngleMap : public cond::payloadInspector::PlotImage<SiPixelLorentzAngle> {
+  class SiPixelFPixLorentzAngleMap
+      : public cond::payloadInspector::PlotImage<SiPixelLorentzAngle, cond::payloadInspector::SINGLE_IOV> {
   public:
     SiPixelFPixLorentzAngleMap()
-        : cond::payloadInspector::PlotImage<SiPixelLorentzAngle>("SiPixelLorentzAngle Forward Pixel Map"),
+        : cond::payloadInspector::PlotImage<SiPixelLorentzAngle, cond::payloadInspector::SINGLE_IOV>(
+              "SiPixelLorentzAngle Forward Pixel Map"),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
-              edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml").fullPath())} {
-      setSingleIov(true);
-    }
+              edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml").fullPath())} {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>> &iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<SiPixelLorentzAngle> payload = fetchPayload(std::get<1>(iov));
 
       static const int n_rings = 2;

@@ -53,17 +53,16 @@ namespace {
   /************************************************
     test class
   *************************************************/
-  class SiPixelTemplateDBObjectTest : public cond::payloadInspector::Histogram1D<SiPixelTemplateDBObject> {
+  class SiPixelTemplateDBObjectTest
+      : public cond::payloadInspector::Histogram1D<SiPixelTemplateDBObject, cond::payloadInspector::SINGLE_IOV> {
   public:
     SiPixelTemplateDBObjectTest()
-        : cond::payloadInspector::Histogram1D<SiPixelTemplateDBObject>(
-              "SiPixelTemplateDBObject test", "SiPixelTemplateDBObject test", 10, 0.0, 100.) {
-      Base::setSingleIov(true);
-    }
+        : cond::payloadInspector::Histogram1D<SiPixelTemplateDBObject, cond::payloadInspector::SINGLE_IOV>(
+              "SiPixelTemplateDBObject test", "SiPixelTemplateDBObject test", 10, 0.0, 100.) {}
 
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
-      for (auto iov : tag.iovs) {
+      for (auto const& iov : tag.iovs) {
         std::vector<SiPixelTemplateStore> thePixelTemp_;
         std::shared_ptr<SiPixelTemplateDBObject> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
@@ -114,16 +113,17 @@ namespace {
   /************************************************
   // header plotting
   *************************************************/
-  class SiPixelTemplateHeaderTable : public cond::payloadInspector::PlotImage<SiPixelTemplateDBObject> {
+  class SiPixelTemplateHeaderTable
+      : public cond::payloadInspector::PlotImage<SiPixelTemplateDBObject, cond::payloadInspector::SINGLE_IOV> {
   public:
     SiPixelTemplateHeaderTable()
-        : cond::payloadInspector::PlotImage<SiPixelTemplateDBObject>("SiPixelTemplateDBObject Header summary") {
-      Base::setSingleIov(true);
-    }
+        : cond::payloadInspector::PlotImage<SiPixelTemplateDBObject, cond::payloadInspector::SINGLE_IOV>(
+              "SiPixelTemplateDBObject Header summary") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      auto iov = iovs.front();
-
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
+      auto tagname = tag.name;
       std::vector<SiPixelTemplateStore> thePixelTemp_;
       std::shared_ptr<SiPixelTemplateDBObject> payload = fetchPayload(std::get<1>(iov));
 
@@ -182,11 +182,11 @@ namespace {
         auto ltx = TLatex();
         ltx.SetTextFont(62);
         ltx.SetTextColor(kBlue);
-        ltx.SetTextSize(0.05);
+        ltx.SetTextSize(0.045);
         ltx.SetTextAlign(11);
         ltx.DrawLatexNDC(gPad->GetLeftMargin(),
                          1 - gPad->GetTopMargin() + 0.01,
-                         ("SiPixelTemplate IOV:" + std::to_string(std::get<0>(iov))).c_str());
+                         (tagname + ",IOV:" + std::to_string(std::get<0>(iov))).c_str());
 
         std::string fileName(m_imageFileName);
         canvas.SaveAs(fileName.c_str());
@@ -204,7 +204,8 @@ namespace {
   // testing TH2Poly classes for plotting
   *************************************************/
   template <MapType myType>
-  class SiPixelTemplateLA : public cond::payloadInspector::PlotImage<SiPixelTemplateDBObject> {
+  class SiPixelTemplateLA
+      : public cond::payloadInspector::PlotImage<SiPixelTemplateDBObject, cond::payloadInspector::SINGLE_IOV> {
     struct header_info {
       int ID;             //!< template ID number
       float lorywidth;    //!< estimate of y-lorentz width for optimal resolution
@@ -222,16 +223,15 @@ namespace {
 
   public:
     SiPixelTemplateLA()
-        : cond::payloadInspector::PlotImage<SiPixelTemplateDBObject>("SiPixelTemplate assumed value of uH") {
-      setSingleIov(true);
-    }
+        : cond::payloadInspector::PlotImage<SiPixelTemplateDBObject, cond::payloadInspector::SINGLE_IOV>(
+              "SiPixelTemplate assumed value of uH") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
+    bool fill() override {
       gStyle->SetPalette(kBlackBody);
       TGaxis::SetMaxDigits(2);
 
-      auto iov = iovs.front();
-
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::vector<SiPixelTemplateStore> thePixelTemp_;
       std::shared_ptr<SiPixelTemplateDBObject> payload = fetchPayload(std::get<1>(iov));
 
@@ -326,15 +326,18 @@ namespace {
   // testing TH2Poly classes for plotting
   *************************************************/
   template <MapType myType>
-  class SiPixelTemplateIDs : public cond::payloadInspector::PlotImage<SiPixelTemplateDBObject> {
+  class SiPixelTemplateIDs
+      : public cond::payloadInspector::PlotImage<SiPixelTemplateDBObject, cond::payloadInspector::SINGLE_IOV> {
   public:
-    SiPixelTemplateIDs() : cond::payloadInspector::PlotImage<SiPixelTemplateDBObject>("SiPixelTemplate ID Values") {
-      setSingleIov(true);
-    }
+    SiPixelTemplateIDs()
+        : cond::payloadInspector::PlotImage<SiPixelTemplateDBObject, cond::payloadInspector::SINGLE_IOV>(
+              "SiPixelTemplate ID Values") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
+    bool fill() override {
       gStyle->SetPalette(kRainBow);
-      auto iov = iovs.front();
+
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<SiPixelTemplateDBObject> payload = fetchPayload(std::get<1>(iov));
 
       if (payload.get()) {
