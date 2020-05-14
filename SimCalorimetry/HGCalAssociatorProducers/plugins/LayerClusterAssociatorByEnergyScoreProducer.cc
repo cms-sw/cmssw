@@ -63,7 +63,7 @@ void LayerClusterAssociatorByEnergyScoreProducer::fillDescriptions(edm::Configur
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("hitMapTag", edm::InputTag("HGCRecHitMapProducer"));
   desc.add<bool>("hardScatterOnly", true);
-  desc.add<int>("layers", 50);
+  desc.add<int>("layers", 52);
 
   cfg.add("layerClusterAssociatorByEnergyScore", desc);
 }
