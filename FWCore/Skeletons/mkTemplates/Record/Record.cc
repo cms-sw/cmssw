@@ -2,7 +2,7 @@
 //
 // Package:     __subsys__/__pkgname__
 // Class  :     __class__
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
