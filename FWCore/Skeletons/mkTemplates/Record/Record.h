@@ -4,7 +4,7 @@
 //
 // Package:     __subsys__/__pkgname__
 // Class  :     __class__
-// 
+//
 /**\class __class__ __class__.h __subsys__/__pkgname__/interface/__class__.h
 
  Description: [one line class summary]
