@@ -14,9 +14,7 @@ public:
     tile_[globalBin(eta, phi)].push_back(layerClusterId);
   }
 
-  int getTypeT() const {
-    return T::type;
-  }
+  int getTypeT() const { return T::type; }
 
   int etaBin(float eta) const {
     constexpr float etaRange = T::maxEta - T::minEta;

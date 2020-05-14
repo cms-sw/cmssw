@@ -15,8 +15,8 @@ using namespace ticl;
 
 template <typename TILES>
 PatternRecognitionbyCA<TILES>::PatternRecognitionbyCA(const edm::ParameterSet &conf, const CacheBase *cache)
-  : PatternRecognitionAlgoBaseT<TILES>(conf, cache),
-    theGraph_(std::make_unique<HGCGraphT<TILES>>()),
+    : PatternRecognitionAlgoBaseT<TILES>(conf, cache),
+      theGraph_(std::make_unique<HGCGraphT<TILES>>()),
       oneTracksterPerTrackSeed_(conf.getParameter<bool>("oneTracksterPerTrackSeed")),
       promoteEmptyRegionToTrackster_(conf.getParameter<bool>("promoteEmptyRegionToTrackster")),
       out_in_dfs_(conf.getParameter<bool>("out_in_dfs")),
@@ -47,9 +47,10 @@ template <typename TILES>
 PatternRecognitionbyCA<TILES>::~PatternRecognitionbyCA(){};
 
 template <typename TILES>
-void PatternRecognitionbyCA<TILES>::makeTracksters(const typename PatternRecognitionAlgoBaseT<TILES>::Inputs &input,
-                                            std::vector<Trackster> &result,
-                                            std::unordered_map<int, std::vector<int>> &seedToTracksterAssociation) {
+void PatternRecognitionbyCA<TILES>::makeTracksters(
+    const typename PatternRecognitionAlgoBaseT<TILES>::Inputs &input,
+    std::vector<Trackster> &result,
+    std::unordered_map<int, std::vector<int>> &seedToTracksterAssociation) {
   // Protect from events with no seeding regions
   if (input.regions.empty())
     return;
@@ -62,9 +63,9 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(const typename PatternRecogni
     LogDebug("HGCPatternRecoByCA") << "Making Tracksters with CA" << std::endl;
   }
 
-  int type = input.tiles[0].getTypeT() ;
-  int nEtaBin  = (type==1) ? ticl::TileConstantsHFNose::nEtaBins : ticl::TileConstants::nEtaBins;
-  int nPhiBin  = (type==1) ? ticl::TileConstantsHFNose::nPhiBins : ticl::TileConstants::nPhiBins;
+  int type = input.tiles[0].getTypeT();
+  int nEtaBin = (type == 1) ? ticl::TileConstantsHFNose::nEtaBins : ticl::TileConstants::nEtaBins;
+  int nPhiBin = (type == 1) ? ticl::TileConstantsHFNose::nPhiBins : ticl::TileConstants::nPhiBins;
 
   bool isRegionalIter = (input.regions[0].index != -1);
   std::vector<HGCDoublet::HGCntuplet> foundNtuplets;
@@ -251,7 +252,7 @@ void PatternRecognitionbyCA<TILES>::emptyTrackstersFromSeedsTRK(
 
 template <typename TILES>
 void PatternRecognitionbyCA<TILES>::energyRegressionAndID(const std::vector<reco::CaloCluster> &layerClusters,
-                                                   std::vector<Trackster> &tracksters) {
+                                                          std::vector<Trackster> &tracksters) {
   // Energy regression and particle identification strategy:
   //
   // 1. Set default values for regressed energy and particle id for each trackster.
