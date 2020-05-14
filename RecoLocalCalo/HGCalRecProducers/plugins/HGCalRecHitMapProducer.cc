@@ -14,7 +14,6 @@
 
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 
-#include <iostream>
 
 class HGCalRecHitMapProducer : public edm::stream::EDProducer<> {
 public:

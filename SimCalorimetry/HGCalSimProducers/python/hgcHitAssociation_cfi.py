@@ -1,7 +1,3 @@
 from SimCalorimetry.HGCalAssociatorProducers.layerClusterAssociatorByEnergyScore_cfi import layerClusterAssociatorByEnergyScore as LCAssocByEnergyScoreProducer
 
 from RecoLocalCalo.HGCalRecProducers.hgcalRecHitMapProducer_cfi import hgcalRecHitMapProducer as HGCRecHitMapProducer
-
-#import FWCore.ParameterSet.Config as cms
-#HGCRecHitMapProducer = cms.EDProducer("HGCalRecHitMapProducer",
-#)

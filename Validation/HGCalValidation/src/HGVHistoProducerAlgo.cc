@@ -819,8 +819,6 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
                                                           unsigned layers,
                                                           const edm::Handle<hgcal::LayerClusterToCaloParticleAssociator>& LCAssocByEnergyScoreHandle) const {
   auto nLayerClusters = clusters.size();
-  //Consider CaloParticles coming from the hard scatterer, excluding the PU contribution.
-  auto nCaloParticles = cPIndices.size();
 
   std::unordered_map<DetId, std::vector<HGVHistoProducerAlgo::detIdInfoInCluster>> detIdToCaloParticleId_Map;
   std::unordered_map<DetId, std::vector<HGVHistoProducerAlgo::detIdInfoInCluster>> detIdToLayerClusterId_Map;
@@ -834,7 +832,6 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
       const auto& hits_and_fractions = simCluster.hits_and_fractions();
       for (const auto& it_haf : hits_and_fractions) {
         DetId hitid = (it_haf.first);
-        int cpLayerId = recHitTools_->getLayerWithOffset(hitid) + layers * ((recHitTools_->zside(hitid) + 1) >> 1) - 1;
         std::map<DetId, const HGCRecHit*>::const_iterator itcheck = hitMap.find(hitid);
         if (itcheck != hitMap.end()) {
           auto hit_find_it = detIdToCaloParticleId_Map.find(hitid);
@@ -1042,7 +1039,6 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
       histograms.h_energy_vs_score_layercl2caloparticle_perlayer.at(lcLayerId)->Fill(
           cpPair.second, cp_linked.second.first / clusters[lcId].energy());
       */
-      //for (auto cp_linked = begin(cPOnLayerMap[cpPair->first]); cp_linked != end(cPOnLayerMap[cpPair->first]); ++cp_linked) {
       auto const& cp_linked = std::find_if(
         std::begin(cPOnLayerMap[cpPair.first]), std::end(cPOnLayerMap[cpPair.first]),
         [&lcRef](const std::pair<edm::Ref<reco::CaloClusterCollection>, std::pair<float,float>>& p) { return p.first == lcRef; });
