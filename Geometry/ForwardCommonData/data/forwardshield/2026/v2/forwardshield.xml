@@ -590,7 +590,6 @@
 		</LogicalPart>
 	</LogicalPartSection>
 	<PosPartSection label="forwardshield.xml">
-	<!--
 		<PosPart copyNumber="1">
 			<rParent name="cms:CMSE"/>
 			<rChild name="forwardshield:OQUA"/>
@@ -601,7 +600,6 @@
 			<rChild name="forwardshield:OQUA"/>
 			<rRotation name="rotations:180D"/>
 		</PosPart>
-             -->
 		<PosPart copyNumber="1">
 			<rParent name="forwardshield:OQUA"/>
 			<rChild name="forwardshield:VcalFibreBundleContainer"/>
