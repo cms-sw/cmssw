@@ -958,5 +958,7 @@ upgradeFragments = OrderedDict([
     ('TauToMuMuMu_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(18939,189393),'TauToMuMuMu_14TeV')), # effi = 5.280e-04
     ('BdToKstarEleEle_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(206,2061),'BdToKstarEleEle_14TeV')), #effi = 4.850e-02 
     ('ZpTT_1500_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(9,50),'ZpTT_1500_14')),
+    ('BuMixing_BMuonFilter_forSTEAM_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(900,10000),'BuMixing_14')),
+    ('Upsilon1SToMuMu_forSTEAM_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(9,50),'Upsilon1SToMuMu_14')),
 ])
 
