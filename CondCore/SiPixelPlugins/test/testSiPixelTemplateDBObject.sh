@@ -67,3 +67,14 @@ getPayloadData.py \
     --test ;
 
 mv *.png $W_DIR/plots_Template/LAFPixMap.png
+
+getPayloadData.py \
+    --plugin pluginSiPixelTemplateDBObject_PayloadInspector \
+    --plot plot_SiPixelTemplateHeaderTable \
+    --tag SiPixelTemplateDBObject38Tv3_express \
+    --time_type Run \
+    --iovs '{"start_iov": "326083", "end_iov": "326083"}' \
+    --db Prod \
+    --test ;
+
+mv *.png $W_DIR/plots_Template/HeaderTable.png
