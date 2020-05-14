@@ -72,7 +72,6 @@ RawToDigi_ecalOnly = cms.Sequence(RawToDigiTask_ecalOnly)
 
 scalersRawToDigi.scalersInputTag = 'rawDataCollector'
 siPixelDigis.cpu.InputLabel = 'rawDataCollector'
-#false by default anyways ecalDigis.DoRegional = False
 (~gpu).toModify(ecalDigis, InputLabel='rawDataCollector')
 ecalPreshowerDigis.sourceTag = 'rawDataCollector'
 hcalDigis.InputLabel = 'rawDataCollector'
