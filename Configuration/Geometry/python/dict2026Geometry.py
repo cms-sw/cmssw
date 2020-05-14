@@ -892,10 +892,10 @@ caloDict = {
             'Geometry/HGCalCommonData/data/hgcalHEsil/v12/hgcalHEsil.xml',
             'Geometry/HGCalCommonData/data/hgcalHEmix/v12/hgcalHEmix.xml',
             'Geometry/HGCalCommonData/data/hgcalCons/v12/hgcalCons.xml',
-            'Geometry/ForwardCommonData/data/hfnose/v3/hfnose.xml',
+            'Geometry/ForwardCommonData/data/hfnose/v4/hfnose.xml',
             'Geometry/ForwardCommonData/data/hfnoseCell/v1/hfnoseCell.xml',
             'Geometry/ForwardCommonData/data/hfnoseWafer/v1/hfnoseWafer.xml',
-            'Geometry/ForwardCommonData/data/hfnoseLayer/v1/hfnoseLayer.xml',
+            'Geometry/ForwardCommonData/data/hfnoseLayer/v2/hfnoseLayer.xml',
             'Geometry/ForwardCommonData/data/hfnoseCons/v1/hfnoseCons.xml',
         ],
         3 : [
@@ -1499,8 +1499,8 @@ detectorVersionDict = {
     ("O4","T19","C9","M4","F2","I10") : "D54",
     ("O4","T19","C9","M5","F2","I10") : "D55",
     ("O4","T20","C9","M4","F2","I10") : "D56",
-    ("O5","T19","C11","M6","F4","I12") : "D57",
-    ("O5","T19","C12","M6","F5","I12") : "D58",
+    ("O5","T19","C11","M6","F4","I11") : "D57",
+    ("O5","T19","C12","M6","F5","I11") : "D58",
  }
 
 deprecatedDets = set([ "D1", "D2", "D3", "D5", "D6" , "D7", "D4", "D8" , "D9", "D12", "D13", "D15", "D10", "D11", "D14", "D16", "D17", "D18", "D19", "D20", "D21", "D22", "D23", "D24", "D25", "D26", "D27", "D28", "D29", "D30", "D31", "D32", "D33", "D34", "D36", "D37", "D38", "D39", "D40", "D42", "D52" ])
