@@ -361,7 +361,8 @@ def miniAOD_customizeCommon(process):
     from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
     _rerun_puppijets_task = task.copy()
     _rerun_puppijets_task.add(process.puppi, process.ak4PFJetsPuppi)
-    (run2_miniAOD_80XLegacy | run2_miniAOD_94XFall17 | pA_2016 | pp_on_AA_2018).toReplaceWith(task, _rerun_puppijets_task)
+    _run2_miniAOD_ANY = (run2_miniAOD_80XLegacy | run2_miniAOD_94XFall17 | run2_miniAOD_UL)
+    (_run2_miniAOD_ANY | pA_2016 | pp_on_AA_2018).toReplaceWith(task, _rerun_puppijets_task)
 
     from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import j2tParametersVX
     process.ak4PFJetsPuppiTracksAssociatorAtVertex = cms.EDProducer("JetTracksAssociatorAtVertex",
@@ -405,7 +406,6 @@ def miniAOD_customizeCommon(process):
     process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour.addTagInfos = True
     process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour.tagInfoSources = ["pixelClusterTagInfos"]
 
-    _run2_miniAOD_ANY = (run2_miniAOD_80XLegacy | run2_miniAOD_94XFall17 | run2_miniAOD_UL)
     _run2_miniAOD_ANY.toModify(process.patJets, addTagInfos = False )
     _run2_miniAOD_ANY.toModify(process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour, addTagInfos = False )
     
@@ -413,7 +413,7 @@ def miniAOD_customizeCommon(process):
     process.load('RecoMET.METProducers.pfMetPuppi_cfi')
     _rerun_puppimet_task = task.copy()
     _rerun_puppimet_task.add(process.puppiNoLep, process.pfMetPuppi)
-    (run2_miniAOD_80XLegacy | run2_miniAOD_94XFall17).toReplaceWith(task, _rerun_puppimet_task)
+    _run2_miniAOD_ANY.toReplaceWith(task, _rerun_puppimet_task)
     
     runMetCorAndUncForMiniAODProduction(process, metType="Puppi",
                                         jetCollUnskimmed="slimmedJetsPuppi",
