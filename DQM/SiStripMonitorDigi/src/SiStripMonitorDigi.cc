@@ -269,7 +269,7 @@ void SiStripMonitorDigi::dqmBeginRun(const edm::Run& run, const edm::EventSetup&
 
 //--------------------------------------------------------------------------------------------
 std::shared_ptr<bool> SiStripMonitorDigi::globalBeginLuminosityBlock(const edm::LuminosityBlock& lb,
-                                                                             const edm::EventSetup& es) const {
+                                                                     const edm::EventSetup& es) const {
   bool isStableBeams = false;
   //if (subdetswitchtotdigifailureon) {
   //  isStableBeams = false;
