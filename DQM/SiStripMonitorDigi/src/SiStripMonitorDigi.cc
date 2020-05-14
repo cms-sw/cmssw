@@ -1,4 +1,4 @@
-// -*- c++ -*-
+/// -*- c++ -*-
 /**\class SiStripMonitorDigi SiStripMonitorDigi.cc DQM/SiStripMonitorDigi/src/SiStripMonitorDigi.cc
  */
 // Original Author:  Dorian Kcira
@@ -185,7 +185,7 @@ SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig)
     dcsStatus_ = nullptr;
 
   //initialize boolean for the data-presence check (needed for TotalNumberOfDigisFailure histogram)
-  isStableBeams = false;
+  //isStableBeams = false;
   SBTransitionDone = false;
   SBDeclaredAt = 0;
   ignoreFirstNLumisections_ = TMath::Max(0, ParametersTotDigiFailure.getParameter<int32_t>("ignoreFirstNLumisections"));
@@ -268,19 +268,20 @@ void SiStripMonitorDigi::dqmBeginRun(const edm::Run& run, const edm::EventSetup&
 }
 
 //--------------------------------------------------------------------------------------------
-std::shared_ptr<unsigned int> SiStripMonitorDigi::globalBeginLuminosityBlock(const edm::LuminosityBlock& lb,
+std::shared_ptr<bool> SiStripMonitorDigi::globalBeginLuminosityBlock(const edm::LuminosityBlock& lb,
                                                                              const edm::EventSetup& es) const {
-  unsigned int currentLS = lb.id().luminosityBlock();
-  if (subdetswitchtotdigifailureon) {
-    isStableBeams = false;
-  }
-  return std::make_shared<unsigned int>(currentLS);
+  bool isStableBeams = false;
+  //if (subdetswitchtotdigifailureon) {
+  //  isStableBeams = false;
+  //}
+  return std::make_shared<bool>(isStableBeams);
 }
 
 //--------------------------------------------------------------------------------------------
 //void SiStripMonitorDigi::endLuminosityBlock(const edm::LuminosityBlock& lb, const edm::EventSetup& es) {
 void SiStripMonitorDigi::globalEndLuminosityBlock(const edm::LuminosityBlock& lb, const edm::EventSetup& es) {
   unsigned int currentLS = lb.id().luminosityBlock();
+  const bool isStableBeams = luminosityBlockCache(lb.index());
   if (subdetswitchtotdigifailureon && isStableBeams && !SBTransitionDone) {
     SBDeclaredAt = (int)currentLS;
     SBTransitionDone = true;
@@ -812,6 +813,7 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
     }
   }
 
+  bool& isStableBeams = *luminosityBlockCache(iEvent.getLuminosityBlock().index());
   if (subdetswitchtotdigifailureon) {
     //check Stable beams bit
     edm::Handle<L1GlobalTriggerEvmReadoutRecord> gtEvm_handle;
