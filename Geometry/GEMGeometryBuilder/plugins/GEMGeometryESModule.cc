@@ -38,7 +38,6 @@
 #include <memory>
 
 //dd4hep
-#include "Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h"
 #include "Geometry/MuonNumbering/interface/MuonDDDNumbering.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
@@ -65,7 +64,6 @@ private:
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> cpvToken_;
   edm::ESGetToken<MuonGeometryConstants, IdealGeometryRecord> mdcToken_;
   edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> dd4hepcpvToken_;
-  edm::ESGetToken<cms::MuonNumbering, MuonNumberingRecord> dd4hepmdcToken_;
   edm::ESGetToken<RecoIdealGeometry, GEMRecoGeometryRcd> riggemToken_;
   edm::ESGetToken<Alignments, GlobalPositionRcd> globalPositionToken_;
   edm::ESGetToken<Alignments, GEMAlignmentRcd> alignmentsToken_;
@@ -78,10 +76,8 @@ GEMGeometryESModule::GEMGeometryESModule(const edm::ParameterSet& p)
       applyAlignment_(p.getParameter<bool>("applyAlignment")),
       alignmentsLabel_(p.getParameter<std::string>("alignmentsLabel")) {
   auto cc = setWhatProduced(this);
-  if (useDDD_) {
+  if (useDDD_ || useDD4hep_) {
     cc.setConsumes(cpvToken_).setConsumes(mdcToken_);
-  } else if (useDD4hep_) {
-    cc.setConsumes(dd4hepcpvToken_).setConsumes(dd4hepmdcToken_);
   } else {
     cc.setConsumes(riggemToken_);
   }
@@ -104,7 +100,7 @@ std::unique_ptr<GEMGeometry> GEMGeometryESModule::produce(const MuonGeometryReco
     builder.build(*gemGeometry, cpv.product(), mdc);
   } else if (useDD4hep_) {
     edm::ESTransientHandle<cms::DDCompactView> cpv = record.getTransientHandle(dd4hepcpvToken_);
-    const auto& mdc = record.get(dd4hepmdcToken_);
+    const auto& mdc = record.get(mdcToken_);
     GEMGeometryBuilderFromDDD builder;
     builder.build(*gemGeometry, cpv.product(), mdc);
   } else {
