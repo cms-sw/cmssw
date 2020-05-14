@@ -31,16 +31,14 @@ class EventWithHistory;
 class L1GlobalTriggerEvmReadoutRecord;
 class APVCyclePhaseCollection;
 
-class SiStripMonitorDigi : public DQMOneEDAnalyzer<edm::LuminosityBlockCache<unsigned int>> {
+class SiStripMonitorDigi : public DQMOneEDAnalyzer<edm::LuminosityBlockCache<bool>> {
 public:
   explicit SiStripMonitorDigi(const edm::ParameterSet&);
   ~SiStripMonitorDigi() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  std::shared_ptr<unsigned int> globalBeginLuminosityBlock(const edm::LuminosityBlock& lumi,
+  std::shared_ptr<bool> globalBeginLuminosityBlock(const edm::LuminosityBlock& lumi,
                                                            const edm::EventSetup& iSetup) const override;
   void globalEndLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& iSetup) override;
-  //void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
-  //void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override;
 
@@ -199,7 +197,7 @@ private:
   bool globalswitchNDigisFEDID;
 
   //  int xLumiProf;
-  mutable bool isStableBeams;
+  //mutable bool isStableBeams;
   int ignoreFirstNLumisections_;
   int integrateNLumisections_;
   int SBDeclaredAt;
