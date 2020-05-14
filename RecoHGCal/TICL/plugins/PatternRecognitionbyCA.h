@@ -53,5 +53,9 @@ namespace ticl {
 
     static const int eidNFeatures_ = 3;
   };
+
+  template class PatternRecognitionbyCA<TICLLayerTiles>;
+  template class PatternRecognitionbyCA<TICLLayerTilesHFNose>;
+
 }  // namespace ticl
 #endif
