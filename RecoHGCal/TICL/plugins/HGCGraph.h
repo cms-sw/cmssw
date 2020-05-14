@@ -58,7 +58,7 @@ private:
   int verbosity_;
 };
 
-//using hgcalHGCGraph = HGCGraphT<TICLLayerTiles>;
-//using hfnoseHGCGraph = HGCGraphT<TICLLayerTilesHFNose>;
+template class HGCGraphT<TICLLayerTiles>;
+template class HGCGraphT<TICLLayerTilesHFNose>;
 
 #endif
