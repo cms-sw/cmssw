@@ -14,10 +14,10 @@
 
 class ETLDetId : public MTDDetId {
 public:
-  static const uint32_t kETLmoduleOffset = 7;
-  static const uint32_t kETLmoduleMask = 0x1FF;
-  static const uint32_t kETLmodTypeOffset = 5;
-  static const uint32_t kETLmodTypeMask = 0x3;
+  static const uint32_t kETLmoduleOffset = 9;  //7
+  static const uint32_t kETLmoduleMask = 0x201; //0x1FF
+  static const uint32_t kETLmodTypeOffset = 7; //5
+  static const uint32_t kETLmodTypeMask = 0x5;  //0x3
 
   static constexpr int kETLv1maxRing = 11;
   static constexpr int kETLv1maxModule = 176;
