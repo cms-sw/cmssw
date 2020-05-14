@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-baseOpticalFunctionsParameters = cms.PSet(
+_baseOpticalFunctionsParameters = cms.PSet(
           TransportMethod = cms.string('OpticalFunctions'),
           ApplyZShift = cms.bool(True),
           lhcInfoLabel = cms.string(""),
@@ -127,27 +127,27 @@ _config_2018 = cms.PSet(
 
 _opticalfunctionsTransportSetup_2016_preTS2 =cms.PSet(
                 opticalFunctionConfig = _config_2016_preTS2.opticalFunctionConfig,
-                optics_parameters =  cms.PSet(baseOpticalFunctionsParameters,_config_2016_preTS2.optics_parameters)
+                optics_parameters =  cms.PSet(_baseOpticalFunctionsParameters,_config_2016_preTS2.optics_parameters)
 )
 
 _opticalfunctionsTransportSetup_2016_postTS2 =cms.PSet(
                 opticalFunctionConfig = _config_2016_postTS2.opticalFunctionConfig,
-                optics_parameters = cms.PSet(baseOpticalFunctionsParameters,_config_2016_postTS2.optics_parameters)
+                optics_parameters = cms.PSet(_baseOpticalFunctionsParameters,_config_2016_postTS2.optics_parameters)
 )
 
 _opticalfunctionsTransportSetup_2017_preTS2 =cms.PSet(
                 opticalFunctionConfig = _config_2017_preTS2.opticalFunctionConfig,
-                optics_parameters = cms.PSet(baseOpticalFunctionsParameters,_config_2017_preTS2.optics_parameters)
+                optics_parameters = cms.PSet(_baseOpticalFunctionsParameters,_config_2017_preTS2.optics_parameters)
 )
 
 _opticalfunctionsTransportSetup_2017_postTS2 =cms.PSet(
                 opticalFunctionConfig = _config_2017_postTS2.opticalFunctionConfig,
-                optics_parameters = cms.PSet(baseOpticalFunctionsParameters,_config_2017_postTS2.optics_parameters)
+                optics_parameters = cms.PSet(_baseOpticalFunctionsParameters,_config_2017_postTS2.optics_parameters)
 )
 
 opticalfunctionsTransportSetup_2018 =cms.PSet(
                 opticalFunctionConfig = _config_2018.opticalFunctionConfig,
-                optics_parameters = cms.PSet(baseOpticalFunctionsParameters, _config_2018.optics_parameters)
+                optics_parameters = cms.PSet(_baseOpticalFunctionsParameters, _config_2018.optics_parameters)
 )
 
 # Default setup
