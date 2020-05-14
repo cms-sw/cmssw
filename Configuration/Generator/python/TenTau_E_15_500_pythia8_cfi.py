@@ -7,9 +7,9 @@ generator = cms.EDFilter("Pythia8EGun",
         MinE = cms.double(15.0),
         ParticleID = cms.vint32(-15,-15,-15,-15,-15),
         AddAntiParticle = cms.bool(True),
-        MaxEta = cms.double(2.5),
+        MaxEta = cms.double(3.1),
         MaxPhi = cms.double(3.14159265359),
-        MinEta = cms.double(-2.5),
+        MinEta = cms.double(-3.1),
         MinPhi = cms.double(-3.14159265359) ## in radians
 
     ),
