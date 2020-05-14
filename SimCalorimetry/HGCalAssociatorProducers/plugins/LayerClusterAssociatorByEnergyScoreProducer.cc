@@ -44,10 +44,8 @@ void LayerClusterAssociatorByEnergyScoreProducer::produce(edm::StreamID, edm::Ev
   rhtools_->getEventSetup(es);
   edm::Handle<std::map<DetId, const HGCRecHit*>> hitMapHandle;
   iEvent.getByToken(hitMapToken_, hitMapHandle);
-
   const std::map<DetId, const HGCRecHit*>* hitMap = &*hitMapHandle;
 
-  //std::unique_ptr<hgcal::LayerClusterToCaloParticleAssociatorBaseImpl> impl(new hgcal::LayerClusterToCaloParticleAssociatorBaseImpl());
   std::unique_ptr<hgcal::LayerClusterToCaloParticleAssociatorBaseImpl> impl(
     new LayerClusterAssociatorByEnergyScoreImpl(iEvent.productGetter(),
 						hardScatterOnly_,

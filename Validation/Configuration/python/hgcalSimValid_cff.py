@@ -15,7 +15,7 @@ hgcalPFJetValidation = _hgcalPFJetValidation.clone(BenchmarkLabel = 'PFJetValida
     DeltaPtOvPtHistoParameter = dict(EROn=True,EREtaMax=3.0, EREtaMin=1.6, slicingOn=True))
 
 hgcalAssociators = cms.Task(HGCRecHitMapProducer
-        , LCAssocByEnergyScoreProducer)
+                            , LCAssocByEnergyScoreProducer)
 
 hgcalValidation = cms.Sequence(hgcalSimHitValidationEE
                                + hgcalSimHitValidationHEF
