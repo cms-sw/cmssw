@@ -1,3 +1,9 @@
+///////////////////////////////////////
+//
+// data catalogs are filled in "parse"
+//
+///////////////////////////////////////
+
 //<<<<<< INCLUDES                                                       >>>>>>
 
 #include "FWCore/Services/src/SiteLocalConfigService.h"
@@ -70,8 +76,7 @@ namespace edm {
 
     SiteLocalConfigService::SiteLocalConfigService(ParameterSet const &pset)
         : m_url(pset.getUntrackedParameter<std::string>("siteLocalConfigFileUrl", defaultURL())),
-          m_dataCatalog(),
-          m_fallbackDataCatalog(),
+          m_dataCatalogs(),
           m_frontierConnect(),
           m_rfioType("castor"),
           m_connected(false),
@@ -136,31 +141,20 @@ namespace edm {
       }
     }
 
-    std::string const SiteLocalConfigService::dataCatalog(void) const {
+    std::vector<std::string> const &SiteLocalConfigService::dataCatalogs(void) const {
       if (!m_connected) {
         //throw cms::Exception("Incomplete configuration")
         //    << "Valid site-local-config not found at " << m_url;
         // Return PoolFileCatalog.xml for now
-        return "file:PoolFileCatalog.xml";
+        static std::vector<std::string> const tmp{"file:PoolFileCatalog.xml"};
+        return tmp;
       }
 
-      if (m_dataCatalog.empty()) {
-        throw cms::Exception("Incomplete configuration") << "Did not find catalog in event-data section in " << m_url;
+      if (m_dataCatalogs.empty()) {
+        throw cms::Exception("Incomplete configuration") << "Did not find catalogs in event-data section in " << m_url;
       }
 
-      return m_dataCatalog;
-    }
-
-    std::string const SiteLocalConfigService::fallbackDataCatalog(void) const {
-      if (!m_connected) {
-        //throw cms::Exception("Incomplete configuration")
-        //    << "Valid site-local-config not found at " << m_url;
-        // Return PoolFileCatalog.xml for now
-        return "file:PoolFileCatalog.xml";
-      }
-
-      // Note: Unlike the dataCatalog, the fallbackDataCatalog may be empty!
-      return m_fallbackDataCatalog;
+      return m_dataCatalogs;
     }
 
     std::string const SiteLocalConfigService::frontierConnect(std::string const &servlet) const {
@@ -311,10 +305,11 @@ namespace edm {
           if (eventData) {
             auto catalog = eventData->FirstChildElement("catalog");
             if (catalog) {
-              m_dataCatalog = safe(catalog->Attribute("url"));
+              m_dataCatalogs.push_back(safe(catalog->Attribute("url")));
               catalog = catalog->NextSiblingElement("catalog");
-              if (catalog) {
-                m_fallbackDataCatalog = safe(catalog->Attribute("url"));
+              while (catalog) {
+                m_dataCatalogs.push_back(safe(catalog->Attribute("url")));
+                catalog = catalog->NextSiblingElement("catalog");
               }
             }
             auto rfiotype = eventData->FirstChildElement("rfiotype");
