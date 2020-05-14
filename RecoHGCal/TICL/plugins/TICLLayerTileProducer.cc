@@ -29,28 +29,31 @@ private:
   bool doNose_;
 };
 
-TICLLayerTileProducer::TICLLayerTileProducer(const edm::ParameterSet &ps):
-  detector_(ps.getParameter<std::string>("detector")) {
-  clusters_HFNose_token_ = consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_HFNose_clusters"));
+TICLLayerTileProducer::TICLLayerTileProducer(const edm::ParameterSet &ps)
+    : detector_(ps.getParameter<std::string>("detector")) {
+  clusters_HFNose_token_ =
+      consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_HFNose_clusters"));
   clusters_token_ = consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_clusters"));
 
   doNose_ = (detector_ == "HFNose") ? true : false;
 
-  if(doNose_) produces<TICLLayerTilesHFNose>();
-  else produces<TICLLayerTiles>();
-
+  if (doNose_)
+    produces<TICLLayerTilesHFNose>();
+  else
+    produces<TICLLayerTiles>();
 }
 
 void TICLLayerTileProducer::beginRun(edm::Run const &, edm::EventSetup const &es) { rhtools_.getEventSetup(es); }
 
 void TICLLayerTileProducer::produce(edm::Event &evt, const edm::EventSetup &) {
-
   auto result = std::make_unique<TICLLayerTiles>();
   auto resultHFNose = std::make_unique<TICLLayerTilesHFNose>();
 
   edm::Handle<std::vector<reco::CaloCluster>> cluster_h;
-  if(doNose_) evt.getByToken(clusters_HFNose_token_, cluster_h);
-  else evt.getByToken(clusters_token_, cluster_h);
+  if (doNose_)
+    evt.getByToken(clusters_HFNose_token_, cluster_h);
+  else
+    evt.getByToken(clusters_token_, cluster_h);
 
   const auto &layerClusters = *cluster_h;
   int lcId = 0;
@@ -61,15 +64,19 @@ void TICLLayerTileProducer::produce(edm::Event &evt, const edm::EventSetup &) {
 
     assert(layer >= 0);
 
-    if (doNose_) resultHFNose->fill(layer, lc.eta(), lc.phi(), lcId);
-    else result->fill(layer, lc.eta(), lc.phi(), lcId);
+    if (doNose_)
+      resultHFNose->fill(layer, lc.eta(), lc.phi(), lcId);
+    else
+      result->fill(layer, lc.eta(), lc.phi(), lcId);
     LogDebug("TICLLayerTileProducer") << "Adding layerClusterId: " << lcId << " into bin [eta,phi]: [ "
                                       << (*result)[layer].etaBin(lc.eta()) << ", " << (*result)[layer].phiBin(lc.phi())
                                       << "] for layer: " << layer << std::endl;
     lcId++;
   }
-  if (doNose_) evt.put(std::move(resultHFNose));
-  else evt.put(std::move(result));
+  if (doNose_)
+    evt.put(std::move(resultHFNose));
+  else
+    evt.put(std::move(result));
 }
 
 void TICLLayerTileProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {

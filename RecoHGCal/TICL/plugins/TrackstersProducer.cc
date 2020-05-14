@@ -80,22 +80,22 @@ void TrackstersProducer::globalEndJob(TrackstersCache* cache) {
 }
 
 TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps, const TrackstersCache* cache)
-  : detector_(ps.getParameter<std::string>("detector")),
-    myAlgo_(std::make_unique<PatternRecognitionbyCA<TICLLayerTiles>>(ps, cache)),
-    myAlgoHFNose_(std::make_unique<PatternRecognitionbyCA<TICLLayerTilesHFNose>>(ps, cache)),
+    : detector_(ps.getParameter<std::string>("detector")),
+      myAlgo_(std::make_unique<PatternRecognitionbyCA<TICLLayerTiles>>(ps, cache)),
+      myAlgoHFNose_(std::make_unique<PatternRecognitionbyCA<TICLLayerTilesHFNose>>(ps, cache)),
       clusters_token_(consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_clusters"))),
       filtered_layerclusters_mask_token_(consumes<std::vector<float>>(ps.getParameter<edm::InputTag>("filtered_mask"))),
       original_layerclusters_mask_token_(consumes<std::vector<float>>(ps.getParameter<edm::InputTag>("original_mask"))),
       clustersTime_token_(
           consumes<edm::ValueMap<std::pair<float, float>>>(ps.getParameter<edm::InputTag>("time_layerclusters"))),
       layer_clusters_tiles_token_(consumes<TICLLayerTiles>(ps.getParameter<edm::InputTag>("layer_clusters_tiles"))),
-      layer_clusters_tiles_hfnose_token_(mayConsume<TICLLayerTilesHFNose>(ps.getParameter<edm::InputTag>("layer_clusters_hfnose_tiles"))),
+      layer_clusters_tiles_hfnose_token_(
+          mayConsume<TICLLayerTilesHFNose>(ps.getParameter<edm::InputTag>("layer_clusters_hfnose_tiles"))),
       seeding_regions_token_(
           consumes<std::vector<TICLSeedingRegion>>(ps.getParameter<edm::InputTag>("seeding_regions"))),
       filter_on_categories_(ps.getParameter<std::vector<int>>("filter_on_categories")),
       pid_threshold_(ps.getParameter<double>("pid_threshold")),
       itername_(ps.getParameter<std::string>("itername")) {
-
   doNose_ = (detector_ == "HFNose") ? true : false;
 
   produces<std::vector<Trackster>>();
@@ -159,8 +159,10 @@ void TrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 
   edm::Handle<TICLLayerTiles> layer_clusters_tiles_h;
   edm::Handle<TICLLayerTilesHFNose> layer_clusters_tiles_hfnose_h;
-  if(doNose_) evt.getByToken(layer_clusters_tiles_hfnose_token_, layer_clusters_tiles_hfnose_h);
-  else evt.getByToken(layer_clusters_tiles_token_, layer_clusters_tiles_h);
+  if (doNose_)
+    evt.getByToken(layer_clusters_tiles_hfnose_token_, layer_clusters_tiles_hfnose_h);
+  else
+    evt.getByToken(layer_clusters_tiles_token_, layer_clusters_tiles_h);
   const auto& layer_clusters_tiles = *layer_clusters_tiles_h;
   const auto& layer_clusters_hfnose_tiles = *layer_clusters_tiles_hfnose_h;
 
@@ -173,20 +175,17 @@ void TrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
     }
   }
 
-  if(doNose_) {
-
+  if (doNose_) {
     const typename PatternRecognitionAlgoBaseT<TICLLayerTilesHFNose>::Inputs inputHFNose(
         evt, es, layerClusters, inputClusterMask, layerClustersTimes, layer_clusters_hfnose_tiles, seeding_regions);
 
     myAlgoHFNose_->makeTracksters(inputHFNose, *result, seedToTrackstersAssociation);
 
   } else {
-
     const typename PatternRecognitionAlgoBaseT<TICLLayerTiles>::Inputs input(
         evt, es, layerClusters, inputClusterMask, layerClustersTimes, layer_clusters_tiles, seeding_regions);
 
     myAlgo_->makeTracksters(input, *result, seedToTrackstersAssociation);
-
   }
 
   // Now update the global mask and put it into the event

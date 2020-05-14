@@ -16,7 +16,6 @@ namespace edm {
 namespace ticl {
   template <typename TILES>
   class PatternRecognitionbyMultiClusters final : public PatternRecognitionAlgoBaseT<TILES> {
-
   public:
     PatternRecognitionbyMultiClusters(const edm::ParameterSet& conf, const CacheBase* cache)
         : PatternRecognitionAlgoBaseT<TILES>(conf, cache) {}
