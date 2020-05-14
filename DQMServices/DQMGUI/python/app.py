@@ -19,6 +19,7 @@ from logging.handlers import TimedRotatingFileHandler
 from rendering import GUIRenderer
 from service import GUIService
 from storage import GUIDataStore
+from importing import GUIImporter
 from aiohttp import web, WSCloseCode
 
 from data_types import RenderingOptions, MEDescription
@@ -216,6 +217,7 @@ async def render_overlay_v1(request):
 
 async def initialize_services():
     await GUIDataStore.initialize()
+    await GUIImporter.initialize()
     await GUIRenderer.initialize(workers=2)
 
 

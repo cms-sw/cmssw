@@ -2,12 +2,9 @@ import zlib
 import struct
 from collections import namedtuple, defaultdict
 
+from data_types import EfficiencyFlag, ScalarValue, QTest
+
 from DQMServices.DQMGUI import nanoroot
-
-
-EfficiencyFlag = namedtuple("EfficiencyFlag", ["name"])
-ScalarValue = namedtuple("ScalarValue", ["name", "value", "type"])
-QTest = namedtuple("QTest", ["name", "qtestname", "status", "result", "algorithm", "message"])
 
 
 # This class represents a ME in storage. It needs to be very small, since we 
@@ -63,7 +60,6 @@ class MEInfo:
         delta = deltacode(i.pack() for i in meinfos)
         buf = b''.join(delta)
         infoblob = zlib.compress(buf)
-        print (f"MEInfo: compression {len(buf)/len(infoblob)}, total {len(buf)}")
         return infoblob
     
     @staticmethod

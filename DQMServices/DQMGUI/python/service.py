@@ -9,8 +9,8 @@ from collections import defaultdict
 from async_lru import alru_cache
 
 from rendering import GUIRenderer
-from DQMServices.DQMGUI import nanoroot
 from storage import GUIDataStore
+from importing import GUIImporter
 from helpers import PathUtil
 from data_types import Sample, RootDir, RootObj, RootDirContent, RenderingInfo
 
@@ -21,6 +21,7 @@ class GUIService:
 
     store = GUIDataStore()
     renderer = GUIRenderer()
+    importer = GUIImporter()
     layouts_manager = LayoutManager()
 
     @classmethod
@@ -139,7 +140,15 @@ class GUIService:
     @alru_cache(maxsize=10)
     async def __get_melist(cls, run, dataset):
         lines = await cls.store.get_me_list_blob(run, dataset)
-        return lines
+
+        if lines == None:
+            # Import and retry
+            success = await cls.importer.import_blobs(run, dataset)
+            if success: 
+                # Retry
+                lines = await cls.store.get_me_list_blob(run, dataset)
+
+        return lines if lines else []
 
 
     @classmethod

@@ -30,7 +30,6 @@ class GUIDataStore:
     async def initialize(cls, connection_string='../data/directory.sqlite'):
         """Creates DB from schema if it doesn't exists and open a connection to it."""
 
-        # TODO: Close connection at some point!
         cls.__db = await aiosqlite.connect(connection_string)
         await cls.__db.executescript(cls.__DBSCHEMA)
 
@@ -87,6 +86,10 @@ class GUIDataStore:
         row = await cursor.fetchone()
         await cursor.close()
 
+        if not row:
+            # Blob doesn't exist, we should probably try to import
+            return None
+
         me_list = await cls.__me_list_from_blob(row[0])
         return me_list
 
@@ -119,6 +122,68 @@ class GUIDataStore:
         me_infos = await cls.__me_infos_from_blob(row[2])
 
         return (filename, me_list, me_infos)
+
+
+    @classmethod
+    async def get_samples_count(cls):
+        sql = 'SELECT COUNT(*) FROM samples;'
+        cursor = await cls.__db.execute(sql)
+        row = await cursor.fetchone()
+        await cursor.close()
+        return row[0]
+
+
+    @classmethod
+    async def get_sample_filename(cls, run, dataset):
+        """
+        Returns a full path to a ROOT file containing plots of a given sample. 
+        Returns None if given sample doesn't exist.
+        """
+
+        sql = 'SELECT filename FROM samples WHERE run = ? AND dataset = ?;'
+        cursor = await cls.__db.execute(sql, (int(run), dataset))
+        row = await cursor.fetchone()
+
+        await cursor.close()
+
+        if row:
+            return row[0]
+        else:
+            return None
+
+
+    @classmethod
+    async def add_samples(cls, samples):
+        """
+        Adds multiple samples to the database.
+        Sample is declared here: data_types.SampleFull
+        """
+
+        sql = 'INSERT OR REPLACE INTO samples VALUES(?,?,0,?,NULL,NULL);'
+        await cls.__db.executemany(sql, samples)
+        await cls.__db.commit()
+
+
+    @classmethod
+    async def add_blobs(cls, me_list_blob, offsets_blob, run, dataset, filename):
+        """Adds me list blob and offsets blob to a DB in a single transaction."""
+
+        await cls.__db.execute('BEGIN;')
+
+        await cls.__db.execute('INSERT OR IGNORE INTO menames (menameblob) VALUES (?);', (me_list_blob,))
+        cursor = await cls.__db.execute('SELECT menamesid FROM menames WHERE menameblob = ?;', (me_list_blob,))
+        row = await cursor.fetchone()
+        me_list_blob_id = row[0]
+
+        await cls.__db.execute('INSERT OR IGNORE INTO meoffsets (meoffsetsblob) VALUES (?);', (offsets_blob,))
+        cursor = await cls.__db.execute('SELECT meoffsetsid FROM meoffsets WHERE meoffsetsblob = ?;', (offsets_blob,))
+        row = await cursor.fetchone()
+        offsets_blob_id = row[0]
+
+        sql = 'UPDATE samples SET menamesid = ?, meoffsetsid = ? WHERE run = ? AND dataset = ? AND filename = ?;'
+        await cls.__db.execute(sql, (me_list_blob_id, offsets_blob_id, int(run), dataset, filename))
+
+        await cls.__db.execute('COMMIT;')
 
 
     @classmethod

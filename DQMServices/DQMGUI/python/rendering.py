@@ -8,8 +8,7 @@ import tempfile
 import subprocess
 
 from DQMServices.DQMGUI import nanoroot
-from data_types import RenderingInfo
-from meinfo import EfficiencyFlag, ScalarValue, QTest
+from data_types import RenderingInfo, EfficiencyFlag, ScalarValue, QTest
 
 
 class GUIRenderer:
@@ -72,14 +71,14 @@ class GUIRenderer:
         for info in rendering_infos:
             # TODO: to read int and float we don't need to go to the file
             with open(info.filename, 'rb') as root_file:
-                mm = mmap.mmap(root_file.fileno(), 0, prot=mmap.PROT_READ)
+                with mmap.mmap(root_file.fileno(), 0, prot=mmap.PROT_READ) as mm:
 
-                def get_object():
-                    # Possible return values: ScalarValue, EfficiencyFlag, QTest, bytes 
-                    return info.me_info.read(mm)
+                    def get_object():
+                        # Possible return values: ScalarValue, EfficiencyFlag, QTest, bytes 
+                        return info.me_info.read(mm)
 
-                # Executing on a different thread because it will potentially perform blocking IO on the mmapped file
-                info.root_object = await asyncio.get_event_loop().run_in_executor(None, get_object)
+                    # Executing on a different thread because it will potentially perform blocking IO on the mmapped file
+                    info.root_object = await asyncio.get_event_loop().run_in_executor(None, get_object)
 
         # We can render either ScalarValue or bytes (TH* object)
         root_object = rendering_infos[0].root_object

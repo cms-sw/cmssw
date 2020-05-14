@@ -7,9 +7,14 @@ from collections import namedtuple
 
 
 Sample = namedtuple('Sample', ['run', 'dataset'])
+SampleFull = namedtuple('SampleFull', ['dataset', 'run', 'file'])
 RootDir = namedtuple('RootDir', ['name', 'me_count'])
 RootObj = namedtuple('RootObj', ['name', 'path', 'layout'])
 RootDirContent = namedtuple('RootDirContent', ['dirs', 'objs'])
+
+EfficiencyFlag = namedtuple("EfficiencyFlag", ["name"])
+ScalarValue = namedtuple("ScalarValue", ["name", "value", "type"])
+QTest = namedtuple("QTest", ["name", "qtestname", "status", "result", "algorithm", "message"])
 
 
 class MEDescription:
