@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-def UpdatePuppiTuneV13(process):
+def UpdatePuppiTuneV14(process):
   #
   # Adapt for re-running PUPPI
   #
-  print("customizePuppiTune_cff::UpdatePuppiTuneV13: Recomputing PUPPI with Tune v13, slimmedJetsPuppi and slimmedMETsPuppi")
+  print("customizePuppiTune_cff::UpdatePuppiTuneV14: Recomputing PUPPI with Tune v14, slimmedJetsPuppi and slimmedMETsPuppi")
   from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask, addToProcessAndTask
   task = getPatAlgosToolsTask(process)
   from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppiesFromMiniAOD
@@ -26,15 +26,11 @@ def UpdatePuppiTuneV13(process):
   del process.updatedPatJetsPuppiJetSpecific
   process.puppiSequence = cms.Sequence(process.puppiMETSequence+process.fullPatMetSequencePuppi+process.patPuppiJetSpecificProducer+process.slimmedJetsPuppi)
   #
-  # Adapt for PUPPI tune V13
+  # Adapt for PUPPI tune V14
   #
-  process.puppi.UseFromPVLooseTight = False
-  process.puppi.UseDeltaZCut = False
   process.puppi.PtMaxCharged = 20.
-  process.puppi.EtaMaxCharged = 2.5
+  process.puppi.EtaMinUseDeltaZ = 2.4
   process.puppi.PtMaxNeutralsStartSlope = 20.
-  process.puppiNoLep.UseFromPVLooseTight = False
-  process.puppiNoLep.UseDeltaZCut = False
   process.puppiNoLep.PtMaxCharged = 20.
-  process.puppiNoLep.EtaMaxCharged = 2.5
+  process.puppiNoLep.EtaMinUseDeltaZ = 2.4
   process.puppiNoLep.PtMaxNeutralsStartSlope = 20.
