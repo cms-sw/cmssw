@@ -26,7 +26,7 @@ template <class TauType>
 std::string getTauTypeNameString(bool capitalise) {
   // this generic one shoudl never be called.
   throw cms::Exception("TauDiscriminationAgainstElectronDeadECALBase")
-    << "Unsupported TauType used. You must use either reco::PFTau or pat::Tau.";
+      << "Unsupported TauType used. You must use either reco::PFTau or pat::Tau.";
 }
 // template specialiazation to get the correct (PF/PAT)Tau type names
 template <>
@@ -54,9 +54,10 @@ public:
 
   double discriminate(const TauRef& tau) const override {
     if (verbosity_) {
-      edm::LogPrint(getTauTypeNameString<TauType>(true)+"AgainstEleDeadECAL") << "<"+getTauTypeNameString<TauType>(true)+"AgainstElectronDeadECAL::discriminate>:";
-      edm::LogPrint(getTauTypeNameString<TauType>(true)+"AgainstEleDeadECAL") << " moduleLabel = " << moduleLabel_;
-      edm::LogPrint(getTauTypeNameString<TauType>(true)+"AgainstEleDeadECAL")
+      edm::LogPrint(getTauTypeNameString<TauType>(true) + "AgainstEleDeadECAL")
+          << "<" + getTauTypeNameString<TauType>(true) + "AgainstElectronDeadECAL::discriminate>:";
+      edm::LogPrint(getTauTypeNameString<TauType>(true) + "AgainstEleDeadECAL") << " moduleLabel = " << moduleLabel_;
+      edm::LogPrint(getTauTypeNameString<TauType>(true) + "AgainstEleDeadECAL")
           << " tau: Pt = " << tau->pt() << ", eta = " << tau->eta() << ", phi = " << tau->phi();
     }
     double discriminator = 1.;
@@ -64,7 +65,8 @@ public:
       discriminator = 0.;
     }
     if (verbosity_) {
-      edm::LogPrint(getTauTypeNameString<TauType>(true)+"AgainstEleDeadECAL") << "--> discriminator = " << discriminator;
+      edm::LogPrint(getTauTypeNameString<TauType>(true) + "AgainstEleDeadECAL")
+          << "--> discriminator = " << discriminator;
     }
     return discriminator;
   }
@@ -79,7 +81,8 @@ private:
 };
 
 template <class TauType, class TauDiscriminator>
-void TauDiscriminationAgainstElectronDeadECALBase<TauType, TauDiscriminator>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void TauDiscriminationAgainstElectronDeadECALBase<TauType, TauDiscriminator>::fillDescriptions(
+    edm::ConfigurationDescriptions& descriptions) {
   // {pfReco,pat}TauDiscriminationAgainstElectronDeadECAL
   edm::ParameterSetDescription desc;
 
@@ -88,13 +91,16 @@ void TauDiscriminationAgainstElectronDeadECALBase<TauType, TauDiscriminator>::fi
   desc.add<bool>("extrapolateToECalEntrance", true);
   desc.add<int>("verbosity", 0);
 
-  TauDiscriminationProducerBase<TauType, TauDiscriminator>::fillProducerDescriptions(desc);  // inherited from the base-class
+  TauDiscriminationProducerBase<TauType, TauDiscriminator>::fillProducerDescriptions(
+      desc);  // inherited from the base-class
 
-  descriptions.add(getTauTypeNameString<TauType>(false)+"DiscriminationAgainstElectronDeadECAL", desc);//base
+  descriptions.add(getTauTypeNameString<TauType>(false) + "DiscriminationAgainstElectronDeadECAL", desc);  //base
 }
 
-typedef TauDiscriminationAgainstElectronDeadECALBase<reco::PFTau, reco::PFTauDiscriminator> PFRecoTauDiscriminationAgainstElectronDeadECAL;
-typedef TauDiscriminationAgainstElectronDeadECALBase<pat::Tau, pat::PATTauDiscriminator> PATTauDiscriminationAgainstElectronDeadECAL;
+typedef TauDiscriminationAgainstElectronDeadECALBase<reco::PFTau, reco::PFTauDiscriminator>
+    PFRecoTauDiscriminationAgainstElectronDeadECAL;
+typedef TauDiscriminationAgainstElectronDeadECALBase<pat::Tau, pat::PATTauDiscriminator>
+    PATTauDiscriminationAgainstElectronDeadECAL;
 
 DEFINE_FWK_MODULE(PFRecoTauDiscriminationAgainstElectronDeadECAL);
 DEFINE_FWK_MODULE(PATTauDiscriminationAgainstElectronDeadECAL);

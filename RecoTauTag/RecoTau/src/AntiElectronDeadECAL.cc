@@ -15,7 +15,12 @@
 #include "DataFormats/Math/interface/deltaR.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-AntiElectronDeadECAL::AntiElectronDeadECAL(const edm::ParameterSet& cfg) : minStatus_(cfg.getParameter<uint32_t>("minStatus")), dR2_(std::pow(cfg.getParameter<double>("dR"),2)), extrapolateToECalEntrance_(cfg.getParameter<bool>("extrapolateToECalEntrance")), verbosity_(cfg.getParameter<int>("verbosity")), isFirstEvent_(true) {}
+AntiElectronDeadECAL::AntiElectronDeadECAL(const edm::ParameterSet& cfg)
+    : minStatus_(cfg.getParameter<uint32_t>("minStatus")),
+      dR2_(std::pow(cfg.getParameter<double>("dR"), 2)),
+      extrapolateToECalEntrance_(cfg.getParameter<bool>("extrapolateToECalEntrance")),
+      verbosity_(cfg.getParameter<int>("verbosity")),
+      isFirstEvent_(true) {}
 
 AntiElectronDeadECAL::~AntiElectronDeadECAL() {}
 
@@ -97,8 +102,7 @@ void AntiElectronDeadECAL::updateBadTowers(const edm::EventSetup& es) {
   badTowers_.clear();
   for (auto it : nBadCrystals) {
     uint32_t key = it.first;
-    badTowers_.push_back(
-        TowerInfo(key, it.second, maxStatus[key], sumEta[key] / it.second, sumPhi[key] / it.second));
+    badTowers_.push_back(TowerInfo(key, it.second, maxStatus[key], sumEta[key] / it.second, sumPhi[key] / it.second));
   }
 
   isFirstEvent_ = false;
@@ -141,7 +145,7 @@ bool AntiElectronDeadECAL::operator()(const reco::Candidate* tau) const {
           << " tau: Pt = " << tau->pt() << ", eta at vtx = " << tau_eta << ", phi at vtx = " << tau_phi;
     }
   }
-  for (auto const & badTower : badTowers_) {
+  for (auto const& badTower : badTowers_) {
     if (deltaR2(badTower.eta_, badTower.phi_, tau_eta, tau_phi) < dR2_) {
       if (verbosity_) {
         edm::LogPrint("TauAgainstEleDeadECAL")
