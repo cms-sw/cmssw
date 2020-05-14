@@ -58,14 +58,14 @@ void __class__Worker::process(const edm::Event& iEvent) {
 @example_track
 @example_track  Handle<TrackCollection> tracks;
 @example_track  iEvent.getByLabel("ctfWithMaterialTracks", tracks);
-@example_track  for (TrackCollection::const_iterator itTrack = tracks->begin(); itTrack != tracks->end(); ++itTrack) {
+@example_track  for (const auto& track : *tracks) {
 @example_track    h_pt->Fill(itTrack->pt());
 @example_track  }
 
   //using namespace edmtest;
   //edm::Handle<ThingCollection> hThings;
   //iEvent.getByLabel("Thing", hThings);
-  //for (ThingCollection::const_iterator it = hThings->begin(); it != hThings->end(); ++it) {
+  //for (const auto& thing : *hThings) {
   //  h_a ->Fill(it->a);
   //}
 }
@@ -95,7 +95,7 @@ void __class__::terminate(TList& fromWorkers) {
   auto canvas = std::make_unique<TCanvas>();
   //{
   //  TObject* hist = fromWorkers.FindObject(kA);
-  //  if (0 != hist) {
+  //  if (nullptr != hist) {
   //    hist->Draw();
   //    canvas->SaveAs("a.jpg");
   //  } else {
@@ -105,7 +105,7 @@ void __class__::terminate(TList& fromWorkers) {
 @example_track
 @example_track  {
 @example_track    TObject* hist = fromWorkers.FindObject(kPt);
-@example_track    if (0 != hist) {
+@example_track    if (nullptr != hist) {
 @example_track      hist->Draw();
 @example_track      canvas->SaveAs("pt.jpg");
 @example_track    } else {
