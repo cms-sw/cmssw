@@ -463,14 +463,16 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
       // Pedestals and gains
       const HcalCalibrations& calib = cond.getHcalCalibrations(cell);
       const HcalCalibrationWidths& calibWidth = cond.getHcalCalibrationWidths(cell);
-      for (int capid=0; capid<4; ++capid) {
-        pedsAndGains[capid] = HBHEPipelinePedestalAndGain(
-          calib.pedestal(capid), calibWidth.pedestal(capid),
-          calib.effpedestal(capid), calibWidth.effpedestal(capid),
-          calib.respcorrgain(capid), calibWidth.gain(capid));
+      for (int capid = 0; capid < 4; ++capid) {
+        pedsAndGains[capid] = HBHEPipelinePedestalAndGain(calib.pedestal(capid),
+                                                          calibWidth.pedestal(capid),
+                                                          calib.effpedestal(capid),
+                                                          calibWidth.effpedestal(capid),
+                                                          calib.respcorrgain(capid),
+                                                          calibWidth.gain(capid));
       }
-      properties = HBHEChannelProperties(&calib, param_ts, channelCoder, shape,
-                                         siPMParameter, pedsAndGains, taggedBadByDb);
+      properties =
+          HBHEChannelProperties(&calib, param_ts, channelCoder, shape, siPMParameter, pedsAndGains, taggedBadByDb);
     }
 
     // ADC decoding tool
@@ -542,12 +544,17 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
       //always use QIE-only pedestal for this computation
       const double rawCharge = rcfs.getRawCharge(cs[inputTS], pAndGain.pedestal(false));
       const float t = getTDCTimeFromSample(s);
-      const float dfc = getDifferentialChargeGain(*properties.channelCoder, *properties.shape,
-                                                  adc, capid, channelInfo->hasTimeInfo());
-      channelInfo->setSample(copyTS, adc, dfc, rawCharge,
+      const float dfc = getDifferentialChargeGain(
+          *properties.channelCoder, *properties.shape, adc, capid, channelInfo->hasTimeInfo());
+      channelInfo->setSample(copyTS,
+                             adc,
+                             dfc,
+                             rawCharge,
                              pAndGain.pedestal(saveEffectivePeds),
                              pAndGain.pedestalWidth(saveEffectivePeds),
-                             pAndGain.gain(), pAndGain.gainWidth(), t);
+                             pAndGain.gain(),
+                             pAndGain.gainWidth(),
+                             t);
       if (inputTS == soi)
         soiCapid = capid;
     }
@@ -712,10 +719,11 @@ void HBHEPhase1Reconstructor::produce(edm::Event& e, const edm::EventSetup& even
 }
 
 // ------------ method called when starting to processes a lumi block  ------------
-void HBHEPhase1Reconstructor::beginLuminosityBlock(edm::LuminosityBlock const&,
-                                                   edm::EventSetup const&) {
+void HBHEPhase1Reconstructor::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
   // Channel quality can change by lumi block. Reset it for lazy lookup.
-  for (auto &p : channelProperties_) {p.qualityUpdated = false;}
+  for (auto& p : channelProperties_) {
+    p.qualityUpdated = false;
+  }
 }
 
 // ------------ method called when starting to processes a run  ------------
