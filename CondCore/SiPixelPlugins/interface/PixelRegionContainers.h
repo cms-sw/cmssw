@@ -251,10 +251,12 @@ namespace PixelRegions {
         if (!m_isLog) {
           plot.second->GetYaxis()->SetRangeUser(0., plot.second->GetMaximum() * 1.30);
         } else {
-          plot.second->GetYaxis()->SetRangeUser(0.1, plot.second->GetMaximum() * 10.);
+          plot.second->GetYaxis()->SetRangeUser(0.1, plot.second->GetMaximum() * 100.);
         }
         plot.second->SetLineColor(linecolor);
-        plot.second->SetFillColor(fillcolor);
+        if (fillcolor > 0) {
+          plot.second->SetFillColor(fillcolor);
+        }
         plot.second->SetMarkerStyle(20);
         plot.second->SetMarkerSize(1);
         SiPixelPI::makeNicePlotStyle(plot.second.get());
@@ -272,7 +274,11 @@ namespace PixelRegions {
         if (st) {
           st->SetTextSize(0.03);
           st->SetLineColor(10);
-          st->SetTextColor(plot.second->GetFillColor());
+          if (plot.second->GetFillColor() != 0) {
+            st->SetTextColor(plot.second->GetFillColor());
+          } else {
+            st->SetTextColor(plot.second->GetLineColor());
+          }
           SiPixelPI::adjustStats(st, 0.13, 0.85 - index * 0.08, 0.36, 0.93 - index * 0.08);
         }
       }
