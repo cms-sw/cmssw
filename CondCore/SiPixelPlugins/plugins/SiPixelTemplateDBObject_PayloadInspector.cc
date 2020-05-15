@@ -186,7 +186,7 @@ namespace {
         ltx.SetTextAlign(11);
         ltx.DrawLatexNDC(gPad->GetLeftMargin(),
                          1 - gPad->GetTopMargin() + 0.01,
-                         (tagname + ",IOV:" + std::to_string(std::get<0>(iov))).c_str());
+                         (tagname + ", IOV:" + std::to_string(std::get<0>(iov))).c_str());
 
         std::string fileName(m_imageFileName);
         canvas.SaveAs(fileName.c_str());
