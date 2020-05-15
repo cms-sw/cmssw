@@ -54,8 +54,6 @@ public:
   /// Perform client diagnostic operations
   void performClientDiagnostic(DQMStore::IGetter &);
 
-  void endRun(edm::Run const &run, edm::EventSetup const &c) override;
-
 protected:
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
   void dqmEndLuminosityBlock(DQMStore::IBooker &,
@@ -63,8 +61,10 @@ protected:
                              edm::LuminosityBlock const &,
                              edm::EventSetup const &) override;
 
+  void dqmBeginLuminosityBlock(edm::LuminosityBlock const &lumiSeg, edm::EventSetup const &);
+
 private:
-  int nevents;
+  int nLSs;
   unsigned int nLumiSegs;
   // switch on for detailed analysis
   bool detailedAnalysis;
@@ -84,11 +84,8 @@ private:
   std::map<std::pair<int, int>, MonitorElement *> chi2Histos;
   std::map<std::pair<int, int>, MonitorElement *> segmRecHitHistos;
   std::map<int, MonitorElement *> summaryHistos;
-  bool normalizeHistoPlots;
   // top folder for the histograms in DQMStore
   std::string topHistoFolder;
-  // hlt DQM mode
-  bool hltDQMMode;
 };
 
 #endif
