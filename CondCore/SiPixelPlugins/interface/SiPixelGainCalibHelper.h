@@ -451,6 +451,207 @@ namespace gainCalibHelper {
   };
 
   /*******************************************************************
+    1d histograms comparison per region of SiPixelGainCalibration for Gains of 2 IOV
+  ********************************************************************/
+  template <bool isBarrel, gainCalibPI::type myType, int ntags, class PayloadType>
+  class SiPixelGainCalibrationValuesComparisonPerRegion
+      : public cond::payloadInspector::PlotImage<PayloadType, cond::payloadInspector::MULTI_IOV, ntags> {
+  public:
+    SiPixelGainCalibrationValuesComparisonPerRegion()
+        : cond::payloadInspector::PlotImage<PayloadType, cond::payloadInspector::MULTI_IOV, ntags>(
+              Form("SiPixelGainCalibration %s Values Per Region %i tag(s)", TypeName[myType], ntags)) {
+      cond::payloadInspector::PlotBase::addInputParam("SetLog");
+
+      if constexpr (std::is_same_v<PayloadType, SiPixelGainCalibrationOffline>) {
+        isForHLT_ = false;
+        label_ = "SiPixelGainCalibrationOffline_PayloadInspector";
+      } else {
+        isForHLT_ = true;
+        label_ = "SiPixelGainCalibrationForHLT_PayloadInspector";
+      }
+    }
+
+    bool fill() override {
+      gStyle->SetOptStat("mr");
+
+      COUT << "ntags: " << ntags << " this->m_plotAnnotations.ntags: " << this->m_plotAnnotations.ntags << std::endl;
+
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
+      auto tagname1 = cond::payloadInspector::PlotBase::getTag<0>().name;
+      std::string tagname2 = "";
+      auto firstiov = theIOVs.front();
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
+
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
+
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
+        tagname2 = cond::payloadInspector::PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
+
+      // parse first if log
+      bool setLog(false);
+      auto paramValues = cond::payloadInspector::PlotBase::inputParamValues();
+      auto ip = paramValues.find("SetLog");
+      if (ip != paramValues.end()) {
+        auto answer = boost::lexical_cast<std::string>(ip->second);
+        if (!SiPixelPI::checkAnswerOK(answer, setLog)) {
+          throw cms::Exception(label_)
+              << "\nERROR: " << answer
+              << " is not a valid setting for this parameter, please use True,False,1,0,Yes,No \n\n";
+        }
+      }
+
+      std::shared_ptr<PayloadType> last_payload = this->fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<PayloadType> first_payload = this->fetchPayload(std::get<1>(firstiov));
+
+      std::string lastIOVsince = std::to_string(std::get<0>(lastiov));
+      std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
+
+      std::vector<uint32_t> f_detids, l_detids;
+      last_payload->getDetIds(l_detids);
+      first_payload->getDetIds(f_detids);
+
+      float minimum(9999.);
+      float maximum(-9999.);
+
+      switch (myType) {
+        case gainCalibPI::t_gain:
+          maximum = std::max(last_payload->getGainHigh(), first_payload->getGainHigh());
+          minimum = std::min(last_payload->getGainLow(), first_payload->getGainLow());
+          break;
+        case gainCalibPI::t_pedestal:
+          maximum = std::max(last_payload->getPedHigh(), first_payload->getPedHigh());
+          minimum = std::min(last_payload->getPedLow(), first_payload->getPedLow());
+          break;
+        default:
+          edm::LogError(label_) << "Unrecognized type " << myType << std::endl;
+          break;
+      }
+
+      TCanvas canvas("Canv", "Canv", isBarrel ? 1400 : 1800, 1200);
+      if (std::max(l_detids.size(), f_detids.size()) > SiPixelPI::phase1size) {
+        SiPixelPI::displayNotSupported(canvas, std::max(f_detids.size(), l_detids.size()));
+        std::string fileName(this->m_imageFileName);
+        canvas.SaveAs(fileName.c_str());
+        return false;
+      }
+
+      canvas.Divide(isBarrel ? 2 : 4, isBarrel ? 2 : 3);
+      canvas.cd();
+
+      const char* path_toTopologyXML = (l_detids.size() == SiPixelPI::phase0size)
+                                           ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
+                                           : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      auto l_tTopo =
+          StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
+
+      auto l_myPlots = PixelRegions::PixelRegionContainers(&l_tTopo, (l_detids.size() == SiPixelPI::phase1size));
+      l_myPlots.bookAll(
+          Form("Last SiPixel Gain Calibration %s - %s", (isForHLT_ ? "ForHLT" : "Offline"), TypeName[myType]),
+          Form("per %s %s", (isForHLT_ ? "Column" : "Pixel"), TypeName[myType]),
+          Form("# %ss", (isForHLT_ ? "column" : "pixel")),
+          200,
+          minimum,
+          maximum);
+
+      path_toTopologyXML = (f_detids.size() == SiPixelPI::phase0size)
+                               ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
+                               : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      auto f_tTopo =
+          StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
+
+      auto f_myPlots = PixelRegions::PixelRegionContainers(&f_tTopo, (f_detids.size() == SiPixelPI::phase1size));
+      f_myPlots.bookAll(
+          Form("First SiPixel Gain Calibration %s - %s", (isForHLT_ ? "ForHLT" : "Offline"), TypeName[myType]),
+          Form("per %s %s", (isForHLT_ ? "Column" : "Pixel"), TypeName[myType]),
+          Form("# %ss", (isForHLT_ ? "column" : "pixel")),
+          200,
+          minimum,
+          maximum);
+
+      // fill the histograms
+      for (const auto& pixelId : PixelRegions::PixelIDs) {
+        auto f_wantedDets = PixelRegions::attachedDets(pixelId, &f_tTopo, (f_detids.size() == SiPixelPI::phase1size));
+        auto l_wantedDets = PixelRegions::attachedDets(pixelId, &l_tTopo, (l_detids.size() == SiPixelPI::phase1size));
+        gainCalibPI::fillTheHisto(first_payload, f_myPlots.getHistoFromMap(pixelId), myType, f_wantedDets);
+        gainCalibPI::fillTheHisto(last_payload, l_myPlots.getHistoFromMap(pixelId), myType, l_wantedDets);
+      }
+
+      if (setLog) {
+        f_myPlots.setLogScale();
+        l_myPlots.setLogScale();
+      }
+
+      l_myPlots.beautify(kRed, -1);
+      f_myPlots.beautify(kAzure, -1);
+
+      l_myPlots.draw(canvas, isBarrel, "HIST", true);
+      f_myPlots.draw(canvas, isBarrel, "HISTsames", true);
+
+      // rescale the y-axis ranges in order to fit the canvas
+      l_myPlots.rescaleMax(f_myPlots);
+
+      // done dealing with IOVs
+      auto colorTag = isBarrel ? PixelRegions::L1 : PixelRegions::Rm1l;
+      std::unique_ptr<TLegend> legend;
+      if (this->m_plotAnnotations.ntags == 2) {
+        legend = std::make_unique<TLegend>(0.36, 0.86, 0.94, 0.92);
+        legend->AddEntry(l_myPlots.getHistoFromMap(colorTag).get(), ("#color[2]{" + tagname2 + "}").c_str(), "F");
+        legend->AddEntry(f_myPlots.getHistoFromMap(colorTag).get(), ("#color[4]{" + tagname1 + "}").c_str(), "F");
+        legend->SetTextSize(0.024);
+      } else {
+        legend = std::make_unique<TLegend>(0.58, 0.80, 0.90, 0.92);
+        legend->AddEntry(l_myPlots.getHistoFromMap(colorTag).get(), ("#color[2]{" + lastIOVsince + "}").c_str(), "F");
+        legend->AddEntry(f_myPlots.getHistoFromMap(colorTag).get(), ("#color[4]{" + firstIOVsince + "}").c_str(), "F");
+        legend->SetTextSize(0.040);
+      }
+      legend->SetLineColor(10);
+
+      unsigned int maxPads = isBarrel ? 4 : 12;
+      for (unsigned int c = 1; c <= maxPads; c++) {
+        canvas.cd(c);
+        SiPixelPI::adjustCanvasMargins(canvas.cd(c), 0.06, 0.12, 0.12, 0.05);
+        legend->Draw("same");
+        canvas.cd(c)->Update();
+      }
+
+      f_myPlots.stats(0);
+      l_myPlots.stats(1);
+
+      auto ltx = TLatex();
+      ltx.SetTextFont(62);
+      ltx.SetTextSize(0.05);
+      ltx.SetTextAlign(11);
+
+      for (unsigned int c = 1; c <= maxPads; c++) {
+        auto index = isBarrel ? c - 1 : c + 3;
+        canvas.cd(c);
+        auto leftX = setLog ? 0. : 0.1;
+        ltx.DrawLatexNDC(gPad->GetLeftMargin() + leftX,
+                         1 - gPad->GetTopMargin() + 0.01,
+                         (PixelRegions::IDlabels.at(index) + " : #color[4]{" + std::to_string(std::get<0>(firstiov)) +
+                          "} vs #color[2]{" + std::to_string(std::get<0>(lastiov)) + "}")
+                             .c_str());
+      }
+
+      std::string fileName(this->m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }
+
+  protected:
+    bool isForHLT_;
+    std::string label_;
+  };
+
+  /*******************************************************************
     1d histogram of SiPixelGainCalibration for Gain/Pedestals
     correlation of 1 IOV
   ********************************************************************/
