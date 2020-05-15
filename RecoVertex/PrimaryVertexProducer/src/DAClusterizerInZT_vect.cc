@@ -74,7 +74,7 @@ DAClusterizerInZT_vect::DAClusterizerInZT_vect(const edm::ParameterSet& conf) {
 
   if (convergence_mode_ > 1) {
     edm::LogWarning("DAClusterizerinZT_vect")
-        << "DAClusterizerInZT_vect: invalid convergece_mode" << convergence_mode_ << "  reset to default " << 0;
+        << "DAClusterizerInZT_vect: invalid convergence_mode" << convergence_mode_ << "  reset to default " << 0;
     convergence_mode_ = 0;
   }
 
