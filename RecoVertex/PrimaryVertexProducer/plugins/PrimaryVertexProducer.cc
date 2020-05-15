@@ -416,7 +416,7 @@ void PrimaryVertexProducer::fillDescriptions(edm::ConfigurationDescriptions& des
     desc.add<edm::ParameterSetDescription>("TkClusParameters", psd0);
   }
 
-  descriptions.add("offlinePrimaryVertices", desc);
+  descriptions.add("defaultPrimaryVertices", desc);
 }
 
 //define this as a plug-in
