@@ -338,7 +338,12 @@ namespace gainCalibHelper {
       auto paramValues = cond::payloadInspector::PlotBase::inputParamValues();
       auto ip = paramValues.find("SetLog");
       if (ip != paramValues.end()) {
-        setLog = boost::lexical_cast<bool>(ip->second);
+        auto answer = boost::lexical_cast<std::string>(ip->second);
+        if (!SiPixelPI::checkAnswerOK(answer, setLog)) {
+          throw cms::Exception(label_)
+              << "\nERROR: " << answer
+              << " is not a valid setting for this parameter, please use True,False,1,0,Yes,No \n\n";
+        }
       }
 
       std::shared_ptr<PayloadType> payload = this->fetchPayload(std::get<1>(iov));

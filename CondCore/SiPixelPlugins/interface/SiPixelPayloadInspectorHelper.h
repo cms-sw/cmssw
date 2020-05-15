@@ -1002,5 +1002,17 @@ namespace SiPixelPI {
     return std::make_pair(min.second, max.second);
   }
 
+  /*--------------------------------------------------------------------*/
+  bool checkAnswerOK(std::string& answer, bool& result)
+  /*--------------------------------------------------------------------*/
+  {
+    std::transform(answer.begin(), answer.end(), answer.begin(), [](unsigned char x) { return ::tolower(x); });
+
+    bool answer_valid = (answer == "y") || (answer == "n") || (answer == "yes") || (answer == "no") ||
+                        (answer == "true") || (answer == "false") || (answer == "1") || (answer == "0");
+
+    result = answer_valid && (answer[0] == 'y' || answer[0] == 't' || answer[0] == '1');
+    return answer_valid;
+  }
 };  // namespace SiPixelPI
 #endif
