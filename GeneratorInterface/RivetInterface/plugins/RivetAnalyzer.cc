@@ -107,8 +107,7 @@ void RivetAnalyzer::beginLuminosityBlock(const edm::LuminosityBlock& iLumi, cons
   // need to reset the default weight name (or plotting will fail)
   if (!_weightNames.empty()) {
     _weightNames[0] = "";
-  }
-  else { // Summer16 samples have 1 weight stored in HepMC but no weightNames
+  } else {  // Summer16 samples have 1 weight stored in HepMC but no weightNames
     _weightNames.push_back("");
   }
 }
