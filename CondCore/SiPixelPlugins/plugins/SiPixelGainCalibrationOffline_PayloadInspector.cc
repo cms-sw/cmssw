@@ -55,6 +55,54 @@ namespace {
       gainCalibHelper::SiPixelGainCalibrationValueComparisonTwoTags<gainCalibHelper::gainCalibPI::t_pedestal,
                                                                     SiPixelGainCalibrationOffline>;
 
+  using SiPixelGainCalibOfflineGainComparisonBarrelSingleTag =
+      gainCalibHelper::SiPixelGainCalibrationValuesComparisonPerRegion<true,
+                                                                       gainCalibHelper::gainCalibPI::t_gain,
+                                                                       1,
+                                                                       SiPixelGainCalibrationOffline>;
+
+  using SiPixelGainCalibOfflinePedestalComparisonBarrelSingleTag =
+      gainCalibHelper::SiPixelGainCalibrationValuesComparisonPerRegion<true,
+                                                                       gainCalibHelper::gainCalibPI::t_pedestal,
+                                                                       1,
+                                                                       SiPixelGainCalibrationOffline>;
+
+  using SiPixelGainCalibOfflineGainComparisonBarrelTwoTags =
+      gainCalibHelper::SiPixelGainCalibrationValuesComparisonPerRegion<true,
+                                                                       gainCalibHelper::gainCalibPI::t_gain,
+                                                                       2,
+                                                                       SiPixelGainCalibrationOffline>;
+
+  using SiPixelGainCalibOfflinePedestalComparisonBarrelTwoTags =
+      gainCalibHelper::SiPixelGainCalibrationValuesComparisonPerRegion<true,
+                                                                       gainCalibHelper::gainCalibPI::t_pedestal,
+                                                                       2,
+                                                                       SiPixelGainCalibrationOffline>;
+
+  using SiPixelGainCalibOfflineGainComparisonEndcapSingleTag =
+      gainCalibHelper::SiPixelGainCalibrationValuesComparisonPerRegion<false,
+                                                                       gainCalibHelper::gainCalibPI::t_gain,
+                                                                       1,
+                                                                       SiPixelGainCalibrationOffline>;
+
+  using SiPixelGainCalibOfflinePedestalComparisonEndcapSingleTag =
+      gainCalibHelper::SiPixelGainCalibrationValuesComparisonPerRegion<false,
+                                                                       gainCalibHelper::gainCalibPI::t_pedestal,
+                                                                       1,
+                                                                       SiPixelGainCalibrationOffline>;
+
+  using SiPixelGainCalibOfflineGainComparisonEndcapTwoTags =
+      gainCalibHelper::SiPixelGainCalibrationValuesComparisonPerRegion<false,
+                                                                       gainCalibHelper::gainCalibPI::t_gain,
+                                                                       2,
+                                                                       SiPixelGainCalibrationOffline>;
+
+  using SiPixelGainCalibOfflinePedestalComparisonEndcapTwoTags =
+      gainCalibHelper::SiPixelGainCalibrationValuesComparisonPerRegion<false,
+                                                                       gainCalibHelper::gainCalibPI::t_pedestal,
+                                                                       2,
+                                                                       SiPixelGainCalibrationOffline>;
+
   using SiPixelGainCalibOfflineGainsBPIXMap =
       gainCalibHelper::SiPixelGainCalibrationBPIXMap<gainCalibHelper::gainCalibPI::t_gain,
                                                      SiPixelGainCalibrationOffline>;
@@ -95,6 +143,19 @@ PAYLOAD_INSPECTOR_MODULE(SiPixelGainCalibrationOffline) {
   PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibrationOfflineCorrelations);
   PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibrationOfflineGainsByPart);
   PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibrationOfflinePedestalsByPart);
+
+  PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibOfflineGainComparisonBarrelSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibOfflineGainComparisonBarrelTwoTags);
+
+  PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibOfflinePedestalComparisonBarrelSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibOfflinePedestalComparisonBarrelTwoTags);
+
+  PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibOfflineGainComparisonEndcapSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibOfflineGainComparisonEndcapTwoTags);
+
+  PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibOfflinePedestalComparisonEndcapSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibOfflinePedestalComparisonEndcapTwoTags);
+
   PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibOfflineGainComparisonSingleTag)
   PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibOfflinePedestalComparisonSingleTag);
   PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibOfflineGainComparisonTwoTags);
