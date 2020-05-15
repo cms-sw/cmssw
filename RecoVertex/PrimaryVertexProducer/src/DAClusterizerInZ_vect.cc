@@ -66,13 +66,13 @@ DAClusterizerInZ_vect::DAClusterizerInZ_vect(const edm::ParameterSet& conf) {
 
   if (convergence_mode_ > 1) {
     edm::LogWarning("DAClusterizerinZ_vect")
-        << "DAClusterizerInZ_vect: invalid convergece_mode" << convergence_mode_ << "  reset do default " << 0;
+        << "DAClusterizerInZ_vect: invalid convergece_mode" << convergence_mode_ << "  reset to default " << 0;
     convergence_mode_ = 0;
   }
 
   if (Tmin == 0) {
     edm::LogWarning("DAClusterizerinZ_vect")
-        << "DAClusterizerInZ_vect: invalid Tmin" << Tmin << "  reset do default " << 1. / betamax_;
+        << "DAClusterizerInZ_vect: invalid Tmin" << Tmin << "  reset to default " << 1. / betamax_;
   } else {
     betamax_ = 1. / Tmin;
   }
@@ -204,7 +204,7 @@ DAClusterizerInZ_vect::track_t DAClusterizerInZ_vect::fill(const vector<reco::Tr
       if (edm::isNotFinite(t_pi) || t_pi < std::numeric_limits<double>::epsilon())
         continue;  // usually is > 0.99
     }
-    LogTrace("DAClusterizerinZ_vectorized") << t_z << ' ' << t_dz2 << ' ' << t_pi;
+    LogTrace("DAClusterizerinZ_vect") << t_z << ' ' << t_dz2 << ' ' << t_pi;
     tks.addItemSorted(t_z, t_dz2, &(*it), t_pi);
   }
 
@@ -903,7 +903,7 @@ vector<TransientVertex> DAClusterizerInZ_vect::vertices(const vector<reco::Trans
   verify(y, tks);
 
   if (DEBUGLEVEL > 0) {
-    std::cout << "DAClusterizerInZT_vect::vertices :"
+    std::cout << "DAClusterizerInZ_vect::vertices :"
               << "last round of splitting" << std::endl;
   }
 #endif
@@ -951,7 +951,7 @@ vector<TransientVertex> DAClusterizerInZ_vect::vertices(const vector<reco::Trans
 #ifdef DEBUG
   verify(y, tks);
   if (DEBUGLEVEL > 0) {
-    std::cout << "DAClusterizerInZT_vect::vertices :"
+    std::cout << "DAClusterizerInZ_vect::vertices :"
               << "merging with outlier rejection at T=" << 1 / beta << std::endl;
   }
   if (DEBUGLEVEL > 2)
@@ -1067,7 +1067,7 @@ vector<vector<reco::TransientTrack> > DAClusterizerInZ_vect::clusterize(
   if (DEBUGLEVEL > 0) {
     std::cout << "###################################################" << endl;
     std::cout << "# vectorized DAClusterizerInZ_vect::clusterize   nt=" << tracks.size() << endl;
-    std::cout << "# DAClusterizerInZ::clusterize   pv.size=" << pv.size() << endl;
+    std::cout << "# DAClusterizerInZ_vect::clusterize   pv.size=" << pv.size() << endl;
     std::cout << "###################################################" << endl;
   }
 #endif

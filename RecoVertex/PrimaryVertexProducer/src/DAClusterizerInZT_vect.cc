@@ -64,9 +64,9 @@ DAClusterizerInZT_vect::DAClusterizerInZT_vect(const edm::ParameterSet& conf) {
     std::cout << "DAClusterizerInZT_vect: dzCutOff = " << dzCutOff_ << std::endl;
     std::cout << "DAClusterizerInZT_vect: dtCutoff = " << dtCutOff_ << std::endl;
     std::cout << "DAClusterizerInZT_vect: zrange = " << sel_zrange_ << std::endl;
-    std::cout << "DAClusterizerinZ_vect: convergence mode = " << convergence_mode_ << std::endl;
-    std::cout << "DAClusterizerinZ_vect: delta_highT = " << delta_highT_ << std::endl;
-    std::cout << "DAClusterizerinZ_vect: delta_lowT = " << delta_lowT_ << std::endl;
+    std::cout << "DAClusterizerinZT_vect: convergence mode = " << convergence_mode_ << std::endl;
+    std::cout << "DAClusterizerinZT_vect: delta_highT = " << delta_highT_ << std::endl;
+    std::cout << "DAClusterizerinZT_vect: delta_lowT = " << delta_lowT_ << std::endl;
   }
 #ifdef DEBUG
   std::cout << "DAClusterizerinZT_vect: DEBUGLEVEL " << DEBUGLEVEL << std::endl;
@@ -74,13 +74,13 @@ DAClusterizerInZT_vect::DAClusterizerInZT_vect(const edm::ParameterSet& conf) {
 
   if (convergence_mode_ > 1) {
     edm::LogWarning("DAClusterizerinZT_vect")
-        << "DAClusterizerInZT_vect: invalid convergece_mode" << convergence_mode_ << "  reset do default " << 0;
+        << "DAClusterizerInZT_vect: invalid convergece_mode" << convergence_mode_ << "  reset to default " << 0;
     convergence_mode_ = 0;
   }
 
   if (minT == 0) {
     edm::LogWarning("DAClusterizerinZT_vect")
-        << "DAClusterizerInZT_vect: invalid Tmin" << minT << "  reset do default " << 1. / betamax_;
+        << "DAClusterizerInZT_vect: invalid Tmin" << minT << "  reset to default " << 1. / betamax_;
   } else {
     betamax_ = 1. / minT;
   }
@@ -1331,7 +1331,7 @@ vector<vector<reco::TransientTrack> > DAClusterizerInZT_vect::clusterize(
   if (DEBUGLEVEL > 0) {
     std::cout << "###################################################" << endl;
     std::cout << "# vectorized DAClusterizerInZT_vect::clusterize   nt=" << tracks.size() << endl;
-    std::cout << "# DAClusterizerInZT::clusterize   pv.size=" << pv.size() << endl;
+    std::cout << "# DAClusterizerInZT_vect::clusterize   pv.size=" << pv.size() << endl;
     std::cout << "###################################################" << endl;
   }
 #endif
