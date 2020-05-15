@@ -362,8 +362,8 @@ void GEMGeometryBuilderFromDDD::build(GEMGeometry& theGeometry,
       superChambers.push_back(gemSuperChamber);
     }
 
-//  GEMChamber* gemChamber = ((detIdCh.station() == GEMDetId::minStationId0) ? nullptr : buildChamber(fv, detIdCh));
-    GEMChamber* gemChamber =  buildChamber(fv, detIdCh);
+    //  GEMChamber* gemChamber = ((detIdCh.station() == GEMDetId::minStationId0) ? nullptr : buildChamber(fv, detIdCh));
+    GEMChamber* gemChamber = buildChamber(fv, detIdCh);
 
     fv.down();
     fv.down();
