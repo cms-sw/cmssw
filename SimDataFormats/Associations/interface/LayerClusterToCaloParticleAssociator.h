@@ -15,9 +15,7 @@ namespace hgcal {
 
   class LayerClusterToCaloParticleAssociator {
   public:
-#ifndef __GCCXML__
     LayerClusterToCaloParticleAssociator(std::unique_ptr<hgcal::LayerClusterToCaloParticleAssociatorBaseImpl>);
-#endif
     LayerClusterToCaloParticleAssociator() = default;
     LayerClusterToCaloParticleAssociator(LayerClusterToCaloParticleAssociator &&) = default;
     LayerClusterToCaloParticleAssociator &operator=(LayerClusterToCaloParticleAssociator &&) = default;

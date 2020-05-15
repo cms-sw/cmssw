@@ -19,6 +19,10 @@ namespace hgcal {
     bool operator==(const detIdInfoInCluster &o) const { return clusterId == o.clusterId; };
     long unsigned int clusterId;
     float fraction;
+    detIdInfoInCluster(long unsigned int cId, float fr) {
+      clusterId = cId;
+      fraction = fr;
+    }
   };
 
   struct detIdInfoInMultiCluster {

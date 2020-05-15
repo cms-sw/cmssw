@@ -1,9 +1,10 @@
-#ifndef __RecoLocalCalo_HGCRecProducers_HGCalRecHitMapProducer_H__
 #define __RecoLocalCalo_HGCRecProducers_HGCalRecHitMapProducer_H__
 
 // user include files
+#include <map>
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -14,13 +15,13 @@
 
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 
-class HGCalRecHitMapProducer : public edm::stream::EDProducer<> {
+class HGCalRecHitMapProducer : public edm::global::EDProducer<> {
 public:
   HGCalRecHitMapProducer(const edm::ParameterSet&);
   ~HGCalRecHitMapProducer() override {}
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
 private:
   edm::EDGetTokenT<HGCRecHitCollection> hits_ee_token;
@@ -46,7 +47,7 @@ void HGCalRecHitMapProducer::fillDescriptions(edm::ConfigurationDescriptions& de
   descriptions.add("hgcalRecHitMapProducer", desc);
 }
 
-void HGCalRecHitMapProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
+void HGCalRecHitMapProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetup& es) const {
   std::unique_ptr<std::map<DetId, const HGCRecHit*>> hitMap(new std::map<DetId, const HGCRecHit*>);
   edm::Handle<HGCRecHitCollection> ee_hits;
   edm::Handle<HGCRecHitCollection> fh_hits;
@@ -68,5 +69,3 @@ void HGCalRecHitMapProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   }
   evt.put(std::move(hitMap));
 }
-
-#endif
