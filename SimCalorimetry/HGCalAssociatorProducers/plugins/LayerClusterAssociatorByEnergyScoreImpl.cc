@@ -62,7 +62,8 @@ hgcal::association LayerClusterAssociatorByEnergyScoreImpl::makeConnections(
       const auto& hits_and_fractions = simCluster.hits_and_fractions();
       for (const auto& it_haf : hits_and_fractions) {
         const auto hitid = (it_haf.first);
-        const auto cpLayerId = recHitTools_->getLayerWithOffset(hitid) + layers_ * ((recHitTools_->zside(hitid) + 1) >> 1) - 1;
+        const auto cpLayerId =
+            recHitTools_->getLayerWithOffset(hitid) + layers_ * ((recHitTools_->zside(hitid) + 1) >> 1) - 1;
         const auto itcheck = hitMap_->find(hitid);
         if (itcheck != hitMap_->end()) {
           auto hit_find_it = detIdToCaloParticleId_Map.find(hitid);
@@ -428,8 +429,7 @@ hgcal::association LayerClusterAssociatorByEnergyScoreImpl::makeConnections(
       // Compute the correct normalization
       float invCPEnergyWeight = 0.f;
       for (auto const& haf : cPOnLayer[cpId][layerId].hits_and_fractions) {
-        invCPEnergyWeight +=
-            std::pow(haf.second * hitMap_->at(haf.first)->energy(), 2);
+        invCPEnergyWeight += std::pow(haf.second * hitMap_->at(haf.first)->energy(), 2);
       }
       invCPEnergyWeight = 1.f / invCPEnergyWeight;
       for (unsigned int i = 0; i < CPNumberOfHits; ++i) {
