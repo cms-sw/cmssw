@@ -5,6 +5,7 @@
 #include "TSystem.h"
 #include "TGeoArb8.h"
 #include "TObjArray.h"
+#include "TObjString.h"
 #include "TPRegexp.h"
 
 #include "Fireworks/Core/interface/FWGeometry.h"

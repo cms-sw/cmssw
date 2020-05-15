@@ -42,6 +42,7 @@
 #include <TSystem.h>
 #include <TTimeStamp.h>
 #include <TStopwatch.h>
+#include <TObjString.h>
 //#include "Alignment/OfflineValidation/macros/TkAlStyle.cc"
 #include "Alignment/OfflineValidation/macros/CMS_lumi.h"
 #define PLOTTING_MACRO  // to remove message logger

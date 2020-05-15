@@ -23,6 +23,7 @@
 #include "TEveWindowManager.h"
 #include "TEveWindow.h"
 #include "TQObject.h"
+#include "TObjString.h"
 
 #include "Fireworks/Core/interface/FWDetailViewManager.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
