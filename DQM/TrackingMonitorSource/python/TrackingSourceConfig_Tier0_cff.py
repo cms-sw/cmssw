@@ -348,6 +348,8 @@ trackingDQMgoodOfflinePrimaryVertices = goodOfflinePrimaryVertices.clone()
 
 # import PV resolution
 from DQM.TrackingMonitor.primaryVertexResolution_cfi import *
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(primaryVertexResolution, forceSCAL = False)
 # Sequence
 TrackingDQMSourceTier0 = cms.Sequence(cms.ignore(trackingDQMgoodOfflinePrimaryVertices))
 # dEdx monitoring
