@@ -7,7 +7,8 @@
     <Include ref="Geometry/CMSCommonData/data/materials.xml"/>
     <Include ref="Geometry/CMSCommonData/data/rotations.xml"/>
     <Include ref="Geometry/CMSCommonData/data/extend/v2/cmsextent.xml"/>
-    <Include ref="Geometry/CMSCommonData/data/cms/2021/v2/cms.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/cavernData/2021/v1/cavernData.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/cms/2021/v3/cms.xml"/>
     <Include ref="Geometry/CMSCommonData/data/cmsMother.xml"/>
     <Include ref="Geometry/CMSCommonData/data/eta3/etaMax.xml"/>
     <Include ref="Geometry/CMSCommonData/data/cmsTracker.xml"/>
@@ -21,7 +22,6 @@
     <Include ref="Geometry/CMSCommonData/data/muonMB.xml"/>
     <Include ref="Geometry/CMSCommonData/data/muonMagnet.xml"/>
     <Include ref="Geometry/CMSCommonData/data/cavern/2021/v1/cavern.xml"/>
-    <Include ref="Geometry/CMSCommonData/data/cavernData/2021/v1/cavernData.xml"/>
     <Include ref="Geometry/CMSCommonData/data/cavernFloor/2017/v1/cavernFloor.xml"/>
     <Include ref="Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml"/>
     <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixfwdMaterials.xml"/>
@@ -242,7 +242,10 @@
     <Include ref="Geometry/MuonCommonData/data/gem11/TDR_BaseLine/gem11.xml"/>
     <Include ref="Geometry/MuonCommonData/data/csc/2021/v1/csc.xml"/>
     <Include ref="Geometry/MuonCommonData/data/mfshield/2017/v1/mfshield.xml"/>
-    <Include ref="Geometry/ForwardCommonData/data/forwardshield/2017/v1/forwardshield.xml"/>
+    <Include ref="Geometry/VeryForwardData/data/pps/2021/v1/pps.xml"/>
+    <Include ref="Geometry/ForwardCommonData/data/forward/2021/v1/forward.xml"/>
+    <Include ref="Geometry/ForwardCommonData/data/totemt2/2021/v1/totemt2.xml"/>
+    <Include ref="Geometry/ForwardCommonData/data/forwardshield/2021/v1/forwardshield.xml"/>
     <Include ref="Geometry/ForwardCommonData/data/brmrotations.xml"/>
     <Include ref="Geometry/ForwardCommonData/data/PostLS2/brm.xml"/>
     <Include ref="Geometry/ForwardCommonData/data/zdcmaterials.xml"/>
@@ -271,12 +274,13 @@
     <Include ref="Geometry/GEMGeometryBuilder/data/v4/GEMSpecs.xml"/>
     <Include ref="Geometry/ForwardCommonData/data/brmsens.xml"/>
     <Include ref="Geometry/ForwardSimData/data/zdcsens.xml"/>
-    <Include ref="Geometry/HcalSimData/data/HcalProdCuts.xml"/>
+    <Include ref="Geometry/HcalSimData/data/HcalProdCuts/2021/v1/HcalProdCuts.xml"/>
     <Include ref="Geometry/EcalSimData/data/EcalProdCuts.xml"/>
     <Include ref="Geometry/EcalSimData/data/ESProdCuts.xml"/>
     <Include ref="Geometry/TrackerSimData/data/PhaseI/trackerProdCuts.xml"/>
     <Include ref="Geometry/TrackerSimData/data/trackerProdCutsBEAM.xml"/>
     <Include ref="Geometry/MuonSimData/data/muonProdCuts/2021/v1/muonProdCuts.xml"/>
+    <Include ref="Geometry/ForwardSimData/data/totemsensT2/2021/totemsensT2.xml"/>
     <Include ref="Geometry/ForwardSimData/data/zdcProdCuts.xml"/>
     <Include ref="Geometry/ForwardSimData/data/ForwardShieldProdCuts.xml"/>
     <Include ref="Geometry/CMSCommonData/data/FieldParameters.xml"/>
