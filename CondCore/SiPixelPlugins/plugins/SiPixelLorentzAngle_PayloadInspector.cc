@@ -239,7 +239,7 @@ namespace {
   public:
     SiPixelLorentzAngleValuesComparisonPerRegion()
         : cond::payloadInspector::PlotImage<SiPixelLorentzAngle, cond::payloadInspector::MULTI_IOV, ntags>(
-              "SiPixelLorentzAngle Values Comparisons per region") {}
+              Form("SiPixelLorentzAngle Values Comparisons per region %i tags(s)", ntags)) {}
 
     bool fill() override {
       gStyle->SetOptStat("emr");
@@ -388,9 +388,9 @@ namespace {
       std::string fileName(this->m_imageFileName);
       canvas.SaveAs(fileName.c_str());
 
-      //#ifdef MMDEBUG
+#ifdef MMDEBUG
       canvas.SaveAs("DEBUG.root");
-      //#endif
+#endif
 
       return true;
     }
