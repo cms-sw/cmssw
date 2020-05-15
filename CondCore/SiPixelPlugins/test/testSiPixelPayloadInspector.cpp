@@ -120,6 +120,14 @@ int main(int argc, char** argv) {
   histo16.process(connectionString, PI::mk_input(tag, end, end));
   std::cout << histo16.data() << std::endl;
 
+  boost::python::dict inputs;
+  inputs["SetLog"] = "True";  // sets to true, 1,True,Yes will work
+
+  SiPixelGainCalibrationOfflineGainsValuesBarrel histo17;
+  histo17.setInputParamValues(inputs);
+  histo17.process(connectionString, PI::mk_input(tag, end, end));
+  std::cout << histo17.data() << std::endl;
+
   // SiPixelTemplates
 
   tag = "SiPixelTemplateDBObject38Tv3_express";
@@ -128,13 +136,13 @@ int main(int argc, char** argv) {
 
   std::cout << "## Exercising SiPixelTemplates plots " << std::endl;
 
-  SiPixelTemplateIDsBPixMap histo17;
-  histo17.process(connectionString, PI::mk_input(tag, end, end));
+  SiPixelTemplateIDsBPixMap histo18;
+  histo18.process(connectionString, PI::mk_input(tag, end, end));
   std::cout << histo17.data() << std::endl;
 
-  SiPixelTemplateLAFPixMap histo18;
+  SiPixelTemplateLAFPixMap histo19;
   histo18.process(connectionString, PI::mk_input(tag, end, end));
-  std::cout << histo18.data() << std::endl;
+  std::cout << histo19.data() << std::endl;
 
   Py_Finalize();
 }
