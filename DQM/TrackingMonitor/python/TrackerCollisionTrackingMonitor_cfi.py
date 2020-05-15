@@ -88,7 +88,7 @@ from Configuration.Eras.Modifier_run3_common_cff import run3_common
 run3_common.toModify(TrackerCollisionTrackMon, GoodPVtx=dict(GoodPVtxBin = 150, GoodPVtxMax = 150.))
 run3_common.toModify(TrackerCollisionTrackMon, NTrkPVtx=dict(NTrkPVtxMax = 200.))
 run3_common.toModify(TrackerCollisionTrackMon, NClusStrMax = 299999.5)
-run3_common.toModify(TrackerCollisionTrackMon, NTrk2DBin = 100, NTrk2DMax = 5999.5)
+run3_common.toModify(TrackerCollisionTrackMon, NTrk2D=dict(NTrk2DBin = 100, NTrk2DMax = 5999.5))
 run3_common.toModify(TrackerCollisionTrackMon, PVBin = 75, PVMax = 149.5)
 run3_common.toModify(TrackerCollisionTrackMon, TkSizeMax = 5999.5)
 
