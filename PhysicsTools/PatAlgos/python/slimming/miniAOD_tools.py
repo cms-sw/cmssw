@@ -512,19 +512,19 @@ def miniAOD_customizeCommon(process):
     from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
     phase2_common.toModify(
         process.slimmedMETsDeep,
-        max_n_pf=cms.uint32(12500),
-        graph_path=cms.string("RecoMET/METPUSubtraction/data/deepmet/deepmet_v1_phase2.pb")
+        max_n_pf=12500,
+        graph_path="RecoMET/METPUSubtraction/data/deepmet/deepmet_v1_phase2.pb"
     )
     phase2_common.toModify(
         process.slimmedMETsDeepResp,
-        max_n_pf=cms.uint32(12500),
-        graph_path=cms.string("RecoMET/METPUSubtraction/data/deepmet/deepmet_resp_v1_phase2.pb")
+        max_n_pf=12500,
+        graph_path="RecoMET/METPUSubtraction/data/deepmet/deepmet_resp_v1_phase2.pb"
     )
 
     from Configuration.Eras.Modifier_run2_jme_2016_cff import run2_jme_2016
     run2_jme_2016.toModify(
         process.slimmedMETsDeepResp,
-        graph_path=cms.string("RecoMET/METPUSubtraction/data/deepmet/deepmet_resp_v1_2016.pb")
+        graph_path="RecoMET/METPUSubtraction/data/deepmet/deepmet_resp_v1_2016.pb"
     )
     # add DetIdAssociatorRecords to EventSetup (for isolatedTracks)
     process.load("TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff")

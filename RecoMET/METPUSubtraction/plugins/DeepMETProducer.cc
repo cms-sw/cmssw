@@ -24,19 +24,25 @@ public:
 
 private:
   const edm::EDGetTokenT<std::vector<pat::PackedCandidate> > pf_token_;
-  float norm_;
-  bool ignore_leptons_;
-  unsigned int max_n_pf_;
+  const float norm_;
+  const bool ignore_leptons_;
+  const unsigned int max_n_pf_;
 
   tensorflow::Session* session_;
 
-  std::unordered_map<int, int32_t> charge_embedding_;
-  std::unordered_map<int, int32_t> pdg_id_embedding_;
+  tensorflow::Tensor input_;
+  tensorflow::Tensor input_cat0_;
+  tensorflow::Tensor input_cat1_;
+  tensorflow::Tensor input_cat2_;
+
+  inline static const std::unordered_map<int, int32_t> charge_embedding_{{-1, 0}, {0, 1}, {1, 2}};
+  inline static const std::unordered_map<int, int32_t> pdg_id_embedding_{
+      {-211, 0}, {-13, 1}, {-11, 2}, {0, 3}, {1, 4}, {2, 5}, {11, 6}, {13, 7}, {22, 8}, {130, 9}, {211, 10}};
 };
 
 namespace {
-  float divide_and_rm_outlier(float val, float norm) {
-    float ret_val = val / norm;
+  float scale_and_rm_outlier(float val, float scale) {
+    float ret_val = val * scale;
     if (ret_val > 1e6 || ret_val < -1e6)
       return 0.;
     return ret_val;
@@ -47,43 +53,36 @@ DeepMETProducer::DeepMETProducer(const edm::ParameterSet& cfg, const DeepMETCach
     : pf_token_(consumes<std::vector<pat::PackedCandidate> >(cfg.getParameter<edm::InputTag>("pf_src"))),
       norm_(cfg.getParameter<double>("norm_factor")),
       ignore_leptons_(cfg.getParameter<bool>("ignore_leptons")),
-      max_n_pf_(cfg.getParameter<unsigned int>("max_n_pf")) {
-  session_ = tensorflow::createSession(cache->graph_def);
+      max_n_pf_(cfg.getParameter<unsigned int>("max_n_pf")),
+      session_(tensorflow::createSession(cache->graph_def)) {
   produces<pat::METCollection>();
-  charge_embedding_ = {{-1, 0}, {0, 1}, {1, 2}};
-  pdg_id_embedding_ = {
-      {-211, 0}, {-13, 1}, {-11, 2}, {0, 3}, {1, 4}, {2, 5}, {11, 6}, {13, 7}, {22, 8}, {130, 9}, {211, 10}};
-  ;
+
+  const tensorflow::TensorShape shape({1, max_n_pf_, 8});
+  const tensorflow::TensorShape cat_shape({1, max_n_pf_, 1});
+
+  input_ = tensorflow::Tensor(tensorflow::DT_FLOAT, shape);
+  input_cat0_ = tensorflow::Tensor(tensorflow::DT_FLOAT, cat_shape);
+  input_cat1_ = tensorflow::Tensor(tensorflow::DT_FLOAT, cat_shape);
+  input_cat2_ = tensorflow::Tensor(tensorflow::DT_FLOAT, cat_shape);
 }
 
 void DeepMETProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
-  edm::Handle<std::vector<pat::PackedCandidate> > pf_h;
-  event.getByToken(pf_token_, pf_h);
+  auto const& pfs = event.get(pf_token_);
 
-  // PF keys [b'PF_dxy', b'PF_dz', b'PF_eta', b'PF_mass', b'PF_pt', b'PF_puppiWeight', b'PF_px', b'PF_py']
-  tensorflow::TensorShape shape({1, max_n_pf_, 8});
-  tensorflow::TensorShape cat_shape({1, max_n_pf_, 1});
-  tensorflow::Tensor input(tensorflow::DT_FLOAT, shape);
-  tensorflow::Tensor input_cat0(tensorflow::DT_FLOAT, cat_shape);
-  tensorflow::Tensor input_cat1(tensorflow::DT_FLOAT, cat_shape);
-  tensorflow::Tensor input_cat2(tensorflow::DT_FLOAT, cat_shape);
-
-  tensorflow::TensorShape out_shape({1, 2});
-  tensorflow::Tensor output(tensorflow::DT_FLOAT, out_shape);
-
-  tensorflow::NamedTensorList input_list = {
-      {"input", input}, {"input_cat0", input_cat0}, {"input_cat1", input_cat1}, {"input_cat2", input_cat2}};
+  static const tensorflow::NamedTensorList input_list = {
+      {"input", input_}, {"input_cat0", input_cat0_}, {"input_cat1", input_cat1_}, {"input_cat2", input_cat2_}};
 
   // Set all inputs to zero
-  input.flat<float>().setZero();
-  input_cat0.flat<float>().setZero();
-  input_cat1.flat<float>().setZero();
-  input_cat2.flat<float>().setZero();
+  input_.flat<float>().setZero();
+  input_cat0_.flat<float>().setZero();
+  input_cat1_.flat<float>().setZero();
+  input_cat2_.flat<float>().setZero();
 
   size_t i_pf = 0;
   float px_leptons = 0.;
   float py_leptons = 0.;
-  for (const auto& pf : *pf_h) {
+  const float scale = 1. / norm_;
+  for (const auto& pf : pfs) {
     if (ignore_leptons_) {
       int pdg_id = std::abs(pf.pdgId());
       if (pdg_id == 11 || pdg_id == 13) {
@@ -94,18 +93,19 @@ void DeepMETProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
     }
 
     // fill the tensor
-    float* ptr = &input.tensor<float, 3>()(0, i_pf, 0);
+    // PF keys [b'PF_dxy', b'PF_dz', b'PF_eta', b'PF_mass', b'PF_pt', b'PF_puppiWeight', b'PF_px', b'PF_py']
+    float* ptr = &input_.tensor<float, 3>()(0, i_pf, 0);
     *ptr = pf.dxy();
     *(++ptr) = pf.dz();
     *(++ptr) = pf.eta();
     *(++ptr) = pf.mass();
-    *(++ptr) = divide_and_rm_outlier(pf.pt(), norm_);
+    *(++ptr) = scale_and_rm_outlier(pf.pt(), scale);
     *(++ptr) = pf.puppiWeight();
-    *(++ptr) = divide_and_rm_outlier(pf.px(), norm_);
-    *(++ptr) = divide_and_rm_outlier(pf.py(), norm_);
-    input_cat0.tensor<float, 3>()(0, i_pf, 0) = charge_embedding_[pf.charge()];
-    input_cat1.tensor<float, 3>()(0, i_pf, 0) = pdg_id_embedding_[pf.pdgId()];
-    input_cat2.tensor<float, 3>()(0, i_pf, 0) = pf.fromPV();
+    *(++ptr) = scale_and_rm_outlier(pf.px(), scale);
+    *(++ptr) = scale_and_rm_outlier(pf.py(), scale);
+    input_cat0_.tensor<float, 3>()(0, i_pf, 0) = charge_embedding_.at(pf.charge());
+    input_cat1_.tensor<float, 3>()(0, i_pf, 0) = pdg_id_embedding_.at(pf.pdgId());
+    input_cat2_.tensor<float, 3>()(0, i_pf, 0) = pf.fromPV();
 
     ++i_pf;
     if (i_pf > max_n_pf_) {
@@ -114,7 +114,7 @@ void DeepMETProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
   }
 
   std::vector<tensorflow::Tensor> outputs;
-  std::vector<std::string> output_names = {"output/BiasAdd"};
+  const std::vector<std::string> output_names = {"output/BiasAdd"};
 
   // run the inference and return met
   tensorflow::run(session_, input_list, output_names, &outputs);
@@ -127,9 +127,8 @@ void DeepMETProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
   py -= py_leptons;
 
   auto pf_mets = std::make_unique<pat::METCollection>();
-  reco::LeafCandidate::LorentzVector p4(px, py, 0., std::sqrt(px * px + py * py));
-  const reco::Candidate::Point vtx(0.0, 0.0, 0.0);
-  pf_mets->emplace_back(reco::MET(p4, vtx));
+  const reco::Candidate::LorentzVector p4(px, py, 0., std::hypot(px, py));
+  pf_mets->emplace_back(reco::MET(p4, {}));
   event.put(std::move(pf_mets));
 }
 
