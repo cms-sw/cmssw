@@ -39,4 +39,5 @@ ALCARECOSiStripCalMinBiasTrackerDQM = DQMOffline.Alignment.TkAlCaRecoMonitor_cfi
 # Sequence #
 #------------
 
-ALCARECOSiStripCalMinBiasDQM = cms.Sequence( ALCARECOSiStripCalMinBiasTrackingDQM + ALCARECOSiStripCalMinBiasTrackerDQM)
+ALCARECOSiStripCalMinBiasDQMTask = cms.Task(ALCARECOSiStripCalMinBiasTrackingDQM , ALCARECOSiStripCalMinBiasTrackerDQM)
+ALCARECOSiStripCalMinBiasDQM = cms.Sequence(ALCARECOSiStripCalMinBiasDQMTask)
