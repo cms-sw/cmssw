@@ -22,7 +22,7 @@ public:
   }
 
   inline float pedestalWidth(const bool useEffectivePeds) const {
-    return useEffectivePeds ? pedestalWidth_ : effPedestalWidth_;
+    return useEffectivePeds ? effPedestalWidth_ : pedestalWidth_;
   }
 
   inline float gain() const {return gain_;}
