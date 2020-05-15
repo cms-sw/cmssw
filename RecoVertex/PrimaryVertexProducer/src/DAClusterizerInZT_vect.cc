@@ -286,6 +286,11 @@ void DAClusterizerInZT_vect::set_vtx_range(double beta, track_t& gtracks, vertex
   const unsigned int nv = gvertices.getSize();
   const unsigned int nt = gtracks.getSize();
 
+  if (nv == 0) {
+    edm::LogWarning("DAClusterizerinZT_vect") << "empty cluster list in set_vtx_range";
+    return;
+  }
+
   for (auto itrack = 0U; itrack < nt; ++itrack) {
     double zrange = max(sel_zrange_ / sqrt(beta * gtracks.dz2[itrack]), zrange_min_);
 
