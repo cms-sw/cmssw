@@ -17,19 +17,24 @@ namespace tmtt {
 
   //=== Hybrid L1 tracking: stub constructor.
 
-  Stub::Stub(double phi,
+  Stub::Stub(const Settings* settings,
+	     unsigned int idStub,
+	     double phi,
              double r,
              double z,
              double bend,
-             unsigned int layerId,
-             bool psModule,
-             bool barrel,
              unsigned int iphi,
              double alpha,
-             const Settings* settings,
-             unsigned int ID,
-             unsigned int iPhiSec)
-      : phi_(phi),
+             unsigned int layerId,
+             unsigned int iPhiSec,
+             bool psModule,
+             bool barrel,
+	     bool tiltedBarrel,
+	     float stripPitch,
+	     float stripLength,
+	     unsigned int nStrips)
+    :   index_in_vStubs_(idStub),  // A unique ID to label the stub.
+        phi_(phi),
         r_(r),
         z_(z),
         bend_(bend),
@@ -39,26 +44,12 @@ namespace tmtt {
         psModule_(psModule),
         layerId_(layerId),
         layerIdReduced_(TrackerModule::calcLayerIdReduced(layerId)),
-        barrel_(barrel) {  //work in progress on better constructor for new hybrid
-    if (psModule && barrel) {
-      // max z at which non-tilted modules are found in 3 barrel PS layers. (Element 0 not used).
-      const vector<float>& zMax = settings->zMaxNonTilted();
-      tiltedBarrel_ = (std::abs(z) > zMax[layerId]);
-    } else {
-      tiltedBarrel_ = false;
-    }
-    tiltAngle_ = 0.;  // Not used if cfg uses "ApproxB".
-    if (psModule) {
-      stripPitch_ = settings->psPixelPitch();
-      stripLength_ = settings->psPixelLength();
-      nStrips_ = settings->psNStrips();
-    } else {
-      stripPitch_ = settings->ssStripPitch();
-      stripLength_ = settings->ssStripLength();
-      nStrips_ = settings->ssNStrips();
-    }
-    index_in_vStubs_ = ID;  // A unique ID to label the stub.
-  }
+        barrel_(barrel),
+        tiltedBarrel_(tiltedBarrel),
+        stripPitch_(stripPitch),
+        stripLength_(stripLength),
+        nStrips_(nStrips)
+{}
 
   //=== TMTT L1 tracking: stub constructor.
 

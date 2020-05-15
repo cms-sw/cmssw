@@ -10,91 +10,54 @@ namespace tmtt {
   ///=== Hybrid Tracking
   ///=== Set config params for HYBRID TRACKING via hard-wired consts to allow use outside CMSSW.
 
-  Settings::Settings() {
-    //
+Settings::Settings():
+    //--------------------------------------------------------------------------------------------------
     // TMTT related configuration parameters, including Kalman Filter.
     // Meaning of these parameters explained in TrackFindingTMTT/python/TMTrackProducer_Defaults_cfi.py
-    //
-    reduceLayerID_ = true;
-    useLayerID_ = true;
-    minFracMatchStubsOnReco_ = -99;
-    minFracMatchStubsOnTP_ = -99;
-    minNumMatchLayers_ = 4;
-    minNumMatchPSLayers_ = 0;
-    stubMatchStrict_ = false;
-    minStubLayers_ = 4;
-    minPtToReduceLayers_ = 99999.;
-    kalmanMinNumStubs_ = 4;
-    kalmanMaxNumStubs_ = 6;
-    numPhiNonants_ = 9;
-    numPhiSectors_ = 9;
-    etaRegions_ = {-2.4,
-                   -2.08,
-                   -1.68,
-                   -1.26,
-                   -0.90,
-                   -0.62,
-                   -0.41,
-                   -0.20,
-                   0.0,
-                   0.20,
-                   0.41,
-                   0.62,
-                   0.90,
-                   1.26,
-                   1.68,
-                   2.08,
-                   2.4};  // Used by KF
-    kalmanRemove2PScut_ = true;
-    killScenario_ = 0;
-    kalmanMaxSkipLayersHard_ = 1;  // On "hard" input tracks
-    kalmanMaxSkipLayersEasy_ = 2;  // On "easy" input tracks
-    kalmanMaxStubsEasy_ = 10;      // Max. #stubs an input track can have to be defined "easy"
-    kalmanMaxStubsPerLayer_ = 4;   // To save resources, consider at most this many stubs per layer per track.
-    kalmanDebugLevel_ = 0;
-    //kalmanDebugLevel_=2; // Good for debugging
-    enableDigitize_ = false;
-    houghMinPt_ = 2.0;
-    chosenRofPhi_ = 67.240;
-    chosenRofZ_ = 50.0;
-    houghNbinsPt_ = 48;  // Mini HT bins in 2 GeV HT array
-    useApproxB_ = true;
-    kalmanHOtilted_ = true;
-    kalmanHOhelixExp_ = true;
-    kalmanHOalpha_ = 1;
-    kalmanHOfw_ = false;
-    kalmanHOprojZcorr_ = 1;
-    bApprox_gradient_ = 0.886454;
-    bApprox_intercept_ = 0.504148;
-    kalmanMultiScattTerm_ = 0.00075;
-    kalmanChi2RphiScale_ = 8;
-    //
-    // Cfg params & constants required only for HYBRID tracking (as taken from DB for TMTT).
-    //
+    //--------------------------------------------------------------------------------------------------
+
+    // General cfg params
+    enableDigitize_(false),
+    useApproxB_(true),
+    bApprox_gradient_(0.886454),
+    bApprox_intercept_(0.504148),
+    numPhiNonants_(9),
+    numPhiSectors_(9),    
+    chosenRofPhi_(55.), // Hourglass radius in r-phi (tracklet)
+etaRegions_({-2.4,-2.08,-1.68,-1.26,-0.90,-0.62,-0.41,-0.20,0.0,0.20,0.41,0.62,0.90,1.26,1.68,2.08,2.4}),  
+    chosenRofZ_(50.0), // Hourglass radius in r-z (this must be tmtt)
+    houghMinPt_(2.0), // L1 track pt cut
+    minStubLayers_(4),
+    minPtToReduceLayers_(99999.),
+    reduceLayerID_(true),
+    minFracMatchStubsOnReco_(-99),
+    minFracMatchStubsOnTP_(-99),
+    minNumMatchLayers_(4),
+    minNumMatchPSLayers_(0),
+    stubMatchStrict_(false),
+
+    // Kalman filter track fit cfg
+    kalmanDebugLevel_(0),
+    //kalmanDebugLevel_(2), // Good for debugging
+    kalmanMinNumStubs_(4),
+    kalmanMaxNumStubs_(6),
+    kalmanRemove2PScut_(true),
+    kalmanMaxSkipLayersHard_(1),  // On "hard" input tracks
+    kalmanMaxSkipLayersEasy_(2),  // On "easy" input tracks
+    kalmanMaxStubsEasy_(10),      // Max. #stubs an input track can have to be defined "easy"
+    kalmanMaxStubsPerLayer_(4),   // To save resources, consider at most this many stubs per layer per track.
+    kalmanMultiScattTerm_(0.00075),
+    kalmanChi2RphiScale_(8),
+    kalmanHOtilted_(true),
+    kalmanHOhelixExp_(true),
+    kalmanHOalpha_(1),
+    kalmanHOprojZcorr_(1),
+    kalmanHOfw_(false)    
+      {
+
     hybrid_ = true;
-    psPixelPitch_ = 0.01;
-    psNStrips_ = 960;
-    psPixelLength_ = 0.1467;
-    ssStripPitch_ = 0.009;
-    ssNStrips_ = 1016;
-    ssStripLength_ = 5.0250;
-    // max z at which non-tilted modules are found in 3 barrel PS layers. (Element 0 not used).
-    zMaxNonTilted_ = {0, 15.3, 24.6, 33.9};
-
-    magneticField_ = 3.81120228767395;
-
-    // Stub digitization params for hybrid (copied from TrackFindingTMTT/interface/HLS/KFconstants.h
-    constexpr double rMult_hybrid = 1. / 0.02929688;
-    constexpr double phiSMult_hybrid = 1. / (7.828293e-6 * 8);
-    constexpr double zMult_hybrid =
-        rMult_hybrid / 2;  // In KF VHDL, z/r mult = 1/2, whereas in HLS, they are identical.
-    // Number of bits copied from TrackFindingTMTT/interface/HLS/KFstub.h (BR1, BPHI, BZ)
-    rtBits_ = 12;
-    phiSBits_ = 14;
-    zBits_ = 14;
-    rtRange_ = pow(2, rtBits_) / rMult_hybrid;
-    phiSRange_ = pow(2, phiSBits_) / phiSMult_hybrid;
-    zRange_ = pow(2, zBits_) / zMult_hybrid;
+    magneticField_ = 0.; // Value set later
+    killScenario_ = 0; // Emulation of dead modules
 
     if (hybrid_) {
       if (not useApproxB_) {
@@ -256,7 +219,6 @@ namespace tmtt {
         minStubLayers_(l1TrackDef_.getParameter<unsigned int>("MinStubLayers")),
         minPtToReduceLayers_(l1TrackDef_.getParameter<double>("MinPtToReduceLayers")),
         etaSecsReduceLayers_(l1TrackDef_.getParameter<vector<unsigned int>>("EtaSecsReduceLayers")),
-        useLayerID_(l1TrackDef_.getParameter<bool>("UseLayerID")),
         reduceLayerID_(l1TrackDef_.getParameter<bool>("ReducedLayerID")),
 
         //=== Specification of algorithm to eliminate duplicate tracks.
@@ -363,13 +325,8 @@ namespace tmtt {
         magneticField_(0.),
 
         // Hybrid tracking
-        hybrid_(iConfig.getParameter<bool>("Hybrid")),
-        psPixelPitch_(0.),
-        psNStrips_(0.),
-        psPixelLength_(0.),
-        ssStripPitch_(0.),
-        ssNStrips_(0.),
-        ssStripLength_(0.) {
+        hybrid_(iConfig.getParameter<bool>("Hybrid"))
+  {
     // If user didn't specify any PDG codes, use e,mu,pi,K,p, to avoid picking up unstable particles like Xi-.
     vector<unsigned int> genPdgIdsUnsigned(genCuts_.getParameter<vector<unsigned int>>("GenPdgIds"));
     if (genPdgIdsUnsigned.empty()) {

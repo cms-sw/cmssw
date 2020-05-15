@@ -236,8 +236,6 @@ TMTrackProducer_params = cms.PSet(
      # (Histogram "AlgEffVsEtaSec" will help you identify which sectors to declare).
      #EtaSecsReduceLayers  = cms.vuint32(),
      EtaSecsReduceLayers  = cms.vuint32(5,12),
-     # Define layers using layer ID (true) or by bins in radius of 5 cm width (false).
-     UseLayerID           = cms.bool(True),
      # Reduce this layer ID, so that it takes no more than 8 different values in any eta region (simplifies firmware).
      ReducedLayerID       = cms.bool(True)
   ),

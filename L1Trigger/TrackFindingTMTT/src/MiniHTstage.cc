@@ -239,7 +239,6 @@ namespace tmtt {
         numStubsPerLinkStage2[encodedLinkYZ] += numStubs;
 
     } else {
-      newerLink = newLink;
       newererLink = newLink;
     }
     unsigned int trueLinkID =

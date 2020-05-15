@@ -18,11 +18,15 @@
 
 namespace tmtt {
 
+  namespace {
+    std::mutex myMutex;
+  }  
+
   class GlobalCacheTMTT {
   public:
     GlobalCacheTMTT(const edm::ParameterSet& iConfig)
         : settings_(iConfig),              // Python configuration params
-          htRphiErrMon_({0., 0, 0, 0}),    // rphi HT error monitoring
+          htRphiErrMon_(),    // rphi HT error monitoring
           stubWindowSuggest_(&settings_),  // Recommend FE stub window sizes.
           hists_(&settings_)               // Histograms
     {
@@ -30,7 +34,7 @@ namespace tmtt {
     }
 
     // Get functions
-    Settings& settings() const { return settings_; }
+    const Settings& settings() const { return settings_; }
     HTrphi::ErrorMonitor& htRphiErrMon() const { return htRphiErrMon_; }
     StubWindowSuggest& stubWindowSuggest() const { return stubWindowSuggest_; }
     const std::list<TrackerModule>& listTrackerModule() const { return listTrackerModule_; }
@@ -38,13 +42,16 @@ namespace tmtt {
 
     // Set functions
     void setListTrackerModule(const std::list<TrackerModule>& list) const {
-      // Only need one copy of tracker geoemtry for histogramming.
+      // Allow only one thread to run this function at a time
+      std::lock_guard<std::mutex> myGuard(myMutex);
+
+      // Only need one copy of tracker geometry for histogramming.
       if (listTrackerModule_.size() == 0)
         listTrackerModule_ = list;
     }
 
   private:
-    mutable Settings settings_;
+    Settings settings_;
     mutable HTrphi::ErrorMonitor htRphiErrMon_;
     mutable StubWindowSuggest stubWindowSuggest_;
     mutable std::list<TrackerModule> listTrackerModule_;

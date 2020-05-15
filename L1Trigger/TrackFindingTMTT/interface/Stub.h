@@ -42,19 +42,23 @@ namespace tmtt {
   class Stub {
   public:
     // Hybrid L1 tracking: stub constructor.
-    Stub(double phi,
-         double r,
-         double z,
-         double bend,
-         unsigned int layerId,
-         bool psModule,
-         bool barrel,
-         unsigned int iphi,
-         double alpha,
-         const Settings* settings,
-         unsigned int ID,
-         unsigned int iPhiSec);
-
+    Stub(const Settings* settings,
+             unsigned int idStub,
+	     double phi,
+             double r,
+             double z,
+             double bend,
+             unsigned int iphi,
+             double alpha,
+             unsigned int layerId,
+             unsigned int iPhiSec,
+             bool psModule,
+    	     bool barrel,
+    	     bool tiltedBarrel,
+	     float stripPitch,
+	     float stripLength,
+	     unsigned int nStrips);
+ 
     // TMTT L1 tracking: stub constructor.
     Stub(const TTStubRef& ttStubRef,
          unsigned int index_in_vStubs,
@@ -182,15 +186,9 @@ namespace tmtt {
     float sigmaR() const { return (barrel() ? 0. : sigmaPar()); }
     float sigmaZ() const { return (barrel() ? sigmaPar() : 0.); }
     // Hit resolution perpendicular to strip. Measures phi.
-    float sigmaPerp() const {
-      static const float f = sqrt(1. / 12);
-      return f * stripPitch_;
-    }
+    float sigmaPerp() const {return invRoot12 * stripPitch_;}
     // Hit resolution parallel to strip. Measures r or z.
-    float sigmaPar() const {
-      static const float f = sqrt(1. / 12.);
-      return f * stripLength_;
-    }
+    float sigmaPar() const {return invRoot12 * stripLength_;}
 
     //--- These module variables could be taken directly from trackerModule_, were it not for need
     //--- to support Hybrid.
@@ -291,6 +289,8 @@ namespace tmtt {
     unsigned int nStrips_;
 
     const float rejectedStubBend_ = 99999.;  // Bend set to this if stub rejected.
+
+    const float invRoot12 = sqrt(1./12.);
   };
 
 }  // namespace tmtt

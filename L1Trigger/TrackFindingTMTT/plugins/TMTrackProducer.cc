@@ -172,7 +172,6 @@ namespace tmtt {
     // Pointers to TTTrack collections for ED output.
     auto htTTTracksForOutput = std::make_unique<TTTrackCollection>();
     auto rzTTTracksForOutput = std::make_unique<TTTrackCollection>();
-    const unsigned int nFitAlgs = trackFitters_.size();
     map<string, unique_ptr<TTTrackCollection>> allFitTTTracksForOutput;
     for (const string& fitterName : trackFitters_) {
       auto fitTTTracksForOutput = std::make_unique<TTTrackCollection>();

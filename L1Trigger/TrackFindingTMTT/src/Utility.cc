@@ -5,6 +5,8 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include <set>
+
 using namespace std;
 
 namespace tmtt {
@@ -28,55 +30,21 @@ namespace tmtt {
 
     // Note if using reduced layer ID, so tracker layer can be encoded in 3 bits.
     const bool reduceLayerID = settings->reduceLayerID();
-    // Define layers using layer ID (true) or by bins in radius of 5 cm width (false).
-    const bool useLayerID = settings->useLayerID();
-    // When counting stubs in layers, actually histogram stubs in distance from beam-line with this bin size.
-    const float layerIDfromRadiusBin = settings->layerIDfromRadiusBin();
-    // Inner radius of tracker.
-    const float trackerInnerRadius = settings->trackerInnerRadius();
 
     // Disable use of reduced layer ID if requested, otherwise take from cfg.
     bool reduce = (disableReducedLayerID) ? false : reduceLayerID;
 
-    const int maxLayerID(30);
-    vector<bool> foundLayers(maxLayerID, false);
-
-    if (useLayerID) {
-      // Count layers using CMSSW layer ID.
-      for (const Stub* stub : vstubs) {
-        if ((!onlyPS) || stub->psModule()) {  // Consider only stubs in PS modules if that option specified.
-          // Use either normal or reduced layer ID depending on request.
-          int layerID = reduce ? stub->layerIdReduced() : stub->layerId();
-          if (layerID >= 0 && layerID < maxLayerID) {
-            foundLayers[layerID] = true;
-          } else {
-            throw cms::Exception("LogicError") << "Utility::invalid layer ID";
-          }
-        }
-      }
-
-    } else {
-      // Count layers by binning stub distance from beam line.
-      for (const Stub* stub : vstubs) {
-        if ((!onlyPS) || stub->psModule()) {  // Consider only stubs in PS modules if that option specified.
-          // N.B. In this case, no concept of "reduced" layer ID has been defined yet, so don't depend on "reduce";
-          int layerID = (int)((stub->r() - trackerInnerRadius) / layerIDfromRadiusBin);
-          if (layerID >= 0 && layerID < maxLayerID) {
-            foundLayers[layerID] = true;
-          } else {
-            throw cms::Exception("LogicError") << "Utility::invalid layer ID";
-          }
-        }
+    // Count layers using CMSSW layer ID.
+    set<unsigned int> foundLayers;
+    for (const Stub* stub : vstubs) {
+      if ((!onlyPS) || stub->psModule()) {  // Consider only stubs in PS modules if that option specified.
+        // Use either normal or reduced layer ID depending on request.
+        int layerID = reduce ? stub->layerIdReduced() : stub->layerId();
+        foundLayers.insert(layerID);
       }
     }
 
-    unsigned int ncount = 0;
-    for (const bool& found : foundLayers) {
-      if (found)
-        ncount++;
-    }
-
-    return ncount;
+    return foundLayers.size();
   }
 
   //=== Given a set of stubs (presumably on a reconstructed track candidate)

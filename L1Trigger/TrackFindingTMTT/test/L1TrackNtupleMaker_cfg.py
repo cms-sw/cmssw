@@ -15,6 +15,7 @@ process = cms.Process("L1TrackNtuple")
 GEOMETRY = "D49"
 
 # Specify L1 tracking algo ('HYBRID', 'HYBRID_DISPLACED', 'TMTT','HYBRID_FLOAT', 'TRACKLET_FLOAT'),
+# (To run Tracklet, set L1TRKALGO='HYBRID', and set USEHYBRID in TrackFindingTracklet/interface/Settings.h)
 L1TRKALGO = 'TMTT'
 
 # Write output dataset?
@@ -31,6 +32,8 @@ if (L1TRKALGO == 'HYBRID_FLOAT'):
 
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
+process.MessageLogger.categories.append('L1track')
+process.MessageLogger.categories.append('Tracklet')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 

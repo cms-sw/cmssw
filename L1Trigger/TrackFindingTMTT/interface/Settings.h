@@ -218,8 +218,6 @@ namespace tmtt {
     double minPtToReduceLayers() const { return minPtToReduceLayers_; }
     // Change min. number of layers cut to (MinStubLayers - 1) for tracks in these rapidity sectors.
     const std::vector<unsigned int>& etaSecsReduceLayers() const { return etaSecsReduceLayers_; }
-    // Define layers using layer ID (true) or by bins in radius of 5 cm width (false)?
-    bool useLayerID() const { return useLayerID_; }
     //Reduce this layer ID, so that it takes no more than 8 different values in any eta region (simplifies firmware)?
     bool reduceLayerID() const { return reduceLayerID_; }
 
@@ -391,16 +389,10 @@ namespace tmtt {
     double trackerOuterRadius() const { return 112.7; }  // max. occuring stub radius.
     double trackerInnerRadius() const { return 21.8; }   // min. occuring stub radius.
     double trackerHalfLength() const { return 270.; }    // half-length of tracker.
-    double layerIDfromRadiusBin() const {
-      return 6.;
-    }  // When counting stubs in layers, actually histogram stubs in distance from beam-line with this bin size.
-    double crazyStubCut() const {
-      return 0.01;
-    }  // Stubs differing from TP trajectory by more than this in phi are assumed to come from delta rays etc.
 
-    //=== Set and get B-field value in Tesla.
-    // N.B. This must bet std::set for each event, and can't be initialized at the beginning of the job.
-    void setMagneticField(float magneticField) { magneticField_ = magneticField; }
+    //=== Set and get B-field value (mutable) in Tesla.
+    // N.B. This must bet std::set for each run, and can't be initialized at the beginning of the job.
+    void setMagneticField(float magneticField) const { magneticField_ = magneticField; }
     float magneticField() const {
       if (magneticField_ == 0.)
         throw cms::Exception("LogicError") << "Settings: You attempted to access the B field before it was initialized";
@@ -410,15 +402,6 @@ namespace tmtt {
     //=== Settings used for HYBRID TRACKING code only.
     // Is hybrid tracking in use?
     bool hybrid() const { return hybrid_; }
-    // Info about geometry, needed for use of hybrid outside CMSSW.
-    double ssStripPitch() const { return ssStripPitch_; }
-    double ssNStrips() const { return ssNStrips_; }
-    double ssStripLength() const { return ssStripLength_; }
-    double psPixelPitch() const { return psPixelPitch_; }
-    double psNStrips() const { return psNStrips_; }
-    double psPixelLength() const { return psPixelLength_; }
-    // max z at which non-tilted modules are found in 3 barrel PS layers. (Element 0 not used).
-    const std::vector<float>& zMaxNonTilted() const { return zMaxNonTilted_; }
 
   private:
     // Input tags for ES & ED data.
@@ -560,7 +543,6 @@ namespace tmtt {
     unsigned int minStubLayers_;
     double minPtToReduceLayers_;
     std::vector<unsigned int> etaSecsReduceLayers_;
-    bool useLayerID_;
     bool reduceLayerID_;
 
     // Specification of algorithm to eliminate duplicate tracks
@@ -599,7 +581,6 @@ namespace tmtt {
     double residualCut_;
     //
     unsigned kalmanDebugLevel_;
-    bool kalmanFillInternalHists_;
     unsigned int kalmanMinNumStubs_;
     unsigned int kalmanMaxNumStubs_;
     bool kalmanAddBeamConstr_;
@@ -661,19 +642,10 @@ namespace tmtt {
     bool writeOutEdmFile_;
 
     // B-field in Tesla
-    std::atomic<float> magneticField_;
+    mutable std::atomic<float> magneticField_;
 
     // Hybrid tracking
     bool hybrid_;
-
-    double psPixelPitch_;
-    double psNStrips_;
-    double psPixelLength_;
-    double ssStripPitch_;
-    double ssNStrips_;
-    double ssStripLength_;
-
-    std::vector<float> zMaxNonTilted_;
   };
 
 }  // namespace tmtt

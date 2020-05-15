@@ -13,7 +13,9 @@ editing if necessary variables: GEOMETRY (CMS geometry version), inputMCtxt (MC 
 - Look at the performance histograms Hist.root (explained in class "Histos" below)
 
 2) cmsRun -n 4 L1TrackNtupleMaker_cfg.py 
-after editing it to change L1TRACKALGO = 'TMTT'. This writes a TTree with the fitfitted L1 tracks to file in a TTTrack collection, from which tracking performance can be studied with ROOT macro. L1TrackNtuplePlot.C.
+after editing it to change L1TRACKALGO = 'TMTT'. This writes a TTree of the fitted L1 tracks to .root file, from which tracking performance can be studied with ROOT macro L1Trigger/TrackFindingTracklet/test/L1TrackNtuplePlot.C. Other values of L1TRACKALGO permit to run the Hybrid or Tracklet emulation, or floating point emulation.
+
+Both (1) & (2) are able to write a dataset containing the TTTrack collection of the fitted tracks.
 
 N.B. .txt files listing available MC samples can be found in https://github.com/cms-data/L1Trigger-TrackFindingTMTT .
 

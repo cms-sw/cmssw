@@ -23,7 +23,6 @@ namespace tmtt {
       hitPattern = 0;
       d0 = 0.;
       z0 = 0;
-      ;
       tanL = 0;
       chi2rphi = 0.;
       chi2rz = 0;
