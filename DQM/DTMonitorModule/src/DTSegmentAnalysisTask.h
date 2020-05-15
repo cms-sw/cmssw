@@ -24,7 +24,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include <DQMServices/Core/interface/DQMOneEDAnalyzer.h>
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 //RecHit
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
@@ -34,9 +34,8 @@
 #include <vector>
 
 class DTGeometry;
-class DTTimeEvolutionHisto;
 
-class DTSegmentAnalysisTask : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks> {
+class DTSegmentAnalysisTask : public DQMEDAnalyzer {
 public:
   /// Constructor
   DTSegmentAnalysisTask(const edm::ParameterSet& pset);
@@ -50,10 +49,6 @@ public:
   // Operations
   void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
 
-  /// Summary
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) override;
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) override;
-
 protected:
   // Book the histograms
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
@@ -65,13 +60,11 @@ private:
   // Get the DT Geometry
   edm::ESHandle<DTGeometry> dtGeom;
 
-  // Lable of 4D segments in the event
+  // Label of 4D segments in the event
   edm::EDGetTokenT<DTRecSegment4DCollection> recHits4DToken_;
 
   // Get the map of noisy channels
   bool checkNoisyChannels;
-
-  edm::ParameterSet parameters;
 
   // book the histos
   void bookHistos(DQMStore::IBooker& ibooker, DTChamberId chamberId);
@@ -81,18 +74,8 @@ private:
   //  the histos
   std::map<DTChamberId, std::vector<MonitorElement*> > histosPerCh;
   std::map<int, MonitorElement*> summaryHistos;
-  std::map<int, std::map<int, DTTimeEvolutionHisto*> > histoTimeEvol;
 
   int nevents;
-  int nEventsInLS;
-  DTTimeEvolutionHisto* hNevtPerLS;
-
-  // # of bins in the time histos
-  int nTimeBins;
-  // # of LS per bin in the time histos
-  int nLSTimeBin;
-  // switch on/off sliding bins in time histos
-  bool slideTimeBins;
   // top folder for the histograms in DQMStore
   std::string topHistoFolder;
   // hlt DQM mode

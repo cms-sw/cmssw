@@ -70,11 +70,10 @@ process.ecalFEDMonitor.folderName = cms.untracked.string(folder_name)
 process.load('EventFilter.HcalRawToDigi.HcalRawToDigi_cfi')
 # DT sequence:
 process.load('DQM.DTMonitorModule.dtDataIntegrityTask_EvF_cff')
-process.DTDataIntegrityTask.processingMode = 'SM'
+process.dtDataIntegrityTask.processingMode = 'SM'
 path = 'DT/%s/' % folder_name
-process.DTDataIntegrityTask.fedIntegrityFolder = path
-process.DTDataIntegrityTask.checkUros = True
-process.DTDataIntegrityTask.dtFEDlabel     = 'dtunpacker'
+process.dtDataIntegrityTask.fedIntegrityFolder = path
+process.dtDataIntegrityTask.dtFEDlabel     = 'dtunpacker'
 # RPC sequence:
 process.load('EventFilter.RPCRawToDigi.rpcUnpacker_cfi')
 process.load('DQM.RPCMonitorClient.RPCFEDIntegrity_cfi')
@@ -132,7 +131,7 @@ process.FEDModulesPath = cms.Path(
 			                      + process.hcalDigis
                                   + process.cscDQMEvF
  			                      + process.dtunpacker
-                                  + process.DTDataIntegrityTask
+                                  + process.dtDataIntegrityTask
 			                      + process.rpcunpacker
                                   + process.rpcFEDIntegrity
 
