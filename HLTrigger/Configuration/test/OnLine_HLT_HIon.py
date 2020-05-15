@@ -1,13 +1,13 @@
 # hltGetConfiguration --full --data /dev/CMSSW_11_1_0/HIon --type HIon --unprescale --process HLTHIon --globaltag auto:run3_hlt_HIon --input file:RelVal_Raw_HIon_DATA.root
 
-# /dev/CMSSW_11_1_0/HIon/V6 (CMSSW_11_1_0_pre5)
+# /dev/CMSSW_11_1_0/HIon/V8 (CMSSW_11_1_0_pre7)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTHIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_11_1_0/HIon/V6')
+  tableName = cms.string('/dev/CMSSW_11_1_0/HIon/V8')
 )
 
 process.transferSystem = cms.PSet( 
@@ -7479,7 +7479,7 @@ process.hltHbhereco = cms.EDProducer( "HBHEPhase1Reconstructor",
       useM2 = cms.bool( False ),
       timeMin = cms.double( -12.5 ),
       useM3 = cms.bool( False ),
-      chiSqSwitch = cms.double( 15.0 ),
+      chiSqSwitch = cms.double( -1.0 ),
       dynamicPed = cms.bool( False ),
       tdcTimeShift = cms.double( 0.0 ),
       correctionPhaseNS = cms.double( 6.0 ),
@@ -7488,7 +7488,8 @@ process.hltHbhereco = cms.EDProducer( "HBHEPhase1Reconstructor",
       ts4chi2 = cms.vdouble( 15.0, 15.0 ),
       timeMax = cms.double( 12.5 ),
       Class = cms.string( "SimpleHBHEPhase1Algo" ),
-      calculateArrivalTime = cms.bool( False )
+      calculateArrivalTime = cms.bool( False ),
+      applyLegacyHBMCorrection = cms.bool( False )
     ),
     setLegacyFlagsQIE8 = cms.bool( False ),
     sipmQNTStoSum = cms.int32( 3 ),
@@ -10513,15 +10514,15 @@ process.hltFullIter0PrimaryVerticesPreSplittingPPOnAA = cms.EDProducer( "Primary
 )
 process.hltSiPixelClustersAfterSplittingPPOnAA = cms.EDProducer( "JetCoreClusterSplitter",
     verbose = cms.bool( False ),
-    chargeFractionMin = cms.double( 2.0 ),
+    deltaRmax = cms.double( 0.05 ),
     forceXError = cms.double( 100.0 ),
     vertices = cms.InputTag( "hltFullIter0PrimaryVerticesPreSplittingPPOnAA" ),
     chargePerUnit = cms.double( 2000.0 ),
-    centralMIPCharge = cms.double( 26000.0 ),
     forceYError = cms.double( 150.0 ),
+    centralMIPCharge = cms.double( 26000.0 ),
     pixelClusters = cms.InputTag( "hltSiPixelClustersPPOnAA" ),
     ptMin = cms.double( 200.0 ),
-    deltaRmax = cms.double( 0.05 ),
+    chargeFractionMin = cms.double( 2.0 ),
     cores = cms.InputTag( "hltJetsForCoreTracking" ),
     fractionalWidth = cms.double( 0.4 ),
     pixelCPE = cms.string( "hltESPPixelCPEGeneric" )
@@ -12217,10 +12218,7 @@ process.hltParticleFlowClusterPSUnseeded = cms.EDProducer( "PFClusterProducer",
 process.hltParticleFlowClusterECALUnseeded = cms.EDProducer( "CorrectedECALPFClusterProducer",
     inputPS = cms.InputTag( "hltParticleFlowClusterPSUnseeded" ),
     minimumPSEnergy = cms.double( 0.0 ),
-    energyCorrector = cms.PSet( 
-      algoName = cms.string( "PFClusterEMEnergyCorrector" ),
-      applyCrackCorrections = cms.bool( False )
-    ),
+    energyCorrector = cms.PSet(  applyCrackCorrections = cms.bool( False ) ),
     inputECAL = cms.InputTag( "hltParticleFlowClusterECALUncorrectedUnseeded" )
 )
 process.hltParticleFlowClusterHBHE = cms.EDProducer( "PFClusterProducer",
@@ -14160,10 +14158,7 @@ process.hltParticleFlowClusterECALUncorrectedPPOnAA = cms.EDProducer( "PFCluster
 process.hltParticleFlowClusterECALPPOnAA = cms.EDProducer( "CorrectedECALPFClusterProducer",
     inputPS = cms.InputTag( "hltParticleFlowClusterPSPPOnAA" ),
     minimumPSEnergy = cms.double( 0.0 ),
-    energyCorrector = cms.PSet( 
-      algoName = cms.string( "PFClusterEMEnergyCorrector" ),
-      applyCrackCorrections = cms.bool( False )
-    ),
+    energyCorrector = cms.PSet(  applyCrackCorrections = cms.bool( False ) ),
     inputECAL = cms.InputTag( "hltParticleFlowClusterECALUncorrectedPPOnAA" )
 )
 process.hltParticleFlowSuperClusterECALPPOnAA = cms.EDProducer( "PFECALSuperClusterProducer",
@@ -15329,8 +15324,6 @@ process.hltElePixelSeedsCombinedPPOnAA = cms.EDProducer( "SeedCombiner",
 )
 process.hltEgammaElectronPixelSeedsPPOnAA = cms.EDProducer( "ElectronNHitSeedProducer",
     matcherConfig = cms.PSet( 
-      detLayerGeom = cms.string( "hltESPGlobalDetLayerGeometry" ),
-      navSchool = cms.string( "SimpleNavigationSchool" ),
       useRecoVertex = cms.bool( False ),
       minNrHits = cms.vuint32( 2, 3 ),
       matchingCuts = cms.VPSet( 
@@ -15361,7 +15354,10 @@ process.hltEgammaElectronPixelSeedsPPOnAA = cms.EDProducer( "ElectronNHitSeedPro
           dRZMaxHighEtThres = cms.vdouble( 30.0 )
         )
       ),
-      minNrHitsValidLayerBins = cms.vint32( 4 )
+      minNrHitsValidLayerBins = cms.vint32( 4 ),
+      detLayerGeom = cms.ESInputTag( '','hltESPGlobalDetLayerGeometry' ),
+      navSchool = cms.ESInputTag( '','SimpleNavigationSchool' ),
+      paramMagField = cms.ESInputTag( '','ParabolicMf' )
     ),
     beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
     measTkEvt = cms.InputTag( "hltSiStripClustersPPOnAAZeroSuppression" ),
@@ -18210,15 +18206,15 @@ process.hltFullIter0PrimaryVerticesPreSplittingPPOnAAForDmeson = cms.EDProducer(
 )
 process.hltSiPixelClustersAfterSplittingPPOnAAForDmeson = cms.EDProducer( "JetCoreClusterSplitter",
     verbose = cms.bool( False ),
-    chargeFractionMin = cms.double( 2.0 ),
+    deltaRmax = cms.double( 0.05 ),
     forceXError = cms.double( 100.0 ),
     vertices = cms.InputTag( "hltFullIter0PrimaryVerticesPreSplittingPPOnAAForDmeson" ),
     chargePerUnit = cms.double( 2000.0 ),
-    centralMIPCharge = cms.double( 26000.0 ),
     forceYError = cms.double( 150.0 ),
+    centralMIPCharge = cms.double( 26000.0 ),
     pixelClusters = cms.InputTag( "hltSiPixelClustersPPOnAA" ),
     ptMin = cms.double( 200.0 ),
-    deltaRmax = cms.double( 0.05 ),
+    chargeFractionMin = cms.double( 2.0 ),
     cores = cms.InputTag( "hltJetsForCoreTracking" ),
     fractionalWidth = cms.double( 0.4 ),
     pixelCPE = cms.string( "hltESPPixelCPEGeneric" )
@@ -24622,15 +24618,15 @@ process.hltFullIter0PrimaryVerticesPreSplittingPPOnAAForLowPt = cms.EDProducer( 
 )
 process.hltSiPixelClustersAfterSplittingPPOnAAForLowPt = cms.EDProducer( "JetCoreClusterSplitter",
     verbose = cms.bool( False ),
-    chargeFractionMin = cms.double( 2.0 ),
+    deltaRmax = cms.double( 0.05 ),
     forceXError = cms.double( 100.0 ),
     vertices = cms.InputTag( "hltFullIter0PrimaryVerticesPreSplittingPPOnAAForLowPt" ),
     chargePerUnit = cms.double( 2000.0 ),
-    centralMIPCharge = cms.double( 26000.0 ),
     forceYError = cms.double( 150.0 ),
+    centralMIPCharge = cms.double( 26000.0 ),
     pixelClusters = cms.InputTag( "hltSiPixelClustersPPOnAAForLowPt" ),
     ptMin = cms.double( 200.0 ),
-    deltaRmax = cms.double( 0.05 ),
+    chargeFractionMin = cms.double( 2.0 ),
     cores = cms.InputTag( "hltJetsForCoreTracking" ),
     fractionalWidth = cms.double( 0.4 ),
     pixelCPE = cms.string( "hltESPPixelCPEGeneric" )

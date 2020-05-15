@@ -170,52 +170,10 @@ def customiseFor2017DtUnpacking(process):
 
     return process
 
-def customiseFor29512(process):
-    """Refresh configuration of ElectronNHitSeedProducer instances.
-
-    Loops over some parameters of ElectronNHitSeedProducer instances and changes their type from string to ESInputTag.
-
-    For PR https://github.com/cms-sw/cmssw/pull/29512 "ElectronNHitSeedProducer modernization"
-    """
-
-    for producer in producers_by_type(process, "ElectronNHitSeedProducer"):
-        matcherConfig = producer.matcherConfig
-        for parameter_name in ("detLayerGeom", "navSchool", "paramMagField"):
-            if hasattr(matcherConfig, parameter_name):
-                old_parameter = getattr(matcherConfig, parameter_name)
-                if old_parameter.pythonTypeName().endswith("string"):
-                    old_value = old_parameter.pythonValue()[1:-1]
-                    setattr(matcherConfig, parameter_name, cms.ESInputTag("", old_value))
-
-    return process
-
-def customiseFor29658(process):
-    """small cleanup of CorrectedECALPFClusterProducer::fillDescriptions
-    Removes two unused parameters of CorrectedECALPFClusterProducer
-    PR: https://github.com/cms-sw/cmssw/pull/29658
-    """
-    for mod in producers_by_type(process, 'CorrectedECALPFClusterProducer'):
-        if hasattr(mod, 'energyCorrector'):
-           for parName in ['algoName', 'verticesLabel']:
-               if hasattr(mod.energyCorrector, parName):
-                  delattr(mod.energyCorrector, parName)
-
-    return process
-
-# Use 8p fit (PR29617) and don't apply HB- correction (PR26177)
-def customiseFor29617(process):
-    for producer in producers_by_type(process, "HBHEPhase1Reconstructor"):
-        producer.algorithm.chiSqSwitch = cms.double(-1.0)
-        producer.algorithm.applyLegacyHBMCorrection = cms.bool( False )
-    return process
-
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
-    process = customiseFor29512(process)
-    process = customiseFor29658(process)
-    process = customiseFor29617(process)
 
     return process
