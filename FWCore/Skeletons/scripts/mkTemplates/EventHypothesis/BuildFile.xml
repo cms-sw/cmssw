@@ -1,5 +1,0 @@
-<use name="DataFormats/Common"/>
-<export>
-  <lib name="__subsys__xxxEventHypothesis"/>
-  <use name="DataFormats/Common"/>
-</export>
