@@ -9,10 +9,6 @@
 #include <cstdint>
 #include <type_traits>
 
-#ifdef __CUDACC__
-#include <cub/cub.cuh>
-#endif
-
 #include "HeterogeneousCore/CUDAUtilities/interface/AtomicPairCounter.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
@@ -61,32 +57,31 @@ namespace cms {
                                                           = cudaStreamDefault
 #endif
     ) {
-      uint32_t *off = (uint32_t *)((char *)(h) + offsetof(Histo, off));
+      uint32_t *poff = (uint32_t *)((char *)(h) + offsetof(Histo, off));
+      int32_t size = offsetof(Histo, bins) - offsetof(Histo, off);
+      assert(size >= int(sizeof(uint32_t) * Histo::totbins()));
 #ifdef __CUDACC__
-      cudaCheck(cudaMemsetAsync(off, 0, 4 * Histo::totbins(), stream));
+      cudaCheck(cudaMemsetAsync(poff, 0, size, stream));
 #else
-      ::memset(off, 0, 4 * Histo::totbins());
+      ::memset(poff, 0, size);
 #endif
     }
 
     template <typename Histo>
     inline __attribute__((always_inline)) void launchFinalize(Histo *__restrict__ h,
-                                                              uint8_t *__restrict__ ws
-#ifndef __CUDACC__
-                                                              = cudaStreamDefault
-#endif
-                                                              ,
                                                               cudaStream_t stream
 #ifndef __CUDACC__
                                                               = cudaStreamDefault
 #endif
     ) {
 #ifdef __CUDACC__
-      assert(ws);
-      uint32_t *off = (uint32_t *)((char *)(h) + offsetof(Histo, off));
-      size_t wss = Histo::wsSize();
-      assert(wss > 0);
-      CubDebugExit(cub::DeviceScan::InclusiveSum(ws, wss, off, off, Histo::totbins(), stream));
+      uint32_t *poff = (uint32_t *)((char *)(h) + offsetof(Histo, off));
+      int32_t *ppsws = (int32_t *)((char *)(h) + offsetof(Histo, psws));
+      auto nthreads = 1024;
+      auto nblocks = (Histo::totbins() + nthreads - 1) / nthreads;
+      multiBlockPrefixScan<<<nblocks, nthreads, sizeof(int32_t) * nblocks, stream>>>(
+          poff, poff, Histo::totbins(), ppsws);
+      cudaCheck(cudaGetLastError());
 #else
       h->finalize();
 #endif
@@ -94,7 +89,6 @@ namespace cms {
 
     template <typename Histo, typename T>
     inline __attribute__((always_inline)) void fillManyFromVector(Histo *__restrict__ h,
-                                                                  uint8_t *__restrict__ ws,
                                                                   uint32_t nh,
                                                                   T const *__restrict__ v,
                                                                   uint32_t const *__restrict__ offsets,
@@ -110,7 +104,7 @@ namespace cms {
       auto nblocks = (totSize + nthreads - 1) / nthreads;
       countFromVector<<<nblocks, nthreads, 0, stream>>>(h, nh, v, offsets);
       cudaCheck(cudaGetLastError());
-      launchFinalize(h, ws, stream);
+      launchFinalize(h, stream);
       fillFromVector<<<nblocks, nthreads, 0, stream>>>(h, nh, v, offsets);
       cudaCheck(cudaGetLastError());
 #else
@@ -185,18 +179,6 @@ namespace cms {
       static constexpr uint32_t capacity() { return SIZE; }
 
       static constexpr auto histOff(uint32_t nh) { return NBINS * nh; }
-
-      __host__ __forceinline__ static size_t wsSize() {
-#ifdef __CUDACC__
-        uint32_t *v = nullptr;
-        void *d_temp_storage = nullptr;
-        size_t temp_storage_bytes = 0;
-        cub::DeviceScan::InclusiveSum(d_temp_storage, temp_storage_bytes, v, v, totbins());
-        return temp_storage_bytes;
-#else
-        return 0;
-#endif
-      }
 
       static constexpr UT bin(T t) {
         constexpr uint32_t shift = sizeT() - nbits();
@@ -325,6 +307,7 @@ namespace cms {
       constexpr index_type const *end(uint32_t b) const { return bins + off[b + 1]; }
 
       Counter off[totbins()];
+      int32_t psws;  // prefix-scan working space
       index_type bins[capacity()];
     };
 

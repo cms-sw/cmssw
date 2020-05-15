@@ -41,22 +41,18 @@
   </bin>
 
   <bin file="HistoContainer_t.cu" name="gpuHistoContainer_t">
-    <use name="cub"/>
     <flags CUDA_FLAGS="-g"/>
   </bin>
 
   <bin file="HistoContainer_t.cu" name="gpuHistoContainer_debug">
-    <use name="cub"/>
     <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
   </bin>
 
   <bin file="OneHistoContainer_t.cu" name="gpuOneHistoContainer_t">
-    <use name="cub"/>
     <flags CUDA_FLAGS="-g"/>
   </bin>
 
   <bin file="OneHistoContainer_t.cu" name="gpuOneHistoContainer_debug">
-    <use name="cub"/>
     <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
   </bin>
 
@@ -69,12 +65,10 @@
   </bin>
 
   <bin file="OneToManyAssoc_t.cu" name="gpuOneToManyAssoc_t">
-    <use name="cub"/>
     <flags CUDA_FLAGS="-g"/>
   </bin>
 
   <bin file="OneToManyAssoc_t.cu" name="gpuOneToManyAssoc_debug">
-    <use name="cub"/>
     <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
   </bin>
 
@@ -83,12 +77,10 @@
   </bin>
 
   <bin file="prefixScan_t.cu" name="gpuPrefixScan_t">
-    <use name="cub"/>
     <flags CUDA_FLAGS="-g"/>
   </bin>
 
   <bin file="prefixScan_t.cu" name="gpuPrefixScan_debug">
-    <use name="cub"/>
     <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
   </bin>
 

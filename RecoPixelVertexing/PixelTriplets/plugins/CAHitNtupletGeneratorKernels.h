@@ -195,8 +195,6 @@ private:
 
   unique_ptr<TupleMultiplicity> device_tupleMultiplicity_;
 
-  uint8_t* device_tmws_;
-
   unique_ptr<cms::cuda::AtomicPairCounter::c_type[]> device_storage_;
   // params
   Params const& m_params;
