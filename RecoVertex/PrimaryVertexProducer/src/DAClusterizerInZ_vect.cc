@@ -278,7 +278,7 @@ void DAClusterizerInZ_vect::clear_vtx_range(track_t& gtracks, vertex_t& gvertice
 double DAClusterizerInZ_vect::update(double beta, track_t& gtracks, vertex_t& gvertices, const double rho0) const {
   //update weights and vertex positions
   // mass constrained annealing without noise
-  // returns the squared sum of changes of vertex positions
+  // returns the maximum of changes of vertex positions
   // identical to updateTC but without updating swE needed for Tc
 
   const unsigned int nt = gtracks.getSize();
