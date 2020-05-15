@@ -63,7 +63,7 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
     LogDebug("HGCPatternRecoByCA") << "Making Tracksters with CA" << std::endl;
   }
 
-  int type = input.tiles[0].getTypeT();
+  int type = input.tiles[0].typeT();
   int nEtaBin = (type == 1) ? ticl::TileConstantsHFNose::nEtaBins : ticl::TileConstants::nEtaBins;
   int nPhiBin = (type == 1) ? ticl::TileConstantsHFNose::nPhiBins : ticl::TileConstants::nPhiBins;
 
@@ -388,6 +388,3 @@ void PatternRecognitionbyCA<TILES>::energyRegressionAndID(const std::vector<reco
     }
   }
 }
-
-//template class PatternRecognitionbyCA<TICLLayerTiles>;
-//template class PatternRecognitionbyCA<TICLLayerTilesHFNose>;

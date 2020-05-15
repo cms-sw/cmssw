@@ -418,13 +418,8 @@ bool RecHitTools::isHalfCell(const DetId& id) const {
 }
 
 bool RecHitTools::isSilicon(const DetId& id) const {
-  bool issilicon = false;
-  if (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi)
-    issilicon = true;
-  if (id.det() == DetId::Forward && id.subdetId() == static_cast<int>(HFNose)) {
-    issilicon = true;
-  }
-  return issilicon;
+  return (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi ||
+          (id.det() == DetId::Forward && id.subdetId() == static_cast<int>(HFNose)));
 }
 
 bool RecHitTools::isOnlySilicon(const unsigned int layer) const {
