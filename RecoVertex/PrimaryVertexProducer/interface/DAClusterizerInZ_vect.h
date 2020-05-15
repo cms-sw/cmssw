@@ -89,7 +89,7 @@ public:
     std::vector<double> sw;
     std::vector<double> swz;
     std::vector<double> se;
-    std::vector<double> swE;  // FIXME rename to szz
+    std::vector<double> swE;
 
     unsigned int getSize() const { return z.size(); }
 
