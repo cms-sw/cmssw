@@ -138,10 +138,10 @@ int main(int argc, char** argv) {
 
   SiPixelTemplateIDsBPixMap histo18;
   histo18.process(connectionString, PI::mk_input(tag, end, end));
-  std::cout << histo17.data() << std::endl;
+  std::cout << histo18.data() << std::endl;
 
   SiPixelTemplateLAFPixMap histo19;
-  histo18.process(connectionString, PI::mk_input(tag, end, end));
+  histo19.process(connectionString, PI::mk_input(tag, end, end));
   std::cout << histo19.data() << std::endl;
 
   Py_Finalize();
