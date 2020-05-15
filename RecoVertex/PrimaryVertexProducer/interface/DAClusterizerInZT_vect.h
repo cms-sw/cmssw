@@ -114,28 +114,6 @@ public:
       ei_cache_ptr = &ei_cache.front();
     }
 
-    void insertItem(unsigned int k, double new_z, double new_t, double new_pk) {
-      z.insert(z.begin() + k, new_z);
-      t.insert(t.begin() + k, new_t);
-      pk.insert(pk.begin() + k, new_pk);
-
-      ei_cache.insert(ei_cache.begin() + k, 0.0);
-      ei.insert(ei.begin() + k, 0.0);
-      swz.insert(swz.begin() + k, 0.0);
-      swt.insert(swt.begin() + k, 0.0);
-      se.insert(se.begin() + k, 0.0);
-
-      nuz.insert(nuz.begin() + k, 0.0);
-      nut.insert(nut.begin() + k, 0.0);
-      szz.insert(szz.begin() + k, 0.0);
-      stt.insert(stt.begin() + k, 0.0);
-      szt.insert(szt.begin() + k, 0.0);
-
-      dt2.insert(dt2.begin() + k, 0);
-      sumw.insert(sumw.begin() + k, 0);
-
-      extractRaw();
-    }
     void insertItem(unsigned int k, double new_z, double new_t, double new_pk, track_t &tks) {
       z.insert(z.begin() + k, new_z);
       t.insert(t.begin() + k, new_t);
