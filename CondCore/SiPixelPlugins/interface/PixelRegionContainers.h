@@ -175,7 +175,7 @@ namespace PixelRegions {
                  const float xmin,
                  const float xmax) {
       for (const auto& pixelId : PixelIDs | boost::adaptors::indexed(0)) {
-        m_theMap[pixelId.value()] = std::make_shared<TH1F>(itoa(pixelId.value()).c_str(),
+        m_theMap[pixelId.value()] = std::make_shared<TH1F>((title_label + itoa(pixelId.value())).c_str(),
                                                            Form("%s %s;%s;%s",
                                                                 (IDlabels.at(pixelId.index())).c_str(),
                                                                 title_label.c_str(),
@@ -200,7 +200,7 @@ namespace PixelRegions {
     }
 
     //============================================================================
-    void draw(TCanvas& canv, bool isBarrel, const char* option = "bar2") {
+    void draw(TCanvas& canv, bool isBarrel, const char* option = "bar2", bool isComparison = false) {
       if (isBarrel) {
         for (int j = 1; j <= 4; j++) {
           if (!m_isLog) {
@@ -208,7 +208,7 @@ namespace PixelRegions {
           } else {
             canv.cd(j)->SetLogy();
           }
-          if ((j == 4) && !m_isPhase1) {
+          if ((j == 4) && !m_isPhase1 && !isComparison) {
             m_theMap.at(PixelIDs[j - 1])->Draw("AXIS");
             TLatex t2;
             t2.SetTextAlign(22);
@@ -228,7 +228,7 @@ namespace PixelRegions {
           } else {
             canv.cd(j)->SetLogy();
           }
-          if ((j % 6 == 5 || j % 6 == 0) && !m_isPhase1) {
+          if ((j % 6 == 5 || j % 6 == 0) && !m_isPhase1 && !isComparison) {
             m_theMap.at(PixelIDs[j + 3])->Draw("AXIS");
             TLatex t2;
             t2.SetTextAlign(22);
@@ -266,12 +266,14 @@ namespace PixelRegions {
     void setLogScale() { m_isLog = true; }
 
     //============================================================================
-    void stats() {
+    void stats(int index = 0) {
       for (const auto& plot : m_theMap) {
         TPaveStats* st = (TPaveStats*)plot.second->FindObject("stats");
         if (st) {
           st->SetTextSize(0.03);
-          SiPixelPI::adjustStats(st, 0.15, 0.85, 0.39, 0.93);
+          st->SetLineColor(10);
+          st->SetTextColor(plot.second->GetFillColor());
+          SiPixelPI::adjustStats(st, 0.13, 0.85 - index * 0.08, 0.36, 0.93 - index * 0.08);
         }
       }
     }
@@ -283,6 +285,16 @@ namespace PixelRegions {
         return it->second;
       } else {
         throw cms::Exception("PixelRegionContainer") << "No histogram is available for PixelId" << theId << "\n";
+      }
+    }
+
+    //============================================================================
+    void rescaleMax(PixelRegionContainers& the2Container) {
+      for (const auto& plot : m_theMap) {
+        auto thePixId = plot.first;
+        auto extrema = SiPixelPI::getExtrema((plot.second).get(), the2Container.getHistoFromMap(thePixId).get());
+        plot.second->GetYaxis()->SetRangeUser(extrema.first, extrema.second);
+        the2Container.getHistoFromMap(thePixId)->GetYaxis()->SetRangeUser(extrema.first, extrema.second);
       }
     }
 
