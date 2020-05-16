@@ -22,7 +22,7 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
             ),
         parameterSets = cms.vstring('pythia8CommonSettings',
                                     'pythia8CP5Settings',
-				    'pythia8BottomoniumSettings',
+                                    'pythia8BottomoniumSettings',
                                     'processParameters',
                                     )
         )
