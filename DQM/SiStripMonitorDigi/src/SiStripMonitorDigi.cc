@@ -3,6 +3,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
+//         Updated:  May 2020, Suvankar Roy Chowdhury
 #include <fstream>
 #include "TNamed.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -185,11 +186,11 @@ SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig)
     dcsStatus_ = nullptr;
 
   //initialize boolean for the data-presence check (needed for TotalNumberOfDigisFailure histogram)
-  isStableBeams = false;
   SBTransitionDone = false;
   SBDeclaredAt = 0;
   ignoreFirstNLumisections_ = TMath::Max(0, ParametersTotDigiFailure.getParameter<int32_t>("ignoreFirstNLumisections"));
   integrateNLumisections_ = TMath::Max(1, ParametersTotDigiFailure.getParameter<int32_t>("integrateNLumisections"));
+  vecSubDetTotDigiProfLS.reserve(7);
 }
 //------------------------------------------------------------------------------------------
 
@@ -267,42 +268,41 @@ void SiStripMonitorDigi::dqmBeginRun(const edm::Run& run, const edm::EventSetup&
 }
 
 //--------------------------------------------------------------------------------------------
-void SiStripMonitorDigi::beginLuminosityBlock(const edm::LuminosityBlock& lb, const edm::EventSetup& es) {
-  if (subdetswitchtotdigifailureon) {
-    isStableBeams = false;
-    //integrate stats over several LS to prevent eventual low trigger rates
-    if (digiFailureMEs.SubDetTotDigiProfLS && lb.id().luminosityBlock() % integrateNLumisections_ == 0)
-      digiFailureMEs.SubDetTotDigiProfLS->Reset();
-  }
+std::shared_ptr<bool> SiStripMonitorDigi::globalBeginLuminosityBlock(const edm::LuminosityBlock& lb,
+                                                                     const edm::EventSetup& es) const {
+  bool isStableBeams = false;
+  return std::make_shared<bool>(isStableBeams);
 }
 
 //--------------------------------------------------------------------------------------------
-void SiStripMonitorDigi::endLuminosityBlock(const edm::LuminosityBlock& lb, const edm::EventSetup& es) {
+void SiStripMonitorDigi::globalEndLuminosityBlock(const edm::LuminosityBlock& lb, const edm::EventSetup& es) {
+  unsigned int currentLS = lb.id().luminosityBlock();
+  const bool isStableBeams = luminosityBlockCache(lb.index());
   if (subdetswitchtotdigifailureon && isStableBeams && !SBTransitionDone) {
-    SBDeclaredAt = (int)lb.id().luminosityBlock();
+    SBDeclaredAt = (int)currentLS;
     SBTransitionDone = true;
   }
 
-  if (subdetswitchtotdigifailureon && lb.id().luminosityBlock() % integrateNLumisections_ == 0) {
+  if (subdetswitchtotdigifailureon && currentLS % integrateNLumisections_ == 0) {
     int nFeds[6] = {96, 96, 84, 15, 15, 134};  // tec- , tec+ , tib , tid- , tid+ , tob
     int nFedsConnected[6] = {nFedTECm, nFedTECp, nFedTIB, nFedTIDm, nFedTIDp, nFedTOB};
 
     if (digiFailureMEs.SubDetTotDigiProfLS) {
       for (int ibin = 1; ibin < 7; ibin++) {
-        float value = digiFailureMEs.SubDetTotDigiProfLS->getBinContent(ibin);
+        //the vector now has the sum from previous integrateNLumisections_
+        //whereas digiFailureMEs.SubDetTotDigiProfLS now has sum for all LS upto now.
+        float value = digiFailureMEs.SubDetTotDigiProfLS->getBinContent(ibin) - vecSubDetTotDigiProfLS[ibin];
+        vecSubDetTotDigiProfLS[ibin] = digiFailureMEs.SubDetTotDigiProfLS->getBinContent(ibin);
 
         float fillvalue = 2;
         if (isStableBeams
             //	     && (int)lb.id().luminosityBlock() > ignoreFirstNLumisections_     //ignore first X lumisections for HV rampup
-            && ((int)lb.id().luminosityBlock() - SBDeclaredAt) > ignoreFirstNLumisections_ &&
+            && ((int)currentLS - SBDeclaredAt) > ignoreFirstNLumisections_ &&
             (float)nFedsConnected[ibin - 1] / nFeds[ibin - 1] > 0.5 && value < 50.) {
           fillvalue = 1.01;
         }
-
         //account for integrated LS: fill previous bins as well
-        for (int fillbin = (int)lb.id().luminosityBlock() - integrateNLumisections_ + 1;
-             fillbin <= (int)lb.id().luminosityBlock();
-             fillbin++)
+        for (int fillbin = (int)currentLS - integrateNLumisections_ + 1; fillbin <= (int)currentLS; fillbin++)
           digiFailureMEs.SubDetDigiFailures2D->Fill(fillbin, ibin - 1, fillvalue);
       }
     }
@@ -809,6 +809,7 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
     }
   }
 
+  bool& isStableBeams = *luminosityBlockCache(iEvent.getLuminosityBlock().index());
   if (subdetswitchtotdigifailureon) {
     //check Stable beams bit
     edm::Handle<L1GlobalTriggerEvmReadoutRecord> gtEvm_handle;
