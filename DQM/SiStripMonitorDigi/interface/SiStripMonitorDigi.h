@@ -197,7 +197,6 @@ private:
   bool globalswitchNDigisFEDID;
 
   //  int xLumiProf;
-  //mutable bool isStableBeams;
   int ignoreFirstNLumisections_;
   int integrateNLumisections_;
   int SBDeclaredAt;
@@ -222,7 +221,6 @@ private:
   bool m_trendVs10LS;
 
   std::vector<float> vecSubDetTotDigiProfLS;
-
   edm::InputTag historyProducer_;
   edm::InputTag apvPhaseProducer_;
 
