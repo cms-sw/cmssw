@@ -1,8 +1,9 @@
-/// -*- c++ -*-
+// -*- c++ -*-
 /**\class SiStripMonitorDigi SiStripMonitorDigi.cc DQM/SiStripMonitorDigi/src/SiStripMonitorDigi.cc
  */
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
+//         Updated:  May 2020, Suvankar Roy Chowdhury
 #include <fstream>
 #include "TNamed.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -185,7 +186,6 @@ SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig)
     dcsStatus_ = nullptr;
 
   //initialize boolean for the data-presence check (needed for TotalNumberOfDigisFailure histogram)
-  //isStableBeams = false;
   SBTransitionDone = false;
   SBDeclaredAt = 0;
   ignoreFirstNLumisections_ = TMath::Max(0, ParametersTotDigiFailure.getParameter<int32_t>("ignoreFirstNLumisections"));
@@ -271,14 +271,10 @@ void SiStripMonitorDigi::dqmBeginRun(const edm::Run& run, const edm::EventSetup&
 std::shared_ptr<bool> SiStripMonitorDigi::globalBeginLuminosityBlock(const edm::LuminosityBlock& lb,
                                                                      const edm::EventSetup& es) const {
   bool isStableBeams = false;
-  //if (subdetswitchtotdigifailureon) {
-  //  isStableBeams = false;
-  //}
   return std::make_shared<bool>(isStableBeams);
 }
 
 //--------------------------------------------------------------------------------------------
-//void SiStripMonitorDigi::endLuminosityBlock(const edm::LuminosityBlock& lb, const edm::EventSetup& es) {
 void SiStripMonitorDigi::globalEndLuminosityBlock(const edm::LuminosityBlock& lb, const edm::EventSetup& es) {
   unsigned int currentLS = lb.id().luminosityBlock();
   const bool isStableBeams = luminosityBlockCache(lb.index());
