@@ -13,7 +13,7 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
                          PythiaParameters = cms.PSet(
         pythia8CommonSettingsBlock,
         pythia8CP5SettingsBlock,
-	pythia8BottomoniumSettingsBlock,
+	pythia8BottomoniumSettingsBlock,#checking indentation
         processParameters = cms.vstring(
             'Bottomonium:states(3S1) = 553', # filter on 553 and prevents other onium states decaying to 553, so we should turn the others off
             '553:onMode = off',            # ignore cross-section re-weighting (CSAMODE=6) since selecting wanted decay mode
