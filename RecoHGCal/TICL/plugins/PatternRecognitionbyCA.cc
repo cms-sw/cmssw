@@ -187,6 +187,7 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
       }
     }
   }
+  theGraph_->clear();
 }
 
 void PatternRecognitionbyCA::mergeTrackstersTRK(
