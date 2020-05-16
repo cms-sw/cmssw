@@ -71,7 +71,10 @@ HLTPixelActivityFilterForSiStripCalZeroBias = HLTrigger.special.hltPixelActivity
 HLTPixelActivityFilterForSiStripCalZeroBias.maxClusters = 500
 HLTPixelActivityFilterForSiStripCalZeroBias.inputTag    = 'siPixelClusters'
 
-seqALCARECOSiStripCalZeroBiasHI = cms.Sequence(ALCARECOSiStripCalZeroBiasHLT*HLTPixelActivityFilterForSiStripCalZeroBias*DCSStatusForSiStripCalZeroBias*calZeroBiasClusters*APVPhases*consecutiveHEs)
+# Short-term workaround to preserve the "run for every event" while removing the use of convertToUnscheduled()
+# To be reverted in a subsequent PR
+seqALCARECOSiStripCalZeroBiasHITask = cms.Task(calZeroBiasClusters, APVPhases,consecutiveHEs)
+seqALCARECOSiStripCalZeroBiasHI = cms.Sequence(ALCARECOSiStripCalZeroBiasHLT*HLTPixelActivityFilterForSiStripCalZeroBias*DCSStatusForSiStripCalZeroBias, seqALCARECOSiStripCalZeroBiasHITask)
 
 #Specify we want to use our other sequence 
 (pp_on_XeXe_2017 | pp_on_AA_2018).toReplaceWith(seqALCARECOSiStripCalZeroBias,
