@@ -4,9 +4,21 @@ Checks: -*,
   ,misc-string-compare,
   ,misc-uniqueptr-reset-release,
   ,modernize-deprecated-headers,
+  ,performance-faster-string-find,
+  ,performance-for-range-copy,
+  ,performance-implicit-conversion-in-loop,
+  ,performance-inefficient-algorithm,
+  ,performance-inefficient-vector-operation,
+  ,performance-move-const-arg,
+  ,performance-unnecessary-copy-initialization,
+  ,performance-unnecessary-value-param,
   ,modernize-make-shared,
+  ,modernize-make-unique,
+  ,modernize-loop-convert,
+  ,modernize-use-auto,
   ,modernize-use-bool-literals,
   ,modernize-use-equals-delete,
+  ,modernize-use-emplace,
   ,modernize-use-nullptr,
   ,modernize-use-override,
   ,performance-unnecessary-copy-initialization,
@@ -36,6 +48,8 @@ CheckOptions:
     value:           llvm
   - key:             modernize-replace-auto-ptr.IncludeStyle
     value:           llvm
+  - key:             modernize-use-auto.MinTypeNameLength
+    value:           16
   - key:             modernize-use-nullptr.NullMacros
     value:           'NULL'
 ...
