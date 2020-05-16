@@ -26,6 +26,7 @@ Checks: -*,
   ,readability-redundant-string-cstr,
   ,readability-static-definition-in-anonymous-namespace,
   ,readability-uniqueptr-delete-release
+FormatStyle: 'file'
 WarningsAsErrors: ''
 HeaderFilterRegex: ''
 AnalyzeTemporaryDtors: false
