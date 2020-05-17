@@ -12,7 +12,7 @@
 #include <TMath.h>
 #include <TTree.h>
 #include <TPaveText.h>
-
+#include <TObjString.h>
 #include <TError.h>
 #include <TROOT.h>
 #include <TCanvas.h>
