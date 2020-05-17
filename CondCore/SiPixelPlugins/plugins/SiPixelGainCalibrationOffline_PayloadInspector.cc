@@ -7,7 +7,6 @@
 */
 
 #include "CondCore/SiPixelPlugins/interface/SiPixelGainCalibHelper.h"
-//#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationOffline.h"
 
 namespace {
 
@@ -143,19 +142,14 @@ PAYLOAD_INSPECTOR_MODULE(SiPixelGainCalibrationOffline) {
   PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibrationOfflineCorrelations);
   PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibrationOfflineGainsByPart);
   PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibrationOfflinePedestalsByPart);
-
   PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibOfflineGainComparisonBarrelSingleTag);
   PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibOfflineGainComparisonBarrelTwoTags);
-
   PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibOfflinePedestalComparisonBarrelSingleTag);
   PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibOfflinePedestalComparisonBarrelTwoTags);
-
   PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibOfflineGainComparisonEndcapSingleTag);
   PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibOfflineGainComparisonEndcapTwoTags);
-
   PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibOfflinePedestalComparisonEndcapSingleTag);
   PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibOfflinePedestalComparisonEndcapTwoTags);
-
   PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibOfflineGainComparisonSingleTag)
   PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibOfflinePedestalComparisonSingleTag);
   PAYLOAD_INSPECTOR_CLASS(SiPixelGainCalibOfflineGainComparisonTwoTags);
