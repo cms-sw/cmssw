@@ -295,12 +295,12 @@ namespace PixelRegions {
     }
 
     //============================================================================
-    void rescaleMax(PixelRegionContainers& the2Container) {
+    void rescaleMax(PixelRegionContainers& the2ndContainer) {
       for (const auto& plot : m_theMap) {
         auto thePixId = plot.first;
-        auto extrema = SiPixelPI::getExtrema((plot.second).get(), the2Container.getHistoFromMap(thePixId).get());
+        auto extrema = SiPixelPI::getExtrema((plot.second).get(), the2ndContainer.getHistoFromMap(thePixId).get());
         plot.second->GetYaxis()->SetRangeUser(extrema.first, extrema.second);
-        the2Container.getHistoFromMap(thePixId)->GetYaxis()->SetRangeUser(extrema.first, extrema.second);
+        the2ndContainer.getHistoFromMap(thePixId)->GetYaxis()->SetRangeUser(extrema.first, extrema.second);
       }
     }
 
