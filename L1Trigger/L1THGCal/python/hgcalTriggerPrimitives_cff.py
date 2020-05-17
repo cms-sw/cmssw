@@ -8,9 +8,15 @@ from L1Trigger.L1THGCal.hgcalBackEndLayer2_cff import *
 from L1Trigger.L1THGCal.hgcalTowerMap_cff import *
 from L1Trigger.L1THGCal.hgcalTower_cff import *
 
-
 hgcalTriggerPrimitivesTask = cms.Task(hgcalVFE, hgcalConcentrator, hgcalBackEndLayer1, hgcalBackEndLayer2, hgcalTowerMap, hgcalTower)
 hgcalTriggerPrimitives = cms.Sequence(hgcalTriggerPrimitivesTask)
+
+_hfnose_hgcalTriggerPrimitivesTask = hgcalTriggerPrimitivesTask.copy()
+_hfnose_hgcalTriggerPrimitivesTask.add(hfnoseVFE, hgcalConcentratorHFNose, hgcalBackEndLayer1HFNose, hgcalBackEndLayer2HFNose, hgcalTowerMapHFNose, hgcalTowerHFNose)
+
+from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
+phase2_hfnose.toReplaceWith(
+        hgcalTriggerPrimitivesTask, _hfnose_hgcalTriggerPrimitivesTask )
 
 from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
 from Configuration.Eras.Modifier_phase2_hgcalV11_cff import phase2_hgcalV11

@@ -25,3 +25,7 @@ hgcalTowerMapProducer = cms.EDProducer(
     InputTriggerCells = cms.InputTag('hgcalVFEProducer:HGCalVFEProcessorSums'),
     ProcessorParameters = tower_map.clone()
     )
+
+hgcalTowerMapProducerHFNose = hgcalTowerMapProducer.clone(
+    InputTriggerCells = cms.InputTag('hfnoseVFEProducer:HFNoseVFEProcessorSums')
+)
