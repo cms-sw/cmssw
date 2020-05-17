@@ -15,8 +15,8 @@ WeightManager::WeightManager(const ParameterSet& iConfig, edm::ConsumesCollector
     hepmcCollectionToken_ = iC.consumes<HepMCProduct>(_hepmcCollection);
   } else {
     _genEventInfos = iConfig.getParameter<std::vector<InputTag> >("genEventInfos");
-    for (unsigned int i = 0; i < _genEventInfos.size(); i++)
-      genEventInfosTokens_.push_back(iC.consumes<std::vector<InputTag> >(_genEventInfos[i]));
+    for (const auto& _genEventInfo : _genEventInfos)
+      genEventInfosTokens_.push_back(iC.consumes<std::vector<InputTag> >(_genEventInfo));
   }
 }
 
@@ -32,9 +32,9 @@ double WeightManager::weight(const Event& iEvent) {
     return weight;
   } else {
     double weight = 1.;
-    for (unsigned int i = 0; i < genEventInfosTokens_.size(); ++i) {
+    for (auto genEventInfosToken : genEventInfosTokens_) {
       edm::Handle<GenEventInfoProduct> info;
-      iEvent.getByToken(genEventInfosTokens_[i], info);
+      iEvent.getByToken(genEventInfosToken, info);
       weight *= info->weight();
     }
     return weight;

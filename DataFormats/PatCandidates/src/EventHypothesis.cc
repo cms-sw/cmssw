@@ -7,20 +7,18 @@ char *pat::EventHypothesis::getDemangledSymbol(const char *mangledSymbol) const 
   return (status == 0) ? demangledSymbol : nullptr;
 }
 
-void pat::EventHypothesis::add(const CandRefType &ref, const std::string &role) {
-  particles_.push_back(value_type(role, ref));
-}
+void pat::EventHypothesis::add(const CandRefType &ref, const std::string &role) { particles_.emplace_back(role, ref); }
 
 const pat::EventHypothesis::CandRefType &pat::EventHypothesis::get(const std::string &role, int index) const {
   if (index >= 0) {
-    const_iterator it = realGet(begin(), end(), ByRole(role), index);
+    auto it = realGet(begin(), end(), ByRole(role), index);
     if (it == end()) {
       throw cms::Exception("Index not found")
           << "Can't find a particle with role " << role << " and index " << index << "\n";
     }
     return it->second;
   } else {
-    const_reverse_iterator it = realGet(rbegin(), rend(), ByRole(role), -index);
+    auto it = realGet(rbegin(), rend(), ByRole(role), -index);
     if (it == rend()) {
       throw cms::Exception("Index not found")
           << "Can't find a particle with role " << role << " and index " << index << "\n";
@@ -31,13 +29,13 @@ const pat::EventHypothesis::CandRefType &pat::EventHypothesis::get(const std::st
 
 const pat::EventHypothesis::CandRefType &pat::EventHypothesis::get(const ParticleFilter &filter, int index) const {
   if (index >= 0) {
-    const_iterator it = realGet(begin(), end(), filter, index);
+    auto it = realGet(begin(), end(), filter, index);
     if (it == end()) {
       throw cms::Exception("Index not found") << "Can't find a particle matching filter with index " << index << "\n";
     }
     return it->second;
   } else {
-    const_reverse_iterator it = realGet(rbegin(), rend(), filter, -index);
+    auto it = realGet(rbegin(), rend(), filter, -index);
     if (it == rend()) {
       throw cms::Exception("Index not found") << "Can't find a particle matching filter with index " << index << "\n";
     }
@@ -51,9 +49,9 @@ std::vector<pat::EventHypothesis::CandRefType> pat::EventHypothesis::all(const s
 
 std::vector<pat::EventHypothesis::CandRefType> pat::EventHypothesis::all(const ParticleFilter &filter) const {
   std::vector<pat::EventHypothesis::CandRefType> ret;
-  for (const_iterator it = begin(); it != end(); ++it) {
-    if (filter(*it))
-      ret.push_back(it->second);
+  for (const auto &it : *this) {
+    if (filter(it))
+      ret.push_back(it.second);
   }
   return ret;
 }
@@ -64,8 +62,8 @@ size_t pat::EventHypothesis::count(const std::string &roleRegexp) const {
 
 size_t pat::EventHypothesis::count(const ParticleFilter &role) const {
   size_t n = 0;
-  for (const_iterator it = begin(); it != end(); ++it) {
-    if (role(*it))
+  for (const auto &it : *this) {
+    if (role(it))
       ++n;
   }
   return n;

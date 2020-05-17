@@ -124,16 +124,16 @@ namespace {
         TCanvas canvas("ByDetId", "ByDetId", 1200, 1000);
 
         edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-        SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+        auto* reader = new SiStripDetInfoFileReader(fp_.fullPath());
         unsigned int nAPVs = reader->getNumberOfApvsAndStripLength(the_detid).first;
 
-        auto hnoise = std::unique_ptr<TH1F>(
-            new TH1F("Pedestal profile",
-                     Form("SiStrip Pedestal profile for DetId: %s;Strip number;SiStrip Pedestal [ADC counts]",
-                          std::to_string(the_detid).c_str()),
-                     128 * nAPVs,
-                     -0.5,
-                     (128 * nAPVs) - 0.5));
+        auto hnoise = std::make_unique<TH1F>(
+            "Pedestal profile",
+            Form("SiStrip Pedestal profile for DetId: %s;Strip number;SiStrip Pedestal [ADC counts]",
+                 std::to_string(the_detid).c_str()),
+            128 * nAPVs,
+            -0.5,
+            (128 * nAPVs) - 0.5);
         hnoise->SetStats(false);
 
         std::vector<uint32_t> detid;
@@ -278,7 +278,7 @@ namespace {
 
       std::shared_ptr<SiStripPedestals> payload = fetchPayload(std::get<1>(iov));
 
-      auto mon1D = std::unique_ptr<SiStripPI::Monitor1D>(new SiStripPI::Monitor1D(
+      auto mon1D = std::make_unique<SiStripPI::Monitor1D>(
           op_mode_,
           "Pedestal",
           Form("#LT Pedestal #GT per %s for IOV [%s];#LTStrip Pedestal per %s#GT [ADC counts];n. %ss",
@@ -288,7 +288,7 @@ namespace {
                opType(op_mode_).c_str()),
           300,
           0.,
-          300.0));
+          300.0);
 
       unsigned int prev_det = 0, prev_apv = 0;
       SiStripPI::Entry epedestal;
@@ -403,7 +403,7 @@ namespace {
       std::shared_ptr<SiStripPedestals> f_payload = fetchPayload(std::get<1>(firstiov));
       std::shared_ptr<SiStripPedestals> l_payload = fetchPayload(std::get<1>(lastiov));
 
-      auto f_mon = std::unique_ptr<SiStripPI::Monitor1D>(new SiStripPI::Monitor1D(
+      auto f_mon = std::make_unique<SiStripPI::Monitor1D>(
           op_mode_,
           "f_Pedestal",
           Form("#LT Strip Pedestal #GT per %s for IOV [%s,%s];#LTStrip Pedestal per %s#GT [ADC counts];n. %ss",
@@ -414,9 +414,9 @@ namespace {
                opType(op_mode_).c_str()),
           300,
           0.,
-          300.));
+          300.);
 
-      auto l_mon = std::unique_ptr<SiStripPI::Monitor1D>(new SiStripPI::Monitor1D(
+      auto l_mon = std::make_unique<SiStripPI::Monitor1D>(
           op_mode_,
           "l_Pedestal",
           Form("#LT Strip Pedestal #GT per %s for IOV [%s,%s];#LTStrip Pedestal per %s#GT [ADC counts];n. %ss",
@@ -427,7 +427,7 @@ namespace {
                opType(op_mode_).c_str()),
           300,
           0.,
-          300.));
+          300.);
 
       unsigned int prev_det = 0, prev_apv = 0;
       SiStripPI::Entry epedestal;
@@ -609,12 +609,12 @@ namespace {
       std::shared_ptr<SiStripPedestals> payload = fetchPayload(std::get<1>(iov));
 
       edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      auto* reader = new SiStripDetInfoFileReader(fp_.fullPath());
 
       std::string titleMap =
           "Tracker Map of Zero SiStrip Pedestals fraction per module (payload : " + std::get<1>(iov) + ")";
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripPedestals"));
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripPedestals");
       tmap->setTitle(titleMap);
       tmap->setPalette(1);
 
@@ -670,7 +670,7 @@ namespace {
       std::string titleMap =
           "Tracker Map of SiStrip Pedestals " + estimatorType(est) + " per module (payload : " + std::get<1>(iov) + ")";
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripPedestals"));
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripPedestals");
       tmap->setTitle(titleMap);
       tmap->setPalette(1);
 
@@ -804,14 +804,14 @@ namespace {
 
       TCanvas canvas("Partion summary", "partition summary", 1200, 1000);
       canvas.cd();
-      auto h1 = std::unique_ptr<TH1F>(new TH1F(
+      auto h1 = std::make_unique<TH1F>(
           "byRegion",
           Form("Average by partition of %s SiStrip Pedestals per module;;average SiStrip Pedestals %s [ADC counts]",
                estimatorType(est).c_str(),
                estimatorType(est).c_str()),
           map.size(),
           0.,
-          map.size()));
+          map.size());
       h1->SetStats(false);
       canvas.SetBottomMargin(0.18);
       canvas.SetLeftMargin(0.17);

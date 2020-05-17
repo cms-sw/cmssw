@@ -11,7 +11,7 @@ Phase2StripCPEGeometric::Phase2StripCPEGeometric(edm::ParameterSet &conf) {}
 
 Phase2StripCPEGeometric::LocalValues Phase2StripCPEGeometric::localParameters(const Phase2TrackerCluster1D &cluster,
                                                                               const GeomDetUnit &detunit) const {
-  const Phase2TrackerGeomDetUnit &det = (const Phase2TrackerGeomDetUnit &)detunit;
+  const auto &det = (const Phase2TrackerGeomDetUnit &)detunit;
   const Phase2TrackerTopology *topo = &det.specificTopology();
 
   float pitch_x = topo->pitch().first;

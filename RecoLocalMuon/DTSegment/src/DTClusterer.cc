@@ -115,12 +115,12 @@ vector<DTSLRecCluster> DTClusterer::buildClusters(const DTSuperLayer* sl, vector
   float sum = 0.;
   float sum2 = 0.;
 
-  for (vector<pair<float, DTRecHit1DPair> >::const_iterator hit = hits.begin(); hit != hits.end(); ++hit) {
+  for (const auto& hit : hits) {
     if (debug)
-      cout << "Hit: " << (*hit).first << " lastPos: " << lastPos << endl;
+      cout << "Hit: " << hit.first << " lastPos: " << lastPos << endl;
     // start from first hits
     // two cells are adiacente if their position is closer than cell width
-    if (abs((*hit).first - lastPos) > cellWidth) {
+    if (abs(hit.first - lastPos) > cellWidth) {
       if (adiacentPairs.size() >= theMinHits && differentLayers(adiacentPairs) >= theMinLayers) {
         // if not, build the cluster with so far collection hits and go on
         float mean = sum / adiacentPairs.size();
@@ -136,13 +136,13 @@ vector<DTSLRecCluster> DTClusterer::buildClusters(const DTSuperLayer* sl, vector
       sum2 = 0.;
     }
     // if adiacente, add them to a vector
-    adiacentPairs.push_back((*hit).second);
+    adiacentPairs.push_back(hit.second);
     if (debug)
       cout << "adiacentPairs " << adiacentPairs.size() << endl;
-    sum += (*hit).first;
-    sum2 += (*hit).first * (*hit).first;
+    sum += hit.first;
+    sum2 += hit.first * hit.first;
 
-    lastPos = (*hit).first;
+    lastPos = hit.first;
   }
   // build the last cluster
   if (adiacentPairs.size() >= theMinHits && differentLayers(adiacentPairs) >= theMinLayers) {
@@ -159,16 +159,16 @@ vector<DTSLRecCluster> DTClusterer::buildClusters(const DTSuperLayer* sl, vector
 
 vector<pair<float, DTRecHit1DPair> > DTClusterer::initHits(const DTSuperLayer* sl, vector<DTRecHit1DPair>& pairs) {
   vector<pair<float, DTRecHit1DPair> > result;
-  for (vector<DTRecHit1DPair>::const_iterator pair = pairs.begin(); pair != pairs.end(); ++pair) {
+  for (const auto& pair : pairs) {
     // get wire
-    DTWireId wid = (*pair).wireId();
+    DTWireId wid = pair.wireId();
     // get Layer
     const DTLayer* lay = sl->layer(wid.layer());
     // get wire position in SL (only x)
     LocalPoint posInLayer(lay->specificTopology().wirePosition(wid.wire()), 0., 0.);
     LocalPoint posInSL = sl->toLocal(lay->toGlobal(posInLayer));
     // put the pair into result
-    result.push_back(make_pair(posInSL.x(), *pair));
+    result.emplace_back(posInSL.x(), pair);
   }
   // sorted by x
   sort(result.begin(), result.end(), sortClusterByX());
@@ -180,8 +180,8 @@ unsigned int DTClusterer::differentLayers(vector<DTRecHit1DPair>& hits) {
   // Count the number of different layers
   int layers = 0;
   unsigned int result = 0;
-  for (vector<DTRecHit1DPair>::const_iterator hit = hits.begin(); hit != hits.end(); ++hit) {
-    int pos = (1 << ((*hit).wireId().layer() - 1));
+  for (const auto& hit : hits) {
+    int pos = (1 << (hit.wireId().layer() - 1));
     if (!(pos & layers)) {
       result++;
       layers |= pos;

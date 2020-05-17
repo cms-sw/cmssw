@@ -42,7 +42,7 @@ public:
   DTTracoTrigData() {}
 
   //!  Constructor
-  DTTracoTrigData(DTTracoId, int);
+  DTTracoTrigData(const DTTracoId&, int);
 
   //!  Destructor
   ~DTTracoTrigData() override {}
@@ -50,7 +50,7 @@ public:
   // Non-const methods
 
   //! Set the parent TRACO Identifier
-  inline void setParent(DTTracoId tracoid) { _tracoid = tracoid; }
+  inline void setParent(const DTTracoId& tracoid) { _tracoid = tracoid; }
 
   //! Set trigger step
   inline void setStep(int step) { _step = step; }

@@ -72,14 +72,14 @@ void PrintGeomSummary::update(const BeginOfJob* job) {
 
   Graph::index_type i = 0;
   solidMap_.clear();
-  for (adjl_iterator git = gra.begin(); git != gra.end(); ++git) {
+  for (auto git = gra.begin(); git != gra.end(); ++git) {
     const DDLogicalPart& ddLP = gra.nodeData(git);
     addSolid(ddLP);
     ++i;
     if (!git->empty()) {
       // ask for children of ddLP
-      for (Graph::edge_list::const_iterator cit = git->begin(); cit != git->end(); ++cit) {
-        const DDLogicalPart& ddcurLP = gra.nodeData(cit->first);
+      for (const auto& cit : *git) {
+        const DDLogicalPart& ddcurLP = gra.nodeData(cit.first);
         addSolid(ddcurLP);
       }
     }
@@ -89,7 +89,7 @@ void PrintGeomSummary::update(const BeginOfJob* job) {
 
 void PrintGeomSummary::addSolid(const DDLogicalPart& part) {
   const DDSolid& solid = part.solid();
-  std::map<DDSolidShape, std::string>::iterator it = solidShape_.find(solid.shape());
+  auto it = solidShape_.find(solid.shape());
   std::string name = solid.name().name();
   if (it == solidShape_.end())
     solidMap_[name] = DDSolidShape::dd_not_init;
@@ -112,25 +112,25 @@ void PrintGeomSummary::update(const BeginOfRun* run) {
     fillPV(theTopPV_);
     G4cout << " Number of G4VPhysicalVolume's for " << name << ": " << pvs_.size() << G4endl;
 
-    for (unsigned int k = 0; k < nodeNames_.size(); ++k) {
+    for (auto& nodeName : nodeNames_) {
       const G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
       std::vector<G4LogicalVolume*>::const_iterator lvcite;
       for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
-        if ((*lvcite)->GetName() == (G4String)(nodeNames_[k])) {
+        if ((*lvcite)->GetName() == (G4String)nodeName) {
           lvs_.clear();
           sls_.clear();
           touch_.clear();
           fillLV(*lvcite);
-          dumpSummary(G4cout, nodeNames_[k]);
+          dumpSummary(G4cout, nodeName);
         }
       }
       const G4PhysicalVolumeStore* pvs = G4PhysicalVolumeStore::GetInstance();
       std::vector<G4VPhysicalVolume*>::const_iterator pvcite;
       for (pvcite = pvs->begin(); pvcite != pvs->end(); pvcite++) {
-        if ((*pvcite)->GetName() == (G4String)(nodeNames_[k])) {
+        if ((*pvcite)->GetName() == (G4String)nodeName) {
           pvs_.clear();
           fillPV(*pvcite);
-          G4cout << " Number of G4VPhysicalVolume's for " << nodeNames_[k] << ": " << pvs_.size() << G4endl;
+          G4cout << " Number of G4VPhysicalVolume's for " << nodeName << ": " << pvs_.size() << G4endl;
         }
       }
     }
@@ -155,7 +155,7 @@ void PrintGeomSummary::fillPV(G4VPhysicalVolume* pv) {
     fillPV(pv->GetLogicalVolume()->GetDaughter(ii));
 }
 
-void PrintGeomSummary::dumpSummary(std::ostream& out, std::string name) {
+void PrintGeomSummary::dumpSummary(std::ostream& out, const std::string& name) {
   //---------- Dump number of objects of each class
   out << G4endl << G4endl << "@@@@@@@@@@@@@@@@@@ Dumping Summary For Node " << name << G4endl;
   out << " Number of G4VSolid's: " << sls_.size() << G4endl;
@@ -164,24 +164,24 @@ void PrintGeomSummary::dumpSummary(std::ostream& out, std::string name) {
   //First the solids
   out << G4endl << "Occurence of each type of shape among Solids" << G4endl;
   kount_.clear();
-  for (std::vector<G4VSolid*>::iterator it = sls_.begin(); it != sls_.end(); ++it) {
-    std::string name = (*it)->GetName();
+  for (auto& sl : sls_) {
+    std::string name = sl->GetName();
     addName(name);
   }
   printSummary(out);
   //Then the logical volumes
   out << G4endl << "Occurence of each type of shape among Logical Volumes" << G4endl;
   kount_.clear();
-  for (std::vector<G4LogicalVolume*>::iterator it = lvs_.begin(); it != lvs_.end(); ++it) {
-    std::string name = ((*it)->GetSolid())->GetName();
+  for (auto& lv : lvs_) {
+    std::string name = (lv->GetSolid())->GetName();
     addName(name);
   }
   printSummary(out);
   //Finally the touchables
   out << G4endl << "Occurence of each type of shape among Touchables" << G4endl;
   kount_.clear();
-  for (std::vector<G4LogicalVolume*>::iterator it = touch_.begin(); it != touch_.end(); ++it) {
-    std::string name = ((*it)->GetSolid())->GetName();
+  for (auto& it : touch_) {
+    std::string name = (it->GetSolid())->GetName();
     addName(name);
   }
   printSummary(out);
@@ -197,9 +197,9 @@ void PrintGeomSummary::addName(std::string name) {
     refl = true;
     name = name.substr(0, (name.find("_refl")));
   }
-  std::map<std::string, DDSolidShape>::const_iterator jt = solidMap_.find(name);
+  auto jt = solidMap_.find(name);
   DDSolidShape shape = (jt == solidMap_.end()) ? DDSolidShape::dd_not_init : jt->second;
-  std::map<DDSolidShape, std::pair<int, int>>::iterator itr = kount_.find(shape);
+  auto itr = kount_.find(shape);
   if (itr == kount_.end()) {
     kount_[shape] = (refl) ? std::pair<int, int>(0, 1) : std::pair<int, int>(1, 0);
   } else {
@@ -210,7 +210,7 @@ void PrintGeomSummary::addName(std::string name) {
 
 void PrintGeomSummary::printSummary(std::ostream& out) {
   int k(0);
-  for (std::map<DDSolidShape, std::pair<int, int>>::iterator itr = kount_.begin(); itr != kount_.end(); ++itr, ++k) {
+  for (auto itr = kount_.begin(); itr != kount_.end(); ++itr, ++k) {
     std::string shape = solidShape_[itr->first];
     out << "Shape [" << k << "]  " << shape << " # " << (itr->second).first << " : " << (itr->second).second << G4endl;
   }

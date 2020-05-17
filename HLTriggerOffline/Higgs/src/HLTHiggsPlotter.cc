@@ -34,11 +34,11 @@ HLTHiggsPlotter::HLTHiggsPlotter(const edm::ParameterSet &pset,
       _parametersTurnOn(pset.getParameter<std::vector<double> >("parametersTurnOn")),
       _NptPlots(NptPlots),
       _NminOneCuts(NminOneCuts) {
-  for (std::set<unsigned int>::iterator it = _objectsType.begin(); it != _objectsType.end(); ++it) {
+  for (unsigned int it : _objectsType) {
     // Some parameters extracted from the .py
-    std::string objStr = EVTColContainer::getTypeString(*it);
-    _cutMinPt[*it] = pset.getParameter<double>(std::string(objStr + "_cutMinPt").c_str());
-    _cutMaxEta[*it] = pset.getParameter<double>(std::string(objStr + "_cutMaxEta").c_str());
+    std::string objStr = EVTColContainer::getTypeString(it);
+    _cutMinPt[it] = pset.getParameter<double>(std::string(objStr + "_cutMinPt").c_str());
+    _cutMaxEta[it] = pset.getParameter<double>(std::string(objStr + "_cutMaxEta").c_str());
   }
 }
 
@@ -49,18 +49,16 @@ void HLTHiggsPlotter::beginJob() {}
 void HLTHiggsPlotter::beginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) {}
 
 void HLTHiggsPlotter::bookHistograms(DQMStore::IBooker &ibooker, const bool &useNminOneCuts) {
-  for (std::set<unsigned int>::iterator it = _objectsType.begin(); it != _objectsType.end(); ++it) {
+  for (unsigned int it : _objectsType) {
     std::vector<std::string> sources(2);
     sources[0] = "gen";
     sources[1] = "rec";
     TString maxPt;
 
-    const std::string objTypeStr = EVTColContainer::getTypeString(*it);
+    const std::string objTypeStr = EVTColContainer::getTypeString(it);
 
-    for (size_t i = 0; i < sources.size(); i++) {
-      std::string source = sources[i];
-
-      if (useNminOneCuts && *it == EVTColContainer::PFJET) {
+    for (auto source : sources) {
+      if (useNminOneCuts && it == EVTColContainer::PFJET) {
         if (source == "gen")
           continue;
         else {
@@ -104,25 +102,25 @@ void HLTHiggsPlotter::analyze(const bool &isPassTrigger,
   }
   std::map<unsigned int, int> countobjects;
   // Initializing the count of the used object
-  for (std::set<unsigned int>::iterator co = _objectsType.begin(); co != _objectsType.end(); ++co) {
-    countobjects[*co] = 0;
+  for (unsigned int co : _objectsType) {
+    countobjects[co] = 0;
   }
 
   int counttotal = 0;
   const int totalobjectssize2 = _NptPlots * countobjects.size();
   // Fill the histos if pass the trigger (just the two with higher pt)
-  for (size_t j = 0; j < matches.size(); ++j) {
+  for (const auto &matche : matches) {
     // Is this object owned by this trigger? If not we are not interested...
-    if (_objectsType.find(matches[j].objType) == _objectsType.end()) {
+    if (_objectsType.find(matche.objType) == _objectsType.end()) {
       continue;
     }
 
-    const unsigned int objType = matches[j].objType;
-    const std::string objTypeStr = EVTColContainer::getTypeString(matches[j].objType);
+    const unsigned int objType = matche.objType;
+    const std::string objTypeStr = EVTColContainer::getTypeString(matche.objType);
 
-    float pt = matches[j].pt;
-    float eta = matches[j].eta;
-    float phi = matches[j].phi;
+    float pt = matche.pt;
+    float eta = matche.eta;
+    float phi = matche.phi;
 
     TString maxPt;
     if ((unsigned)countobjects[objType] < _NptPlots) {
@@ -165,26 +163,26 @@ void HLTHiggsPlotter::analyze(const bool &isPassTrigger,
   }
   std::map<unsigned int, int> countobjects;
   // Initializing the count of the used object
-  for (std::set<unsigned int>::iterator co = _objectsType.begin(); co != _objectsType.end(); ++co) {
-    if (!(*co == EVTColContainer::PFJET && source == "gen"))  // genJets are not there
-      countobjects[*co] = 0;
+  for (unsigned int co : _objectsType) {
+    if (!(co == EVTColContainer::PFJET && source == "gen"))  // genJets are not there
+      countobjects[co] = 0;
   }
 
   int counttotal = 0;
   const int totalobjectssize2 = _NptPlots * countobjects.size();
   // Fill the histos if pass the trigger (just the two with higher pt)
-  for (size_t j = 0; j < matches.size(); ++j) {
+  for (const auto &matche : matches) {
     // Is this object owned by this trigger? If not we are not interested...
-    if (_objectsType.find(matches[j].objType) == _objectsType.end()) {
+    if (_objectsType.find(matche.objType) == _objectsType.end()) {
       continue;
     }
 
-    const unsigned int objType = matches[j].objType;
-    const std::string objTypeStr = EVTColContainer::getTypeString(matches[j].objType);
+    const unsigned int objType = matche.objType;
+    const std::string objTypeStr = EVTColContainer::getTypeString(matche.objType);
 
-    float pt = matches[j].pt;
-    float eta = matches[j].eta;
-    float phi = matches[j].phi;
+    float pt = matche.pt;
+    float eta = matche.eta;
+    float phi = matche.phi;
 
     // PFMET N-1 cut
     if (objType == EVTColContainer::PFMET && _NminOneCuts[8] && !nMinOne["PFMET"])

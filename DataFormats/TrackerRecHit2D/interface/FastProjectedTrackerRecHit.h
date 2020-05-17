@@ -25,7 +25,7 @@ public:
 
   const FastSingleTrackerRecHit& originalHit() const { return originalHit_; }
   FastProjectedTrackerRecHit* clone() const override {
-    FastProjectedTrackerRecHit* p = new FastProjectedTrackerRecHit(*this);
+    auto* p = new FastProjectedTrackerRecHit(*this);
     p->load();
     return p;
   }

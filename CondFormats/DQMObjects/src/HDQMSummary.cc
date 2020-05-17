@@ -2,6 +2,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <algorithm>
+#include <utility>
 
 HDQMSummary::HDQMSummary(std::vector<std::string>& userDBContent) {
   userDBContent_ = userDBContent;
@@ -20,7 +21,7 @@ HDQMSummary::HDQMSummary(const HDQMSummary& input) {
 }
 
 bool HDQMSummary::put(const uint32_t& DetId, InputVector& input, std::vector<std::string>& userContent) {
-  Registry::iterator p = std::lower_bound(indexes_.begin(), indexes_.end(), DetId, HDQMSummary::StrictWeakOrdering());
+  auto p = std::lower_bound(indexes_.begin(), indexes_.end(), DetId, HDQMSummary::StrictWeakOrdering());
 
   if (p == indexes_.end() || p->detid != DetId) {
     //First request for the given DetID
@@ -51,7 +52,7 @@ bool HDQMSummary::put(const uint32_t& DetId, InputVector& input, std::vector<std
 }
 
 const HDQMSummary::Range HDQMSummary::getRange(const uint32_t& DetId) const {
-  RegistryIterator p = std::lower_bound(indexes_.begin(), indexes_.end(), DetId, HDQMSummary::StrictWeakOrdering());
+  auto p = std::lower_bound(indexes_.begin(), indexes_.end(), DetId, HDQMSummary::StrictWeakOrdering());
   if (p == indexes_.end() || p->detid != DetId) {
     return HDQMSummary::Range(v_sum_.end(), v_sum_.end());
     std::cout << "not in range " << std::endl;
@@ -62,18 +63,18 @@ const HDQMSummary::Range HDQMSummary::getRange(const uint32_t& DetId) const {
 std::vector<uint32_t> HDQMSummary::getDetIds() const {
   // returns vector of DetIds in map
   std::vector<uint32_t> DetIds_;
-  HDQMSummary::RegistryIterator begin = indexes_.begin();
-  HDQMSummary::RegistryIterator end = indexes_.end();
-  for (HDQMSummary::RegistryIterator p = begin; p != end; ++p) {
+  auto begin = indexes_.begin();
+  auto end = indexes_.end();
+  for (auto p = begin; p != end; ++p) {
     DetIds_.push_back(p->detid);
   }
   return DetIds_;
 }
 
-const short HDQMSummary::getPosition(std::string elementName) const {
+const short HDQMSummary::getPosition(const std::string& elementName) const {
   // returns position of elementName in UserDBContent_
 
-  std::vector<std::string>::const_iterator it = find(userDBContent_.begin(), userDBContent_.end(), elementName);
+  auto it = find(userDBContent_.begin(), userDBContent_.end(), elementName);
   short pos = -1;
   if (it != userDBContent_.end())
     pos = it - userDBContent_.begin();
@@ -83,10 +84,10 @@ const short HDQMSummary::getPosition(std::string elementName) const {
   return pos;
 }
 
-void HDQMSummary::setObj(const uint32_t& detID, std::string elementName, float value) {
+void HDQMSummary::setObj(const uint32_t& detID, const std::string& elementName, float value) {
   // modifies value of info "elementName" for the given detID
   // requires that an entry has be defined beforehand for detId in DB
-  RegistryIterator p = std::lower_bound(indexes_.begin(), indexes_.end(), detID, HDQMSummary::StrictWeakOrdering());
+  auto p = std::lower_bound(indexes_.begin(), indexes_.end(), detID, HDQMSummary::StrictWeakOrdering());
   if (p == indexes_.end() || p->detid != detID) {
     throw cms::Exception("") << "not allowed to modify " << elementName
                              << " in historic DB - SummaryObj needs to be available first !";
@@ -94,7 +95,7 @@ void HDQMSummary::setObj(const uint32_t& detID, std::string elementName, float v
 
   const HDQMSummary::Range range = getRange(detID);
 
-  std::vector<float>::const_iterator it = range.first + getPosition(elementName);
+  auto it = range.first + getPosition(elementName);
   std::vector<float>::difference_type pos = -1;
   if (it != v_sum_.end()) {
     pos = it - v_sum_.begin();
@@ -107,8 +108,8 @@ std::vector<float> HDQMSummary::getSummaryObj(uint32_t& detID, const std::vector
   std::vector<float> SummaryObj;
   const HDQMSummary::Range range = getRange(detID);
   if (range.first != range.second) {
-    for (unsigned int i = 0; i < list.size(); i++) {
-      const short pos = getPosition(list.at(i));
+    for (const auto& i : list) {
+      const short pos = getPosition(i);
 
       if (pos != -1)
         SummaryObj.push_back(*((range.first) + pos));
@@ -141,11 +142,11 @@ std::vector<float> HDQMSummary::getSummaryObj() const { return v_sum_; }
 std::vector<float> HDQMSummary::getSummaryObj(std::string elementName) const {
   std::vector<float> vSumElement;
   std::vector<uint32_t> DetIds_ = getDetIds();
-  const short pos = getPosition(elementName);
+  const short pos = getPosition(std::move(elementName));
 
   if (pos != -1) {
-    for (unsigned int i = 0; i < DetIds_.size(); i++) {
-      const HDQMSummary::Range range = getRange(DetIds_.at(i));
+    for (unsigned int DetId : DetIds_) {
+      const HDQMSummary::Range range = getRange(DetId);
       if (range.first != range.second) {
         vSumElement.push_back(*((range.first) + pos));
       } else {

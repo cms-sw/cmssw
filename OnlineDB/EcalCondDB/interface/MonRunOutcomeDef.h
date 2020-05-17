@@ -18,7 +18,7 @@ public:
 
   // Methods for user data
   std::string getShortDesc() const;
-  void setShortDesc(std::string desc);
+  void setShortDesc(const std::string &desc);
 
   std::string getLongDesc() const;
 

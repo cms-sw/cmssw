@@ -7,6 +7,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TProfile.h"
 #include <iostream>
+#include <memory>
+
 #include <sstream>
 #include <iomanip>
 
@@ -17,7 +19,7 @@ using namespace sistrip;
 /** */
 ApvTimingHistograms::ApvTimingHistograms(const edm::ParameterSet& pset, DQMStore* bei)
     : CommissioningHistograms(pset.getParameter<edm::ParameterSet>("ApvTimingParameters"), bei, sistrip::APV_TIMING) {
-  factory_ = unique_ptr<ApvTimingSummaryFactory>(new ApvTimingSummaryFactory);
+  factory_ = std::make_unique<ApvTimingSummaryFactory>();
   LogTrace(mlDqmClient_) << "[ApvTimingHistograms::" << __func__ << "]"
                          << " Constructing object...";
 }
@@ -65,7 +67,7 @@ void ApvTimingHistograms::histoAnalysis(bool debug) {
 
     // Retrieve pointers to histos
     std::vector<TH1*> profs;
-    Histos::const_iterator ihis = iter->second.begin();
+    auto ihis = iter->second.begin();
     for (; ihis != iter->second.end(); ihis++) {
       TProfile* prof = ExtractTObject<TProfile>().extract((*ihis)->me_);
       if (prof) {
@@ -74,7 +76,7 @@ void ApvTimingHistograms::histoAnalysis(bool debug) {
     }
 
     // Perform histo analysis
-    ApvTimingAnalysis* anal = new ApvTimingAnalysis(iter->first);
+    auto* anal = new ApvTimingAnalysis(iter->first);
     ApvTimingAlgorithm algo(this->pset(), anal);
     algo.analysis(profs);
     data()[iter->first] = anal;
@@ -122,7 +124,7 @@ void ApvTimingHistograms::histoAnalysis(bool debug) {
 
   // Set reference time for all analysis objects
   for (ianal = data().begin(); ianal != data().end(); ianal++) {
-    ApvTimingAnalysis* anal = dynamic_cast<ApvTimingAnalysis*>(ianal->second);
+    auto* anal = dynamic_cast<ApvTimingAnalysis*>(ianal->second);
     if (!anal) {
       continue;
     }

@@ -26,14 +26,14 @@ class CSCSharesInputTest : public edm::EDAnalyzer {
 public:
   explicit CSCSharesInputTest(const edm::ParameterSet &myConfig);
 
-  ~CSCSharesInputTest();
+  ~CSCSharesInputTest() override;
 
 private:
-  virtual void beginJob();
+  void beginJob() override;
 
-  virtual void analyze(const edm::Event &myEvent, const edm::EventSetup &mySetup);
+  void analyze(const edm::Event &myEvent, const edm::EventSetup &mySetup) override;
 
-  virtual void endJob();
+  void endJob() override;
 
   edm::EDGetTokenT<CSCRecHit2DCollection> rh_token;
   edm::EDGetTokenT<edm::View<reco::Muon> > mu_token;

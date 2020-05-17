@@ -99,8 +99,7 @@ void PFChargedHadronAnalyzer::analyze(const Event& iEvent, const EventSetup& iSe
 
     // Check if there is a reconstructed track
     bool isCharged = false;
-    for (CI ci = pfCandidates->begin(); ci != pfCandidates->end(); ++ci) {
-      const reco::PFCandidate& pfc = *ci;
+    for (const auto& pfc : *pfCandidates) {
       // std::cout << "Id = " << pfc.particleId() << std::endl;
       if (pfc.particleId() < 4) {
         isCharged = true;
@@ -122,8 +121,7 @@ void PFChargedHadronAnalyzer::analyze(const Event& iEvent, const EventSetup& iSe
 
       ecal_ = 0.;
       hcal_ = 0.;
-      for (CI ci = pfCandidates->begin(); ci != pfCandidates->end(); ++ci) {
-        const reco::PFCandidate& pfc = *ci;
+      for (const auto& pfc : *pfCandidates) {
         double deta = eta_ - pfc.eta();
         double dphi = phi_ - pfc.phi();
         double dR = std::sqrt(deta * deta + dphi * dphi);
@@ -141,9 +139,8 @@ void PFChargedHadronAnalyzer::analyze(const Event& iEvent, const EventSetup& iSe
 
   // Case of a reconstructed track.
   // Loop on pfCandidates
-  for (CI ci = pfCandidates->begin(); ci != pfCandidates->end(); ++ci) {
+  for (const auto& pfc : *pfCandidates) {
     // The pf candidate
-    const reco::PFCandidate& pfc = *ci;
     nCh[0]++;
 
     // Only charged hadrons (no PF muons, no PF electrons)
@@ -190,7 +187,7 @@ void PFChargedHadronAnalyzer::analyze(const Event& iEvent, const EventSetup& iSe
     nCh[4]++;
 
     // Characteristics of the track
-    const reco::PFBlockElementTrack& et = dynamic_cast<const reco::PFBlockElementTrack&>(elements[iTrack]);
+    const auto& et = dynamic_cast<const reco::PFBlockElementTrack&>(elements[iTrack]);
     double p = et.trackRef()->p();
     double pt = et.trackRef()->pt();
     double eta = et.trackRef()->eta();

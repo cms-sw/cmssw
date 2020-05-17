@@ -102,8 +102,8 @@ void SUSY_HLT_Razor::analyze(edm::Event const &e, edm::EventSetup const &eSetup)
   trigger::TriggerObjectCollection triggerObjects = triggerSummary->getObjects();
   if (!(filterIndex >= triggerSummary->sizeFilters())) {
     const trigger::Keys &keys = triggerSummary->filterKeys(filterIndex);
-    for (size_t j = 0; j < keys.size(); ++j) {
-      trigger::TriggerObject foundObject = triggerObjects[keys[j]];
+    for (unsigned short key : keys) {
+      trigger::TriggerObject foundObject = triggerObjects[key];
       if (foundObject.id() == 0) {    // the MET object containing MR and Rsq will show up with ID = 0
         onlineMR = foundObject.px();  // razor variables stored in dummy reco::MET objects
         onlineRsq = foundObject.py();
@@ -114,8 +114,8 @@ void SUSY_HLT_Razor::analyze(edm::Event const &e, edm::EventSetup const &eSetup)
   // search for calo MR and Rsq objects
   if (!(caloFilterIndex >= triggerSummary->sizeFilters())) {
     const trigger::Keys &keys = triggerSummary->filterKeys(caloFilterIndex);
-    for (size_t j = 0; j < keys.size(); ++j) {
-      trigger::TriggerObject foundObject = triggerObjects[keys[j]];
+    for (unsigned short key : keys) {
+      trigger::TriggerObject foundObject = triggerObjects[key];
       if (foundObject.id() == 0) {
         caloMR = foundObject.px();  // razor variables stored in dummy reco::MET objects
         caloRsq = foundObject.py();
@@ -135,9 +135,9 @@ void SUSY_HLT_Razor::analyze(edm::Event const &e, edm::EventSetup const &eSetup)
 
   float HT = 0.0;
 
-  for (unsigned int i = 0; i < jetCollection->size(); i++) {
-    if (std::abs(jetCollection->at(i).eta()) < 3.0 && jetCollection->at(i).pt() >= 40.0) {
-      HT += jetCollection->at(i).pt();
+  for (const auto &i : *jetCollection) {
+    if (std::abs(i.eta()) < 3.0 && i.pt() >= 40.0) {
+      HT += i.pt();
     }
   }
   // for (reco::PFJetCollection::const_iterator i_jet = jetCollection->begin();
@@ -306,9 +306,9 @@ double SUSY_HLT_Razor::CalcMR(TLorentzVector ja, TLorentzVector jb) {
 }
 
 double SUSY_HLT_Razor::CalcR(double MR,
-                             TLorentzVector ja,
-                             TLorentzVector jb,
-                             edm::Handle<edm::View<reco::MET>> inputMet,
+                             const TLorentzVector &ja,
+                             const TLorentzVector &jb,
+                             const edm::Handle<edm::View<reco::MET>> &inputMet,
                              const std::vector<math::XYZTLorentzVector> &muons) {
   // now we can calculate MTR
   TVector3 met;

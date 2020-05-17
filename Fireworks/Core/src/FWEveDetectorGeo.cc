@@ -31,7 +31,7 @@ void FWEveDetectorGeo::Paint(Option_t* opt) {
   m_filterOff = m_browser->getFilter().empty();
 
   Int_t topIdx = m_browser->getTopNodeIdx();
-  FWGeometryTableManagerBase::Entries_i sit = m_browser->getTableManager()->refEntries().begin();
+  auto sit = m_browser->getTableManager()->refEntries().begin();
 
   TGeoHMatrix mtx;
   if (topIdx >= 0) {
@@ -108,7 +108,7 @@ bool FWEveDetectorGeo::paintChildNodesRecurse(FWGeometryTableManagerBase::Entrie
 //______________________________________________________________________________
 
 TString FWEveDetectorGeo::GetHighlightTooltip() {
-  std::set<TGLPhysicalShape*>::iterator it = fHted.begin();
+  auto it = fHted.begin();
   int idx = tableIdx(*it);
   if (idx > 0) {
     FWGeometryTableManagerBase::NodeInfo& data = m_browser->getTableManager()->refEntries().at(idx);

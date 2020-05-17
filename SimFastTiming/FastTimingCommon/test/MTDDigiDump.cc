@@ -13,14 +13,14 @@
 class MTDDigiDump : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit MTDDigiDump(const edm::ParameterSet&);
-  ~MTDDigiDump();
+  ~MTDDigiDump() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void beginJob() override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   // ----------member data ---------------------------
 
@@ -53,7 +53,7 @@ void MTDDigiDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   // --- BTL DIGIs:
 
-  if (h_BTL_digi->size() > 0) {
+  if (!h_BTL_digi->empty()) {
     std::cout << " ----------------------------------------" << std::endl;
     std::cout << " BTL DIGI collection:" << std::endl;
 
@@ -84,7 +84,7 @@ void MTDDigiDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   // --- ETL DIGIs:
 
-  if (h_ETL_digi->size() > 0) {
+  if (!h_ETL_digi->empty()) {
     std::cout << " ----------------------------------------" << std::endl;
     std::cout << " ETL DIGI collection:" << std::endl;
 

@@ -49,14 +49,14 @@ DigiPileupCorrHistogramMaker::DigiPileupCorrHistogramMaker(const edm::ParameterS
   std::vector<edm::ParameterSet> wantedsubds(iConfig.getUntrackedParameter<std::vector<edm::ParameterSet> >(
       "wantedSubDets", std::vector<edm::ParameterSet>()));
 
-  for (std::vector<edm::ParameterSet>::iterator ps = wantedsubds.begin(); ps != wantedsubds.end(); ++ps) {
-    m_labels[ps->getParameter<unsigned int>("detSelection")] = ps->getParameter<std::string>("detLabel");
-    m_binmax[ps->getParameter<unsigned int>("detSelection")] = ps->getParameter<int>("binMax");
+  for (auto& wantedsubd : wantedsubds) {
+    m_labels[wantedsubd.getParameter<unsigned int>("detSelection")] = wantedsubd.getParameter<std::string>("detLabel");
+    m_binmax[wantedsubd.getParameter<unsigned int>("detSelection")] = wantedsubd.getParameter<int>("binMax");
   }
 }
 
 DigiPileupCorrHistogramMaker::~DigiPileupCorrHistogramMaker() {
-  for (std::map<unsigned int, std::string>::const_iterator lab = m_labels.begin(); lab != m_labels.end(); lab++) {
+  for (auto lab = m_labels.begin(); lab != m_labels.end(); lab++) {
     const unsigned int i = lab->first;
     const std::string slab = lab->second;
 
@@ -64,12 +64,12 @@ DigiPileupCorrHistogramMaker::~DigiPileupCorrHistogramMaker() {
   }
 }
 
-void DigiPileupCorrHistogramMaker::book(const std::string dirname, const std::map<unsigned int, std::string>& labels) {
+void DigiPileupCorrHistogramMaker::book(const std::string& dirname, const std::map<unsigned int, std::string>& labels) {
   m_labels = labels;
   book(dirname);
 }
 
-void DigiPileupCorrHistogramMaker::book(const std::string dirname) {
+void DigiPileupCorrHistogramMaker::book(const std::string& dirname) {
   edm::Service<TFileService> tfserv;
   TFileDirectory subev = tfserv->mkdir(dirname);
 
@@ -79,7 +79,7 @@ void DigiPileupCorrHistogramMaker::book(const std::string dirname) {
   edm::LogInfo("ScaleFactors") << "y-axis range scale factor: " << m_scalefact;
   edm::LogInfo("BinMaxValue") << "Setting bin max values";
 
-  for (std::map<unsigned int, std::string>::const_iterator lab = m_labels.begin(); lab != m_labels.end(); lab++) {
+  for (auto lab = m_labels.begin(); lab != m_labels.end(); lab++) {
     const unsigned int i = lab->first;
     const std::string slab = lab->second;
 
@@ -92,7 +92,7 @@ void DigiPileupCorrHistogramMaker::book(const std::string dirname) {
     edm::LogVerbatim("BinMaxValue") << "Bin max for " << lab->second << " is " << m_binmax[i];
   }
 
-  for (std::map<unsigned int, std::string>::const_iterator lab = m_labels.begin(); lab != m_labels.end(); ++lab) {
+  for (auto lab = m_labels.begin(); lab != m_labels.end(); ++lab) {
     const int i = lab->first;
     const std::string slab = lab->second;
 
@@ -142,12 +142,10 @@ void DigiPileupCorrHistogramMaker::fill(const edm::Event& iEvent, const std::map
 
   // look for the intime PileupSummaryInfo
 
-  std::vector<PileupSummaryInfo>::const_iterator pileupinfoInTime = pileupinfos->end();
-  std::vector<PileupSummaryInfo>::const_iterator pileupinfoMinusOne = pileupinfos->end();
+  auto pileupinfoInTime = pileupinfos->end();
+  auto pileupinfoMinusOne = pileupinfos->end();
 
-  for (std::vector<PileupSummaryInfo>::const_iterator pileupinfo = pileupinfos->begin();
-       pileupinfo != pileupinfos->end();
-       ++pileupinfo) {
+  for (auto pileupinfo = pileupinfos->begin(); pileupinfo != pileupinfos->end(); ++pileupinfo) {
     if (pileupinfo->getBunchCrossing() == 0)
       pileupinfoInTime = pileupinfo;
     if (pileupinfo->getBunchCrossing() == m_ootBX)
@@ -163,19 +161,19 @@ void DigiPileupCorrHistogramMaker::fill(const edm::Event& iEvent, const std::map
     if (m_useVisibleVertices)
       npileup = pileupinfoInTime->getPU_zpositions().size();
 
-    for (std::map<unsigned int, int>::const_iterator digi = ndigi.begin(); digi != ndigi.end(); digi++) {
-      if (m_labels.find(digi->first) != m_labels.end()) {
-        const unsigned int i = digi->first;
-        m_nmultvsmcnvtx[i]->Fill(npileup, digi->second);
-        m_nmultvsmcnvtxprof[i]->Fill(npileup, digi->second);
-        m_nmultvsmclumi[i]->Fill(pileupinfoInTime->getTrueNumInteractions(), digi->second);
-        m_nmultvsmclumiprof[i]->Fill(pileupinfoInTime->getTrueNumInteractions(), digi->second);
+    for (auto digi : ndigi) {
+      if (m_labels.find(digi.first) != m_labels.end()) {
+        const unsigned int i = digi.first;
+        m_nmultvsmcnvtx[i]->Fill(npileup, digi.second);
+        m_nmultvsmcnvtxprof[i]->Fill(npileup, digi.second);
+        m_nmultvsmclumi[i]->Fill(pileupinfoInTime->getTrueNumInteractions(), digi.second);
+        m_nmultvsmclumiprof[i]->Fill(pileupinfoInTime->getTrueNumInteractions(), digi.second);
         if (m_2dhisto) {
           if (pileupinfoMinusOne != pileupinfos->end()) {
             int npileupminusone = pileupinfoMinusOne->getPU_NumInteractions();
             if (m_useVisibleVertices)
               npileupminusone = pileupinfoMinusOne->getPU_zpositions().size();
-            m_nmultvsmcnvtxprof2d[i]->Fill(npileup, npileupminusone, digi->second);
+            m_nmultvsmcnvtxprof2d[i]->Fill(npileup, npileupminusone, digi.second);
           }
         }
       }

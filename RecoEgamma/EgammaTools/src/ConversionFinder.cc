@@ -91,7 +91,7 @@ namespace egammaTools {
     int gsftk_i = 0;
 
     //loop over the CTF tracks and try to find the partner track
-    for (TrackCollection::const_iterator ctftk = ctftracks->begin(); ctftk != ctftracks->end(); ctftk++, ctftk_i++) {
+    for (auto ctftk = ctftracks->begin(); ctftk != ctftracks->end(); ctftk++, ctftk_i++) {
       if (ctftk_i == ctfidx)
         continue;
 
@@ -151,7 +151,7 @@ namespace egammaTools {
     }  //loop over the CTF track collection
 
     //------------------------------------------------------ Loop over GSF collection ----------------------------------//
-    for (GsfTrackCollection::const_iterator gsftk = gsftracks->begin(); gsftk != gsftracks->end(); gsftk++, gsftk_i++) {
+    for (auto gsftk = gsftracks->begin(); gsftk != gsftracks->end(); gsftk++, gsftk_i++) {
       //reject the electron's own gsfTrack
       if (gsfidx == gsftk_i)
         continue;
@@ -375,10 +375,10 @@ namespace egammaTools {
 
   //------------------------------------------------------------------------------------
   // Exists here for backwards compatibility only. Provides only the dist and dcot
-  std::pair<double, double> getConversionInfo(LorentzVector trk1_p4,
+  std::pair<double, double> getConversionInfo(const LorentzVector& trk1_p4,
                                               int trk1_q,
                                               float trk1_d0,
-                                              LorentzVector trk2_p4,
+                                              const LorentzVector& trk2_p4,
                                               int trk2_q,
                                               float trk2_d0,
                                               float bFieldAtOrigin) {
@@ -432,7 +432,7 @@ namespace egammaTools {
     //make a null Track Ref
     TrackRef candCtfTrackRef = TrackRef();
 
-    for (TrackCollection::const_iterator tk = ctftracks->begin(); tk != ctftracks->end(); tk++, tk_i++) {
+    for (auto tk = ctftracks->begin(); tk != ctftracks->end(); tk++, tk_i++) {
       //if the general Track is the same one as made by the electron, skip it
       if (tk_i == ctfidx)
         continue;

@@ -17,7 +17,7 @@ LocationDef::~LocationDef() {}
 
 string LocationDef::getLocation() const { return m_loc; }
 
-void LocationDef::setLocation(string loc) {
+void LocationDef::setLocation(const string& loc) {
   if (loc != m_loc) {
     m_ID = 0;
     m_loc = loc;

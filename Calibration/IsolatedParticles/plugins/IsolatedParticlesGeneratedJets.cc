@@ -124,18 +124,17 @@ void IsolatedParticlesGeneratedJets::analyze(const edm::Event &iEvent, const edm
 
       if (debug_)
         edm::LogVerbatim("IsoTrack") << "Jet(pt,Eta,Phi) " << genJetPt << " " << genJetEta << " " << genJetPhi;
-      for (unsigned int ic = 0; ic < genJetConstituents.size(); ic++) {
+      for (auto &genJetConstituent : genJetConstituents) {
         if (debug_)
-          edm::LogVerbatim("IsoTrack") << "p,pt,eta,phi " << genJetConstituents[ic]->p() << " "
-                                       << genJetConstituents[ic]->pt() << " " << genJetConstituents[ic]->eta() << " "
-                                       << genJetConstituents[ic]->phi();
+          edm::LogVerbatim("IsoTrack") << "p,pt,eta,phi " << genJetConstituent->p() << " " << genJetConstituent->pt()
+                                       << " " << genJetConstituent->eta() << " " << genJetConstituent->phi();
 
-        v_trkP.push_back(genJetConstituents[ic]->p());
-        v_trkPt.push_back(genJetConstituents[ic]->pt());
-        v_trkEta.push_back(genJetConstituents[ic]->eta());
-        v_trkPhi.push_back(genJetConstituents[ic]->phi());
-        v_trkPdg.push_back(genJetConstituents[ic]->pdgId());
-        v_trkCharge.push_back(genJetConstituents[ic]->charge());
+        v_trkP.push_back(genJetConstituent->p());
+        v_trkPt.push_back(genJetConstituent->pt());
+        v_trkEta.push_back(genJetConstituent->eta());
+        v_trkPhi.push_back(genJetConstituent->phi());
+        v_trkPdg.push_back(genJetConstituent->pdgId());
+        v_trkCharge.push_back(genJetConstituent->charge());
 
       }  //loop over genjet constituents
 
@@ -159,7 +158,7 @@ void IsolatedParticlesGeneratedJets::analyze(const edm::Event &iEvent, const edm
 
   if (debug_) {
     unsigned int indx = 0;
-    reco::GenParticleCollection::const_iterator ig = genParticles->begin();
+    auto ig = genParticles->begin();
     for (; ig != genParticles->end(); ++ig, ++indx) {
       edm::LogVerbatim("IsoTrack") << "Track " << indx << " Status " << ig->status() << " charge " << ig->charge()
                                    << " pdgId " << ig->pdgId() << " mass " << ig->mass() << " P " << ig->momentum()

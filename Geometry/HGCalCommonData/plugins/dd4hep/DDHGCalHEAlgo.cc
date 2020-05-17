@@ -301,12 +301,10 @@ struct HGCalHEAlgo {
     cms::DDNamespace ns(ctxt, e, true);
 
     dd4hep::Volume glog1;
-    for (unsigned int ly = 0; ly < layerTypeTop.size(); ++ly) {
-      int ii = layerTypeTop[ly];
+    for (int ii : layerTypeTop) {
       copyNumberTop[ii] = copyM;
     }
-    for (unsigned int ly = 0; ly < layerTypeBot.size(); ++ly) {
-      int ii = layerTypeBot[ly];
+    for (int ii : layerTypeBot) {
       copyNumberBot[ii] = copyM;
     }
     double hthick = 0.5 * thick;
@@ -328,8 +326,7 @@ struct HGCalHEAlgo {
                                   << " at (0, 0, 0) with no rotation";
 #endif
     double thickTot(0), zpos(-hthick);
-    for (unsigned int ly = 0; ly < layerTypeTop.size(); ++ly) {
-      int ii = layerTypeTop[ly];
+    for (int ii : layerTypeTop) {
       int copy = copyNumberTop[ii];
       double hthickl = 0.5 * layerThickTop[ii];
       thickTot += layerThickTop[ii];

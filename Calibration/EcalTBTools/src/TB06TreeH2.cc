@@ -125,9 +125,9 @@ void TB06TreeH2::store(const int &tableIsMoving,
     }
 
   //[Edgar] S49 uncleaned, uncalibrated energy
-  for (int eta = 0; eta < 7; ++eta)
+  for (auto &eta : entry->localMap)
     for (int phi = 0; phi < 7; ++phi) {
-      entry->S49uncalib_ += entry->localMap[eta][phi];
+      entry->S49uncalib_ += eta[phi];
     }
 
   //[Edgar] S9 uncleaned, uncalibrated energy

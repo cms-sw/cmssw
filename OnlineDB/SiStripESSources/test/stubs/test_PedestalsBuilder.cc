@@ -25,7 +25,7 @@ void test_PedestalsBuilder::analyze(const edm::Event& event, const edm::EventSet
   peds->getDetIds(det_ids);
 
   // Iterate through DetIds
-  vector<uint32_t>::const_iterator det_id = det_ids.begin();
+  auto det_id = det_ids.begin();
   for (; det_id != det_ids.end(); det_id++) {
     // Retrieve pedestals for given DetId
     SiStripPedestals::Range range = peds->getRange(*det_id);

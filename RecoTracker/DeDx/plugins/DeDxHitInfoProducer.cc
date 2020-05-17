@@ -72,9 +72,7 @@ void DeDxHitInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   std::vector<int> indices;
   std::vector<int> prescales;
   uint64_t state[2] = {iEvent.id().event(), iEvent.id().luminosityBlock()};
-  for (unsigned int j = 0; j < trackCollection.size(); j++) {
-    const reco::Track& track = trackCollection[j];
-
+  for (const auto& track : trackCollection) {
     //track selection
     bool passPt = (track.pt() >= minTrackPt), passLowDeDx = false, passHighDeDx = false, pass = passPt;
     if (!pass && (track.pt() >= minTrackPtPrescale)) {
@@ -110,11 +108,11 @@ void DeDxHitInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       hits.reserve(hitDeDxInfo.size());
       for (unsigned int i = 0, n = hitDeDxInfo.size(); i < n; ++i) {
         if (hitDeDxInfo.detId(i).subdetId() <= 2) {
-          hits.push_back(DeDxHit(hitDeDxInfo.charge(i) / hitDeDxInfo.pathlength(i) * MeVperADCPixel, 0, 0, 0));
+          hits.emplace_back(hitDeDxInfo.charge(i) / hitDeDxInfo.pathlength(i) * MeVperADCPixel, 0, 0, 0);
         } else {
           if (shapetest && !DeDxTools::shapeSelection(*hitDeDxInfo.stripCluster(i)))
             continue;
-          hits.push_back(DeDxHit(hitDeDxInfo.charge(i) / hitDeDxInfo.pathlength(i) * MeVperADCStrip, 0, 0, 0));
+          hits.emplace_back(hitDeDxInfo.charge(i) / hitDeDxInfo.pathlength(i) * MeVperADCStrip, 0, 0, 0);
         }
       }
       std::sort(hits.begin(), hits.end(), std::less<DeDxHit>());
@@ -196,7 +194,7 @@ void DeDxHitInfoProducer::processHit(const TrackingRecHit* recHit,
   } else if (clus.isStrip() && thit.isMatched()) {
     if (!useStrip)
       return;
-    const SiStripMatchedRecHit2D* matchedHit = dynamic_cast<const SiStripMatchedRecHit2D*>(recHit);
+    const auto* matchedHit = dynamic_cast<const SiStripMatchedRecHit2D*>(recHit);
     if (!matchedHit)
       return;
 

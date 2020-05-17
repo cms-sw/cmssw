@@ -58,10 +58,10 @@ private:
   int updateStartTimeDB() noexcept(false);
 
   void setByRun(RunTag* tag, run_t run) noexcept(false);
-  void setByRun(std::string location, run_t run) noexcept(false);
-  void setByTime(std::string location, const Tm& t) noexcept(false);
-  void setByRecentData(std::string dataTable, RunTag* tag, run_t run = (unsigned int)-1) noexcept(false);
-  void setByRecentData(std::string dataTable, std::string location, run_t run) noexcept(false);
+  void setByRun(const std::string& location, run_t run) noexcept(false);
+  void setByTime(const std::string& location, const Tm& t) noexcept(false);
+  void setByRecentData(const std::string& dataTable, RunTag* tag, run_t run = (unsigned int)-1) noexcept(false);
+  void setByRecentData(const std::string& dataTable, const std::string& location, run_t run) noexcept(false);
 
   /*   void fetchEarliest(RunIOV* fillIOV, RunTag* tag) const noexcept(false); */
   /*   void fetchLatest(RunIOV* fillIOV, RunTag* tag) const noexcept(false); */

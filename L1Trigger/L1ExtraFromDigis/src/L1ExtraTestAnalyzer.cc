@@ -136,9 +136,9 @@ void L1ExtraTestAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetu
   iEvent.getByLabel(isoEmSource_, isoEmColl);
   cout << "Number of isolated EM " << isoEmColl->size() << endl;
 
-  for (L1EmParticleCollection::const_iterator emItr = isoEmColl->begin(); emItr != isoEmColl->end(); ++emItr) {
-    cout << "  p4 (" << emItr->px() << ", " << emItr->py() << ", " << emItr->pz() << ", " << emItr->energy() << ") et "
-         << emItr->et() << " eta " << emItr->eta() << " phi " << emItr->phi() << endl;
+  for (const auto &emItr : *isoEmColl) {
+    cout << "  p4 (" << emItr.px() << ", " << emItr.py() << ", " << emItr.pz() << ", " << emItr.energy() << ") et "
+         << emItr.et() << " eta " << emItr.eta() << " phi " << emItr.phi() << endl;
   }
 
   // Non-isolated EM particles
@@ -146,9 +146,9 @@ void L1ExtraTestAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetu
   iEvent.getByLabel(nonIsoEmSource_, nonIsoEmColl);
   cout << "Number of non-isolated EM " << nonIsoEmColl->size() << endl;
 
-  for (L1EmParticleCollection::const_iterator emItr = nonIsoEmColl->begin(); emItr != nonIsoEmColl->end(); ++emItr) {
-    cout << "  p4 (" << emItr->px() << ", " << emItr->py() << ", " << emItr->pz() << ", " << emItr->energy() << ") et "
-         << emItr->et() << " eta " << emItr->eta() << " phi " << emItr->phi() << endl;
+  for (const auto &emItr : *nonIsoEmColl) {
+    cout << "  p4 (" << emItr.px() << ", " << emItr.py() << ", " << emItr.pz() << ", " << emItr.energy() << ") et "
+         << emItr.et() << " eta " << emItr.eta() << " phi " << emItr.phi() << endl;
   }
 
   // Jet particles
@@ -156,27 +156,27 @@ void L1ExtraTestAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetu
   iEvent.getByLabel(cenJetSource_, cenJetColl);
   cout << "Number of central jets " << cenJetColl->size() << endl;
 
-  for (L1JetParticleCollection::const_iterator jetItr = cenJetColl->begin(); jetItr != cenJetColl->end(); ++jetItr) {
-    cout << "  p4 (" << jetItr->px() << ", " << jetItr->py() << ", " << jetItr->pz() << ", " << jetItr->energy()
-         << ") et " << jetItr->et() << " eta " << jetItr->eta() << " phi " << jetItr->phi() << endl;
+  for (const auto &jetItr : *cenJetColl) {
+    cout << "  p4 (" << jetItr.px() << ", " << jetItr.py() << ", " << jetItr.pz() << ", " << jetItr.energy() << ") et "
+         << jetItr.et() << " eta " << jetItr.eta() << " phi " << jetItr.phi() << endl;
   }
 
   Handle<L1JetParticleCollection> forJetColl;
   iEvent.getByLabel(forJetSource_, forJetColl);
   cout << "Number of forward jets " << forJetColl->size() << endl;
 
-  for (L1JetParticleCollection::const_iterator jetItr = forJetColl->begin(); jetItr != forJetColl->end(); ++jetItr) {
-    cout << "  p4 (" << jetItr->px() << ", " << jetItr->py() << ", " << jetItr->pz() << ", " << jetItr->energy()
-         << ") et " << jetItr->et() << " eta " << jetItr->eta() << " phi " << jetItr->phi() << endl;
+  for (const auto &jetItr : *forJetColl) {
+    cout << "  p4 (" << jetItr.px() << ", " << jetItr.py() << ", " << jetItr.pz() << ", " << jetItr.energy() << ") et "
+         << jetItr.et() << " eta " << jetItr.eta() << " phi " << jetItr.phi() << endl;
   }
 
   Handle<L1JetParticleCollection> tauColl;
   iEvent.getByLabel(tauJetSource_, tauColl);
   cout << "Number of tau jets " << tauColl->size() << endl;
 
-  for (L1JetParticleCollection::const_iterator tauItr = tauColl->begin(); tauItr != tauColl->end(); ++tauItr) {
-    cout << "  p4 (" << tauItr->px() << ", " << tauItr->py() << ", " << tauItr->pz() << ", " << tauItr->energy()
-         << ") et " << tauItr->et() << " eta " << tauItr->eta() << " phi " << tauItr->phi() << endl;
+  for (const auto &tauItr : *tauColl) {
+    cout << "  p4 (" << tauItr.px() << ", " << tauItr.py() << ", " << tauItr.pz() << ", " << tauItr.energy() << ") et "
+         << tauItr.et() << " eta " << tauItr.eta() << " phi " << tauItr.phi() << endl;
   }
 
   // Muon particles
@@ -184,11 +184,11 @@ void L1ExtraTestAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetu
   iEvent.getByLabel(muonSource_, muColl);
   cout << "Number of muons " << muColl->size() << endl;
 
-  for (L1MuonParticleCollection::const_iterator muItr = muColl->begin(); muItr != muColl->end(); ++muItr) {
-    cout << "  q " << muItr->charge() << " p4 (" << muItr->px() << ", " << muItr->py() << ", " << muItr->pz() << ", "
-         << muItr->energy() << ") et " << muItr->et() << " eta " << muItr->eta() << endl
-         << "    phi " << muItr->phi() << " iso " << muItr->isIsolated() << " mip " << muItr->isMip() << " fwd "
-         << muItr->isForward() << " rpc " << muItr->isRPC() << endl;
+  for (const auto &muItr : *muColl) {
+    cout << "  q " << muItr.charge() << " p4 (" << muItr.px() << ", " << muItr.py() << ", " << muItr.pz() << ", "
+         << muItr.energy() << ") et " << muItr.et() << " eta " << muItr.eta() << endl
+         << "    phi " << muItr.phi() << " iso " << muItr.isIsolated() << " mip " << muItr.isMip() << " fwd "
+         << muItr.isForward() << " rpc " << muItr.isRPC() << endl;
   }
 
   // MET

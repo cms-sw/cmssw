@@ -24,8 +24,8 @@ DTOccupancyClusterBuilder::~DTOccupancyClusterBuilder() {}
 
 void DTOccupancyClusterBuilder::addPoint(const DTOccupancyPoint& point) {
   // loop over points already stored
-  for (set<DTOccupancyPoint>::const_iterator pt = thePoints.begin(); pt != thePoints.end(); ++pt) {
-    theDistances[(*pt).distance(point)] = make_pair(*pt, point);
+  for (const auto& thePoint : thePoints) {
+    theDistances[thePoint.distance(point)] = make_pair(thePoint, point);
   }
   thePoints.insert(point);
 }
@@ -37,8 +37,8 @@ void DTOccupancyClusterBuilder::buildClusters() {
   }
 
   // build single point clusters with the remaining points
-  for (set<DTOccupancyPoint>::const_iterator pt = thePoints.begin(); pt != thePoints.end(); ++pt) {
-    DTOccupancyCluster clusterCandidate(*pt);
+  for (const auto& thePoint : thePoints) {
+    DTOccupancyCluster clusterCandidate(thePoint);
     theClusters.push_back(clusterCandidate);
     // store the range for building the histograms later
     if (clusterCandidate.maxMean() > maxMean)
@@ -51,15 +51,14 @@ void DTOccupancyClusterBuilder::buildClusters() {
   sortClusters();
 }
 
-void DTOccupancyClusterBuilder::drawClusters(std::string canvasName) {
+void DTOccupancyClusterBuilder::drawClusters(const std::string& canvasName) {
   int nBinsX = 100;
   int nBinsY = 100;
   int colorMap[12] = {632, 600, 800, 400, 820, 416, 432, 880, 616, 860, 900, 920};
 
   TCanvas* canvas = new TCanvas(canvasName.c_str(), canvasName.c_str());
   canvas->cd();
-  for (vector<DTOccupancyCluster>::const_iterator cluster = theClusters.begin(); cluster != theClusters.end();
-       ++cluster) {
+  for (auto cluster = theClusters.begin(); cluster != theClusters.end(); ++cluster) {
     stringstream stream;
     stream << canvasName << "_" << cluster - theClusters.begin();
     string histoName = stream.str();
@@ -84,10 +83,10 @@ std::pair<DTOccupancyPoint, DTOccupancyPoint> DTOccupancyClusterBuilder::getInit
 
 void DTOccupancyClusterBuilder::computePointToPointDistances() {
   theDistances.clear();
-  for (set<DTOccupancyPoint>::const_iterator pt_i = thePoints.begin(); pt_i != thePoints.end(); ++pt_i) {    // i loopo
-    for (set<DTOccupancyPoint>::const_iterator pt_j = thePoints.begin(); pt_j != thePoints.end(); ++pt_j) {  // j loop
-      if (*pt_i != *pt_j) {
-        theDistances[pt_i->distance(*pt_j)] = make_pair(*pt_i, *pt_j);
+  for (const auto& thePoint : thePoints) {  // i loopo
+    for (const auto& pt_j : thePoints) {    // j loop
+      if (thePoint != pt_j) {
+        theDistances[thePoint.distance(pt_j)] = make_pair(thePoint, pt_j);
       }
     }
   }
@@ -95,8 +94,8 @@ void DTOccupancyClusterBuilder::computePointToPointDistances() {
 
 void DTOccupancyClusterBuilder::computeDistancesToCluster(const DTOccupancyCluster& cluster) {
   theDistancesFromTheCluster.clear();
-  for (set<DTOccupancyPoint>::const_iterator pt = thePoints.begin(); pt != thePoints.end(); ++pt) {
-    theDistancesFromTheCluster[cluster.distance(*pt)] = *pt;
+  for (const auto& thePoint : thePoints) {
+    theDistancesFromTheCluster[cluster.distance(thePoint)] = thePoint;
   }
 }
 
@@ -142,7 +141,7 @@ void DTOccupancyClusterBuilder::sortClusters() {
   LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest|DTOccupancyClusterBuilder") << " sorting" << endl;
   sort(theClusters.begin(), theClusters.end(), clusterIsLessThan);
   // we save the detid of the clusters which are not the best one
-  for (vector<DTOccupancyCluster>::const_iterator cluster = ++(theClusters.begin()); cluster != theClusters.end();
+  for (auto cluster = ++(theClusters.begin()); cluster != theClusters.end();
        ++cluster) {  // loop over clusters skipping the first
     set<DTLayerId> clusterLayers = (*cluster).getLayerIDs();
     LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest|DTOccupancyClusterBuilder")
@@ -155,7 +154,7 @@ void DTOccupancyClusterBuilder::sortClusters() {
 
 DTOccupancyCluster DTOccupancyClusterBuilder::getBestCluster() const { return theClusters.front(); }
 
-bool DTOccupancyClusterBuilder::isProblematic(DTLayerId layerId) const {
+bool DTOccupancyClusterBuilder::isProblematic(const DTLayerId& layerId) const {
   if (theProblematicLayers.find(layerId) != theProblematicLayers.end()) {
     return true;
   }

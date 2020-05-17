@@ -25,7 +25,7 @@ KillSecondariesTrackAction::~KillSecondariesTrackAction() {}
 void KillSecondariesTrackAction::update(const BeginOfTrack *trk) {
   if (killHeavy) {
     G4Track *theTrack = (G4Track *)((*trk)());
-    TrackInformation *trkInfo = (TrackInformation *)(theTrack->GetUserInformation());
+    auto *trkInfo = (TrackInformation *)(theTrack->GetUserInformation());
     if (trkInfo) {
       int pdg = theTrack->GetDefinition()->GetPDGEncoding();
       if (!(trkInfo->isPrimary())) {  // Only secondary particles

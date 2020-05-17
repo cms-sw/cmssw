@@ -9,8 +9,8 @@ namespace fireworks {
 
     reco::Jet::Constituents c = iData.getJetConstituents();
     bool haveData = true;
-    for (reco::Jet::Constituents::const_iterator itr = c.begin(); itr != c.end(); ++itr) {
-      if (!itr->isAvailable()) {
+    for (const auto& itr : c) {
+      if (!itr.isAvailable()) {
         haveData = false;
         break;
       }

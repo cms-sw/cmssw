@@ -20,10 +20,10 @@ static long algorithm(dd4hep::Detector& /* description */,
   double cellDy = args.value<double>("CellDy");                                         //Cell size (y)
   double cellDz = args.value<double>("CellDz");                                         //Cell size (z)
   double startY = args.value<double>("StartY");                                         //Starting Y for Cell
-  std::vector<std::string> childName = args.value<std::vector<std::string> >("Child");  //Children name
-  std::vector<int> number = args.value<std::vector<int> >("Number");                    //Number of cells
-  std::vector<int> size = args.value<std::vector<int> >("Size");                        //Number of children
-  std::vector<int> type = args.value<std::vector<int> >("Type");                        //First child
+  auto childName = args.value<std::vector<std::string> >("Child");                      //Children name
+  auto number = args.value<std::vector<int> >("Number");                                //Number of cells
+  auto size = args.value<std::vector<int> >("Size");                                    //Number of children
+  auto type = args.value<std::vector<int> >("Type");                                    //First child
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "DDHCalForwardAlgo: Cell material " << cellMat << "\tCell Size "
                                << convertCmToMm(cellDx) << ", " << convertCmToMm(cellDy) << ", "

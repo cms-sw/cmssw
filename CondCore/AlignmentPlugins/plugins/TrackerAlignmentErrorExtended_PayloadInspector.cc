@@ -257,7 +257,7 @@ namespace {
 
       std::string titleMap = "APE #sqrt{d_{" + getStringFromIndex(i) + "}} value (payload : " + std::get<1>(iov) + ")";
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("APE_dii"));
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("APE_dii");
       tmap->setTitle(titleMap);
       tmap->setPalette(1);
 
@@ -364,7 +364,7 @@ namespace {
       std::map<AlignmentPI::index, std::shared_ptr<TH1F> > summaries;
 
       for (int k = AlignmentPI::XX; k <= AlignmentPI::ZZ; k++) {
-        AlignmentPI::index coord = (AlignmentPI::index)k;
+        auto coord = (AlignmentPI::index)k;
         std::string s_coord = AlignmentPI::getStringFromIndex(coord);
 
         summaries[coord] = std::make_shared<TH1F>(
@@ -379,7 +379,7 @@ namespace {
         //COUT<<"begin ( "<< begin << "): " << AlignmentPI::getStringFromRegionEnum(begin) << " end ( " << end << "): " <<  AlignmentPI::getStringFromRegionEnum(end) <<" | range = "<< range << std::endl;
 
         for (int j = begin; j <= end; j++) {
-          AlignmentPI::regions part = (AlignmentPI::regions)j;
+          auto part = (AlignmentPI::regions)j;
 
           // dont' book region that don't exist
           if (isPhase0 && (part == AlignmentPI::BPixL4o || part == AlignmentPI::BPixL4i ||
@@ -427,7 +427,7 @@ namespace {
           continue;
 
         for (int k = AlignmentPI::XX; k <= AlignmentPI::ZZ; k++) {
-          AlignmentPI::index coord = (AlignmentPI::index)k;
+          auto coord = (AlignmentPI::index)k;
           auto indices = AlignmentPI::getIndices(coord);
           auto hash = std::make_pair(coord, thePart);
 
@@ -445,10 +445,10 @@ namespace {
       legend.SetTextSize(0.030);
 
       for (int k = AlignmentPI::XX; k <= AlignmentPI::ZZ; k++) {
-        AlignmentPI::index coord = (AlignmentPI::index)k;
+        auto coord = (AlignmentPI::index)k;
 
         for (int j = begin; j <= end; j++) {
-          AlignmentPI::regions part = (AlignmentPI::regions)j;
+          auto part = (AlignmentPI::regions)j;
 
           // don't fill regions that do not exist
           if (isPhase0 && (part == AlignmentPI::BPixL4o || part == AlignmentPI::BPixL4i ||
@@ -548,7 +548,7 @@ namespace {
 
       // book the intermediate histograms
       for (int r = AlignmentPI::BPixL1o; r != AlignmentPI::StripDoubleSide; r++) {
-        AlignmentPI::regions part = static_cast<AlignmentPI::regions>(r);
+        auto part = static_cast<AlignmentPI::regions>(r);
         std::string s_part = AlignmentPI::getStringFromRegionEnum(part);
 
         FirstAPE_spectraByRegion[part] =
@@ -658,7 +658,7 @@ namespace {
       // fill the summary plots
       int bin = 1;
       for (int r = AlignmentPI::BPixL1o; r != AlignmentPI::StripDoubleSide; r++) {
-        AlignmentPI::regions part = static_cast<AlignmentPI::regions>(r);
+        auto part = static_cast<AlignmentPI::regions>(r);
 
         summaryFirst->GetXaxis()->SetBinLabel(bin, AlignmentPI::getStringFromRegionEnum(part).c_str());
         // avoid filling the histogram with numerical noise

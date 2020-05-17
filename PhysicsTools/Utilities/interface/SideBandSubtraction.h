@@ -56,8 +56,8 @@ public:
   int doGlobalFit();
   int doSubtraction(RooRealVar* variable, Double_t stsratio, Int_t index);  //stsratio -> signal to sideband ratio
   void doFastSubtraction(TH1F& Total, TH1F& Result, SbsRegion& leftRegion, SbsRegion& rightRegion);
-  void printResults(std::string prefix = "");
-  void saveResults(std::string outname);
+  void printResults(const std::string& prefix = "");
+  void saveResults(const std::string& outname);
   //the user may want to change the dataset pointer so they can do
   //various subtractions on subsets of the original dataset...
   void setDataSet(RooDataSet* newData);

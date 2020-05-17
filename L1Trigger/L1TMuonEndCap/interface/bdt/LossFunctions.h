@@ -50,8 +50,7 @@ namespace emtf {
       // The average of the residuals minmizes the Loss Function for LS.
 
       double SUM = 0;
-      for (unsigned int i = 0; i < v.size(); i++) {
-        Event* e = v[i];
+      for (auto e : v) {
         SUM += e->trueValue - e->predictedValue;
       }
 
@@ -140,8 +139,7 @@ namespace emtf {
       residual_median = calculateQuantile(v, 0.5);
 
       double x = 0;
-      for (unsigned int i = 0; i < v.size(); i++) {
-        Event* e = v[i];
+      for (auto e : v) {
         double residual = e->trueValue - e->predictedValue;
         double diff = residual - residual_median;
         x += ((diff > 0) ? 1.0 : -1.0) * std::min(quantile, std::abs(diff));
@@ -190,8 +188,7 @@ namespace emtf {
       double SUMtop = 0;
       double SUMbottom = 0;
 
-      for (unsigned int i = 0; i < v.size(); i++) {
-        Event* e = v[i];
+      for (auto e : v) {
         SUMtop += (e->trueValue - e->predictedValue) / (e->trueValue * e->trueValue);
         SUMbottom += 1 / (e->trueValue * e->trueValue);
       }

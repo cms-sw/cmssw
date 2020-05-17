@@ -220,22 +220,22 @@ void HGCalHitCalibration::analyze(const edm::Event& iEvent, const edm::EventSetu
       const auto& rechitsEE = *recHitHandleEE;
       const auto& rechitsFH = *recHitHandleFH;
       const auto& rechitsBH = *recHitHandleBH;
-      for (unsigned int i = 0; i < rechitsEE.size(); ++i) {
-        hitmap[rechitsEE[i].detid()] = &rechitsEE[i];
+      for (const auto& i : rechitsEE) {
+        hitmap[i.detid()] = &i;
       }
-      for (unsigned int i = 0; i < rechitsFH.size(); ++i) {
-        hitmap[rechitsFH[i].detid()] = &rechitsFH[i];
+      for (const auto& i : rechitsFH) {
+        hitmap[i.detid()] = &i;
       }
-      for (unsigned int i = 0; i < rechitsBH.size(); ++i) {
-        hitmap[rechitsBH[i].detid()] = &rechitsBH[i];
+      for (const auto& i : rechitsBH) {
+        hitmap[i.detid()] = &i;
       }
       break;
     }
     case 2: {
       iEvent.getByToken(recHitsEE_, recHitHandleEE);
       const HGCRecHitCollection& rechitsEE = *recHitHandleEE;
-      for (unsigned int i = 0; i < rechitsEE.size(); i++) {
-        hitmap[rechitsEE[i].detid()] = &rechitsEE[i];
+      for (const auto& i : rechitsEE) {
+        hitmap[i.detid()] = &i;
       }
       break;
     }
@@ -244,11 +244,11 @@ void HGCalHitCalibration::analyze(const edm::Event& iEvent, const edm::EventSetu
       iEvent.getByToken(recHitsBH_, recHitHandleBH);
       const auto& rechitsFH = *recHitHandleFH;
       const auto& rechitsBH = *recHitHandleBH;
-      for (unsigned int i = 0; i < rechitsFH.size(); i++) {
-        hitmap[rechitsFH[i].detid()] = &rechitsFH[i];
+      for (const auto& i : rechitsFH) {
+        hitmap[i.detid()] = &i;
       }
-      for (unsigned int i = 0; i < rechitsBH.size(); i++) {
-        hitmap[rechitsBH[i].detid()] = &rechitsBH[i];
+      for (const auto& i : rechitsBH) {
+        hitmap[i.detid()] = &i;
       }
       break;
     }

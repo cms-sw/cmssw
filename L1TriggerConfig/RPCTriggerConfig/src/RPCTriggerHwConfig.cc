@@ -104,8 +104,8 @@ RPCTriggerHwConfig::ReturnType RPCTriggerHwConfig::produce(const L1RPCHwConfigRc
 
   if (m_disableAll) {
     pL1RPCHwConfig->enableAll(false);
-    std::vector<int>::iterator crIt = m_enableCrates.begin();
-    std::vector<int>::iterator twIt = m_enableTowers.begin();
+    auto crIt = m_enableCrates.begin();
+    auto twIt = m_enableTowers.begin();
     for (; crIt != m_enableCrates.end(); ++crIt) {
       pL1RPCHwConfig->enableCrate(*crIt, true);
     }
@@ -117,8 +117,8 @@ RPCTriggerHwConfig::ReturnType RPCTriggerHwConfig::produce(const L1RPCHwConfigRc
         pL1RPCHwConfig->enableTowerInCrate(m_enableTowersInCrates[It + 1], m_enableTowersInCrates[It], true);
     }
   } else {
-    std::vector<int>::iterator crIt = m_disableCrates.begin();
-    std::vector<int>::iterator twIt = m_disableTowers.begin();
+    auto crIt = m_disableCrates.begin();
+    auto twIt = m_disableTowers.begin();
     for (; crIt != m_disableCrates.end(); ++crIt) {
       pL1RPCHwConfig->enableCrate(*crIt, false);
     }

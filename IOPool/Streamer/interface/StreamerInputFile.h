@@ -19,15 +19,17 @@ namespace edm {
   class StreamerInputFile {
   public:
     /**Reads a Streamer file */
-    explicit StreamerInputFile(std::string const& name,
-                               std::string const& LFN,
-                               std::shared_ptr<EventSkipperByID> eventSkipperByID = std::shared_ptr<EventSkipperByID>());
+    explicit StreamerInputFile(
+        std::string const& name,
+        std::string const& LFN,
+        const std::shared_ptr<EventSkipperByID>& eventSkipperByID = std::shared_ptr<EventSkipperByID>());
     explicit StreamerInputFile(std::string const& name,
                                std::shared_ptr<EventSkipperByID> eventSkipperByID = std::shared_ptr<EventSkipperByID>());
 
     /** Multiple Streamer files */
-    explicit StreamerInputFile(std::vector<FileCatalogItem> const& names,
-                               std::shared_ptr<EventSkipperByID> eventSkipperByID = std::shared_ptr<EventSkipperByID>());
+    explicit StreamerInputFile(
+        std::vector<FileCatalogItem> const& names,
+        const std::shared_ptr<EventSkipperByID>& eventSkipperByID = std::shared_ptr<EventSkipperByID>());
 
     ~StreamerInputFile();
 

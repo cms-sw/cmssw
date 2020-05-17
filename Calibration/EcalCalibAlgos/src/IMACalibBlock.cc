@@ -30,9 +30,9 @@ void IMACalibBlock::Fill(std::map<int, double>::const_iterator MapBegin,
   //  std::cerr<<"\n\nfaccio il fill!\n";
   double inverror = 1. / sigma;
   //LP fist loop over energies
-  for (std::map<int, double>::const_iterator itMap1 = MapBegin; itMap1 != MapEnd; ++itMap1) {
+  for (auto itMap1 = MapBegin; itMap1 != MapEnd; ++itMap1) {
     //      std::cerr<<"numero "<<itMap1->first<<" vale "<<itMap1->second<<"\t";
-    for (std::map<int, double>::const_iterator itMap2 = itMap1; itMap2 != MapEnd; ++itMap2) {
+    for (auto itMap2 = itMap1; itMap2 != MapEnd; ++itMap2) {
       //LP calculate the chi square value
       double dummy = itMap1->second * itMap2->second;
       dummy *= inverror;
@@ -142,12 +142,12 @@ void IMACalibBlock::riempiVtr(const std::vector<double>& pieno, CLHEP::HepVector
 // ------------------------------------------------------------
 
 void IMACalibBlock::reset() {
-  for (std::vector<double>::iterator vecIt = m_kaliVector.begin(); vecIt != m_kaliVector.end(); ++vecIt) {
-    *vecIt = 0.;
+  for (double& vecIt : m_kaliVector) {
+    vecIt = 0.;
   }
 
-  for (std::vector<double>::iterator vecIt = m_kaliMatrix.begin(); vecIt != m_kaliMatrix.end(); ++vecIt) {
-    *vecIt = 0.;
+  for (double& vecIt : m_kaliMatrix) {
+    vecIt = 0.;
   }
 }
 

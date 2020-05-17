@@ -102,9 +102,9 @@ void GEMCoPadDigiValidation::analyze(const edm::Event& event, const edm::EventSe
   }
 
   // GEMCoPadDigiCollection::DigiRangeIterator
-  for (auto range_iter = copad_collection->begin(); range_iter != copad_collection->end(); range_iter++) {
-    GEMDetId gemid = (*range_iter).first;
-    const GEMCoPadDigiCollection::Range& range = (*range_iter).second;
+  for (auto&& range_iter : *copad_collection) {
+    GEMDetId gemid = range_iter.first;
+    const GEMCoPadDigiCollection::Range& range = range_iter.second;
 
     Int_t region_id = gemid.region();
     Int_t station_id = gemid.station();

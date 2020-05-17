@@ -82,7 +82,7 @@ void GeometryInterface::load(edm::EventSetup const& iSetup) {
   loadFromSiPixelCoordinates(trackerGeometry, trackerTopology, siPixelFedCablingMap, iConfig);
   edm::LogInfo log("GeometryInterface");
   log << "Known colum names:\n";
-  for (auto e : ids)
+  for (const auto& e : ids)
     log << "+++ column: " << e.first << " ok " << bool(extractors[e.second]) << " min " << min_value[e.second]
         << " max " << max_value[e.second] << "\n";
   is_loaded = true;
@@ -181,7 +181,7 @@ void GeometryInterface::loadFromTopology(const TrackerGeometry& trackerGeometry,
 
     // we record each module 4 times, one for each corner, so we also get ROCs
     // in booking (at least for the ranges)
-    const PixelGeomDetUnit* detUnit = dynamic_cast<const PixelGeomDetUnit*>(trackerGeometry.idToDetUnit(id));
+    const auto* detUnit = dynamic_cast<const PixelGeomDetUnit*>(trackerGeometry.idToDetUnit(id));
     assert(detUnit);
     const PixelTopology* topo = &detUnit->specificTopology();
     iq.row = 0;

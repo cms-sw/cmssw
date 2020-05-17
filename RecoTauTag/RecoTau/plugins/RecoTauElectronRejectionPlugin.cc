@@ -52,10 +52,10 @@ namespace reco {
     }
 
     namespace {
-      bool checkPos(std::vector<math::XYZPoint> CalPos, math::XYZPoint CandPos) {
+      bool checkPos(std::vector<math::XYZPoint> CalPos, const math::XYZPoint& CandPos) {
         bool flag = false;
-        for (unsigned int i = 0; i < CalPos.size(); i++) {
-          if (CalPos[i] == CandPos) {
+        for (auto& CalPo : CalPos) {
+          if (CalPo == CandPos) {
             flag = true;
             break;
           }
@@ -99,34 +99,34 @@ namespace reco {
           //FROM AOD
           if (DataType_ == "AOD") {
             // Corrected Cluster energies
-            for (int i = 0; i < (int)myPFCands.size(); i++) {
-              myHCALenergy += myPFCands[i]->hcalEnergy();
-              myECALenergy += myPFCands[i]->ecalEnergy();
+            for (auto& myPFCand : myPFCands) {
+              myHCALenergy += myPFCand->hcalEnergy();
+              myECALenergy += myPFCand->ecalEnergy();
 
               math::XYZPointF candPos;
-              if (myPFCands[i]->particleId() == 1 || myPFCands[i]->particleId() == 2)  //if charged hadron or electron
-                candPos = myPFCands[i]->positionAtECALEntrance();
+              if (myPFCand->particleId() == 1 || myPFCand->particleId() == 2)  //if charged hadron or electron
+                candPos = myPFCand->positionAtECALEntrance();
               else
-                candPos = math::XYZPointF(myPFCands[i]->px(), myPFCands[i]->py(), myPFCands[i]->pz());
+                candPos = math::XYZPointF(myPFCand->px(), myPFCand->py(), myPFCand->pz());
 
               double deltaR = ROOT::Math::VectorUtil::DeltaR(myElecTrkEcalPos, candPos);
               double deltaPhi = ROOT::Math::VectorUtil::DeltaPhi(myElecTrkEcalPos, candPos);
               double deltaEta = std::abs(myElecTrkEcalPos.eta() - candPos.eta());
               double deltaPhiOverQ = deltaPhi / (double)myElecTrk->charge();
 
-              if (myPFCands[i]->ecalEnergy() >= EcalStripSumE_minClusEnergy_ && deltaEta < EcalStripSumE_deltaEta_ &&
+              if (myPFCand->ecalEnergy() >= EcalStripSumE_minClusEnergy_ && deltaEta < EcalStripSumE_deltaEta_ &&
                   deltaPhiOverQ > EcalStripSumE_deltaPhiOverQ_minValue_ &&
                   deltaPhiOverQ < EcalStripSumE_deltaPhiOverQ_maxValue_) {
-                myStripClusterE += myPFCands[i]->ecalEnergy();
+                myStripClusterE += myPFCand->ecalEnergy();
               }
               if (deltaR < 0.184) {
-                myHCALenergy3x3 += myPFCands[i]->hcalEnergy();
+                myHCALenergy3x3 += myPFCand->hcalEnergy();
               }
-              if (myPFCands[i]->hcalEnergy() > myMaximumHCALPFClusterE) {
-                myMaximumHCALPFClusterE = myPFCands[i]->hcalEnergy();
+              if (myPFCand->hcalEnergy() > myMaximumHCALPFClusterE) {
+                myMaximumHCALPFClusterE = myPFCand->hcalEnergy();
               }
-              if ((myPFCands[i]->hcalEnergy() * fabs(sin(candPos.Theta()))) > myMaximumHCALPFClusterEt) {
-                myMaximumHCALPFClusterEt = (myPFCands[i]->hcalEnergy() * fabs(sin(candPos.Theta())));
+              if ((myPFCand->hcalEnergy() * fabs(sin(candPos.Theta()))) > myMaximumHCALPFClusterEt) {
+                myMaximumHCALPFClusterEt = (myPFCand->hcalEnergy() * fabs(sin(candPos.Theta())));
               }
             }
 
@@ -136,11 +136,11 @@ namespace reco {
             hcalPosV.clear();
             std::vector<math::XYZPoint> ecalPosV;
             ecalPosV.clear();
-            for (int i = 0; i < (int)myPFCands.size(); i++) {
-              const ElementsInBlocks& elts = myPFCands[i]->elementsInBlocks();
-              for (ElementsInBlocks::const_iterator it = elts.begin(); it != elts.end(); ++it) {
-                const reco::PFBlock& block = *(it->first);
-                unsigned indexOfElementInBlock = it->second;
+            for (auto& myPFCand : myPFCands) {
+              const ElementsInBlocks& elts = myPFCand->elementsInBlocks();
+              for (const auto& elt : elts) {
+                const reco::PFBlock& block = *(elt.first);
+                unsigned indexOfElementInBlock = elt.second;
                 const edm::OwnVector<reco::PFBlockElement>& elements = block.elements();
                 assert(indexOfElementInBlock < elements.size());
 

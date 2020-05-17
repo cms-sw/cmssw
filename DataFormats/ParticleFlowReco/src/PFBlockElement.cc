@@ -36,7 +36,7 @@ std::ostream& reco::operator<<(std::ostream& out, const PFBlockElement& element)
   try {
     switch (element.type()) {
       case PFBlockElement::TRACK: {
-        const reco::PFBlockElementTrack& et = dynamic_cast<const reco::PFBlockElementTrack&>(element);
+        const auto& et = dynamic_cast<const reco::PFBlockElementTrack&>(element);
         et.Dump(out);
         if (et.trackType(PFBlockElement::T_FROM_DISP))
           out << " from displaced;";
@@ -56,24 +56,24 @@ std::ostream& reco::operator<<(std::ostream& out, const PFBlockElement& element)
       case PFBlockElement::HFHAD:
       case PFBlockElement::PS1:
       case PFBlockElement::PS2: {
-        const reco::PFBlockElementCluster& ec = dynamic_cast<const reco::PFBlockElementCluster&>(element);
+        const auto& ec = dynamic_cast<const reco::PFBlockElementCluster&>(element);
         ec.Dump(out);
         break;
       }
       case PFBlockElement::GSF: {
-        const reco::PFBlockElementGsfTrack& eg = dynamic_cast<const reco::PFBlockElementGsfTrack&>(element);
+        const auto& eg = dynamic_cast<const reco::PFBlockElementGsfTrack&>(element);
         eg.Dump(out);
         out << " from gsf;";
         break;
       }
       case PFBlockElement::BREM: {
-        const reco::PFBlockElementBrem& em = dynamic_cast<const reco::PFBlockElementBrem&>(element);
+        const auto& em = dynamic_cast<const reco::PFBlockElementBrem&>(element);
         em.Dump(out);
         out << " from brem;";
         break;
       }
       case PFBlockElement::SC: {
-        const reco::PFBlockElementSuperCluster& sc = dynamic_cast<const reco::PFBlockElementSuperCluster&>(element);
+        const auto& sc = dynamic_cast<const reco::PFBlockElementSuperCluster&>(element);
         sc.Dump(out);
         out << " from SuperCluster;";
         break;

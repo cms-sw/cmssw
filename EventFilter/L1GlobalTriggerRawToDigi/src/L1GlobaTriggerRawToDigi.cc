@@ -197,9 +197,9 @@ void L1GlobalTriggerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup
   gtRecordMap.reserve(boardMapsSize);
 
   for (int iPos = 0; iPos < boardMapsSize; ++iPos) {
-    for (CItBoardMaps itBoard = boardMaps.begin(); itBoard != boardMaps.end(); ++itBoard) {
-      if (itBoard->gtPositionDaqRecord() == iPos) {
-        gtRecordMap.push_back(*itBoard);
+    for (const auto& boardMap : boardMaps) {
+      if (boardMap.gtPositionDaqRecord() == iPos) {
+        gtRecordMap.push_back(boardMap);
         break;
       }
     }
@@ -277,10 +277,10 @@ void L1GlobalTriggerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup
 
   bool gtfeUnpacked = false;
 
-  for (CItBoardMaps itBoard = boardMaps.begin(); itBoard != boardMaps.end(); ++itBoard) {
-    if (itBoard->gtBoardType() == GTFE) {
+  for (const auto& boardMap : boardMaps) {
+    if (boardMap.gtBoardType() == GTFE) {
       // unpack GTFE
-      if (itBoard->gtPositionDaqRecord() == 1) {
+      if (boardMap.gtPositionDaqRecord() == 1) {
         m_gtfeWord->unpack(ptrGt);
         ptrGt += m_gtfeWord->getSize();  // advance with GTFE block size
         gtfeUnpacked = true;
@@ -353,8 +353,8 @@ void L1GlobalTriggerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup
   int numberTcsBoards = 0;
   int numberTimBoards = 0;
 
-  for (CItBoardMaps itBoard = boardMaps.begin(); itBoard != boardMaps.end(); ++itBoard) {
-    int iActiveBit = itBoard->gtBitDaqActiveBoards();
+  for (const auto& boardMap : boardMaps) {
+    int iActiveBit = boardMap.gtBitDaqActiveBoards();
     bool activeBoardToUnpack = false;
 
     if (iActiveBit >= 0) {
@@ -365,7 +365,7 @@ void L1GlobalTriggerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup
     }
 
     if (activeBoardToUnpack) {
-      switch (itBoard->gtBoardType()) {
+      switch (boardMap.gtBoardType()) {
         case GTFE: {
           numberGtfeBoards++;
         }
@@ -400,7 +400,7 @@ void L1GlobalTriggerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup
           // do nothing, all blocks are given in GtBoardType enum
           if (m_verbosity) {
             LogDebug("L1GlobalTriggerRawToDigi")
-                << "\nBoard of type " << itBoard->gtBoardType() << " not expected  in record.\n"
+                << "\nBoard of type " << boardMap.gtBoardType() << " not expected  in record.\n"
                 << std::endl;
           }
         }
@@ -442,8 +442,8 @@ void L1GlobalTriggerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup
 
   // ... then unpack modules other than GTFE, if requested
 
-  for (CItBoardMaps itBoard = gtRecordMap.begin(); itBoard != gtRecordMap.end(); ++itBoard) {
-    int iActiveBit = itBoard->gtBitDaqActiveBoards();
+  for (const auto& itBoard : gtRecordMap) {
+    int iActiveBit = itBoard.gtBitDaqActiveBoards();
 
     bool activeBoardToUnpack = false;
     bool activeBoardInitial = false;
@@ -464,7 +464,7 @@ void L1GlobalTriggerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup
         if (m_verbosity) {
           edm::LogWarning("L1GlobalTriggerRawToDigi")
               << "\n\nWARNING: Wrong value altNrBxBoardVal = " << altNrBxBoardVal << " for board " << std::hex
-              << (itBoard->gtBoardId()) << std::dec << "\n  iActiveBit =            " << iActiveBit
+              << (itBoard.gtBoardId()) << std::dec << "\n  iActiveBit =            " << iActiveBit
               << "\n  altNrBxBoardInitial = 0x" << std::hex << altNrBxBoardInitial << std::dec
               << "\n  activeBoardsGt =      0x" << std::hex << activeBoardsGt << std::dec
               << "\n  activeBoardInitial =    " << activeBoardInitial
@@ -481,7 +481,7 @@ void L1GlobalTriggerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup
       if (m_unpackBxInEvent > m_totalBxInEvent) {
         if (m_verbosity) {
           LogDebug("L1GlobalTriggerRawToDigi")
-              << "\nWARNING: Number of available bunch crosses for board" << (itBoard->gtBoardId())
+              << "\nWARNING: Number of available bunch crosses for board" << (itBoard.gtBoardId())
               << " in the record ( " << m_totalBxInEvent
               << " ) \n is smaller than the number of bunch crosses requested to be unpacked (" << m_unpackBxInEvent
               << " )!!! \n         Unpacking only " << m_totalBxInEvent << " bunch crosses.\n"
@@ -541,15 +541,15 @@ void L1GlobalTriggerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup
 
     if (!activeBoardInitial) {
       if (m_verbosity) {
-        LogDebug("L1GlobalTriggerRawToDigi") << "\nBoard of type " << itBoard->gtBoardName() << " with index "
-                                             << itBoard->gtBoardIndex() << " not active initially in raw data.\n"
+        LogDebug("L1GlobalTriggerRawToDigi") << "\nBoard of type " << itBoard.gtBoardName() << " with index "
+                                             << itBoard.gtBoardIndex() << " not active initially in raw data.\n"
                                              << std::endl;
       }
       continue;
     }
 
     // active board initially, could unpack it
-    switch (itBoard->gtBoardType()) {
+    switch (itBoard.gtBoardType()) {
       case FDL: {
         for (int iFdl = 0; iFdl < m_totalBxInEvent; ++iFdl) {
           // if pointer after FDL payload is greater than pointer at
@@ -663,7 +663,7 @@ void L1GlobalTriggerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup
         // do nothing, all blocks are given in GtBoardType enum
         if (m_verbosity) {
           LogDebug("L1GlobalTriggerRawToDigi")
-              << "\nBoard of type " << itBoard->gtBoardType() << " not expected  in record.\n"
+              << "\nBoard of type " << itBoard.gtBoardType() << " not expected  in record.\n"
               << std::endl;
         }
       } break;

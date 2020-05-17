@@ -1,10 +1,12 @@
 #include <iostream>
 #include <iomanip>
 #include <string>
+#include <utility>
+
 #include <vector>
-#include <time.h>
+#include <ctime>
 #include <cstdlib>
-#include <limits.h>
+#include <climits>
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 
 using namespace std;
@@ -17,7 +19,7 @@ public:
   CondDBApp(string sid, string user, string pass, run_t r) {
     try {
       cout << "Making connection..." << flush;
-      econn = new EcalCondDBInterface(sid, user, pass);
+      econn = new EcalCondDBInterface(std::move(sid), std::move(user), std::move(pass));
       run = r;
       cout << "Done." << endl;
     } catch (runtime_error& e) {
@@ -34,8 +36,8 @@ public:
   void doRun() {
     RunIOV iov = econn->fetchRunIOV("P5_Co", run);
     std::list<ODDelaysDat> delays = econn->fetchFEDelaysForRun(&iov);
-    std::list<ODDelaysDat>::const_iterator i = delays.begin();
-    std::list<ODDelaysDat>::const_iterator e = delays.end();
+    auto i = delays.begin();
+    auto e = delays.end();
     while (i != e) {
       std::cout << "SM: " << i->getSMId() << " FED: " << i->getFedId() << " Delay: " << i->getTimeOffset() << std::endl;
       i++;
@@ -43,7 +45,7 @@ public:
   }
 
 private:
-  CondDBApp();  // hidden default constructor
+  CondDBApp() = delete;  // hidden default constructor
   EcalCondDBInterface* econn;
   run_t run;
 };

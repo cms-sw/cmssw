@@ -61,7 +61,7 @@ void BasicMultiTrajectoryState::combine() {
     }
 
   double pzSign = tsos.front().localParameters().pzSign();
-  for (std::vector<TrajectoryStateOnSurface>::const_iterator it = tsos.begin(); it != tsos.end(); it++) {
+  for (auto it = tsos.begin(); it != tsos.end(); it++) {
     if
       UNLIKELY(it->localParameters().pzSign() != pzSign) {
         edm::LogError("MultiTrajectoryStateCombiner")

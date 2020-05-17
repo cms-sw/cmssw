@@ -21,8 +21,8 @@ std::string TrackDetMatchInfo::dumpGeometry(const DetId& id) {
   std::ostringstream oss;
 
   const CaloCellGeometry::CornersVec& points = caloGeometry->getSubdetectorGeometry(id)->getGeometry(id)->getCorners();
-  for (CaloCellGeometry::CornersVec::const_iterator point = points.begin(); point != points.end(); ++point)
-    oss << "(" << point->z() << ", " << point->perp() << ", " << point->eta() << ", " << point->phi() << "), \t";
+  for (const auto& point : points)
+    oss << "(" << point.z() << ", " << point.perp() << ", " << point.eta() << ", " << point.phi() << "), \t";
   return oss.str();
 }
 
@@ -40,37 +40,32 @@ double TrackDetMatchInfo::crossedEnergy(EnergyType type) {
   double energy(0);
   switch (type) {
     case EcalRecHits: {
-      for (std::vector<const EcalRecHit*>::const_iterator hit = crossedEcalRecHits.begin();
-           hit != crossedEcalRecHits.end();
-           hit++)
-        energy += (*hit)->energy();
+      for (auto crossedEcalRecHit : crossedEcalRecHits)
+        energy += crossedEcalRecHit->energy();
     } break;
     case HcalRecHits: {
-      for (std::vector<const HBHERecHit*>::const_iterator hit = crossedHcalRecHits.begin();
-           hit != crossedHcalRecHits.end();
-           hit++)
-        energy += (*hit)->energy();
+      for (auto crossedHcalRecHit : crossedHcalRecHits)
+        energy += crossedHcalRecHit->energy();
     } break;
     case HORecHits: {
-      for (std::vector<const HORecHit*>::const_iterator hit = crossedHORecHits.begin(); hit != crossedHORecHits.end();
-           hit++)
-        energy += (*hit)->energy();
+      for (auto crossedHORecHit : crossedHORecHits)
+        energy += crossedHORecHit->energy();
     } break;
     case TowerTotal: {
-      for (std::vector<const CaloTower*>::const_iterator hit = crossedTowers.begin(); hit != crossedTowers.end(); hit++)
-        energy += (*hit)->energy();
+      for (auto crossedTower : crossedTowers)
+        energy += crossedTower->energy();
     } break;
     case TowerEcal: {
-      for (std::vector<const CaloTower*>::const_iterator hit = crossedTowers.begin(); hit != crossedTowers.end(); hit++)
-        energy += (*hit)->emEnergy();
+      for (auto crossedTower : crossedTowers)
+        energy += crossedTower->emEnergy();
     } break;
     case TowerHcal: {
-      for (std::vector<const CaloTower*>::const_iterator hit = crossedTowers.begin(); hit != crossedTowers.end(); hit++)
-        energy += (*hit)->hadEnergy();
+      for (auto crossedTower : crossedTowers)
+        energy += crossedTower->hadEnergy();
     } break;
     case TowerHO: {
-      for (std::vector<const CaloTower*>::const_iterator hit = crossedTowers.begin(); hit != crossedTowers.end(); hit++)
-        energy += (*hit)->outerEnergy();
+      for (auto crossedTower : crossedTowers)
+        energy += crossedTower->outerEnergy();
     } break;
     default:
       throw cms::Exception("FatalError") << "Unknown calo energy type: " << type;
@@ -92,39 +87,39 @@ double TrackDetMatchInfo::coneEnergy(double dR, EnergyType type) {
   double energy(0);
   switch (type) {
     case EcalRecHits: {
-      for (std::vector<const EcalRecHit*>::const_iterator hit = ecalRecHits.begin(); hit != ecalRecHits.end(); hit++)
-        if (insideCone((*hit)->detid(), dR))
-          energy += (*hit)->energy();
+      for (auto ecalRecHit : ecalRecHits)
+        if (insideCone(ecalRecHit->detid(), dR))
+          energy += ecalRecHit->energy();
     } break;
     case HcalRecHits: {
-      for (std::vector<const HBHERecHit*>::const_iterator hit = hcalRecHits.begin(); hit != hcalRecHits.end(); hit++)
-        if (insideCone((*hit)->detid(), dR))
-          energy += (*hit)->energy();
+      for (auto hcalRecHit : hcalRecHits)
+        if (insideCone(hcalRecHit->detid(), dR))
+          energy += hcalRecHit->energy();
     } break;
     case HORecHits: {
-      for (std::vector<const HORecHit*>::const_iterator hit = hoRecHits.begin(); hit != hoRecHits.end(); hit++)
-        if (insideCone((*hit)->detid(), dR))
-          energy += (*hit)->energy();
+      for (auto hoRecHit : hoRecHits)
+        if (insideCone(hoRecHit->detid(), dR))
+          energy += hoRecHit->energy();
     } break;
     case TowerTotal: {
-      for (std::vector<const CaloTower*>::const_iterator hit = crossedTowers.begin(); hit != crossedTowers.end(); hit++)
-        if (insideCone((*hit)->id(), dR))
-          energy += (*hit)->energy();
+      for (auto crossedTower : crossedTowers)
+        if (insideCone(crossedTower->id(), dR))
+          energy += crossedTower->energy();
     } break;
     case TowerEcal: {
-      for (std::vector<const CaloTower*>::const_iterator hit = crossedTowers.begin(); hit != crossedTowers.end(); hit++)
-        if (insideCone((*hit)->id(), dR))
-          energy += (*hit)->emEnergy();
+      for (auto crossedTower : crossedTowers)
+        if (insideCone(crossedTower->id(), dR))
+          energy += crossedTower->emEnergy();
     } break;
     case TowerHcal: {
-      for (std::vector<const CaloTower*>::const_iterator hit = crossedTowers.begin(); hit != crossedTowers.end(); hit++)
-        if (insideCone((*hit)->id(), dR))
-          energy += (*hit)->hadEnergy();
+      for (auto crossedTower : crossedTowers)
+        if (insideCone(crossedTower->id(), dR))
+          energy += crossedTower->hadEnergy();
     } break;
     case TowerHO: {
-      for (std::vector<const CaloTower*>::const_iterator hit = crossedTowers.begin(); hit != crossedTowers.end(); hit++)
-        if (insideCone((*hit)->id(), dR))
-          energy += (*hit)->outerEnergy();
+      for (auto crossedTower : crossedTowers)
+        if (insideCone(crossedTower->id(), dR))
+          energy += crossedTower->outerEnergy();
     } break;
     default:
       throw cms::Exception("FatalError") << "Unknown calo energy type: " << type;
@@ -148,8 +143,8 @@ double TrackDetMatchInfo::nXnEnergy(const DetId& id, EnergyType type, int gridSi
                                            << DetIdInfo::info(id, nullptr) << "\n";
       }
       CaloTowerDetId centerId(id);
-      for (std::vector<const CaloTower*>::const_iterator hit = towers.begin(); hit != towers.end(); hit++) {
-        CaloTowerDetId neighborId((*hit)->id());
+      for (auto tower : towers) {
+        CaloTowerDetId neighborId(tower->id());
         int dEta = abs((centerId.ieta() < 0 ? centerId.ieta() + 1 : centerId.ieta()) -
                        (neighborId.ieta() < 0 ? neighborId.ieta() + 1 : neighborId.ieta()));
         int dPhi = abs(centerId.iphi() - neighborId.iphi());
@@ -158,16 +153,16 @@ double TrackDetMatchInfo::nXnEnergy(const DetId& id, EnergyType type, int gridSi
         if (dEta <= gridSize && dPhi <= gridSize) {
           switch (type) {
             case TowerTotal:
-              energy += (*hit)->energy();
+              energy += tower->energy();
               break;
             case TowerEcal:
-              energy += (*hit)->emEnergy();
+              energy += tower->emEnergy();
               break;
             case TowerHcal:
-              energy += (*hit)->hadEnergy();
+              energy += tower->hadEnergy();
               break;
             case TowerHO:
-              energy += (*hit)->outerEnergy();
+              energy += tower->outerEnergy();
               break;
             default:
               throw cms::Exception("FatalError") << "Unknown calo tower energy type: " << type;
@@ -184,31 +179,29 @@ double TrackDetMatchInfo::nXnEnergy(const DetId& id, EnergyType type, int gridSi
       // energy is computed only within the system that contains the central element
       if (id.subdetId() == EcalBarrel) {
         EBDetId centerId(id);
-        for (std::vector<const EcalRecHit*>::const_iterator hit = ecalRecHits.begin(); hit != ecalRecHits.end();
-             hit++) {
-          if ((*hit)->id().subdetId() != EcalBarrel)
+        for (auto ecalRecHit : ecalRecHits) {
+          if (ecalRecHit->id().subdetId() != EcalBarrel)
             continue;
-          EBDetId neighborId((*hit)->id());
+          EBDetId neighborId(ecalRecHit->id());
           int dEta = abs((centerId.ieta() < 0 ? centerId.ieta() + 1 : centerId.ieta()) -
                          (neighborId.ieta() < 0 ? neighborId.ieta() + 1 : neighborId.ieta()));
           int dPhi = abs(centerId.iphi() - neighborId.iphi());
           if (abs(360 - dPhi) < dPhi)
             dPhi = 360 - dPhi;
           if (dEta <= gridSize && dPhi <= gridSize) {
-            energy += (*hit)->energy();
+            energy += ecalRecHit->energy();
           }
         }
       } else {
         // Endcap
         EEDetId centerId(id);
-        for (std::vector<const EcalRecHit*>::const_iterator hit = ecalRecHits.begin(); hit != ecalRecHits.end();
-             hit++) {
-          if ((*hit)->id().subdetId() != EcalEndcap)
+        for (auto ecalRecHit : ecalRecHits) {
+          if (ecalRecHit->id().subdetId() != EcalEndcap)
             continue;
-          EEDetId neighborId((*hit)->id());
+          EEDetId neighborId(ecalRecHit->id());
           if (centerId.zside() == neighborId.zside() && abs(centerId.ix() - neighborId.ix()) <= gridSize &&
               abs(centerId.iy() - neighborId.iy()) <= gridSize) {
-            energy += (*hit)->energy();
+            energy += ecalRecHit->energy();
           }
         }
       }
@@ -219,15 +212,15 @@ double TrackDetMatchInfo::nXnEnergy(const DetId& id, EnergyType type, int gridSi
                                            << DetIdInfo::info(id, nullptr) << "\n";
       }
       HcalDetId centerId(id);
-      for (std::vector<const HBHERecHit*>::const_iterator hit = hcalRecHits.begin(); hit != hcalRecHits.end(); hit++) {
-        HcalDetId neighborId((*hit)->id());
+      for (auto hcalRecHit : hcalRecHits) {
+        HcalDetId neighborId(hcalRecHit->id());
         int dEta = abs((centerId.ieta() < 0 ? centerId.ieta() + 1 : centerId.ieta()) -
                        (neighborId.ieta() < 0 ? neighborId.ieta() + 1 : neighborId.ieta()));
         int dPhi = abs(centerId.iphi() - neighborId.iphi());
         if (abs(72 - dPhi) < dPhi)
           dPhi = 72 - dPhi;
         if (dEta <= gridSize && dPhi <= gridSize) {
-          energy += (*hit)->energy();
+          energy += hcalRecHit->energy();
         }
       }
     } break;
@@ -237,15 +230,15 @@ double TrackDetMatchInfo::nXnEnergy(const DetId& id, EnergyType type, int gridSi
                                            << DetIdInfo::info(id, nullptr) << "\n";
       }
       HcalDetId centerId(id);
-      for (std::vector<const HORecHit*>::const_iterator hit = hoRecHits.begin(); hit != hoRecHits.end(); hit++) {
-        HcalDetId neighborId((*hit)->id());
+      for (auto hoRecHit : hoRecHits) {
+        HcalDetId neighborId(hoRecHit->id());
         int dEta = abs((centerId.ieta() < 0 ? centerId.ieta() + 1 : centerId.ieta()) -
                        (neighborId.ieta() < 0 ? neighborId.ieta() + 1 : neighborId.ieta()));
         int dPhi = abs(centerId.iphi() - neighborId.iphi());
         if (abs(72 - dPhi) < dPhi)
           dPhi = 72 - dPhi;
         if (dEta <= gridSize && dPhi <= gridSize) {
-          energy += (*hit)->energy();
+          energy += hoRecHit->energy();
         }
       }
     } break;
@@ -307,51 +300,51 @@ DetId TrackDetMatchInfo::findMaxDeposition(EnergyType type) {
   float maxEnergy = -9999;
   switch (type) {
     case EcalRecHits: {
-      for (std::vector<const EcalRecHit*>::const_iterator hit = ecalRecHits.begin(); hit != ecalRecHits.end(); hit++)
-        if ((*hit)->energy() > maxEnergy) {
-          maxEnergy = (*hit)->energy();
-          id = (*hit)->detid();
+      for (auto ecalRecHit : ecalRecHits)
+        if (ecalRecHit->energy() > maxEnergy) {
+          maxEnergy = ecalRecHit->energy();
+          id = ecalRecHit->detid();
         }
     } break;
     case HcalRecHits: {
-      for (std::vector<const HBHERecHit*>::const_iterator hit = hcalRecHits.begin(); hit != hcalRecHits.end(); hit++)
-        if ((*hit)->energy() > maxEnergy) {
-          maxEnergy = (*hit)->energy();
-          id = (*hit)->detid();
+      for (auto hcalRecHit : hcalRecHits)
+        if (hcalRecHit->energy() > maxEnergy) {
+          maxEnergy = hcalRecHit->energy();
+          id = hcalRecHit->detid();
         }
     } break;
     case HORecHits: {
-      for (std::vector<const HORecHit*>::const_iterator hit = hoRecHits.begin(); hit != hoRecHits.end(); hit++)
-        if ((*hit)->energy() > maxEnergy) {
-          maxEnergy = (*hit)->energy();
-          id = (*hit)->detid();
+      for (auto hoRecHit : hoRecHits)
+        if (hoRecHit->energy() > maxEnergy) {
+          maxEnergy = hoRecHit->energy();
+          id = hoRecHit->detid();
         }
     } break;
     case TowerTotal:
     case TowerEcal:
     case TowerHcal:
     case TowerHO: {
-      for (std::vector<const CaloTower*>::const_iterator hit = towers.begin(); hit != towers.end(); hit++) {
+      for (auto tower : towers) {
         double energy = 0;
         switch (type) {
           case TowerTotal:
-            energy = (*hit)->energy();
+            energy = tower->energy();
             break;
           case TowerEcal:
-            energy = (*hit)->emEnergy();
+            energy = tower->emEnergy();
             break;
           case TowerHcal:
-            energy = (*hit)->hadEnergy();
+            energy = tower->hadEnergy();
             break;
           case TowerHO:
-            energy = (*hit)->energy();
+            energy = tower->energy();
             break;
           default:
             throw cms::Exception("FatalError") << "Unknown calo tower energy type: " << type;
         }
         if (energy > maxEnergy) {
           maxEnergy = energy;
-          id = (*hit)->id();
+          id = tower->id();
         }
       }
     } break;
@@ -377,8 +370,8 @@ DetId TrackDetMatchInfo::findMaxDeposition(const DetId& id, EnergyType type, int
                                            << DetIdInfo::info(id, nullptr) << "\n";
       }
       CaloTowerDetId centerId(id);
-      for (std::vector<const CaloTower*>::const_iterator hit = towers.begin(); hit != towers.end(); hit++) {
-        CaloTowerDetId neighborId((*hit)->id());
+      for (auto tower : towers) {
+        CaloTowerDetId neighborId(tower->id());
         int dEta = abs((centerId.ieta() < 0 ? centerId.ieta() + 1 : centerId.ieta()) -
                        (neighborId.ieta() < 0 ? neighborId.ieta() + 1 : neighborId.ieta()));
         int dPhi = abs(centerId.iphi() - neighborId.iphi());
@@ -387,27 +380,27 @@ DetId TrackDetMatchInfo::findMaxDeposition(const DetId& id, EnergyType type, int
         if (dEta <= gridSize && dPhi <= gridSize) {
           switch (type) {
             case TowerTotal:
-              if (energy_max < (*hit)->energy()) {
-                energy_max = (*hit)->energy();
-                id_max = (*hit)->id();
+              if (energy_max < tower->energy()) {
+                energy_max = tower->energy();
+                id_max = tower->id();
               }
               break;
             case TowerEcal:
-              if (energy_max < (*hit)->emEnergy()) {
-                energy_max = (*hit)->emEnergy();
-                id_max = (*hit)->id();
+              if (energy_max < tower->emEnergy()) {
+                energy_max = tower->emEnergy();
+                id_max = tower->id();
               }
               break;
             case TowerHcal:
-              if (energy_max < (*hit)->hadEnergy()) {
-                energy_max = (*hit)->hadEnergy();
-                id_max = (*hit)->id();
+              if (energy_max < tower->hadEnergy()) {
+                energy_max = tower->hadEnergy();
+                id_max = tower->id();
               }
               break;
             case TowerHO:
-              if (energy_max < (*hit)->outerEnergy()) {
-                energy_max = (*hit)->outerEnergy();
-                id_max = (*hit)->id();
+              if (energy_max < tower->outerEnergy()) {
+                energy_max = tower->outerEnergy();
+                id_max = tower->id();
               }
               break;
             default:
@@ -425,36 +418,34 @@ DetId TrackDetMatchInfo::findMaxDeposition(const DetId& id, EnergyType type, int
       // energy is computed only within the system that contains the central element
       if (id.subdetId() == EcalBarrel) {
         EBDetId centerId(id);
-        for (std::vector<const EcalRecHit*>::const_iterator hit = ecalRecHits.begin(); hit != ecalRecHits.end();
-             hit++) {
-          if ((*hit)->id().subdetId() != EcalBarrel)
+        for (auto ecalRecHit : ecalRecHits) {
+          if (ecalRecHit->id().subdetId() != EcalBarrel)
             continue;
-          EBDetId neighborId((*hit)->id());
+          EBDetId neighborId(ecalRecHit->id());
           int dEta = abs((centerId.ieta() < 0 ? centerId.ieta() + 1 : centerId.ieta()) -
                          (neighborId.ieta() < 0 ? neighborId.ieta() + 1 : neighborId.ieta()));
           int dPhi = abs(centerId.iphi() - neighborId.iphi());
           if (abs(360 - dPhi) < dPhi)
             dPhi = 360 - dPhi;
           if (dEta <= gridSize && dPhi <= gridSize) {
-            if (energy_max < (*hit)->energy()) {
-              energy_max = (*hit)->energy();
-              id_max = (*hit)->id();
+            if (energy_max < ecalRecHit->energy()) {
+              energy_max = ecalRecHit->energy();
+              id_max = ecalRecHit->id();
             }
           }
         }
       } else {
         // Endcap
         EEDetId centerId(id);
-        for (std::vector<const EcalRecHit*>::const_iterator hit = ecalRecHits.begin(); hit != ecalRecHits.end();
-             hit++) {
-          if ((*hit)->id().subdetId() != EcalEndcap)
+        for (auto ecalRecHit : ecalRecHits) {
+          if (ecalRecHit->id().subdetId() != EcalEndcap)
             continue;
-          EEDetId neighborId((*hit)->id());
+          EEDetId neighborId(ecalRecHit->id());
           if (centerId.zside() == neighborId.zside() && abs(centerId.ix() - neighborId.ix()) <= gridSize &&
               abs(centerId.iy() - neighborId.iy()) <= gridSize) {
-            if (energy_max < (*hit)->energy()) {
-              energy_max = (*hit)->energy();
-              id_max = (*hit)->id();
+            if (energy_max < ecalRecHit->energy()) {
+              energy_max = ecalRecHit->energy();
+              id_max = ecalRecHit->id();
             }
           }
         }
@@ -466,17 +457,17 @@ DetId TrackDetMatchInfo::findMaxDeposition(const DetId& id, EnergyType type, int
                                            << DetIdInfo::info(id, nullptr) << "\n";
       }
       HcalDetId centerId(id);
-      for (std::vector<const HBHERecHit*>::const_iterator hit = hcalRecHits.begin(); hit != hcalRecHits.end(); hit++) {
-        HcalDetId neighborId((*hit)->id());
+      for (auto hcalRecHit : hcalRecHits) {
+        HcalDetId neighborId(hcalRecHit->id());
         int dEta = abs((centerId.ieta() < 0 ? centerId.ieta() + 1 : centerId.ieta()) -
                        (neighborId.ieta() < 0 ? neighborId.ieta() + 1 : neighborId.ieta()));
         int dPhi = abs(centerId.iphi() - neighborId.iphi());
         if (abs(72 - dPhi) < dPhi)
           dPhi = 72 - dPhi;
         if (dEta <= gridSize && dPhi <= gridSize) {
-          if (energy_max < (*hit)->energy()) {
-            energy_max = (*hit)->energy();
-            id_max = (*hit)->id();
+          if (energy_max < hcalRecHit->energy()) {
+            energy_max = hcalRecHit->energy();
+            id_max = hcalRecHit->id();
           }
         }
       }
@@ -487,17 +478,17 @@ DetId TrackDetMatchInfo::findMaxDeposition(const DetId& id, EnergyType type, int
                                            << DetIdInfo::info(id, nullptr) << "\n";
       }
       HcalDetId centerId(id);
-      for (std::vector<const HORecHit*>::const_iterator hit = hoRecHits.begin(); hit != hoRecHits.end(); hit++) {
-        HcalDetId neighborId((*hit)->id());
+      for (auto hoRecHit : hoRecHits) {
+        HcalDetId neighborId(hoRecHit->id());
         int dEta = abs((centerId.ieta() < 0 ? centerId.ieta() + 1 : centerId.ieta()) -
                        (neighborId.ieta() < 0 ? neighborId.ieta() + 1 : neighborId.ieta()));
         int dPhi = abs(centerId.iphi() - neighborId.iphi());
         if (abs(72 - dPhi) < dPhi)
           dPhi = 72 - dPhi;
         if (dEta <= gridSize && dPhi <= gridSize) {
-          if (energy_max < (*hit)->energy()) {
-            energy_max = (*hit)->energy();
-            id_max = (*hit)->id();
+          if (energy_max < hoRecHit->energy()) {
+            energy_max = hoRecHit->energy();
+            id_max = hoRecHit->id();
           }
         }
       }
@@ -558,31 +549,31 @@ double TrackDetMatchInfo::hoCrossedEnergy() { return crossedEnergy(HORecHits); }
 
 int TrackDetMatchInfo::numberOfSegments() const {
   int numSegments = 0;
-  for (std::vector<TAMuonChamberMatch>::const_iterator chamber = chambers.begin(); chamber != chambers.end(); chamber++)
-    numSegments += chamber->segments.size();
+  for (const auto& chamber : chambers)
+    numSegments += chamber.segments.size();
   return numSegments;
 }
 
 int TrackDetMatchInfo::numberOfSegmentsInStation(int station) const {
   int numSegments = 0;
-  for (std::vector<TAMuonChamberMatch>::const_iterator chamber = chambers.begin(); chamber != chambers.end(); chamber++)
-    if (chamber->station() == station)
-      numSegments += chamber->segments.size();
+  for (const auto& chamber : chambers)
+    if (chamber.station() == station)
+      numSegments += chamber.segments.size();
   return numSegments;
 }
 
 int TrackDetMatchInfo::numberOfSegmentsInStation(int station, int detector) const {
   int numSegments = 0;
-  for (std::vector<TAMuonChamberMatch>::const_iterator chamber = chambers.begin(); chamber != chambers.end(); chamber++)
-    if (chamber->station() == station && chamber->detector() == detector)
-      numSegments += chamber->segments.size();
+  for (const auto& chamber : chambers)
+    if (chamber.station() == station && chamber.detector() == detector)
+      numSegments += chamber.segments.size();
   return numSegments;
 }
 
 int TrackDetMatchInfo::numberOfSegmentsInDetector(int detector) const {
   int numSegments = 0;
-  for (std::vector<TAMuonChamberMatch>::const_iterator chamber = chambers.begin(); chamber != chambers.end(); chamber++)
-    if (chamber->detector() == detector)
-      numSegments += chamber->segments.size();
+  for (const auto& chamber : chambers)
+    if (chamber.detector() == detector)
+      numSegments += chamber.segments.size();
   return numSegments;
 }

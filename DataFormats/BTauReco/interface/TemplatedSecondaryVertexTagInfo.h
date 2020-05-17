@@ -177,11 +177,7 @@ namespace reco {
     input_container trackRefs;
     const input_container &trackIPTrackRefs = m_trackIPTagInfoRef->selectedTracks();
 
-    for (typename std::vector<
-             typename reco::TemplatedSecondaryVertexTagInfo<IPTI, VTX>::IndexedTrackData>::const_iterator iter =
-             m_trackData.begin();
-         iter != m_trackData.end();
-         iter++)
+    for (auto iter = m_trackData.begin(); iter != m_trackData.end(); iter++)
 
       trackRefs.push_back(trackIPTrackRefs[iter->first]);
 
@@ -194,11 +190,7 @@ namespace reco {
     input_container trackRefs;
     const input_container &trackIPTrackRefs = m_trackIPTagInfoRef->selectedTracks();
 
-    for (typename std::vector<
-             typename reco::TemplatedSecondaryVertexTagInfo<IPTI, VTX>::IndexedTrackData>::const_iterator iter =
-             m_trackData.begin();
-         iter != m_trackData.end();
-         iter++)
+    for (auto iter = m_trackData.begin(); iter != m_trackData.end(); iter++)
 
       if (iter->second.associatedToVertex())
         trackRefs.push_back(trackIPTrackRefs[iter->first]);
@@ -212,11 +204,7 @@ namespace reco {
     input_container trackRefs;
     const input_container &trackIPTrackRefs = m_trackIPTagInfoRef->selectedTracks();
 
-    for (typename std::vector<
-             typename reco::TemplatedSecondaryVertexTagInfo<IPTI, VTX>::IndexedTrackData>::const_iterator iter =
-             m_trackData.begin();
-         iter != m_trackData.end();
-         iter++)
+    for (auto iter = m_trackData.begin(); iter != m_trackData.end(); iter++)
 
       if (iter->second.associatedToVertex(index))
         trackRefs.push_back(trackIPTrackRefs[iter->first]);
@@ -233,9 +221,8 @@ namespace reco {
   template <class IPTI, class VTX>
   unsigned int TemplatedSecondaryVertexTagInfo<IPTI, VTX>::findTrack(
       const typename input_container::value_type &track) const {
-    typename std::vector<typename reco::TemplatedSecondaryVertexTagInfo<IPTI, VTX>::IndexedTrackData>::const_iterator
-        pos = std::find_if(
-            m_trackData.begin(), m_trackData.end(), TrackFinder(m_trackIPTagInfoRef->selectedTracks(), track));
+    auto pos =
+        std::find_if(m_trackData.begin(), m_trackData.end(), TrackFinder(m_trackIPTagInfoRef->selectedTracks(), track));
 
     if (pos == m_trackData.end())
       throw edm::Exception(edm::errors::InvalidReference) << "Track not found in "
@@ -283,10 +270,7 @@ namespace reco {
   TaggingVariableList TemplatedSecondaryVertexTagInfo<IPTI, VTX>::taggingVariables() const {
     TaggingVariableList vars;
 
-    for (typename std::vector<typename TemplatedSecondaryVertexTagInfo<IPTI, VTX>::VertexData>::const_iterator iter =
-             m_svData.begin();
-         iter != m_svData.end();
-         iter++) {
+    for (auto iter = m_svData.begin(); iter != m_svData.end(); iter++) {
       vars.insert(btau::flightDistance1dVal, iter->dist1d.value(), true);
       vars.insert(btau::flightDistance1dSig, iter->dist1d.significance(), true);
       vars.insert(btau::flightDistance2dVal, iter->dist2d.value(), true);

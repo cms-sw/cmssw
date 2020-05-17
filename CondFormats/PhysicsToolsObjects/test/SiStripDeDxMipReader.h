@@ -17,9 +17,9 @@
 class SiStripDeDxMipReader : public edm::EDAnalyzer {
 public:
   explicit SiStripDeDxMipReader(const edm::ParameterSet&);
-  ~SiStripDeDxMipReader();
+  ~SiStripDeDxMipReader() override;
 
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   //  uint32_t printdebug_;

@@ -16,7 +16,7 @@ public:
 
 public:
   FastSingleTrackerRecHit* clone() const override {
-    FastSingleTrackerRecHit* p = new FastSingleTrackerRecHit(*this);
+    auto* p = new FastSingleTrackerRecHit(*this);
     p->load();
     return p;
   }

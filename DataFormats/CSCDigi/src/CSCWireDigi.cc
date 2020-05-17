@@ -68,8 +68,8 @@ void CSCWireDigi::print() const {
       << " BX + Wire " << std::hex << getBXandWireGroup() << " | " << std::dec << " First Time Bin On " << getTimeBin()
       << " | Time Bins On ";
   std::vector<int> tbins = getTimeBinsOn();
-  for (unsigned int i = 0; i < tbins.size(); i++) {
-    ost << tbins[i] << " ";
+  for (int tbin : tbins) {
+    ost << tbin << " ";
   }
   edm::LogVerbatim("CSCDigi") << ost.str();
 }

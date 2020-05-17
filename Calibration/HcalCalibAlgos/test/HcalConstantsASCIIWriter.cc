@@ -82,11 +82,11 @@ namespace cms {
     float coradd, corerr;
 
     std::vector<HcalDetId> theVector;
-    for (std::vector<DetId>::iterator i = did.begin(); i != did.end(); i++) {
-      if ((*i).det() == DetId::Hcal) {
-        HcalDetId hid = HcalDetId(*i);
+    for (auto& i : did) {
+      if (i.det() == DetId::Hcal) {
+        HcalDetId hid = HcalDetId(i);
         theVector.push_back(hid);
-        corrold[hid] = (oldRespCorrs->getValues(*i))->getValue();
+        corrold[hid] = (oldRespCorrs->getValues(i))->getValue();
         std::cout << " Old calibration " << hid.depth() << " " << hid.ieta() << " " << hid.iphi() << std::endl;
       }
     }
@@ -106,7 +106,7 @@ namespace cms {
     while (std::getline(in, line)) {
       //    std::cout<<" Line size "<<line.size()<< " "<<line<< std::endl;
 
-      if (!line.size() || line[0] == '#')
+      if (line.empty() || line[0] == '#')
         continue;
       std::istringstream linestream(line);
 
@@ -128,26 +128,26 @@ namespace cms {
 
     HcalRespCorrs* mycorrections = new HcalRespCorrs(oldRespCorrs->topo());
 
-    for (std::vector<HcalDetId>::iterator it = theVector.begin(); it != theVector.end(); it++) {
-      float cc1 = (*corrold.find(*it)).second;
+    for (auto& it : theVector) {
+      float cc1 = (*corrold.find(it)).second;
       //    float cc2 = (*corrnew.find(*it)).second;
       float cc2 = 0.;
-      int ietak = (*it).ieta();
+      int ietak = it.ieta();
 
-      if ((*it).ieta() < 0)
-        ietak = -1 * (*it).ieta();
+      if (it.ieta() < 0)
+        ietak = -1 * it.ieta();
 
-      if ((*it).ieta() > 0)
-        cc2 = corrnew_p[(*it).subdet()][(*it).depth()][ietak][(*it).iphi()];
-      if ((*it).ieta() < 0)
-        cc2 = corrnew_m[(*it).subdet()][(*it).depth()][ietak][(*it).iphi()];
+      if (it.ieta() > 0)
+        cc2 = corrnew_p[it.subdet()][it.depth()][ietak][it.iphi()];
+      if (it.ieta() < 0)
+        cc2 = corrnew_m[it.subdet()][it.depth()][ietak][it.iphi()];
 
       float cc = cc1 * cc2;
-      std::cout << " Multiply " << (*it).subdet() << " " << (*it).depth() << " " << (*it).ieta() << " " << ietak << " "
-                << (*it).iphi() << " " << (*it).rawId() << " " << cc1 << " " << cc2 << std::endl;
+      std::cout << " Multiply " << it.subdet() << " " << it.depth() << " " << it.ieta() << " " << ietak << " "
+                << it.iphi() << " " << it.rawId() << " " << cc1 << " " << cc2 << std::endl;
 
       // now make the basic object for one cell with HcalDetId myDetId containing the value myValue
-      HcalRespCorr item((*it).rawId(), cc);
+      HcalRespCorr item(it.rawId(), cc);
       mycorrections->addValues(item);
     }
 

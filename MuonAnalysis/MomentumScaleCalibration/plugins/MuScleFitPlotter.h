@@ -28,7 +28,7 @@ class MuScleFitPlotter {
 public:
   // Constructor
   // -----------
-  MuScleFitPlotter(std::string);
+  MuScleFitPlotter(const std::string&);
 
   // Destructor
   // ----------
@@ -38,8 +38,8 @@ public:
   // ----------
   void fillGen(const reco::GenParticleCollection& genParticles, bool = false);
   void fillGen(const edm::HepMCProduct& evtMC, bool sherpaFlag_);
-  void fillSim(edm::Handle<edm::SimTrackContainer> simTracks);
-  void fillGenSim(edm::Handle<edm::HepMCProduct> evtMC, edm::Handle<edm::SimTrackContainer> simTracks);
+  void fillSim(const edm::Handle<edm::SimTrackContainer>& simTracks);
+  void fillGenSim(const edm::Handle<edm::HepMCProduct>& evtMC, const edm::Handle<edm::SimTrackContainer>& simTracks);
   //void fillRec(std::vector<reco::LeafCandidate>& muons);
   void fillRec(std::vector<MuScleFitMuon>& muons);
 

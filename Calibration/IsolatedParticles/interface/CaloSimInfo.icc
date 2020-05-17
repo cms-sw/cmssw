@@ -65,8 +65,7 @@ namespace spr {
                 << " eta " << pTrack->eta() << " trkRecHits " << pTrack->recHitsSize() << std::endl;
 
     //matching SimTrack
-    edm::SimTrackContainer::const_iterator trkInfo =
-        spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, associate, debug);
+    auto trkInfo = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, associate, debug);
 
     //vector of Ecal cells in NxN
     std::vector<DetId> vdets = spr::matrixECALIds(det, ieta, iphi, geo, caloTopology, debug);
@@ -98,8 +97,7 @@ namespace spr {
                 << pTrack->p() << " eta " << pTrack->eta() << " trkRecHits " << pTrack->recHitsSize() << std::endl;
 
     //matching SimTrack
-    edm::SimTrackContainer::const_iterator trkInfo =
-        spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, associate, debug);
+    auto trkInfo = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, associate, debug);
 
     //vector of Ecal cells in NxN
     std::vector<DetId> vdets = spr::matrixECALIds(det, ietaE, ietaW, iphiN, iphiS, geo, caloTopology, debug);
@@ -151,8 +149,7 @@ namespace spr {
                 << " eta " << pTrack->eta() << " trkRecHits " << pTrack->recHitsSize() << std::endl;
 
     // get the matching SimTrack pointer
-    edm::SimTrackContainer::const_iterator trkInfo =
-        spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, associate, debug);
+    auto trkInfo = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, associate, debug);
 
     // get the hits in Hcal in NxN around det
     std::vector<typename T::const_iterator> hit;
@@ -184,8 +181,7 @@ namespace spr {
                 << pTrack->p() << " eta " << pTrack->eta() << " trkRecHits " << pTrack->recHitsSize() << std::endl;
 
     // get the matching SimTrack pointer
-    edm::SimTrackContainer::const_iterator trkInfo =
-        spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, associate, debug);
+    auto trkInfo = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, associate, debug);
 
     // get the hits in Hcal in NxN around det
     std::vector<typename T::const_iterator> hit;
@@ -216,8 +212,7 @@ namespace spr {
     }
 
     // Get SimTrack matched to RecoTrack
-    edm::SimTrackContainer::const_iterator trkInfo =
-        spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, associate, debug);
+    auto trkInfo = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, associate, debug);
 
     // Get list of simhits in matrix ("hits" is list of pcalo simhits)
     std::vector<typename T::const_iterator> hit;
@@ -243,8 +238,7 @@ namespace spr {
     bool debug_dummy = false;
 
     // Get SimTrack matched to RecoTrack
-    edm::SimTrackContainer::const_iterator trkInfo =
-        spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, associate, debug_dummy);
+    auto trkInfo = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, associate, debug_dummy);
 
     //    spr::hitHCALmatrix(topology,det,hits,ieta,iphi,debug);
 
@@ -273,8 +267,7 @@ namespace spr {
     bool debug_dummy = false;
 
     // Get SimTrack matched to RecoTrack
-    edm::SimTrackContainer::const_iterator trkInfo =
-        spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, associate, debug_dummy);
+    auto trkInfo = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, associate, debug_dummy);
 
     //    spr::hitHCALmatrix(topology,det,hits,ieta,iphi,debug);
 
@@ -287,8 +280,8 @@ namespace spr {
     std::vector<typename T::const_iterator> matchedhit;
     for (int ihit = 0; ihit < hit.size(); ihit++) {
       bool keephit = false;
-      for (size_t idetid = 0; idetid < coneRecHitDetIds.size(); idetid++) {
-        if (hit.at(ihit)->id() == coneRecHitDetIds.at(idetid)) {
+      for (auto& coneRecHitDetId : coneRecHitDetIds) {
+        if (hit.at(ihit)->id() == coneRecHitDetId) {
           keephit = true;
           break;
         }
@@ -312,16 +305,16 @@ namespace spr {
                     double timeCut,
                     bool debug) {
     std::vector<typename T::const_iterator> hitEB, hitEE, hit;
-    for (unsigned int i1 = 0; i1 < vdets.size(); i1++) {
-      if (vdets[i1] != DetId(0)) {
-        if (vdets[i1].subdetId() == EcalBarrel) {
-          hit = spr::findHit(hitsEB, vdets[i1]);
+    for (auto& vdet : vdets) {
+      if (vdet != DetId(0)) {
+        if (vdet.subdetId() == EcalBarrel) {
+          hit = spr::findHit(hitsEB, vdet);
           for (unsigned int i2 = 0; i2 < hit.size(); i2++) {
             if (std::count(hitEB.begin(), hitEB.end(), hit[i2]) == 0)
               hitEB.push_back(hit[i2]);
           }
-        } else if (vdets[i1].subdetId() == EcalEndcap) {
-          hit = spr::findHit(hitsEE, vdets[i1]);
+        } else if (vdet.subdetId() == EcalEndcap) {
+          hit = spr::findHit(hitsEE, vdet);
           for (unsigned int i2 = 0; i2 < hit.size(); i2++) {
             if (std::count(hitEE.begin(), hitEE.end(), hit[i2]) == 0)
               hitEE.push_back(hit[i2]);
@@ -395,8 +388,7 @@ namespace spr {
                 if (match) {
                   info.eMatched += hit[ihit]->energy();
                 } else {
-                  edm::SimTrackContainer::const_iterator parentItr =
-                      spr::parentSimTrack(simTrkItr, SimTk, SimVtx, debug);
+                  auto parentItr = spr::parentSimTrack(simTrkItr, SimTk, SimVtx, debug);
                   if (debug) {
                     if (parentItr != SimTk->end())
                       std::cout << "original parent of " << simTrkItr->trackId() << " " << parentItr->trackId() << ", "
@@ -464,8 +456,8 @@ namespace spr {
     double energySum = 0.0;
     if (debug) {
       std::cout << "eCaloSimInfo:: Found " << matchedId.size() << " track IDs originating from the current track";
-      for (unsigned int it = 0; it < matchedId.size(); ++it)
-        std::cout << " " << matchedId[it];
+      for (int it : matchedId)
+        std::cout << " " << it;
       std::cout << std::endl;
     }
     if (!matchedId.empty()) {
@@ -482,8 +474,8 @@ namespace spr {
         if ((ihit->time() <= (tof + timeCut)) && ok) {
           int id = ihit->geantTrackId();
           bool found = false;
-          for (unsigned int it = 0; it < matchedId.size(); ++it) {
-            if (id == matchedId[it]) {
+          for (int it : matchedId) {
+            if (id == it) {
               found = true;
               break;
             }
@@ -515,8 +507,8 @@ namespace spr {
     double energySum = 0.0;
     if (debug) {
       std::cout << "eCaloSimInfo:: Found " << matchedId.size() << " track IDs originating from the current track";
-      for (unsigned int it = 0; it < matchedId.size(); ++it)
-        std::cout << " " << matchedId[it];
+      for (int it : matchedId)
+        std::cout << " " << it;
       std::cout << std::endl;
     }
     if (!matchedId.empty()) {
@@ -527,8 +519,8 @@ namespace spr {
         if (ihit->time() <= (tof + timeCut)) {
           int id = ihit->geantTrackId();
           bool found = false;
-          for (unsigned int it = 0; it < matchedId.size(); ++it) {
-            if (id == matchedId[it]) {
+          for (int it : matchedId) {
+            if (id == it) {
               found = true;
               break;
             }
@@ -546,8 +538,8 @@ namespace spr {
         if (ihit->time() <= (tof + timeCut)) {
           int id = ihit->geantTrackId();
           bool found = false;
-          for (unsigned int it = 0; it < matchedId.size(); ++it) {
-            if (id == matchedId[it]) {
+          for (int it : matchedId) {
+            if (id == it) {
               found = true;
               break;
             }
@@ -634,7 +626,7 @@ namespace spr {
                 uniqueIds_total.insert(uniqueId);
                 nMatched++;
               } else {
-                edm::SimTrackContainer::const_iterator parentItr = spr::parentSimTrack(simTrkItr, SimTk, SimVtx, debug);
+                auto parentItr = spr::parentSimTrack(simTrkItr, SimTk, SimVtx, debug);
                 if (debug) {
                   if (parentItr != SimTk->end()) {
                     std::cout << "original parent of " << simTrkItr->trackId() << " " << parentItr->trackId() << ", "

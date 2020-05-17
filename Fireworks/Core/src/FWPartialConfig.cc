@@ -24,17 +24,17 @@ namespace {
                                                                {"EventItems", "Collections"}};
 
     std::string realName(std::string btnName) {
-      for (std::vector<std::pair<std::string, std::string> >::iterator i = names.begin(); i != names.end(); ++i) {
-        if (i->second == btnName)
-          return i->first;
+      for (auto& name : names) {
+        if (name.second == btnName)
+          return name.first;
       }
       return btnName;
     }
 
     std::string btnName(const std::string& rlName) {
-      for (std::vector<std::pair<std::string, std::string> >::iterator i = names.begin(); i != names.end(); ++i) {
-        if (i->first == rlName)
-          return i->second;
+      for (auto& name : names) {
+        if (name.first == rlName)
+          return name.second;
       }
       return rlName;
     }
@@ -60,17 +60,15 @@ FWPartialConfigGUI::FWPartialConfigGUI(const char* path, FWConfigurationManager*
   AddFrame(vf, new TGLayoutHints(kLHintsNormal, 2, 2, 4, 4));
 
   // can do a cast to non-const since we own the configuration
-  FWConfiguration::KeyValues* kv = (FWConfiguration::KeyValues*)m_origConfig.keyValues();
+  auto* kv = (FWConfiguration::KeyValues*)m_origConfig.keyValues();
   std::sort(kv->begin(),
             kv->end(),
             [](const std::pair<std::string, FWConfiguration>& lhs, const std::pair<std::string, FWConfiguration>& rhs)
                 -> bool { return nmm.btnName(lhs.first) < nmm.btnName(rhs.first); });
 
-  for (FWConfiguration::KeyValues::const_iterator it = m_origConfig.keyValues()->begin();
-       it != m_origConfig.keyValues()->end();
-       ++it) {
-    if (it->second.keyValues()) {
-      std::string nb = nmm.btnName(it->first);
+  for (const auto& it : *m_origConfig.keyValues()) {
+    if (it.second.keyValues()) {
+      std::string nb = nmm.btnName(it.first);
       TGCheckButton* cb = new TGCheckButton(vf, nb.c_str());
       vf->AddFrame(cb);
 
@@ -93,7 +91,7 @@ FWPartialConfigLoadGUI::FWPartialConfigLoadGUI(const char* path,
                                                FWConfigurationManager* iCfg,
                                                FWEventItemsManager* iEiMng)
     : FWPartialConfigGUI(path, iCfg), m_eiMng(iEiMng) {
-  TGHorizontalFrame* hf = new TGHorizontalFrame(this);
+  auto* hf = new TGHorizontalFrame(this);
   AddFrame(hf, new TGLayoutHints(kLHintsRight | kLHintsBottom, 1, 1, 2, 4));
   TGTextButton* load = new TGTextButton(hf, " Load ");
   load->Connect("Clicked()", "FWPartialConfigLoadGUI", this, "Load()");
@@ -114,17 +112,17 @@ void FWPartialConfigLoadGUI::Load() {
   bool resetViews = true;
   bool resetEI = true;
 
-  FWConfiguration::KeyValues* kv = (FWConfiguration::KeyValues*)m_origConfig.keyValues();
+  auto* kv = (FWConfiguration::KeyValues*)m_origConfig.keyValues();
 
-  for (auto i = m_entries.begin(); i != m_entries.end(); i++) {
-    if (!((*i)->IsOn())) {
-      std::string key = nmm.realName((*i)->GetText()->GetString());
+  for (auto& m_entrie : m_entries) {
+    if (!(m_entrie->IsOn())) {
+      std::string key = nmm.realName(m_entrie->GetText()->GetString());
       if (key == "EventItems")
         resetEI = false;
       if (key == "GUI")
         resetViews = false;
 
-      for (FWConfiguration::KeyValues::iterator it = kv->begin(); it != kv->end(); ++it) {
+      for (auto it = kv->begin(); it != kv->end(); ++it) {
         if (key == it->first) {
           kv->erase(it);
           break;
@@ -153,7 +151,7 @@ void FWPartialConfigLoadGUI::Load() {
 
 FWPartialConfigSaveGUI::FWPartialConfigSaveGUI(const char* path_out, const char* path_in, FWConfigurationManager* iCfg)
     : FWPartialConfigGUI(nullptr, iCfg), m_outFileName(path_out), m_currFileName(path_in) {
-  TGHorizontalFrame* hf = new TGHorizontalFrame(this);
+  auto* hf = new TGHorizontalFrame(this);
   AddFrame(hf, new TGLayoutHints(kLHintsRight | kLHintsBottom, 1, 1, 2, 4));
 
   TGTextButton* write = new TGTextButton(hf, " Write ");
@@ -191,28 +189,28 @@ void FWPartialConfigSaveGUI::WriteConfig() {
   FWConfiguration curr;
   m_cfgMng->to(curr);
 
-  FWConfiguration::KeyValues* cur_kv = (FWConfiguration::KeyValues*)m_origConfig.keyValues();
-  FWConfiguration::KeyValues* old_kv = (FWConfiguration::KeyValues*)destination.keyValues();
+  auto* cur_kv = (FWConfiguration::KeyValues*)m_origConfig.keyValues();
+  auto* old_kv = (FWConfiguration::KeyValues*)destination.keyValues();
 
-  for (auto i = m_entries.begin(); i != m_entries.end(); i++) {
-    if ((*i)->IsOn()) {
-      std::string key = nmm.realName((*i)->GetText()->GetString());
+  for (auto& m_entrie : m_entries) {
+    if (m_entrie->IsOn()) {
+      std::string key = nmm.realName(m_entrie->GetText()->GetString());
       // printf("ON check key %s\n", key.c_str());
-      for (FWConfiguration::KeyValues::iterator it = cur_kv->begin(); it != cur_kv->end(); ++it) {
-        if (key == it->first) {
+      for (auto& it : *cur_kv) {
+        if (key == it.first) {
           bool replace = false;
           if (old_kv) {
-            for (FWConfiguration::KeyValues::iterator oldit = old_kv->begin(); oldit != old_kv->end(); ++oldit) {
-              if (key == oldit->first) {
+            for (auto& oldit : *old_kv) {
+              if (key == oldit.first) {
                 replace = true;
-                oldit->second.swap(it->second);
+                oldit.second.swap(it.second);
                 break;
               }
             }
           }
 
           if (!replace)
-            destination.addKeyValue(it->first, it->second);
+            destination.addKeyValue(it.first, it.second);
 
           break;
         }

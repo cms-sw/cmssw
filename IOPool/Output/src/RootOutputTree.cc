@@ -93,7 +93,7 @@ namespace edm {
     std::unique_ptr<TTree> mytree_ = nullptr;
   };
 
-  RootOutputTree::RootOutputTree(std::shared_ptr<TFile> filePtr,
+  RootOutputTree::RootOutputTree(const std::shared_ptr<TFile>& filePtr,
                                  BranchType const& branchType,
                                  int splitLevel,
                                  int treeMaxVirtualSize)

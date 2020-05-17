@@ -80,7 +80,7 @@ void FWTrackHitsDetailView::build(const FWModelId& id, const reco::Track* track)
   }
   makeLegend();
 
-  TGCompositeFrame* p = (TGCompositeFrame*)m_guiFrame->GetParent();
+  auto* p = (TGCompositeFrame*)m_guiFrame->GetParent();
   p->MapSubwindows();
   p->Layout();
 
@@ -94,7 +94,7 @@ void FWTrackHitsDetailView::build(const FWModelId& id, const reco::Track* track)
     addModules(*track, id.item(), m_modules, true);
     addHits(*track, id.item(), m_hits, true);
   }
-  for (TEveElement::List_i i = m_modules->BeginChildren(), end = m_modules->EndChildren(); i != end; ++i) {
+  for (auto i = m_modules->BeginChildren(), end = m_modules->EndChildren(); i != end; ++i) {
     TEveGeoShape* gs = dynamic_cast<TEveGeoShape*>(*i);
     const auto& rhs = *(*(i));
     if (gs == nullptr && (*i != nullptr)) {
@@ -117,7 +117,7 @@ void FWTrackHitsDetailView::build(const FWModelId& id, const reco::Track* track)
   }
   m_moduleLabels->SetRnrChildren(false);
 
-  TEveTrackPropagator* prop = new TEveTrackPropagator();
+  auto* prop = new TEveTrackPropagator();
   prop->SetMagFieldObj(item()->context().getField(), false);
   prop->SetStepper(TEveTrackPropagator::kRungeKutta);
   prop->SetMaxR(123);
@@ -151,7 +151,7 @@ void FWTrackHitsDetailView::setBackgroundColor(Color_t col) {
   // adopt label colors to background, this should be implemneted in TEveText
   if (m_moduleLabels) {
     Color_t x = viewerGL()->GetRnrCtx()->ColorSet().Foreground().GetColorIndex();
-    for (TEveElement::List_i i = m_moduleLabels->BeginChildren(); i != m_moduleLabels->EndChildren(); ++i)
+    for (auto i = m_moduleLabels->BeginChildren(); i != m_moduleLabels->EndChildren(); ++i)
       (*i)->SetMainColor(x);
   }
 }
@@ -159,7 +159,7 @@ void FWTrackHitsDetailView::setBackgroundColor(Color_t col) {
 void FWTrackHitsDetailView::pickCameraCenter() { viewerGL()->PickCameraCenter(); }
 
 void FWTrackHitsDetailView::transparencyChanged(int x) {
-  for (TEveElement::List_i i = m_modules->BeginChildren(); i != m_modules->EndChildren(); ++i) {
+  for (auto i = m_modules->BeginChildren(); i != m_modules->EndChildren(); ++i) {
     (*i)->SetMainTransparency(x);
   }
   gEve->Redraw3D();
@@ -250,31 +250,31 @@ void FWTrackHitsDetailView::makeLegend(void) {
   m_legend->SetMargin(0.15);
   m_legend->SetEntrySeparation(0.01);
 
-  TEveStraightLineSet* legend = new TEveStraightLineSet("siStripCluster");
+  auto* legend = new TEveStraightLineSet("siStripCluster");
   legend->SetLineWidth(3);
   legend->SetLineColor(kGreen);
   m_legend->AddEntry(legend, "Exact SiStripCluster", "l");
 
-  TEveStraightLineSet* legend2 = new TEveStraightLineSet("siStripCluster2");
+  auto* legend2 = new TEveStraightLineSet("siStripCluster2");
   legend2->SetLineWidth(3);
   legend2->SetLineColor(kRed);
   m_legend->AddEntry(legend2, "Extra SiStripCluster", "l");
 
-  TEveStraightLineSet* legend3 = new TEveStraightLineSet("refStates");
+  auto* legend3 = new TEveStraightLineSet("refStates");
   legend3->SetDepthTest(kFALSE);
   legend3->SetMarkerColor(kYellow);
   legend3->SetMarkerStyle(kPlus);
   legend3->SetMarkerSize(2);
   m_legend->AddEntry(legend3, "Inner/Outermost States", "p");
 
-  TEveStraightLineSet* legend4 = new TEveStraightLineSet("vertex");
+  auto* legend4 = new TEveStraightLineSet("vertex");
   legend4->SetDepthTest(kFALSE);
   legend4->SetMarkerColor(kRed);
   legend4->SetMarkerStyle(kFullDotLarge);
   legend4->SetMarkerSize(2);
   m_legend->AddEntry(legend4, "Vertex", "p");
 
-  TEveStraightLineSet* legend5 = new TEveStraightLineSet("cameraCenter");
+  auto* legend5 = new TEveStraightLineSet("cameraCenter");
   legend5->SetDepthTest(kFALSE);
   legend5->SetMarkerColor(kCyan);
   legend5->SetMarkerStyle(kFullDotLarge);
@@ -296,8 +296,8 @@ void FWTrackHitsDetailView::addTrackerHits3D(std::vector<TVector3>& points,
   pointSet->SetTitle("Pixel Hits");
   pointSet->SetMarkerColor(color);
 
-  for (std::vector<TVector3>::const_iterator it = points.begin(), itEnd = points.end(); it != itEnd; ++it) {
-    pointSet->SetNextPoint(it->x(), it->y(), it->z());
+  for (const auto& point : points) {
+    pointSet->SetNextPoint(point.x(), point.y(), point.z());
   }
   tList->AddElement(pointSet);
 }
@@ -336,8 +336,7 @@ void FWTrackHitsDetailView::addModules(const reco::Track& track,
                                        TEveElement* trkList,
                                        bool addLostHits) {
   std::set<unsigned int> ids;
-  for (trackingRecHit_iterator recIt = track.recHitsBegin(), recItEnd = track.recHitsEnd(); recIt != recItEnd;
-       ++recIt) {
+  for (auto recIt = track.recHitsBegin(), recItEnd = track.recHitsEnd(); recIt != recItEnd; ++recIt) {
     DetId detid = (*recIt)->geographicalId();
     if (!addLostHits && !(*recIt)->isValid())
       continue;

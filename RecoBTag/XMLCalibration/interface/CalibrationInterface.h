@@ -51,9 +51,7 @@ template <class CategoryT, class CalibDataT>
 int CalibrationInterface<CategoryT, CalibDataT>::getIndex(const typename CategoryT::Input& calibrationInput) const {
   int i = 0;
   int found = -1;
-  for (typename std::vector<std::pair<CategoryT, CalibDataT> >::const_iterator it = m_categoriesWithData.begin();
-       it != m_categoriesWithData.end();
-       it++) {
+  for (auto it = m_categoriesWithData.begin(); it != m_categoriesWithData.end(); it++) {
     if ((*it).first.match(calibrationInput)) {
       if (found >= 0) {
         edm::LogWarning("BTagCalibration") << "WARNING: OVERLAP in categories, using latest one";
@@ -80,7 +78,7 @@ CalibDataT* CalibrationInterface<CategoryT, CalibDataT>::getCalibData(int i) {
   if (i >= 0 && ii < m_categoriesWithData.size())
     return &m_categoriesWithData[i].second;
   else
-    return 0;
+    return nullptr;
 }
 
 template <class CategoryT, class CalibDataT>

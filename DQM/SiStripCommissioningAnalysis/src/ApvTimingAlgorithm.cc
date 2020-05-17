@@ -38,7 +38,7 @@ void ApvTimingAlgorithm::extract(const std::vector<TH1*>& histos) {
   }
 
   // Extract histograms
-  std::vector<TH1*>::const_iterator ihis = histos.begin();
+  auto ihis = histos.begin();
   for (; ihis != histos.end(); ihis++) {
     // Check for NULL pointer
     if (!(*ihis)) {
@@ -67,8 +67,8 @@ void ApvTimingAlgorithm::analyse() {
     return;
   }
 
-  CommissioningAnalysis* tmp = const_cast<CommissioningAnalysis*>(anal());
-  ApvTimingAnalysis* anal = dynamic_cast<ApvTimingAnalysis*>(tmp);
+  auto* tmp = const_cast<CommissioningAnalysis*>(anal());
+  auto* anal = dynamic_cast<ApvTimingAnalysis*>(tmp);
   if (!anal) {
     edm::LogWarning(mlCommissioning_) << "[ApvTimingAlgorithm::" << __func__ << "]"
                                       << " NULL pointer to derived Analysis object!";
@@ -161,9 +161,9 @@ void ApvTimingAlgorithm::analyse() {
   // Find rms spread in "baseline" samples
   float mean = 0.;
   float mean2 = 0.;
-  for (uint16_t ibin = 0; ibin < base.size(); ibin++) {
-    mean += base[ibin];
-    mean2 += base[ibin] * base[ibin];
+  for (float ibin : base) {
+    mean += ibin;
+    mean2 += ibin * ibin;
   }
   if (!base.empty()) {
     mean = mean / base.size();
@@ -194,7 +194,7 @@ void ApvTimingAlgorithm::analyse() {
   float max_derivative = -1. * sistrip::invalid_;
 
   bool found = false;
-  std::map<uint16_t, float>::iterator iter = edges.begin();
+  auto iter = edges.begin();
   while (!found && iter != edges.end()) {
     // Iterate through 50 subsequent samples
     bool valid = true;
@@ -269,7 +269,7 @@ void ApvTimingAlgorithm::analyse() {
     float max_derivative_r = -1. * sistrip::invalid_;
 
     bool found_r = false;
-    std::map<uint16_t, float>::iterator iter_r = edges_r.begin();
+    auto iter_r = edges_r.begin();
     while (!found_r && iter_r != edges_r.end()) {
       // Iterate through 50 subsequent samples
       bool valid_r = true;

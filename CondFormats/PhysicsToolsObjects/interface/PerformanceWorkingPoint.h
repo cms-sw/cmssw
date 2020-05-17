@@ -1,6 +1,8 @@
 #ifndef PerformanceWorkingPoint_h
 #define PerformanceWorkingPoint_h
 
+#include <utility>
+
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "string"
@@ -8,7 +10,7 @@
 class PerformanceWorkingPoint {
 public:
   PerformanceWorkingPoint() {}
-  PerformanceWorkingPoint(float c, std::string s) : cut_(c), dname_(s) {}
+  PerformanceWorkingPoint(float c, std::string s) : cut_(c), dname_(std::move(s)) {}
   float cut() const { return cut_; }
   std::string discriminantName() const { return dname_; }
   bool cutBased() const {

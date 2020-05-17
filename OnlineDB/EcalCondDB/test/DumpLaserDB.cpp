@@ -13,10 +13,12 @@
 #include <iomanip>
 #include <string>
 #include <sstream>
+#include <utility>
+
 #include <vector>
-#include <time.h>
+#include <ctime>
 #include <cstdlib>
-#include <limits.h>
+#include <climits>
 
 #include <TFile.h>
 #include <TTree.h>
@@ -96,10 +98,10 @@ public:
   /**
    *   App constructor; Makes the database connection
    */
-  CondDBApp(std::string sid, std::string user, std::string pass, run_t r1, run_t r2) {
+  CondDBApp(const std::string &sid, const std::string &user, std::string pass, run_t r1, run_t r2) {
     try {
       std::cout << "Making connection to " << sid << " using username " << user << std::flush;
-      econn = new EcalCondDBInterface(sid, user, pass);
+      econn = new EcalCondDBInterface(sid, user, std::move(pass));
       std::cout << "Done." << std::endl;
       std::cout << "Getting data for run" << std::flush;
       if (r2 <= 0) {
@@ -125,64 +127,64 @@ public:
   }
 
   void zero(std::vector<LMFMtq> &lmfmtq) {
-    for (unsigned int i = 0; i < lmfmtq.size(); i++) {
-      lmfmtq[i].fit_method = -1;
-      lmfmtq[i].mtq_ampl = -1000;
-      lmfmtq[i].mtq_time = -1000;
-      lmfmtq[i].mtq_rise = -1000;
-      lmfmtq[i].mtq_fwhm = -1000;
-      lmfmtq[i].mtq_fw20 = -1000;
-      lmfmtq[i].mtq_fw80 = -1000;
-      lmfmtq[i].mtq_sliding = -1000;
+    for (auto &i : lmfmtq) {
+      i.fit_method = -1;
+      i.mtq_ampl = -1000;
+      i.mtq_time = -1000;
+      i.mtq_rise = -1000;
+      i.mtq_fwhm = -1000;
+      i.mtq_fw20 = -1000;
+      i.mtq_fw80 = -1000;
+      i.mtq_sliding = -1000;
     }
   }
 
   void zero(std::vector<LMFLaserConfig> &lmfConf) {
-    for (unsigned int i = 0; i < lmfConf.size(); i++) {
-      lmfConf[i].wavelength = -1;
-      lmfConf[i].vfe_gain = -1000;
-      lmfConf[i].pn_gain = -1000;
-      lmfConf[i].lsr_power = -1000;
-      lmfConf[i].lsr_attenuator = -1000;
-      lmfConf[i].lsr_current = -1000;
-      lmfConf[i].lsr_delay_1 = -1000;
-      lmfConf[i].lsr_delay_2 = -1000;
+    for (auto &i : lmfConf) {
+      i.wavelength = -1;
+      i.vfe_gain = -1000;
+      i.pn_gain = -1000;
+      i.lsr_power = -1000;
+      i.lsr_attenuator = -1000;
+      i.lsr_current = -1000;
+      i.lsr_delay_1 = -1000;
+      i.lsr_delay_2 = -1000;
     }
   }
 
   void zero(std::vector<LMFData> &lmfdata) {
-    for (unsigned int i = 0; i < lmfdata.size(); i++) {
-      lmfdata[i].detId = -1;
-      lmfdata[i].logic_id = -1;
-      lmfdata[i].eta = -1000;
-      lmfdata[i].phi = -1000;
-      lmfdata[i].x = -1000;
-      lmfdata[i].y = -1000;
-      lmfdata[i].z = -1000;
-      lmfdata[i].nevts = 0;
-      lmfdata[i].quality = -1;
-      lmfdata[i].pnMean = -1000.;
-      lmfdata[i].pnRMS = -1000.;
-      lmfdata[i].pnM3 = -1000.;
-      lmfdata[i].pnAoverpnBMean = -1000.;
-      lmfdata[i].pnAoverpnBRMS = -1000.;
-      lmfdata[i].pnAoverpnBM3 = -1000.;
-      lmfdata[i].pnFlag = -1000;
-      lmfdata[i].Mean = -1000.;
-      lmfdata[i].RMS = -1000.;
-      lmfdata[i].M3 = -1000.;
-      lmfdata[i].APDoverPNAMean = -1000.;
-      lmfdata[i].APDoverPNARMS = -1000.;
-      lmfdata[i].APDoverPNAM3 = -1000.;
-      lmfdata[i].APDoverPNBMean = -1000.;
-      lmfdata[i].APDoverPNBRMS = -1000.;
-      lmfdata[i].APDoverPNBM3 = -1000.;
-      lmfdata[i].APDoverPNMean = -1000.;
-      lmfdata[i].APDoverPNRMS = -1000.;
-      lmfdata[i].APDoverPNM3 = -1000.;
-      lmfdata[i].alpha = -1000.;
-      lmfdata[i].beta = -1000.;
-      lmfdata[i].flag = -1000;
+    for (auto &i : lmfdata) {
+      i.detId = -1;
+      i.logic_id = -1;
+      i.eta = -1000;
+      i.phi = -1000;
+      i.x = -1000;
+      i.y = -1000;
+      i.z = -1000;
+      i.nevts = 0;
+      i.quality = -1;
+      i.pnMean = -1000.;
+      i.pnRMS = -1000.;
+      i.pnM3 = -1000.;
+      i.pnAoverpnBMean = -1000.;
+      i.pnAoverpnBRMS = -1000.;
+      i.pnAoverpnBM3 = -1000.;
+      i.pnFlag = -1000;
+      i.Mean = -1000.;
+      i.RMS = -1000.;
+      i.M3 = -1000.;
+      i.APDoverPNAMean = -1000.;
+      i.APDoverPNARMS = -1000.;
+      i.APDoverPNAM3 = -1000.;
+      i.APDoverPNBMean = -1000.;
+      i.APDoverPNBRMS = -1000.;
+      i.APDoverPNBM3 = -1000.;
+      i.APDoverPNMean = -1000.;
+      i.APDoverPNRMS = -1000.;
+      i.APDoverPNM3 = -1000.;
+      i.alpha = -1000.;
+      i.beta = -1000.;
+      i.flag = -1000;
     }
   }
 
@@ -225,8 +227,8 @@ public:
       // for each run collect
       LMFSeqDat s(econn);
       std::map<int, LMFSeqDat> sequences = s.fetchByRunNumber(run);
-      std::map<int, LMFSeqDat>::const_iterator si = sequences.begin();
-      std::map<int, LMFSeqDat>::const_iterator se = sequences.end();
+      auto si = sequences.begin();
+      auto se = sequences.end();
       while (si != se) {
         // seq start
         seqStart = si->second.getSequenceStart().epoch();
@@ -237,8 +239,8 @@ public:
         std::cout << std::endl << " Seq. " << seqNum;
         LMFRunIOV riov(econn);
         std::list<LMFRunIOV> run_iovs = riov.fetchBySequence(si->second);
-        std::list<LMFRunIOV>::const_iterator ri = run_iovs.begin();
-        std::list<LMFRunIOV>::const_iterator re = run_iovs.end();
+        auto ri = run_iovs.begin();
+        auto re = run_iovs.end();
         while (ri != re) {
           // lmr
           lmr = ri->getLmr();
@@ -269,7 +271,7 @@ public:
 	  prim.setWhereClause("(LOGIC_ID = :I1 OR LOGIC_ID = :I2 OR LOGIC_ID = :I3)", channels); // selects only endcap primitives
 	  */
           prim.fetch();
-          if (prim.getLogicIds().size() > 0) {
+          if (!prim.getLogicIds().empty()) {
             LMFRunDat run_dat(econn);
             run_dat.setLMFRunIOV(*ri);
             /* uncomment the following to select only endcaps
@@ -284,8 +286,8 @@ public:
             pnPrim.fetch();
             // *** run dat ***
             std::list<int> logic_ids = run_dat.getLogicIds();
-            std::list<int>::const_iterator li = logic_ids.begin();
-            std::list<int>::const_iterator le = logic_ids.end();
+            auto li = logic_ids.begin();
+            auto le = logic_ids.end();
             int count = 0;
             int xcount = 0;
             std::vector<LMFData> lmfdata(detids.size());
@@ -299,8 +301,8 @@ public:
               int logic_id = *li;
               std::vector<EcalLogicID> xtals = econn->getEcalLogicIDForLMR(logic_id);
               std::cout << " Size = " << std::setw(4) << xtals.size();
-              for (unsigned int j = 0; j < xtals.size(); j++) {
-                int xtal_id = xtals[j].getLogicID();
+              for (auto &xtal : xtals) {
+                int xtal_id = xtal.getLogicID();
                 int detId = detids[xtal_id];
                 detIdData dd = getCoords(detId);
                 int index = dd.hashedIndex;
@@ -314,7 +316,7 @@ public:
                 lmfdata[index].y = dd.y;
                 lmfdata[index].z = dd.z;
 
-                std::list<int>::iterator logicIdIsThere = std::find(mtqLogicIds.begin(), mtqLogicIds.end(), logic_id);
+                auto logicIdIsThere = std::find(mtqLogicIds.begin(), mtqLogicIds.end(), logic_id);
                 if (logicIdIsThere != mtqLogicIds.end()) {
                   lmfmtq[index].fit_method = mtqConf.getFitMethod(logic_id);
                   lmfmtq[index].mtq_ampl = mtqConf.getMTQAmplification(logic_id);
@@ -354,8 +356,8 @@ public:
             while (li != le) {
               int logic_id = *li;
               std::vector<EcalLogicID> xtals = econn->getEcalLogicIDForLMPN(logic_id);
-              for (unsigned int j = 0; j < xtals.size(); j++) {
-                int xtal_id = xtals[j].getLogicID();
+              for (auto &xtal : xtals) {
+                int xtal_id = xtal.getLogicID();
                 int detId = detids[xtal_id];
                 detIdData dd = getCoords(detId);
                 int index = dd.hashedIndex;
@@ -488,7 +490,7 @@ public:
   }
 
 private:
-  CondDBApp();  // hidden default constructor
+  CondDBApp() = delete;  // hidden default constructor
   void init();
   TTree *tree;
   TFile *tfile;

@@ -28,7 +28,7 @@ namespace pos {
 */
   class PixelFEDTestDAC : public PixelCalibBase {
   public:
-    PixelFEDTestDAC(std::string filename);
+    PixelFEDTestDAC(const std::string &filename);
     PixelFEDTestDAC(std::vector<std::vector<std::string> > &);
     std::string mode() const override { return mode_; }
     std::vector<unsigned int> dacs() { return dacs_; }

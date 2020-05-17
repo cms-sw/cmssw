@@ -56,8 +56,8 @@ public:
   struct energysum {
     energysum() {
       etotal = 0;
-      for (int i = 0; i < 6; ++i)
-        eTime[i] = 0.;
+      for (double& i : eTime)
+        i = 0.;
     }
     double eTime[6], etotal;
   };
@@ -187,10 +187,10 @@ void HGCalSimHitValidation::analyzeHits(std::vector<PCaloHit>& hits) {
   if (verbosity_ > 0)
     edm::LogVerbatim("HGCalValidation") << nameDetector_ << " with " << hits.size() << " PcaloHit elements";
   unsigned int nused(0);
-  for (unsigned int i = 0; i < hits.size(); i++) {
-    double energy = hits[i].energy();
-    double time = hits[i].time();
-    uint32_t id_ = hits[i].id();
+  for (auto& hit : hits) {
+    double energy = hit.energy();
+    double time = hit.time();
+    uint32_t id_ = hit.id();
     int cell, sector, subsector(0), layer, zside;
     int subdet(0), cell2(0), type(0);
     if (heRebuild_) {
@@ -217,7 +217,7 @@ void HGCalSimHitValidation::analyzeHits(std::vector<PCaloHit>& hits) {
     } else if (hgcons_->geomMode() == HGCalGeometryMode::Square) {
       HGCalTestNumbering::unpackSquareIndex(id_, zside, layer, sector, subsector, cell);
     } else if (hgcons_->geomMode() == HGCalGeometryMode::Trapezoid) {
-      HGCScintillatorDetId detId = HGCScintillatorDetId(id_);
+      auto detId = HGCScintillatorDetId(id_);
       subdet = ForwardEmpty;
       sector = detId.ietaAbs();
       cell = detId.iphi();
@@ -233,7 +233,7 @@ void HGCalSimHitValidation::analyzeHits(std::vector<PCaloHit>& hits) {
       edm::LogVerbatim("HGCalValidation")
           << "Detector " << nameDetector_ << " zside = " << zside << " sector|wafer = " << sector << ":" << subsector
           << " type = " << type << " layer = " << layer << " cell = " << cell << ":" << cell2 << " energy = " << energy
-          << " energyem = " << hits[i].energyEM() << " energyhad = " << hits[i].energyHad() << " time = " << time;
+          << " energyem = " << hit.energyEM() << " energyhad = " << hit.energyHad() << " time = " << time;
 
     HepGeom::Point3D<float> gcoord;
     if (heRebuild_) {

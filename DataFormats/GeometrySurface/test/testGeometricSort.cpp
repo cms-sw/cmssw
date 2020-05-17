@@ -59,8 +59,8 @@ int main() {
   cout << endl << "Again with pointers" << endl;
 
   vector<const Surface*> vp;
-  for (auto i = v.begin(); i != v.end(); i++) {
-    vp.push_back(&(**i));
+  for (auto& i : v) {
+    vp.push_back(&(*i));
   }
 
   cout << "Sort in R       : " << endl;

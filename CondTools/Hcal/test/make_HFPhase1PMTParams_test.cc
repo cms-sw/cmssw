@@ -1,4 +1,5 @@
 #include <cfloat>
+#include <memory>
 
 #include "CondTools/Hcal/interface/make_HFPhase1PMTParams.h"
 
@@ -28,15 +29,15 @@ std::unique_ptr<HFPhase1PMTParams> make_HFPhase1PMTParams_test() {
   const double minChargeAsymm = 30.0;
 
   std::vector<P> pts;
-  pts.push_back(P(minCharge0, 10.0));
-  pts.push_back(P(10.0 * minCharge0, 12.0));
-  pts.push_back(P(20.0 * minCharge0, 13.0));
+  pts.emplace_back(minCharge0, 10.0);
+  pts.emplace_back(10.0 * minCharge0, 12.0);
+  pts.emplace_back(20.0 * minCharge0, 13.0);
   cuts[HFPhase1PMTData::T_0_MIN] = std::shared_ptr<AbsHcalFunctor>(new HcalPiecewiseLinearFunctor(pts, false, false));
 
   pts.clear();
-  pts.push_back(P(minCharge0, 20.0));
-  pts.push_back(P(10.0 * minCharge0, 18.0));
-  pts.push_back(P(20.0 * minCharge0, 17.0));
+  pts.emplace_back(minCharge0, 20.0);
+  pts.emplace_back(10.0 * minCharge0, 18.0);
+  pts.emplace_back(20.0 * minCharge0, 17.0);
   cuts[HFPhase1PMTData::T_0_MAX] = std::shared_ptr<AbsHcalFunctor>(new HcalPiecewiseLinearFunctor(pts, false, false));
 
 #ifdef BAD_BOOST_VERSION
@@ -62,8 +63,8 @@ std::unique_ptr<HFPhase1PMTParams> make_HFPhase1PMTParams_test() {
 #endif
 
   pts.clear();
-  pts.push_back(P(5.0 * minChargeAsymm, 2.0));
-  pts.push_back(P(10.0 * minChargeAsymm, 1.0));
+  pts.emplace_back(5.0 * minChargeAsymm, 2.0);
+  pts.emplace_back(10.0 * minChargeAsymm, 1.0);
   cuts[HFPhase1PMTData::ASYMM_MAX] = std::shared_ptr<AbsHcalFunctor>(new HcalPiecewiseLinearFunctor(pts, false, false));
 
 #ifdef BAD_BOOST_VERSION
@@ -99,6 +100,5 @@ std::unique_ptr<HFPhase1PMTParams> make_HFPhase1PMTParams_test() {
   std::unique_ptr<HFPhase1PMTData> firstItem(new HFPhase1PMTData(cuts, minCharge0, minCharge1, minChargeAsymm));
   coll.push_back(std::move(firstItem));
 
-  return std::unique_ptr<HFPhase1PMTParams>(
-      new HFPhase1PMTParams(coll, lookup, detIdTransformCode, std::move(defaultItem)));
+  return std::make_unique<HFPhase1PMTParams>(coll, lookup, detIdTransformCode, std::move(defaultItem));
 }

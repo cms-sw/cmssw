@@ -53,7 +53,7 @@ public:
 
   void getModMEsOnDemand(edm::EventSetup const &eSetup, uint32_t requestedDetId);
   void getLayerMEsOnDemand(edm::EventSetup const &eSetup,
-                           std::string requestedSubDetector,
+                           const std::string &requestedSubDetector,
                            uint32_t requestedSide,
                            uint32_t requestedLayer);
 

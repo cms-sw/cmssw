@@ -4,7 +4,7 @@
 
 int main(void) {
   for (unsigned int ialgo = 0; ialgo < reco::TrackBase::algoSize; ++ialgo) {
-    reco::TrackBase::TrackAlgorithm algo = static_cast<reco::TrackBase::TrackAlgorithm>(ialgo);
+    auto algo = static_cast<reco::TrackBase::TrackAlgorithm>(ialgo);
 
     const unsigned int priority = trackAlgoPriorityOrder[algo];
     std::cout << "Algorithm " << reco::TrackBase::algoName(algo) << " has priority " << priority << std::endl;

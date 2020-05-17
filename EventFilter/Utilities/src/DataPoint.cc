@@ -45,8 +45,8 @@ void DataPoint::serialize(Json::Value &root) const {
   if (!definition_.empty()) {
     root[DEFINITION] = definition_;
   }
-  for (unsigned int i = 0; i < data_.size(); i++)
-    root[DATA].append(data_[i]);
+  for (const auto &i : data_)
+    root[DATA].append(i);
 }
 
 void DataPoint::deserialize(Json::Value &root) {
@@ -103,7 +103,7 @@ void DataPoint::trackVectorUIntAtomic(std::string const &name,
 
 void DataPoint::makeStreamLumiMap(unsigned int size) {
   for (unsigned int i = 0; i < size; i++) {
-    streamDataMaps_.push_back(MonPtrMap());
+    streamDataMaps_.emplace_back();
   }
 }
 
@@ -139,7 +139,7 @@ void DataPoint::snap(unsigned int lumi) {
         if (itr == streamDataMaps_[i].end()) {
           if (opType_ == OPHISTO) {
             if (*nBinsPtr_) {
-              HistoJ<unsigned int> *nh = new HistoJ<unsigned int>(1, MAXUPDATES);
+              auto *nh = new HistoJ<unsigned int>(1, MAXUPDATES);
               nh->update(monVal);
               streamDataMaps_[i][streamLumi_] = nh;
             }
@@ -216,7 +216,7 @@ void DataPoint::snapStreamAtomic(unsigned int lumi, unsigned int streamID) {
     {
       if (opType_ == OPHISTO) {
         if (*nBinsPtr_) {
-          HistoJ<unsigned int> *h = new HistoJ<unsigned int>(1, MAXUPDATES);
+          auto *h = new HistoJ<unsigned int>(1, MAXUPDATES);
           h->update(monVal);
           streamDataMaps_[streamID][lumi] = h;
         }
@@ -270,9 +270,9 @@ std::string DataPoint::fastOutCSV(int sid) {
 JsonMonitorable *DataPoint::mergeAndRetrieveValue(unsigned int lumi) {
   assert(monType_ == TYPEUINT && isStream_);  //for now only support UINT and SUM for stream variables
   IntJ *newJ = new IntJ;
-  for (unsigned int i = 0; i < streamDataMaps_.size(); i++) {
-    auto itr = streamDataMaps_[i].find(lumi);
-    if (itr != streamDataMaps_[i].end()) {
+  for (auto &streamDataMap : streamDataMaps_) {
+    auto itr = streamDataMap.find(lumi);
+    if (itr != streamDataMap.end()) {
       newJ->add(static_cast<IntJ *>(itr->second.get())->value());
     }
   }
@@ -317,9 +317,9 @@ void DataPoint::mergeAndSerialize(Json::Value &root, unsigned int lumi, bool ini
       unsigned int updates = 0;
       unsigned int sum = 0;
       if (sid < 1)
-        for (unsigned int i = 0; i < streamDataMaps_.size(); i++) {
-          auto itr = streamDataMaps_[i].find(lumi);
-          if (itr != streamDataMaps_[i].end()) {
+        for (auto &streamDataMap : streamDataMaps_) {
+          auto itr = streamDataMap.find(lumi);
+          if (itr != streamDataMap.end()) {
             sum += static_cast<IntJ *>(itr->second.get())->value();
             updates++;
           }
@@ -351,14 +351,14 @@ void DataPoint::mergeAndSerialize(Json::Value &root, unsigned int lumi, bool ini
       memset(buf_, 0, bufLen_ * sizeof(uint32_t));
       unsigned int updates = 0;
       if (sid < 1)
-        for (unsigned int i = 0; i < streamDataMaps_.size(); i++) {
-          auto itr = streamDataMaps_[i].find(lumi);
-          if (itr != streamDataMaps_[i].end()) {
-            HistoJ<unsigned int> *monObj = static_cast<HistoJ<unsigned int> *>(itr->second.get());
+        for (auto &streamDataMap : streamDataMaps_) {
+          auto itr = streamDataMap.find(lumi);
+          if (itr != streamDataMap.end()) {
+            auto *monObj = static_cast<HistoJ<unsigned int> *>(itr->second.get());
             updates += monObj->getUpdates();
             auto &hvec = monObj->value();
-            for (unsigned int j = 0; j < hvec.size(); j++) {
-              unsigned int thisbin = (unsigned int)hvec[j];
+            for (unsigned int j : hvec) {
+              unsigned int thisbin = (unsigned int)j;
               if (thisbin < *nBinsPtr_) {
                 buf_[thisbin]++;
               }
@@ -368,11 +368,11 @@ void DataPoint::mergeAndSerialize(Json::Value &root, unsigned int lumi, bool ini
       else {
         auto itr = streamDataMaps_[unsigned(sid)].find(lumi);
         if (itr != streamDataMaps_[unsigned(sid)].end()) {
-          HistoJ<unsigned int> *monObj = static_cast<HistoJ<unsigned int> *>(itr->second.get());
+          auto *monObj = static_cast<HistoJ<unsigned int> *>(itr->second.get());
           updates += monObj->getUpdates();
           auto &hvec = monObj->value();
-          for (unsigned int j = 0; j < hvec.size(); j++) {
-            unsigned int thisbin = (unsigned int)hvec[j];
+          for (unsigned int j : hvec) {
+            unsigned int thisbin = (unsigned int)j;
             if (thisbin < *nBinsPtr_) {
               buf_[thisbin]++;
             }
@@ -400,10 +400,10 @@ void DataPoint::mergeAndSerialize(Json::Value &root, unsigned int lumi, bool ini
 
 //wipe out data that will no longer be used
 void DataPoint::discardCollected(unsigned int lumi) {
-  for (unsigned int i = 0; i < streamDataMaps_.size(); i++) {
-    auto itr = streamDataMaps_[i].find(lumi);
-    if (itr != streamDataMaps_[i].end())
-      streamDataMaps_[i].erase(lumi);
+  for (auto &streamDataMap : streamDataMaps_) {
+    auto itr = streamDataMap.find(lumi);
+    if (itr != streamDataMap.end())
+      streamDataMap.erase(lumi);
   }
 
   auto itr = globalDataMap_.find(lumi);

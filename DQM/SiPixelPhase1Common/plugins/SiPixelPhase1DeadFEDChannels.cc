@@ -90,8 +90,7 @@ namespace {
           assert(roc != nullptr);
           assert(roc->rawId() == disabledOnDetId.detId());
 
-          const PixelGeomDetUnit* theGeomDet =
-              dynamic_cast<const PixelGeomDetUnit*>(trackerGeometry_->idToDet(roc->rawId()));
+          const auto* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>(trackerGeometry_->idToDet(roc->rawId()));
           PixelTopology const* topology = &(theGeomDet->specificTopology());
           sipixelobjects::LocalPixel::RocRowCol local = {topology->rowsperroc() / 2,
                                                          topology->colsperroc() / 2};  //center of ROC

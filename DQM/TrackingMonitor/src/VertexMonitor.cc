@@ -5,6 +5,8 @@
  *  \author:  Mia Tosi,40 3-B32,+41227671609 
  */
 
+#include <utility>
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -22,7 +24,7 @@ VertexMonitor::VertexMonitor(const edm::ParameterSet& iConfig,
     : conf_(iConfig),
       primaryVertexInputTag_(primaryVertexInputTag),
       selectedPrimaryVertexInputTag_(selectedPrimaryVertexInputTag),
-      label_(pvLabel),
+      label_(std::move(pvLabel)),
       NumberOfPVtx(nullptr),
       NumberOfPVtxVsBXlumi(nullptr),
       NumberOfPVtxVsGoodPVtx(nullptr),
@@ -61,7 +63,7 @@ VertexMonitor::VertexMonitor(const edm::ParameterSet& iConfig,
                              const edm::InputTag& selectedPrimaryVertexInputTag,
                              std::string pvLabel,
                              edm::ConsumesCollector& iC)
-    : VertexMonitor(iConfig, primaryVertexInputTag, selectedPrimaryVertexInputTag, pvLabel) {
+    : VertexMonitor(iConfig, primaryVertexInputTag, selectedPrimaryVertexInputTag, std::move(pvLabel)) {
   if (doPlotsVsBXlumi_)
     lumiDetails_ = new GetLumi(iConfig.getParameter<edm::ParameterSet>("BXlumiSetup"), iC);
 
@@ -95,9 +97,9 @@ void VertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   if (pvHandle.isValid()) {
     totalNumPV = pvHandle->size();
     //      std::cout << "totalNumPV : " << totalNumPV << std::endl;
-    for (reco::VertexCollection::const_iterator pv = pvHandle->begin(); pv != pvHandle->end(); ++pv) {
+    for (const auto& pv : *pvHandle) {
       //--- count pv w/ ndof < 4
-      if (pv->ndof() < 4.)
+      if (pv.ndof() < 4.)
         totalNumBADndofPV++;
     }
   } else
@@ -149,7 +151,7 @@ void VertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       chi2ndf = pv.normalizedChi2();
       chi2prob = TMath::Prob(pv.chi2(), (int)pv.ndof());
 
-      for (reco::Vertex::trackRef_iterator itrk = pv.tracks_begin(); itrk != pv.tracks_end(); ++itrk) {
+      for (auto itrk = pv.tracks_begin(); itrk != pv.tracks_end(); ++itrk) {
         double pt = (**itrk).pt();
         sumpt += pt * pt;
       }

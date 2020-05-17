@@ -25,9 +25,9 @@ class CandIsoDumper : public edm::EDAnalyzer {
 public:
   CandIsoDumper(const edm::ParameterSet&);
 
-  virtual ~CandIsoDumper();
+  ~CandIsoDumper() override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   edm::EDGetTokenT<reco::IsoDepositMap> srcToken_;
@@ -80,8 +80,8 @@ void CandIsoDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       //z2v.push_back(new AngleConeVeto(candDir,0.2));
       //std::cout << "      Deposit within 0.7 - A3DV(0.2) " << val.depositWithin(0.7, z2v) << std::endl;
 
-      for (size_t i = 0; i < z2v.size(); i++) {
-        delete z2v[i];
+      for (auto& i : z2v) {
+        delete i;
       }
       std::cout << "      Dumping deposit contents: "
                 << "\n";

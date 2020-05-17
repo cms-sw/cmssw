@@ -223,7 +223,7 @@ bool PFEGammaFilters::isElectronSafeForJetMET(const reco::GsfElectron& electron,
   float dphi_normalsc = electron.deltaPhiSuperClusterTrackAtVtx();
 
   const PFCandidate::ElementsInBlocks& extraTracks = pfcandextra->extraNonConvTracks();
-  for (PFCandidate::ElementsInBlocks::const_iterator itrk = extraTracks.begin(); itrk < extraTracks.end(); ++itrk) {
+  for (auto itrk = extraTracks.begin(); itrk < extraTracks.end(); ++itrk) {
     const PFBlock& block = *(itrk->first);
     const PFBlock::LinkData& linkData = block.linkData();
     const PFBlockElement& pfele = block.elements()[itrk->second];
@@ -239,8 +239,7 @@ bool PFEGammaFilters::isElectronSafeForJetMET(const reco::GsfElectron& electron,
       int nexhits = trackref->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
 
       bool trackIsFromPrimaryVertex = false;
-      for (Vertex::trackRef_iterator trackIt = primaryVertex.tracks_begin(); trackIt != primaryVertex.tracks_end();
-           ++trackIt) {
+      for (auto trackIt = primaryVertex.tracks_begin(); trackIt != primaryVertex.tracks_end(); ++trackIt) {
         if ((*trackIt).castTo<TrackRef>() == trackref) {
           trackIsFromPrimaryVertex = true;
           break;
@@ -341,7 +340,7 @@ bool PFEGammaFilters::isPhotonSafeForJetMET(const reco::Photon& photon, const re
 
   PFCandidateEGammaExtraRef pfcandextra = pfcand.egammaExtraRef();
   const PFCandidate::ElementsInBlocks& extraTracks = pfcandextra->extraNonConvTracks();
-  for (PFCandidate::ElementsInBlocks::const_iterator itrk = extraTracks.begin(); itrk < extraTracks.end(); ++itrk) {
+  for (auto itrk = extraTracks.begin(); itrk < extraTracks.end(); ++itrk) {
     const PFBlock& block = *(itrk->first);
     const PFBlockElement& pfele = block.elements()[itrk->second];
 
@@ -354,12 +353,11 @@ bool PFEGammaFilters::isPhotonSafeForJetMET(const reco::Photon& photon, const re
 
       //const std::vector<reco::TrackRef>&  mySingleLeg =
       bool singleLegConv = false;
-      for (unsigned int iconv = 0; iconv < pfcandextra->singleLegConvTrackRefMva().size(); iconv++) {
+      for (const auto& iconv : pfcandextra->singleLegConvTrackRefMva()) {
         if (debugSafeForJetMET)
-          cout << "PFEGammaFilters::SingleLeg track:pt " << (pfcandextra->singleLegConvTrackRefMva()[iconv].first)->pt()
-               << endl;
+          cout << "PFEGammaFilters::SingleLeg track:pt " << (iconv.first)->pt() << endl;
 
-        if (pfcandextra->singleLegConvTrackRefMva()[iconv].first == trackref) {
+        if (iconv.first == trackref) {
           singleLegConv = true;
           if (debugSafeForJetMET)
             cout << "PFEGammaFilters::isPhotonSafeForJetMET: SingleLeg conv track " << endl;

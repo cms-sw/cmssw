@@ -43,6 +43,6 @@ public:
   COND_SERIALIZABLE;
 };
 
-std::ostream& operator<<(std::ostream&, SimBeamSpotObjects beam);
+std::ostream& operator<<(std::ostream&, const SimBeamSpotObjects& beam);
 
 #endif

@@ -78,8 +78,8 @@ namespace reco {
       int signal_Tks_qsum_ = std::numeric_limits<int>::quiet_NaN();
       if ((int)(signal_Tks_.size()) != 0) {
         signal_Tks_qsum_ = 0;
-        for (TrackRefVector::const_iterator iTk = signal_Tks_.begin(); iTk != signal_Tks_.end(); iTk++) {
-          signal_Tks_qsum_ += (**iTk).charge();
+        for (auto&& signal_Tk : signal_Tks_) {
+          signal_Tks_qsum_ += (*signal_Tk).charge();
         }
       }
       return signal_Tks_qsum_;
@@ -163,7 +163,7 @@ namespace reco {
     CLHEP::HepLorentzVector alternatrecJet_HepLV() const {
       return (thealternatrecJet_HepLV);
     }  // rec. pi+/- candidates + neutral ECAL clus. combined;
-    void setalternatrecJet_HepLV(CLHEP::HepLorentzVector x) { thealternatrecJet_HepLV = x; }
+    void setalternatrecJet_HepLV(const CLHEP::HepLorentzVector& x) { thealternatrecJet_HepLV = x; }
 
     // EtECAL*/Ptlead.tk        *using ECAL cell hits inside a DR cone around lead tk ECAL impact point direction;
     double ECALEt_o_leadTkPt() const {

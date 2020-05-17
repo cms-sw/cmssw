@@ -9,6 +9,8 @@ ProvenanceAdaptor.cc
 #include "IOPool/Input/src/ProvenanceAdaptor.h"
 
 #include <cassert>
+#include <memory>
+
 #include <set>
 #include <utility>
 #include <string>
@@ -22,16 +24,16 @@ namespace edm {
 
   void ProvenanceAdaptor::fixProcessHistory(ProcessHistoryMap& pHistMap, ProcessHistoryVector& pHistVector) {
     assert(pHistMap.empty() != pHistVector.empty());
-    for (ProcessHistoryVector::const_iterator i = pHistVector.begin(), e = pHistVector.end(); i != e; ++i) {
-      pHistMap.insert(std::make_pair(i->id(), *i));
+    for (const auto& i : pHistVector) {
+      pHistMap.insert(std::make_pair(i.id(), i));
     }
     pHistVector.clear();
-    for (ProcessHistoryMap::const_iterator i = pHistMap.begin(), e = pHistMap.end(); i != e; ++i) {
+    for (auto i = pHistMap.begin(), e = pHistMap.end(); i != e; ++i) {
       ProcessHistory newHist;
       ProcessHistoryID const& oldphID = i->first;
-      for (ProcessHistory::const_iterator it = i->second.begin(), et = i->second.end(); it != et; ++it) {
-        ParameterSetID const& newPsetID = convertID(it->parameterSetID());
-        newHist.emplace_back(it->processName(), newPsetID, it->releaseVersion(), it->passID());
+      for (const auto& it : i->second) {
+        ParameterSetID const& newPsetID = convertID(it.parameterSetID());
+        newHist.emplace_back(it.processName(), newPsetID, it.releaseVersion(), it.passID());
       }
       assert(newHist.size() == i->second.size());
       ProcessHistoryID newphID = newHist.id();
@@ -58,12 +60,12 @@ namespace edm {
       if (a.first == b.first)
         return false;
       bool mayBeTrue = false;
-      for (Histories::const_iterator it = histories_.begin(), itEnd = histories_.end(); it != itEnd; ++it) {
-        OneHistory::const_iterator itA = find_in_all(*it, a.first);
-        if (itA == it->end())
+      for (const auto& historie : histories_) {
+        auto itA = find_in_all(historie, a.first);
+        if (itA == historie.end())
           continue;
-        OneHistory::const_iterator itB = find_in_all(*it, b.first);
-        if (itB == it->end())
+        auto itB = find_in_all(historie, b.first);
+        if (itB == historie.end())
           continue;
         assert(itA != itB);
         if (itB < itA) {
@@ -106,12 +108,12 @@ namespace edm {
       assert(!orderedProducts.empty());
       Histories processHistories;
       size_t max = 0;
-      for (ProcessHistoryMap::const_iterator it = pHistMap.begin(), itEnd = pHistMap.end(); it != itEnd; ++it) {
-        ProcessHistory const& pHist = it->second;
+      for (const auto& it : pHistMap) {
+        ProcessHistory const& pHist = it.second;
         OneHistory processHistory;
-        for (ProcessHistory::const_iterator i = pHist.begin(), iEnd = pHist.end(); i != iEnd; ++i) {
-          if (processNamesThatProduced.find(i->processName()) != processNamesThatProduced.end()) {
-            processHistory.push_back(i->processName());
+        for (const auto& i : pHist) {
+          if (processNamesThatProduced.find(i.processName()) != processNamesThatProduced.end()) {
+            processHistory.push_back(i.processName());
           }
         }
         max = (processHistory.size() > max ? processHistory.size() : max);
@@ -126,18 +128,17 @@ namespace edm {
       auto p = std::make_unique<BranchIDList>();
       std::string processName;
       BranchListIndex blix = 0;
-      for (OrderedProducts::const_iterator it = orderedProducts.begin(), itEnd = orderedProducts.end(); it != itEnd;
-           ++it) {
-        if (it->first != processName) {
+      for (const auto& orderedProduct : orderedProducts) {
+        if (orderedProduct.first != processName) {
           if (!processName.empty()) {
             branchListIndexes.push_back(blix);
             ++blix;
             pv->push_back(std::move(*p));
-            p.reset(new BranchIDList);
+            p = std::make_unique<BranchIDList>();
           }
-          processName = it->first;
+          processName = orderedProduct.first;
         }
-        p->push_back(it->second.id());
+        p->push_back(orderedProduct.second.id());
       }
       branchListIndexes.push_back(blix);
       pv->push_back(std::move(*p));
@@ -165,7 +166,7 @@ namespace edm {
   ProvenanceAdaptor::~ProvenanceAdaptor() {}
 
   ParameterSetID const& ProvenanceAdaptor::convertID(ParameterSetID const& oldID) const {
-    ParameterSetIdConverter::const_iterator it = parameterSetIdConverter_.find(oldID);
+    auto it = parameterSetIdConverter_.find(oldID);
     if (it == parameterSetIdConverter_.end()) {
       return oldID;
     }
@@ -173,7 +174,7 @@ namespace edm {
   }
 
   ProcessHistoryID const& ProvenanceAdaptor::convertID(ProcessHistoryID const& oldID) const {
-    ProcessHistoryIdConverter::const_iterator it = processHistoryIdConverter_.find(oldID);
+    auto it = processHistoryIdConverter_.find(oldID);
     if (it == processHistoryIdConverter_.end()) {
       return oldID;
     }

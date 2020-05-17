@@ -79,7 +79,7 @@ STAnalyzer::STAnalyzer(const ParameterSet& pset) : _ev(0) {
   theSTAMuonLabel = pset.getParameter<string>("SALabel");
 
   thePropagatorName = pset.getParameter<std::string>("PropagatorName");
-  thePropagator = 0;
+  thePropagator = nullptr;
 
   doSA = pset.getParameter<bool>("doSA");
 
@@ -215,8 +215,8 @@ void STAnalyzer::beginRun(const edm::Run& run, const EventSetup& setup) {
 
   if (FirstPass) {
     const std::vector<const DTChamber*>& chs = dtGeom->chambers();
-    for (auto ch = chs.begin(); ch != chs.end(); ++ch)
-      hitsPerChamber[(*ch)->id()] = 0;
+    for (auto ch : chs)
+      hitsPerChamber[ch->id()] = 0;
   }
 
   FirstPass = false;
@@ -271,7 +271,7 @@ void STAnalyzer::analyzeSATrack(const Event& event, const EventSetup& eventSetup
   // Get the RecTrack collection from the event
   std::vector<Handle<reco::TrackCollection> > tracks;
   event.getManyByType(tracks);
-  std::vector<Handle<reco::TrackCollection> >::iterator i(tracks.begin()), end(tracks.end());
+  auto i(tracks.begin()), end(tracks.end());
   for (; i != end; ++i) {
     if (debug)
       cout << "ALL Tracks id " << (*i).id() << endl;
@@ -293,7 +293,7 @@ void STAnalyzer::analyzeSATrack(const Event& event, const EventSetup& eventSetup
   histo2d("hNSAVsNSegs2D")->Fill(segs2d->size(), staTracks->size());
   histo2d("hNSAVsNSegs4D")->Fill(segs->size(), staTracks->size());
 
-  if (debug && staTracks->size())
+  if (debug && !staTracks->empty())
     cout << endl << "R:E " << event.id().run() << ":" << event.id().event() << " SA " << staTracks->size() << endl;
 
   for (staTrack = staTracks->begin(); staTrack != staTracks->end(); ++staTrack) {
@@ -367,22 +367,22 @@ void STAnalyzer::analyzeSATrack(const Event& event, const EventSetup& eventSetup
     if (debug)
       cout << "RecHits:" << endl;
 
-    trackingRecHit_iterator rhbegin = staTrack->recHitsBegin();
-    trackingRecHit_iterator rhend = staTrack->recHitsEnd();
+    auto rhbegin = staTrack->recHitsBegin();
+    auto rhend = staTrack->recHitsEnd();
 
     // zero's the maps
-    for (std::map<DTChamberId, int>::iterator h = hitsPerChamber.begin(); h != hitsPerChamber.end(); ++h)
-      (*h).second = 0;
-    for (std::map<DTSuperLayerId, int>::iterator h = hitsPerSL.begin(); h != hitsPerSL.end(); ++h)
-      (*h).second = 0;
-    for (std::map<DTLayerId, int>::iterator h = hitsPerLayer.begin(); h != hitsPerLayer.end(); ++h)
-      (*h).second = 0;
+    for (auto& h : hitsPerChamber)
+      h.second = 0;
+    for (auto& h : hitsPerSL)
+      h.second = 0;
+    for (auto& h : hitsPerLayer)
+      h.second = 0;
 
     int firstHitWheel = 0;   // the Wheel of first hit
     int lastHitWheel = 0;    // the Wheel of last hit
     int firstHitSector = 0;  // the sector of first hit
     int lastHitSector = 0;   // the sector of last hit
-    for (trackingRecHit_iterator recHit = rhbegin; recHit != rhend; ++recHit) {
+    for (auto recHit = rhbegin; recHit != rhend; ++recHit) {
       const GeomDet* geomDet = theTrackingGeometry->idToDet((*recHit)->geographicalId());
       GlobalPoint gpos = geomDet->toGlobal((*recHit)->localPosition());
       if (debug)
@@ -417,20 +417,20 @@ void STAnalyzer::analyzeSATrack(const Event& event, const EventSetup& eventSetup
     }
     if (debug) {
       cout << "PerChamber " << muonDumper.dumpTSOS(innerTSOS) << endl;
-      for (std::map<DTChamberId, int>::iterator h = hitsPerChamber.begin(); h != hitsPerChamber.end(); ++h)
-        if ((*h).second)
-          cout << (*h).first << ":" << (*h).second << endl;
+      for (auto& h : hitsPerChamber)
+        if (h.second)
+          cout << h.first << ":" << h.second << endl;
       cout << "=====" << endl;
 
       cout << "PerSL " << endl;
-      for (std::map<DTSuperLayerId, int>::iterator h = hitsPerSL.begin(); h != hitsPerSL.end(); ++h)
-        if ((*h).second)
-          cout << (*h).first << ":" << (*h).second << endl;
+      for (auto& h : hitsPerSL)
+        if (h.second)
+          cout << h.first << ":" << h.second << endl;
       cout << "=====" << endl;
       cout << "PerLayer " << endl;
-      for (std::map<DTLayerId, int>::iterator h = hitsPerLayer.begin(); h != hitsPerLayer.end(); ++h)
-        if ((*h).second)
-          cout << (*h).first << ":" << (*h).second << endl;
+      for (auto& h : hitsPerLayer)
+        if (h.second)
+          cout << h.first << ":" << h.second << endl;
       cout << "=====" << endl;
     }
 

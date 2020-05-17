@@ -11,6 +11,7 @@
 //
 
 #include <boost/bind.hpp>
+#include <utility>
 
 #include "TFile.h"
 #include "TSystem.h"
@@ -31,7 +32,7 @@ TGeoManager* FWGeometryTableViewManager::s_geoManager = nullptr;
 TGeoManager* FWGeometryTableViewManager_GetGeoManager() { return FWGeometryTableViewManager::getGeoMangeur(); }
 
 FWGeometryTableViewManager::FWGeometryTableViewManager(FWGUIManager* iGUIMgr, std::string fileName, std::string geoName)
-    : FWViewManagerBase(), m_fileName(fileName), m_TGeoName(geoName) {
+    : FWViewManagerBase(), m_fileName(std::move(fileName)), m_TGeoName(std::move(geoName)) {
   FWGUIManager::ViewBuildFunctor f;
   f = boost::bind(&FWGeometryTableViewManager::buildView, this, _1, _2);
   iGUIMgr->registerViewBuilder(FWViewType::idToName(FWViewType::kGeometryTable), f);
@@ -60,8 +61,7 @@ FWViewBase* FWGeometryTableViewManager::buildView(TEveWindowSlot* iParent, const
 }
 
 void FWGeometryTableViewManager::beingDestroyed(const FWViewBase* iView) {
-  for (std::vector<std::shared_ptr<FWGeometryTableViewBase> >::iterator it = m_views.begin(); it != m_views.end();
-       ++it) {
+  for (auto it = m_views.begin(); it != m_views.end(); ++it) {
     if (it->get() == iView) {
       m_views.erase(it);
       return;
@@ -70,8 +70,8 @@ void FWGeometryTableViewManager::beingDestroyed(const FWViewBase* iView) {
 }
 
 void FWGeometryTableViewManager::colorsChanged() {
-  for (std::vector<std::shared_ptr<FWGeometryTableViewBase> >::iterator it = m_views.begin(); it != m_views.end(); ++it)
-    (*it)->setBackgroundColor();
+  for (auto& m_view : m_views)
+    m_view->setBackgroundColor();
 }
 
 //______________________________________________________________________________

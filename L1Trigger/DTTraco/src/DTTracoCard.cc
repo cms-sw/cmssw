@@ -83,8 +83,8 @@ void DTTracoCard::setConfig(const DTConfigManager *conf) {
 
 void DTTracoCard::localClear() {
   // Clear the map
-  for (TRACO_iter p = _tracomap.begin(); p != _tracomap.end(); p++) {
-    delete (*p).second;
+  for (auto &p : _tracomap) {
+    delete p.second;
   }
   _tracomap.clear();
 }
@@ -102,7 +102,7 @@ void DTTracoCard::loadTRACO() {
 
   // loop on all BTI triggers
   std::vector<DTBtiTrigData>::const_iterator p;
-  std::vector<DTBtiTrigData>::const_iterator pend = _bticard->end();
+  auto pend = _bticard->end();
   for (p = _bticard->begin(); p != pend; p++) {
     if (debug()) {
       std::cout << "Found bti trigger: ";
@@ -273,7 +273,7 @@ DTTracoChip *DTTracoCard::activeGetTRACO(int n) {
   DTTracoId _id = DTTracoId(sid, n);
 
   DTTracoChip *traco = nullptr;
-  TRACO_iter ptraco = _tracomap.find(n);
+  auto ptraco = _tracomap.find(n);
   if (ptraco != _tracomap.end()) {
     traco = (*ptraco).second;
   } else {
@@ -284,7 +284,7 @@ DTTracoChip *DTTracoCard::activeGetTRACO(int n) {
 }
 
 DTTracoChip *DTTracoCard::getTRACO(int n) const {
-  TRACO_const_iter ptraco = _tracomap.find(n);
+  auto ptraco = _tracomap.find(n);
   if (ptraco == _tracomap.end())
     return nullptr;
   return (*ptraco).second;
@@ -296,13 +296,13 @@ std::vector<DTTracoChip *> DTTracoCard::tracoList() {
   if (size() < 1)
     return blist;
 
-  for (TRACO_const_iter p = _tracomap.begin(); p != _tracomap.end(); p++) {
+  for (auto p = _tracomap.begin(); p != _tracomap.end(); p++) {
     blist.push_back((*p).second);
   }
   return blist;
 }
 
-DTTracoTrig *DTTracoCard::storeTrigger(DTTracoTrigData td) {
+DTTracoTrig *DTTracoCard::storeTrigger(const DTTracoTrigData &td) {
   DTTracoId tracoid = td.parentId();
   if (!(tracoid.wheel() == wheel() && tracoid.sector() == sector() && tracoid.station() == station()))
     return nullptr;
@@ -435,7 +435,7 @@ LocalVector DTTracoCard::localDirection(const DTTrigData *tr) const {
 
 DTConfigTraco *DTTracoCard::config_traco(const DTTracoId &tracoid) const {
   // loop on map to find traco
-  ConfTracoMap::const_iterator titer = _conf_traco_map.find(tracoid);
+  auto titer = _conf_traco_map.find(tracoid);
   if (titer == _conf_traco_map.end()) {
     std::cout << "DTTracoCard::config_traco : TRACO (" << tracoid.wheel() << "," << tracoid.sector() << ","
               << tracoid.station() << "," << tracoid.traco() << ") not found, return 0" << std::endl;

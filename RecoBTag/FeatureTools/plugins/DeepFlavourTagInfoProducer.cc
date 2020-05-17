@@ -47,6 +47,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "RecoBTag/TrackProbability/interface/HistogramProbabilityEstimator.h"
 class HistogramProbabilityEstimator;
+#include <memory>
+
 #include <typeinfo>
 #include "CondFormats/BTauObjects/interface/TrackProbabilityCalibration.h"
 #include "CondFormats/DataRecord/interface/BTagTrackProbability2DRcd.h"
@@ -463,7 +465,8 @@ void DeepFlavourTagInfoProducer::checkEventSetup(const edm::EventSetup& iSetup) 
     iSetup.get<BTagTrackProbability2DRcd>().get(calib2DHandle);
     ESHandle<TrackProbabilityCalibration> calib3DHandle;
     iSetup.get<BTagTrackProbability3DRcd>().get(calib3DHandle);
-    probabilityEstimator_.reset(new HistogramProbabilityEstimator(calib3DHandle.product(), calib2DHandle.product()));
+    probabilityEstimator_ =
+        std::make_unique<HistogramProbabilityEstimator>(calib3DHandle.product(), calib2DHandle.product());
   }
 
   calibrationCacheId3D_ = cacheId3D;

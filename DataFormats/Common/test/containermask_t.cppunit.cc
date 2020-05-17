@@ -16,8 +16,8 @@ class testContainerMask : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
   void testVector();
   void testDetSetVector();
 };
@@ -43,12 +43,12 @@ void testContainerMask::testVector() {
   CPPUNIT_ASSERT(cMask.size() == mask.size());
 
   unsigned int index = 0;
-  for (std::vector<bool>::iterator it = mask.begin(), itEnd = mask.end(); it != itEnd; ++it, ++index) {
+  for (auto it = mask.begin(), itEnd = mask.end(); it != itEnd; ++it, ++index) {
     CPPUNIT_ASSERT(*it == cMask.mask(index));
   }
 
   index = 0;
-  for (std::vector<unsigned int>::iterator it = c.begin(), itEnd = c.end(); it != itEnd; ++it, ++index) {
+  for (auto it = c.begin(), itEnd = c.end(); it != itEnd; ++it, ++index) {
     CPPUNIT_ASSERT(mask[index] == cMask.mask(&(*it)));
   }
 
@@ -100,13 +100,12 @@ void testContainerMask::testDetSetVector() {
   CPPUNIT_ASSERT(cMask.size() == mask.size());
 
   unsigned int index = 0;
-  for (std::vector<bool>::iterator it = mask.begin(), itEnd = mask.end(); it != itEnd; ++it, ++index) {
+  for (auto it = mask.begin(), itEnd = mask.end(); it != itEnd; ++it, ++index) {
     CPPUNIT_ASSERT(*it == cMask.mask(index));
   }
 
   index = 0;
-  for (std::vector<unsigned int>::const_iterator it = c.data().begin(), itEnd = c.data().end(); it != itEnd;
-       ++it, ++index) {
+  for (auto it = c.data().begin(), itEnd = c.data().end(); it != itEnd; ++it, ++index) {
     CPPUNIT_ASSERT(mask[index] == cMask.mask(&(*it)));
   }
 

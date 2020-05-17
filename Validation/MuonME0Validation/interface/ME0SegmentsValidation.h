@@ -19,7 +19,7 @@ public:
   ~ME0SegmentsValidation() override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event &e, const edm::EventSetup &) override;
-  std::pair<int, int> isMatched(ME0DetId, LocalPoint, edm::Handle<ME0DigiPreRecoCollection>);
+  std::pair<int, int> isMatched(ME0DetId, const LocalPoint &, const edm::Handle<ME0DigiPreRecoCollection> &);
   bool isSimTrackGood(edm::SimTrackContainer::const_iterator simTrack);
   bool isSimMatched(edm::SimTrackContainer::const_iterator, edm::PSimHitContainer::const_iterator);
 

@@ -41,10 +41,8 @@ void TTClusterBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const
     std::vector<std::vector<Ref_Phase2TrackerDigi_>> lowerHits, upperHits;
 
     /// Find the hits in each stack member
-    typename std::map<DetId, std::vector<Ref_Phase2TrackerDigi_>>::const_iterator lowerHitFind =
-        rawHits.find(lowerDetid);
-    typename std::map<DetId, std::vector<Ref_Phase2TrackerDigi_>>::const_iterator upperHitFind =
-        rawHits.find(upperDetid);
+    auto lowerHitFind = rawHits.find(lowerDetid);
+    auto upperHitFind = rawHits.find(upperDetid);
 
     /// If there are hits, cluster them
     /// It is the TTClusterAlgorithm::Cluster method which
@@ -60,8 +58,8 @@ void TTClusterBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const
     {
       edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>::FastFiller lowerOutputFiller(*ttClusterDSVForOutput,
                                                                                             lowerDetid);
-      for (unsigned int i = 0; i < lowerHits.size(); i++) {
-        TTCluster<Ref_Phase2TrackerDigi_> temp(lowerHits.at(i), lowerDetid, 0, storeLocalCoord);
+      for (const auto& lowerHit : lowerHits) {
+        TTCluster<Ref_Phase2TrackerDigi_> temp(lowerHit, lowerDetid, 0, storeLocalCoord);
         lowerOutputFiller.push_back(temp);
       }
       if (lowerOutputFiller.empty())
@@ -70,8 +68,8 @@ void TTClusterBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const
     {
       edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>::FastFiller upperOutputFiller(*ttClusterDSVForOutput,
                                                                                             upperDetid);
-      for (unsigned int i = 0; i < upperHits.size(); i++) {
-        TTCluster<Ref_Phase2TrackerDigi_> temp(upperHits.at(i), upperDetid, 1, storeLocalCoord);
+      for (const auto& upperHit : upperHits) {
+        TTCluster<Ref_Phase2TrackerDigi_> temp(upperHit, upperDetid, 1, storeLocalCoord);
         upperOutputFiller.push_back(temp);
       }
       if (upperOutputFiller.empty())

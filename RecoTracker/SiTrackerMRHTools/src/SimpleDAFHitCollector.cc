@@ -43,8 +43,7 @@ vector<TrajectoryMeasurement> SimpleDAFHitCollector::recHits(const Trajectory& t
   //groups hits on a sensor by sensor with same Id of previous TM
   //we have to sort the TrajectoryMeasurements in the opposite way in the fitting direction
   vector<TrajectoryMeasurement> result;
-  for (vector<TrajectoryMeasurement>::const_reverse_iterator itrajmeas = meas.rbegin(); itrajmeas < meas.rend();
-       itrajmeas++, hitcounter++) {
+  for (auto itrajmeas = meas.rbegin(); itrajmeas < meas.rend(); itrajmeas++, hitcounter++) {
     DetId id = itrajmeas->recHit()->geographicalId();
     MeasurementDetWithData measDet = theMTE->idToDet(id);
     tracking::TempMeasurements tmps;
@@ -101,8 +100,8 @@ vector<TrajectoryMeasurement> SimpleDAFHitCollector::recHits(const Trajectory& t
         if (result.empty())
           continue;
 
-        result.push_back(TrajectoryMeasurement(
-            predtsos_fwd, std::make_shared<InvalidTrackingRecHit>(measDet.mdet().geomDet(), TrackingRecHit::missing)));
+        result.emplace_back(predtsos_fwd,
+                            std::make_shared<InvalidTrackingRecHit>(measDet.mdet().geomDet(), TrackingRecHit::missing));
       } else {
         //measurements in groups are sorted with increating chi2
         //sort( *hits.begin(), *hits.end(), TrajMeasLessEstim());
@@ -113,7 +112,7 @@ vector<TrajectoryMeasurement> SimpleDAFHitCollector::recHits(const Trajectory& t
           LogTrace("MultiRecHitCollector") << "  -> " << hits.size() << " valid hits for this sensor.";
 
         //building a MultiRecHit out of each sensor group
-        result.push_back(TrajectoryMeasurement(predtsos_fwd, theUpdator->buildMultiRecHit(hits, combtsos, measDet)));
+        result.emplace_back(predtsos_fwd, theUpdator->buildMultiRecHit(hits, combtsos, measDet));
       }
     } else {
       LogTrace("MultiRecHitCollector") << "  No measurements found in current group.";
@@ -123,8 +122,8 @@ vector<TrajectoryMeasurement> SimpleDAFHitCollector::recHits(const Trajectory& t
       if (result.empty())
         continue;
 
-      result.push_back(TrajectoryMeasurement(
-          predtsos_fwd, std::make_shared<InvalidTrackingRecHit>(measDet.mdet().geomDet(), TrackingRecHit::missing)));
+      result.emplace_back(predtsos_fwd,
+                          std::make_shared<InvalidTrackingRecHit>(measDet.mdet().geomDet(), TrackingRecHit::missing));
     }
   }
   LogTrace("MultiRecHitCollector") << " Ending SimpleDAFHitCollector::recHits >> " << result.size();
@@ -137,8 +136,8 @@ vector<TrajectoryMeasurement> SimpleDAFHitCollector::recHits(const Trajectory& t
   if (result.size() > 2) {
     int hitcounter = 0;
     //check if the vector result has more than 3 valid hits
-    for (vector<TrajectoryMeasurement>::const_iterator iimeas = result.begin(); iimeas != result.end(); ++iimeas) {
-      if (iimeas->recHit()->isValid())
+    for (const auto& iimeas : result) {
+      if (iimeas.recHit()->isValid())
         hitcounter++;
     }
 
@@ -153,7 +152,7 @@ vector<TrajectoryMeasurement> SimpleDAFHitCollector::recHits(const Trajectory& t
   }
 }
 
-void SimpleDAFHitCollector::Debug(const std::vector<TrajectoryMeasurement> TM) const {
+void SimpleDAFHitCollector::Debug(const std::vector<TrajectoryMeasurement>& TM) const {
 #ifdef EDM_ML_DEBUG
   for (vector<TrajectoryMeasurement>::const_iterator itrajmeas = TM.begin(); itrajmeas < TM.end(); itrajmeas++) {
     if (itrajmeas->recHit()->isValid()) {

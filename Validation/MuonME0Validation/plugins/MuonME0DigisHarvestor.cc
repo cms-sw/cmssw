@@ -1,5 +1,6 @@
 // system include files
 #include <memory>
+#include <utility>
 
 // user include files
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -35,7 +36,7 @@ MuonME0DigisHarvestor::MuonME0DigisHarvestor(const edm::ParameterSet &ps) {
 
 MuonME0DigisHarvestor::~MuonME0DigisHarvestor() {}
 
-TProfile *MuonME0DigisHarvestor::ComputeEff(TH1F *num, TH1F *denum, std::string nameHist) {
+TProfile *MuonME0DigisHarvestor::ComputeEff(TH1F *num, TH1F *denum, const std::string &nameHist) {
   std::string name = "eff_" + nameHist;
   std::string title = "Digi Efficiency" + std::string(num->GetTitle());
   TProfile *efficHist = new TProfile(name.c_str(),
@@ -72,7 +73,7 @@ TProfile *MuonME0DigisHarvestor::ComputeEff(TH1F *num, TH1F *denum, std::string 
 void MuonME0DigisHarvestor::ProcessBooking(
     DQMStore::IBooker &ibooker, DQMStore::IGetter &ig, std::string nameHist, TH1F *num, TH1F *den) {
   if (num != nullptr && den != nullptr) {
-    TProfile *profile = ComputeEff(num, den, nameHist);
+    TProfile *profile = ComputeEff(num, den, std::move(nameHist));
 
     TString x_axis_title = TString(num->GetXaxis()->GetTitle());
     TString title = TString::Format("Digi Efficiency;%s;Eff.", x_axis_title.Data());
@@ -92,7 +93,7 @@ void MuonME0DigisHarvestor::ProcessBooking(
   return;
 }
 
-TH1F *MuonME0DigisHarvestor::ComputeBKG(TH1F *hist1, TH1F *hist2, std::string nameHist) {
+TH1F *MuonME0DigisHarvestor::ComputeBKG(TH1F *hist1, TH1F *hist2, const std::string &nameHist) {
   std::string name = "rate_" + nameHist;
   hist1->SetName(name.c_str());
   for (int bin = 1; bin <= hist1->GetNbinsX(); ++bin) {
@@ -114,7 +115,7 @@ TH1F *MuonME0DigisHarvestor::ComputeBKG(TH1F *hist1, TH1F *hist2, std::string na
 void MuonME0DigisHarvestor::ProcessBookingBKG(
     DQMStore::IBooker &ibooker, DQMStore::IGetter &ig, std::string nameHist, TH1F *hist1, TH1F *hist2) {
   if (hist1 != nullptr && hist2 != nullptr) {
-    TH1F *rate = ComputeBKG(hist1, hist2, nameHist);
+    TH1F *rate = ComputeBKG(hist1, hist2, std::move(nameHist));
 
     TString x_axis_title = TString(hist1->GetXaxis()->GetTitle());
     TString origTitle = TString(hist1->GetTitle());
@@ -156,10 +157,10 @@ void MuonME0DigisHarvestor::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGet
     edm::LogWarning("MuonME0DigisHarvestor")
         << "Can not find histograms: " << eta_label_num_tot << " or " << eta_label_den_tot;
 
-  for (int i = 0; i < 2; i++) {
-    for (int j = 0; j < 6; j++) {
-      TString eta_label_den = TString(dbe_path_) + "me0_strip_dg_den_eta" + r_suffix[i] + l_suffix[j];
-      TString eta_label_num = TString(dbe_path_) + "me0_strip_dg_num_eta" + r_suffix[i] + l_suffix[j];
+  for (auto &i : r_suffix) {
+    for (auto &j : l_suffix) {
+      TString eta_label_den = TString(dbe_path_) + "me0_strip_dg_den_eta" + i + j;
+      TString eta_label_num = TString(dbe_path_) + "me0_strip_dg_num_eta" + i + j;
 
       if (ig.get(eta_label_num.Data()) != nullptr && ig.get(eta_label_den.Data()) != nullptr) {
         TH1F *num_vs_eta = (TH1F *)ig.get(eta_label_num.Data())->getTH1F()->Clone();
@@ -167,8 +168,8 @@ void MuonME0DigisHarvestor::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGet
         TH1F *den_vs_eta = (TH1F *)ig.get(eta_label_den.Data())->getTH1F()->Clone();
         den_vs_eta->Sumw2();
 
-        std::string r_s = r_suffix[i];
-        std::string l_s = l_suffix[j];
+        std::string r_s = i;
+        std::string l_s = j;
         std::string name = "me0_strip_dg_eta" + r_s + l_s;
         ProcessBooking(ibooker, ig, name, num_vs_eta, den_vs_eta);
 

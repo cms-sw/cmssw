@@ -179,7 +179,7 @@ void CSCDDUEventData::unpack_data(const uint16_t* buf, CSCDCCExaminer* examiner)
     DDUIdType dduID = theDDUHeader.source_id();
 
     std::map<DDUIdType, std::map<CSCIdType, const uint16_t*> > ddus = examiner->DMB_block();
-    std::map<DDUIdType, std::map<CSCIdType, const uint16_t*> >::iterator ddu_itr = ddus.find(dduID);
+    auto ddu_itr = ddus.find(dduID);
     const uint16_t* dduBlock = (const uint16_t*)((examiner->DDU_block())[dduID]);
     uint32_t dduBufSize = (examiner->DDU_size())[dduID];
 
@@ -201,7 +201,7 @@ void CSCDDUEventData::unpack_data(const uint16_t* buf, CSCDCCExaminer* examiner)
             continue;
           }
 
-          theData.push_back(CSCEventData(pos, theFormatVersion));
+          theData.emplace_back(pos, theFormatVersion);
         }
       }
 
@@ -243,7 +243,7 @@ void CSCDDUEventData::unpack_data(const uint16_t* buf, CSCDCCExaminer* examiner)
       // ++i;
       if (debug)
         LogTrace("CSCDDUEventData|CSCRawToDigi") << "unpack csc data loop started";
-      theData.push_back(CSCEventData(buf));
+      theData.emplace_back(buf);
       buf += (theData.back()).size();
       if (debug) {
         LogTrace("CSCDDUEventData|CSCRawToDigi") << "size of vector of cscData = " << theData.size();
@@ -311,8 +311,8 @@ boost::dynamic_bitset<> CSCDDUEventData::pack() {
   //std::cout <<"printing out ddu header words via bitset"<<std::endl;
   //bitset_utilities::printWords(result);
 
-  for (unsigned int i = 0; i < theData.size(); ++i) {
-    result = bitset_utilities::append(result, theData[i].pack());
+  for (auto& i : theData) {
+    result = bitset_utilities::append(result, i.pack());
   }
   theSizeInWords = result.size() / 16 + theDDUTrailer.sizeInWords();
   // 64-bit word count

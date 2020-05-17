@@ -139,7 +139,7 @@ namespace edm {
     /// slow interface
     /// The iterator returned can not safely be used across threads
     const_iterator find(id_type i) const {
-      const_IdIter p = std::lower_bound(m_ids.begin(), m_ids.end(), i);
+      auto p = std::lower_bound(m_ids.begin(), m_ids.end(), i);
       return (p == m_ids.end() || (*p) != i)
                  ? end()
                  : boost::make_transform_iterator(boost::counting_iterator<int>(p - m_ids.begin()), IterHelp(*this));

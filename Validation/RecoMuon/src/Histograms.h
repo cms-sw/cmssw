@@ -17,6 +17,8 @@
 
 #include "DataFormats/GeometryVector/interface/Pi.h"
 #include <iostream>
+#include <utility>
+
 #include <vector>
 #include <cmath>
 
@@ -25,8 +27,8 @@ public:
   typedef dqm::legacy::DQMStore DQMStore;
   typedef dqm::legacy::MonitorElement MonitorElement;
 
-  HTrackVariables(DQMStore::IBooker &ibooker, std::string dirName_, std::string name, std::string whereIs = "")
-      : theName(name), where(whereIs) {
+  HTrackVariables(DQMStore::IBooker &ibooker, const std::string &dirName_, std::string name, std::string whereIs = "")
+      : theName(std::move(name)), where(std::move(whereIs)) {
     ibooker.cd();
     const std::string &dirName = dirName_;
     //dirName+="/";
@@ -151,8 +153,8 @@ public:
   typedef dqm::legacy::DQMStore DQMStore;
   typedef dqm::legacy::MonitorElement MonitorElement;
 
-  HResolution(DQMStore::IBooker &ibooker, std::string dirName_, std::string name, std::string whereIs)
-      : theName(name), where(whereIs) {
+  HResolution(DQMStore::IBooker &ibooker, const std::string &dirName_, std::string name, std::string whereIs)
+      : theName(std::move(name)), where(std::move(whereIs)) {
     ibooker.cd();
     const std::string &dirName = dirName_;
     //dirName+="/";
@@ -219,7 +221,7 @@ public:
         theName + "_Phi_vs_Eta" + where, "#phi " + theName + " as a function of #eta", 200, -2.5, 2.5, nphi, -phi, phi);
   }
 
-  HResolution(DQMStore::IBooker &ibooker, std::string name, TFile *file) : theName(name) {
+  HResolution(DQMStore::IBooker &ibooker, std::string name, TFile *file) : theName(std::move(name)) {
     //    dynamic_cast<TH1F*>( file->Get(theName+"") );
   }
 
@@ -301,7 +303,7 @@ public:
   typedef dqm::legacy::DQMStore DQMStore;
   typedef dqm::legacy::MonitorElement MonitorElement;
 
-  HResolution1DRecHit(DQMStore::IBooker &ibooker, std::string name) : theName(name) {
+  HResolution1DRecHit(DQMStore::IBooker &ibooker, std::string name) : theName(std::move(name)) {
     // Position, sigma, residual, pull
     hResX = ibooker.book1D(theName + "_X_Res", "X residual", 5000, -0.5, 0.5);
     hResY = ibooker.book1D(theName + "_Y_Res", "Y residual", 5000, -1., 1.);

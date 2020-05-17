@@ -25,7 +25,7 @@ void test_NoiseBuilder::analyze(const edm::Event& event, const edm::EventSetup& 
   noise->getDetIds(det_ids);
 
   // Iterate through DetIds
-  vector<uint32_t>::const_iterator det_id = det_ids.begin();
+  auto det_id = det_ids.begin();
   for (; det_id != det_ids.end(); det_id++) {
     // Retrieve noise for given DetId
     SiStripNoises::Range range = noise->getRange(*det_id);

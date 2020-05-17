@@ -23,9 +23,9 @@ public:
   FilterByLTC(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~FilterByLTC();
+  ~FilterByLTC() override;
 
-  virtual bool filter(edm::Event& event, const edm::EventSetup& eventSetup);
+  bool filter(edm::Event& event, const edm::EventSetup& eventSetup) override;
 
 private:
   // counters

@@ -82,7 +82,7 @@ public:
     CountLSFifo_t(unsigned int sz = 3) : std::deque<CountLS_t>(), targetSize_(sz) {}
     unsigned int targetSize() const { return targetSize_; };
     double getCount(int ls) {
-      CountLSFifo_t::iterator p = std::find(this->begin(), this->end(), ls);
+      auto p = std::find(this->begin(), this->end(), ls);
       if (p != end())
         return p->second;
       else
@@ -91,7 +91,7 @@ public:
 
     void update(const CountLS_t &T) {
       // do we already have data for this LS?
-      CountLSFifo_t::iterator p = std::find(this->begin(), this->end(), T.first);
+      auto p = std::find(this->begin(), this->end(), T.first);
       if (p != this->end()) {  // we already have data for this LS
         p->second = T.second;
       } else {  // new data

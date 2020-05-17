@@ -64,15 +64,13 @@ namespace {
                          NbRows);
 
         double row = NbRows - 0.5;
-        for (std::vector<AlignTransform>::const_iterator it = (*payload).m_align.begin();
-             it != (*payload).m_align.end();
-             it++) {
-          align->Fill(0.5, row, (*it).translation().x());
-          align->Fill(1.5, row, (*it).translation().y());
-          align->Fill(2.5, row, (*it).translation().z());
-          align->Fill(3.5, row, (*it).rotation().getPhi());
-          align->Fill(4.5, row, (*it).rotation().getTheta());
-          align->Fill(5.5, row, (*it).rotation().getPsi());
+        for (const auto& it : (*payload).m_align) {
+          align->Fill(0.5, row, it.translation().x());
+          align->Fill(1.5, row, it.translation().y());
+          align->Fill(2.5, row, it.translation().z());
+          align->Fill(3.5, row, it.rotation().getPhi());
+          align->Fill(4.5, row, it.rotation().getTheta());
+          align->Fill(5.5, row, it.rotation().getPsi());
           row = row - 1.;
         }
       }  // if payload.get()
@@ -165,23 +163,21 @@ namespace {
 
           double row = NbRows - 0.5;
           int irow = 0;
-          for (std::vector<AlignTransform>::const_iterator it = (*payload).m_align.begin();
-               it != (*payload).m_align.end();
-               it++) {
+          for (const auto& it : (*payload).m_align) {
             if (irun == 0) {
-              val[0][irow] = (*it).translation().x();
-              val[1][irow] = (*it).translation().y();
-              val[2][irow] = (*it).translation().z();
-              val[3][irow] = (*it).rotation().getPhi();
-              val[4][irow] = (*it).rotation().getTheta();
-              val[5][irow] = (*it).rotation().getPsi();
+              val[0][irow] = it.translation().x();
+              val[1][irow] = it.translation().y();
+              val[2][irow] = it.translation().z();
+              val[3][irow] = it.rotation().getPhi();
+              val[4][irow] = it.rotation().getTheta();
+              val[5][irow] = it.rotation().getPsi();
             } else {
-              align->Fill(0.5, row, (*it).translation().x() - val[0][irow]);
-              align->Fill(1.5, row, (*it).translation().y() - val[1][irow]);
-              align->Fill(2.5, row, (*it).translation().z() - val[2][irow]);
-              align->Fill(3.5, row, (*it).rotation().getPhi() - val[3][irow]);
-              align->Fill(4.5, row, (*it).rotation().getTheta() - val[3][irow]);
-              align->Fill(5.5, row, (*it).rotation().getPsi() - val[5][irow]);
+              align->Fill(0.5, row, it.translation().x() - val[0][irow]);
+              align->Fill(1.5, row, it.translation().y() - val[1][irow]);
+              align->Fill(2.5, row, it.translation().z() - val[2][irow]);
+              align->Fill(3.5, row, it.rotation().getPhi() - val[3][irow]);
+              align->Fill(4.5, row, it.rotation().getTheta() - val[3][irow]);
+              align->Fill(5.5, row, it.rotation().getPsi() - val[5][irow]);
               row = row - 1.;
             }
             irow++;

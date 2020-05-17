@@ -128,19 +128,19 @@ void DTClusAnalyzer::analyze(const Event& event, const EventSetup& eventSetup) {
   // only clusters
   int nClus = dtClusters->size();
   histo("hnClus")->Fill(nClus);
-  for (DTRecClusterCollection::const_iterator clus = dtClusters->begin(); clus != dtClusters->end(); ++clus) {
-    histo("hClusPosX")->Fill((*clus).localPosition().x());
-    histo("hClusRms")->Fill(sqrt((*clus).localPositionError().xx()));
-    histo("hClusNHits")->Fill((*clus).nHits());
+  for (const auto& clus : *dtClusters) {
+    histo("hClusPosX")->Fill(clus.localPosition().x());
+    histo("hClusRms")->Fill(sqrt(clus.localPositionError().xx()));
+    histo("hClusNHits")->Fill(clus.nHits());
   }
 
   // only segments
   int nSeg = segs2d->size();
   histo("hnSeg")->Fill(nSeg);
-  for (DTRecSegment2DCollection::const_iterator seg = segs2d->begin(); seg != segs2d->end(); ++seg) {
-    histo("hSegPosX")->Fill((*seg).localPosition().x());
-    histo("hSegRms")->Fill(sqrt((*seg).localPositionError().xx()));
-    histo("hSegNHits")->Fill((*seg).recHits().size());
+  for (const auto& seg : *segs2d) {
+    histo("hSegPosX")->Fill(seg.localPosition().x());
+    histo("hSegRms")->Fill(sqrt(seg.localPositionError().xx()));
+    histo("hSegNHits")->Fill(seg.recHits().size());
   }
 
   int nHit = dtRecHits->size();
@@ -152,8 +152,8 @@ void DTClusAnalyzer::analyze(const Event& event, const EventSetup& eventSetup) {
 
   // loop over SL and get hits, clus and segs2d for each
   const std::vector<const DTSuperLayer*>& sls = dtGeom->superLayers();
-  for (auto sl = sls.begin(); sl != sls.end(); ++sl) {
-    DTSuperLayerId slid((*sl)->id());
+  for (auto sl : sls) {
+    DTSuperLayerId slid(sl->id());
 
     // Hits 1d in this sl
     // SL: apparently I have to loop over the 4 layers!! What the Fuck!

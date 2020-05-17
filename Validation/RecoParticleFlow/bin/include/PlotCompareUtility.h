@@ -19,8 +19,8 @@ public:
   // BasePath = the path to data in the DQM root file (eg.,
   // "DQMData/METTask/ECAL/data") Prefix = the prefix common to all histograms
   // in area (eg., "METTask_" or "")
-  PlotCompareUtility(std::string Reference,
-                     std::string New,
+  PlotCompareUtility(const std::string &Reference,
+                     const std::string &New,
                      std::string NewBasePath,
                      std::string NewPrefix = "",
                      std::string RefBasePath = "",
@@ -94,8 +94,8 @@ public:
   void setPlotsBottomMargin(int Pixels) { plotsBottomMargin = Pixels; }
 
   // Add HistoData Objects for Comparison
-  HistoData *addHistoData(std::string NewName, std::string RefName, int PlotType);
-  HistoData *addHistoData(std::string Name, int PlotType) { return addHistoData(Name, Name, PlotType); }
+  HistoData *addHistoData(const std::string &NewName, const std::string &RefName, int PlotType);
+  HistoData *addHistoData(const std::string &Name, int PlotType) { return addHistoData(Name, Name, PlotType); }
   HistoData *addProjectionXData(
       HistoData *Parent, std::string Name, int PlotType, int Bin, TH1 *NewHisto, TH1 *RefHisto);
   HistoData *addProjectionYData(
@@ -109,9 +109,9 @@ public:
   void makeDefaultPlots();
   void makePlots(HistoData *);
   void makeHTML(HistoData *);
-  void makeSummary(std::string Name);
-  void makeSummaryPlot(std::string Name);
-  void makeSummaryHTML(std::string Name);
+  void makeSummary(const std::string &Name);
+  void makeSummaryPlot(const std::string &Name);
+  void makeSummaryHTML(const std::string &Name);
   // void makeProjectionsSummary();
   // void makeProjectionsSummaryPlots();
   // void makeProjectionsSummaryHTML();

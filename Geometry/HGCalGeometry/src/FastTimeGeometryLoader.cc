@@ -15,7 +15,7 @@ FastTimeGeometryLoader::~FastTimeGeometryLoader() {}
 
 FastTimeGeometry* FastTimeGeometryLoader::build(const FastTimeTopology& topology) {
   // allocate geometry
-  FastTimeGeometry* geom = new FastTimeGeometry(topology);
+  auto* geom = new FastTimeGeometry(topology);
   unsigned int numberOfCells = topology.totalGeomModules();  // both sides
   int detType = topology.detectorType();
 #ifdef EDM_ML_DEBUG

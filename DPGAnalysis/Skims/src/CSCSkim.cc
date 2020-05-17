@@ -373,15 +373,15 @@ bool CSCSkim::filter(edm::Event& event, const edm::EventSetup& eventSetup) {
 //
 // ==============================================
 
-bool CSCSkim::doCSCSkimming(edm::Handle<CSCRecHit2DCollection> cscRecHits,
-                            edm::Handle<CSCSegmentCollection> cscSegments) {
+bool CSCSkim::doCSCSkimming(const edm::Handle<CSCRecHit2DCollection>& cscRecHits,
+                            const edm::Handle<CSCSegmentCollection>& cscSegments) {
   // how many RecHits in the collection?
   int nRecHits = cscRecHits->size();
 
   // zero the recHit counter
   int cntRecHit[600];
-  for (int i = 0; i < 600; i++) {
-    cntRecHit[i] = 0;
+  for (int& i : cntRecHit) {
+    i = 0;
   }
 
   // ---------------------
@@ -508,7 +508,7 @@ bool CSCSkim::doCSCSkimming(edm::Handle<CSCRecHit2DCollection> cscRecHits,
 // A module to select events useful in aligning chambers relative to each other
 // using the overlap regions at the edges (in Xlocal) of the chamber.
 //-------------------------------------------------------------------------------
-bool CSCSkim::doOverlapSkimming(edm::Handle<CSCSegmentCollection> cscSegments) {
+bool CSCSkim::doOverlapSkimming(const edm::Handle<CSCSegmentCollection>& cscSegments) {
   const int nhitsMinimum = 4;
   const float chisqMaximum = 100.;
   const int nAllMaximum = 3;
@@ -527,9 +527,9 @@ bool CSCSkim::doOverlapSkimming(edm::Handle<CSCSegmentCollection> cscSegments) {
   // -----------------------
   // loop over segments
   // -----------------------
-  for (CSCSegmentCollection::const_iterator it = cscSegments->begin(); it != cscSegments->end(); it++) {
+  for (const auto& it : *cscSegments) {
     // which chamber?
-    CSCDetId id = (CSCDetId)(*it).cscDetId();
+    CSCDetId id = (CSCDetId)it.cscDetId();
     int kEndcap = id.endcap();
     int kStation = id.station();
     int kRing = id.ring();
@@ -537,8 +537,8 @@ bool CSCSkim::doOverlapSkimming(edm::Handle<CSCSegmentCollection> cscSegments) {
     int kSerial = chamberSerial(kEndcap, kStation, kRing, kChamber);
 
     // segment information
-    float chisq = (*it).chi2();
-    int nhits = (*it).nRecHits();
+    float chisq = it.chi2();
+    int nhits = it.nRecHits();
 
     // is this a good segment?
     bool goodSegment = (nhits >= nhitsMinimum) && (chisq < chisqMaximum);
@@ -566,8 +566,8 @@ bool CSCSkim::doOverlapSkimming(edm::Handle<CSCSegmentCollection> cscSegments) {
 
   // does any chamber have too many segments?
   bool messyChamber = false;
-  for (int i = 0; i < 600; i++) {
-    if (nAll[i] > nAllMaximum)
+  for (int i : nAll) {
+    if (i > nAllMaximum)
       messyChamber = true;
   }
 
@@ -590,15 +590,15 @@ bool CSCSkim::doOverlapSkimming(edm::Handle<CSCSegmentCollection> cscSegments) {
 // of recHits and larger number of chambers with hits.
 //
 //============================================================
-bool CSCSkim::doMessyEventSkimming(edm::Handle<CSCRecHit2DCollection> cscRecHits,
-                                   edm::Handle<CSCSegmentCollection> cscSegments) {
+bool CSCSkim::doMessyEventSkimming(const edm::Handle<CSCRecHit2DCollection>& cscRecHits,
+                                   const edm::Handle<CSCSegmentCollection>& cscSegments) {
   // how many RecHits in the collection?
   int nRecHits = cscRecHits->size();
 
   // zero the recHit counter
   int cntRecHit[600];
-  for (int i = 0; i < 600; i++) {
-    cntRecHit[i] = 0;
+  for (int& i : cntRecHit) {
+    i = 0;
   }
 
   // ---------------------
@@ -726,12 +726,12 @@ bool CSCSkim::doMessyEventSkimming(edm::Handle<CSCRecHit2DCollection> cscRecHits
 // Select events with DIGIs are a particular chamber.
 //
 //============================================================
-bool CSCSkim::doCertainChamberSelection(edm::Handle<CSCWireDigiCollection> wires,
-                                        edm::Handle<CSCStripDigiCollection> strips) {
+bool CSCSkim::doCertainChamberSelection(const edm::Handle<CSCWireDigiCollection>& wires,
+                                        const edm::Handle<CSCStripDigiCollection>& strips) {
   // Loop through the wire DIGIs, looking for a match
   bool certainChamberIsPresentInWires = false;
-  for (CSCWireDigiCollection::DigiRangeIterator jw = wires->begin(); jw != wires->end(); jw++) {
-    CSCDetId id = (CSCDetId)(*jw).first;
+  for (auto&& jw : *wires) {
+    CSCDetId id = (CSCDetId)jw.first;
     int kEndcap = id.endcap();
     int kRing = id.ring();
     int kStation = id.station();
@@ -743,8 +743,8 @@ bool CSCSkim::doCertainChamberSelection(edm::Handle<CSCWireDigiCollection> wires
 
   // Loop through the strip DIGIs, looking for a match
   bool certainChamberIsPresentInStrips = false;
-  for (CSCStripDigiCollection::DigiRangeIterator js = strips->begin(); js != strips->end(); js++) {
-    CSCDetId id = (CSCDetId)(*js).first;
+  for (auto&& js : *strips) {
+    CSCDetId id = (CSCDetId)js.first;
     int kEndcap = id.endcap();
     int kRing = id.ring();
     int kStation = id.station();
@@ -764,7 +764,7 @@ bool CSCSkim::doCertainChamberSelection(edm::Handle<CSCWireDigiCollection> wires
 // Select events which *might* probe the DT-CSC overlap region.
 //
 //============================================================
-bool CSCSkim::doDTOverlap(Handle<CSCSegmentCollection> cscSegments) {
+bool CSCSkim::doDTOverlap(const Handle<CSCSegmentCollection>& cscSegments) {
   const float chisqMax = 100.;
   const int nhitsMin = 5;
   const int maxNSegments = 3;
@@ -794,16 +794,16 @@ bool CSCSkim::doDTOverlap(Handle<CSCSegmentCollection> cscSegments) {
   if (nSegments < 2)
     return DTOverlapCandidate;
 
-  for (CSCSegmentCollection::const_iterator it = cscSegments->begin(); it != cscSegments->end(); it++) {
+  for (const auto& it : *cscSegments) {
     // which chamber?
-    CSCDetId id = (CSCDetId)(*it).cscDetId();
+    CSCDetId id = (CSCDetId)it.cscDetId();
     int kEndcap = id.endcap();
     int kStation = id.station();
     int kRing = id.ring();
     int kChamber = id.chamber();
     // segment information
-    float chisq = (*it).chi2();
-    int nhits = (*it).nRecHits();
+    float chisq = it.chi2();
+    int nhits = it.nRecHits();
     bool goodSegment = (chisq < chisqMax) && (nhits >= nhitsMin);
     if (goodSegment) {
       if ((kStation == 1) && (kRing == 3)) {
@@ -883,7 +883,7 @@ bool CSCSkim::doDTOverlap(Handle<CSCSegmentCollection> cscSegments) {
 // stations 1, 2, 3 and 4.
 //
 //============================================================
-bool CSCSkim::doHaloLike(Handle<CSCSegmentCollection> cscSegments) {
+bool CSCSkim::doHaloLike(const Handle<CSCSegmentCollection>& cscSegments) {
   const float chisqMax = 100.;
   const int nhitsMin = 5;      // on a segment
   const int maxNSegments = 3;  // in a chamber
@@ -920,16 +920,16 @@ bool CSCSkim::doHaloLike(Handle<CSCSegmentCollection> cscSegments) {
   if (nSegments < 4)
     return HaloLike;
 
-  for (CSCSegmentCollection::const_iterator it = cscSegments->begin(); it != cscSegments->end(); it++) {
+  for (const auto& it : *cscSegments) {
     // which chamber?
-    CSCDetId id = (CSCDetId)(*it).cscDetId();
+    CSCDetId id = (CSCDetId)it.cscDetId();
     int kEndcap = id.endcap();
     int kStation = id.station();
     int kRing = id.ring();
     int kChamber = id.chamber();
     // segment information
-    float chisq = (*it).chi2();
-    int nhits = (*it).nRecHits();
+    float chisq = it.chi2();
+    int nhits = it.nRecHits();
     bool goodSegment = (chisq < chisqMax) && (nhits >= nhitsMin);
     if (goodSegment) {
       if ((kStation == 1) && (kRing == 1)) {
@@ -1041,7 +1041,7 @@ bool CSCSkim::doHaloLike(Handle<CSCSegmentCollection> cscSegments) {
 //--------------------------------------------------------------
 // select events with at least one "long" stand-alone muon
 //--------------------------------------------------------------
-bool CSCSkim::doLongSATrack(edm::Handle<reco::TrackCollection> saMuons) {
+bool CSCSkim::doLongSATrack(const edm::Handle<reco::TrackCollection>& saMuons) {
   const float zDistanceMax = 2500.;
   const float zDistanceMin = 700.;
   const int nCSCHitsMin = 25;
@@ -1056,13 +1056,13 @@ bool CSCSkim::doLongSATrack(edm::Handle<reco::TrackCollection> saMuons) {
 
   int nNiceMuons = 0;
 
-  for (reco::TrackCollection::const_iterator muon = saMuons->begin(); muon != saMuons->end(); ++muon) {
+  for (const auto& muon : *saMuons) {
     // basic information
-    math::XYZVector innerMo = muon->innerMomentum();
+    math::XYZVector innerMo = muon.innerMomentum();
     GlobalVector im(innerMo.x(), innerMo.y(), innerMo.z());
-    math::XYZPoint innerPo = muon->innerPosition();
+    math::XYZPoint innerPo = muon.innerPosition();
     GlobalPoint ip(innerPo.x(), innerPo.y(), innerPo.z());
-    math::XYZPoint outerPo = muon->outerPosition();
+    math::XYZPoint outerPo = muon.outerPosition();
     GlobalPoint op(outerPo.x(), outerPo.y(), outerPo.z());
     float zInner = ip.z();
     float zOuter = op.z();
@@ -1071,7 +1071,7 @@ bool CSCSkim::doLongSATrack(edm::Handle<reco::TrackCollection> saMuons) {
     // loop over hits
     int nDTHits = 0;
     int nCSCHits = 0;
-    for (trackingRecHit_iterator hit = muon->recHitsBegin(); hit != muon->recHitsEnd(); ++hit) {
+    for (auto hit = muon.recHitsBegin(); hit != muon.recHitsEnd(); ++hit) {
       const DetId detId((*hit)->geographicalId());
       if (detId.det() == DetId::Muon) {
         if (detId.subdetId() == MuonSubdetId::DT) {
@@ -1107,27 +1107,27 @@ bool CSCSkim::doLongSATrack(edm::Handle<reco::TrackCollection> saMuons) {
 //
 //  D.Dibur and M.Schmitt
 //============================================================
-bool CSCSkim::doBFieldStudySelection(edm::Handle<reco::TrackCollection> saMuons,
-                                     edm::Handle<reco::TrackCollection> tracks,
-                                     edm::Handle<reco::MuonCollection> gMuons) {
+bool CSCSkim::doBFieldStudySelection(const edm::Handle<reco::TrackCollection>& saMuons,
+                                     const edm::Handle<reco::TrackCollection>& tracks,
+                                     const edm::Handle<reco::MuonCollection>& gMuons) {
   bool acceptThisEvent = false;
 
   //-----------------------------------
   // examine the stand-alone tracks
   //-----------------------------------
   int nGoodSAMuons = 0;
-  for (reco::TrackCollection::const_iterator muon = saMuons->begin(); muon != saMuons->end(); ++muon) {
-    float preco = muon->p();
+  for (const auto& muon : *saMuons) {
+    float preco = muon.p();
 
-    math::XYZPoint innerPo = muon->innerPosition();
+    math::XYZPoint innerPo = muon.innerPosition();
     GlobalPoint iPnt(innerPo.x(), innerPo.y(), innerPo.z());
-    math::XYZPoint outerPo = muon->outerPosition();
+    math::XYZPoint outerPo = muon.outerPosition();
     GlobalPoint oPnt(outerPo.x(), outerPo.y(), outerPo.z());
     float zLength = abs(iPnt.z() - oPnt.z());
 
-    math::XYZVector innerMom = muon->innerMomentum();
+    math::XYZVector innerMom = muon.innerMomentum();
     GlobalVector iP(innerMom.x(), innerMom.y(), innerMom.z());
-    math::XYZVector outerMom = muon->outerMomentum();
+    math::XYZVector outerMom = muon.outerMomentum();
     GlobalVector oP(outerMom.x(), outerMom.y(), outerMom.z());
 
     const float zRef = 300.;
@@ -1157,7 +1157,7 @@ bool CSCSkim::doBFieldStudySelection(edm::Handle<reco::TrackCollection> saMuons,
     int kHit = 0;
     int nDTHits = 0;
     int nCSCHits = 0;
-    for (trackingRecHit_iterator hit = muon->recHitsBegin(); hit != muon->recHitsEnd(); ++hit) {
+    for (auto hit = muon.recHitsBegin(); hit != muon.recHitsEnd(); ++hit) {
       ++kHit;
       const DetId detId((*hit)->geographicalId());
       if (detId.det() == DetId::Muon) {
@@ -1191,19 +1191,19 @@ bool CSCSkim::doBFieldStudySelection(edm::Handle<reco::TrackCollection> saMuons,
   // examine the tracker tracks
   //-----------------------------------
   int nGoodTracks = 0;
-  for (reco::TrackCollection::const_iterator track = tracks->begin(); track != tracks->end(); ++track) {
-    float preco = track->p();
-    int n = track->recHitsSize();
+  for (const auto& track : *tracks) {
+    float preco = track.p();
+    int n = track.recHitsSize();
 
-    math::XYZPoint innerPo = track->innerPosition();
+    math::XYZPoint innerPo = track.innerPosition();
     GlobalPoint iPnt(innerPo.x(), innerPo.y(), innerPo.z());
-    math::XYZPoint outerPo = track->outerPosition();
+    math::XYZPoint outerPo = track.outerPosition();
     GlobalPoint oPnt(outerPo.x(), outerPo.y(), outerPo.z());
     float zLength = abs(iPnt.z() - oPnt.z());
 
-    math::XYZVector innerMom = track->innerMomentum();
+    math::XYZVector innerMom = track.innerMomentum();
     GlobalVector iP(innerMom.x(), innerMom.y(), innerMom.z());
-    math::XYZVector outerMom = track->outerMomentum();
+    math::XYZVector outerMom = track.outerMomentum();
     GlobalVector oP(outerMom.x(), outerMom.y(), outerMom.z());
 
     const float zRef = 300.;
@@ -1242,11 +1242,11 @@ bool CSCSkim::doBFieldStudySelection(edm::Handle<reco::TrackCollection> saMuons,
   // examine the global muons
   //-----------------------------------
   int nGoodGlobalMuons = 0;
-  for (reco::MuonCollection::const_iterator global = gMuons->begin(); global != gMuons->end(); ++global) {
-    if (global->isGlobalMuon()) {
-      float pDef = global->p();
-      float redChiSq = global->globalTrack()->normalizedChi2();
-      const reco::HitPattern& hp = (global->globalTrack())->hitPattern();
+  for (const auto& global : *gMuons) {
+    if (global.isGlobalMuon()) {
+      float pDef = global.p();
+      float redChiSq = global.globalTrack()->normalizedChi2();
+      const reco::HitPattern& hp = (global.globalTrack())->hitPattern();
       // int nTotalHits = hp.numberOfHits();
       //    int nValidHits = hp.numberOfValidHits();
       int nTrackerHits = hp.numberOfValidTrackerHits();
@@ -1255,9 +1255,7 @@ bool CSCSkim::doBFieldStudySelection(edm::Handle<reco::TrackCollection> saMuons,
 
       int nDTHits = 0;
       int nCSCHits = 0;
-      for (trackingRecHit_iterator hit = (global->globalTrack())->recHitsBegin();
-           hit != (global->globalTrack())->recHitsEnd();
-           ++hit) {
+      for (auto hit = (global.globalTrack())->recHitsBegin(); hit != (global.globalTrack())->recHitsEnd(); ++hit) {
         const DetId detId((*hit)->geographicalId());
         if (detId.det() == DetId::Muon) {
           if (detId.subdetId() == MuonSubdetId::DT) {

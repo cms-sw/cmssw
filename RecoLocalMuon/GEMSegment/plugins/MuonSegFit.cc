@@ -41,7 +41,7 @@ void MuonSegFit::fit2(void) {
   // should be done before, so removed
   // -------------------------------------------
 
-  MuonRecHitContainer::const_iterator ih = hits_.begin();
+  auto ih = hits_.begin();
   // 2) Global Positions of hit 1 and 2 and
   //    Local  Positions of hit 1 and 2 w.r.t. reference GEM Eta Partition
   // ---------------------------------------------------------------------
@@ -138,7 +138,7 @@ void MuonSegFit::fitlsq(void) {
   SMatrix4 M;  // 4x4, init to 0
   SVector4 B;  // 4x1, init to 0;
 
-  MuonRecHitContainer::const_iterator ih = hits_.begin();
+  auto ih = hits_.begin();
 
   // Loop over the GEMRecHits and make small (2x2) matrices used to fill the blockdiagonal covariance matrix E^-1
   for (ih = hits_.begin(); ih != hits_.end(); ++ih) {
@@ -299,13 +299,13 @@ MuonSegFit::SMatrixSym12 MuonSegFit::weightMatrix() {
 
   int row = 0;
 
-  for (MuonRecHitContainer::const_iterator it = hits_.begin(); it != hits_.end(); ++it) {
+  for (const auto& hit : hits_) {
     // Note scaleXError allows rescaling the x error if necessary
-    matrix(row, row) = scaleXError() * (*it)->localPositionError().xx();
-    matrix(row, row + 1) = (*it)->localPositionError().xy();
+    matrix(row, row) = scaleXError() * hit->localPositionError().xx();
+    matrix(row, row + 1) = hit->localPositionError().xy();
     ++row;
-    matrix(row, row - 1) = (*it)->localPositionError().xy();
-    matrix(row, row) = (*it)->localPositionError().yy();
+    matrix(row, row - 1) = hit->localPositionError().xy();
+    matrix(row, row) = hit->localPositionError().yy();
     ++row;
   }
 
@@ -321,8 +321,8 @@ MuonSegFit::SMatrix12by4 MuonSegFit::derivativeMatrix() {
   SMatrix12by4 matrix;  // 12x4, init to 0
   int row = 0;
 
-  for (MuonRecHitContainer::const_iterator it = hits_.begin(); it != hits_.end(); ++it) {
-    LocalPoint lp = (*it)->localPosition();
+  for (const auto& hit : hits_) {
+    LocalPoint lp = hit->localPosition();
 
     float z = lp.z();
 

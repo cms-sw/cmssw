@@ -43,8 +43,8 @@ public:
     hFile = new TFile(out.c_str(), open.c_str());
   }
 
-  ~TrackValidator() {
-    if (hFile != 0) {
+  ~TrackValidator() override {
+    if (hFile != nullptr) {
       hFile->Close();
       delete hFile;
     }
@@ -114,7 +114,7 @@ public:
     setup.get<IdealMagneticFieldRecord>().get(theMF);
   }
 
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override {
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override {
     std::cout << "In TrackValidator\n";
     edm::ESHandle<TransientTrackBuilder> theB;
     setup.get<TransientTrackRecord>().get("TransientTrackBuilder", theB);
@@ -142,26 +142,26 @@ public:
       //fill simulation histograms
       //
       int st = 0;
-      for (SimTrackContainer::const_iterator simTrack = simTC.begin(); simTrack != simTC.end(); simTrack++) {
-        if (abs(simTrack->momentum().eta()) > max || abs(simTrack->momentum().eta()) < min)
+      for (const auto& simTrack : simTC) {
+        if (abs(simTrack.momentum().eta()) > max || abs(simTrack.momentum().eta()) < min)
           continue;
         st++;
-        h_ptSIM[w]->Fill(simTrack->momentum().pt());
-        h_etaSIM[w]->Fill(simTrack->momentum().eta());
+        h_ptSIM[w]->Fill(simTrack.momentum().pt());
+        h_etaSIM[w]->Fill(simTrack.momentum().eta());
 
-        h_vertposSIM[w]->Fill(simVC[simTrack->vertIndex()].position().pt());
+        h_vertposSIM[w]->Fill(simVC[simTrack.vertIndex()].position().pt());
 
-        if (simTrack->type() != partId)
+        if (simTrack.type() != partId)
           continue;
         //compute number of tracks per eta interval
         int i = 0;
-        for (vector<double>::iterator h = etaintervals[w].begin(); h != etaintervals[w].end() - 1; h++) {
-          if (abs(simTrack->momentum().eta()) > etaintervals[w][i] &&
-              abs(simTrack->momentum().eta()) < etaintervals[w][i + 1]) {
+        for (auto h = etaintervals[w].begin(); h != etaintervals[w].end() - 1; h++) {
+          if (abs(simTrack.momentum().eta()) > etaintervals[w][i] &&
+              abs(simTrack.momentum().eta()) < etaintervals[w][i + 1]) {
             totSIM[w][i]++;
             bool doit = false;
-            for (reco::TrackCollection::const_iterator track = tC.begin(); track != tC.end(); track++) {
-              if (abs(track->pt() - simTrack->momentum().pt()) < (simTrack->momentum().pt() * 0.1))
+            for (const auto& track : tC) {
+              if (abs(track.pt() - simTrack.momentum().pt()) < (simTrack.momentum().pt() * 0.1))
                 doit = true;
             }
             if (doit)
@@ -181,22 +181,22 @@ public:
       //fill reconstructed track histograms
       //
       int rt = 0;
-      for (vector<TransientTrack>::const_iterator track = t_tks.begin(); track != t_tks.end(); track++) {
-        TrajectoryStateClosestToPoint tscp = track->impactPointTSCP();
+      for (const auto& t_tk : t_tks) {
+        TrajectoryStateClosestToPoint tscp = t_tk.impactPointTSCP();
         cout << tscp.perigeeParameters().vector() << tscp.perigeeError().covarianceMatrix() << endl;
 
-        if (abs(track->track().eta()) > max || abs(track->track().eta()) < min)
+        if (abs(t_tk.track().eta()) > max || abs(t_tk.track().eta()) < min)
           continue;
 
         rt++;
 
         //nchi2 and hits global distributions
-        h_nchi2[w]->Fill(track->normalizedChi2());
-        h_hits[w]->Fill(track->numberOfValidHits());
-        chi2_vs_nhits[w]->Fill(track->numberOfValidHits(), track->normalizedChi2());
-        chi2_vs_eta[w]->Fill(track->track().eta(), track->normalizedChi2());
-        nhits_vs_eta[w]->Fill(track->track().eta(), track->numberOfValidHits());
-        h_charge[w]->Fill(track->charge());
+        h_nchi2[w]->Fill(t_tk.normalizedChi2());
+        h_hits[w]->Fill(t_tk.numberOfValidHits());
+        chi2_vs_nhits[w]->Fill(t_tk.numberOfValidHits(), t_tk.normalizedChi2());
+        chi2_vs_eta[w]->Fill(t_tk.track().eta(), t_tk.normalizedChi2());
+        nhits_vs_eta[w]->Fill(t_tk.track().eta(), t_tk.numberOfValidHits());
+        h_charge[w]->Fill(t_tk.charge());
 
         //pt, eta residue, theta, phi0, d0, dz pull
         double ptres = 1000;
@@ -206,31 +206,31 @@ public:
         double d0res = 1000;
         double dzres = 1000;
         double kres = 1000;
-        for (SimTrackContainer::const_iterator simTrack = simTC.begin(); simTrack != simTC.end(); simTrack++) {
-          if (simTrack->type() != partId)
+        for (const auto& simTrack : simTC) {
+          if (simTrack.type() != partId)
             continue;
-          double tmp = track->track().pt() - simTrack->momentum().pt();
+          double tmp = t_tk.track().pt() - simTrack.momentum().pt();
           if (tC.size() > 1)
             h_pt2[w]->Fill(tmp);
           if (abs(tmp) < abs(ptres)) {
             ptres = tmp;
 
-            etares = track->initialFreeState().momentum().eta() - simTrack->momentum().eta();
+            etares = t_tk.initialFreeState().momentum().eta() - simTrack.momentum().eta();
             thetares =
-                (tscp.perigeeParameters().theta() - simTrack->momentum().theta()) / tscp.perigeeError().thetaError();
-            phi0res = (tscp.perigeeParameters().phi() - simTrack->momentum().phi()) / tscp.perigeeError().phiError();
+                (tscp.perigeeParameters().theta() - simTrack.momentum().theta()) / tscp.perigeeError().thetaError();
+            phi0res = (tscp.perigeeParameters().phi() - simTrack.momentum().phi()) / tscp.perigeeError().phiError();
             d0res =
-                (tscp.perigeeParameters().transverseImpactParameter() - simVC[simTrack->vertIndex()].position().pt()) /
+                (tscp.perigeeParameters().transverseImpactParameter() - simVC[simTrack.vertIndex()].position().pt()) /
                 tscp.perigeeError().transverseImpactParameterError();
             dzres =
-                (tscp.perigeeParameters().longitudinalImpactParameter() - simVC[simTrack->vertIndex()].position().z()) /
+                (tscp.perigeeParameters().longitudinalImpactParameter() - simVC[simTrack.vertIndex()].position().z()) /
                 tscp.perigeeError().longitudinalImpactParameterError();
 
-            const math::XYZTLorentzVectorD& vertexPosition = simVC[simTrack->vertIndex()].position();
+            const math::XYZTLorentzVectorD& vertexPosition = simVC[simTrack.vertIndex()].position();
             GlobalVector magField =
                 theMF->inTesla(GlobalPoint(vertexPosition.x(), vertexPosition.y(), vertexPosition.z()));
             kres = (tscp.perigeeParameters().transverseCurvature() -
-                    (-track->charge() * 2.99792458e-3 * magField.z() / simTrack->momentum().pt())) /
+                    (-t_tk.charge() * 2.99792458e-3 * magField.z() / simTrack.momentum().pt())) /
                    tscp.perigeeError().transverseCurvatureError();
 
             // 	    cout << "track->d0(): " << track->d0() << endl;
@@ -247,8 +247,8 @@ public:
         h_pt[w]->Fill(
             ptres / (tscp.perigeeError().transverseCurvatureError() / tscp.perigeeParameters().transverseCurvature()));
         h_eta[w]->Fill(etares);
-        ptres_vs_eta[w]->Fill(track->track().eta(), ptres);
-        etares_vs_eta[w]->Fill(track->track().eta(), etares);
+        ptres_vs_eta[w]->Fill(t_tk.track().eta(), ptres);
+        etares_vs_eta[w]->Fill(t_tk.track().eta(), etares);
         h_pullTheta[w]->Fill(thetares);
         h_pullPhi0[w]->Fill(phi0res);
         h_pullD0[w]->Fill(d0res);
@@ -257,14 +257,14 @@ public:
 
         //pt residue distribution per eta interval
         int i = 0;
-        for (vector<TH1F*>::iterator h = ptdistrib[w].begin(); h != ptdistrib[w].end(); h++) {
-          for (SimTrackContainer::const_iterator simTrack = simTC.begin(); simTrack != simTC.end(); simTrack++) {
-            if (simTrack->type() != partId)
+        for (auto h = ptdistrib[w].begin(); h != ptdistrib[w].end(); h++) {
+          for (const auto& simTrack : simTC) {
+            if (simTrack.type() != partId)
               continue;
             ptres = 1000;
-            if (abs(simTrack->momentum().eta()) > etaintervals[w][i] &&
-                abs(simTrack->momentum().eta()) < etaintervals[w][i + 1]) {
-              double tmp = track->track().pt() - simTrack->momentum().pt();
+            if (abs(simTrack.momentum().eta()) > etaintervals[w][i] &&
+                abs(simTrack.momentum().eta()) < etaintervals[w][i + 1]) {
+              double tmp = t_tk.track().pt() - simTrack.momentum().pt();
               if (abs(tmp) < abs(ptres))
                 ptres = tmp;
             }
@@ -274,17 +274,17 @@ public:
         }
         //eta residue distribution per eta interval
         i = 0;
-        for (vector<TH1F*>::iterator h = etadistrib[w].begin(); h != etadistrib[w].end(); h++) {
-          for (SimTrackContainer::const_iterator simTrack = simTC.begin(); simTrack != simTC.end(); simTrack++) {
-            if (simTrack->type() != partId)
+        for (auto h = etadistrib[w].begin(); h != etadistrib[w].end(); h++) {
+          for (const auto& simTrack : simTC) {
+            if (simTrack.type() != partId)
               continue;
             etares = 1000;
             ptres = 1000;
-            if (abs(simTrack->momentum().eta()) > etaintervals[w][i] &&
-                abs(simTrack->momentum().eta()) < etaintervals[w][i + 1]) {
-              double tmp = track->track().pt() - simTrack->momentum().pt();
+            if (abs(simTrack.momentum().eta()) > etaintervals[w][i] &&
+                abs(simTrack.momentum().eta()) < etaintervals[w][i + 1]) {
+              double tmp = t_tk.track().pt() - simTrack.momentum().pt();
               if (abs(tmp) < abs(ptres))
-                etares = track->track().eta() - simTrack->momentum().eta();
+                etares = t_tk.track().eta() - simTrack.momentum().eta();
             }
           }
           (*h)->Fill(etares);
@@ -312,7 +312,7 @@ public:
       TDirectory* ptD = p->mkdir("ptdistribution");
       ptD->cd();
       int i = 0;
-      for (vector<TH1F*>::iterator h = ptdistrib[w].begin(); h != ptdistrib[w].end(); h++) {
+      for (auto h = ptdistrib[w].begin(); h != ptdistrib[w].end(); h++) {
         (*h)->Write();
         h_ptrmsh[w]->Fill(etaintervals[w][i + 1] - 0.00001, (*h)->GetRMS());
         i++;
@@ -322,7 +322,7 @@ public:
       TDirectory* etaD = p->mkdir("etadistribution");
       etaD->cd();
       i = 0;
-      for (vector<TH1F*>::iterator h = etadistrib[w].begin(); h != etadistrib[w].end(); h++) {
+      for (auto h = etadistrib[w].begin(); h != etadistrib[w].end(); h++) {
         (*h)->Write();
         h_deltaeta[w]->Fill(etaintervals[w][i + 1] - 0.00001, (*h)->GetRMS());
         i++;
@@ -331,7 +331,7 @@ public:
       //write the other histos
       p->cd();
       int j = 0;
-      for (vector<int>::iterator h = totSIM[w].begin(); h != totSIM[w].end(); h++) {
+      for (auto h = totSIM[w].begin(); h != totSIM[w].end(); h++) {
         if (totSIM[w][j])
           h_effic[w]->Fill(etaintervals[w][j + 1] - 0.00001, ((double)totREC[w][j]) / ((double)totSIM[w][j]));
         else

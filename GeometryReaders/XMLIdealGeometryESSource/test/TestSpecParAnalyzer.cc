@@ -73,13 +73,13 @@ void TestSpecParAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
     DDFilteredView fv(cpv, filter);
     bool doit = fv.firstChild();
     std::vector<const DDsvalues_type*> spec = fv.specifics();
-    std::vector<const DDsvalues_type*>::const_iterator spit = spec.begin();
+    auto spit = spec.begin();
     while (doit) {
       spec = fv.specifics();
       spit = spec.begin();
       std::cout << fv.geoHistory() << std::endl;
       for (; spit != spec.end(); ++spit) {
-        DDsvalues_type::const_iterator it = (**spit).begin();
+        auto it = (**spit).begin();
         for (; it != (**spit).end(); it++) {
           std::cout << "\t" << it->second.name() << std::endl;
           if (it->second.isEvaluated()) {

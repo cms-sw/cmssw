@@ -37,11 +37,9 @@ L1GtTechnicalTriggerRecord::~L1GtTechnicalTriggerRecord() {
 // return the technical trigger with ttName and bxInEvent
 const L1GtTechnicalTrigger* L1GtTechnicalTriggerRecord::getTechnicalTrigger(const std::string& ttName,
                                                                             const int bxInEventVal) const {
-  for (std::vector<L1GtTechnicalTrigger>::const_iterator itObj = m_gtTechnicalTrigger.begin();
-       itObj != m_gtTechnicalTrigger.end();
-       ++itObj) {
-    if ((itObj->gtTechnicalTriggerName() == ttName) && (itObj->bxInEvent() == bxInEventVal)) {
-      return &((*itObj));
+  for (const auto& itObj : m_gtTechnicalTrigger) {
+    if ((itObj.gtTechnicalTriggerName() == ttName) && (itObj.bxInEvent() == bxInEventVal)) {
+      return &(itObj);
     }
   }
 
@@ -57,11 +55,9 @@ const L1GtTechnicalTrigger* L1GtTechnicalTriggerRecord::getTechnicalTrigger(cons
 /// return the technical trigger for ttBitNumber and bxInEvent
 const L1GtTechnicalTrigger* L1GtTechnicalTriggerRecord::getTechnicalTrigger(const unsigned int ttBitNumber,
                                                                             const int bxInEventVal) const {
-  for (std::vector<L1GtTechnicalTrigger>::const_iterator itObj = m_gtTechnicalTrigger.begin();
-       itObj != m_gtTechnicalTrigger.end();
-       ++itObj) {
-    if ((itObj->gtTechnicalTriggerBitNumber() == ttBitNumber) && (itObj->bxInEvent() == bxInEventVal)) {
-      return &((*itObj));
+  for (const auto& itObj : m_gtTechnicalTrigger) {
+    if ((itObj.gtTechnicalTriggerBitNumber() == ttBitNumber) && (itObj.bxInEvent() == bxInEventVal)) {
+      return &(itObj);
     }
   }
 

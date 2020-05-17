@@ -1,6 +1,8 @@
 #ifndef DataFormats_PatCandidates_HcalDepthEnergyFractions_h
 #define DataFormats_PatCandidates_HcalDepthEnergyFractions_h
 
+#include <utility>
+
 #include <vector>
 #include <cstdint>
 
@@ -36,7 +38,7 @@ namespace pat {
 
     // reset vectors
     void reset(std::vector<float> v) {
-      fractions_ = v;
+      fractions_ = std::move(v);
       initUint8Vector();
     }
 

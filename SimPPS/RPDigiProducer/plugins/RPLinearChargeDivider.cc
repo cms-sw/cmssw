@@ -71,12 +71,10 @@ simromanpot::energy_path_distribution RPLinearChargeDivider::divide(const PSimHi
   if (verbosity_) {
     edm::LogInfo("RPLinearChargeDivider") << det_id_ << " charge along the track:\n";
     double sum = 0;
-    for (unsigned int i = 0; i < the_energy_path_distribution_.size(); i++) {
+    for (auto& i : the_energy_path_distribution_) {
       edm::LogInfo("RPLinearChargeDivider")
-          << the_energy_path_distribution_[i].Position().x() << " " << the_energy_path_distribution_[i].Position().y()
-          << " " << the_energy_path_distribution_[i].Position().z() << " " << the_energy_path_distribution_[i].Energy()
-          << "\n";
-      sum += the_energy_path_distribution_[i].Energy();
+          << i.Position().x() << " " << i.Position().y() << " " << i.Position().z() << " " << i.Energy() << "\n";
+      sum += i.Energy();
     }
     edm::LogInfo("RPLinearChargeDivider") << "energy dep. sum=" << sum << "\n";
   }

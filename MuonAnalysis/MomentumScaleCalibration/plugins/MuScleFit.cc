@@ -112,6 +112,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <CLHEP/Vector/LorentzVector.h>
+#include <memory>
+
 #include <vector>
 
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -511,8 +513,8 @@ MuScleFit::MuScleFit(const edm::ParameterSet& pset) : MuScleFitBase(pset), total
     double norm = 1 / sqrt(2 * TMath::Pi());
     G.SetParameter(0, norm);
     for (int i = 0; i < 10000; i++) {
-      for (int j = 0; j < 7; j++) {
-        MuScleFitUtils::x[j][i] = G.GetRandom();
+      for (auto& j : MuScleFitUtils::x) {
+        j[i] = G.GetRandom();
       }
     }
   }
@@ -556,16 +558,16 @@ MuScleFit::MuScleFit(const edm::ParameterSet& pset) : MuScleFitBase(pset), total
   MuScleFitUtils::massWindowHalfWidth[2][4] = 0.2;
   MuScleFitUtils::massWindowHalfWidth[2][5] = 0.2;
 
-  muonSelector_.reset(new MuScleFitMuonSelector(theMuonLabel_,
-                                                theMuonType_,
-                                                PATmuons_,
-                                                MuScleFitUtils::resfind,
-                                                MuScleFitUtils::speedup,
-                                                genParticlesName_,
-                                                compareToSimTracks_,
-                                                simTracksCollection_,
-                                                MuScleFitUtils::sherpa_,
-                                                debug_));
+  muonSelector_ = std::make_unique<MuScleFitMuonSelector>(theMuonLabel_,
+                                                          theMuonType_,
+                                                          PATmuons_,
+                                                          MuScleFitUtils::resfind,
+                                                          MuScleFitUtils::speedup,
+                                                          genParticlesName_,
+                                                          compareToSimTracks_,
+                                                          simTracksCollection_,
+                                                          MuScleFitUtils::sherpa_,
+                                                          debug_);
 
   MuScleFitUtils::backgroundHandler =
       new BackgroundHandler(pset.getParameter<std::vector<int> >("BgrFitType"),
@@ -611,7 +613,7 @@ MuScleFit::~MuScleFit() {
       if (MuScleFitUtils::speedup) {
         // rootTreeHandler.writeTree(outputRootTreeFileName_, &(MuScleFitUtils::SavedPair), theMuonType_, 0, saveAllToTree_);
         if (debug_ > 0) {
-          std::vector<MuonPair>::const_iterator it = muonPairs_.begin();
+          auto it = muonPairs_.begin();
           std::cout << "[MuScleFit::~MuScleFit] (Destructor)" << std::endl;
           for (; it < muonPairs_.end(); ++it) {
             std::cout << "  Debugging pairs that are going to be written to file" << std::endl;
@@ -802,15 +804,15 @@ edm::EDLooper::Status MuScleFit::duringLoop(const edm::Event& event, const edm::
       const std::string& hltName = triggerNames.triggerName(i);
 
       // match the path in the pset with the true name of the trigger
-      for (unsigned int ipath = 0; ipath < triggerPath_.size(); ipath++) {
-        if (hltName.find(triggerPath_[ipath]) != std::string::npos) {
+      for (const auto& ipath : triggerPath_) {
+        if (hltName.find(ipath) != std::string::npos) {
           unsigned int triggerIndex(hltConfig.triggerIndex(hltName));
 
           // triggerIndex must be less than the size of HLTR or you get a CMSException: _M_range_check
           if (triggerIndex < triggerResults->size()) {
             isFired = triggerResults->accept(triggerIndex);
             if (debug_ > 0)
-              std::cout << triggerPath_[ipath] << " " << hltName << " " << isFired << std::endl;
+              std::cout << ipath << " " << hltName << " " << isFired << std::endl;
           }
         }  // end if (matching the path in the pset with the true trigger name
       }
@@ -866,7 +868,7 @@ void MuScleFit::selectMuons(const edm::Event& event) {
     std::cout << "[MuScleFit::selectMuons] Debugging muons collections after call to muonSelector_->selectMuons"
               << std::endl;
     int iMu = 0;
-    for (std::vector<MuScleFitMuon>::const_iterator it = muons.begin(); it < muons.end(); ++it) {
+    for (auto it = muons.begin(); it < muons.end(); ++it) {
       std::cout << "  - muon n. " << iMu << " = " << (*it) << std::endl;
       ++iMu;
     }
@@ -896,11 +898,11 @@ void MuScleFit::selectMuons(const edm::Event& event) {
       std::cout << "after recMuScleMu1 = " << recMuScleMu1 << std::endl;
       std::cout << "after recMuScleMu2 = " << recMuScleMu2 << std::endl;
     }
-    MuScleFitUtils::SavedPair.push_back(std::make_pair(recMu1, recMu2));
-    MuScleFitUtils::SavedPairMuScleFitMuons.push_back(std::make_pair(recMuScleMu1, recMuScleMu2));
+    MuScleFitUtils::SavedPair.emplace_back(recMu1, recMu2);
+    MuScleFitUtils::SavedPairMuScleFitMuons.emplace_back(recMuScleMu1, recMuScleMu2);
   } else {
-    MuScleFitUtils::SavedPair.push_back(std::make_pair(lorentzVector(0., 0., 0., 0.), lorentzVector(0., 0., 0., 0.)));
-    MuScleFitUtils::SavedPairMuScleFitMuons.push_back(std::make_pair(MuScleFitMuon(), MuScleFitMuon()));
+    MuScleFitUtils::SavedPair.emplace_back(lorentzVector(0., 0., 0., 0.), lorentzVector(0., 0., 0., 0.));
+    MuScleFitUtils::SavedPairMuScleFitMuons.emplace_back(MuScleFitMuon(), MuScleFitMuon());
   }
   // Save the events also in the external tree so that it can be saved late
 
@@ -949,14 +951,14 @@ void MuScleFit::selectMuons(const edm::Event& event) {
     the_genEvtweight = genEvtInfo->weight();
   }
 
-  muonPairs_.push_back(MuonPair(
+  muonPairs_.emplace_back(
       MuScleFitUtils::SavedPairMuScleFitMuons.back().first,
       MuScleFitUtils::SavedPairMuScleFitMuons.back().second,
       MuScleFitEvent(
-          event.run(), event.id().event(), the_genEvtweight, the_numPUvtx, the_TrueNumInteractions, the_NVtx)));
+          event.run(), event.id().event(), the_genEvtweight, the_numPUvtx, the_TrueNumInteractions, the_NVtx));
   // Fill the internal genPair tree from the external one
   if (MuScleFitUtils::speedup == false) {
-    MuScleFitUtils::genPair.push_back(std::make_pair(genMuonPairs_.back().mu1.p4(), genMuonPairs_.back().mu2.p4()));
+    MuScleFitUtils::genPair.emplace_back(genMuonPairs_.back().mu1.p4(), genMuonPairs_.back().mu2.p4());
   }
 }
 
@@ -976,8 +978,8 @@ void MuScleFit::selectMuons(const int maxEvents, const TString& treeFileName) {
                              &(MuScleFitUtils::genMuscleFitPair));
   }
   // Now loop on all the pairs and apply any smearing and bias if needed
-  std::vector<std::pair<unsigned int, unsigned long long> >::iterator evtRunIt = evtRun.begin();
-  std::vector<std::pair<MuScleFitMuon, MuScleFitMuon> >::iterator it = MuScleFitUtils::SavedPairMuScleFitMuons.begin();
+  auto evtRunIt = evtRun.begin();
+  auto it = MuScleFitUtils::SavedPairMuScleFitMuons.begin();
   std::vector<std::pair<MuScleFitMuon, MuScleFitMuon> >::iterator genIt;
   if (MuScleFitUtils::speedup == false)
     genIt = MuScleFitUtils::genMuscleFitPair.begin();
@@ -1053,21 +1055,21 @@ void MuScleFit::selectMuons(const int maxEvents, const TString& treeFileName) {
         applyBias(vec2, 1);
       }
 
-      MuScleFitUtils::SavedPair.push_back(std::make_pair(vec1, vec2));
+      MuScleFitUtils::SavedPair.emplace_back(vec1, vec2);
     }
 
     //FIXME: we loose the additional information besides the 4-momenta
-    muonPairs_.push_back(MuonPair(
+    muonPairs_.emplace_back(
         MuScleFitMuon(vec1, -1),
         MuScleFitMuon(vec2, +1),
         MuScleFitEvent(
-            (*evtRunIt).first, (*evtRunIt).second, 0, 0, 0, 0))  // FIXME: order of event and run number mixed up!
+            (*evtRunIt).first, (*evtRunIt).second, 0, 0, 0, 0)  // FIXME: order of event and run number mixed up!
     );
 
     // Fill the internal genPair tree from the external one
     if (!MuScleFitUtils::speedup) {
-      MuScleFitUtils::genPair.push_back(std::make_pair(genIt->first.p4(), genIt->second.p4()));
-      genMuonPairs_.push_back(GenMuonPair(genIt->first.p4(), genIt->second.p4(), 0));
+      MuScleFitUtils::genPair.emplace_back(genIt->first.p4(), genIt->second.p4());
+      genMuonPairs_.emplace_back(genIt->first.p4(), genIt->second.p4(), 0);
       ++genIt;
     }
   }
@@ -1219,19 +1221,21 @@ void MuScleFit::duringFastLoop() {
       double deltalike;
       if (loopCounter == 0) {
         std::vector<double> initpar;
-        for (int i = 0; i < (int)(MuScleFitUtils::parResol.size()); i++) {
-          initpar.push_back(MuScleFitUtils::parResol[i]);
+        initpar.reserve((int)(MuScleFitUtils::parResol.size()));
+
+        for (double i : MuScleFitUtils::parResol) {
+          initpar.push_back(i);
         }
-        for (int i = 0; i < (int)(MuScleFitUtils::parScale.size()); i++) {
-          initpar.push_back(MuScleFitUtils::parScale[i]);
+        for (double i : MuScleFitUtils::parScale) {
+          initpar.push_back(i);
         }
         // 	for (int i=0; i<(int)(MuScleFitUtils::parCrossSection.size()); i++) {
         // 	  initpar.push_back(MuScleFitUtils::parCrossSection[i]);
         // 	}
         MuScleFitUtils::crossSectionHandler->addParameters(initpar);
 
-        for (int i = 0; i < (int)(MuScleFitUtils::parBgr.size()); i++) {
-          initpar.push_back(MuScleFitUtils::parBgr[i]);
+        for (double i : MuScleFitUtils::parBgr) {
+          initpar.push_back(i);
         }
         massResol = MuScleFitUtils::massResolution(recMu1, recMu2, initpar);
         // prob      = MuScleFitUtils::massProb( bestRecRes.mass(), bestRecRes.Eta(), bestRecRes.Rapidity(), massResol, initpar, true );

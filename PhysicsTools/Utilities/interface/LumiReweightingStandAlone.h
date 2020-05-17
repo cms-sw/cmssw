@@ -24,6 +24,8 @@
 #include "TRandom3.h"
 #include "TStopwatch.h"
 #include <string>
+#include <utility>
+
 #include <vector>
 #include <cmath>
 #include <algorithm>
@@ -120,10 +122,10 @@ namespace reweight {
     LumiReWeighting(){};
 
     LumiReWeighting(std::string generatedFile, std::string dataFile, std::string GenHistName, std::string DataHistName)
-        : generatedFileName_(generatedFile),
-          dataFileName_(dataFile),
-          GenHistName_(GenHistName),
-          DataHistName_(DataHistName) {
+        : generatedFileName_(std::move(generatedFile)),
+          dataFileName_(std::move(dataFile)),
+          GenHistName_(std::move(GenHistName)),
+          DataHistName_(std::move(DataHistName)) {
       generatedFile_ = new TFile(generatedFileName_.c_str());  //MC distribution
       dataFile_ = new TFile(dataFileName_.c_str());            //Data distribution
 
@@ -211,7 +213,7 @@ namespace reweight {
       FirstWarning_ = true;
     }
 
-    void weight3D_init(float ScaleFactor, std::string WeightOutputFile = "") {
+    void weight3D_init(float ScaleFactor, const std::string& WeightOutputFile = "") {
       //create histogram to write output weights, save pain of generating them again...
 
       TH3D* WHist = new TH3D("WHist", "3D weights", 50, 0., 50., 50, 0., 50., 50, 0., 50.);
@@ -378,7 +380,7 @@ namespace reweight {
       return;
     }
 
-    void weight3D_set(std::string WeightFileName) {
+    void weight3D_set(const std::string& WeightFileName) {
       TFile* infile = new TFile(WeightFileName.c_str());
       TH1F* WHist = (TH1F*)infile->Get("WHist");
 
@@ -540,7 +542,7 @@ namespace reweight {
 
       //WeightOOTPU_ = {0};
 
-      const double* WeightPtr = 0;
+      const double* WeightPtr = nullptr;
 
       for (int iint = 0; iint < 25; ++iint) {
         if (iint == 0)

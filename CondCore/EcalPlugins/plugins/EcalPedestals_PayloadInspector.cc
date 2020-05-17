@@ -1402,14 +1402,14 @@ namespace {
     }  // fill method
 
     void pedestalsSummary(std::vector<EcalPedestal> vItems, float vals[], long unsigned int& total) {
-      for (std::vector<EcalPedestal>::const_iterator iItems = vItems.begin(); iItems != vItems.end(); ++iItems) {
+      for (const auto& vItem : vItems) {
         //vals[0]=100;
-        vals[0] += iItems->mean(1);  //G12
-        vals[1] += iItems->rms(1);
-        vals[2] += iItems->mean(2);  //G6
-        vals[3] += iItems->rms(2);
-        vals[4] += iItems->mean(3);  //G1
-        vals[5] += iItems->rms(3);
+        vals[0] += vItem.mean(1);  //G12
+        vals[1] += vItem.rms(1);
+        vals[2] += vItem.mean(2);  //G6
+        vals[3] += vItem.rms(2);
+        vals[4] += vItem.mean(3);  //G1
+        vals[5] += vItem.rms(3);
       }
 
       vals[0] = vals[0] / total;

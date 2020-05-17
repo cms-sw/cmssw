@@ -219,7 +219,7 @@ void SiStripClassToMonitorCondData::getModMEsOnDemand(edm::EventSetup const &eSe
 // ----- getlayerMEsOnDemand
 //
 void SiStripClassToMonitorCondData::getLayerMEsOnDemand(edm::EventSetup const &eSetup,
-                                                        std::string requestedSubDetector,
+                                                        const std::string &requestedSubDetector,
                                                         uint32_t requestedSide,
                                                         uint32_t requestedLayer) {
   if (monitorPedestals_) {

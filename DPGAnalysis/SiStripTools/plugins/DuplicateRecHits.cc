@@ -128,10 +128,10 @@ void DuplicateRecHits::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   Handle<reco::TrackCollection> tracks;
   iEvent.getByToken(m_trkcollToken, tracks);
 
-  for (reco::TrackCollection::const_iterator it = tracks->begin(); it != tracks->end(); it++) {
+  for (const auto& it : *tracks) {
     std::set<SiPixelRecHit::ClusterRef::key_type> clusters;
     int nduplicate = 0;
-    for (trackingRecHit_iterator rh = it->recHitsBegin(); rh != it->recHitsEnd(); ++rh) {
+    for (auto rh = it.recHitsBegin(); rh != it.recHitsEnd(); ++rh) {
       TransientTrackingRecHit::RecHitPointer ttrh = m_builder->build(&**rh);
       const SiPixelRecHit* pxrh = dynamic_cast<const SiPixelRecHit*>(ttrh->hit());
       if (pxrh) {
@@ -141,7 +141,7 @@ void DuplicateRecHits::analyze(const edm::Event& iEvent, const edm::EventSetup& 
           std::stringstream detidstr;
           detidstr << ttrh->det()->geographicalId().rawId();
           m_nduplmod->Fill(detidstr.str().c_str(), 1.);
-          LogDebug("DuplicateHitFinder") << "Track with " << it->recHitsSize() << " RecHits";
+          LogDebug("DuplicateHitFinder") << "Track with " << it.recHitsSize() << " RecHits";
           LogTrace("DuplicateHitFinder") << "Duplicate found " << ttrh->det()->geographicalId().rawId() << " "
                                          << pxrh->cluster().index();
         }

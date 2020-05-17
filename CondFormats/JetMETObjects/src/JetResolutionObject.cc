@@ -261,7 +261,7 @@ namespace JME {
       if (!definition.empty()) {
         m_definition = Definition(definition);
       } else {
-        m_records.push_back(Record(line, m_definition));
+        m_records.emplace_back(line, m_definition);
       }
     }
 

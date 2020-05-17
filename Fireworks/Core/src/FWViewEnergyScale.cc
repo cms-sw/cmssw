@@ -13,6 +13,7 @@
 #include <stdexcept>
 #include <iostream>
 #include <boost/bind.hpp>
+#include <utility>
 
 #include "Rtypes.h"
 #include "TMath.h"
@@ -27,7 +28,7 @@ FWViewEnergyScale::FWViewEnergyScale(std::string name, int version)
       m_fixedValToHeight(this, "EnergyToLength [GeV/m]", 50.0, 1.0, 1000.0),
       m_maxTowerHeight(this, "MaximumLength [m]", 3.0, 0.01, 30.0),
       m_plotEt(this, "PlotEt", true),
-      m_name(name),
+      m_name(std::move(name)),
       m_scaleFactor3D(1.f),
       m_scaleFactorLego(0.05f) {
   m_scaleMode.addEntry(kFixedScale, "FixedScale");
@@ -73,8 +74,8 @@ void FWViewEnergyScale::updateScaleFactors(float iMaxVal) {
 }
 
 void FWViewEnergyScale::setFrom(const FWConfiguration& iFrom) {
-  for (const_iterator it = begin(), itEnd = end(); it != itEnd; ++it) {
-    (*it)->setFrom(iFrom);
+  for (auto it : *this) {
+    it->setFrom(iFrom);
   }
 }
 

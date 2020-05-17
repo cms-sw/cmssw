@@ -2,7 +2,7 @@
 
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 
-uint32_t egamma::getRandomSeedFromSC(const edm::Event& iEvent, const reco::SuperClusterRef scRef) {
+uint32_t egamma::getRandomSeedFromSC(const edm::Event& iEvent, const reco::SuperClusterRef& scRef) {
   const int offset = 0;  //for future expansion
   std::seed_seq seeder = {int(iEvent.id().event()),
                           int(iEvent.id().luminosityBlock()),

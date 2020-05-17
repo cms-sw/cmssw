@@ -11,10 +11,10 @@
 #include "DataFormats/Scalers/interface/ScalersRaw.h"
 
 #include <iostream>
-#include <math.h>
-#include <errno.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cerrno>
+#include <cstdio>
+#include <cstdlib>
 #include <fcntl.h>
 #include <cstring>
 #include <unistd.h>
@@ -26,7 +26,7 @@ int main(int argc, char **argv) {
   int ctr = 0;
   int retcod;
   int bytes = 1;
-  const L1TriggerScalers *previousTrig = NULL;
+  const L1TriggerScalers *previousTrig = nullptr;
   int fd = open(fileName, O_RDONLY);
 
   if (fd > 0) {

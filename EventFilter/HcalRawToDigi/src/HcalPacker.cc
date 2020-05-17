@@ -23,7 +23,7 @@ int process(const Coll* pt, const DetId& did, unsigned short* buffer, int& presa
     return 0;
   }
   int size = 0;
-  typename Coll::const_iterator i = pt->find(DetIdClass(did));
+  auto i = pt->find(DetIdClass(did));
   if (i != pt->end()) {
     isUS = i->zsUnsuppressed();
     isMP = i->zsMarkAndPass();
@@ -43,7 +43,7 @@ static unsigned char processTrig(const HcalTrigPrimDigiCollection* pt,
     return 0;
   }
   int size = 0;
-  HcalTrigPrimDigiCollection::const_iterator i = pt->find(tid);
+  auto i = pt->find(tid);
   bool any_nonzero = false;
   if (i != pt->end()) {
     int presamples = i->presamples();
@@ -233,8 +233,8 @@ void HcalPacker::pack(int fedid,
   }
   // calculate the total length, and resize the FEDRawData
   int theSize = 0;
-  for (int spigot = 0; spigot < 15; spigot++) {
-    theSize += spigots[spigot].getRawLength() * sizeof(unsigned short);
+  for (const auto& spigot : spigots) {
+    theSize += spigot.getRawLength() * sizeof(unsigned short);
   }
   theSize += sizeof(HcalDCCHeader) + 8;  // 8 for trailer
   theSize += (8 - (theSize % 8)) % 8;    // even number of 64-bit words.

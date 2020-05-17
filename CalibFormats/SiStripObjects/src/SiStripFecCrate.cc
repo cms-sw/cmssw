@@ -17,7 +17,7 @@ void SiStripFecCrate::addDevices(const FedChannelConnection &conn) {
     ifec++;
   }
   if (ifec == fecs_.end()) {
-    fecs_.push_back(SiStripFec(conn));
+    fecs_.emplace_back(conn);
   } else {
     ifec->addDevices(conn);
   }

@@ -10,8 +10,8 @@ class testOneToManyAssociation : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
   void checkAll();
   void dummy();
 };
@@ -24,7 +24,7 @@ void testOneToManyAssociation::checkAll() {
   typedef edm::AssociationMap<edm::OneToMany<CKey, CVal, unsigned char> > Assoc;
   Assoc v;
   CPPUNIT_ASSERT(v.empty());
-  CPPUNIT_ASSERT(v.size() == 0);
+  CPPUNIT_ASSERT(v.empty());
 }
 
 // just check that some stuff compiles
@@ -50,7 +50,7 @@ void testOneToManyAssociation::dummy() {
     v[edm::Ref<CKey>()];
     v.erase(edm::Ref<CKey>());
     v.clear();
-    CPPUNIT_ASSERT(v.size() == 0);
+    CPPUNIT_ASSERT(v.empty());
     v.post_insert();
   }
   {
@@ -71,7 +71,7 @@ void testOneToManyAssociation::dummy() {
     v[edm::Ref<CKey>()];
     v.erase(edm::Ref<CKey>());
     v.clear();
-    CPPUNIT_ASSERT(v.size() == 0);
+    CPPUNIT_ASSERT(v.empty());
     v.post_insert();
   }
 }

@@ -42,9 +42,9 @@ public:
   explicit PatBTagCommonHistos(const edm::ParameterSet&);
   ~PatBTagCommonHistos();
 
-  void Set(std::string);
+  void Set(const std::string&);
   void Sumw2();
-  void Fill(edm::View<pat::Jet>::const_iterator&, std::string);
+  void Fill(edm::View<pat::Jet>::const_iterator&, const std::string&);
 
 private:
   // ----------member data ---------------------------

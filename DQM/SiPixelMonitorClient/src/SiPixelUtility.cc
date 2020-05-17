@@ -7,40 +7,40 @@ using namespace std;
 //
 // Get a list of MEs in a folder
 //
-int SiPixelUtility::getMEList(string name, vector<string> &values) {
+int SiPixelUtility::getMEList(const string &name, vector<string> &values) {
   values.clear();
-  string prefix_str = name.substr(0, (name.find(":")));
+  string prefix_str = name.substr(0, (name.find(':')));
   prefix_str += "/";
-  string temp_str = name.substr(name.find(":") + 1);
+  string temp_str = name.substr(name.find(':') + 1);
   split(temp_str, values, ",");
-  for (vector<string>::iterator it = values.begin(); it != values.end(); it++)
-    (*it).insert(0, prefix_str);
+  for (auto &value : values)
+    value.insert(0, prefix_str);
   return values.size();
 }
 //
 // Get a list of MEs in a folder and the path name
 //
-int SiPixelUtility::getMEList(string name, string &dir_path, vector<string> &values) {
+int SiPixelUtility::getMEList(const string &name, string &dir_path, vector<string> &values) {
   values.clear();
-  dir_path = name.substr(0, (name.find(":")));
+  dir_path = name.substr(0, (name.find(':')));
   dir_path += "/";
-  string temp_str = name.substr(name.find(":") + 1);
+  string temp_str = name.substr(name.find(':') + 1);
   split(temp_str, values, ",");
   return values.size();
 }
 
 // Check if the requested ME exists in a folder
-bool SiPixelUtility::checkME(string name, string me_name, string &full_path) {
+bool SiPixelUtility::checkME(const string &name, const string &me_name, string &full_path) {
   if (name.find(name) == string::npos)
     return false;
-  string prefix_str = name.substr(0, (name.find(":")));
+  string prefix_str = name.substr(0, (name.find(':')));
   prefix_str += "/";
-  string temp_str = name.substr(name.find(":") + 1);
+  string temp_str = name.substr(name.find(':') + 1);
   vector<string> values;
   split(temp_str, values, ",");
-  for (vector<string>::iterator it = values.begin(); it != values.end(); it++) {
-    if ((*it).find(me_name) != string::npos) {
-      full_path = prefix_str + (*it);
+  for (auto &value : values) {
+    if (value.find(me_name) != string::npos) {
+      full_path = prefix_str + value;
       return true;
     }
   }
@@ -188,29 +188,29 @@ int SiPixelUtility::computeHistoBin(string &module_path) {
   vector<string> subDirVector;
   SiPixelUtility::split(module_path, subDirVector, "/");
 
-  for (vector<string>::const_iterator it = subDirVector.begin(); it != subDirVector.end(); it++) {
-    if ((*it).find("Collector") != string::npos ||
+  for (const auto &it : subDirVector) {
+    if (it.find("Collector") != string::npos ||
         //(*it).find("Collated") != string::npos ||
-        (*it).find("FU") != string::npos || (*it).find("Pixel") != string::npos ||
-        (*it).find("Barrel") != string::npos || (*it).find("Endcap") != string::npos)
+        it.find("FU") != string::npos || it.find("Pixel") != string::npos || it.find("Barrel") != string::npos ||
+        it.find("Endcap") != string::npos)
       continue;
 
-    if ((*it).find("Module") != string::npos) {
-      module = atoi((*it).substr((*it).find("_") + 1).c_str());
+    if (it.find("Module") != string::npos) {
+      module = atoi(it.substr(it.find("_") + 1).c_str());
     }
 
-    if ((*it).find("Shell") != string::npos) {
-      if ((*it).find("mI") != string::npos)
+    if (it.find("Shell") != string::npos) {
+      if (it.find("mI") != string::npos)
         shell = 1;
-      if ((*it).find("mO") != string::npos)
+      if (it.find("mO") != string::npos)
         shell = 2;
-      if ((*it).find("pI") != string::npos)
+      if (it.find("pI") != string::npos)
         shell = 3;
-      if ((*it).find("pO") != string::npos)
+      if (it.find("pO") != string::npos)
         shell = 4;
     }
-    if ((*it).find("Layer") != string::npos) {
-      layer = atoi((*it).substr((*it).find("_") + 1).c_str());
+    if (it.find("Layer") != string::npos) {
+      layer = atoi(it.substr(it.find("_") + 1).c_str());
       if (layer == 1) {
         nbinLayer = 0;
       }
@@ -221,27 +221,27 @@ int SiPixelUtility::computeHistoBin(string &module_path) {
         nbinLayer = 40 + 64;
       }
     }
-    if ((*it).find("Ladder") != string::npos) {
-      ladder = atoi((*it).substr((*it).find("_") + 1, 2).c_str());
+    if (it.find("Ladder") != string::npos) {
+      ladder = atoi(it.substr(it.find("_") + 1, 2).c_str());
     }
-    if ((*it).find("HalfCylinder") != string::npos) {
-      if ((*it).find("mI") != string::npos)
+    if (it.find("HalfCylinder") != string::npos) {
+      if (it.find("mI") != string::npos)
         halfcylinder = 1;
-      if ((*it).find("mO") != string::npos)
+      if (it.find("mO") != string::npos)
         halfcylinder = 2;
-      if ((*it).find("pI") != string::npos)
+      if (it.find("pI") != string::npos)
         halfcylinder = 3;
-      if ((*it).find("pO") != string::npos)
+      if (it.find("pO") != string::npos)
         halfcylinder = 4;
     }
-    if ((*it).find("Disk") != string::npos) {
-      disk = atoi((*it).substr((*it).find("_") + 1).c_str());
+    if (it.find("Disk") != string::npos) {
+      disk = atoi(it.substr(it.find("_") + 1).c_str());
     }
-    if ((*it).find("Blade") != string::npos) {
-      blade = atoi((*it).substr((*it).find("_") + 1, 2).c_str());
+    if (it.find("Blade") != string::npos) {
+      blade = atoi(it.substr(it.find("_") + 1, 2).c_str());
     }
-    if ((*it).find("Panel") != string::npos) {
-      panel = atoi((*it).substr((*it).find("_") + 1).c_str());
+    if (it.find("Panel") != string::npos) {
+      panel = atoi(it.substr(it.find("_") + 1).c_str());
       if (panel == 1)
         nbinPanel = 0;
       if (panel == 2)
@@ -263,10 +263,10 @@ int SiPixelUtility::computeHistoBin(string &module_path) {
 
 void SiPixelUtility::fillPaveText(TPaveText *pave, const map<string, pair<int, double>> &messages) {
   TText *sourceCodeOnCanvas;
-  for (map<string, pair<int, double>>::const_iterator it = messages.begin(); it != messages.end(); it++) {
-    string message = it->first;
-    int color = (it->second).first;
-    double size = (it->second).second;
+  for (const auto &it : messages) {
+    string message = it.first;
+    int color = (it.second).first;
+    double size = (it.second).second;
     sourceCodeOnCanvas = pave->AddText(message.c_str());
     sourceCodeOnCanvas->SetTextColor(color);
     sourceCodeOnCanvas->SetTextSize(size);

@@ -19,7 +19,7 @@
 // system include files
 #include <iostream>
 #include <memory>
-#include <stdio.h>
+#include <cstdio>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -39,12 +39,12 @@
 class TestBtagPayloads : public edm::EDAnalyzer {
 public:
   explicit TestBtagPayloads(const edm::ParameterSet&);
-  ~TestBtagPayloads();
+  ~TestBtagPayloads() override;
 
 private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 };
 
 TestBtagPayloads::TestBtagPayloads(const edm::ParameterSet& iConfig) {}
@@ -111,23 +111,23 @@ void TestBtagPayloads::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   std::vector<std::string> measureName;
   std::vector<std::string> measureType;
 
-  measureName.push_back("TTBARWPBTAGCSVL");
-  measureName.push_back("TTBARWPBTAGCSVL");
-  measureName.push_back("TTBARWPBTAGCSVL");
-  measureName.push_back("TTBARWPBTAGCSVL");
-  measureName.push_back("TTBARWPBTAGJPT");
-  measureName.push_back("TTBARWPBTAGJPT");
-  measureName.push_back("TTBARWPBTAGJPT");
-  measureName.push_back("TTBARWPBTAGJPT");
+  measureName.emplace_back("TTBARWPBTAGCSVL");
+  measureName.emplace_back("TTBARWPBTAGCSVL");
+  measureName.emplace_back("TTBARWPBTAGCSVL");
+  measureName.emplace_back("TTBARWPBTAGCSVL");
+  measureName.emplace_back("TTBARWPBTAGJPT");
+  measureName.emplace_back("TTBARWPBTAGJPT");
+  measureName.emplace_back("TTBARWPBTAGJPT");
+  measureName.emplace_back("TTBARWPBTAGJPT");
 
-  measureType.push_back("BTAGBEFFCORR");
-  measureType.push_back("BTAGBERRCORR");
-  measureType.push_back("BTAGCEFFCORR");
-  measureType.push_back("BTAGCERRCORR");
-  measureType.push_back("BTAGBEFFCORR");
-  measureType.push_back("BTAGBERRCORR");
-  measureType.push_back("BTAGCEFFCORR");
-  measureType.push_back("BTAGCERRCORR");
+  measureType.emplace_back("BTAGBEFFCORR");
+  measureType.emplace_back("BTAGBERRCORR");
+  measureType.emplace_back("BTAGCEFFCORR");
+  measureType.emplace_back("BTAGCERRCORR");
+  measureType.emplace_back("BTAGBEFFCORR");
+  measureType.emplace_back("BTAGBERRCORR");
+  measureType.emplace_back("BTAGCEFFCORR");
+  measureType.emplace_back("BTAGCERRCORR");
 
   if (measureName.size() != measureType.size()) {
     std::cout << "measureName, measureType size mismatch!" << std::endl;

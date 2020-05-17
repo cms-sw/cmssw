@@ -173,7 +173,7 @@ bool ECALpedestalPCLHarvester::checkStatusCode(const DetId& id) {
   dbstatusPtr = channelStatus_->getMap().find(id.rawId());
   EcalChannelStatusCode::Code dbstatus = dbstatusPtr->getStatusCode();
 
-  std::vector<int>::const_iterator res = std::find(chStatusToExclude_.begin(), chStatusToExclude_.end(), dbstatus);
+  auto res = std::find(chStatusToExclude_.begin(), chStatusToExclude_.end(), dbstatus);
   if (res != chStatusToExclude_.end())
     return false;
 

@@ -120,15 +120,15 @@ void dqmCopyRecursively(dqm::legacy::DQMStore& dqmStore,
   //--- copy all monitor elements in current inputDirectory to the outputDirectory
   dqmStore.setCurrentFolder(inputDirectory);
   std::vector<std::string> meNames = dqmStore.getMEs();
-  for (std::vector<std::string>::const_iterator meName = meNames.begin(); meName != meNames.end(); ++meName) {
-    std::string meName_full = dqmDirectoryName(inputDirectory).append(*meName);
+  for (const auto& meName : meNames) {
+    std::string meName_full = dqmDirectoryName(inputDirectory).append(meName);
     //std::cout << " meName_full = " <<  meName_full << std::endl;
 
     dqmStore.setCurrentFolder(inputDirectory);
     dqm::legacy::MonitorElement* meInput = dqmStore.get(meName_full);
     //std::cout << " meInput = " << meInput << std::endl;
     if (!meInput) {
-      edm::LogError("copyRecursively") << " Failed to access meName = " << (*meName) << " in DQMStore"
+      edm::LogError("copyRecursively") << " Failed to access meName = " << meName << " in DQMStore"
                                        << " --> skipping !!";
       continue;
     }
@@ -136,7 +136,7 @@ void dqmCopyRecursively(dqm::legacy::DQMStore& dqmStore,
     TH1* histogram = meInput->getTH1();
     //std::cout << " histogram = " << histogram << std::endl;
     if (!histogram) {
-      edm::LogError("copyRecursively") << " Failed to access histogram associated to meName = " << (*meName)
+      edm::LogError("copyRecursively") << " Failed to access histogram associated to meName = " << meName
                                        << " in DQMStore"
                                        << " --> skipping !!";
       continue;
@@ -146,32 +146,32 @@ void dqmCopyRecursively(dqm::legacy::DQMStore& dqmStore,
     clone->Scale(scaleFactor);
 
     dqmStore.setCurrentFolder(outputDirectory);
-    dqm::legacy::MonitorElement* meOutput = dqmStore.get(dqmDirectoryName(outputDirectory).append(*meName));
+    dqm::legacy::MonitorElement* meOutput = dqmStore.get(dqmDirectoryName(outputDirectory).append(meName));
     //std::cout << " meOutput = " << meOutput << std::endl;
     //--- check if outputHistogram does already exist
     if (meOutput) {
       switch (mode) {
         case 1:  // print error message
           edm::LogError("copyRecursively")
-              << " meName = " << (*meName) << " already exists in outputDirectory = " << outputDirectory
+              << " meName = " << meName << " already exists in outputDirectory = " << outputDirectory
               << " --> skipping !!";
           break;
         case 2:  // overwrite outputHistogram
-          dqmRegisterHistogram(dqmStore, clone.release(), *meName);
+          dqmRegisterHistogram(dqmStore, clone.release(), meName);
           break;
         case 3:  // add histogram to outputHistogram
           meOutput->getTH1()->Add(clone.get(), scaleFactor);
       }
     } else {
-      dqmRegisterHistogram(dqmStore, clone.release(), *meName);
+      dqmRegisterHistogram(dqmStore, clone.release(), meName);
     }
   }
 
   //--- call function recursively for all sub-directories
   dqmStore.setCurrentFolder(inputDirectory);
   std::vector<std::string> dirNames = dqmStore.getSubdirs();
-  for (std::vector<std::string>::const_iterator dirName = dirNames.begin(); dirName != dirNames.end(); ++dirName) {
-    std::string subDirName = dqmSubDirectoryName_merged(inputDirectory, *dirName);
+  for (const auto& dirName : dirNames) {
+    std::string subDirName = dqmSubDirectoryName_merged(inputDirectory, dirName);
     //std::cout << " subDirName = " << subDirName << std::endl;
 
     std::string inputDirName_full = dqmDirectoryName(inputDirectory).append(subDirName);

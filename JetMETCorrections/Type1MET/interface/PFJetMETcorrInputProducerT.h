@@ -40,6 +40,8 @@
 
 #include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
+#include <memory>
+
 #include <string>
 #include <type_traits>
 
@@ -99,18 +101,15 @@ public:
     if (cfg.exists("type2Binning")) {
       typedef std::vector<edm::ParameterSet> vParameterSet;
       vParameterSet cfgType2Binning = cfg.getParameter<vParameterSet>("type2Binning");
-      for (vParameterSet::const_iterator cfgType2BinningEntry = cfgType2Binning.begin();
-           cfgType2BinningEntry != cfgType2Binning.end();
-           ++cfgType2BinningEntry) {
-        type2Binning_.push_back(new type2BinningEntryType(*cfgType2BinningEntry));
+      for (const auto& cfgType2BinningEntry : cfgType2Binning) {
+        type2Binning_.push_back(new type2BinningEntryType(cfgType2BinningEntry));
       }
     } else {
       type2Binning_.push_back(new type2BinningEntryType());
     }
 
     produces<CorrMETData>("type1");
-    for (typename std::vector<type2BinningEntryType*>::const_iterator type2BinningEntry = type2Binning_.begin();
-         type2BinningEntry != type2Binning_.end();
+    for (auto type2BinningEntry = type2Binning_.begin(); type2BinningEntry != type2Binning_.end();
          ++type2BinningEntry) {
       produces<CorrMETData>((*type2BinningEntry)->getInstanceLabel_full("type2"));
       produces<CorrMETData>((*type2BinningEntry)->getInstanceLabel_full("offset"));
@@ -119,9 +118,7 @@ public:
   ~PFJetMETcorrInputProducerT() override {
     delete skipMuonSelection_;
 
-    for (typename std::vector<type2BinningEntryType*>::const_iterator it = type2Binning_.begin();
-         it != type2Binning_.end();
-         ++it) {
+    for (auto it = type2Binning_.begin(); it != type2Binning_.end(); ++it) {
       delete (*it);
     }
   }
@@ -144,8 +141,7 @@ public:
 private:
   void produce(edm::Event& evt, const edm::EventSetup& es) override {
     std::unique_ptr<CorrMETData> type1Correction(new CorrMETData());
-    for (typename std::vector<type2BinningEntryType*>::iterator type2BinningEntry = type2Binning_.begin();
-         type2BinningEntry != type2Binning_.end();
+    for (auto type2BinningEntry = type2Binning_.begin(); type2BinningEntry != type2Binning_.end();
          ++type2BinningEntry) {
       (*type2BinningEntry)->binUnclEnergySum_ = CorrMETData();
       (*type2BinningEntry)->binOffsetEnergySum_ = CorrMETData();
@@ -180,12 +176,12 @@ private:
 
       if (skipMuons_) {
         const std::vector<reco::CandidatePtr>& cands = jet.daughterPtrVector();
-        for (std::vector<reco::CandidatePtr>::const_iterator cand = cands.begin(); cand != cands.end(); ++cand) {
-          const reco::PFCandidate* pfcand = dynamic_cast<const reco::PFCandidate*>(cand->get());
+        for (const auto& cand : cands) {
+          const auto* pfcand = dynamic_cast<const reco::PFCandidate*>(cand.get());
           const reco::Candidate* mu =
-              (pfcand != nullptr ? (pfcand->muonRef().isNonnull() ? pfcand->muonRef().get() : nullptr) : cand->get());
+              (pfcand != nullptr ? (pfcand->muonRef().isNonnull() ? pfcand->muonRef().get() : nullptr) : cand.get());
           if (mu != nullptr && (*skipMuonSelection_)(*mu)) {
-            reco::Candidate::LorentzVector muonP4 = (*cand)->p4();
+            reco::Candidate::LorentzVector muonP4 = cand->p4();
             rawJetP4 -= muonP4;
           }
         }
@@ -207,8 +203,7 @@ private:
           else
             rawJetP4offsetCorr = jetCorrExtractor_(jet, offsetCorr.product(), jetCorrEtaMax_, &rawJetP4);
 
-          for (typename std::vector<type2BinningEntryType*>::iterator type2BinningEntry = type2Binning_.begin();
-               type2BinningEntry != type2Binning_.end();
+          for (auto type2BinningEntry = type2Binning_.begin(); type2BinningEntry != type2Binning_.end();
                ++type2BinningEntry) {
             if (!(*type2BinningEntry)->binSelection_ || (*(*type2BinningEntry)->binSelection_)(corrJetP4)) {
               (*type2BinningEntry)->binOffsetEnergySum_.mex += (rawJetP4.px() - rawJetP4offsetCorr.px());
@@ -224,8 +219,7 @@ private:
         type1Correction->mey -= (corrJetP4.py() - rawJetP4offsetCorr.py());
         type1Correction->sumet += (corrJetP4.Et() - rawJetP4offsetCorr.Et());
       } else {
-        for (typename std::vector<type2BinningEntryType*>::iterator type2BinningEntry = type2Binning_.begin();
-             type2BinningEntry != type2Binning_.end();
+        for (auto type2BinningEntry = type2Binning_.begin(); type2BinningEntry != type2Binning_.end();
              ++type2BinningEntry) {
           if (!(*type2BinningEntry)->binSelection_ || (*(*type2BinningEntry)->binSelection_)(corrJetP4)) {
             (*type2BinningEntry)->binUnclEnergySum_.mex += rawJetP4.px();
@@ -242,12 +236,11 @@ private:
     //     o momentum sum of "offset energy"      (sum of energy attributed to pile-up/underlying event)
     //    to the event
     evt.put(std::move(type1Correction), "type1");
-    for (typename std::vector<type2BinningEntryType*>::const_iterator type2BinningEntry = type2Binning_.begin();
-         type2BinningEntry != type2Binning_.end();
+    for (auto type2BinningEntry = type2Binning_.begin(); type2BinningEntry != type2Binning_.end();
          ++type2BinningEntry) {
-      evt.put(std::unique_ptr<CorrMETData>(new CorrMETData((*type2BinningEntry)->binUnclEnergySum_)),
+      evt.put(std::make_unique<CorrMETData>((*type2BinningEntry)->binUnclEnergySum_),
               (*type2BinningEntry)->getInstanceLabel_full("type2"));
-      evt.put(std::unique_ptr<CorrMETData>(new CorrMETData((*type2BinningEntry)->binOffsetEnergySum_)),
+      evt.put(std::make_unique<CorrMETData>((*type2BinningEntry)->binOffsetEnergySum_),
               (*type2BinningEntry)->getInstanceLabel_full("offset"));
     }
   }

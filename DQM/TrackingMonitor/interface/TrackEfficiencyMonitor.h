@@ -51,11 +51,11 @@ public:
   std::pair<TrajectoryStateOnSurface, const DetLayer*> findNextLayer(
       TrajectoryStateOnSurface startTSOS, const std::vector<const DetLayer*>& trackCompatibleLayers, bool isUpMuon);
   SemiCylinder checkSemiCylinder(const Track&);
-  void testTrackerTracks(edm::Handle<TrackCollection> tkTracks,
-                         edm::Handle<TrackCollection> staTracks,
+  void testTrackerTracks(const edm::Handle<TrackCollection>& tkTracks,
+                         const edm::Handle<TrackCollection>& staTracks,
                          const NavigationSchool& navigationSchool);
-  void testSTATracks(edm::Handle<TrackCollection> tkTracks, edm::Handle<TrackCollection> staTracks);
-  bool trackerAcceptance(TrajectoryStateOnSurface theTSOS, double theRadius, double theMaxZ);
+  void testSTATracks(const edm::Handle<TrackCollection>& tkTracks, const edm::Handle<TrackCollection>& staTracks);
+  bool trackerAcceptance(const TrajectoryStateOnSurface& theTSOS, double theRadius, double theMaxZ);
   int compatibleLayers(const NavigationSchool& navigationSchool, TrajectoryStateOnSurface theTSOS);
 
 private:

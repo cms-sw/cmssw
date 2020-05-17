@@ -149,36 +149,36 @@ std::vector<CSCStripHit> CSCHitFromStripOnly::runStrip(const CSCDetId& id,
     /// L1A (Begin looping)
     /// Attempt to redefine theStrips, to encode L1A phase bits
     std::vector<int> theL1AStrips;
-    for (int ila = 0; ila < (int)theStrips.size(); ila++) {
+    for (int theStrip : theStrips) {
       bool stripMatchCounter = false;
       for (auto itl1 = rstripd.first; itl1 != rstripd.second; ++itl1) {
         int stripNproto = (*itl1).getStrip();
         if (!ganged()) {
-          if (theStrips[ila] == stripNproto) {
+          if (theStrip == stripNproto) {
             stripMatchCounter = true;
             auto sz = (*itl1).getOverlappedSample().size();
             int L1AbitOnPlace = 0;
             for (auto iBit = 0UL; iBit < sz; iBit++) {
               L1AbitOnPlace |= ((*itl1).getL1APhase(iBit) << (15 - iBit));
             }
-            theL1AStrips.push_back(theStrips[ila] | L1AbitOnPlace);
+            theL1AStrips.push_back(theStrip | L1AbitOnPlace);
           }
         } else {
           for (int tripl = 0; tripl < 3; ++tripl) {
-            if (theStrips[ila] == (stripNproto + tripl * 16)) {
+            if (theStrip == (stripNproto + tripl * 16)) {
               stripMatchCounter = true;
               auto sz = (*itl1).getOverlappedSample().size();
               int L1AbitOnPlace = 0;
               for (auto iBit = 0UL; iBit < sz; iBit++) {
                 L1AbitOnPlace |= ((*itl1).getL1APhase(iBit) << (15 - iBit));
               }
-              theL1AStrips.push_back(theStrips[ila] | L1AbitOnPlace);
+              theL1AStrips.push_back(theStrip | L1AbitOnPlace);
             }
           }
         }
       }
       if (!stripMatchCounter) {
-        theL1AStrips.push_back(theStrips[ila]);
+        theL1AStrips.push_back(theStrip);
       }
     }
     /// L1A (end Looping)
@@ -282,7 +282,7 @@ CSCStripHitData CSCHitFromStripOnly::makeStripData(int centerStrip, int offset) 
     for (int i = 1; i <= clusterSize / 2; ++i) {
       // Find the direction of the offset
       int testStrip = thisStrip + sign * i;
-      std::vector<int>::iterator otherMax = find(theMaxima.begin(), theMaxima.end(), testStrip - 1);
+      auto otherMax = find(theMaxima.begin(), theMaxima.end(), testStrip - 1);
 
       // No other maxima found, so just store
       if (otherMax == theMaxima.end()) {

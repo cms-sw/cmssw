@@ -93,121 +93,121 @@ void ODLaserConfig::setParameters(const std::map<string, string>& my_keys_map) {
   // parses the result of the XML parser that is a map of
   // string string with variable name variable value
 
-  for (std::map<std::string, std::string>::const_iterator ci = my_keys_map.begin(); ci != my_keys_map.end(); ci++) {
-    if (ci->first == "LASER_CONFIGURATION_ID")
-      setConfigTag(ci->second);
-    if (ci->first == "DEBUG")
-      setDebug(atoi(ci->second.c_str()));
-    if (ci->first == "LASER_DEBUG")
-      setDebug(atoi(ci->second.c_str()));
-    if (ci->first == "DUMMY")
-      setDummy(atoi(ci->second.c_str()));
-    if (ci->first == "MATACQ_BASE_ADDRESS")
-      setMatacqBaseAddress(atoi(ci->second.c_str()));
-    if (ci->first == "MATACQ_NONE")
-      setMatacqNone(atoi(ci->second.c_str()));
-    if (ci->first == "MATACQ_MODE")
-      setMatacqMode(ci->second);
-    if (ci->first == "CHANNEL_MASK")
-      setChannelMask(atoi(ci->second.c_str()));
-    if (ci->first == "MAX_SAMPLES_FOR_DAQ")
-      setMaxSamplesForDaq(ci->second);
-    if (ci->first == "MATACQ_FED_ID")
-      setMatacqFedId(atoi(ci->second.c_str()));
-    if (ci->first == "PEDESTAL_FILE")
-      setPedestalFile(ci->second);
-    if (ci->first == "USE_BUFFER")
-      setUseBuffer(atoi(ci->second.c_str()));
-    if (ci->first == "POSTTRIG")
-      setPostTrig(atoi(ci->second.c_str()));
-    if (ci->first == "FP_MODE")
-      setFPMode(atoi(ci->second.c_str()));
-    if (ci->first == "HAL_MODULE_FILE")
-      setHalModuleFile(ci->second);
-    if (ci->first == "HAL_ADDRESS_TABLE_FILE" || ci->first == "HAL_ADDRESST_ABLE_FILE")
-      setHalAddressTableFile(ci->second);
-    if (ci->first == "HAL_STATIC_TABLE_FILE")
-      setHalStaticTableFile(ci->second);
-    if (ci->first == "MATACQ_SERIAL_NUMBER")
-      setMatacqSerialNumber(ci->second);
-    if (ci->first == "PEDESTAL_RUN_EVENT_COUNT")
-      setPedestalRunEventCount(atoi(ci->second.c_str()));
-    if (ci->first == "RAW_DATA_MODE")
-      setRawDataMode(atoi(ci->second.c_str()));
-    if (ci->first == "ACQUISITION_MODE")
-      setMatacqAcquisitionMode(ci->second);
-    if (ci->first == "LOCAL_OUTPUT_FILE")
-      setLocalOutputFile(ci->second);
-    if (ci->first == "EMTC_NONE")
-      setEMTCNone(atoi(ci->second.c_str()));
-    if (ci->first == "WTE2_LASER_DELAY")
-      setWTE2LaserDelay(atoi(ci->second.c_str()));
-    if (ci->first == "LASER_PHASE")
-      setLaserPhase(atoi(ci->second.c_str()));
-    if (ci->first == "EMTC_TTC_IN")
-      setEMTCTTCIn(atoi(ci->second.c_str()));
-    if (ci->first == "EMTC_SLOT_ID")
-      setEMTCSlotId(atoi(ci->second.c_str()));
-    if (ci->first == "WAVELENGTH")
-      setWaveLength(atoi(ci->second.c_str()));
-    if (ci->first == "OPTICAL_SWITCH")
-      setOpticalSwitch(atoi(ci->second.c_str()));
-    if (ci->first == "POWER_SETTING")
-      setPower(atoi(ci->second.c_str()));
-    if (ci->first == "FILTER")
-      setFilter(atoi(ci->second.c_str()));
-    if (ci->first == "LASER_CONTROL_ON")
-      setLaserControlOn(atoi(ci->second.c_str()));
-    if (ci->first == "LASER_CONTROL_HOST")
-      setLaserControlHost(ci->second);
-    if (ci->first == "LASER_CONTROL_PORT")
-      setLaserControlPort(atoi(ci->second.c_str()));
-    if (ci->first == "MATACQ_VERNIER_MAX")
-      setMatacqVernierMax(atoi(ci->second.c_str()));
-    if (ci->first == "MATACQ_VERNIER_MIN")
-      setMatacqVernierMin(atoi(ci->second.c_str()));
+  for (const auto& ci : my_keys_map) {
+    if (ci.first == "LASER_CONFIGURATION_ID")
+      setConfigTag(ci.second);
+    if (ci.first == "DEBUG")
+      setDebug(atoi(ci.second.c_str()));
+    if (ci.first == "LASER_DEBUG")
+      setDebug(atoi(ci.second.c_str()));
+    if (ci.first == "DUMMY")
+      setDummy(atoi(ci.second.c_str()));
+    if (ci.first == "MATACQ_BASE_ADDRESS")
+      setMatacqBaseAddress(atoi(ci.second.c_str()));
+    if (ci.first == "MATACQ_NONE")
+      setMatacqNone(atoi(ci.second.c_str()));
+    if (ci.first == "MATACQ_MODE")
+      setMatacqMode(ci.second);
+    if (ci.first == "CHANNEL_MASK")
+      setChannelMask(atoi(ci.second.c_str()));
+    if (ci.first == "MAX_SAMPLES_FOR_DAQ")
+      setMaxSamplesForDaq(ci.second);
+    if (ci.first == "MATACQ_FED_ID")
+      setMatacqFedId(atoi(ci.second.c_str()));
+    if (ci.first == "PEDESTAL_FILE")
+      setPedestalFile(ci.second);
+    if (ci.first == "USE_BUFFER")
+      setUseBuffer(atoi(ci.second.c_str()));
+    if (ci.first == "POSTTRIG")
+      setPostTrig(atoi(ci.second.c_str()));
+    if (ci.first == "FP_MODE")
+      setFPMode(atoi(ci.second.c_str()));
+    if (ci.first == "HAL_MODULE_FILE")
+      setHalModuleFile(ci.second);
+    if (ci.first == "HAL_ADDRESS_TABLE_FILE" || ci.first == "HAL_ADDRESST_ABLE_FILE")
+      setHalAddressTableFile(ci.second);
+    if (ci.first == "HAL_STATIC_TABLE_FILE")
+      setHalStaticTableFile(ci.second);
+    if (ci.first == "MATACQ_SERIAL_NUMBER")
+      setMatacqSerialNumber(ci.second);
+    if (ci.first == "PEDESTAL_RUN_EVENT_COUNT")
+      setPedestalRunEventCount(atoi(ci.second.c_str()));
+    if (ci.first == "RAW_DATA_MODE")
+      setRawDataMode(atoi(ci.second.c_str()));
+    if (ci.first == "ACQUISITION_MODE")
+      setMatacqAcquisitionMode(ci.second);
+    if (ci.first == "LOCAL_OUTPUT_FILE")
+      setLocalOutputFile(ci.second);
+    if (ci.first == "EMTC_NONE")
+      setEMTCNone(atoi(ci.second.c_str()));
+    if (ci.first == "WTE2_LASER_DELAY")
+      setWTE2LaserDelay(atoi(ci.second.c_str()));
+    if (ci.first == "LASER_PHASE")
+      setLaserPhase(atoi(ci.second.c_str()));
+    if (ci.first == "EMTC_TTC_IN")
+      setEMTCTTCIn(atoi(ci.second.c_str()));
+    if (ci.first == "EMTC_SLOT_ID")
+      setEMTCSlotId(atoi(ci.second.c_str()));
+    if (ci.first == "WAVELENGTH")
+      setWaveLength(atoi(ci.second.c_str()));
+    if (ci.first == "OPTICAL_SWITCH")
+      setOpticalSwitch(atoi(ci.second.c_str()));
+    if (ci.first == "POWER_SETTING")
+      setPower(atoi(ci.second.c_str()));
+    if (ci.first == "FILTER")
+      setFilter(atoi(ci.second.c_str()));
+    if (ci.first == "LASER_CONTROL_ON")
+      setLaserControlOn(atoi(ci.second.c_str()));
+    if (ci.first == "LASER_CONTROL_HOST")
+      setLaserControlHost(ci.second);
+    if (ci.first == "LASER_CONTROL_PORT")
+      setLaserControlPort(atoi(ci.second.c_str()));
+    if (ci.first == "MATACQ_VERNIER_MAX")
+      setMatacqVernierMax(atoi(ci.second.c_str()));
+    if (ci.first == "MATACQ_VERNIER_MIN")
+      setMatacqVernierMin(atoi(ci.second.c_str()));
 
-    if (ci->first == "WTE_2_LED_DELAY")
-      setWTE2LedDelay(atoi(ci->second.c_str()));
-    if (ci->first == "LED1_ON")
-      setLed1ON(atoi(ci->second.c_str()));
-    if (ci->first == "LED2_ON")
-      setLed2ON(atoi(ci->second.c_str()));
-    if (ci->first == "LED3_ON")
-      setLed3ON(atoi(ci->second.c_str()));
-    if (ci->first == "LED4_ON")
-      setLed4ON(atoi(ci->second.c_str()));
-    if (ci->first == "VINJ")
-      setVinj(atoi(ci->second.c_str()));
-    if (ci->first == "ORANGE_LED_MON_AMPL")
-      setOrangeLedMonAmpl(atoi(ci->second.c_str()));
-    if (ci->first == "BLUE_LED_MON_AMPL")
-      setBlueLedMonAmpl(atoi(ci->second.c_str()));
-    if (ci->first == "TRIG_LOG_FILE")
-      setTrigLogFile(ci->second);
-    if (ci->first == "LED_CONTROL_ON")
-      setLedControlON(atoi(ci->second.c_str()));
-    if (ci->first == "LED_CONTROL_HOST")
-      setLedControlHost(ci->second);
-    if (ci->first == "LED_CONTROL_PORT")
-      setLedControlPort(atoi(ci->second.c_str()));
-    if (ci->first == "IR_LASER_POWER")
-      setIRLaserPower(atoi(ci->second.c_str()));
-    if (ci->first == "GREEN_LASER_POWER")
-      setGreenLaserPower(atoi(ci->second.c_str()));
-    if (ci->first == "RED_LASER_POWER")
-      setRedLaserPower(atoi(ci->second.c_str()));
-    if (ci->first == "BLUE_LASER_LOG_ATTENUATOR")
-      setBlueLaserLogAttenuator(atoi(ci->second.c_str()));
-    if (ci->first == "IR_LASER_LOG_ATTENUATOR")
-      setIRLaserLogAttenuator(atoi(ci->second.c_str()));
-    if (ci->first == "GREEN_LASER_LOG_ATTENUATOR")
-      setGreenLaserLogAttenuator(atoi(ci->second.c_str()));
-    if (ci->first == "RED_LASER_LOG_ATTENUATOR")
-      setRedLaserLogAttenuator(atoi(ci->second.c_str()));
+    if (ci.first == "WTE_2_LED_DELAY")
+      setWTE2LedDelay(atoi(ci.second.c_str()));
+    if (ci.first == "LED1_ON")
+      setLed1ON(atoi(ci.second.c_str()));
+    if (ci.first == "LED2_ON")
+      setLed2ON(atoi(ci.second.c_str()));
+    if (ci.first == "LED3_ON")
+      setLed3ON(atoi(ci.second.c_str()));
+    if (ci.first == "LED4_ON")
+      setLed4ON(atoi(ci.second.c_str()));
+    if (ci.first == "VINJ")
+      setVinj(atoi(ci.second.c_str()));
+    if (ci.first == "ORANGE_LED_MON_AMPL")
+      setOrangeLedMonAmpl(atoi(ci.second.c_str()));
+    if (ci.first == "BLUE_LED_MON_AMPL")
+      setBlueLedMonAmpl(atoi(ci.second.c_str()));
+    if (ci.first == "TRIG_LOG_FILE")
+      setTrigLogFile(ci.second);
+    if (ci.first == "LED_CONTROL_ON")
+      setLedControlON(atoi(ci.second.c_str()));
+    if (ci.first == "LED_CONTROL_HOST")
+      setLedControlHost(ci.second);
+    if (ci.first == "LED_CONTROL_PORT")
+      setLedControlPort(atoi(ci.second.c_str()));
+    if (ci.first == "IR_LASER_POWER")
+      setIRLaserPower(atoi(ci.second.c_str()));
+    if (ci.first == "GREEN_LASER_POWER")
+      setGreenLaserPower(atoi(ci.second.c_str()));
+    if (ci.first == "RED_LASER_POWER")
+      setRedLaserPower(atoi(ci.second.c_str()));
+    if (ci.first == "BLUE_LASER_LOG_ATTENUATOR")
+      setBlueLaserLogAttenuator(atoi(ci.second.c_str()));
+    if (ci.first == "IR_LASER_LOG_ATTENUATOR")
+      setIRLaserLogAttenuator(atoi(ci.second.c_str()));
+    if (ci.first == "GREEN_LASER_LOG_ATTENUATOR")
+      setGreenLaserLogAttenuator(atoi(ci.second.c_str()));
+    if (ci.first == "RED_LASER_LOG_ATTENUATOR")
+      setRedLaserLogAttenuator(atoi(ci.second.c_str()));
 
-    if (ci->first == "LASER_CONFIG_FILE") {
-      std::string fname = ci->second;
+    if (ci.first == "LASER_CONFIG_FILE") {
+      std::string fname = ci.second;
       setLaserConfigFile(fname);
       // here we must open the file and read the DCC Clob
       std::cout << "Going to read Laser file: " << fname << endl;

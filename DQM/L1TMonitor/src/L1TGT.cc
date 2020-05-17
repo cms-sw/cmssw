@@ -285,8 +285,8 @@ void L1TGT::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::Eve
   h_L1AlgoBX4 = ibooker.book2D("h_L1AlgoBX4", "L1 Algo Trigger BX (algo bit 96 to 127)", 32, 95.5, 127.5, 5, -2.5, 2.5);
   h_L1TechBX = ibooker.book2D("h_L1TechBX", "L1 Tech Trigger BX", 64, -0.5, 63.5, 5, -2.5, 2.5);
 
-  for (CItAlgo algo = menu->gtAlgorithmMap().begin(); algo != menu->gtAlgorithmMap().end(); ++algo) {
-    int itrig = (algo->second).algoBitNumber();
+  for (const auto& algo : menu->gtAlgorithmMap()) {
+    int itrig = (algo.second).algoBitNumber();
     //algoBitToName[itrig] = TString( (algo->second).algoName() );
     //const char* trigName =  (algo->second).algoName().c_str();
     if (itrig < 32) {
@@ -313,9 +313,8 @@ void L1TGT::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::Eve
   }
 
   // technical trigger bits
-  for (CItAlgo techTrig = menu->gtTechnicalTriggerMap().begin(); techTrig != menu->gtTechnicalTriggerMap().end();
-       ++techTrig) {
-    int itrig = (techTrig->second).algoBitNumber();
+  for (const auto& techTrig : menu->gtTechnicalTriggerMap()) {
+    int itrig = (techTrig.second).algoBitNumber();
     //techBitToName[itrig] = TString( (techTrig->second).algoName() );
     //const char* trigName =  (techTrig->second).algoName().c_str();
     h_L1TechBX->setBinLabel(itrig + 1, std::to_string(itrig));
@@ -543,8 +542,8 @@ void L1TGT::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
       }
 
       int ibx = 0;
-      for (std::vector<L1GtFdlWord>::const_iterator itBx = m_gtFdlWord.begin(); itBx != m_gtFdlWord.end(); ++itBx) {
-        const DecisionWord dWordBX = (*itBx).gtDecisionWord();
+      for (const auto& itBx : m_gtFdlWord) {
+        const DecisionWord dWordBX = itBx.gtDecisionWord();
         bool accept = dWordBX[iBit];
         if (accept) {
           if (iBit < 32)
@@ -571,8 +570,8 @@ void L1TGT::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
         trig_iter->second = accept;
 
       int ibx = 0;
-      for (std::vector<L1GtFdlWord>::const_iterator itBx = m_gtFdlWord.begin(); itBx != m_gtFdlWord.end(); ++itBx) {
-        const DecisionWord dWordBX = (*itBx).gtTechnicalTriggerWord();
+      for (const auto& itBx : m_gtFdlWord) {
+        const DecisionWord dWordBX = itBx.gtTechnicalTriggerWord();
         bool accept = dWordBX[iBit];
         if (accept)
           h_L1TechBX->Fill(iBit, minBxInEvent + ibx);
@@ -671,7 +670,7 @@ void L1TGT::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
 
     std::pair<int, int> pairLsPfi = std::make_pair(lsNumber, pfIndexAlgoTrig);
 
-    CItVecPair cIt = find(m_pairLsNumberPfIndex.begin(), m_pairLsNumberPfIndex.end(), pairLsPfi);
+    auto cIt = find(m_pairLsNumberPfIndex.begin(), m_pairLsNumberPfIndex.end(), pairLsPfi);
 
     if (cIt == m_pairLsNumberPfIndex.end()) {
       m_pairLsNumberPfIndex.push_back(pairLsPfi);
@@ -728,8 +727,8 @@ void L1TGT::countPfsIndicesPerLs() {
   if (verbose_) {
     edm::LogInfo("L1TGT") << "\n  Prescale factor indices used in a LS " << std::endl;
 
-    for (CItVecPair cIt = m_pairLsNumberPfIndex.begin(); cIt != m_pairLsNumberPfIndex.end(); ++cIt) {
-      edm::LogVerbatim("L1TGT") << "  lsNumber = " << (*cIt).first << " pfIndex = " << (*cIt).second << std::endl;
+    for (const auto& cIt : m_pairLsNumberPfIndex) {
+      edm::LogVerbatim("L1TGT") << "  lsNumber = " << cIt.first << " pfIndex = " << cIt.second << std::endl;
     }
     edm::LogVerbatim("L1TGT") << std::endl;
   }
@@ -746,13 +745,13 @@ void L1TGT::countPfsIndicesPerLs() {
   // count the number of pairs (lsNumber, pfIndex) per Ls
   // there are no duplicate entries, and pairs are sorted after both members
   // ... and fill again the histogram
-  for (CItVecPair cIt = m_pairLsNumberPfIndex.begin(); cIt != m_pairLsNumberPfIndex.end(); ++cIt) {
+  for (const auto& cIt : m_pairLsNumberPfIndex) {
     int pfsIndicesPerLs = 1;
 
-    if ((*cIt).first == previousLsNumber) {
-      if ((*cIt).second != previousPfsIndex) {
+    if (cIt.first == previousLsNumber) {
+      if (cIt.second != previousPfsIndex) {
         pfsIndicesPerLs++;
-        previousPfsIndex = (*cIt).second;
+        previousPfsIndex = cIt.second;
       }
 
     } else {
@@ -762,8 +761,8 @@ void L1TGT::countPfsIndicesPerLs() {
       }
 
       // new Ls
-      previousLsNumber = (*cIt).first;
-      previousPfsIndex = (*cIt).second;
+      previousLsNumber = cIt.first;
+      previousPfsIndex = cIt.second;
 
       pfsIndicesPerLs = 1;
     }

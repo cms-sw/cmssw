@@ -35,7 +35,7 @@ public:
      /param[in] depth of the vertex history
      /param[out] boolean that is true when history can be determined
   */
-  bool evaluate(TrackingVertexRef tvr) {
+  bool evaluate(const TrackingVertexRef &tvr) {
     if (enableSimToReco_) {
       std::pair<reco::VertexBaseRef, double> result = match(tvr, simToReco_, bestMatchByMaxValue_);
       recovertex_ = result.first;

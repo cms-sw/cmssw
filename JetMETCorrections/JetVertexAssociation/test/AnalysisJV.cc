@@ -48,14 +48,14 @@ void AnalysisJV::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   Handle<CaloJetCollection> CaloIconeJetsHandle;
   iEvent.getByToken(fCaloJetsToken, CaloIconeJetsHandle);
 
-  if (CaloIconeJetsHandle->size()) {
-    ResultCollection1::const_iterator it_jv1 = JV_alpha->begin();
-    ResultCollection2::const_iterator it_jv2 = JV_jet_type->begin();
-    for (CaloJetCollection::const_iterator it = CaloIconeJetsHandle->begin(); it != CaloIconeJetsHandle->end(); it++) {
+  if (!CaloIconeJetsHandle->empty()) {
+    auto it_jv1 = JV_alpha->begin();
+    auto it_jv2 = JV_jet_type->begin();
+    for (const auto& it : *CaloIconeJetsHandle) {
       if (*it_jv2)
-        cout << "Jet: Et = " << it->pt() << " - true jet" << endl;
+        cout << "Jet: Et = " << it.pt() << " - true jet" << endl;
       else
-        cout << "Jet: Et = " << it->pt() << " - 'fake' jet" << endl;
+        cout << "Jet: Et = " << it.pt() << " - 'fake' jet" << endl;
 
       fHistAlpha->Fill(*it_jv1);
       it_jv1++;

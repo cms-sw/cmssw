@@ -134,11 +134,10 @@ vector<TrajectoryMeasurement> LayerMeasurements::measurements(const DetLayer& la
   pair<bool, TrajectoryStateOnSurface> compat = layer.compatible(startingState, prop, est);
 
   if (compat.first) {
-    result.push_back(
-        TrajectoryMeasurement(compat.second,
-                              std::make_shared<InvalidTrackingRecHitNoDet>(layer.surface(), TrackingRecHit::inactive),
-                              0.F,
-                              &layer));
+    result.emplace_back(compat.second,
+                        std::make_shared<InvalidTrackingRecHitNoDet>(layer.surface(), TrackingRecHit::inactive),
+                        0.F,
+                        &layer);
     LogDebug("LayerMeasurements") << "adding a missing hit.";
   } else
     LogDebug("LayerMeasurements") << "adding not measurement.";

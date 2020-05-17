@@ -26,21 +26,20 @@ PCLMetadataWriter::PCLMetadataWriter(const edm::ParameterSet &pSet) {
   readFromDB = pSet.getParameter<bool>("readFromDB");
 
   vector<ParameterSet> recordsToMap = pSet.getParameter<vector<ParameterSet>>("recordsToMap");
-  for (vector<ParameterSet>::const_iterator recordPset = recordsToMap.begin(); recordPset != recordsToMap.end();
-       ++recordPset) {
+  for (const auto &recordPset : recordsToMap) {
     // record is the key which identifies one set of metadata in
     // DropBoxMetadataRcd (not necessarily a record in the strict framework
     // sense)
-    string record = (*recordPset).getUntrackedParameter<string>("record");
+    string record = recordPset.getUntrackedParameter<string>("record");
 
     map<string, string> jrInfo;
     if (!readFromDB) {
-      vector<string> paramKeys = (*recordPset).getParameterNames();
-      for (vector<string>::const_iterator key = paramKeys.begin(); key != paramKeys.end(); ++key) {
+      vector<string> paramKeys = recordPset.getParameterNames();
+      for (const auto &paramKey : paramKeys) {
         jrInfo["Source"] = "AlcaHarvesting";
         jrInfo["FileClass"] = "ALCA";
-        if (*key != "record") {
-          jrInfo[*key] = (*recordPset).getUntrackedParameter<string>(*key);
+        if (paramKey != "record") {
+          jrInfo[paramKey] = recordPset.getUntrackedParameter<string>(paramKey);
         }
       }
     }
@@ -74,9 +73,7 @@ void PCLMetadataWriter::endRun(const edm::Run &run, const edm::EventSetup &eSetu
       string filename = poolDbService->session().connectionString();
 
       // loop over all records
-      for (map<string, map<string, string>>::const_iterator recordAndMap = recordMap.begin();
-           recordAndMap != recordMap.end();
-           ++recordAndMap) {
+      for (auto recordAndMap = recordMap.begin(); recordAndMap != recordMap.end(); ++recordAndMap) {
         string record = (*recordAndMap).first;
 
         // this is the map of metadata that we write in the JR

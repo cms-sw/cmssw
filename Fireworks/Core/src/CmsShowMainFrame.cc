@@ -118,9 +118,9 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p, UInt_t w, UInt_t h, FWGUIM
   CSGAction *nextEvent = new CSGAction(this, cmsshow::sNextEvent.c_str());
   CSGAction *previousEvent = new CSGAction(this, cmsshow::sPreviousEvent.c_str());
 
-  CSGContinuousAction *playEvents = new CSGContinuousAction(this, cmsshow::sPlayEvents.c_str());
-  CSGContinuousAction *playEventsBack = new CSGContinuousAction(this, cmsshow::sPlayEventsBack.c_str());
-  CSGContinuousAction *loop = new CSGContinuousAction(this, cmsshow::sAutoRewind.c_str());
+  auto *playEvents = new CSGContinuousAction(this, cmsshow::sPlayEvents.c_str());
+  auto *playEventsBack = new CSGContinuousAction(this, cmsshow::sPlayEventsBack.c_str());
+  auto *loop = new CSGContinuousAction(this, cmsshow::sAutoRewind.c_str());
 
   CSGAction *showCommonInsp = new CSGAction(this, cmsshow::sShowCommonInsp.c_str());
   CSGAction *colorset = new CSGAction(this, cmsshow::sBackgroundColor.c_str());
@@ -150,7 +150,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p, UInt_t w, UInt_t h, FWGUIM
   playEvents->setToolTip("Play events");
   playEventsBack->setToolTip("Play events backwards");
 
-  TGCompositeFrame *menuTopFrame = new TGCompositeFrame(this, 1, 1, kHorizontalFrame, backgroundColor);
+  auto *menuTopFrame = new TGCompositeFrame(this, 1, 1, kHorizontalFrame, backgroundColor);
 
   TGMenuBar *menuBar = new TGMenuBar(menuTopFrame, this->GetWidth(), 28, kHorizontalFrame);
 
@@ -268,7 +268,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p, UInt_t w, UInt_t h, FWGUIM
   m_statBar = new TGStatusBar(this, this->GetWidth(), 12);
   AddFrame(m_statBar, new TGLayoutHints(kLHintsBottom | kLHintsExpandX));
 
-  TGHorizontalFrame *fullbar = new TGHorizontalFrame(this, this->GetWidth(), 30, 0, backgroundColor);
+  auto *fullbar = new TGHorizontalFrame(this, this->GetWidth(), 30, 0, backgroundColor);
 
   /**************************************************************************/
   // controls
@@ -328,7 +328,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p, UInt_t w, UInt_t h, FWGUIM
 
   /**************************************************************************/
 
-  TGHorizontalFrame *sliderFrame = new TGHorizontalFrame(controlFrame, 10, 10, 0, backgroundColor);
+  auto *sliderFrame = new TGHorizontalFrame(controlFrame, 10, 10, 0, backgroundColor);
   TImage *imgSld = TImage::Open(FWCheckBoxIcon::coreIcondir() + "slider-bg-down.png");
   sliderFrame->SetBackgroundPixmap(imgSld->GetPixmap());
   TString sldBtn = FWCheckBoxIcon::coreIcondir() + "slider-button.png";
@@ -360,7 +360,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p, UInt_t w, UInt_t h, FWGUIM
     label->SetBackgroundColor(backgroundColor);
     delayFrame->AddFrame(label, new TGLayoutHints(kLHintsTop | kLHintsCenterX, 0, 0, 22, 0));
 
-    TGHorizontalFrame *labFixed = new TGHorizontalFrame(delayFrame, 70, 20, kFixedSize, backgroundColor);
+    auto *labFixed = new TGHorizontalFrame(delayFrame, 70, 20, kFixedSize, backgroundColor);
     m_delayLabel = new TGLabel(labFixed, "0.0s");
     m_delayLabel->SetBackgroundColor(backgroundColor);
     m_delayLabel->SetTextJustify(kTextCenterX);
@@ -385,19 +385,19 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p, UInt_t w, UInt_t h, FWGUIM
     runInfo->SetUseSplitters(kFALSE);
     runInfo->SetBackgroundColor(backgroundColor);
 
-    TGHorizontalFrame *rLeft = new TGHorizontalFrame(runInfo, 1, entryHeight);
+    auto *rLeft = new TGHorizontalFrame(runInfo, 1, entryHeight);
     makeFixedSizeLabel(rLeft, "Run", backgroundColor, 0xffffff, 26, entryHeight);
     m_runEntry = new FWNumberEntryField(rLeft, -1, 0, TGNumberFormat::kNESInteger, TGNumberFormat::kNEAPositive);
     rLeft->AddFrame(m_runEntry, new TGLayoutHints(kLHintsLeft | kLHintsExpandX, 0, 8, 0, 0));
     runInfo->AddFrameWithWeight(rLeft, nullptr, 0.28);
 
-    TGHorizontalFrame *rMid = new TGHorizontalFrame(runInfo, 1, entryHeight);
+    auto *rMid = new TGHorizontalFrame(runInfo, 1, entryHeight);
     makeFixedSizeLabel(rMid, "Lumi", backgroundColor, 0xffffff, 36, entryHeight);
     m_lumiEntry = new FWNumberEntryField(rMid, -1, 0, TGNumberFormat::kNESInteger, TGNumberFormat::kNEAPositive);
     rMid->AddFrame(m_lumiEntry, new TGLayoutHints(kLHintsLeft | kLHintsExpandX, 0, 8, 0, 0));
     runInfo->AddFrameWithWeight(rMid, nullptr, 0.32);
 
-    TGHorizontalFrame *rRight = new TGHorizontalFrame(runInfo, 1, entryHeight);
+    auto *rRight = new TGHorizontalFrame(runInfo, 1, entryHeight);
     makeFixedSizeLabel(rRight, "Event", backgroundColor, 0xffffff, 42, entryHeight);
     m_eventEntry = new FWNumberEntryField(rRight, -1, 0, TGNumberFormat::kNESInteger, TGNumberFormat::kNEAPositive);
     rRight->AddFrame(m_eventEntry, new TGLayoutHints(kLHintsLeft | kLHintsExpandX, 0, 0, 0, 0));
@@ -408,7 +408,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p, UInt_t w, UInt_t h, FWGUIM
 
   // lower row
   {
-    TGHorizontalFrame *filterFrame = new TGHorizontalFrame(texts, 400, entryHeight, 0, backgroundColor);
+    auto *filterFrame = new TGHorizontalFrame(texts, 400, entryHeight, 0, backgroundColor);
 
     // filter state Off
     m_filterIcons[0] = fClient->GetPicture("unchecked_t.xpm");
@@ -469,8 +469,8 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p, UInt_t w, UInt_t h, FWGUIM
     parentLogoFrame->AddFrame(logoFrame, new TGLayoutHints(kLHintsRight | kLHintsCenterY, 0, 14, 0, 0));
   }
   {
-    TGCompositeFrame *logoFrame = new TGCompositeFrame(this, 61, 23, kFixedSize | kHorizontalFrame, backgroundColor);
-    FWCustomIconsButton *infoBut =
+    auto *logoFrame = new TGCompositeFrame(this, 61, 23, kFixedSize | kHorizontalFrame, backgroundColor);
+    auto *infoBut =
         new FWCustomIconsButton(logoFrame,
                                 fClient->GetPicture(FWCheckBoxIcon::coreIcondir() + "fireworksSmallGray.png"),
                                 fClient->GetPicture(FWCheckBoxIcon::coreIcondir() + "fireworksSmallGray-green.png"),
@@ -513,7 +513,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p, UInt_t w, UInt_t h, FWGUIM
   TGCompositeFrame *cf = m_manager->createList(csArea);
   csArea->AddFrameWithWeight(cf, nullptr, 20);
 
-  TEveCompositeFrameInPack *slot = new TEveCompositeFrameInPack(csArea, nullptr, csArea);
+  auto *slot = new TEveCompositeFrameInPack(csArea, nullptr, csArea);
   csArea->AddFrameWithWeight(slot, nullptr, 80);
   TEveWindowSlot *ew_slot = TEveWindow::CreateDefaultWindowSlot();
   ew_slot->PopulateEmptyFrame(slot);
@@ -778,9 +778,9 @@ void CmsShowMainFrame::showFWorksInfo() {
 }
 
 void CmsShowMainFrame::bindCSGActionKeys(const TGMainFrame *f) const {
-  for (std::vector<CSGAction *>::const_iterator i = m_actionList.begin(); i != m_actionList.end(); ++i) {
-    if ((*i)->getKeycode())
-      f->BindKey(this, (*i)->getKeycode(), (*i)->getModcode());
+  for (auto i : m_actionList) {
+    if (i->getKeycode())
+      f->BindKey(this, i->getKeycode(), i->getModcode());
   }
 }
 
@@ -803,6 +803,6 @@ float CmsShowMainFrame::getSummaryViewWeight() const {
   TGFrameElement *fe = (TGFrameElement *)GetList()->Last();
   TGPack *pack = (TGPack *)(fe->fFrame);
 
-  TGFrameElementPack *fep = (TGFrameElementPack *)pack->GetList()->At(1);
+  auto *fep = (TGFrameElementPack *)pack->GetList()->At(1);
   return fep->fWeight;
 }

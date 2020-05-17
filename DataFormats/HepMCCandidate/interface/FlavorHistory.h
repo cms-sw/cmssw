@@ -66,14 +66,14 @@ namespace reco {
                   reco::ShallowClonePtrCandidate const& matchedJet,
                   reco::ShallowClonePtrCandidate const& sisterJet);
     FlavorHistory(FLAVOR_T flavorSource,
-                  edm::Handle<edm::View<reco::Candidate> > h_partons,
+                  const edm::Handle<edm::View<reco::Candidate> >& h_partons,
                   int iparton,
                   int iprogenitor,
                   int isister,
                   reco::ShallowClonePtrCandidate const& matchedJet,
                   reco::ShallowClonePtrCandidate const& sisterJet);
     FlavorHistory(FLAVOR_T flavorSource,
-                  edm::Handle<reco::CandidateCollection> h_partons,
+                  const edm::Handle<reco::CandidateCollection>& h_partons,
                   int iparton,
                   int iprogenitor,
                   int isister,

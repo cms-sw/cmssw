@@ -50,8 +50,8 @@ private:
     MonitoredDecays(const edm::ParameterSet &iConfig) {
       fillMap();
       std::vector<std::string> input = iConfig.getParameter<std::vector<std::string> >("monitorDecays");
-      for (std::vector<std::string>::const_iterator i = input.begin(); i != input.end(); ++i) {
-        fill(*i);
+      for (const auto &i : input) {
+        fill(i);
       }
     }
 
@@ -81,7 +81,7 @@ private:
       return convert(channels[i - 1].first) + convert(channels[i - 1].second);
     }
 
-    int convert(std::string s) {
+    int convert(const std::string &s) {
       if (namePidMap.count(s)) {
         return namePidMap[s];
       }
@@ -92,7 +92,7 @@ private:
       pid = abs(pid);
       if (pid == 14 || pid == 16)
         pid = 12;
-      for (std::map<std::string, int>::const_iterator i = namePidMap.begin(); i != namePidMap.end(); ++i) {
+      for (auto i = namePidMap.begin(); i != namePidMap.end(); ++i) {
         if (i->second == pid)
           return i->first;
       }
@@ -103,7 +103,7 @@ private:
 
     int isDecayParticle(int pid) {
       int idx = 0;
-      for (std::map<std::string, int>::const_iterator i = namePidMap.begin(); i != namePidMap.end(); ++i) {
+      for (auto i = namePidMap.begin(); i != namePidMap.end(); ++i) {
         if (i->second == pid)
           return idx;
         idx++;
@@ -113,7 +113,7 @@ private:
 
     std::string ConvertIndex(int index) {
       int idx = 0;
-      for (std::map<std::string, int>::const_iterator i = namePidMap.begin(); i != namePidMap.end(); ++i) {
+      for (auto i = namePidMap.begin(); i != namePidMap.end(); ++i) {
         if (idx == index)
           return i->first;
         idx++;
@@ -122,8 +122,8 @@ private:
     }
 
   private:
-    void fill(std::string s) {
-      size_t pos = s.find("+");
+    void fill(const std::string &s) {
+      size_t pos = s.find('+');
       std::string particle1 = s.substr(0, pos);
       std::string particle2 = s.substr(pos + 1, s.length() - pos);
       std::pair<int, int> decay;
@@ -147,7 +147,7 @@ private:
       namePidMap["Z"] = 23;
       namePidMap["W"] = 24;
       nparticles_ = 0;
-      for (std::map<std::string, int>::const_iterator i = namePidMap.begin(); i != namePidMap.end(); ++i) {
+      for (auto i = namePidMap.begin(); i != namePidMap.end(); ++i) {
         nparticles_++;
       }
     }

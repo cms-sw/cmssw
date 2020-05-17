@@ -24,7 +24,7 @@ public:
   /** Adds a new TrajectoryStateOnSurface to the list 
    *  of components
    */
-  void addState(const TrajectoryStateOnSurface);
+  void addState(const TrajectoryStateOnSurface&);
 
   /// Adds (the weight of an) invalid state to the list
   void addInvalidState(const double);

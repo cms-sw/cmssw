@@ -53,9 +53,9 @@ void ShiftedPFCandidateProducerForPFNoPUMEt::produce(edm::Event& evt, const edm:
   evt.getByToken(srcJetsToken_, jets);
 
   std::vector<const reco::PFJet*> selectedJets;
-  for (reco::PFJetCollection::const_iterator jet = jets->begin(); jet != jets->end(); ++jet) {
-    if (jet->pt() > minJetPt_)
-      selectedJets.push_back(&(*jet));
+  for (const auto& jet : *jets) {
+    if (jet.pt() > minJetPt_)
+      selectedJets.push_back(&jet);
   }
 
   if (!jetCorrPayloadName_.empty()) {
@@ -68,13 +68,11 @@ void ShiftedPFCandidateProducerForPFNoPUMEt::produce(edm::Event& evt, const edm:
 
   auto shiftedPFCandidates = std::make_unique<reco::PFCandidateCollection>();
 
-  for (reco::PFCandidateCollection::const_iterator originalPFCandidate = originalPFCandidates->begin();
-       originalPFCandidate != originalPFCandidates->end();
-       ++originalPFCandidate) {
+  for (const auto& originalPFCandidate : *originalPFCandidates) {
     const reco::PFJet* jet_matched = nullptr;
     for (auto jet : selectedJets) {
-      for (auto jetc : jet->getPFConstituents()) {
-        if (deltaR2(originalPFCandidate->p4(), jetc->p4()) < dR2Match) {
+      for (const auto& jetc : jet->getPFConstituents()) {
+        if (deltaR2(originalPFCandidate.p4(), jetc->p4()) < dR2Match) {
           jet_matched = jet;
           break;
         }
@@ -95,10 +93,10 @@ void ShiftedPFCandidateProducerForPFNoPUMEt::produce(edm::Event& evt, const edm:
 
     shift *= shiftBy_;
 
-    reco::Candidate::LorentzVector shiftedPFCandidateP4 = originalPFCandidate->p4();
+    reco::Candidate::LorentzVector shiftedPFCandidateP4 = originalPFCandidate.p4();
     shiftedPFCandidateP4 *= (1. + shift);
 
-    reco::PFCandidate shiftedPFCandidate(*originalPFCandidate);
+    reco::PFCandidate shiftedPFCandidate(originalPFCandidate);
     shiftedPFCandidate.setP4(shiftedPFCandidateP4);
 
     shiftedPFCandidates->push_back(shiftedPFCandidate);

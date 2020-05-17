@@ -59,16 +59,22 @@ protected:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
   /// Book the ME
-  void bookHistos(DQMStore::IBooker& ibooker, const DTSuperLayerId& dtSL, std::string folder, std::string histoTag);
-  void bookHistos(DQMStore::IBooker& ibooker, const DTChamberId& dtCh, std::string folder, std::string histoTag);
-  void bookHistos(DQMStore::IBooker& ibooker, const int wheelId, std::string folder, std::string histoTag);
+  void bookHistos(DQMStore::IBooker& ibooker,
+                  const DTSuperLayerId& dtSL,
+                  const std::string& folder,
+                  const std::string& histoTag);
+  void bookHistos(DQMStore::IBooker& ibooker,
+                  const DTChamberId& dtCh,
+                  const std::string& folder,
+                  const std::string& histoTag);
+  void bookHistos(DQMStore::IBooker& ibooker, const int wheelId, const std::string& folder, const std::string& histoTag);
 
   /// To reset the MEs
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) override;
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) final {}
 
   /// To map real channels
-  void channelsMap(const DTChamberId& dtCh, std::string histoTag);
+  void channelsMap(const DTChamberId& dtCh, const std::string& histoTag);
 
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;

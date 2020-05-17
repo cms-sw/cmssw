@@ -665,7 +665,7 @@ namespace sistrip {
   }
 
   void FEDBackendStatusRegister::printFlagsForBuffer(const FEDBufferState bufferState,
-                                                     const std::string name,
+                                                     const std::string& name,
                                                      std::ostream& os) const {
     if (bufferState & BUFFER_STATE_EMPTY)
       os << name << "_EMPTY ";

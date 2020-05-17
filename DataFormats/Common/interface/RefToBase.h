@@ -85,7 +85,7 @@ namespace edm {
     template <typename T1>
     explicit RefToBase(RefToBase<T1> const& r);
     RefToBase(std::unique_ptr<reftobase::BaseHolder<value_type>>);
-    RefToBase(std::shared_ptr<reftobase::RefHolderBase> p);
+    RefToBase(const std::shared_ptr<reftobase::RefHolderBase>& p);
 
     ~RefToBase() noexcept;
 
@@ -180,7 +180,7 @@ namespace edm {
   inline RefToBase<T>::RefToBase(std::unique_ptr<reftobase::BaseHolder<value_type>> p) : holder_(p.release()) {}
 
   template <class T>
-  inline RefToBase<T>::RefToBase(std::shared_ptr<reftobase::RefHolderBase> p)
+  inline RefToBase<T>::RefToBase(const std::shared_ptr<reftobase::RefHolderBase>& p)
       : holder_(new reftobase::IndirectHolder<T>(p)) {}
 
   template <class T>

@@ -10,8 +10,12 @@ public:
   EcalLogicID();
 
   // Initializing constructor
-  EcalLogicID(
-      std::string name, int logicID, int id1 = NULLID, int id2 = NULLID, int id3 = NULLID, std::string mapsTo = "");
+  EcalLogicID(const std::string& name,
+              int logicID,
+              int id1 = NULLID,
+              int id2 = NULLID,
+              int id3 = NULLID,
+              const std::string& mapsTo = "");
 
   // Destructor
   virtual ~EcalLogicID();
@@ -35,7 +39,7 @@ public:
   static const int NULLID = -100;
 
   // Operators
-  friend inline bool operator<(EcalLogicID lhs, EcalLogicID rhs) { return (lhs.logicID < rhs.logicID); }
+  friend inline bool operator<(const EcalLogicID& lhs, const EcalLogicID& rhs) { return (lhs.logicID < rhs.logicID); }
 
 private:
   std::string name;

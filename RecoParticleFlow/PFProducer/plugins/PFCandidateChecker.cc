@@ -176,18 +176,18 @@ void PFCandidateChecker::analyze(const Event& iEvent, const EventSetup& iSetup) 
 void PFCandidateChecker::printMet(const PFCandidateCollection& pfReco, const PFCandidateCollection& pfReReco) const {
   double metX = 0.;
   double metY = 0.;
-  for (unsigned i = 0; i < pfReco.size(); i++) {
-    metX += pfReco[i].px();
-    metY += pfReco[i].py();
+  for (const auto& i : pfReco) {
+    metX += i.px();
+    metY += i.py();
   }
   double met = std::sqrt(metX * metX + metY * metY);
   std::cout << "MET RECO    = " << metX << " " << metY << " " << met << std::endl;
 
   metX = 0.;
   metY = 0.;
-  for (unsigned i = 0; i < pfReReco.size(); i++) {
-    metX += pfReReco[i].px();
-    metY += pfReReco[i].py();
+  for (const auto& i : pfReReco) {
+    metX += i.px();
+    metY += i.py();
   }
   met = std::sqrt(metX * metX + metY * metY);
   std::cout << "MET Re-RECO = " << metX << " " << metY << " " << met << std::endl;

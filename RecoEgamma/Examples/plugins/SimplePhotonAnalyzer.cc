@@ -206,9 +206,8 @@ void SimplePhotonAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup&
 
       bool matched = false;
       // loop  Photon candidates
-      for (reco::PhotonCollection::const_iterator iPho = photonCollection.begin(); iPho != photonCollection.end();
-           iPho++) {
-        reco::Photon localPho = reco::Photon(*iPho);
+      for (const auto& iPho : photonCollection) {
+        reco::Photon localPho = reco::Photon(iPho);
         localPhotons.push_back(localPho);
 
         /// Match reconstructed photon candidates with the nearest generated photonPho;

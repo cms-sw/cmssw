@@ -128,8 +128,8 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
       int cont = 0;
       int tcc = 0;
 
-      for (TrackCandidateCollection::const_iterator i = theTCCollection->begin(); i != theTCCollection->end(); i++) {
-        const TrackCandidate* theTC = &(*i);
+      for (const auto& i : *theTCCollection) {
+        const TrackCandidate* theTC = &i;
         PTrajectoryStateOnDet state = theTC->trajectoryStateOnDet();
         const TrackCandidate::range& recHitVec = theTC->recHits();
         const TrajectorySeed& seed = theTC->seed();
@@ -191,7 +191,7 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
     if (validTrackCandidateSCAssociationInput_) {
       int itrack = 0;
       std::vector<edm::Ptr<reco::CaloCluster>> caloPtrVec;
-      for (AlgoProductCollection::iterator i = algoResults.begin(); i != algoResults.end(); i++) {
+      for (auto i = algoResults.begin(); i != algoResults.end(); i++) {
         edm::Ref<TrackCandidateCollection> trackCRef(theTCCollection, tccLocations[itrack]);
         const edm::Ptr<reco::CaloCluster>& aClus = (*trkCandidateSCAssocHandle)[trackCRef];
         caloPtrVec.push_back(aClus);
@@ -401,11 +401,11 @@ void TrackProducerWithSCAssociation::putInEvt(edm::Event& evt,
 
     // Now Create traj<->tracks association map
     auto trajTrackMap = std::make_unique<TrajTrackAssociationCollection>(rTrajs, rTracks_);
-    for (std::map<unsigned int, unsigned int>::iterator i = tjTkMap.begin(); i != tjTkMap.end(); i++) {
-      edm::Ref<std::vector<Trajectory>> trajRef(rTrajs, (*i).first);
-      edm::Ref<reco::TrackCollection> tkRef(rTracks_, (*i).second);
-      trajTrackMap->insert(edm::Ref<std::vector<Trajectory>>(rTrajs, (*i).first),
-                           edm::Ref<reco::TrackCollection>(rTracks_, (*i).second));
+    for (auto& i : tjTkMap) {
+      edm::Ref<std::vector<Trajectory>> trajRef(rTrajs, i.first);
+      edm::Ref<reco::TrackCollection> tkRef(rTracks_, i.second);
+      trajTrackMap->insert(edm::Ref<std::vector<Trajectory>>(rTrajs, i.first),
+                           edm::Ref<reco::TrackCollection>(rTracks_, i.second));
     }
     evt.put(std::move(trajTrackMap));
   }

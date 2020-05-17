@@ -10,6 +10,7 @@
 #include <fstream>
 #include <cctype>
 #include <cstdlib>
+#include <utility>
 
 using namespace std;
 using namespace pos;
@@ -25,7 +26,7 @@ PixelModuleName::PixelModuleName(PixelROCName roc) {
   id_ = idtmp | (id & 0xE0000000);
 }
 
-PixelModuleName::PixelModuleName(string modulename) { parsename(modulename); }
+PixelModuleName::PixelModuleName(string modulename) { parsename(std::move(modulename)); }
 
 void PixelModuleName::setIdFPix(char np, char LR, int disk, int blade, int panel) {
   std::string mthn = "[PixelModuleName::setIdFPix()]\t\t\t    ";

@@ -26,11 +26,11 @@ const OrderedSeedingHits& BeamHaloPairGenerator::run(const TrackingRegion& regio
     auto innerHits = region.hits(es, ls[0]);
     auto outerHits = region.hits(es, ls[1]);
 
-    for (auto iOuterHit = outerHits.begin(); iOuterHit != outerHits.end(); iOuterHit++) {
-      for (auto iInnerHit = innerHits.begin(); iInnerHit != innerHits.end(); iInnerHit++) {
+    for (auto& outerHit : outerHits) {
+      for (auto& innerHit : innerHits) {
         //do something in there... if necessary
-        SeedingHitSet::ConstRecHitPointer crhpi = &(**iInnerHit);
-        SeedingHitSet::ConstRecHitPointer crhpo = &(**iOuterHit);
+        SeedingHitSet::ConstRecHitPointer crhpi = &(*innerHit);
+        SeedingHitSet::ConstRecHitPointer crhpo = &(*outerHit);
         GlobalVector d = crhpo->globalPosition() - crhpi->globalPosition();
         double ABSsinDtheta = fabs(sin(d.theta()));
         LogDebug("BeamHaloPairGenerator")

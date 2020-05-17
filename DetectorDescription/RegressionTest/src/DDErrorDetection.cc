@@ -84,7 +84,7 @@ const std::map<std::string, std::set<DDLogicalPart>>& DDErrorDetection::lp_cpv(c
   std::map<std::string, std::set<DDLogicalPart>>::const_iterator it(lp_err::instance().begin()),
       ed(lp_err::instance().end());
   for (; it != ed; ++it) {
-    std::set<DDLogicalPart>::const_iterator sit(it->second.begin()), sed(it->second.end());
+    auto sit(it->second.begin()), sed(it->second.end());
     for (; sit != sed; ++sit) {
       const DDLogicalPart& lp = *sit;
       auto er = g.edges(lp);
@@ -105,12 +105,12 @@ const std::map<DDSolid, std::set<DDLogicalPart>>& DDErrorDetection::so_lp() {
     return result_;
 
   const std::map<DDSolid, std::set<DDSolid>>& err_mat = so();
-  std::map<DDSolid, std::set<DDSolid>>::const_iterator it(err_mat.begin()), ed(err_mat.end());
+  auto it(err_mat.begin()), ed(err_mat.end());
   for (; it != ed; ++it) {
     std::set<DDLogicalPart> s;
     DDSolid m(it->first);
     result_[m] = s;
-    std::set<DDSolid>::const_iterator sit(it->second.begin()), sed(it->second.end());
+    auto sit(it->second.begin()), sed(it->second.end());
     for (; sit != sed; ++sit) {
       result_[*sit] = s;
     }
@@ -120,7 +120,7 @@ const std::map<DDSolid, std::set<DDLogicalPart>>& DDErrorDetection::so_lp() {
   lped.end();
   for (; lpit != lped; ++lpit) {
     if (lpit->isDefined().second) {
-      std::map<DDSolid, std::set<DDLogicalPart>>::iterator i = result_.find(lpit->solid());
+      auto i = result_.find(lpit->solid());
       //std::cout << "searching: " << lpit->name() << std::endl;
       if (i != result_.end()) {
         //std::cout << std::endl << "FOUND: " << lpit->name() << std::endl << std::endl;
@@ -145,7 +145,7 @@ const std::map<DDMaterial, std::set<DDLogicalPart>>& DDErrorDetection::ma_lp() {
     return result_;
 
   const std::vector<pair<std::string, std::string>>& err_mat = ma();
-  std::vector<pair<std::string, std::string>>::const_iterator it(err_mat.begin()), ed(err_mat.end());
+  auto it(err_mat.begin()), ed(err_mat.end());
   for (; it != ed; ++it) {
     std::set<DDLogicalPart> s;
     DDMaterial m(it->second);
@@ -155,7 +155,7 @@ const std::map<DDMaterial, std::set<DDLogicalPart>>& DDErrorDetection::ma_lp() {
   lped.end();
   for (; lpit != lped; ++lpit) {
     if (lpit->isDefined().second) {
-      std::map<DDMaterial, std::set<DDLogicalPart>>::iterator i = result_.find(lpit->material());
+      auto i = result_.find(lpit->material());
       if (i != result_.end()) {
         //std::cout << std::endl << "FOUND: " << lpit->name() << std::endl << std::endl;
         i->second.insert(*lpit);
@@ -238,7 +238,7 @@ void DDErrorDetection::report(const DDCompactView& cpv, ostream& o) {
 
   o << "B) Detailed report on Materials:" << std::endl;
   const std::vector<pair<std::string, std::string>>& res = ma();
-  std::vector<pair<std::string, std::string>>::const_iterator it(res.begin()), ed(res.end());
+  auto it(res.begin()), ed(res.end());
   for (; it != ed; ++it) {
     std::cout << it->second << ":  " << it->first << std::endl;
   }

@@ -39,12 +39,12 @@ namespace edm {
       typedef typename product_type::const_iterator iter;
 
       if (iToType == typeid(element_type)) {
-        iter it = coll.begin();
+        auto it = coll.begin();
         std::advance(it, iIndex);
         element_type const* address = GetProduct<product_type>::address(it);
         oPtr = address;
       } else {
-        iter it = coll.begin();
+        auto it = coll.begin();
         std::advance(it, iIndex);
         element_type const* address = GetProduct<product_type>::address(it);
 

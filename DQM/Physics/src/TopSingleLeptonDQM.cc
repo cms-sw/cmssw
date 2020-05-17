@@ -5,6 +5,8 @@
 #include "DQM/Physics/src/TopSingleLeptonDQM.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include <iostream>
+#include <memory>
+
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
@@ -51,8 +53,8 @@ namespace TopSingleLepton {
       // select is optional; in case it's not found no
       // selection will be applied
       if (elecExtras.existsAs<std::string>("select")) {
-        elecSelect_.reset(
-            new StringCutObjectSelector<reco::PFCandidate>(elecExtras.getParameter<std::string>("select")));
+        elecSelect_ = std::make_unique<StringCutObjectSelector<reco::PFCandidate>>(
+            elecExtras.getParameter<std::string>("select"));
       }
 
       if (elecExtras.existsAs<std::string>("rho")) {
@@ -72,7 +74,8 @@ namespace TopSingleLepton {
       // select is optional; in case it's not found no
       // selection will be applied
       if (pvExtras.existsAs<std::string>("select")) {
-        pvSelect_.reset(new StringCutObjectSelector<reco::Vertex>(pvExtras.getParameter<std::string>("select")));
+        pvSelect_ =
+            std::make_unique<StringCutObjectSelector<reco::Vertex>>(pvExtras.getParameter<std::string>("select"));
       }
     }
     // muonExtras are optional; they may be omitted or empty
@@ -81,14 +84,14 @@ namespace TopSingleLepton {
       // select is optional; in case it's not found no
       // selection will be applied
       if (muonExtras.existsAs<std::string>("select")) {
-        muonSelect_.reset(
-            new StringCutObjectSelector<reco::PFCandidate>(muonExtras.getParameter<std::string>("select")));
+        muonSelect_ = std::make_unique<StringCutObjectSelector<reco::PFCandidate>>(
+            muonExtras.getParameter<std::string>("select"));
       }
       // isolation is optional; in case it's not found no
       // isolation will be applied
       if (muonExtras.existsAs<std::string>("isolation")) {
-        muonIso_.reset(
-            new StringCutObjectSelector<reco::PFCandidate>(muonExtras.getParameter<std::string>("isolation")));
+        muonIso_ = std::make_unique<StringCutObjectSelector<reco::PFCandidate>>(
+            muonExtras.getParameter<std::string>("isolation"));
       }
     }
 
@@ -105,18 +108,19 @@ namespace TopSingleLepton {
       if (jetExtras.existsAs<edm::ParameterSet>("jetID")) {
         edm::ParameterSet jetID = jetExtras.getParameter<edm::ParameterSet>("jetID");
         jetIDLabel_ = iC.consumes<reco::JetIDValueMap>(jetID.getParameter<edm::InputTag>("label"));
-        jetIDSelect_.reset(new StringCutObjectSelector<reco::JetID>(jetID.getParameter<std::string>("select")));
+        jetIDSelect_ =
+            std::make_unique<StringCutObjectSelector<reco::JetID>>(jetID.getParameter<std::string>("select"));
       }
       // select is optional; in case it's not found no
       // selection will be applied (only implemented for
       // CaloJets at the moment)
       if (jetExtras.existsAs<std::string>("select")) {
         jetSelect_ = jetExtras.getParameter<std::string>("select");
-        jetSelection_.reset(new StringCutObjectSelector<reco::PFJet>(jetSelect_));
-        jetlooseSelection_.reset(new StringCutObjectSelector<reco::PFJet>(
+        jetSelection_ = std::make_unique<StringCutObjectSelector<reco::PFJet>>(jetSelect_);
+        jetlooseSelection_ = std::make_unique<StringCutObjectSelector<reco::PFJet>>(
             "chargedHadronEnergyFraction()>0 && chargedMultiplicity()>0 && chargedEmEnergyFraction()<0.99 && "
             "neutralHadronEnergyFraction()<0.99 && neutralEmEnergyFraction()<0.99 && "
-            "(chargedMultiplicity()+neutralMultiplicity())>1"));
+            "(chargedMultiplicity()+neutralMultiplicity())>1");
       }
       // jetBDiscriminators are optional; in case they are
       // not found the InputTag will remain empty; they
@@ -599,8 +603,7 @@ namespace TopSingleLepton {
   */
 
     // fill monitoring histograms for met
-    for (std::vector<edm::EDGetTokenT<edm::View<reco::MET>>>::const_iterator met_ = mets_.begin(); met_ != mets_.end();
-         ++met_) {
+    for (auto met_ = mets_.begin(); met_ != mets_.end(); ++met_) {
       edm::Handle<edm::View<reco::MET>> met;
       if (!event.getByToken(*met_, met))
         continue;
@@ -687,53 +690,51 @@ TopSingleLeptonDQM::TopSingleLeptonDQM(const edm::ParameterSet& cfg)
     edm::ParameterSet beamspot = presel.getParameter<edm::ParameterSet>("beamspot");
     beamspot_ = beamspot.getParameter<edm::InputTag>("src");
     beamspot__ = consumes<reco::BeamSpot>(beamspot.getParameter<edm::InputTag>("src"));
-    beamspotSelect_.reset(new StringCutObjectSelector<reco::BeamSpot>(beamspot.getParameter<std::string>("select")));
+    beamspotSelect_ =
+        std::make_unique<StringCutObjectSelector<reco::BeamSpot>>(beamspot.getParameter<std::string>("select"));
   }
 
   // configure the selection
   sel_ = cfg.getParameter<std::vector<edm::ParameterSet>>("selection");
   setup_ = cfg.getParameter<edm::ParameterSet>("setup");
-  for (unsigned int i = 0; i < sel_.size(); ++i) {
-    selectionOrder_.push_back(sel_.at(i).getParameter<std::string>("label"));
+  for (auto& i : sel_) {
+    selectionOrder_.push_back(i.getParameter<std::string>("label"));
     selection_[selectionStep(selectionOrder_.back())] =
-        std::make_pair(sel_.at(i),
-                       std::unique_ptr<TopSingleLepton::MonitorEnsemble>(new TopSingleLepton::MonitorEnsemble(
-                           selectionStep(selectionOrder_.back()).c_str(), setup_, consumesCollector())));
+        std::make_pair(i,
+                       std::make_unique<TopSingleLepton::MonitorEnsemble>(
+                           selectionStep(selectionOrder_.back()).c_str(), setup_, consumesCollector()));
   }
-  for (std::vector<std::string>::const_iterator selIt = selectionOrder_.begin(); selIt != selectionOrder_.end();
-       ++selIt) {
-    std::string key = selectionStep(*selIt), type = objectType(*selIt);
+  for (const auto& selIt : selectionOrder_) {
+    std::string key = selectionStep(selIt), type = objectType(selIt);
     if (selection_.find(key) != selection_.end()) {
       if (type == "muons") {
-        MuonStep.reset(new SelectionStep<reco::PFCandidate>(selection_[key].first, consumesCollector()));
+        MuonStep = std::make_unique<SelectionStep<reco::PFCandidate>>(selection_[key].first, consumesCollector());
       }
       if (type == "elecs") {
-        ElectronStep.reset(new SelectionStep<reco::PFCandidate>(selection_[key].first, consumesCollector()));
+        ElectronStep = std::make_unique<SelectionStep<reco::PFCandidate>>(selection_[key].first, consumesCollector());
       }
       if (type == "pvs") {
-        PvStep.reset(new SelectionStep<reco::Vertex>(selection_[key].first, consumesCollector()));
+        PvStep = std::make_unique<SelectionStep<reco::Vertex>>(selection_[key].first, consumesCollector());
       }
       if (type == "jets") {
-        JetSteps.push_back(std::unique_ptr<SelectionStep<reco::Jet>>(
-            new SelectionStep<reco::Jet>(selection_[key].first, consumesCollector())));
+        JetSteps.push_back(std::make_unique<SelectionStep<reco::Jet>>(selection_[key].first, consumesCollector()));
       }
       if (type == "jets/pf") {
-        PFJetSteps.push_back(std::unique_ptr<SelectionStep<reco::PFJet>>(
-            new SelectionStep<reco::PFJet>(selection_[key].first, consumesCollector())));
+        PFJetSteps.push_back(std::make_unique<SelectionStep<reco::PFJet>>(selection_[key].first, consumesCollector()));
       }
       if (type == "jets/calo") {
-        CaloJetSteps.push_back(std::unique_ptr<SelectionStep<reco::CaloJet>>(
-            new SelectionStep<reco::CaloJet>(selection_[key].first, consumesCollector())));
+        CaloJetSteps.push_back(
+            std::make_unique<SelectionStep<reco::CaloJet>>(selection_[key].first, consumesCollector()));
       }
       if (type == "met") {
-        METStep.reset(new SelectionStep<reco::MET>(selection_[key].first, consumesCollector()));
+        METStep = std::make_unique<SelectionStep<reco::MET>>(selection_[key].first, consumesCollector());
       }
     }
   }
 }
 void TopSingleLeptonDQM::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) {
-  for (auto selIt = selection_.begin(); selIt != selection_.end(); ++selIt) {
-    selIt->second.second->book(ibooker);
+  for (auto& selIt : selection_) {
+    selIt.second.second->book(ibooker);
   }
 }
 void TopSingleLeptonDQM::analyze(const edm::Event& event, const edm::EventSetup& setup) {
@@ -756,9 +757,8 @@ void TopSingleLeptonDQM::analyze(const edm::Event& event, const edm::EventSetup&
   unsigned int nJetSteps = -1;
   unsigned int nPFJetSteps = -1;
   unsigned int nCaloJetSteps = -1;
-  for (std::vector<std::string>::const_iterator selIt = selectionOrder_.begin(); selIt != selectionOrder_.end();
-       ++selIt) {
-    std::string key = selectionStep(*selIt), type = objectType(*selIt);
+  for (const auto& selIt : selectionOrder_) {
+    std::string key = selectionStep(selIt), type = objectType(selIt);
     if (selection_.find(key) != selection_.end()) {
       if (type == "empty") {
         selection_[key].second->fill(event, setup);

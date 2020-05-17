@@ -46,9 +46,9 @@ void FWRPCDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pro
   }
   const FWGeometry* geom = iItem->getGeom();
 
-  for (RPCDigiCollection::DigiRangeIterator dri = digis->begin(), driEnd = digis->end(); dri != driEnd; ++dri) {
-    unsigned int rawid = (*dri).first.rawId();
-    const RPCDigiCollection::Range& range = (*dri).second;
+  for (auto&& digi : *digis) {
+    unsigned int rawid = digi.first.rawId();
+    const RPCDigiCollection::Range& range = digi.second;
 
     if (!geom->contains(rawid)) {
       fwLog(fwlog::kWarning) << "Failed to get geometry of RPC roll with detid: " << rawid << std::endl;
@@ -66,7 +66,7 @@ void FWRPCDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pro
     float offset = -0.5 * nStrips * pitch;
 
     for (RPCDigiCollection::const_iterator dit = range.first; dit != range.second; ++dit) {
-      TEveStraightLineSet* stripDigiSet = new TEveStraightLineSet;
+      auto* stripDigiSet = new TEveStraightLineSet;
       stripDigiSet->SetLineWidth(3);
       setupAddElement(stripDigiSet, product);
 

@@ -65,9 +65,9 @@ L1MuDTExtLut::L1MuDTExtLut() {
 
 L1MuDTExtLut::~L1MuDTExtLut() {
   typedef vector<LUT>::iterator LI;
-  for (LI iter = ext_lut.begin(); iter != ext_lut.end(); iter++) {
-    (*iter).low.clear();
-    (*iter).high.clear();
+  for (auto& iter : ext_lut) {
+    iter.low.clear();
+    iter.high.clear();
   }
 
   ext_lut.clear();
@@ -220,7 +220,7 @@ void L1MuDTExtLut::print() const {
       cout << '-';
     cout << "---------------------------------" << endl;
 
-    LUT::LUTmap::const_iterator iter = ext_lut[ext].low.begin();
+    auto iter = ext_lut[ext].low.begin();
     LUT::LUTmap::const_iterator iter1;
     while (iter != ext_lut[ext].low.end()) {
       int address = (*iter).first;
@@ -262,7 +262,7 @@ void L1MuDTExtLut::print() const {
 // get low_value for a given address
 //
 int L1MuDTExtLut::getLow(int ext_ind, int address) const {
-  LUT::LUTmap::const_iterator iter = ext_lut[ext_ind].low.find(address);
+  auto iter = ext_lut[ext_ind].low.find(address);
   if (iter != ext_lut[ext_ind].low.end()) {
     return (*iter).second;
   } else {
@@ -275,7 +275,7 @@ int L1MuDTExtLut::getLow(int ext_ind, int address) const {
 // get high_value for a given address
 //
 int L1MuDTExtLut::getHigh(int ext_ind, int address) const {
-  LUT::LUTmap::const_iterator iter = ext_lut[ext_ind].high.find(address);
+  auto iter = ext_lut[ext_ind].high.find(address);
   if (iter != ext_lut[ext_ind].high.end()) {
     return (*iter).second;
   } else {

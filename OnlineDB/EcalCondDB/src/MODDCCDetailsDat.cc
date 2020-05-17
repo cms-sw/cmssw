@@ -183,8 +183,8 @@ void MODDCCDetailsDat::writeArrayDB(const std::map<EcalLogicID, MODDCCDetailsDat
   const MODDCCDetailsDat* dataitem;
   int count = 0;
   typedef map<EcalLogicID, MODDCCDetailsDat>::const_iterator CI;
-  for (CI p = data->begin(); p != data->end(); ++p) {
-    channel = &(p->first);
+  for (const auto& p : *data) {
+    channel = &(p.first);
     int logicID = channel->getLogicID();
     if (!logicID) {
       throw(std::runtime_error("MODDCCDetailsDat::writeArrayDB:  Bad EcalLogicID"));
@@ -192,7 +192,7 @@ void MODDCCDetailsDat::writeArrayDB(const std::map<EcalLogicID, MODDCCDetailsDat
     ids[count] = logicID;
     iovid_vec[count] = iovID;
 
-    dataitem = &(p->second);
+    dataitem = &(p.second);
     // dataIface.writeDB( channel, dataitem, iov);
     int x1 = dataitem->getQPLL();
     int x2 = dataitem->getOpticalLink();

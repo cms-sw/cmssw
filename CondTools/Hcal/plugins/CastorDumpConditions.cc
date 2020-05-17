@@ -61,7 +61,7 @@ public:
   void dumpIt(const std::vector<std::string>& mDumpRequest,
               const edm::Event& e,
               const edm::EventSetup& context,
-              const std::string name);
+              const std::string& name);
 
 private:
   std::string file_prefix;
@@ -110,8 +110,8 @@ void CastorDumpConditions::analyze(const edm::Event& iEvent, const edm::EventSet
     }
   }
 
-  for (std::vector<std::string>::const_iterator it = mDumpRequest.begin(); it != mDumpRequest.end(); it++)
-    LogAbsolute("CastorDumpConditions") << *it << "\n";
+  for (const auto& it : mDumpRequest)
+    LogAbsolute("CastorDumpConditions") << it << "\n";
 
   // dumpIt called for all possible ValueMaps. The function checks if the dump is actually requested.
   dumpIt<CastorElectronicsMap, CastorElectronicsMapRcd>(mDumpRequest, iEvent, iSetup, "ElectronicsMap");
@@ -129,7 +129,7 @@ template <class S, class SRcd>
 void CastorDumpConditions::dumpIt(const std::vector<std::string>& mDumpRequest,
                                   const edm::Event& e,
                                   const edm::EventSetup& context,
-                                  const std::string name) {
+                                  const std::string& name) {
   if (std::find(mDumpRequest.begin(), mDumpRequest.end(), name) != mDumpRequest.end()) {
     int myrun = e.id().run();
     edm::ESHandle<S> p;

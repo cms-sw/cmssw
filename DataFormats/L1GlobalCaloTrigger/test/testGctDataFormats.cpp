@@ -15,8 +15,8 @@ int main() {
   // test HF bit counts set methods
   L1GctHFBitCounts b;
   unsigned c[4];
-  for (unsigned i = 0; i < 4; ++i)
-    c[i] = 0;
+  for (unsigned int& i : c)
+    i = 0;
   for (unsigned i = 0; i < 4; ++i) {
     for (unsigned j = 0; j < 0x7; ++j) {
       b.setBitCount(i, j);
@@ -37,8 +37,8 @@ int main() {
 
   // test HF ring sums set methods
   L1GctHFRingEtSums s;
-  for (unsigned i = 0; i < 4; ++i)
-    c[i] = 0;
+  for (unsigned int& i : c)
+    i = 0;
   for (unsigned i = 0; i < 4; ++i) {
     for (unsigned j = 0; j < 0x7; ++j) {
       s.setEtSum(i, j);
@@ -59,8 +59,8 @@ int main() {
 
   // test intern HF data
   L1GctInternHFData d;
-  for (unsigned i = 0; i < 4; ++i)
-    c[i] = 0;
+  for (unsigned int& i : c)
+    i = 0;
   for (unsigned i = 0; i < 4; ++i) {
     for (unsigned j = 0; j < 0xff; ++j) {
       d.setValue(i, j);

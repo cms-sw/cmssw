@@ -77,8 +77,7 @@ namespace {
 
           for (const auto& d : detid) {
             SiStripBadStrip::Range range = payload->getRange(d);
-            for (std::vector<unsigned int>::const_iterator badStrip = range.first; badStrip != range.second;
-                 ++badStrip) {
+            for (auto badStrip = range.first; badStrip != range.second; ++badStrip) {
               ss << "DetId=" << d << " Strip=" << payload->decode(*badStrip).firstStrip << ":"
                  << payload->decode(*badStrip).range << " flag=" << payload->decode(*badStrip).flag << std::endl;
             }
@@ -108,7 +107,7 @@ namespace {
 
       std::string titleMap = "Module with at least a bad Strip (payload : " + std::get<1>(iov) + ")";
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripBadStrips"));
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripBadStrips");
       tmap->setTitle(titleMap);
       tmap->setPalette(1);
 
@@ -143,11 +142,11 @@ namespace {
       std::shared_ptr<SiStripBadStrip> payload = fetchPayload(std::get<1>(iov));
 
       edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      auto* reader = new SiStripDetInfoFileReader(fp_.fullPath());
 
       std::string titleMap = "Fraction of bad Strips per module (payload : " + std::get<1>(iov) + ")";
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripBadStrips"));
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripBadStrips");
       tmap->setTitle(titleMap);
       tmap->setPalette(1);
 
@@ -158,7 +157,7 @@ namespace {
 
       for (const auto& d : detid) {
         SiStripBadStrip::Range range = payload->getRange(d);
-        for (std::vector<unsigned int>::const_iterator badStrip = range.first; badStrip != range.second; ++badStrip) {
+        for (auto badStrip = range.first; badStrip != range.second; ++badStrip) {
           badStripsPerDetId[d] += payload->decode(*badStrip).range;
           //ss << "DetId="<< d << " Strip=" << payload->decode(*badStrip).firstStrip <<":"<< payload->decode(*badStrip).range << " flag="<< payload->decode(*badStrip).flag << std::endl;
         }
@@ -197,7 +196,7 @@ namespace {
 
     float getFromPayload(SiStripBadStrip& payload) override {
       edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      auto* reader = new SiStripDetInfoFileReader(fp_.fullPath());
 
       std::vector<uint32_t> detid;
       payload.getDetIds(detid);
@@ -207,7 +206,7 @@ namespace {
       for (const auto& d : detid) {
         SiStripBadStrip::Range range = payload.getRange(d);
         int badStrips(0);
-        for (std::vector<unsigned int>::const_iterator badStrip = range.first; badStrip != range.second; ++badStrip) {
+        for (auto badStrip = range.first; badStrip != range.second; ++badStrip) {
           badStrips += payload.decode(*badStrip).range;
         }
         badStripsPerDetId[d] = badStrips;
@@ -240,7 +239,7 @@ namespace {
 
     float getFromPayload(SiStripBadStrip& payload) override {
       edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      auto* reader = new SiStripDetInfoFileReader(fp_.fullPath());
 
       std::vector<uint32_t> detid;
       payload.getDetIds(detid);
@@ -250,7 +249,7 @@ namespace {
       for (const auto& d : detid) {
         SiStripBadStrip::Range range = payload.getRange(d);
         int badStrips(0);
-        for (std::vector<unsigned int>::const_iterator badStrip = range.first; badStrip != range.second; ++badStrip) {
+        for (auto badStrip = range.first; badStrip != range.second; ++badStrip) {
           badStrips += payload.decode(*badStrip).range;
         }
         badStripsPerDetId[d] = badStrips;
@@ -286,7 +285,7 @@ namespace {
 
     float getFromPayload(SiStripBadStrip& payload) override {
       edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      auto* reader = new SiStripDetInfoFileReader(fp_.fullPath());
 
       std::vector<uint32_t> detid;
       payload.getDetIds(detid);
@@ -296,7 +295,7 @@ namespace {
       for (const auto& d : detid) {
         SiStripBadStrip::Range range = payload.getRange(d);
         int badStrips(0);
-        for (std::vector<unsigned int>::const_iterator badStrip = range.first; badStrip != range.second; ++badStrip) {
+        for (auto badStrip = range.first; badStrip != range.second; ++badStrip) {
           badStrips += payload.decode(*badStrip).range;
         }
         badStripsPerDetId[d] = badStrips;
@@ -332,7 +331,7 @@ namespace {
 
     float getFromPayload(SiStripBadStrip& payload) override {
       edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      auto* reader = new SiStripDetInfoFileReader(fp_.fullPath());
 
       std::vector<uint32_t> detid;
       payload.getDetIds(detid);
@@ -342,7 +341,7 @@ namespace {
       for (const auto& d : detid) {
         SiStripBadStrip::Range range = payload.getRange(d);
         int badStrips(0);
-        for (std::vector<unsigned int>::const_iterator badStrip = range.first; badStrip != range.second; ++badStrip) {
+        for (auto badStrip = range.first; badStrip != range.second; ++badStrip) {
           badStrips += payload.decode(*badStrip).range;
         }
         badStripsPerDetId[d] = badStrips;
@@ -378,7 +377,7 @@ namespace {
 
     float getFromPayload(SiStripBadStrip& payload) override {
       edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      auto* reader = new SiStripDetInfoFileReader(fp_.fullPath());
 
       std::vector<uint32_t> detid;
       payload.getDetIds(detid);
@@ -388,7 +387,7 @@ namespace {
       for (const auto& d : detid) {
         SiStripBadStrip::Range range = payload.getRange(d);
         int badStrips(0);
-        for (std::vector<unsigned int>::const_iterator badStrip = range.first; badStrip != range.second; ++badStrip) {
+        for (auto badStrip = range.first; badStrip != range.second; ++badStrip) {
           badStrips += payload.decode(*badStrip).range;
         }
         badStripsPerDetId[d] = badStrips;
@@ -437,7 +436,7 @@ namespace {
       for (const auto& d : detid) {
         SiStripBadStrip::Range range = payload->getRange(d);
         int badStrips(0);
-        for (std::vector<unsigned int>::const_iterator badStrip = range.first; badStrip != range.second; ++badStrip) {
+        for (auto badStrip = range.first; badStrip != range.second; ++badStrip) {
           badStrips += payload->decode(*badStrip).range;
         }
         totalBadStrips += badStrips;
@@ -449,11 +448,11 @@ namespace {
 
       TCanvas canvas("BadStrip Region summary", "SiStripBadStrip region summary", 1200, 1000);
       canvas.cd();
-      auto h_BadStrips = std::unique_ptr<TH1F>(new TH1F("BadStripsbyRegion",
-                                                        "SiStrip Bad Strip summary by region;; n. bad strips",
-                                                        mapBadStrips.size(),
-                                                        0.,
-                                                        mapBadStrips.size()));
+      auto h_BadStrips = std::make_unique<TH1F>("BadStripsbyRegion",
+                                                "SiStrip Bad Strip summary by region;; n. bad strips",
+                                                mapBadStrips.size(),
+                                                0.,
+                                                mapBadStrips.size());
       h_BadStrips->SetStats(false);
 
       canvas.SetBottomMargin(0.18);
@@ -583,7 +582,7 @@ namespace {
       for (const auto& d : detid) {
         SiStripBadStrip::Range range = last_payload->getRange(d);
         int badStrips(0);
-        for (std::vector<unsigned int>::const_iterator badStrip = range.first; badStrip != range.second; ++badStrip) {
+        for (auto badStrip = range.first; badStrip != range.second; ++badStrip) {
           badStrips += last_payload->decode(*badStrip).range;
         }
         totalLastBadStrips += badStrips;
@@ -602,7 +601,7 @@ namespace {
       for (const auto& d : detid) {
         SiStripBadStrip::Range range = first_payload->getRange(d);
         int badStrips(0);
-        for (std::vector<unsigned int>::const_iterator badStrip = range.first; badStrip != range.second; ++badStrip) {
+        for (auto badStrip = range.first; badStrip != range.second; ++badStrip) {
           badStrips += first_payload->decode(*badStrip).range;
         }
         totalFirstBadStrips += badStrips;
@@ -615,18 +614,18 @@ namespace {
       TCanvas canvas("BadStrip Partion summary", "SiStripBadStrip region summary", 1200, 1000);
       canvas.cd();
 
-      auto h_LastBadStrips = std::unique_ptr<TH1F>(new TH1F("BadStripsbyRegion1",
-                                                            "SiStrip Bad Strip summary by region;; n. bad strips",
-                                                            mapLastBadStrips.size(),
-                                                            0.,
-                                                            mapLastBadStrips.size()));
+      auto h_LastBadStrips = std::make_unique<TH1F>("BadStripsbyRegion1",
+                                                    "SiStrip Bad Strip summary by region;; n. bad strips",
+                                                    mapLastBadStrips.size(),
+                                                    0.,
+                                                    mapLastBadStrips.size());
       h_LastBadStrips->SetStats(false);
 
-      auto h_FirstBadStrips = std::unique_ptr<TH1F>(new TH1F("BadStripsbyRegion2",
-                                                             "SiStrip Bad Strip summary by region;; n. bad strips",
-                                                             mapFirstBadStrips.size(),
-                                                             0.,
-                                                             mapFirstBadStrips.size()));
+      auto h_FirstBadStrips = std::make_unique<TH1F>("BadStripsbyRegion2",
+                                                     "SiStrip Bad Strip summary by region;; n. bad strips",
+                                                     mapFirstBadStrips.size(),
+                                                     0.,
+                                                     mapFirstBadStrips.size());
       h_FirstBadStrips->SetStats(false);
 
       canvas.SetBottomMargin(0.18);
@@ -793,12 +792,12 @@ namespace {
       std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
 
       edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      auto* reader = new SiStripDetInfoFileReader(fp_.fullPath());
 
       std::string titleMap =
           "#Delta fraction of bad Strips per module (IOV:" + lastIOVsince + " - IOV:" + firstIOVsince + ")";
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripBadStrips"));
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripBadStrips");
       tmap->setTitle(titleMap);
       tmap->setPalette(1);
 
@@ -810,7 +809,7 @@ namespace {
 
       for (const auto& d : detid1) {
         SiStripBadStrip::Range range = last_payload->getRange(d);
-        for (std::vector<unsigned int>::const_iterator badStrip = range.first; badStrip != range.second; ++badStrip) {
+        for (auto badStrip = range.first; badStrip != range.second; ++badStrip) {
           LastFractionPerDetId[d] += last_payload->decode(*badStrip).range;
         }
         // normalize to the number of strips per module
@@ -824,7 +823,7 @@ namespace {
 
       for (const auto& d : detid2) {
         SiStripBadStrip::Range range = first_payload->getRange(d);
-        for (std::vector<unsigned int>::const_iterator badStrip = range.first; badStrip != range.second; ++badStrip) {
+        for (auto badStrip = range.first; badStrip != range.second; ++badStrip) {
           FirstFractionPerDetId[d] += first_payload->decode(*badStrip).range;
         }
         // normalize to the number of strips per module
@@ -969,7 +968,7 @@ namespace {
       edm::LogInfo("SiStripBadStrip_PayloadInspector") << ss.str() << std::endl;
       //std::cout<<  ss.str() << std::endl;
 
-      auto masterTable = std::unique_ptr<TH2I>(new TH2I("table", "", 4, 0., 4., 39, 0., 39.));
+      auto masterTable = std::make_unique<TH2I>("table", "", 4, 0., 4., 39, 0., 39.);
 
       std::string labelsX[4] = {"Bad Modules", "Bad Fibers", "Bad APVs", "Bad Strips"};
       std::string labelsY[40] = {
@@ -1141,8 +1140,8 @@ namespace {
       //SiStripPI::printBCDebug(tot_NTkComponents,totNComponents);
 
       // declare histograms
-      auto masterTable = std::unique_ptr<TH2F>(new TH2F("table", "", 4, 0., 4., 39, 0., 39.));
-      auto masterTableColor = std::unique_ptr<TH2F>(new TH2F("colortable", "", 4, 0., 4., 39, 0., 39.));
+      auto masterTable = std::make_unique<TH2F>("table", "", 4, 0., 4., 39, 0., 39.);
+      auto masterTableColor = std::make_unique<TH2F>("colortable", "", 4, 0., 4., 39, 0., 39.);
 
       std::string labelsX[4] = {"Bad Modules", "Bad Fibers", "Bad APVs", "Bad Strips"};
       std::string labelsY[40] = {

@@ -46,11 +46,11 @@ private:
 class SiStripDigiAnalyzer : public edm::EDAnalyzer {
 public:
   SiStripDigiAnalyzer(const edm::ParameterSet&);
-  ~SiStripDigiAnalyzer();
+  ~SiStripDigiAnalyzer() override;
 
-  void beginJob();
-  void analyze(const edm::Event&, const edm::EventSetup&);
-  void endJob();
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
 private:
   std::string inputModuleLabel_;

@@ -157,13 +157,13 @@ MultiplicityTimeCorrelations::MultiplicityTimeCorrelations(const edm::ParameterS
   std::vector<edm::ParameterSet> wantedsubds(
       iConfig.getUntrackedParameter<std::vector<edm::ParameterSet> >("wantedSubDets"));
 
-  for (std::vector<edm::ParameterSet>::iterator ps = wantedsubds.begin(); ps != wantedsubds.end(); ++ps) {
-    _subdets[ps->getParameter<unsigned int>("detSelection")] = ps->getParameter<std::string>("detLabel");
-    _binmax[ps->getParameter<unsigned int>("detSelection")] = ps->getParameter<int>("binMax");
+  for (auto& wantedsubd : wantedsubds) {
+    _subdets[wantedsubd.getParameter<unsigned int>("detSelection")] = wantedsubd.getParameter<std::string>("detLabel");
+    _binmax[wantedsubd.getParameter<unsigned int>("detSelection")] = wantedsubd.getParameter<int>("binMax");
   }
   std::map<int, std::string> labels;
 
-  for (std::map<unsigned int, std::string>::const_iterator subd = _subdets.begin(); subd != _subdets.end(); ++subd) {
+  for (auto subd = _subdets.begin(); subd != _subdets.end(); ++subd) {
     labels[int(subd->first)] = subd->second;
   }
 
@@ -173,13 +173,13 @@ MultiplicityTimeCorrelations::MultiplicityTimeCorrelations(const edm::ParameterS
 
   TFileDirectory subdbxbin = tfserv->mkdir("DBXDebugging");
 
-  for (std::vector<int>::const_iterator bin = _dbxbins.begin(); bin != _dbxbins.end(); bin++) {
+  for (int _dbxbin : _dbxbins) {
     char hname[200];
     char htitle[200];
 
     edm::LogInfo("DBXHistosBinMaxValue") << "Setting bin max values";
 
-    for (std::map<unsigned int, std::string>::const_iterator subd = _subdets.begin(); subd != _subdets.end(); ++subd) {
+    for (auto subd = _subdets.begin(); subd != _subdets.end(); ++subd) {
       if (_binmax.find(subd->first) == _binmax.end()) {
         edm::LogVerbatim("DBXHistosNotConfiguredBinMax")
             << "Bin max for " << subd->second << " not configured: " << _trnumb.nstrips(int(subd->first)) << " used";
@@ -188,12 +188,12 @@ MultiplicityTimeCorrelations::MultiplicityTimeCorrelations(const edm::ParameterS
 
       edm::LogVerbatim("DBXHistosBinMaxValue") << "Bin max for " << subd->second << " is " << _binmax[subd->first];
 
-      sprintf(hname, "sumn%sdigi_%d", subd->second.c_str(), *bin);
-      sprintf(htitle, "%s digi multiplicity at DBX = %d", subd->second.c_str(), *bin);
+      sprintf(hname, "sumn%sdigi_%d", subd->second.c_str(), _dbxbin);
+      sprintf(htitle, "%s digi multiplicity at DBX = %d", subd->second.c_str(), _dbxbin);
       LogDebug("DBXDebug") << "creating histogram " << hname << " " << htitle;
-      _dbxhistos[*bin][subd->first] =
+      _dbxhistos[_dbxbin][subd->first] =
           subdbxbin.make<TH1F>(hname, htitle, 1000, 0., _binmax[subd->first] / (20 * 1000) * 1000);
-      _dbxhistos[*bin][subd->first]->GetXaxis()->SetTitle("Number of Digis");
+      _dbxhistos[_dbxbin][subd->first]->GetXaxis()->SetTitle("Number of Digis");
     }
     /*
     sprintf(hname,"sumntkdigi_%d",*bin);
@@ -270,9 +270,9 @@ void MultiplicityTimeCorrelations::analyze(const edm::Event& iEvent, const edm::
       // create map of digi multiplicity
 
       std::map<int, int> digimap;
-      for (std::map<unsigned int, int>::const_iterator mult = mults->begin(); mult != mults->end(); ++mult) {
-        if (_subdets.find(mult->first) != _subdets.end())
-          digimap[int(mult->first)] = mult->second;
+      for (auto mult : *mults) {
+        if (_subdets.find(mult.first) != _subdets.end())
+          digimap[int(mult.first)] = mult.second;
       }
 
       _digibxcorrhmevent.fill(*he, digimap, apvphase);
@@ -283,13 +283,13 @@ void MultiplicityTimeCorrelations::analyze(const edm::Event& iEvent, const edm::
         long long dbx = he->deltaBX();
 
         if (_dbxhistos.find(dbx) != _dbxhistos.end()) {
-          for (std::map<unsigned int, int>::const_iterator ndigi = mults->begin(); ndigi != mults->end(); ++ndigi) {
-            _dbxhistos[dbx][ndigi->first]->Fill(ndigi->second);
+          for (auto ndigi : *mults) {
+            _dbxhistos[dbx][ndigi.first]->Fill(ndigi.second);
           }
         }
         if (_dbxhistos.find(-1) != _dbxhistos.end()) {
-          for (std::map<unsigned int, int>::const_iterator ndigi = mults->begin(); ndigi != mults->end(); ++ndigi) {
-            _dbxhistos[-1][ndigi->first]->Fill(ndigi->second);
+          for (auto ndigi : *mults) {
+            _dbxhistos[-1][ndigi.first]->Fill(ndigi.second);
           }
         }
         /*

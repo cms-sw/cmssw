@@ -287,7 +287,7 @@ namespace hcaldqm {
       for (int i = 0; i < FED_TOTAL_NUM; i++) {
         HcalElectronicsId eid = getEid_FED(i);
         sprintf(name, "%d", eid.isVMEid() ? eid.dccid() + 700 : utilities::crate2fed(eid.crateId(), eid.slot()));
-        labels.push_back(std::string(name));
+        labels.emplace_back(name);
       }
       return labels;
     }
@@ -298,7 +298,7 @@ namespace hcaldqm {
       for (int i = 0; i < FED_uTCA_NUM; i++) {
         HcalElectronicsId eid = getEid_FEDuTCA(i);
         sprintf(name, "%d", utilities::crate2fed(eid.crateId(), eid.slot()));
-        labels.push_back(std::string(name));
+        labels.emplace_back(name);
       }
       return labels;
     }
@@ -308,7 +308,7 @@ namespace hcaldqm {
       char name[10];
       for (int i = 0; i < FED_VME_NUM; i++) {
         sprintf(name, "%d", getEid_FEDVME(i).dccid() + 700);
-        labels.push_back(std::string(name));
+        labels.emplace_back(name);
       }
       return labels;
     }
@@ -319,7 +319,7 @@ namespace hcaldqm {
       for (auto &it_crate : hcaldqm::constants::crateList) {
         HcalElectronicsId eid = getEid_Crate(it_crate);
         sprintf(name, "%d%c", it_crate, eid.isVMEid() ? 'v' : 'u');
-        labels.push_back(std::string(name));
+        labels.emplace_back(name);
       }
       return labels;
     }
@@ -329,7 +329,7 @@ namespace hcaldqm {
       char name[10];
       for (auto &it_crate : hcaldqm::constants::crateListVME) {
         sprintf(name, "%dv", it_crate);
-        labels.push_back(std::string(name));
+        labels.emplace_back(name);
       }
       return labels;
     }
@@ -339,7 +339,7 @@ namespace hcaldqm {
       char name[10];
       for (auto &it_crate : hcaldqm::constants::crateListuTCA) {
         sprintf(name, "%du", it_crate);
-        labels.push_back(std::string(name));
+        labels.emplace_back(name);
       }
       return labels;
     }
@@ -350,7 +350,7 @@ namespace hcaldqm {
       for (int i = 0; i < SLOT_uTCA_NUM; i++) {
         HcalElectronicsId eid = getEid_SlotuTCA(i);
         sprintf(name, "%d", eid.slot());
-        labels.push_back(std::string(name));
+        labels.emplace_back(name);
       }
       return labels;
     }
@@ -378,7 +378,7 @@ namespace hcaldqm {
       for (int i = 0; i < FIBER_uTCA_NUM; i++) {
         HcalElectronicsId eid = getEid_FiberuTCA(i);
         sprintf(name, "%d", eid.fiberIndex());
-        labels.push_back(std::string(name));
+        labels.emplace_back(name);
       }
       return labels;
     }
@@ -389,7 +389,7 @@ namespace hcaldqm {
       for (int i = 0; i < FIBER_VME_NUM; i++) {
         HcalElectronicsId eid = getEid_FiberVME(i);
         sprintf(name, "%d", eid.fiberIndex());
-        labels.push_back(std::string(name));
+        labels.emplace_back(name);
       }
       return labels;
     }
@@ -400,7 +400,7 @@ namespace hcaldqm {
       for (int i = 0; i < FIBERCH_NUM; i++) {
         HcalElectronicsId eid = getEid_FiberCh(i);
         sprintf(name, "%d", eid.fiberChanId());
-        labels.push_back(std::string(name));
+        labels.emplace_back(name);
       }
       return labels;
     }
@@ -411,12 +411,12 @@ namespace hcaldqm {
       for (int i = 0; i < FED_uTCA_NUM; i++)
         for (int j = 0; j < SLOT_uTCA_NUM; j++) {
           if (j > 0) {
-            labels.push_back(std::string(""));
+            labels.emplace_back("");
             continue;
           }
           HcalElectronicsId eid = getEid_FEDuTCASlot(i * SLOT_uTCA_NUM + j);
           sprintf(name, "%d-%d", utilities::crate2fed(eid.crateId(), eid.slot()), eid.slot());
-          labels.push_back(std::string(name));
+          labels.emplace_back(name);
         }
       return labels;
     }
@@ -427,13 +427,13 @@ namespace hcaldqm {
       for (int i = 0; i < FED_VME_NUM; i++)
         for (int j = 0; j < SPIGOT_NUM; j++) {
           if (j > 0) {
-            labels.push_back(std::string(""));
+            labels.emplace_back("");
             continue;
           }
 
           HcalElectronicsId eid = getEid_FEDVMESpigot(i * SPIGOT_NUM + j);
           sprintf(name, "%d-%d", eid.dccid() + FED_VME_MIN, eid.spigot());
-          labels.push_back(std::string(name));
+          labels.emplace_back(name);
         }
       return labels;
     }
@@ -444,13 +444,13 @@ namespace hcaldqm {
       for (int i = 0; i < FIBER_uTCA_NUM; i++)
         for (int j = 0; j < FIBERCH_NUM; j++) {
           if (j > 0) {
-            labels.push_back(std::string(""));
+            labels.emplace_back("");
             continue;
           }
 
           HcalElectronicsId eid = getEid_FiberuTCAFiberCh(i * FIBERCH_NUM + j);
           sprintf(name, "%d-%d", eid.fiberIndex(), eid.fiberChanId());
-          labels.push_back(std::string(name));
+          labels.emplace_back(name);
         }
       return labels;
     }
@@ -461,12 +461,12 @@ namespace hcaldqm {
       for (int i = 0; i < FIBER_VME_NUM; i++)
         for (int j = 0; j < FIBERCH_NUM; j++) {
           if (j > 0) {
-            labels.push_back(std::string(""));
+            labels.emplace_back("");
             continue;
           }
           HcalElectronicsId eid = getEid_FiberVMEFiberCh(i * FIBERCH_NUM + j);
           sprintf(name, "%d-%d", eid.fiberIndex(), eid.fiberChanId());
-          labels.push_back(std::string(name));
+          labels.emplace_back(name);
         }
       return labels;
     }
@@ -477,7 +477,7 @@ namespace hcaldqm {
       for (int i = 0; i < SLB_NUM; i++) {
         HcalElectronicsId eid = getEid_SLB(i);
         sprintf(name, "%d", eid.slbSiteNumber());
-        labels.push_back(std::string(name));
+        labels.emplace_back(name);
       }
 
       return labels;
@@ -489,7 +489,7 @@ namespace hcaldqm {
       for (int i = 0; i < SLBCH_NUM; i++) {
         HcalElectronicsId eid = getEid_SLBCh(i);
         sprintf(name, "%d", eid.slbChannelIndex());
-        labels.push_back(std::string(name));
+        labels.emplace_back(name);
       }
 
       return labels;
@@ -502,7 +502,7 @@ namespace hcaldqm {
         for (int j = 0; j < SLBCH_NUM; j++) {
           HcalElectronicsId eid = getEid_SLBSLBCh(i * SLBCH_NUM + j);
           sprintf(name, "%d-%d", eid.slbSiteNumber(), eid.slbChannelIndex());
-          labels.push_back(std::string(name));
+          labels.emplace_back(name);
         }
 
       return labels;
@@ -514,7 +514,7 @@ namespace hcaldqm {
       for (int i = 0; i < TPFIBER_NUM; i++) {
         HcalElectronicsId eid = getEid_FiberuTCATP(i);
         sprintf(name, "%d", eid.fiberIndex());
-        labels.push_back(std::string(name));
+        labels.emplace_back(name);
       }
 
       return labels;
@@ -526,7 +526,7 @@ namespace hcaldqm {
       for (int i = 0; i < TPFIBERCH_NUM; i++) {
         HcalElectronicsId eid = getEid_FiberChuTCATP(i);
         sprintf(name, "%d", eid.fiberChanId());
-        labels.push_back(std::string(name));
+        labels.emplace_back(name);
       }
 
       return labels;
@@ -539,7 +539,7 @@ namespace hcaldqm {
         for (int j = 0; j < TPFIBERCH_NUM; j++) {
           HcalElectronicsId eid = getEid_FiberuTCATPFiberChuTCATP(i * TPFIBERCH_NUM + j);
           sprintf(name, "%d-%d", eid.fiberIndex(), eid.fiberChanId());
-          labels.push_back(std::string(name));
+          labels.emplace_back(name);
         }
 
       return labels;
@@ -602,7 +602,7 @@ namespace hcaldqm {
         } else {
           sprintf(name, "%du", it_crate);
         }
-        labels.push_back(name);
+        labels.emplace_back(name);
       }
       return labels;
     }

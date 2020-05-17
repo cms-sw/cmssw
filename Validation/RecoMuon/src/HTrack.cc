@@ -1,4 +1,7 @@
 #include "Validation/RecoMuon/src/HTrack.h"
+
+#include <utility>
+
 #include "Validation/RecoMuon/src/Histograms.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
@@ -12,10 +15,10 @@
 
 using namespace std;
 
-HTrack::HTrack(DQMStore::IBooker& ibooker, string dirName_, string name, string whereIs)
+HTrack::HTrack(DQMStore::IBooker& ibooker, string dirName_, const string& name, const string& whereIs)
     : theName(name.c_str()), where(whereIs.c_str()) {
   ibooker.cd();
-  std::string dirName = dirName_;
+  std::string dirName = std::move(dirName_);
   dirName += "/";
   dirName += name;
   dirName += "_";

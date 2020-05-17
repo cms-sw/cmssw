@@ -107,7 +107,7 @@ void FWCaloDataProxyBuilderBase::itemBeingDestroyed(const FWEventItem* iItem) {
   FWProxyBuilderBase::itemBeingDestroyed(iItem);
   if (m_caloData) {
     clearCaloDataSelection();
-    FWFromTEveCaloDataSelector* sel = reinterpret_cast<FWFromTEveCaloDataSelector*>(m_caloData->GetUserData());
+    auto* sel = reinterpret_cast<FWFromTEveCaloDataSelector*>(m_caloData->GetUserData());
     sel->resetSliceSelector(m_sliceIndex);
     m_caloData->DataChanged();
   }
@@ -120,13 +120,13 @@ void FWCaloDataProxyBuilderBase::clearCaloDataSelection() {
 
   TEveCaloData::vCellId_t& selected = m_caloData->GetCellsSelected();
 
-  TEveCaloData::vCellId_t::iterator itEnd = selected.end();
-  for (TEveCaloData::vCellId_t::iterator it = selected.begin(); it != itEnd; ++it) {
+  auto itEnd = selected.end();
+  for (auto it = selected.begin(); it != itEnd; ++it) {
     if (it->fSlice == m_sliceIndex) {
       //we have found one we want to get rid of, so we swap it with the
       // one closest to the end which is not of this slice
       do {
-        TEveCaloData::vCellId_t::iterator itLast = itEnd - 1;
+        auto itLast = itEnd - 1;
         itEnd = itLast;
       } while (itEnd != it && itEnd->fSlice == m_sliceIndex);
 

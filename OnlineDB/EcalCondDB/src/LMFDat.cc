@@ -2,6 +2,7 @@
 
 #include <sstream>
 #include <cmath>
+#include <utility>
 
 using std::cout;
 using std::endl;
@@ -33,7 +34,7 @@ int LMFDat::getLMFRunIOVID() {
   int id = getInt(foreignKeyName());
   if (id == 0) {
     // try to get it from the list of foreign keys
-    std::map<std::string, LMFUnique *>::iterator i = m_foreignKeys.find(foreignKeyName());
+    auto i = m_foreignKeys.find(foreignKeyName());
     if (i != m_foreignKeys.end()) {
       LMFRunIOV *iov = (LMFRunIOV *)(i->second);
       if (iov != nullptr) {
@@ -52,8 +53,8 @@ LMFDat &LMFDat::setMaxDataToDump(int n) {
 
 std::map<unsigned int, std::string> LMFDat::getReverseMap() const {
   std::map<unsigned int, std::string> m;
-  std::map<std::string, unsigned int>::const_iterator i = m_keys.begin();
-  std::map<std::string, unsigned int>::const_iterator e = m_keys.end();
+  auto i = m_keys.begin();
+  auto e = m_keys.end();
   while (i != e) {
     m[i->second] = i->first;
     i++;
@@ -70,8 +71,8 @@ void LMFDat::dump(int n, int max) const {
   int s = m_data.size();
   cout << "Stored data: " << s << endl;
   if (max >= 0) {
-    std::map<int, std::vector<float> >::const_iterator p = m_data.begin();
-    std::map<int, std::vector<float> >::const_iterator end = m_data.end();
+    auto p = m_data.begin();
+    auto end = m_data.end();
     int c = 0;
     std::map<unsigned int, std::string> rm = getReverseMap();
     while ((p != end) && (c < max)) {
@@ -112,7 +113,7 @@ std::string LMFDat::getIovIdFieldName() const { return "LMF_IOV_ID"; }
 
 void LMFDat::setWhereClause(std::string where) {
   // to be used by experts to restrict the results of a query
-  _where = where;
+  _where = std::move(where);
 }
 
 void LMFDat::setWhereClause(std::string where, const std::vector<std::string> &parameters) {
@@ -122,7 +123,7 @@ void LMFDat::setWhereClause(std::string where, const std::vector<std::string> &p
   // float parameters. The parameters are all passed as strings
   // in parameters
   _wherePars = parameters;
-  _where = where;
+  _where = std::move(where);
 }
 
 std::string LMFDat::buildSelectSql(int logic_id, int direction) {
@@ -208,10 +209,10 @@ void LMFDat::adjustParameters(int count, std::string &sql, Statement *stmt) {
   // adjust positional parameters and change them according to their
   // decalred type
   std::size_t nw = 0;
-  std::size_t n = sql.find(":");
+  std::size_t n = sql.find(':');
   for (int done = 1; done < count; done++) {
     // skip already bound variables
-    n = sql.find(":", n + 1);
+    n = sql.find(':', n + 1);
   }
   while (n != std::string::npos) {
     char type = sql.at(n + 1);
@@ -225,7 +226,7 @@ void LMFDat::adjustParameters(int count, std::string &sql, Statement *stmt) {
       stmt->setInt(nw + count, atoi(_wherePars[nw].c_str()));
       nw++;
     }
-    n = sql.find(":", n + 1);
+    n = sql.find(':', n + 1);
   }
 }
 
@@ -312,8 +313,8 @@ std::map<int, std::vector<float> > LMFDat::fetchData() noexcept(false) {
     stmt->setInt(1, getLMFRunIOVID());
     stmt->setPrefetchRowCount(10000);
     ResultSet *rset = stmt->executeQuery();
-    std::map<int, std::vector<float> >::iterator i = s.end();
-    std::map<int, std::vector<float> >::iterator e = s.end();
+    auto i = s.end();
+    auto e = s.end();
     while (rset->next() != 0) {
       if (m_debug) {
         cout << m_className << ":: checking " << rset->getInt(1) << endl << std::flush;
@@ -378,8 +379,8 @@ int LMFDat::writeDB() noexcept(false) {
         // build the data array for first column: the same run iov id
         LMFRunIOV *runiov = (LMFRunIOV *)m_foreignKeys[foreignKeyName()];
         int iov_id = runiov->getID();
-        std::map<int, std::vector<float> >::const_iterator b = data2write.begin();
-        std::map<int, std::vector<float> >::const_iterator e = data2write.end();
+        auto b = data2write.begin();
+        auto e = data2write.end();
         for (int i = 0; i < nData; i++) {
           iovid_vec[i] = iov_id;
         }
@@ -443,8 +444,8 @@ int LMFDat::writeDB() noexcept(false) {
         delete[] floatSize;
         delete[] logicid_vec;
         delete[] iovid_vec;
-        std::list<dvoid *>::const_iterator bi = bufPointers.begin();
-        std::list<dvoid *>::const_iterator be = bufPointers.end();
+        auto bi = bufPointers.begin();
+        auto be = bufPointers.end();
         while (bi != be) {
           free(*bi);
           bi++;
@@ -474,7 +475,7 @@ int LMFDat::writeDB() noexcept(false) {
 void LMFDat::getKeyTypes() noexcept(false) {
   m_type.reserve(m_keys.size());
   for (unsigned int i = 0; i < m_keys.size(); i++) {
-    m_type.push_back("");
+    m_type.emplace_back("");
   }
   // get the description of the table
   std::string sql = "";

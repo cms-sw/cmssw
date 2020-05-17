@@ -23,8 +23,8 @@ public:
   typedef reco::JetFloatAssociation::Container JetBCEnergyRatioCollection;
 
   explicit printGenJetRatio(const edm::ParameterSet&);
-  ~printGenJetRatio(){};
-  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  ~printGenJetRatio() override{};
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
 private:
   edm::EDGetTokenT<JetBCEnergyRatioCollection> sourceBratioToken_;
@@ -60,13 +60,12 @@ void printGenJetRatio::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   }
 
   cout << "-------------------- GenJet Bratio ------------------------" << endl;
-  for (JetBCEnergyRatioCollection::const_iterator itB = theBratioValue->begin(); itB != theBratioValue->end(); itB++) {
+  for (auto itB = theBratioValue->begin(); itB != theBratioValue->end(); itB++) {
     const Jet& jetB = *(itB->first);
     float cR = 0;
-    for (JetBCEnergyRatioCollection::const_iterator itC = theCratioValue->begin(); itC != theCratioValue->end();
-         itC++) {
-      if (itB->first == itC->first)
-        cR = itC->second;
+    for (const auto& itC : *theCratioValue) {
+      if (itB->first == itC.first)
+        cR = itC.second;
     }
     printf("printGenJetRatio] (pt,eta,phi) jet = %7.3f %6.3f %6.3f | bcRatio = %7.5f - %7.5f \n",
            jetB.et(),

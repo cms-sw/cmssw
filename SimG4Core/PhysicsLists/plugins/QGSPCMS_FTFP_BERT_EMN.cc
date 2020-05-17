@@ -37,7 +37,7 @@ QGSPCMS_FTFP_BERT_EMN::QGSPCMS_FTFP_BERT_EMN(const edm::ParameterSet& p) : Physi
     RegisterPhysics(new CMSEmStandardPhysicsXS(ver));
 
     // Synchroton Radiation & GN Physics
-    G4EmExtraPhysics* gn = new G4EmExtraPhysics(ver);
+    auto* gn = new G4EmExtraPhysics(ver);
     RegisterPhysics(gn);
   }
 
@@ -61,7 +61,7 @@ QGSPCMS_FTFP_BERT_EMN::QGSPCMS_FTFP_BERT_EMN(const edm::ParameterSet& p) : Physi
 
     // Neutron tracking cut
     if (tracking) {
-      G4NeutronTrackingCut* ncut = new G4NeutronTrackingCut(ver);
+      auto* ncut = new G4NeutronTrackingCut(ver);
       ncut->SetTimeLimit(timeLimit);
       RegisterPhysics(ncut);
     }

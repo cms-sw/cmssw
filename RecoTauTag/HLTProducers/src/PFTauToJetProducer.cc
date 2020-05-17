@@ -19,10 +19,10 @@ void PFTauToJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
   using namespace std;
   CaloJet::Specific specific;
 
-  CaloJetCollection* jetCollectionTmp = new CaloJetCollection;
+  auto* jetCollectionTmp = new CaloJetCollection;
   edm::Handle<PFTauCollection> tauJets;
   iEvent.getByToken(tauSrc_, tauJets);
-  PFTauCollection::const_iterator i = tauJets->begin();
+  auto i = tauJets->begin();
   for (; i != tauJets->end(); i++) {
     CaloJet jet(i->p4(), i->vertex(), specific);
     jet.setPdgId(15);

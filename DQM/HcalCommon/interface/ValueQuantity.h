@@ -1,6 +1,8 @@
 #ifndef ValueQuantity_h
 #define ValueQuantity_h
 
+#include <utility>
+
 #include "DQM/HcalCommon/interface/Flag.h"
 #include "DQM/HcalCommon/interface/Quantity.h"
 #include "boost/unordered_map.hpp"
@@ -377,8 +379,8 @@ namespace hcaldqm {
       uint32_t getBin(int f) override { return f + 1; }
       std::vector<std::string> getLabels() override {
         std::vector<std::string> vnames;
-        for (std::vector<flag::Flag>::const_iterator it = _flags.begin(); it != _flags.end(); ++it)
-          vnames.push_back(it->_name);
+        for (const auto &_flag : _flags)
+          vnames.push_back(_flag._name);
 
         return vnames;
       }
@@ -434,7 +436,7 @@ namespace hcaldqm {
     class RunNumber : public ValueQuantity {
     public:
       RunNumber() {}
-      RunNumber(std::vector<int> runs) : _runs(runs) {}
+      RunNumber(std::vector<int> runs) : _runs(std::move(runs)) {}
       ~RunNumber() override {}
 
       std::string name() override { return "Run"; }
@@ -444,9 +446,9 @@ namespace hcaldqm {
       std::vector<std::string> getLabels() override {
         char name[10];
         std::vector<std::string> labels;
-        for (uint32_t i = 0; i < _runs.size(); i++) {
-          sprintf(name, "%d", _runs[i]);
-          labels.push_back(name);
+        for (int _run : _runs) {
+          sprintf(name, "%d", _run);
+          labels.emplace_back(name);
         }
         return labels;
       }

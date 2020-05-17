@@ -74,7 +74,7 @@ public:
   L1GtLogicParser(std::string& logicalExpressionVal);
 
   ///   from a logical and a numerical expression
-  L1GtLogicParser(const std::string logicalExpressionVal, const std::string numericalExpressionVal);
+  L1GtLogicParser(const std::string& logicalExpressionVal, const std::string& numericalExpressionVal);
 
   ///   from a logical and a numerical expression
   ///   no checks for correctness - use it only after the correctness was tested

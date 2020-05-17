@@ -61,7 +61,7 @@ FWPathsPopup::FWPathsPopup(FWFFLooper *looper, FWGUIManager *guiManager)
       .expand(true, true)
       .addTextButton("Apply changes and reload", &m_apply);
 
-  FWPSetCellEditor *editor = new FWPSetCellEditor(m_tableWidget->body(), "");
+  auto *editor = new FWPSetCellEditor(m_tableWidget->body(), "");
   editor->SetBackgroundColor(gVirtualX->GetPixel(kYellow - 7));
   editor->SetFrameDrawn(false);
   m_psTable->setCellValueEditor(editor);
@@ -170,7 +170,7 @@ void FWPathsPopup::postEvent(edm::Event const &event) {
     fwLog(fwlog::kInfo) << "Path GUI:: no process history available.\n";
     return;
   }
-  edm::ProcessHistory::const_iterator pi = event.processHistory().end() - 1;
+  auto pi = event.processHistory().end() - 1;
   std::string processName = pi->processName();
 
   // It's called TriggerResults but actually contains info on all paths

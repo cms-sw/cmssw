@@ -17,9 +17,9 @@
 namespace popcon {
   class ExEffSource : public popcon::PopConSourceHandler<condex::Efficiency> {
   public:
-    void getNewObjects();
-    std::string id() const { return m_name; }
-    ~ExEffSource();
+    void getNewObjects() override;
+    std::string id() const override { return m_name; }
+    ~ExEffSource() override;
     ExEffSource(const edm::ParameterSet& pset);
 
   private:

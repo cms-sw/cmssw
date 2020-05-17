@@ -8,6 +8,7 @@
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/MuonReco/interface/MuonCocktails.h"
 #include <iostream>
+#include <memory>
 
 using namespace std;
 using namespace reco;
@@ -63,7 +64,7 @@ bool PFMuonAlgo::isMuon(const reco::PFBlockElement& elt) {
 }
 
 bool PFMuonAlgo::isLooseMuon(const reco::PFBlockElement& elt) {
-  const reco::PFBlockElementTrack* eltTrack = dynamic_cast<const reco::PFBlockElementTrack*>(&elt);
+  const auto* eltTrack = dynamic_cast<const reco::PFBlockElementTrack*>(&elt);
 
   assert(eltTrack);
 
@@ -73,7 +74,7 @@ bool PFMuonAlgo::isLooseMuon(const reco::PFBlockElement& elt) {
 }
 
 bool PFMuonAlgo::isGlobalTightMuon(const reco::PFBlockElement& elt) {
-  const reco::PFBlockElementTrack* eltTrack = dynamic_cast<const reco::PFBlockElementTrack*>(&elt);
+  const auto* eltTrack = dynamic_cast<const reco::PFBlockElementTrack*>(&elt);
 
   assert(eltTrack);
   reco::MuonRef muonRef = eltTrack->muonRef();
@@ -82,7 +83,7 @@ bool PFMuonAlgo::isGlobalTightMuon(const reco::PFBlockElement& elt) {
 }
 
 bool PFMuonAlgo::isGlobalLooseMuon(const reco::PFBlockElement& elt) {
-  const reco::PFBlockElementTrack* eltTrack = dynamic_cast<const reco::PFBlockElementTrack*>(&elt);
+  const auto* eltTrack = dynamic_cast<const reco::PFBlockElementTrack*>(&elt);
 
   assert(eltTrack);
   reco::MuonRef muonRef = eltTrack->muonRef();
@@ -91,7 +92,7 @@ bool PFMuonAlgo::isGlobalLooseMuon(const reco::PFBlockElement& elt) {
 }
 
 bool PFMuonAlgo::isTrackerTightMuon(const reco::PFBlockElement& elt) {
-  const reco::PFBlockElementTrack* eltTrack = dynamic_cast<const reco::PFBlockElementTrack*>(&elt);
+  const auto* eltTrack = dynamic_cast<const reco::PFBlockElementTrack*>(&elt);
 
   assert(eltTrack);
   reco::MuonRef muonRef = eltTrack->muonRef();
@@ -100,7 +101,7 @@ bool PFMuonAlgo::isTrackerTightMuon(const reco::PFBlockElement& elt) {
 }
 
 bool PFMuonAlgo::isIsolatedMuon(const reco::PFBlockElement& elt) {
-  const reco::PFBlockElementTrack* eltTrack = dynamic_cast<const reco::PFBlockElementTrack*>(&elt);
+  const auto* eltTrack = dynamic_cast<const reco::PFBlockElementTrack*>(&elt);
 
   assert(eltTrack);
   reco::MuonRef muonRef = eltTrack->muonRef();
@@ -637,10 +638,10 @@ void PFMuonAlgo::estimateEventQuantities(const reco::PFCandidateCollection* pfc)
   METX_ = 0.;
   METY_ = 0.;
   sumet_ = 0.0;
-  for (reco::PFCandidateCollection::const_iterator i = pfc->begin(); i != pfc->end(); ++i) {
-    sumet_ += i->pt();
-    METX_ += i->px();
-    METY_ += i->py();
+  for (const auto& i : *pfc) {
+    sumet_ += i.pt();
+    METX_ += i.px();
+    METY_ += i.py();
   }
 }
 
@@ -655,27 +656,27 @@ void PFMuonAlgo::postClean(reco::PFCandidateCollection* cands) {
   if (pfCosmicsMuonCleanedCandidates_.get())
     pfCosmicsMuonCleanedCandidates_->clear();
   else
-    pfCosmicsMuonCleanedCandidates_.reset(new reco::PFCandidateCollection);
+    pfCosmicsMuonCleanedCandidates_ = std::make_unique<reco::PFCandidateCollection>();
 
   if (pfCleanedTrackerAndGlobalMuonCandidates_.get())
     pfCleanedTrackerAndGlobalMuonCandidates_->clear();
   else
-    pfCleanedTrackerAndGlobalMuonCandidates_.reset(new reco::PFCandidateCollection);
+    pfCleanedTrackerAndGlobalMuonCandidates_ = std::make_unique<reco::PFCandidateCollection>();
 
   if (pfFakeMuonCleanedCandidates_.get())
     pfFakeMuonCleanedCandidates_->clear();
   else
-    pfFakeMuonCleanedCandidates_.reset(new reco::PFCandidateCollection);
+    pfFakeMuonCleanedCandidates_ = std::make_unique<reco::PFCandidateCollection>();
 
   if (pfPunchThroughMuonCleanedCandidates_.get())
     pfPunchThroughMuonCleanedCandidates_->clear();
   else
-    pfPunchThroughMuonCleanedCandidates_.reset(new reco::PFCandidateCollection);
+    pfPunchThroughMuonCleanedCandidates_ = std::make_unique<reco::PFCandidateCollection>();
 
   if (pfPunchThroughHadronCleanedCandidates_.get())
     pfPunchThroughHadronCleanedCandidates_->clear();
   else
-    pfPunchThroughHadronCleanedCandidates_.reset(new reco::PFCandidateCollection);
+    pfPunchThroughHadronCleanedCandidates_ = std::make_unique<reco::PFCandidateCollection>();
 
   pfPunchThroughHadronCleanedCandidates_->clear();
 
@@ -703,14 +704,14 @@ void PFMuonAlgo::postClean(reco::PFCandidateCollection* cands) {
   double METYCosmics = 0;
   double SUMETCosmics = 0.0;
 
-  for (unsigned int i = 0; i < muons.size(); ++i) {
-    const PFCandidate& pfc = cands->at(muons[i]);
+  for (int muon : muons) {
+    const PFCandidate& pfc = cands->at(muon);
     double origin = 0.0;
     if (!vertices_->empty() && vertices_->at(0).isValid() && !vertices_->at(0).isFake())
       origin = pfc.muonRef()->muonBestTrack()->dxy(vertices_->at(0).position());
 
     if (origin > cosmicRejDistance_) {
-      cosmics.push_back(muons[i]);
+      cosmics.push_back(muon);
       METXCosmics += pfc.px();
       METYCosmics += pfc.py();
       SUMETCosmics += pfc.pt();
@@ -719,37 +720,36 @@ void PFMuonAlgo::postClean(reco::PFCandidateCollection* cands) {
   double MET2Cosmics = METXCosmics * METXCosmics + METYCosmics * METYCosmics;
 
   if (SUMETCosmics > (sumet_ - sumetPU_) / eventFactorCosmics_ && MET2Cosmics < METX_ * METX_ + METY_ * METY_)
-    for (unsigned int i = 0; i < cosmics.size(); ++i) {
-      maskedIndices_.push_back(cosmics[i]);
-      pfCosmicsMuonCleanedCandidates_->push_back(cands->at(cosmics[i]));
+    for (int cosmic : cosmics) {
+      maskedIndices_.push_back(cosmic);
+      pfCosmicsMuonCleanedCandidates_->push_back(cands->at(cosmic));
     }
 
   //Loop on the muons candidates and clean
-  for (unsigned int i = 0; i < muons.size(); ++i) {
-    if (cleanMismeasured(cands->at(muons[i]), muons[i]))
+  for (int muon : muons) {
+    if (cleanMismeasured(cands->at(muon), muon))
       continue;
-    cleanPunchThroughAndFakes(cands->at(muons[i]), cands, muons[i]);
+    cleanPunchThroughAndFakes(cands->at(muon), cands, muon);
   }
 
   //OK Now do the hard job ->remove the candidates that were cleaned
   removeDeadCandidates(cands, maskedIndices_);
 }
 
-void PFMuonAlgo::addMissingMuons(edm::Handle<reco::MuonCollection> muons, reco::PFCandidateCollection* cands) {
+void PFMuonAlgo::addMissingMuons(const edm::Handle<reco::MuonCollection>& muons, reco::PFCandidateCollection* cands) {
   if (!postCleaning_)
     return;
 
   if (pfAddedMuonCandidates_.get())
     pfAddedMuonCandidates_->clear();
   else
-    pfAddedMuonCandidates_.reset(new reco::PFCandidateCollection);
+    pfAddedMuonCandidates_ = std::make_unique<reco::PFCandidateCollection>();
 
   for (unsigned imu = 0; imu < muons->size(); ++imu) {
     reco::MuonRef muonRef(muons, imu);
     bool used = false;
     bool hadron = false;
-    for (unsigned i = 0; i < cands->size(); i++) {
-      const PFCandidate& pfc = cands->at(i);
+    for (const auto& pfc : *cands) {
       if (!pfc.trackRef().isNonnull())
         continue;
       if (pfc.trackRef().isNonnull() && pfc.trackRef() == muonRef->track())
@@ -823,8 +823,8 @@ std::pair<double, double> PFMuonAlgo::getMinMaxMET2(const reco::PFCandidate& pfc
   double METXNO = METX_ - pfc.px();
   double METYNO = METY_ - pfc.py();
   std::vector<double> met2;
-  for (unsigned int i = 0; i < tracks.size(); ++i) {
-    met2.push_back(pow(METXNO + tracks.at(i).first->px(), 2) + pow(METYNO + tracks.at(i).first->py(), 2));
+  for (auto& track : tracks) {
+    met2.push_back(pow(METXNO + track.first->px(), 2) + pow(METYNO + track.first->py(), 2));
   }
 
   //PROTECT for cases of only one track. If there is only one track it will crash .
@@ -903,13 +903,13 @@ std::vector<reco::Muon::MuonTrackTypePair> PFMuonAlgo::tracksWithBetterMET(
   double METSIG = sqrt(MET2) / sqrt(sumet_ - sumetPU_);
 
   if (METSIG > metSigForCleaning_)
-    for (unsigned int i = 0; i < tracks.size(); ++i) {
+    for (const auto& track : tracks) {
       //calculate new SUM ET and MET2
-      newSUMET = SUMETNO + tracks.at(i).first->pt() - sumetPU_;
-      newMET2 = pow(METNOX + tracks.at(i).first->px(), 2) + pow(METNOY + tracks.at(i).first->py(), 2);
+      newSUMET = SUMETNO + track.first->pt() - sumetPU_;
+      newMET2 = pow(METNOX + track.first->px(), 2) + pow(METNOY + track.first->py(), 2);
 
       if (newSUMET / (sumet_ - sumetPU_) > eventFractionCleaning_ && newMET2 < MET2 / metFactorCleaning_)
-        outputTracks.push_back(tracks.at(i));
+        outputTracks.push_back(track);
     }
 
   return outputTracks;
@@ -921,12 +921,12 @@ std::vector<reco::Muon::MuonTrackTypePair> PFMuonAlgo::tracksPointingAtMET(
 
   double newMET2 = 0.0;
 
-  for (unsigned int i = 0; i < tracks.size(); ++i) {
+  for (const auto& track : tracks) {
     //calculate new SUM ET and MET2
-    newMET2 = pow(METX_ + tracks.at(i).first->px(), 2) + pow(METY_ + tracks.at(i).first->py(), 2);
+    newMET2 = pow(METX_ + track.first->px(), 2) + pow(METY_ + track.first->py(), 2);
 
     if (newMET2 < (METX_ * METX_ + METY_ * METY_) / metFactorCleaning_)
-      outputTracks.push_back(tracks.at(i));
+      outputTracks.push_back(track);
   }
 
   return outputTracks;

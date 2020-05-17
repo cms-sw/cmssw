@@ -102,16 +102,15 @@ void L1TGlobalPrescalesVetosViewer::analyze(const edm::Event& iEvent, const edm:
     cout << endl;
     size_t nRows = (ptr->prescale_table_)[0].size();
     for (size_t row = 0; row < nRows; row++) {
-      for (size_t col = 0; col < ptr->prescale_table_.size(); col++)
-        cout << setw(8) << (ptr->prescale_table_)[col][row];
+      for (auto& col : ptr->prescale_table_)
+        cout << setw(8) << col[row];
       cout << endl;
     }
     cout << endl;
   }
 
   size_t len_bxmask_map_ = 0;
-  for (std::map<int, std::vector<int> >::const_iterator it = (ptr->bxmask_map_).begin(); it != (ptr->bxmask_map_).end();
-       it++) {
+  for (auto it = (ptr->bxmask_map_).begin(); it != (ptr->bxmask_map_).end(); it++) {
     len_bxmask_map_ += it->second.size();
     if (bxmask_map_verbosity == 1) {
       int masks[it->second.size()];
@@ -125,15 +124,14 @@ void L1TGlobalPrescalesVetosViewer::analyze(const edm::Event& iEvent, const edm:
     }
     if (bxmask_map_verbosity > 1) {
       cout << "  bxmask_map_[" << it->first << "][" << it->second.size() << "] = ";
-      for (size_t algo = 0; algo < it->second.size(); algo++)
-        cout << it->second[algo] << ", ";
+      for (int algo : it->second)
+        cout << algo << ", ";
       cout << endl;
     }
   }
   int bxmask_map_[len_bxmask_map_];
   size_t pos = 0;
-  for (std::map<int, std::vector<int> >::const_iterator it = (ptr->bxmask_map_).begin(); it != (ptr->bxmask_map_).end();
-       it++) {
+  for (auto it = (ptr->bxmask_map_).begin(); it != (ptr->bxmask_map_).end(); it++) {
     for (size_t i = 0; i < it->second.size(); i++, pos++)
       bxmask_map_[pos] = it->second[i];
   }

@@ -36,7 +36,7 @@ RectangularCylindricalMFGrid::RectangularCylindricalMFGrid(binary_ifstream& inFi
   fieldValues.reserve(nLines);
   for (int iLine = 0; iLine < nLines; ++iLine) {
     inFile >> Bx >> By >> Bz;
-    fieldValues.push_back(BVector(Bx, By, Bz));
+    fieldValues.emplace_back(Bx, By, Bz);
   }
   // check completeness
   string lastEntry;

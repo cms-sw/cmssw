@@ -10,7 +10,7 @@ CSCNoiseMatrix::~CSCNoiseMatrix() {}
 
 const CSCNoiseMatrix::Item& CSCNoiseMatrix::item(const CSCDetId& cscId, int strip) const {
   CSCIndexer indexer;
-  NoiseMatrixMap::const_iterator mapItr = matrix.find(indexer.dbIndex(cscId, strip));
+  auto mapItr = matrix.find(indexer.dbIndex(cscId, strip));
   if (mapItr == matrix.end()) {
     throw cms::Exception("CSCNoiseMatrix") << "Cannot find CSC conditions for chamber " << CSCDetId(cscId);
   }
@@ -26,10 +26,9 @@ std::string CSCNoiseMatrix::Item::print() const {
 
 std::string CSCNoiseMatrix::print() const {
   std::ostringstream os;
-  for (NoiseMatrixMap::const_iterator mapItr = matrix.begin(); mapItr != matrix.end(); ++mapItr) {
-    os << mapItr->first << " ";
-    for (std::vector<Item>::const_iterator itemItr = mapItr->second.begin(); itemItr != mapItr->second.end();
-         ++itemItr) {
+  for (const auto& mapItr : matrix) {
+    os << mapItr.first << " ";
+    for (auto itemItr = mapItr.second.begin(); itemItr != mapItr.second.end(); ++itemItr) {
       os << itemItr->print();
     }
   }

@@ -86,26 +86,26 @@ public:
     oOptions.clear();
     m_list.clear();
 
-    FWGeometryTableManagerBase::Entries_i tnit = m_browser->getTableManager()->refEntries().begin();
+    auto tnit = m_browser->getTableManager()->refEntries().begin();
     std::advance(tnit, m_browser->getTopNodeIdx());
     FWGeometryTableViewManager::getGeoMangeur();
     addDaughtersRec(tnit->m_node->GetVolume());
 
     std::sort(m_list.begin(), m_list.end());
-    std::vector<const char*>::iterator ui = std::unique(m_list.begin(), m_list.end());
+    auto ui = std::unique(m_list.begin(), m_list.end());
     m_list.resize(ui - m_list.begin());
 
     std::string part(iBegin, iEnd);
     unsigned int part_size = part.size();
     std::string h = "";
     // int cnt = 0;
-    oOptions.push_back(std::make_pair(std::make_shared<std::string>(*m_list.begin()), h));
-    std::vector<const char*>::iterator startIt = m_list.begin();
+    oOptions.emplace_back(std::make_shared<std::string>(*m_list.begin()), h);
+    auto startIt = m_list.begin();
     startIt++;
-    for (std::vector<const char*>::iterator i = startIt; i != m_list.end(); ++i) {
+    for (auto i = startIt; i != m_list.end(); ++i) {
       //      std::cout << *i << " " << cnt++ << std::endl;
       if ((strlen(*i) >= part_size) && strncmp(*i, part.c_str(), part_size) == 0) {
-        oOptions.push_back(std::make_pair(std::make_shared<std::string>((*i)), &((*i)[part_size])));
+        oOptions.emplace_back(std::make_shared<std::string>((*i)), &((*i)[part_size]));
       }
     }
   }
@@ -134,7 +134,7 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent, FWColorManager
       m_selectRegion(this, "SelectNearCameraCenter", false),
       m_regionRadius(this, "SphereRadius", 10.0, 1.0, 300.0),
       m_proximityAlgo(this, "Proximity algorithm", 1l, 0l, 1l) {
-  FWGeoTopNodeGLScene* gls = new FWGeoTopNodeGLScene(nullptr);
+  auto* gls = new FWGeoTopNodeGLScene(nullptr);
 #if ROOT_VERSION_CODE < ROOT_VERSION(5, 32, 0)
   m_eveScene = new FWGeoTopNodeEveScene(gls, "TopGeoNodeScene", "");
 #else
@@ -151,7 +151,7 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent, FWColorManager
   m_eveTopNode->m_scene = gls;
 
   // top row
-  TGHorizontalFrame* hp = new TGHorizontalFrame(m_frame);
+  auto* hp = new TGHorizontalFrame(m_frame);
   {
     TGTextButton* rb = new TGTextButton(hp, "CdTop");
     hp->AddFrame(rb, new TGLayoutHints(kLHintsNormal, 2, 2, 0, 0));
@@ -270,11 +270,9 @@ void FWGeometryTableView::updateFilter(std::string& exp) {
 
   if (exp.empty()) {
     // std::cout << "FITLER OFF \n";
-    for (FWGeometryTableManagerBase::Entries_i i = m_tableManager->refEntries().begin();
-         i != m_tableManager->refEntries().end();
-         ++i) {
-      m_tableManager->setVisibility(*i, true);
-      m_tableManager->setVisibilityChld(*i, true);
+    for (auto& i : m_tableManager->refEntries()) {
+      m_tableManager->setVisibility(i, true);
+      m_tableManager->setVisibilityChld(i, true);
     }
 
     // NOTE: entry should be cleared automatically
@@ -329,7 +327,7 @@ void FWGeometryTableView::setPath(int parentIdx, std::string& path)
 //--------------------------------------------------------------
 bool viewIsChecked(TEveViewer* v, TEveElement* el) {
   if (strstr(v->GetElementName(), "3D")) {
-    for (TEveElement::List_i eit = v->BeginChildren(); eit != v->EndChildren(); ++eit) {
+    for (auto eit = v->BeginChildren(); eit != v->EndChildren(); ++eit) {
       TEveScene* s = ((TEveSceneInfo*)*eit)->GetScene();
       if (el && s->HasChildren() && s->FirstChild() == el)
         return true;
@@ -341,7 +339,7 @@ bool viewIsChecked(TEveViewer* v, TEveElement* el) {
 void FWGeometryTableView::checkRegionOfInterest() {
   if (m_selectRegion.value()) {
     double* center = nullptr;
-    for (TEveElement::List_i it = gEve->GetViewers()->BeginChildren(); it != gEve->GetViewers()->EndChildren(); ++it) {
+    for (auto it = gEve->GetViewers()->BeginChildren(); it != gEve->GetViewers()->EndChildren(); ++it) {
       TEveViewer* v = ((TEveViewer*)(*it));
       if (viewIsChecked(v, m_eveTopNode)) {
         if (center) {
@@ -371,12 +369,12 @@ void FWGeometryTableView::checkRegionOfInterest() {
 
 void FWGeometryTableView::setFrom(const FWConfiguration& iFrom) {
   m_enableRedraw = false;
-  for (const_iterator it = begin(), itEnd = end(); it != itEnd; ++it) {
+  for (auto it : *this) {
     // printf("set from %s \n",(*it)->name().c_str() );
-    if ((*it)->name() == m_topNodeIdx.name())
+    if (it->name() == m_topNodeIdx.name())
       setTopNodePathFromConfig(iFrom);
     else
-      (*it)->setFrom(iFrom);
+      it->setFrom(iFrom);
   }
 
   cdNode(m_topNodeIdx.value());

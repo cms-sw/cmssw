@@ -20,6 +20,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 
 #include <string>
+#include <utility>
 
 using namespace std;
 
@@ -63,7 +64,10 @@ L6SLBCorrectorImpl::L6SLBCorrectorImpl(std::shared_ptr<FactorizedJetCorrectorCal
                                        edm::RefProd<std::vector<reco::SoftLeptonTagInfo>> const& bTagInfoMuon,
                                        edm::RefProd<std::vector<reco::SoftLeptonTagInfo>> const& bTagInfoElec,
                                        bool addMuonToJet)
-    : corrector_(corrector), bTagInfoMuon_(bTagInfoMuon), bTagInfoElec_(bTagInfoElec), addMuonToJet_(addMuonToJet) {}
+    : corrector_(std::move(corrector)),
+      bTagInfoMuon_(bTagInfoMuon),
+      bTagInfoElec_(bTagInfoElec),
+      addMuonToJet_(addMuonToJet) {}
 
 ////////////////////////////////////////////////////////////////////////////////
 // implementation of member functions

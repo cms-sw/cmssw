@@ -28,10 +28,10 @@ class EcalMatacqHist : public edm::EDAnalyzer {
 public:
   EcalMatacqHist(const edm::ParameterSet& ps);
 
-  virtual ~EcalMatacqHist();
+  ~EcalMatacqHist() override;
 
 protected:
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
 private:
   std::string outFileName;

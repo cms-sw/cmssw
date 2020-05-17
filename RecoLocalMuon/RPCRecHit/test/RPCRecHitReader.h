@@ -27,7 +27,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-#include <stdio.h>
+#include <cstdio>
 
 class TGraph;
 class TFile;
@@ -41,18 +41,18 @@ public:
   /// Constructor
   RPCRecHitReader(const edm::ParameterSet& pset);
 
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endJob() override;
 
   /// Destructor
-  virtual ~RPCRecHitReader();
+  ~RPCRecHitReader() override;
 
   // Operations
 
   /// Perform the real analysis
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
 
-  unsigned int layerRecHit(RPCRecHit);
+  unsigned int layerRecHit(const RPCRecHit&);
 
 private:
   std::string fOutputFileName;

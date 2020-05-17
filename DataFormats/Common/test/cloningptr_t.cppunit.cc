@@ -9,8 +9,8 @@ class testCloningPtr : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
   void check();
 };
 
@@ -24,8 +24,8 @@ namespace testcloningptr {
 
   struct Inherit : public Base {
     Inherit(int iValue) : val_(iValue) {}
-    virtual int val() const { return val_; }
-    virtual Base* clone() const { return new Inherit(*this); }
+    int val() const override { return val_; }
+    Base* clone() const override { return new Inherit(*this); }
     int val_;
   };
 }  // namespace testcloningptr

@@ -47,13 +47,13 @@ public:
   DTEffAnalyzer(const edm::ParameterSet& pset);
 
   /* Destructor */
-  ~DTEffAnalyzer();
+  ~DTEffAnalyzer() override;
 
   /* Operations */
 
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
-  void beginJob();
-  void beginRun(const edm::Run& run, const edm::EventSetup& setup);
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
+  void beginJob() override;
+  void beginRun(const edm::Run& run, const edm::EventSetup& setup) override;
 
 private:
   TH1F* histo(const std::string& name) const;

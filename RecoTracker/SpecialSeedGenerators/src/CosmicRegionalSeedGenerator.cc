@@ -103,35 +103,34 @@ std::vector<std::unique_ptr<TrackingRegion>> CosmicRegionalSeedGenerator::region
     //+++++++++++++++++++++++++
 
     int nmuons = 0;
-    for (reco::MuonCollection::const_iterator staMuon = muonsHandle->begin(); staMuon != muonsHandle->end();
-         ++staMuon) {
+    for (const auto& staMuon : *muonsHandle) {
       //select sta muons
-      if (!staMuon->isStandAloneMuon()) {
+      if (!staMuon.isStandAloneMuon()) {
         LogDebug("CosmicRegionalSeedGenerator") << "This muon is not a stand alone muon";
         continue;
       }
 
       //bit 25 as a coverage -1.4 < eta < 1.4
-      if (abs(staMuon->standAloneMuon()->eta()) > 1.5)
+      if (abs(staMuon.standAloneMuon()->eta()) > 1.5)
         continue;
 
       //debug
       nmuons++;
       LogDebug("CosmicRegionalSeedGenerator") << "Muon stand alone found in the collection - in muons chambers: \n "
-                                              << "Position = " << staMuon->standAloneMuon()->outerPosition() << "\n "
-                                              << "Momentum = " << staMuon->standAloneMuon()->outerMomentum() << "\n "
-                                              << "Eta = " << staMuon->standAloneMuon()->eta() << "\n "
-                                              << "Phi = " << staMuon->standAloneMuon()->phi();
+                                              << "Position = " << staMuon.standAloneMuon()->outerPosition() << "\n "
+                                              << "Momentum = " << staMuon.standAloneMuon()->outerMomentum() << "\n "
+                                              << "Eta = " << staMuon.standAloneMuon()->eta() << "\n "
+                                              << "Phi = " << staMuon.standAloneMuon()->phi();
 
       //initial position, momentum, charge
 
-      GlobalPoint initialRegionPosition(staMuon->standAloneMuon()->referencePoint().x(),
-                                        staMuon->standAloneMuon()->referencePoint().y(),
-                                        staMuon->standAloneMuon()->referencePoint().z());
-      GlobalVector initialRegionMomentum(staMuon->standAloneMuon()->momentum().x(),
-                                         staMuon->standAloneMuon()->momentum().y(),
-                                         staMuon->standAloneMuon()->momentum().z());
-      int charge = (int)staMuon->standAloneMuon()->charge();
+      GlobalPoint initialRegionPosition(staMuon.standAloneMuon()->referencePoint().x(),
+                                        staMuon.standAloneMuon()->referencePoint().y(),
+                                        staMuon.standAloneMuon()->referencePoint().z());
+      GlobalVector initialRegionMomentum(staMuon.standAloneMuon()->momentum().x(),
+                                         staMuon.standAloneMuon()->momentum().y(),
+                                         staMuon.standAloneMuon()->momentum().z());
+      int charge = (int)staMuon.standAloneMuon()->charge();
 
       LogDebug("CosmicRegionalSeedGenerator") << "Initial region - Reference point of the sta muon: \n "
                                               << "Position = " << initialRegionPosition << "\n "
@@ -141,7 +140,7 @@ std::vector<std::unique_ptr<TrackingRegion>> CosmicRegionalSeedGenerator::region
                                               << "Charge = " << charge;
 
       //propagation on the last layers of TOB
-      if (staMuon->standAloneMuon()->outerPosition().y() > 0)
+      if (staMuon.standAloneMuon()->outerPosition().y() > 0)
         initialRegionMomentum *= -1;
       GlobalTrajectoryParameters glb_parameters(
           initialRegionPosition, initialRegionMomentum, charge, thePropagator->magneticField());
@@ -176,12 +175,12 @@ std::vector<std::unique_ptr<TrackingRegion>> CosmicRegionalSeedGenerator::region
       //exclude region built in jets
       if (doJetsExclusionCheck_) {
         double delta_R_min = 1000.;
-        for (CaloJetCollection::const_iterator jet = caloJetsHandle->begin(); jet != caloJetsHandle->end(); jet++) {
-          if (jet->pt() < jetsPtMin_)
+        for (const auto& jet : *caloJetsHandle) {
+          if (jet.pt() < jetsPtMin_)
             continue;
 
-          double deta = center.eta() - jet->eta();
-          double dphi = fabs(center.phi() - jet->phi());
+          double deta = center.eta() - jet.eta();
+          double dphi = fabs(center.phi() - jet.phi());
           if (dphi > TMath::Pi())
             dphi = 2 * TMath::Pi() - dphi;
 
@@ -254,26 +253,24 @@ std::vector<std::unique_ptr<TrackingRegion>> CosmicRegionalSeedGenerator::region
     //+++++++++++++++++++++++++
 
     int nmuons = 0;
-    for (reco::TrackCollection::const_iterator cosmicMuon = cosmicMuonsHandle->begin();
-         cosmicMuon != cosmicMuonsHandle->end();
-         ++cosmicMuon) {
+    for (const auto& cosmicMuon : *cosmicMuonsHandle) {
       //bit 25 as a coverage -1.4 < eta < 1.4
-      if (abs(cosmicMuon->eta()) > 1.5)
+      if (abs(cosmicMuon.eta()) > 1.5)
         continue;
 
       nmuons++;
 
       //initial position, momentum, charge
       GlobalPoint initialRegionPosition(
-          cosmicMuon->referencePoint().x(), cosmicMuon->referencePoint().y(), cosmicMuon->referencePoint().z());
+          cosmicMuon.referencePoint().x(), cosmicMuon.referencePoint().y(), cosmicMuon.referencePoint().z());
       GlobalVector initialRegionMomentum(
-          cosmicMuon->momentum().x(), cosmicMuon->momentum().y(), cosmicMuon->momentum().z());
-      int charge = (int)cosmicMuon->charge();
+          cosmicMuon.momentum().x(), cosmicMuon.momentum().y(), cosmicMuon.momentum().z());
+      int charge = (int)cosmicMuon.charge();
 
       LogDebug("CosmicRegionalSeedGenerator") << "Position and momentum of the muon track in the muon chambers: \n "
-                                              << "x = " << cosmicMuon->outerPosition().x() << "\n "
-                                              << "y = " << cosmicMuon->outerPosition().y() << "\n "
-                                              << "y = " << cosmicMuon->pt() << "\n "
+                                              << "x = " << cosmicMuon.outerPosition().x() << "\n "
+                                              << "y = " << cosmicMuon.outerPosition().y() << "\n "
+                                              << "y = " << cosmicMuon.pt() << "\n "
                                               << "Initial region - Reference point of the cosmic muon track: \n "
                                               << "Position = " << initialRegionPosition << "\n "
                                               << "Momentum = " << initialRegionMomentum << "\n "
@@ -282,7 +279,7 @@ std::vector<std::unique_ptr<TrackingRegion>> CosmicRegionalSeedGenerator::region
                                               << "Charge = " << charge;
 
       //propagation on the last layers of TOB
-      if (cosmicMuon->outerPosition().y() > 0 && cosmicMuon->momentum().y() < 0)
+      if (cosmicMuon.outerPosition().y() > 0 && cosmicMuon.momentum().y() < 0)
         initialRegionMomentum *= -1;
       GlobalTrajectoryParameters glb_parameters(
           initialRegionPosition, initialRegionMomentum, charge, thePropagator->magneticField());
@@ -317,12 +314,12 @@ std::vector<std::unique_ptr<TrackingRegion>> CosmicRegionalSeedGenerator::region
       //exclude region built in jets
       if (doJetsExclusionCheck_) {
         double delta_R_min = 1000.;
-        for (CaloJetCollection::const_iterator jet = caloJetsHandle->begin(); jet != caloJetsHandle->end(); jet++) {
-          if (jet->pt() < jetsPtMin_)
+        for (const auto& jet : *caloJetsHandle) {
+          if (jet.pt() < jetsPtMin_)
             continue;
 
-          double deta = center.eta() - jet->eta();
-          double dphi = fabs(center.phi() - jet->phi());
+          double deta = center.eta() - jet.eta();
+          double dphi = fabs(center.phi() - jet.phi());
           if (dphi > TMath::Pi())
             dphi = 2 * TMath::Pi() - dphi;
 
@@ -390,10 +387,8 @@ std::vector<std::unique_ptr<TrackingRegion>> CosmicRegionalSeedGenerator::region
     //+++++++++++++++++++++++++
 
     int nmuons = 0;
-    for (reco::RecoChargedCandidateCollection::const_iterator L2Muon = L2MuonsHandle->begin();
-         L2Muon != L2MuonsHandle->end();
-         ++L2Muon) {
-      reco::TrackRef tkL2Muon = L2Muon->get<reco::TrackRef>();
+    for (const auto& L2Muon : *L2MuonsHandle) {
+      reco::TrackRef tkL2Muon = L2Muon.get<reco::TrackRef>();
 
       //bit 25 as a coverage -1.4 < eta < 1.4
       if (abs(tkL2Muon->eta()) > 1.5)

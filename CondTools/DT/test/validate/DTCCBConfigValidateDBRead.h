@@ -16,9 +16,9 @@ class DTCCBConfigValidateDBRead : public edm::EDAnalyzer {
 public:
   explicit DTCCBConfigValidateDBRead(edm::ParameterSet const& p);
   explicit DTCCBConfigValidateDBRead(int i);
-  virtual ~DTCCBConfigValidateDBRead();
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-  virtual void endJob();
+  ~DTCCBConfigValidateDBRead() override;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void endJob() override;
 
 private:
   std::string dataFileName;

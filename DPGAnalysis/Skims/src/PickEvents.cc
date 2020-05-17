@@ -118,22 +118,20 @@ bool PickEvents::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   if (isRunLsBased_) {
     // std::cout << "GF DEBUG: kRun is " << kRun << " kLumi is: " << kLumi << std::endl;
 
-    for (std::vector<edm::LuminosityBlockRange>::iterator oneLumiRange = luminositySectionsBlockRanges_.begin();
-         oneLumiRange != luminositySectionsBlockRanges_.end();
-         ++oneLumiRange) {
+    for (auto& luminositySectionsBlockRange : luminositySectionsBlockRanges_) {
       // luminositySectionsBlockRanges_ is sorted according to startRun()
       // => if kRun below it, you can stop the loop and return false
-      if (kRun < (*oneLumiRange).startRun()) {
+      if (kRun < luminositySectionsBlockRange.startRun()) {
         // std::cout << "GF DEBUG: LS has NOT PASSED (early bail-out) ! ***" << std::endl;
         break;
       }
 
       // if endRun() below kRun, go to the next iteration
-      if ((*oneLumiRange).endRun() < kRun)
+      if (luminositySectionsBlockRange.endRun() < kRun)
         continue;
 
       // if the run number and lumi section match => exit from the loop
-      if ((*oneLumiRange).startLumi() <= kLumi && kLumi <= (*oneLumiRange).endLumi()) {
+      if (luminositySectionsBlockRange.startLumi() <= kLumi && kLumi <= luminositySectionsBlockRange.endLumi()) {
         selectThisEvent = true;
         // std::cout << "GF DEBUG: LS HAS PASSED ! ***" << std::endl;
         break;
@@ -207,7 +205,7 @@ void PickEvents::beginJob() {
             whattodo.push_back(true);
 
           // start with run selecion
-          int loc = tokens[1].find(":", 0);
+          int loc = tokens[1].find(':', 0);
 
           std::string first = tokens[1].substr(0, loc);
           startrun.push_back((edm::RunNumber_t)atoi(first.c_str()));
@@ -219,7 +217,7 @@ void PickEvents::beginJob() {
             endrun.push_back((edm::RunNumber_t)atoi(last.c_str()));
 
           // then event number selecion
-          loc = tokens[2].find(":", 0);
+          loc = tokens[2].find(':', 0);
 
           first = tokens[2].substr(0, loc);
           startevent.push_back((edm::EventNumber_t)atoi(first.c_str()));

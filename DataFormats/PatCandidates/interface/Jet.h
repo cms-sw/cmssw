@@ -204,7 +204,7 @@ namespace pat {
     /// get list of tag info labels
     std::vector<std::string> const& tagInfoLabels() const { return tagInfoLabels_; }
     /// check to see if the given tag info is nonzero
-    bool hasTagInfo(const std::string label) const { return tagInfo(label) != nullptr; }
+    bool hasTagInfo(const std::string& label) const { return tagInfo(label) != nullptr; }
     /// get a tagInfo with the given name, or NULL if none is found.
     /// You should omit the 'TagInfos' part from the label
     const reco::BaseTagInfo* tagInfo(const std::string& label) const;
@@ -538,7 +538,7 @@ namespace pat {
       }
     }
 
-    void updateFwdGenJetFwdRef(edm::Ref<reco::GenJetCollection> updateRef) {
+    void updateFwdGenJetFwdRef(const edm::Ref<reco::GenJetCollection>& updateRef) {
       genJetFwdRef_ = edm::FwdRef<reco::GenJetCollection>(updateRef, genJetFwdRef_.backRef());
     }
 
@@ -658,16 +658,14 @@ namespace pat {
     template <typename T>
     const T* tagInfoByType() const {
       // First check the factorized PAT version
-      for (size_t i = 0, n = tagInfosFwdPtr_.size(); i < n; ++i) {
-        TagInfoFwdPtrCollection::value_type const& val = tagInfosFwdPtr_[i];
+      for (const auto& val : tagInfosFwdPtr_) {
         reco::BaseTagInfo const* baseTagInfo = val.get();
         if (typeid(*baseTagInfo) == typeid(T)) {
           return static_cast<const T*>(baseTagInfo);
         }
       }
       // Then check compatibility version
-      for (size_t i = 0, n = tagInfos_.size(); i < n; ++i) {
-        edm::OwnVector<reco::BaseTagInfo>::value_type const& val = tagInfos_[i];
+      for (const auto& val : tagInfos_) {
         reco::BaseTagInfo const* baseTagInfo = &val;
         if (typeid(*baseTagInfo) == typeid(T)) {
           return static_cast<const T*>(baseTagInfo);

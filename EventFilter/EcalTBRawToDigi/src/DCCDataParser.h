@@ -40,7 +40,7 @@ public:
   /**
     Parse data from file 
   */
-  void parseFile(std::string fileName, bool singleEvent = false);
+  void parseFile(const std::string &fileName, bool singleEvent = false);
 
   /**
      Parse data from a buffer

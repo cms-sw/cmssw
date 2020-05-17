@@ -22,7 +22,7 @@ namespace {
   };
 
   HcalRawGains::Container::const_iterator find(const HcalRawGains::Container& container, unsigned long id) {
-    HcalRawGains::Container::const_iterator result = container.begin();
+    auto result = container.begin();
     for (; result != container.end(); result++) {
       if (result->rawId() == id)
         break;  // found
@@ -52,8 +52,8 @@ const HcalRawGain* HcalRawGains::getValues(DetId fId) const {
 
 std::vector<DetId> HcalRawGains::getAllChannels() const {
   std::vector<DetId> result;
-  for (std::vector<Item>::const_iterator item = mItems.begin(); item != mItems.end(); item++) {
-    result.push_back(DetId(item->rawId()));
+  for (const auto& mItem : mItems) {
+    result.emplace_back(mItem.rawId());
   }
   return result;
 }

@@ -45,10 +45,10 @@ public:
   DTSegAnalyzer(const edm::ParameterSet& pset);
 
   /* Destructor */
-  ~DTSegAnalyzer();
+  ~DTSegAnalyzer() override;
 
   /* Operations */
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
 
 private:
   void analyzeDTHits(const edm::Event& event, const edm::EventSetup& eventSetup);

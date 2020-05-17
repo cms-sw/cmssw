@@ -16,7 +16,7 @@ using namespace edm;
 RPCReadOutMapping::RPCReadOutMapping(const std::string &version) : theVersion(version) {}
 
 const DccSpec *RPCReadOutMapping::dcc(int dccId) const {
-  IMAP im = theFeds.find(dccId);
+  auto im = theFeds.find(dccId);
   const DccSpec &ddc = (*im).second;
   return (im != theFeds.end()) ? &ddc : nullptr;
 }
@@ -26,8 +26,8 @@ void RPCReadOutMapping::add(const DccSpec &dcc) { theFeds[dcc.id()] = dcc; }
 std::vector<const DccSpec *> RPCReadOutMapping::dccList() const {
   std::vector<const DccSpec *> result;
   result.reserve(theFeds.size());
-  for (IMAP im = theFeds.begin(); im != theFeds.end(); im++) {
-    result.push_back(&(im->second));
+  for (const auto &theFed : theFeds) {
+    result.push_back(&(theFed.second));
   }
   return result;
 }
@@ -36,8 +36,8 @@ std::pair<int, int> RPCReadOutMapping::dccNumberRange() const {
   if (theFeds.empty())
     return std::make_pair(0, -1);
   else {
-    IMAP first = theFeds.begin();
-    IMAP last = theFeds.end();
+    auto first = theFeds.begin();
+    auto last = theFeds.end();
     last--;
     return std::make_pair(first->first, last->first);
   }
@@ -51,19 +51,16 @@ std::vector<std::pair<LinkBoardElectronicIndex, LinkBoardPackedStrip> > RPCReadO
   const uint32_t &rawDetId = stripInDetUnit.first;
   const int &stripInDU = stripInDetUnit.second;
 
-  for (IMAP im = theFeds.begin(); im != theFeds.end(); im++) {
-    const DccSpec &dccSpec = (*im).second;
+  for (const auto &theFed : theFeds) {
+    const DccSpec &dccSpec = theFed.second;
     const std::vector<TriggerBoardSpec> &triggerBoards = dccSpec.triggerBoards();
-    for (std::vector<TriggerBoardSpec>::const_iterator it = triggerBoards.begin(); it != triggerBoards.end(); it++) {
-      const TriggerBoardSpec &triggerBoard = (*it);
+    for (const auto &triggerBoard : triggerBoards) {
       typedef std::vector<const LinkConnSpec *> LINKS;
       LINKS linkConns = triggerBoard.enabledLinkConns();
-      for (LINKS::const_iterator ic = linkConns.begin(); ic != linkConns.end(); ic++) {
-        const LinkConnSpec &link = **ic;
+      for (auto linkConn : linkConns) {
+        const LinkConnSpec &link = *linkConn;
         const std::vector<LinkBoardSpec> &boards = link.linkBoards();
-        for (std::vector<LinkBoardSpec>::const_iterator ib = boards.begin(); ib != boards.end(); ib++) {
-          const LinkBoardSpec &board = (*ib);
-
+        for (const auto &board : boards) {
           eleIndex.dccId = dccSpec.id();
           eleIndex.dccInputChannelNum = triggerBoard.dccInputChannelNum();
           eleIndex.tbLinkInputNum = link.triggerBoardInputNumber();
@@ -71,8 +68,7 @@ std::vector<std::pair<LinkBoardElectronicIndex, LinkBoardPackedStrip> > RPCReadO
 
           const std::vector<FebConnectorSpec> &febs = board.febs();
           int febCheck = 0;
-          for (std::vector<FebConnectorSpec>::const_iterator ifc = febs.begin(); ifc != febs.end(); ifc++) {
-            const FebConnectorSpec &febConnector = (*ifc);
+          for (const auto &febConnector : febs) {
             febCheck++;
             if (febConnector.rawId() != rawDetId)
               continue;
@@ -83,7 +79,7 @@ std::vector<std::pair<LinkBoardElectronicIndex, LinkBoardPackedStrip> > RPCReadO
             for (int istrip = 0; istrip < febConnector.nstrips(); istrip++) {
               int stripPinInFeb = febConnector.cablePinNum(istrip);
               if (febConnector.chamberStripNum(istrip) == stripInDU) {
-                result.push_back(std::make_pair(eleIndex, LinkBoardPackedStrip(febInLB, stripPinInFeb)));
+                result.emplace_back(eleIndex, LinkBoardPackedStrip(febInLB, stripPinInFeb));
               }
             }
           }

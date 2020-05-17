@@ -73,8 +73,8 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id,
   float sigmaWire = 0.;
   if (wHit.deadWG() > 0 || wgroups.size() > 2) {
     //---- worst possible case; take most conservative approach
-    for (unsigned int iWG = 0; iWG < wgroups.size(); iWG++) {
-      sigmaWire += layergeom_->yResolution(wgroups[iWG]);
+    for (int wgroup : wgroups) {
+      sigmaWire += layergeom_->yResolution(wgroup);
     }
   } else if (2 == wgroups.size()) {
     //---- 2 WGs - get the larger error (overestimation if a single track is passing

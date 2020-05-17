@@ -308,11 +308,11 @@ void ZIterativeAlgorithmWithFit::getWeight(unsigned int event_id, calib::CalibEl
 
   std::vector<std::pair<int, float> > modules = (*ele).getCalibModulesWeights(calibType_);
 
-  for (int imod = 0; imod < (int)modules.size(); imod++) {
-    int mod = (int)modules[imod].first;
+  for (auto& module : modules) {
+    int mod = (int)module.first;
 
     if (mod < (int)channels_ && mod >= 0) {
-      if (modules[imod].second >= 0.12 && modules[imod].second < 10000.) {
+      if (module.second >= 0.12 && module.second < 10000.) {
         if ((nCrystalCut_ == -1) ||
             ((!(mod <= nCrystalCut_ - 1)) && !((mod > (19 - nCrystalCut_)) && (mod <= (19 + nCrystalCut_))) &&
              !((mod > (39 - nCrystalCut_)) && (mod <= (39 + nCrystalCut_))) &&
@@ -321,7 +321,7 @@ void ZIterativeAlgorithmWithFit::getWeight(unsigned int event_id, calib::CalibEl
              !((mod > (109 - nCrystalCut_)) && (mod <= (109 + nCrystalCut_))) &&
              !((mod > (129 - nCrystalCut_)) && (mod <= (129 + nCrystalCut_))) &&
              !((mod > (149 - nCrystalCut_)) && (mod <= (149 + nCrystalCut_))) && !(mod > (169 - nCrystalCut_)))) {
-          float weight2 = modules[imod].second / ele->getRecoElectron()->superCluster()->rawEnergy();
+          float weight2 = module.second / ele->getRecoElectron()->superCluster()->rawEnergy();
 #ifdef DEBUG
           std::cout << "w2 " << weight2 << std::endl;
 #endif

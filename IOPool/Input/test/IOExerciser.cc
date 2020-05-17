@@ -219,8 +219,7 @@ void IOExerciser::computeProducts(edm::EventForOutput const& e, TokenMap const& 
 }
 
 void IOExerciser::fillSmallestFirst(ProductInfos const& all_products, Long64_t threshold) {
-  for (ProductInfos::const_iterator it = all_products.begin(), itEnd = all_products.end();
-       (it != itEnd) && (m_currentUsage < threshold);
+  for (auto it = all_products.begin(), itEnd = all_products.end(); (it != itEnd) && (m_currentUsage < threshold);
        ++it) {
     m_products.push_back(*it);
     m_currentUsage += it->size();
@@ -231,9 +230,7 @@ void IOExerciser::fillSmallestFirst(ProductInfos const& all_products, Long64_t t
 
 void IOExerciser::fillLargestFirst(ProductInfos const& all_products, Long64_t threshold) {
   m_currentUsage = 0;
-  for (ProductInfos::const_iterator it = --all_products.end(), itBegin = all_products.begin();
-       m_currentUsage < threshold;
-       --it) {
+  for (auto it = --all_products.end(), itBegin = all_products.begin(); m_currentUsage < threshold; --it) {
     m_products.push_back(*it);
     m_currentUsage += it->size();
     LogDebug("IOExerciser") << "Adding label " << it->tag().label() << ", size " << it->size() << "; current usage is "

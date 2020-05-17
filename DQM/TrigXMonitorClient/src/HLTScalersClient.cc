@@ -186,8 +186,8 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock &lumiSeg, c
       snprintf(name, 256, "counts_p%03d", i);
       countHistories_.push_back(dbe_->book1D(name, name, MAX_LUMI_SEG_HLT, -0.5, MAX_LUMI_SEG_HLT - 0.5));
       // prefill the data structures
-      recentPathCountsPerLS_.push_back(CountLSFifo_t(kRateIntegWindow_));
-      recentNormedPathCountsPerLS_.push_back(CountLSFifo_t(2));
+      recentPathCountsPerLS_.emplace_back(kRateIntegWindow_);
+      recentNormedPathCountsPerLS_.emplace_back(2);
     }
     dbe_->setCurrentFolder(folderName_);
 
@@ -264,7 +264,7 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock &lumiSeg, c
         std::istringstream fnames(line);
         std::string label;
         int bin;
-        if (fnames.str().find("#") == 0)  // skip comment lines
+        if (fnames.str().find('#') == 0)  // skip comment lines
           continue;
         if (fnames >> bin >> label) {
           if (debug_) {
@@ -540,21 +540,21 @@ std::pair<double, double> HLTScalersClient::getSlope_(const HLTScalersClient::Co
     double xsq = 0;
     double y = 0;
     double n = double(points.size());
-    for (auto i(points.begin()); i != points.end(); ++i) {
+    for (const auto &point : points) {
       if (debug_)
-        std::cout << "x = " << i->first << ", y = " << i->second << std::endl;
-      xy += i->first * i->second;
-      x += i->first;
-      xsq += i->first * i->first;
-      y += i->second;
+        std::cout << "x = " << point.first << ", y = " << point.second << std::endl;
+      xy += point.first * point.second;
+      x += point.first;
+      xsq += point.first * point.first;
+      y += point.second;
     }
     slope = (n * xy - x * y) / (n * xsq - x * x);
 
     // now get the uncertainty on the slope. Need intercept for this.
     double intercept = (xsq * y - xy * x) / (n * xsq - x * x);
     double sigma_ysq = 0;
-    for (auto i(points.begin()); i != points.end(); ++i) {
-      sigma_ysq += pow((i->second - slope * i->first - intercept), 2.);
+    for (const auto &point : points) {
+      sigma_ysq += pow((point.second - slope * point.first - intercept), 2.);
     }
     //     if ( debug_ )
     //       std::cout << "chi^2 = " << sigma_ysq << std::endl;

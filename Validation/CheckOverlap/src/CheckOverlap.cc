@@ -36,8 +36,8 @@ void CheckOverlap::update(const BeginOfRun* run) {
     std::vector<G4LogicalVolume*>::const_iterator lvcite;
     int i = 0;
     for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
-      for (unsigned int ii = 0; ii < nodeNames.size(); ii++) {
-        if ((*lvcite)->GetName() == (G4String)(nodeNames[ii])) {
+      for (auto& nodeName : nodeNames) {
+        if ((*lvcite)->GetName() == (G4String)nodeName) {
           topLV.push_back((*lvcite));
           break;
         }
@@ -54,9 +54,9 @@ void CheckOverlap::update(const BeginOfRun* run) {
   if (topLV.empty()) {
     G4cout << "No Top LV Found" << G4endl;
   } else {
-    for (unsigned int ii = 0; ii < topLV.size(); ++ii) {
-      G4cout << "Top LV Name " << topLV[ii]->GetName() << G4endl;
-      checkHierarchyLeafPVLV(topLV[ii], 0);
+    for (auto& ii : topLV) {
+      G4cout << "Top LV Name " << ii->GetName() << G4endl;
+      checkHierarchyLeafPVLV(ii, 0);
     }
   }
 }
@@ -112,7 +112,7 @@ void CheckOverlap::checkPV(G4VPhysicalVolume* pv, unsigned int leafDepth) {
     }
   } else {
     if (pv->GetParameterisation() != nullptr) {
-      G4PVParameterised* pvparam = dynamic_cast<G4PVParameterised*>(pv);
+      auto* pvparam = dynamic_cast<G4PVParameterised*>(pv);
       G4bool ok = pvparam->CheckOverlaps(nPoints);
       G4cout << "Parametrized PV " << pvparam->GetName() << " in mother " << mother << " at depth " << leafDepth
              << " Status " << ok << G4endl;
@@ -125,7 +125,7 @@ G4VPhysicalVolume* CheckOverlap::getTopPV() {
   return G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume();
 }
 
-void CheckOverlap::dumpLV(G4LogicalVolume* lv, std::string str) {
+void CheckOverlap::dumpLV(G4LogicalVolume* lv, const std::string& str) {
   G4cout << "Dump of " << str << " Logical Volume " << lv->GetName() << "  Solid: " << lv->GetSolid()->GetName()
          << "  Material: " << lv->GetMaterial()->GetName() << G4endl;
   G4cout << *(lv->GetSolid()) << G4endl;

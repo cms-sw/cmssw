@@ -11,9 +11,8 @@ TIDLayer* TIDLayerBuilder::build(const GeometricDet* aTIDLayer, const TrackerGeo
   TIDRingBuilder myBuilder;
   vector<const TIDRing*> theTIDRings;
 
-  for (vector<const GeometricDet*>::const_iterator it = theGeometricRings.begin(); it != theGeometricRings.end();
-       it++) {
-    theTIDRings.push_back(myBuilder.build(*it, theGeomDetGeometry));
+  for (auto theGeometricRing : theGeometricRings) {
+    theTIDRings.push_back(myBuilder.build(theGeometricRing, theGeomDetGeometry));
   }
 
   return new TIDLayer(theTIDRings);

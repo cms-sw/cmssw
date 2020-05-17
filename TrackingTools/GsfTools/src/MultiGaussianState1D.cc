@@ -7,8 +7,8 @@ double MultiGaussianState1D::weight() const {
     return theCombinedState.weight();
 
   double result(0.);
-  for (SingleState1dContainer::const_iterator ic = theComponents.begin(); ic != theComponents.end(); ic++)
-    result += (*ic).weight();
+  for (const auto& theComponent : theComponents)
+    result += theComponent.weight();
   return result;
 }
 

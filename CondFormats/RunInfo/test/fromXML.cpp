@@ -18,7 +18,7 @@
 
 template <typename T>
 void toXML(std::string filename = "") {
-  if (filename == "") {
+  if (filename.empty()) {
     filename = std::string(typeid(T).name()) + ".xml";
   }
 
@@ -39,7 +39,7 @@ void toXML(std::string filename = "") {
 
 template <typename T>
 T fromXML(std::string filename = "") {
-  if (filename == "") {
+  if (filename.empty()) {
     filename = std::string(typeid(T).name()) + ".xml";
   }
 

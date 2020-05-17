@@ -5,7 +5,7 @@ Toy EDAnalyzer for testing purposes only.
 
 ----------------------------------------------------------------------*/
 
-#include <math.h>
+#include <cmath>
 #include <stdexcept>
 #include <string>
 #include <iostream>
@@ -53,8 +53,8 @@ void DTMtimeValidateDBRead::analyze(const edm::Event& e, const edm::EventSetup& 
   float mTrms;
   float ckmt;
   float ckrms;
-  DTMtime::const_iterator iter = mT->begin();
-  DTMtime::const_iterator iend = mT->end();
+  auto iter = mT->begin();
+  auto iend = mT->end();
   while (iter != iend) {
     const DTMtimeId& mTId = iter->first;
     const DTMtimeData& mTData = iter->second;

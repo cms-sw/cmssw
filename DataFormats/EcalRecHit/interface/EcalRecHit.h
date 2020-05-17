@@ -188,10 +188,9 @@ public:
 
   /// check if one of the flags in a set is true
   bool checkFlags(const std::vector<int>& flagsvec) const {
-    for (std::vector<int>::const_iterator flagPtr = flagsvec.begin(); flagPtr != flagsvec.end();
-         ++flagPtr) {  // check if one of the flags is up
+    for (int flagPtr : flagsvec) {  // check if one of the flags is up
 
-      if (checkFlag(*flagPtr))
+      if (checkFlag(flagPtr))
         return true;
     }
 

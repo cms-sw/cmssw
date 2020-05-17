@@ -43,7 +43,7 @@ void CaloTowerCreatorForTauHLT::produce(StreamID sid, Event& evt, const EventSet
   cands->reserve(caloTowers->size());
 
   int idTau = 0;
-  L1JetParticleCollection::const_iterator myL1Jet = jetsgen->begin();
+  auto myL1Jet = jetsgen->begin();
   for (; myL1Jet != jetsgen->end(); myL1Jet++) {
     if (idTau == mTauId) {
       double Sum08 = 0.;

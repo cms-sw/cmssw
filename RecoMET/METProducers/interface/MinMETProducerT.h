@@ -33,7 +33,7 @@ public:
       : moduleLabel_(cfg.getParameter<std::string>("@module_label")) {
     src_ = cfg.getParameter<vInputTag>("src");
 
-    for (vInputTag::const_iterator src_i = src_.begin(); src_i != src_.end(); ++src_i) {
+    for (auto src_i = src_.begin(); src_i != src_.end(); ++src_i) {
       src_token_.push_back(consumes<METCollection>(*src_i));
     }
     produces<METCollection>();
@@ -48,7 +48,7 @@ private:
     int numMEtObjects = -1;
     //    for ( vInputTag::const_iterator src_i = src_.begin();
     //  	  src_i != src_.end(); ++src_i ) {
-    for (typename vInputToken::const_iterator src_i = src_token_.begin(); src_i != src_token_.end(); ++src_i) {
+    for (auto src_i = src_token_.begin(); src_i != src_token_.end(); ++src_i) {
       edm::Handle<METCollection> inputMETs;
       //      evt.getByLabel(*src_i, inputMETs);
       evt.getByToken(*src_i, inputMETs);
@@ -62,7 +62,7 @@ private:
       const T* minMET = nullptr;
       //      for ( vInputTag::const_iterator src_i = src_.begin();
       //	    src_i != src_.end(); ++src_i ) {
-      for (typename vInputToken::const_iterator src_i = src_token_.begin(); src_i != src_token_.end(); ++src_i) {
+      for (auto src_i = src_token_.begin(); src_i != src_token_.end(); ++src_i) {
         edm::Handle<METCollection> inputMETs;
         //	evt.getByLabel(*src_i, inputMETs);
         evt.getByToken(*src_i, inputMETs);

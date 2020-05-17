@@ -31,14 +31,14 @@ public:
   /// Destructor
   virtual ~SiPixelHistogramId();
   /// Set Histogram Id
-  std::string setHistoId(std::string variable, uint32_t &rawId);
+  std::string setHistoId(const std::string& variable, uint32_t& rawId);
   /// Get data Collection
   std::string getDataCollection(std::string histogramId);
   /// Get Detector Raw Id
   uint32_t getRawId(std::string histogramId);
 
 private:
-  std::string returnIdPart(std::string histoid, uint32_t whichpart);
+  std::string returnIdPart(const std::string& histoid, uint32_t whichpart);
   std::string dataCollection_;
   std::string separator_;
 };

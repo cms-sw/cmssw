@@ -104,25 +104,25 @@ void ODTTCciConfig::setParameters(const std::map<string, string>& my_keys_map) {
   // parses the result of the XML parser that is a map of
   // string string with variable name variable value
 
-  for (std::map<std::string, std::string>::const_iterator ci = my_keys_map.begin(); ci != my_keys_map.end(); ci++) {
-    if (ci->first == "TRG_MODE")
-      setTrgMode(ci->second);
-    if (ci->first == "TRG_SLEEP")
-      setTrgSleep(atoi(ci->second.c_str()));
-    if (ci->first == "TTCci_CONFIGURATION_ID")
-      setConfigTag(ci->second);
-    if (ci->first == "CONFIGURATION_SCRIPT")
-      setConfigurationScript(ci->second);
-    if (ci->first == "CONFIGURATION_SCRIPT_PARAMS")
-      setConfigurationScriptParams(ci->second);
-    if (ci->first == "CONFIGURATION_SCRIPT_PARAMETERS")
-      setConfigurationScriptParams(ci->second);
-    if (ci->first == "Configuration") {
-      std::string fname = ci->second;
+  for (const auto& ci : my_keys_map) {
+    if (ci.first == "TRG_MODE")
+      setTrgMode(ci.second);
+    if (ci.first == "TRG_SLEEP")
+      setTrgSleep(atoi(ci.second.c_str()));
+    if (ci.first == "TTCci_CONFIGURATION_ID")
+      setConfigTag(ci.second);
+    if (ci.first == "CONFIGURATION_SCRIPT")
+      setConfigurationScript(ci.second);
+    if (ci.first == "CONFIGURATION_SCRIPT_PARAMS")
+      setConfigurationScriptParams(ci.second);
+    if (ci.first == "CONFIGURATION_SCRIPT_PARAMETERS")
+      setConfigurationScriptParams(ci.second);
+    if (ci.first == "Configuration") {
+      std::string fname = ci.second;
       string str3;
       size_t pos, pose;
 
-      pos = fname.find("=");  // position of "live" in str
+      pos = fname.find('=');  // position of "live" in str
       pose = fname.size();    // position of "]" in str
       str3 = fname.substr(pos + 1, pose - pos - 2);
 

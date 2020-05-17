@@ -16,10 +16,10 @@ class StripByStripTestDriver : public edm::EDProducer {
 
 public:
   StripByStripTestDriver(const edm::ParameterSet&);
-  ~StripByStripTestDriver();
+  ~StripByStripTestDriver() override;
 
 private:
-  void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   const edm::InputTag inputTag;
   const bool hlt;

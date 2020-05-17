@@ -150,8 +150,8 @@ namespace edm {
       return lh < rh;
     std::string const& lstring = lh.branchDescription_->branchName();
     std::string const& rstring = rh.branchDescription_->branchName();
-    std::map<std::string, int>::const_iterator lit = treeMap_->find(lstring);
-    std::map<std::string, int>::const_iterator rit = treeMap_->find(rstring);
+    auto lit = treeMap_->find(lstring);
+    auto rit = treeMap_->find(rstring);
     bool lfound = (lit != treeMap_->end());
     bool rfound = (rit != treeMap_->end());
     if (lfound && rfound) {
@@ -375,7 +375,7 @@ namespace edm {
                                                          BranchID const& branchID) {
     ProductProvenance const* provenance = provRetriever->branchIDToProvenanceForProducedOnly(branchID);
     if (provenance != nullptr) {
-      BranchParents::iterator it = branchParents_.find(branchID);
+      auto it = branchParents_.find(branchID);
       if (it == branchParents_.end()) {
         it = branchParents_.insert(std::make_pair(branchID, std::set<ParentageID>())).first;
       }

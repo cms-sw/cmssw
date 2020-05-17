@@ -94,9 +94,9 @@ void DTDAQInfo::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
     }
 
     // loop on all active feds
-    for (vector<int>::const_iterator fed = fedInIDs.begin(); fed != fedInIDs.end(); ++fed) {
+    for (int fedInID : fedInIDs) {
       // check if the fed is in the DT range
-      if (!(*fed >= FEDIDmin && *fed <= FEDIDMax))
+      if (!(fedInID >= FEDIDmin && fedInID <= FEDIDMax))
         continue;
 
       // check if the 12 channels are connected to any sector and fill the wheel percentage accordignly
@@ -104,9 +104,9 @@ void DTDAQInfo::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
       int sector = -99;
       int dummy = -99;
       for (int ros = 1; ros != 13; ++ros) {
-        if (!mapping->readOutToGeometry(*fed, ros, 2, 2, 2, wheel, dummy, sector, dummy, dummy, dummy)) {
+        if (!mapping->readOutToGeometry(fedInID, ros, 2, 2, 2, wheel, dummy, sector, dummy, dummy, dummy)) {
           LogTrace("DQM|DTMonitorClient|DTDAQInfo")
-              << "FED: " << *fed << " Ch: " << ros << " wheel: " << wheel << " Sect: " << sector << endl;
+              << "FED: " << fedInID << " Ch: " << ros << " wheel: " << wheel << " Sect: " << sector << endl;
           daqFractions[wheel]->Fill(daqFractions[wheel]->getFloatValue() + 1. / 12.);
           totalDAQFraction->Fill(totalDAQFraction->getFloatValue() + 1. / 60.);
           daqMap->Fill(sector, wheel);

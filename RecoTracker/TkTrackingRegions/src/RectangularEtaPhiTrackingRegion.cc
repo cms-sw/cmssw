@@ -369,7 +369,7 @@ TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(const edm::EventSetup
       result.reserve(layerHits.size());
       for (auto&& ih : layerHits) {
         if (hitComp(*ih))
-          result.emplace_back(std::move(ih));
+          result.emplace_back(ih);
       }
 
     } else {
@@ -383,7 +383,7 @@ TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(const edm::EventSetup
       result.reserve(layerHits.size());
       for (auto&& ih : layerHits) {
         if (hitComp(*ih))
-          result.emplace_back(std::move(ih));
+          result.emplace_back(ih);
       }
     }
   }

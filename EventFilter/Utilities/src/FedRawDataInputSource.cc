@@ -150,7 +150,7 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset, edm:
     std::unique_lock<std::mutex> lk(startupLock_);
     //issue a memory fence here and in threads (constructor was segfaulting without this)
     thread_quit_signal.push_back(false);
-    workerJob_.push_back(ReaderInfo(nullptr, nullptr));
+    workerJob_.emplace_back(nullptr, nullptr);
     cvReader_.push_back(new std::condition_variable);
     tid_active_.push_back(0);
     threadInit_.store(false, std::memory_order_release);
@@ -165,9 +165,9 @@ FedRawDataInputSource::~FedRawDataInputSource() {
   quit_threads_ = true;
 
   //delete any remaining open files
-  for (auto it = filesToDelete_.begin(); it != filesToDelete_.end(); it++) {
-    std::string fileToDelete = it->second->fileName_;
-    it->second.release();
+  for (auto& it : filesToDelete_) {
+    std::string fileToDelete = it.second->fileName_;
+    it.second.release();
   }
   if (startedSupervisorThread_) {
     readSupervisorThread_->join();
@@ -221,7 +221,7 @@ edm::RawInputSource::Next FedRawDataInputSource::checkNext() {
     //this thread opens new files and dispatches reading to worker readers
     //threadInit_.store(false,std::memory_order_release);
     std::unique_lock<std::mutex> lk(startupLock_);
-    readSupervisorThread_.reset(new std::thread(&FedRawDataInputSource::readSupervisor, this));
+    readSupervisorThread_ = std::make_unique<std::thread>(&FedRawDataInputSource::readSupervisor, this);
     startedSupervisorThread_ = true;
     startupCv_.wait(lk);
   }
@@ -319,7 +319,7 @@ void FedRawDataInputSource::maybeOpenNewLumiSection(const uint32_t lumiSection) 
     gettimeofday(&tv, nullptr);
     const edm::Timestamp lsopentime((unsigned long long)tv.tv_sec * 1000000 + (unsigned long long)tv.tv_usec);
 
-    edm::LuminosityBlockAuxiliary* lumiBlockAuxiliary = new edm::LuminosityBlockAuxiliary(
+    auto* lumiBlockAuxiliary = new edm::LuminosityBlockAuxiliary(
         runAuxiliary()->run(), lumiSection, lsopentime, edm::Timestamp::invalidTimestamp());
 
     setLuminosityBlockAuxiliary(lumiBlockAuxiliary);
@@ -419,7 +419,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
     if (!daqDirector_->isSingleStreamThread() && !fileListMode_) {
       //put the file in pending delete list;
       std::unique_lock<std::mutex> lkw(fileDeleteLock_);
-      filesToDelete_.push_back(std::pair<int, std::unique_ptr<InputFile>>(currentFileIndex_, std::move(currentFile_)));
+      filesToDelete_.emplace_back(currentFileIndex_, std::move(currentFile_));
     } else {
       //in single-thread and stream jobs, events are already processed
       std::string currentName = currentFile_->fileName_;
@@ -490,7 +490,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
       }
     }
 
-    event_.reset(new FRDEventMsgView(dataPosition));
+    event_ = std::make_unique<FRDEventMsgView>(dataPosition);
     if (event_->size() > eventChunkSize_) {
       throw cms::Exception("FedRawDataInputSource::getNextEvent")
           << " event id:" << event_->event() << " lumi:" << event_->lumi() << " run:" << event_->run()
@@ -508,7 +508,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
       readNextChunkIntoBuffer(currentFile_.get());
       //recalculate chunk position
       dataPosition = currentFile_->chunks_[0]->buf_ + currentFile_->chunkPosition_;
-      event_.reset(new FRDEventMsgView(dataPosition));
+      event_ = std::make_unique<FRDEventMsgView>(dataPosition);
     }
     currentFile_->bufferPosition_ += event_->size();
     currentFile_->chunkPosition_ += event_->size();
@@ -535,7 +535,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
     //read header, copy it to a single chunk if necessary
     bool chunkEnd = currentFile_->advance(dataPosition, FRDHeaderVersionSize[detectedFRDversion_]);
 
-    event_.reset(new FRDEventMsgView(dataPosition));
+    event_ = std::make_unique<FRDEventMsgView>(dataPosition);
     if (event_->size() > eventChunkSize_) {
       throw cms::Exception("FedRawDataInputSource::getNextEvent")
           << " event id:" << event_->event() << " lumi:" << event_->lumi() << " run:" << event_->run()
@@ -564,7 +564,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
         assert(chunkEnd);
         chunkIsFree_ = true;
         //header is moved
-        event_.reset(new FRDEventMsgView(dataPosition));
+        event_ = std::make_unique<FRDEventMsgView>(dataPosition);
       } else {
         //everything is in a single chunk, only move pointers forward
         chunkEnd = currentFile_->advance(dataPosition, msgSize);
@@ -1173,9 +1173,9 @@ void FedRawDataInputSource::readSupervisor() {
     cvReader_[tid]->notify_one();
     numFinishedThreads++;
   }
-  for (unsigned int i = 0; i < workerThreads_.size(); i++) {
-    workerThreads_[i]->join();
-    delete workerThreads_[i];
+  for (auto& workerThread : workerThreads_) {
+    workerThread->join();
+    delete workerThread;
   }
 }
 
@@ -1478,10 +1478,10 @@ std::pair<bool, unsigned int> FedRawDataInputSource::getEventReport(unsigned int
 
 long FedRawDataInputSource::initFileList() {
   std::sort(fileNames_.begin(), fileNames_.end(), [](std::string a, std::string b) {
-    if (a.rfind("/") != std::string::npos)
-      a = a.substr(a.rfind("/"));
-    if (b.rfind("/") != std::string::npos)
-      b = b.substr(b.rfind("/"));
+    if (a.rfind('/') != std::string::npos)
+      a = a.substr(a.rfind('/'));
+    if (b.rfind('/') != std::string::npos)
+      b = b.substr(b.rfind('/'));
     return b > a;
   });
 
@@ -1489,7 +1489,7 @@ long FedRawDataInputSource::initFileList() {
     //get run number from first file in the vector
     boost::filesystem::path fileName = fileNames_[0];
     std::string fileStem = fileName.stem().string();
-    auto end = fileStem.find("_");
+    auto end = fileStem.find('_');
     if (fileStem.find("run") == 0) {
       std::string runStr = fileStem.substr(3, end - 3);
       try {
@@ -1520,8 +1520,8 @@ evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getFile(unsigned int& ls,
     std::string fileStem = fileName.stem().string();
     if (fileStem.find("ls"))
       fileStem = fileStem.substr(fileStem.find("ls") + 2);
-    if (fileStem.find("_"))
-      fileStem = fileStem.substr(0, fileStem.find("_"));
+    if (fileStem.find('_'))
+      fileStem = fileStem.substr(0, fileStem.find('_'));
 
     if (!fileListLoopMode_)
       ls = boost::lexical_cast<unsigned int>(fileStem);

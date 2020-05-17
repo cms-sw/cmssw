@@ -37,23 +37,23 @@ PixelTKFECConfig::PixelTKFECConfig(std::vector<std::vector<std::string> > &table
 
   */
 
-  colNames.push_back("CONFIG_KEY");
-  colNames.push_back("KEY_TYPE");
-  colNames.push_back("KEY_ALIAS");
-  colNames.push_back("VERSION");
-  colNames.push_back("KIND_OF_COND");
-  colNames.push_back("TRKFEC_NAME");
-  colNames.push_back("CRATE_LABEL");
-  colNames.push_back("CRATE_NUMBER");
-  colNames.push_back("TYPE");
-  colNames.push_back("SLOT_NUMBER");
-  colNames.push_back("VME_ADDR");
-  colNames.push_back("I2CSPEED");
+  colNames.emplace_back("CONFIG_KEY");
+  colNames.emplace_back("KEY_TYPE");
+  colNames.emplace_back("KEY_ALIAS");
+  colNames.emplace_back("VERSION");
+  colNames.emplace_back("KIND_OF_COND");
+  colNames.emplace_back("TRKFEC_NAME");
+  colNames.emplace_back("CRATE_LABEL");
+  colNames.emplace_back("CRATE_NUMBER");
+  colNames.emplace_back("TYPE");
+  colNames.emplace_back("SLOT_NUMBER");
+  colNames.emplace_back("VME_ADDR");
+  colNames.emplace_back("I2CSPEED");
 
   for (unsigned int c = 0; c < tableMat[0].size(); c++) {
-    for (unsigned int n = 0; n < colNames.size(); n++) {
-      if (tableMat[0][c] == colNames[n]) {
-        colM[colNames[n]] = c;
+    for (const auto &colName : colNames) {
+      if (tableMat[0][c] == colName) {
+        colM[colName] = c;
         break;
       }
     }
@@ -84,7 +84,7 @@ PixelTKFECConfig::PixelTKFECConfig(std::vector<std::vector<std::string> > &table
 
 //****************************************************************************************
 
-PixelTKFECConfig::PixelTKFECConfig(std::string filename) : PixelConfigBase(" ", " ", " ") {
+PixelTKFECConfig::PixelTKFECConfig(const std::string &filename) : PixelConfigBase(" ", " ", " ") {
   std::string mthn = "]\t[PixelTKFECConfig::PixelTKFECConfig()]\t\t\t    ";
   std::ifstream in(filename.c_str());
 
@@ -143,14 +143,14 @@ void PixelTKFECConfig::writeASCII(std::string dir) const {
   }
 
   out << "#TKFEC ID     crate     VME/PCI    slot/address" << endl;
-  for (unsigned int i = 0; i < TKFECconfig_.size(); i++) {
-    out << TKFECconfig_[i].getTKFECID() << "          " << TKFECconfig_[i].getCrate() << "          ";
-    if (TKFECconfig_[i].getType() == "PCI") {
+  for (const auto &i : TKFECconfig_) {
+    out << i.getTKFECID() << "          " << i.getCrate() << "          ";
+    if (i.getType() == "PCI") {
       out << "PCI       ";
     } else {
       out << "          ";
     }
-    out << "0x" << hex << TKFECconfig_[i].getAddress() << dec << endl;
+    out << "0x" << hex << i.getAddress() << dec << endl;
   }
   out.close();
 }
@@ -186,10 +186,10 @@ unsigned int PixelTKFECConfig::getAddress(unsigned int i) const {
   return TKFECconfig_[i].getAddress();
 }
 
-unsigned int PixelTKFECConfig::crateFromTKFECID(std::string TKFECID) const {
-  for (unsigned int i = 0; i < TKFECconfig_.size(); i++) {
-    if (TKFECconfig_[i].getTKFECID() == TKFECID)
-      return TKFECconfig_[i].getCrate();
+unsigned int PixelTKFECConfig::crateFromTKFECID(const std::string &TKFECID) const {
+  for (const auto &i : TKFECconfig_) {
+    if (i.getTKFECID() == TKFECID)
+      return i.getCrate();
   }
 
   std::cout << "Could not find TKFEC ID:" << TKFECID << std::endl;
@@ -199,10 +199,10 @@ unsigned int PixelTKFECConfig::crateFromTKFECID(std::string TKFECID) const {
   return 0;
 }
 
-std::string PixelTKFECConfig::typeFromTKFECID(std::string TKFECID) const {
-  for (unsigned int i = 0; i < TKFECconfig_.size(); i++) {
-    if (TKFECconfig_[i].getTKFECID() == TKFECID)
-      return TKFECconfig_[i].getType();
+std::string PixelTKFECConfig::typeFromTKFECID(const std::string &TKFECID) const {
+  for (const auto &i : TKFECconfig_) {
+    if (i.getTKFECID() == TKFECID)
+      return i.getType();
   }
 
   std::cout << "Could not find TKFEC ID:" << TKFECID << std::endl;
@@ -212,10 +212,10 @@ std::string PixelTKFECConfig::typeFromTKFECID(std::string TKFECID) const {
   return nullptr;
 }
 
-unsigned int PixelTKFECConfig::addressFromTKFECID(std::string TKFECID) const {
-  for (unsigned int i = 0; i < TKFECconfig_.size(); i++) {
-    if (TKFECconfig_[i].getTKFECID() == TKFECID)
-      return TKFECconfig_[i].getAddress();
+unsigned int PixelTKFECConfig::addressFromTKFECID(const std::string &TKFECID) const {
+  for (const auto &i : TKFECconfig_) {
+    if (i.getTKFECID() == TKFECID)
+      return i.getAddress();
   }
 
   std::cout << "Could not find TKFEC ID:" << TKFECID << std::endl;
@@ -272,12 +272,12 @@ void PixelTKFECConfig::writeXMLHeader(pos::PixelConfigKey key,
 void PixelTKFECConfig::writeXML(std::ofstream *outstream, std::ofstream *out1stream, std::ofstream *out2stream) const {
   std::string mthn = "[PixelTKFECConfig::writeXML()]\t\t\t    ";
 
-  for (unsigned int i = 0; i < TKFECconfig_.size(); i++) {
+  for (const auto &i : TKFECconfig_) {
     *outstream << "  <DATA>" << std::endl;
-    *outstream << "   <TRKFEC_NAME>" << TKFECconfig_[i].getTKFECID() << "</TRKFEC_NAME>" << std::endl;
-    *outstream << "   <CRATE_NUMBER>" << TKFECconfig_[i].getCrate() << "</CRATE_NUMBER>" << std::endl;
+    *outstream << "   <TRKFEC_NAME>" << i.getTKFECID() << "</TRKFEC_NAME>" << std::endl;
+    *outstream << "   <CRATE_NUMBER>" << i.getCrate() << "</CRATE_NUMBER>" << std::endl;
     *outstream << "   <VME_ADDR>"
-               << "0x" << hex << TKFECconfig_[i].getAddress() << dec << "</VME_ADDR>" << std::endl;
+               << "0x" << hex << i.getAddress() << dec << "</VME_ADDR>" << std::endl;
     *outstream << "  </DATA>" << std::endl;
   }
 }

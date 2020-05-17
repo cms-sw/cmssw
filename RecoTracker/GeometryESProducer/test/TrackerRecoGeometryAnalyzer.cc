@@ -19,7 +19,7 @@ using namespace std;
 class TrackerRecoGeometryAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   TrackerRecoGeometryAnalyzer(const edm::ParameterSet&);
-  ~TrackerRecoGeometryAnalyzer();
+  ~TrackerRecoGeometryAnalyzer() override;
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;

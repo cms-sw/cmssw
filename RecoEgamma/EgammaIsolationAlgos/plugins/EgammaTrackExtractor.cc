@@ -90,7 +90,7 @@ IsoDeposit EgammaTrackExtractor::deposit(const Event& event,
   event.getByToken(theTrackCollectionToken, tracksH);
 
   if (candTk.isElectron()) {
-    const reco::GsfElectron* elec = dynamic_cast<const reco::GsfElectron*>(&candTk);
+    const auto* elec = dynamic_cast<const reco::GsfElectron*>(&candTk);
     candDir = reco::isodeposit::Direction(elec->gsfTrack()->eta(), elec->gsfTrack()->phi());
   } else {
     candDir = reco::isodeposit::Direction(candTk.eta(), candTk.phi());
@@ -119,7 +119,7 @@ IsoDeposit EgammaTrackExtractor::deposit(const Event& event,
       continue;
 
     if (candTk.isElectron()) {
-      const reco::GsfElectron* elec = dynamic_cast<const reco::GsfElectron*>(&candTk);
+      const auto* elec = dynamic_cast<const reco::GsfElectron*>(&candTk);
       switch (dzOption) {
         case EgammaTrackSelector::dz:
           dzCut = elec->gsfTrack()->dz() - itrTr->dz();

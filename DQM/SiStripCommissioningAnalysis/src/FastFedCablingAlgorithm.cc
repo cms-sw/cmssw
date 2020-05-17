@@ -39,7 +39,7 @@ void FastFedCablingAlgorithm::extract(const std::vector<TH1*>& histos) {
   }
 
   // Extract histograms
-  std::vector<TH1*>::const_iterator ihis = histos.begin();
+  auto ihis = histos.begin();
   for (; ihis != histos.end(); ihis++) {
     // Check for NULL pointer
     if (!(*ihis)) {
@@ -68,8 +68,8 @@ void FastFedCablingAlgorithm::analyse() {
     return;
   }
 
-  CommissioningAnalysis* tmp = const_cast<CommissioningAnalysis*>(anal());
-  FastFedCablingAnalysis* anal = dynamic_cast<FastFedCablingAnalysis*>(tmp);
+  auto* tmp = const_cast<CommissioningAnalysis*>(anal());
+  auto* anal = dynamic_cast<FastFedCablingAnalysis*>(tmp);
   if (!anal) {
     edm::LogWarning(mlCommissioning_) << "[FastFedCablingAlgorithm::" << __func__ << "]"
                                       << " NULL pointer to derived Analysis object!";
@@ -175,9 +175,9 @@ void FastFedCablingAlgorithm::analyse() {
   // Find mean and rms in "low" samples
   anal->lowMean_ = 0.;
   anal->lowRms_ = 0.;
-  for (uint16_t ibin = 0; ibin < low.size(); ibin++) {
-    anal->lowMean_ += low[ibin];
-    anal->lowRms_ += low[ibin] * low[ibin];
+  for (float ibin : low) {
+    anal->lowMean_ += ibin;
+    anal->lowRms_ += ibin * ibin;
   }
   if (!low.empty()) {
     anal->lowMean_ = anal->lowMean_ / low.size();
@@ -196,9 +196,9 @@ void FastFedCablingAlgorithm::analyse() {
   // Find mean and rms in "high" samples
   anal->highMean_ = 0.;
   anal->highRms_ = 0.;
-  for (uint16_t ibin = 0; ibin < high.size(); ibin++) {
-    anal->highMean_ += high[ibin];
-    anal->highRms_ += high[ibin] * high[ibin];
+  for (float ibin : high) {
+    anal->highMean_ += ibin;
+    anal->highRms_ += ibin * ibin;
   }
   if (!high.empty()) {
     anal->highMean_ = anal->highMean_ / high.size();

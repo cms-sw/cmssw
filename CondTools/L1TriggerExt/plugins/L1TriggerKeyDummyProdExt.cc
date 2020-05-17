@@ -20,12 +20,12 @@ L1TriggerKeyDummyProdExt::L1TriggerKeyDummyProdExt(const edm::ParameterSet& iCon
     typedef std::vector<edm::ParameterSet> ObjectKeys;
     ObjectKeys keys = iConfig.getParameter<ObjectKeys>("objectKeys");
 
-    for (ObjectKeys::const_iterator it = keys.begin(); it != keys.end(); ++it) {
+    for (const auto& it : keys) {
       // Replace ?s with spaces.
-      std::string key = it->getParameter<std::string>("key");
+      std::string key = it.getParameter<std::string>("key");
       replace(key.begin(), key.end(), '?', ' ');
 
-      m_key.add(it->getParameter<std::string>("record"), it->getParameter<std::string>("type"), key);
+      m_key.add(it.getParameter<std::string>("record"), it.getParameter<std::string>("type"), key);
     }
   }
 }

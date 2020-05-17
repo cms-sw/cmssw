@@ -88,7 +88,7 @@ void FWElectronDetailView::build(const FWModelId &id, const reco::GsfElectron *i
 
   // draw axis at the window corners
   if (true) {
-    TEveCaloLegoOverlay *overlay = new TEveCaloLegoOverlay();
+    auto *overlay = new TEveCaloLegoOverlay();
     overlay->SetShowPlane(kFALSE);
     overlay->SetShowPerspective(kFALSE);
     overlay->SetCaloLego(lego);
@@ -97,7 +97,7 @@ void FWElectronDetailView::build(const FWModelId &id, const reco::GsfElectron *i
   }
   // set event handler and flip camera to top view at beginning
   viewerGL()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
-  FWGLEventHandler *eh = new FWGLEventHandler((TGWindow *)viewerGL()->GetGLWidget(), (TObject *)viewerGL(), lego);
+  auto *eh = new FWGLEventHandler((TGWindow *)viewerGL()->GetGLWidget(), (TObject *)viewerGL(), lego);
   viewerGL()->SetEventHandler(eh);
   viewerGL()->ResetCamerasAfterNextUpdate();
   viewerGL()->UpdateScene(kFALSE);
@@ -185,7 +185,7 @@ void FWElectronDetailView::drawCrossHair(const reco::GsfElectron *i, TEveCaloLeg
     const double eta = i->superCluster()->seed()->position().eta() - i->deltaEtaSeedClusterTrackAtCalo();
     const double phi = i->superCluster()->seed()->position().phi() - i->deltaPhiSeedClusterTrackAtCalo();
 
-    TEveStraightLineSet *trackpositionAtCalo = new TEveStraightLineSet("sc trackpositionAtCalo");
+    auto *trackpositionAtCalo = new TEveStraightLineSet("sc trackpositionAtCalo");
     trackpositionAtCalo->SetPickable(kTRUE);
     trackpositionAtCalo->SetTitle("Track position at Calo propagating from the outermost state");
 
@@ -202,7 +202,7 @@ void FWElectronDetailView::drawCrossHair(const reco::GsfElectron *i, TEveCaloLeg
   // pin position
   //
   {
-    TEveStraightLineSet *pinposition = new TEveStraightLineSet("pin position");
+    auto *pinposition = new TEveStraightLineSet("pin position");
     pinposition->SetPickable(kTRUE);
     pinposition->SetTitle("Track position at Calo propagating from the innermost state");
     Double_t eta = i->caloPosition().eta() - deltaEtaSuperClusterTrackAtVtx(*i);
@@ -288,7 +288,7 @@ void FWElectronDetailView::addSceneInfo(const reco::GsfElectron *i, TEveElementL
   Double_t x(0), y(0), z(0);
   Double_t delta(0.02);
 
-  TEveStraightLineSet *scposition = new TEveStraightLineSet("sc position");
+  auto *scposition = new TEveStraightLineSet("sc position");
   scposition->SetPickable(kTRUE);
   scposition->SetTitle("Super cluster centroid");
 
@@ -308,7 +308,7 @@ void FWElectronDetailView::addSceneInfo(const reco::GsfElectron *i, TEveElementL
   m_legend->AddEntry(scposition, "Super cluster centroid", "p");
 
   // seed position
-  TEveStraightLineSet *seedposition = new TEveStraightLineSet("seed position");
+  auto *seedposition = new TEveStraightLineSet("seed position");
   seedposition->SetTitle("Seed cluster centroid");
   seedposition->SetPickable(kTRUE);
 
@@ -330,7 +330,7 @@ void FWElectronDetailView::addSceneInfo(const reco::GsfElectron *i, TEveElementL
   // the area of interest)
   if (fabs(i->phi() - i->caloPosition().phi()) < 25 * 0.0172 &&
       fabs(i->eta() - i->caloPosition().eta()) < 25 * 0.0172) {
-    TEveStraightLineSet *eldirection = new TEveStraightLineSet("seed position");
+    auto *eldirection = new TEveStraightLineSet("seed position");
     eldirection->SetTitle("Electron direction at vertex");
     eldirection->SetPickable(kTRUE);
 

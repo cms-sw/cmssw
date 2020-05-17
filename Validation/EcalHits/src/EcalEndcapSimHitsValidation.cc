@@ -26,8 +26,8 @@ EcalEndcapSimHitsValidation::EcalEndcapSimHitsValidation(const edm::ParameterSet
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   myEntries = 0;
-  for (int myStep = 0; myStep < 26; myStep++) {
-    eRLength[myStep] = 0.0;
+  for (float &myStep : eRLength) {
+    myStep = 0.0;
   }
 }
 
@@ -151,53 +151,53 @@ void EcalEndcapSimHitsValidation::analyze(const edm::Event &e, const edm::EventS
   uint32_t nEEzpHits = 0;
   uint32_t nEEzmHits = 0;
 
-  for (std::vector<PCaloHit>::iterator isim = theEECaloHits.begin(); isim != theEECaloHits.end(); ++isim) {
-    if (isim->time() > 500.) {
+  for (auto &theEECaloHit : theEECaloHits) {
+    if (theEECaloHit.time() > 500.) {
       continue;
     }
 
-    CaloHitMap[isim->id()].push_back(&(*isim));
+    CaloHitMap[theEECaloHit.id()].push_back(&theEECaloHit);
 
-    EEDetId eeid(isim->id());
+    EEDetId eeid(theEECaloHit.id());
 
-    LogDebug("HitInfo") << " CaloHit " << isim->getName() << "\n"
-                        << " DetID = " << isim->id() << " EEDetId = " << eeid.ix() << " " << eeid.iy() << "\n"
-                        << " Time = " << isim->time() << "\n"
-                        << " Track Id = " << isim->geantTrackId() << "\n"
-                        << " Energy = " << isim->energy();
+    LogDebug("HitInfo") << " CaloHit " << theEECaloHit.getName() << "\n"
+                        << " DetID = " << theEECaloHit.id() << " EEDetId = " << eeid.ix() << " " << eeid.iy() << "\n"
+                        << " Time = " << theEECaloHit.time() << "\n"
+                        << " Track Id = " << theEECaloHit.geantTrackId() << "\n"
+                        << " Energy = " << theEECaloHit.energy();
 
     uint32_t crystid = eeid.rawId();
 
     if (eeid.zside() > 0) {
       nEEzpHits++;
-      EEetzp_ += isim->energy();
-      eemapzp[crystid] += isim->energy();
+      EEetzp_ += theEECaloHit.energy();
+      eemapzp[crystid] += theEECaloHit.energy();
       meEEzpOccupancy_->Fill(eeid.ix(), eeid.iy());
     } else if (eeid.zside() < 0) {
       nEEzmHits++;
-      EEetzm_ += isim->energy();
-      eemapzm[crystid] += isim->energy();
+      EEetzm_ += theEECaloHit.energy();
+      eemapzm[crystid] += theEECaloHit.energy();
       meEEzmOccupancy_->Fill(eeid.ix(), eeid.iy());
     }
 
-    meEEHitEnergy_->Fill(isim->energy());
-    if (isim->energy() > 0) {
-      meEEhitLog10Energy_->Fill(log10(isim->energy()));
-      int log10i = int((log10(isim->energy()) + 10.) * 10.);
+    meEEHitEnergy_->Fill(theEECaloHit.energy());
+    if (theEECaloHit.energy() > 0) {
+      meEEhitLog10Energy_->Fill(log10(theEECaloHit.energy()));
+      int log10i = int((log10(theEECaloHit.energy()) + 10.) * 10.);
       if (log10i >= 0 && log10i < 140)
-        econtr[log10i] += isim->energy();
+        econtr[log10i] += theEECaloHit.energy();
     }
-    meEEHitEnergy2_->Fill(isim->energy());
-    eemap[crystid] += isim->energy();
+    meEEHitEnergy2_->Fill(theEECaloHit.energy());
+    eemap[crystid] += theEECaloHit.energy();
   }
 
   meEEzpCrystals_->Fill(eemapzp.size());
   meEEzmCrystals_->Fill(eemapzm.size());
 
-  for (std::map<uint32_t, float, std::less<uint32_t>>::iterator it = eemap.begin(); it != eemap.end(); ++it)
-    meEEcrystalEnergy_->Fill((*it).second);
-  for (std::map<uint32_t, float, std::less<uint32_t>>::iterator it = eemap.begin(); it != eemap.end(); ++it)
-    meEEcrystalEnergy2_->Fill((*it).second);
+  for (auto &it : eemap)
+    meEEcrystalEnergy_->Fill(it.second);
+  for (auto &it : eemap)
+    meEEcrystalEnergy2_->Fill(it.second);
 
   meEEzpHits_->Fill(nEEzpHits);
   meEEzmHits_->Fill(nEEzmHits);
@@ -220,11 +220,11 @@ void EcalEndcapSimHitsValidation::analyze(const edm::Event &e, const edm::EventS
     ids25 = getIdsAroundMax(5, 5, bx, by, bz, eemap);
 
     for (unsigned i = 0; i < 25; i++) {
-      for (unsigned int j = 0; j < CaloHitMap[ids25[i]].size(); j++) {
-        if (CaloHitMap[ids25[i]][j]->energy() > 0) {
-          int log10i = int((log10(CaloHitMap[ids25[i]][j]->energy()) + 10.) * 10.);
+      for (auto &j : CaloHitMap[ids25[i]]) {
+        if (j->energy() > 0) {
+          int log10i = int((log10(j->energy()) + 10.) * 10.);
           if (log10i >= 0 && log10i < 140)
-            econtr25[log10i] += CaloHitMap[ids25[i]][j]->energy();
+            econtr25[log10i] += j->energy();
         }
       }
     }

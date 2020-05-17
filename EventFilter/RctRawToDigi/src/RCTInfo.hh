@@ -13,30 +13,30 @@ public:
     c4BC0 = 0;
     c5BC0 = 0;
     c6BC0 = 0;
-    for (int i = 0; i < 4; i++)
-      ieRank[i] = 0;
-    for (int i = 0; i < 4; i++)
-      ieCard[i] = 0;
-    for (int i = 0; i < 4; i++)
-      ieRegn[i] = 0;
+    for (unsigned int& i : ieRank)
+      i = 0;
+    for (unsigned int& i : ieCard)
+      i = 0;
+    for (unsigned int& i : ieRegn)
+      i = 0;
     mBits = 0;
     qBits = 0;
-    for (int i = 0; i < 4; i++)
-      neRank[i] = 0;
-    for (int i = 0; i < 4; i++)
-      neCard[i] = 0;
-    for (int i = 0; i < 4; i++)
-      neRegn[i] = 0;
+    for (unsigned int& i : neRank)
+      i = 0;
+    for (unsigned int& i : neCard)
+      i = 0;
+    for (unsigned int& i : neRegn)
+      i = 0;
     oBits = 0;
     tBits = 0;
-    for (int i = 0; i < 2; i++) {
+    for (auto& i : hfEt) {
       for (int j = 0; j < 4; j++) {
-        hfEt[i][j] = 0;
+        i[j] = 0;
       }
     }
-    for (int i = 0; i < 7; i++) {
+    for (auto& i : rgnEt) {
       for (int j = 0; j < 2; j++) {
-        rgnEt[i][j] = 0;
+        i[j] = 0;
       }
     }
 

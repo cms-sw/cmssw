@@ -273,20 +273,20 @@ void EgGEDPhotonAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetu
       }
 
       float MindREG = 1000;
-      for (uint j = 0; j < theRecoPh.size(); j++) {
-        float etareco = theRecoPh[j].eta();
-        float phireco = theRecoPh[j].phi();
+      for (const auto &j : theRecoPh) {
+        float etareco = j.eta();
+        float phireco = j.phi();
 
         float deta = etamc - etareco;
         float dphi = normalizedPhi(phimc - phireco);
         float dR = sqrt(deta * deta + dphi * dphi);
 
-        float SCEnergy = (theRecoPh[j]).energy();
+        float SCEnergy = j.energy();
         float ErecoEtrue = SCEnergy / Emc;
 
         if (dR < 0.1) {
           if (debug)
-            cout << " EG ele matched: pt " << theRecoPh[j].pt() << " eta,phi " << etareco << ", " << phireco << endl;
+            cout << " EG ele matched: pt " << j.pt() << " eta,phi " << etareco << ", " << phireco << endl;
 
           if (fabs(etamc) < 0.5) {
             eg_EEcalEtrue_1->Fill(ErecoEtrue);
@@ -304,13 +304,13 @@ void EgGEDPhotonAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetu
             eg_EEcalEtrue_5->Fill(ErecoEtrue);
           }
 
-          eg_hoe->Fill(theRecoPh[j].hadronicOverEm());
+          eg_hoe->Fill(j.hadronicOverEm());
           if (fabs(etamc) < 1.479) {
-            eg_r9_eb->Fill(theRecoPh[j].r9());
-            eg_sigmaetaeta_eb->Fill(theRecoPh[j].sigmaEtaEta());
+            eg_r9_eb->Fill(j.r9());
+            eg_sigmaetaeta_eb->Fill(j.sigmaEtaEta());
           } else if (fabs(etamc) > 1.479 && fabs(etamc) < 2.5) {
-            eg_r9_ee->Fill(theRecoPh[j].r9());
-            eg_sigmaetaeta_ee->Fill(theRecoPh[j].sigmaEtaEta());
+            eg_r9_ee->Fill(j.r9());
+            eg_sigmaetaeta_ee->Fill(j.sigmaEtaEta());
           }
 
           MindREG = dR;
@@ -325,21 +325,21 @@ void EgGEDPhotonAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetu
 
       float MindRGedEg = 1000;
 
-      for (uint j = 0; j < theGedPh.size(); j++) {
-        reco::GsfTrackRef egGsfTrackRef = (theGedPh[j]).gsfTrack();
-        float etareco = theGedPh[j].eta();
-        float phireco = theGedPh[j].phi();
+      for (const auto &j : theGedPh) {
+        reco::GsfTrackRef egGsfTrackRef = j.gsfTrack();
+        float etareco = j.eta();
+        float phireco = j.phi();
 
         float deta = etamc - etareco;
         float dphi = normalizedPhi(phimc - phireco);
         float dR = sqrt(deta * deta + dphi * dphi);
 
-        float SCEnergy = (theGedPh[j]).energy();
+        float SCEnergy = j.energy();
         float ErecoEtrue = SCEnergy / Emc;
 
         if (dR < 0.1) {
           if (debug)
-            cout << " GED ele matched: pt " << theGedPh[j].pt() << " eta,phi " << etareco << ", " << phireco << endl;
+            cout << " GED ele matched: pt " << j.pt() << " eta,phi " << etareco << ", " << phireco << endl;
 
           if (fabs(etamc) < 0.5) {
             ged_EEcalEtrue_1->Fill(ErecoEtrue);
@@ -357,13 +357,13 @@ void EgGEDPhotonAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetu
             ged_EEcalEtrue_5->Fill(ErecoEtrue);
           }
 
-          ged_hoe->Fill(theGedPh[j].hadronicOverEm());
+          ged_hoe->Fill(j.hadronicOverEm());
           if (fabs(etamc) < 1.479) {
-            ged_r9_eb->Fill(theGedPh[j].r9());
-            ged_sigmaetaeta_eb->Fill(theGedPh[j].sigmaEtaEta());
+            ged_r9_eb->Fill(j.r9());
+            ged_sigmaetaeta_eb->Fill(j.sigmaEtaEta());
           } else if (fabs(etamc) > 1.479 && fabs(etamc) < 2.5) {
-            ged_r9_ee->Fill(theGedPh[j].r9());
-            ged_sigmaetaeta_ee->Fill(theGedPh[j].sigmaEtaEta());
+            ged_r9_ee->Fill(j.r9());
+            ged_sigmaetaeta_ee->Fill(j.sigmaEtaEta());
           }
 
           MindRGedEg = dR;

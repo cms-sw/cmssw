@@ -98,7 +98,7 @@ namespace cond {
       ss << "\"version\": \"" << JSON_FORMAT_VERSION << "\",";
       ss << "\"annotations\": {";
       bool first = true;
-      for (auto a : annotations.m) {
+      for (const auto& a : annotations.m) {
         if (!first)
           ss << ",";
         ss << "\"" << a.first << "\":\"" << a.second << "\"";
@@ -448,7 +448,7 @@ namespace cond {
     class Plot2D : public PlotImpl<IOV_M, NTAGS> {
     public:
       typedef PlotImpl<IOV_M, NTAGS> Base;
-      Plot2D(const std::string& type, const std::string& title, const std::string xLabel, const std::string& yLabel)
+      Plot2D(const std::string& type, const std::string& title, const std::string& xLabel, const std::string& yLabel)
           : Base(type, title), m_plotData() {
         Base::m_plotAnnotations.m[PlotAnnotations::XAXIS_K] = xLabel;
         Base::m_plotAnnotations.m[PlotAnnotations::YAXIS_K] = yLabel;
@@ -476,7 +476,7 @@ namespace cond {
       typedef PlotImpl<IOV_M, NTAGS> Base;
       Plot3D(const std::string& type,
              const std::string& title,
-             const std::string xLabel,
+             const std::string& xLabel,
              const std::string& yLabel,
              const std::string& zLabel)
           : Base(type, title), m_plotData() {

@@ -584,11 +584,11 @@ namespace edm {
         }
       }
     }
-    std::set<BranchID>::iterator end = branchesWithStoredHistory_.end();
-    for (ProductList::iterator it = pList.begin(); it != pList.end();) {
+    auto end = branchesWithStoredHistory_.end();
+    for (auto it = pList.begin(); it != pList.end();) {
       if (branchesWithStoredHistory_.find(it->second.branchID()) == end) {
         // avoid invalidating iterator on deletion
-        ProductList::iterator itCopy = it;
+        auto itCopy = it;
         ++it;
         pList.erase(itCopy);
 
@@ -764,7 +764,7 @@ namespace edm {
                                                std::set<edm::StoredProductProvenance>& oToInsert) {
     StoredProductProvenance toStore;
     toStore.branchID_ = iProv.branchID().id();
-    std::set<edm::StoredProductProvenance>::iterator itFound = oToInsert.find(toStore);
+    auto itFound = oToInsert.find(toStore);
     if (itFound == oToInsert.end()) {
       //get the index to the ParentageID or insert a new value if not already present
       std::pair<std::map<edm::ParentageID, unsigned int>::iterator, bool> i =

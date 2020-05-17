@@ -15,10 +15,10 @@ vector<pair<const DetLayer*, vector<TrajectoryMeasurement> > > MeasurementByLaye
   vector<pair<const DetLayer*, vector<TM> > > result;
   result.reserve(vtm.size());
 
-  vector<TM>::const_iterator start = vtm.begin();
+  auto start = vtm.begin();
   //here we assume that the TM on the same detLayer are consecutive (as it should)
   while (start != vtm.end()) {
-    vector<TM>::const_iterator ipart = start;
+    auto ipart = start;
     do {
       ipart++;
     } while (ipart != vtm.end() && getDetLayer(*start) == getDetLayer(*ipart) &&
@@ -32,7 +32,7 @@ vector<pair<const DetLayer*, vector<TrajectoryMeasurement> > > MeasurementByLaye
     );
 
     vector<TM> group(start, ipart);
-    result.push_back(pair<const DetLayer*, vector<TM> >(getDetLayer(*start), group));
+    result.emplace_back(getDetLayer(*start), group);
     start = ipart;
   }
 #ifdef debug_MeasurementByLayerGrouper_

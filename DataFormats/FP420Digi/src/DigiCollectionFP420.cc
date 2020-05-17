@@ -23,8 +23,8 @@ void DigiCollectionFP420::put(Range input, unsigned int detID) {
 
   // fill input in temporary vector for sorting
   std::vector<HDigiFP420> temporary;
-  DigiCollectionFP420::ContainerIterator sort_begin = input.first;
-  DigiCollectionFP420::ContainerIterator sort_end = input.second;
+  auto sort_begin = input.first;
+  auto sort_end = input.second;
 #ifdef mydigidebug
   std::cout << "   !!!!!!!!!!!!!!!!    DigiCollectionFP420:: !!!!  put !!!!  start detID=" << detID << std::endl;
 #endif
@@ -37,8 +37,8 @@ void DigiCollectionFP420::put(Range input, unsigned int detID) {
   std::sort(temporary.begin(), temporary.end());
 
   // iterators over input
-  DigiCollectionFP420::ContainerIterator begin = temporary.begin();
-  DigiCollectionFP420::ContainerIterator end = temporary.end();
+  auto begin = temporary.begin();
+  auto end = temporary.end();
   for (; begin != end; ++begin) {
     container_.push_back(*begin);
     if (first) {
@@ -73,16 +73,16 @@ void DigiCollectionFP420::putclear(DigiCollectionFP420::Range input, unsigned in
   DigiCollectionFP420::IndexRange inputRange;
 
   std::vector<HDigiFP420> temporary;
-  DigiCollectionFP420::ContainerIterator sort_begin = input.first;
-  DigiCollectionFP420::ContainerIterator sort_end = input.second;
+  auto sort_begin = input.first;
+  auto sort_end = input.second;
   for (; sort_begin != sort_end; ++sort_begin) {
     temporary.push_back(*sort_begin);
   }
   std::sort(temporary.begin(), temporary.end());
 
   //	temporary.clear();
-  DigiCollectionFP420::ContainerIterator begin = temporary.begin();
-  DigiCollectionFP420::ContainerIterator end = temporary.end();
+  auto begin = temporary.begin();
+  auto end = temporary.end();
   for (; begin != end; ++begin) {
     container_.push_back(*begin);
   }
@@ -134,7 +134,7 @@ const DigiCollectionFP420::Range DigiCollectionFP420::get1(unsigned int detID) c
 #ifdef mydigidebug
   std::cout << "DigiCollectionFP420::get :detID= " << detID << std::endl;
 #endif
-  DigiCollectionFP420::RegistryIterator returnIndex = map_.find(detID);
+  auto returnIndex = map_.find(detID);
   DigiCollectionFP420::IndexRange returnIndexRange = returnIndex->second;
 #ifdef mydigidebug
   std::cout << "DigiCollectionFP420::get : returnIndexRange.first= " << returnIndexRange.first << std::endl;
@@ -159,8 +159,8 @@ const DigiCollectionFP420::Range DigiCollectionFP420::get1(unsigned int detID) c
 const std::vector<unsigned int> DigiCollectionFP420::detIDs() const {
   // returns vector of detIDs in map
 
-  DigiCollectionFP420::RegistryIterator begin = map_.begin();
-  DigiCollectionFP420::RegistryIterator end = map_.end();
+  auto begin = map_.begin();
+  auto end = map_.end();
 
 #ifdef mydigidebug
   std::cout << "DigiCollectionFP420::detIDs:start " << std::endl;

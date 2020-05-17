@@ -59,7 +59,7 @@ std::vector<int> StringToEnumValue(const std::vector<std::string>& enumNames) {
   using std::vector;
 
   vector<int> ret;
-  vector<string>::const_iterator str = enumNames.begin();
+  auto str = enumNames.begin();
   for (; str != enumNames.end(); ++str) {
     ret.push_back(StringToEnumValue<MyType>(*str));
   }

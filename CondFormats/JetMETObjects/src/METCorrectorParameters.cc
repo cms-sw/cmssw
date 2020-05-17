@@ -19,10 +19,10 @@
 METCorrectorParameters::Definitions::Definitions(const std::vector<std::string>& fBinVar,
                                                  const std::vector<std::string>& fParVar,
                                                  const std::string& fFormula) {
-  for (unsigned i = 0; i < fBinVar.size(); i++)
-    mBinVar.push_back(fBinVar[i]);
-  for (unsigned i = 0; i < fParVar.size(); i++)
-    mParVar.push_back(fParVar[i]);
+  for (const auto& i : fBinVar)
+    mBinVar.push_back(i);
+  for (const auto& i : fParVar)
+    mParVar.push_back(i);
   mFormula = fFormula;
 }
 //------------------------------------------------------------------------
@@ -135,7 +135,7 @@ METCorrectorParameters::METCorrectorParameters(const std::string& fFile, const s
   if (currentDefinitions.empty())
     handleError("METCorrectorParameters", "No definitions found!!!");
   if (mRecords.empty() && currentSection.empty())
-    mRecords.push_back(Record());
+    mRecords.emplace_back();
   if (mRecords.empty() && !currentSection.empty()) {
     std::stringstream sserr;
     sserr << "the requested section " << fSection << " doesn't exist!";
@@ -332,7 +332,7 @@ std::string METCorrectorParametersCollection::findMiniAodSource(key_type k) {
   else
     return MiniAodSource_[k - MiniAod * 100 - 1];
 }
-void METCorrectorParametersCollection::getSections(std::string inputFile, std::vector<std::string>& outputs) {
+void METCorrectorParametersCollection::getSections(const std::string& inputFile, std::vector<std::string>& outputs) {
   outputs.clear();
   std::ifstream input(inputFile.c_str());
   while (!input.eof()) {
@@ -385,17 +385,13 @@ METCorrectorParameters const& METCorrectorParametersCollection::operator[](key_t
 // that are aware of all three collections.
 void METCorrectorParametersCollection::validKeys(std::vector<key_type>& keys) const {
   keys.clear();
-  for (collection_type::const_iterator ibegin = correctionsMiniAod_.begin(),
-                                       iend = correctionsMiniAod_.end(),
-                                       i = ibegin;
-       i != iend;
-       ++i) {
+  for (auto ibegin = correctionsMiniAod_.begin(), iend = correctionsMiniAod_.end(), i = ibegin; i != iend; ++i) {
     keys.push_back(i->first);
   }
 }
 
 METCorrectorParametersCollection::key_type METCorrectorParametersCollection::getMiniAodBin(std::string const& source) {
-  std::vector<std::string>::const_iterator found = find(MiniAodSource_.begin(), MiniAodSource_.end(), source);
+  auto found = find(MiniAodSource_.begin(), MiniAodSource_.end(), source);
   if (found != MiniAodSource_.end()) {
     return (found - MiniAodSource_.begin() + 1) + MiniAod * 100;
   } else

@@ -69,7 +69,7 @@ TEveStraightLineSet *FWPFTrackUtils::setupLegoTrack(const reco::Track &iData) {
   TEveTrack *trk = getTrack(iData);
   std::vector<TEveVector> trackPoints(trk->GetN() - 1);
   const Float_t *points = trk->GetP();
-  TEveStraightLineSet *legoTrack = new TEveStraightLineSet();
+  auto *legoTrack = new TEveStraightLineSet();
 
   if (m_singleton->getField()->getSource() == FWMagField::kNone) {
     if (fabs(iData.eta()) < 2.0 && iData.pt() > 0.5 && iData.pt() < 30) {

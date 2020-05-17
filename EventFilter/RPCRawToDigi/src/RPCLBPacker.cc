@@ -25,14 +25,12 @@ void RPCLBPacker::getRPCLBRecords(RPCInverseLBLinkMap const& lb_map,
     std::pair<RPCInverseLBLinkMap::map_type::const_iterator, RPCInverseLBLinkMap::map_type::const_iterator> lookup_range(
         lb_map.getMap().equal_range(digi_range_value.first.rawId()));
 
-    for (RPCDigiCollection::const_iterator digi = digi_range_value.second.first; digi != digi_range_value.second.second;
-         ++digi) {
+    for (auto digi = digi_range_value.second.first; digi != digi_range_value.second.second; ++digi) {
       if (digi->bx() < min_bx || digi->bx() > max_bx) {
         continue;
       }
 
-      for (RPCInverseLBLinkMap::map_type::const_iterator link_it = lookup_range.first; link_it != lookup_range.second;
-           ++link_it) {
+      for (auto link_it = lookup_range.first; link_it != lookup_range.second; ++link_it) {
         if (link_it->second.second.hasStrip(digi->strip())) {
           unsigned int channel(link_it->second.second.getChannel(digi->strip()));
           RPCLBLink lb_link(link_it->second.first);
@@ -53,10 +51,8 @@ void RPCLBPacker::getRPCLBRecords(RPCInverseLBLinkMap const& lb_map,
   }
 
   // merge records, set correct bcn and delay, and EOD if necessary
-  for (std::map<RPCLBLink, std::vector<RPCLBRecord> >::iterator mlb_lbrecords_it = mlb_lbrecords.begin();
-       mlb_lbrecords_it != mlb_lbrecords.end();
-       ++mlb_lbrecords_it) {
-    std::vector<RPCLBRecord>& input(mlb_lbrecords_it->second);
+  for (auto& mlb_lbrecord : mlb_lbrecords) {
+    std::vector<RPCLBRecord>& input(mlb_lbrecord.second);
     std::sort(input.begin(), input.end());
 
     std::vector<std::pair<int, RPCLBRecord> > bx_lbrecord;
@@ -64,7 +60,7 @@ void RPCLBPacker::getRPCLBRecords(RPCInverseLBLinkMap const& lb_map,
 
     RPCLBRecord last_lbrecord(input.front());  // it's not empty by construction
     unsigned int idx(0);
-    for (std::vector<RPCLBRecord>::const_iterator input_it = input.begin() + 1; input_it <= input.end(); ++input_it) {
+    for (auto input_it = input.begin() + 1; input_it <= input.end(); ++input_it) {
       if (input_it != input.end() && ((last_lbrecord.getRecord() & ~RPCLBRecord::partition_data_mask_) ==
                                       (input_it->getRecord() & ~RPCLBRecord::partition_data_mask_))) {
         last_lbrecord.set(last_lbrecord.getRecord() | input_it->getRecord());
@@ -85,7 +81,7 @@ void RPCLBPacker::getRPCLBRecords(RPCInverseLBLinkMap const& lb_map,
           last_bcn = (3564 + bcn + min_bx + idx) % 3564;
           last_lbrecord.setBCN(last_bcn);
           last_lbrecord.setBC0(last_bcn == 0);
-          bx_lbrecord.push_back(std::pair<int, RPCLBRecord>(min_bx + idx, last_lbrecord));
+          bx_lbrecord.emplace_back(min_bx + idx, last_lbrecord);
           ++idx;
         } else {
           bx_lbrecord.back().second.setEOD(true);
@@ -96,7 +92,7 @@ void RPCLBPacker::getRPCLBRecords(RPCInverseLBLinkMap const& lb_map,
       }
     }
 
-    mlb_bx_lbrecord.insert(std::map<RPCLBLink, std::vector<std::pair<int, RPCLBRecord> > >::value_type(
-        mlb_lbrecords_it->first, bx_lbrecord));
+    mlb_bx_lbrecord.insert(
+        std::map<RPCLBLink, std::vector<std::pair<int, RPCLBRecord> > >::value_type(mlb_lbrecord.first, bx_lbrecord));
   }
 }

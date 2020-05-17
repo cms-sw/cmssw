@@ -6,7 +6,7 @@
 #include <ostream>
 #include <iostream>
 float LumiSummary::avgInsDelLumi() const {
-  size_t iIndex = lumiversion_.rfind("v");
+  size_t iIndex = lumiversion_.rfind('v');
   //i.e. not "-1" and not "DIP", "-1" and "DIP" lumi are already corrected and unit conversion included in the raw data.
   if (iIndex != std::string::npos) {
     return avginsdellumi_ * 1000.0;

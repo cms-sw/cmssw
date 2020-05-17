@@ -96,7 +96,7 @@ public:
 
 protected:
   bool isEqual(const AbsHcalAlgoData& other) const override {
-    const HcalItemCollById& r = static_cast<const HcalItemCollById&>(other);
+    const auto& r = static_cast<const HcalItemCollById&>(other);
     if (coll_ != r.coll_)
       return false;
     if (lookup_ != r.lookup_)

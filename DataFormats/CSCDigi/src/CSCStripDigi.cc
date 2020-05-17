@@ -21,8 +21,8 @@ bool CSCStripDigi::operator==(const CSCStripDigi& digi) const {
 
 void CSCStripDigi::setADCCounts(const std::vector<int>& vADCCounts) {
   bool badVal = false;
-  for (int i = 0; i < (int)vADCCounts.size(); i++) {
-    if (vADCCounts[i] < 1)
+  for (int vADCCount : vADCCounts) {
+    if (vADCCount < 1)
       badVal = true;
   }
   if (!badVal) {
@@ -37,16 +37,16 @@ void CSCStripDigi::setADCCounts(const std::vector<int>& vADCCounts) {
 void CSCStripDigi::print() const {
   std::ostringstream ost;
   ost << "CSCStripDigi | strip " << getStrip() << " | ADCCounts ";
-  for (int i = 0; i < (int)getADCCounts().size(); i++) {
-    ost << getADCCounts()[i] << " ";
+  for (int i : getADCCounts()) {
+    ost << i << " ";
   }
   ost << " | Overflow ";
-  for (int i = 0; i < (int)getADCOverflow().size(); i++) {
-    ost << getADCOverflow()[i] << " ";
+  for (unsigned short i : getADCOverflow()) {
+    ost << i << " ";
   }
   ost << " | Overlapped ";
-  for (int i = 0; i < (int)getOverlappedSample().size(); i++) {
-    ost << getOverlappedSample()[i] << " ";
+  for (unsigned short i : getOverlappedSample()) {
+    ost << i << " ";
   }
   ost << " | L1APhase ";
   for (int i = 0; i < (int)getL1APhase().size(); i++) {
@@ -57,8 +57,8 @@ void CSCStripDigi::print() const {
 
 std::ostream& operator<<(std::ostream& o, const CSCStripDigi& digi) {
   o << " " << digi.getStrip();
-  for (size_t i = 0; i < digi.getADCCounts().size(); ++i) {
-    o << " " << (digi.getADCCounts())[i];
+  for (int i : digi.getADCCounts()) {
+    o << " " << i;
   }
   return o;
 }

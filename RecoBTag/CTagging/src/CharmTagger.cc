@@ -7,6 +7,8 @@
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
 
 #include <iostream>
+#include <memory>
+
 #include <vector>
 #include <algorithm>
 #include <map>
@@ -29,7 +31,7 @@ CharmTagger::CharmTagger(const edm::ParameterSet &configuration, Tokens tokens)
       use_GBRForest_(configuration.getParameter<bool>("useGBRForest")),
       use_adaBoost_(configuration.getParameter<bool>("useAdaBoost")),
       defaultValueNoTracks_(configuration.getParameter<bool>("defaultValueNoTracks")),
-      tokens_{std::move(tokens)} {
+      tokens_{tokens} {
   vpset vars_definition = configuration.getParameter<vpset>("variables");
   for (auto &var : vars_definition) {
     MVAVar mva_var;
@@ -49,7 +51,7 @@ CharmTagger::CharmTagger(const edm::ParameterSet &configuration, Tokens tokens)
 }
 
 void CharmTagger::initialize(const JetTagComputerRecord &record) {
-  mvaID_.reset(new TMVAEvaluator());
+  mvaID_ = std::make_unique<TMVAEvaluator>();
 
   std::vector<std::string> variable_names;
   variable_names.reserve(variables_.size());
@@ -77,10 +79,10 @@ CharmTagger::~CharmTagger() {}
 /// b-tag a jet based on track-to-jet parameters in the extened info collection
 float CharmTagger::discriminator(const TagInfoHelper &tagInfo) const {
   // default value, used if there are no leptons associated to this jet
-  const reco::CandIPTagInfo &ip_info = tagInfo.get<reco::CandIPTagInfo>(0);
-  const reco::CandSecondaryVertexTagInfo &sv_info = tagInfo.get<reco::CandSecondaryVertexTagInfo>(1);
-  const reco::CandSoftLeptonTagInfo &softmu_info = tagInfo.get<reco::CandSoftLeptonTagInfo>(2);
-  const reco::CandSoftLeptonTagInfo &softel_info = tagInfo.get<reco::CandSoftLeptonTagInfo>(3);
+  const auto &ip_info = tagInfo.get<reco::CandIPTagInfo>(0);
+  const auto &sv_info = tagInfo.get<reco::CandSecondaryVertexTagInfo>(1);
+  const auto &softmu_info = tagInfo.get<reco::CandSoftLeptonTagInfo>(2);
+  const auto &softel_info = tagInfo.get<reco::CandSoftLeptonTagInfo>(3);
   reco::TaggingVariableList vars = sl_computer_(ip_info, sv_info, softmu_info, softel_info);
 
   // Loop over input variables

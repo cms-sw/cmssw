@@ -29,7 +29,7 @@ namespace pos {
   class PixelLTCConfig : public PixelConfigBase {
   public:
     PixelLTCConfig(std::vector<std::vector<std::string> > &tableMat);
-    PixelLTCConfig(std::string filename);
+    PixelLTCConfig(const std::string &filename);
     //std::string getLTCConfigPath() {return ltcConfigPath_;}
     std::stringstream &getLTCConfigStream() { return ltcConfigStream_; }
 

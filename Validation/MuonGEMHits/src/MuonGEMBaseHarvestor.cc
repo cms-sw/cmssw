@@ -1,9 +1,11 @@
+#include <utility>
+
 #include "Validation/MuonGEMHits/interface/MuonGEMBaseHarvestor.h"
 
 #include "TEfficiency.h"
 
 MuonGEMBaseHarvestor::MuonGEMBaseHarvestor(const edm::ParameterSet& pset, std::string log_category)
-    : kLogCategory_(log_category) {}
+    : kLogCategory_(std::move(log_category)) {}
 
 TProfile* MuonGEMBaseHarvestor::computeEfficiency(
     const TH1F& passed, const TH1F& total, const char* name, const char* title, Double_t confidence_level) {

@@ -17,9 +17,9 @@ void TB06RecoH2::reset() {
   MEXTLenergy = 0.;
   beamEnergy = 0.;
 
-  for (int eta = 0; eta < 7; ++eta)
+  for (auto& eta : localMap)
     for (int phi = 0; phi < 7; ++phi)
-      localMap[eta][phi] = 0.;
+      eta[phi] = 0.;
 
   S1uncalib_ = 0.;
   S25uncalib_ = 0.;

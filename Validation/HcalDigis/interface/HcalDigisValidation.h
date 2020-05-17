@@ -73,25 +73,26 @@ private:
 
   std::map<std::string, MonitorElement *> *msm_;
 
-  void book1D(DQMStore::IBooker &ib, std::string name, int n, double min, double max);
+  void book1D(DQMStore::IBooker &ib, const std::string &name, int n, double min, double max);
 
-  void book1D(DQMStore::IBooker &ib, std::string name, const HistLim &limX);
+  void book1D(DQMStore::IBooker &ib, const std::string &name, const HistLim &limX);
 
-  void fill1D(std::string name, double X, double weight = 1);
+  void fill1D(const std::string &name, double X, double weight = 1);
 
-  void book2D(DQMStore::IBooker &ib, std::string name, const HistLim &limX, const HistLim &limY);
+  void book2D(DQMStore::IBooker &ib, const std::string &name, const HistLim &limX, const HistLim &limY);
 
-  void fill2D(std::string name, double X, double Y, double weight = 1);
+  void fill2D(const std::string &name, double X, double Y, double weight = 1);
 
-  void bookPf(DQMStore::IBooker &ib, std::string name, const HistLim &limX, const HistLim &limY);
+  void bookPf(DQMStore::IBooker &ib, const std::string &name, const HistLim &limX, const HistLim &limY);
 
-  void bookPf(DQMStore::IBooker &ib, std::string name, const HistLim &limX, const HistLim &limY, const char *option);
+  void bookPf(
+      DQMStore::IBooker &ib, const std::string &name, const HistLim &limX, const HistLim &limY, const char *option);
 
-  void fillPf(std::string name, double X, double Y);
+  void fillPf(const std::string &name, double X, double Y);
 
-  MonitorElement *monitor(std::string name);
+  MonitorElement *monitor(const std::string &name);
 
-  void booking(DQMStore::IBooker &ib, std::string subdetopt, int bnoise, int bmc);
+  void booking(DQMStore::IBooker &ib, const std::string &subdetopt, int bnoise, int bmc);
 
   std::string str(int x);
 

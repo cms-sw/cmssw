@@ -29,16 +29,16 @@ PFBlockBasedIsolation::~PFBlockBasedIsolation() {}
 void PFBlockBasedIsolation::setup(const edm::ParameterSet& conf) { coneSize_ = conf.getParameter<double>("coneSize"); }
 
 std::vector<reco::PFCandidateRef> PFBlockBasedIsolation::calculate(
-    math::XYZTLorentzVectorD p4,
-    const reco::PFCandidateRef pfEGCand,
-    const edm::Handle<reco::PFCandidateCollection> pfCandidateHandle) {
+    const math::XYZTLorentzVectorD& p4,
+    const reco::PFCandidateRef& pfEGCand,
+    const edm::Handle<reco::PFCandidateCollection>& pfCandidateHandle) {
   std::vector<reco::PFCandidateRef> myVec;
 
   math::XYZVector candidateMomentum(p4.px(), p4.py(), p4.pz());
   math::XYZVector candidateDirection = candidateMomentum.Unit();
 
   const reco::PFCandidate::ElementsInBlocks& theElementsInpfEGcand = (*pfEGCand).elementsInBlocks();
-  reco::PFCandidate::ElementsInBlocks::const_iterator ieg = theElementsInpfEGcand.begin();
+  auto ieg = theElementsInpfEGcand.begin();
   const reco::PFBlockRef egblock = ieg->first;
 
   unsigned nObj = pfCandidateHandle->size();
@@ -55,9 +55,7 @@ std::vector<reco::PFCandidateRef> PFBlockBasedIsolation::calculate(
     const reco::PFCandidate::ElementsInBlocks& theElementsInPFcand = pfCandRef->elementsInBlocks();
 
     bool elementFound = false;
-    for (reco::PFCandidate::ElementsInBlocks::const_iterator ipf = theElementsInPFcand.begin();
-         ipf < theElementsInPFcand.end();
-         ++ipf) {
+    for (auto ipf = theElementsInPFcand.begin(); ipf < theElementsInPFcand.end(); ++ipf) {
       if (ipf->first == egblock && !elementFound) {
         for (ieg = theElementsInpfEGcand.begin(); ieg < theElementsInpfEGcand.end(); ++ieg) {
           if (ipf->second == ieg->second && !elementFound) {
@@ -113,7 +111,7 @@ bool PFBlockBasedIsolation::passesCleaningPhoton(const reco::PFCandidateRef& pfC
                 ->seed()) {  //being sure to match, some concerned about different collections, shouldnt be but to be safe
       passesCleaning = true;
     } else {
-      for (auto cluster : pfEGCand->superClusterRef()->clusters()) {
+      for (const auto& cluster : pfEGCand->superClusterRef()->clusters()) {
         //the PF clusters there are in two different collections so cant reference match
         //but we can match on the seed id, no clusters can share a seed so if the seeds are
         //equal, it must be the same cluster

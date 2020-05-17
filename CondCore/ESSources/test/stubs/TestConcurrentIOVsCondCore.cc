@@ -153,7 +153,7 @@ namespace edmtest {
     }
 
     edm::ESHandle<BeamSpotObjects> beamSpotObjects = eventSetup.getHandle(esTokenBeamSpotObjects_);
-    BeamSpotObjectsRcd beamSpotObjectsRcd = eventSetup.get<BeamSpotObjectsRcd>();
+    auto beamSpotObjectsRcd = eventSetup.get<BeamSpotObjectsRcd>();
     edm::ValidityInterval iov = beamSpotObjectsRcd.validityInterval();
 
     if (lumi < nLumisToTest) {

@@ -55,7 +55,7 @@ namespace {
           std::stringstream ss;
           ss << "Summary of strips configuration object:" << std::endl;
 
-          SiStripConfObject::parMap::const_iterator it = payload->parameters.begin();
+          auto it = payload->parameters.begin();
           for (; it != payload->parameters.end(); ++it) {
             ss << "parameter name = " << it->first << " value = " << it->second << std::endl;
           }
@@ -95,8 +95,7 @@ namespace {
       unsigned int configsize_ = payload->parameters.size();
       TLine lines[configsize_ + 1];
 
-      auto h_Config =
-          std::unique_ptr<TH1F>(new TH1F("ConfigParamter", ";;configuration value", configsize_, 0., configsize_));
+      auto h_Config = std::make_unique<TH1F>("ConfigParamter", ";;configuration value", configsize_, 0., configsize_);
       h_Config->SetStats(false);
 
       bool isShiftAndXTalk = payload->isParameter("shift_IB1Deco");
@@ -117,7 +116,7 @@ namespace {
         latex.SetTextFont(42);
         latex.SetTextColor(kBlack);
 
-        SiStripConfObject::parMap::const_iterator it = payload->parameters.begin();
+        auto it = payload->parameters.begin();
         unsigned int count = 0;
         for (; it != payload->parameters.end(); ++it) {
           count++;
@@ -147,7 +146,7 @@ namespace {
         canvas.SetTopMargin(0.05);
         canvas.Modified();
 
-        SiStripConfObject::parMap::const_iterator it = payload->parameters.begin();
+        auto it = payload->parameters.begin();
 
         unsigned int count = 0;
         for (; it != payload->parameters.end(); ++it) {

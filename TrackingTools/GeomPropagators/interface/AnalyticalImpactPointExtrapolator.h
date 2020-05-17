@@ -34,11 +34,11 @@ public:
   /// extrapolation from FreeTrajectoryState
   TrajectoryStateOnSurface extrapolate(const FreeTrajectoryState& fts, const GlobalPoint& vtx) const;
   /// as above, but from TrajectoryStateOnSurface
-  TrajectoryStateOnSurface extrapolate(const TrajectoryStateOnSurface tsos, const GlobalPoint& vtx) const;
+  TrajectoryStateOnSurface extrapolate(const TrajectoryStateOnSurface& tsos, const GlobalPoint& vtx) const;
 
 private:
   /// extrapolation of (multi) TSOS
-  TrajectoryStateOnSurface extrapolateFullState(const TrajectoryStateOnSurface tsos, const GlobalPoint& vertex) const;
+  TrajectoryStateOnSurface extrapolateFullState(const TrajectoryStateOnSurface& tsos, const GlobalPoint& vertex) const;
   /// extrapolation of (single) FTS
   TrajectoryStateOnSurface extrapolateSingleState(const FreeTrajectoryState& fts, const GlobalPoint& vertex) const;
   /// the actual propagation to a new point & momentum vector

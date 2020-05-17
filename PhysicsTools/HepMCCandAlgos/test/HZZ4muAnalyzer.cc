@@ -16,10 +16,10 @@ using namespace std;
 HZZ4muAnalyzer::HZZ4muAnalyzer(const ParameterSet& pset)
     : fToken(consumes<HepMCProduct>(InputTag("source"))),
       fOutputFileName(pset.getUntrackedParameter<string>("HistOutFile", std::string("TestHiggsMass.root"))),
-      fOutputFile(0),
-      fHist2muMass(0),
-      fHist4muMass(0),
-      fHistZZMass(0) {}
+      fOutputFile(nullptr),
+      fHist2muMass(nullptr),
+      fHist4muMass(nullptr),
+      fHistZZMass(nullptr) {}
 
 void HZZ4muAnalyzer::beginJob() {
   fOutputFile = new TFile(fOutputFileName.c_str(), "RECREATE");
@@ -43,7 +43,7 @@ void HZZ4muAnalyzer::analyze(const Event& e, const EventSetup&) {
   // because this example explicitely assumes
   // that there one and only Higgs in the record
   //
-  HepMC::GenVertex* HiggsDecVtx = 0;
+  HepMC::GenVertex* HiggsDecVtx = nullptr;
 
   // find the 1st vertex with outgoing Higgs
   // and get Higgs decay vertex from there;
@@ -52,22 +52,20 @@ void HZZ4muAnalyzer::analyze(const Event& e, const EventSetup&) {
   // with incoming Higgs as well...
   //
   for (HepMC::GenEvent::vertex_const_iterator vit = Evt->vertices_begin(); vit != Evt->vertices_end(); vit++) {
-    for (HepMC::GenVertex::particles_out_const_iterator pout = (*vit)->particles_out_const_begin();
-         pout != (*vit)->particles_out_const_end();
-         pout++) {
+    for (auto pout = (*vit)->particles_out_const_begin(); pout != (*vit)->particles_out_const_end(); pout++) {
       if ((*pout)->pdg_id() == 25 && (*pout)->status() == 2) {
-        if ((*pout)->end_vertex() != 0) {
+        if ((*pout)->end_vertex() != nullptr) {
           HiggsDecVtx = (*pout)->end_vertex();
           break;
         }
       }
     }
-    if (HiggsDecVtx != 0) {
+    if (HiggsDecVtx != nullptr) {
       break;  // break the initial loop over vertices
     }
   }
 
-  if (HiggsDecVtx == 0) {
+  if (HiggsDecVtx == nullptr) {
     cout << " There is NO Higgs in this event ! " << endl;
     return;
   }
@@ -79,14 +77,12 @@ void HZZ4muAnalyzer::analyze(const Event& e, const EventSetup&) {
 
     vector<HepMC::GenParticle*> HiggsChildren;
 
-    for (HepMC::GenVertex::particles_out_const_iterator H0in = HiggsDecVtx->particles_out_const_begin();
-         H0in != HiggsDecVtx->particles_out_const_end();
-         H0in++) {
+    for (auto H0in = HiggsDecVtx->particles_out_const_begin(); H0in != HiggsDecVtx->particles_out_const_end(); H0in++) {
       HiggsChildren.push_back(*H0in);
     }
     cout << " Number of Higgs (immediate) children = " << HiggsChildren.size() << endl;
-    for (unsigned int ic = 0; ic < HiggsChildren.size(); ic++) {
-      HiggsChildren[ic]->print();
+    for (auto& ic : HiggsChildren) {
+      ic->print();
     }
   }
 
@@ -157,11 +153,11 @@ void HZZ4muAnalyzer::analyze(const Event& e, const EventSetup&) {
   double px4, py4, pz4, e4;
   px4 = py4 = pz4 = e4 = 0.;
   if (StableHiggsDesc.size() == 4) {
-    for (unsigned int i = 0; i < StableHiggsDesc.size(); i++) {
-      px4 += StableHiggsDesc[i]->momentum().px();
-      py4 += StableHiggsDesc[i]->momentum().py();
-      pz4 += StableHiggsDesc[i]->momentum().pz();
-      e4 += StableHiggsDesc[i]->momentum().e();
+    for (auto& i : StableHiggsDesc) {
+      px4 += i->momentum().px();
+      py4 += i->momentum().py();
+      pz4 += i->momentum().pz();
+      e4 += i->momentum().e();
     }
     XMass4part = HepMC::FourVector(px4, py4, pz4, e4).m();
     fHist4muMass->Fill(XMass4part);

@@ -34,7 +34,7 @@ private:
 
   template <class DigiCollection>
   void record(const DigiCollection &digis) {
-    for (typename DigiCollection::const_iterator digi = digis.begin(); digi != digis.end(); digi++) {
+    for (auto digi = digis.begin(); digi != digis.end(); digi++) {
       SampleSet q;
       for (int i = 0; i < digi->size(); i++)
         q.push_back(digi->sample(i));

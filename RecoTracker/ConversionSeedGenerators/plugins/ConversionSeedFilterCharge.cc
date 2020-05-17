@@ -82,7 +82,7 @@ void ConversionSeedFilterCharge::produce(edm::StreamID, edm::Event& iEvent, cons
         << "New Event \t Pos " << pInPos->size() << " \t Neg " << pInNeg->size() << std::endl;
 
     std::vector<int> inResult;
-    for (TrajectorySeedCollection::const_iterator iS1 = pInPos->begin(); iS1 != pInPos->end(); ++iS1) {
+    for (auto iS1 = pInPos->begin(); iS1 != pInPos->end(); ++iS1) {
       PTrajectoryStateOnDet state1 = iS1->startingState();
       DetId detId1(state1.detId());
       TrajectoryStateOnSurface tsos1 =
@@ -94,7 +94,7 @@ void ConversionSeedFilterCharge::produce(edm::StreamID, edm::Event& iEvent, cons
       //cout << "detId1=" << detId1 << " phi1=" << phi1 << " cotTheta1=" << cotTheta1 << " r1=" << r1 << " z1=" << z1 << endl;
 
       bool pushed = false;
-      for (TrajectorySeedCollection::const_iterator iS2 = pInNeg->begin(); iS2 != pInNeg->end(); ++iS2) {
+      for (auto iS2 = pInNeg->begin(); iS2 != pInNeg->end(); ++iS2) {
         PTrajectoryStateOnDet state2 = iS2->startingState();
         DetId detId2(state2.detId());
         TrajectoryStateOnSurface tsos2 =

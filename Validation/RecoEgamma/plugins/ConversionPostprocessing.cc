@@ -180,7 +180,7 @@ void ConversionPostprocessing::runPostprocessing() {
 void ConversionPostprocessing::dividePlots(MonitorElement* dividend,
                                            MonitorElement* numerator,
                                            MonitorElement* denominator,
-                                           std::string type) {
+                                           const std::string& type) {
   double value, err;
 
   //quick fix to avoid seg. faults due to null pointers.

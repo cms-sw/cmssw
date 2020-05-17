@@ -19,24 +19,24 @@ simromanpot::strip_charge_map RPLinearInduceChargeOnStrips::Induce(
   const double sqrt_2 = sqrt(2.0);
   if (verbosity_)
     edm::LogInfo("RPLinearInduceChargeOnStrips ") << det_id_ << " : Clouds to be induced:" << charge_map.size() << "\n";
-  for (simromanpot::charge_induced_on_surface::const_iterator i = charge_map.begin(); i != charge_map.end(); ++i) {
+  for (const auto &i : charge_map) {
     double hit_pos;
     std::vector<strip_info> relevant_strips =
-        theRPDetTopology.GetStripsInvolved((*i).Position().x(), (*i).Position().y(), (*i).Sigma(), hit_pos);
+        theRPDetTopology.GetStripsInvolved(i.Position().x(), i.Position().y(), i.Sigma(), hit_pos);
     if (verbosity_) {
       edm::LogInfo("RPLinearInduceChargeOnStrips ")
           << det_id_ << " : relevant_strips" << relevant_strips.size() << "\n";
     }
-    for (std::vector<strip_info>::const_iterator j = relevant_strips.begin(); j != relevant_strips.end(); ++j) {
-      double strip_begin = (*j).LowerBoarder();
-      double strip_end = (*j).HigherBoarder();
-      double effic = (*j).EffFactor();
-      double sigma = (*i).Sigma();
-      unsigned short str_no = (*j).StripNo();
+    for (const auto &relevant_strip : relevant_strips) {
+      double strip_begin = relevant_strip.LowerBoarder();
+      double strip_end = relevant_strip.HigherBoarder();
+      double effic = relevant_strip.EffFactor();
+      double sigma = i.Sigma();
+      unsigned short str_no = relevant_strip.StripNo();
 
       double charge_on_strip = (TMath::Erfc((strip_begin - hit_pos) / sqrt_2 / sigma) / 2.0 -
                                 TMath::Erfc((strip_end - hit_pos) / sqrt_2 / sigma) / 2.0) *
-                               (*i).Charge() * effic;
+                               i.Charge() * effic;
       if (verbosity_)
         edm::LogInfo("RPLinearInduceChargeOnStrips") << "Efficiency " << det_id_ << " :" << effic << "\n";
 

@@ -14,8 +14,8 @@ EcalPreshowerDigisValidation::EcalPreshowerDigisValidation(const edm::ParameterS
 
   meESDigiMultiplicity_ = nullptr;
 
-  for (int i = 0; i < 3; i++) {
-    meESDigiADC_[i] = nullptr;
+  for (auto& i : meESDigiADC_) {
+    i = nullptr;
   }
 }
 

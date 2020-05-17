@@ -153,10 +153,9 @@ OccupancyPlots::OccupancyPlots(const edm::ParameterSet& iConfig)
   std::vector<edm::ParameterSet> wantedsubdets_ps =
       iConfig.getParameter<std::vector<edm::ParameterSet> >("wantedSubDets");
 
-  for (std::vector<edm::ParameterSet>::const_iterator wsdps = wantedsubdets_ps.begin(); wsdps != wantedsubdets_ps.end();
-       ++wsdps) {
-    unsigned int detsel = wsdps->getParameter<unsigned int>("detSelection");
-    std::vector<std::string> selstr = wsdps->getUntrackedParameter<std::vector<std::string> >("selection");
+  for (const auto& wantedsubdets_p : wantedsubdets_ps) {
+    unsigned int detsel = wantedsubdets_p.getParameter<unsigned int>("detSelection");
+    std::vector<std::string> selstr = wantedsubdets_p.getUntrackedParameter<std::vector<std::string> >("selection");
     m_wantedsubdets[detsel] = DetIdSelector(selstr);
   }
 }
@@ -174,29 +173,23 @@ OccupancyPlots::~OccupancyPlots() {
 void OccupancyPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  for (std::vector<edm::EDGetTokenT<std::map<unsigned int, int> > >::const_iterator mapToken =
-           m_multiplicityMapTokens.begin();
-       mapToken != m_multiplicityMapTokens.end();
-       ++mapToken) {
+  for (auto m_multiplicityMapToken : m_multiplicityMapTokens) {
     Handle<std::map<unsigned int, int> > mults;
-    iEvent.getByToken(*mapToken, mults);
+    iEvent.getByToken(m_multiplicityMapToken, mults);
 
-    for (std::map<unsigned int, int>::const_iterator mult = mults->begin(); mult != mults->end(); mult++) {
+    for (auto mult : *mults) {
       if (m_avemultiplicity && *m_avemultiplicity)
-        (*m_avemultiplicity)->Fill(mult->first, mult->second);
+        (*m_avemultiplicity)->Fill(mult.first, mult.second);
     }
   }
 
-  for (std::vector<edm::EDGetTokenT<std::map<unsigned int, int> > >::const_iterator mapToken =
-           m_occupancyMapTokens.begin();
-       mapToken != m_occupancyMapTokens.end();
-       ++mapToken) {
+  for (auto m_occupancyMapToken : m_occupancyMapTokens) {
     Handle<std::map<unsigned int, int> > occus;
-    iEvent.getByToken(*mapToken, occus);
+    iEvent.getByToken(m_occupancyMapToken, occus);
 
-    for (std::map<unsigned int, int>::const_iterator occu = occus->begin(); occu != occus->end(); occu++) {
+    for (auto occu : *occus) {
       if (m_aveoccupancy && *m_aveoccupancy)
-        (*m_aveoccupancy)->Fill(occu->first, occu->second);
+        (*m_aveoccupancy)->Fill(occu.first, occu.second);
     }
   }
 }
@@ -235,16 +228,16 @@ void OccupancyPlots::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 
   TrackingGeometry::DetIdContainer detunits = trkgeo->detUnitIds();
 
-  for (TrackingGeometry::DetIdContainer::const_iterator det = detunits.begin(); det != detunits.end(); ++det) {
-    if (det->det() != DetId::Tracker)
+  for (auto detunit : detunits) {
+    if (detunit.det() != DetId::Tracker)
       continue;
 
-    edm::LogInfo("DetIdFromGeometry") << det->rawId();
+    edm::LogInfo("DetIdFromGeometry") << detunit.rawId();
 
-    GlobalPoint position = trkgeo->idToDet(*det)->toGlobal(center);
-    GlobalPoint zpos = trkgeo->idToDet(*det)->toGlobal(locz);
-    GlobalPoint xpos = trkgeo->idToDet(*det)->toGlobal(locx);
-    GlobalPoint ypos = trkgeo->idToDet(*det)->toGlobal(locy);
+    GlobalPoint position = trkgeo->idToDet(detunit)->toGlobal(center);
+    GlobalPoint zpos = trkgeo->idToDet(detunit)->toGlobal(locz);
+    GlobalPoint xpos = trkgeo->idToDet(detunit)->toGlobal(locx);
+    GlobalPoint ypos = trkgeo->idToDet(detunit)->toGlobal(locy);
     GlobalVector posvect = position - origin;
     GlobalVector dz = zpos - position;
     GlobalVector dx = xpos - position;
@@ -258,10 +251,8 @@ void OccupancyPlots::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
     double dxdrphi = posvect.perp() > 0 ? (dx.y() * posvect.x() - dx.x() * posvect.y()) / posvect.perp() : 0.;
     double dydrphi = posvect.perp() > 0 ? (dy.y() * posvect.x() - dy.x() * posvect.y()) / posvect.perp() : 0.;
 
-    for (std::map<unsigned int, DetIdSelector>::const_iterator sel = m_wantedsubdets.begin();
-         sel != m_wantedsubdets.end();
-         ++sel) {
-      if (sel->second.isSelected(*det)) {
+    for (auto sel = m_wantedsubdets.begin(); sel != m_wantedsubdets.end(); ++sel) {
+      if (sel->second.isSelected(detunit)) {
         edm::LogInfo("SelectedDetId") << sel->first;
         // average positions
         if (m_averadius && *m_averadius)
@@ -307,7 +298,7 @@ void OccupancyPlots::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
   iSetup.get<SiStripQualityRcd>().get("", quality);
 
   for (const auto det : trkgeo->detUnits()) {
-    const StripGeomDetUnit* stripDet = dynamic_cast<const StripGeomDetUnit*>(det);
+    const auto* stripDet = dynamic_cast<const StripGeomDetUnit*>(det);
     if (stripDet != nullptr) {
       const DetId detid = stripDet->geographicalId();
 
@@ -319,9 +310,7 @@ void OccupancyPlots::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
           ++nchannreal;
       }
 
-      for (std::map<unsigned int, DetIdSelector>::const_iterator sel = m_wantedsubdets.begin();
-           sel != m_wantedsubdets.end();
-           ++sel) {
+      for (auto sel = m_wantedsubdets.begin(); sel != m_wantedsubdets.end(); ++sel) {
         if (sel->second.isSelected(detid)) {
           if (m_nchannels_ideal && *m_nchannels_ideal)
             (*m_nchannels_ideal)->Fill(sel->first, nchannideal);
@@ -339,11 +328,11 @@ void OccupancyPlots::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 
   const std::vector<uint32_t>& pxldetids = pxlreader.getAllDetIds();
 
-  for (std::vector<uint32_t>::const_iterator detid = pxldetids.begin(); detid != pxldetids.end(); ++detid) {
-    int nchannideal = pxlreader.getDetUnitDimensions(*detid).first * pxlreader.getDetUnitDimensions(*detid).second;
+  for (unsigned int pxldetid : pxldetids) {
+    int nchannideal = pxlreader.getDetUnitDimensions(pxldetid).first * pxlreader.getDetUnitDimensions(pxldetid).second;
     int nchannreal = 0;
-    if (!pxlquality->IsModuleBad(*detid)) {
-      nchannreal = pxlreader.getDetUnitDimensions(*detid).first * pxlreader.getDetUnitDimensions(*detid).second;
+    if (!pxlquality->IsModuleBad(pxldetid)) {
+      nchannreal = pxlreader.getDetUnitDimensions(pxldetid).first * pxlreader.getDetUnitDimensions(pxldetid).second;
     }
     /*
      int nchannreal = 0;
@@ -352,10 +341,8 @@ void OccupancyPlots::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
      }
      */
 
-    for (std::map<unsigned int, DetIdSelector>::const_iterator sel = m_wantedsubdets.begin();
-         sel != m_wantedsubdets.end();
-         ++sel) {
-      if (sel->second.isSelected(*detid)) {
+    for (auto sel = m_wantedsubdets.begin(); sel != m_wantedsubdets.end(); ++sel) {
+      if (sel->second.isSelected(pxldetid)) {
         if (m_nchannels_ideal && *m_nchannels_ideal)
           (*m_nchannels_ideal)->Fill(sel->first, nchannideal);
         if (m_nchannels_real && *m_nchannels_real)

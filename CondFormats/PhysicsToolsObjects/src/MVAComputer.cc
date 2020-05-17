@@ -15,6 +15,8 @@
 // Created:     Sat Apr 24 15:18 CEST 2007
 //
 #include <algorithm>
+#include <memory>
+
 #include <typeinfo>
 #include <iostream>
 #include <cstring>
@@ -41,9 +43,7 @@ namespace PhysicsTools {
       return type.substr(sizeof prefix - 1);
     }
 
-    std::unique_ptr<VarProcessor> VarProcessor::clone() const {
-      return (std::unique_ptr<VarProcessor>(new VarProcessor(*this)));
-    }
+    std::unique_ptr<VarProcessor> VarProcessor::clone() const { return (std::make_unique<VarProcessor>(*this)); }
 
     std::unique_ptr<VarProcessor> ProcOptional::clone() const {
       return (std::unique_ptr<VarProcessor>(new ProcOptional(*this)));
@@ -111,14 +111,13 @@ namespace PhysicsTools {
 
     MVAComputer::MVAComputer(const MVAComputer &orig)
         : inputSet(orig.inputSet), output(orig.output), cacheId(orig.cacheId) {
-      for (std::vector<VarProcessor *>::const_iterator iter = orig.processors.begin(); iter != orig.processors.end();
-           ++iter)
-        addProcessor(*iter);
+      for (auto processor : orig.processors)
+        addProcessor(processor);
     }
 
     MVAComputer::~MVAComputer() {
-      for (std::vector<VarProcessor *>::iterator iter = processors.begin(); iter != processors.end(); ++iter)
-        delete *iter;
+      for (auto &processor : processors)
+        delete processor;
       processors.clear();
     }
 
@@ -127,13 +126,12 @@ namespace PhysicsTools {
       output = orig.output;
       cacheId = orig.cacheId;
 
-      for (std::vector<VarProcessor *>::iterator iter = processors.begin(); iter != processors.end(); ++iter)
-        delete *iter;
+      for (auto &processor : processors)
+        delete processor;
       processors.clear();
 
-      for (std::vector<VarProcessor *>::const_iterator iter = orig.processors.begin(); iter != orig.processors.end();
-           ++iter)
-        addProcessor(*iter);
+      for (auto processor : orig.processors)
+        addProcessor(processor);
 
       return *this;
     }
@@ -155,15 +153,14 @@ namespace PhysicsTools {
     MVAComputer &MVAComputerContainer::add(const std::string &label) {
       cacheId = getNextMVAComputerContainerCacheId();
 
-      entries.push_back(std::make_pair(label, MVAComputer()));
+      entries.emplace_back(label, MVAComputer());
       return entries.back().second;
     }
 
     const MVAComputer &MVAComputerContainer::find(const std::string &label) const {
-      std::vector<Entry>::const_iterator pos =
-          std::find_if(entries.begin(), entries.end(), [&label](const MVAComputerContainer::Entry &entry) {
-            return entry.first == label;
-          });
+      auto pos = std::find_if(entries.begin(), entries.end(), [&label](const MVAComputerContainer::Entry &entry) {
+        return entry.first == label;
+      });
 
       if (pos == entries.end())
         throw cms::Exception("MVAComputerCalibration")
@@ -173,10 +170,9 @@ namespace PhysicsTools {
     }
 
     bool MVAComputerContainer::contains(const std::string &label) const {
-      std::vector<Entry>::const_iterator pos =
-          std::find_if(entries.begin(), entries.end(), [&label](const MVAComputerContainer::Entry &entry) {
-            return entry.first == label;
-          });
+      auto pos = std::find_if(entries.begin(), entries.end(), [&label](const MVAComputerContainer::Entry &entry) {
+        return entry.first == label;
+      });
       if (pos == entries.end())
         return false;
       return true;

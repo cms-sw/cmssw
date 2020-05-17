@@ -18,7 +18,7 @@ void ConversionLikelihoodCalculator::setWeightsFile(const char* weightsFile) {
   //   std::cout << "After  BookMVA" << std::endl;
 }
 
-double ConversionLikelihoodCalculator::calculateLikelihood(reco::ConversionRef conversion) {
+double ConversionLikelihoodCalculator::calculateLikelihood(const reco::ConversionRef& conversion) {
   if (conversion->nTracks() != 2)
     return -1.;
 

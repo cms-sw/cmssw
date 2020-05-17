@@ -105,9 +105,7 @@ int main(int argc, char* argv[]) {
       }
       // access calo towers
       std::vector<reco::PFCandidatePtr> const& pfConstituents = (*jets)[i].getPFConstituents();
-      for (std::vector<reco::PFCandidatePtr>::const_iterator ibegin = pfConstituents.begin(),
-                                                             iend = pfConstituents.end(),
-                                                             iconstituent = ibegin;
+      for (auto ibegin = pfConstituents.begin(), iend = pfConstituents.end(), iconstituent = ibegin;
            iconstituent != iend;
            ++iconstituent) {
         constituentPt_->Fill((*iconstituent)->pt());

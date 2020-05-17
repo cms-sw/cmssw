@@ -10,7 +10,7 @@
 
 void ClusterizerUnitTester::analyze(const edm::Event&, const edm::EventSetup& es) {
   detId = 0;
-  for (iter_t group = testGroups.begin(); group < testGroups.end(); group++) {
+  for (auto group = testGroups.begin(); group < testGroups.end(); group++) {
     clusterizer = StripClusterizerAlgorithmFactory::create(group->getParameter<PSet>("ClusterizerParameters"));
     clusterizer->initialize(es);
     testTheGroup(*group);
@@ -23,7 +23,7 @@ void ClusterizerUnitTester::testTheGroup(const PSet& group) {
   VPSet tests = group.getParameter<VPSet>("Tests");
 
   std::cout << "\nTesting group: \"" << label << "\"\n               " << params << std::endl;
-  for (iter_t test = tests.begin(); test < tests.end(); test++) {
+  for (auto test = tests.begin(); test < tests.end(); test++) {
     runTheTest(*test);
     detId++;
   }
@@ -59,7 +59,7 @@ void ClusterizerUnitTester::runTheTest(const PSet& test) {
 
 void ClusterizerUnitTester::constructDigis(const VPSet& stripset, edmNew::DetSetVector<SiStripDigi>& digis) {
   edmNew::DetSetVector<SiStripDigi>::TSFastFiller digisFF(digis, detId);
-  for (iter_t strip = stripset.begin(); strip < stripset.end(); strip++) {
+  for (auto strip = stripset.begin(); strip < stripset.end(); strip++) {
     digisFF.push_back(SiStripDigi(strip->getParameter<unsigned>("Strip"), strip->getParameter<unsigned>("ADC")));
   }
   if (digisFF.empty())
@@ -68,7 +68,7 @@ void ClusterizerUnitTester::constructDigis(const VPSet& stripset, edmNew::DetSet
 
 void ClusterizerUnitTester::constructClusters(const VPSet& clusterset, output_t& clusters) {
   output_t::TSFastFiller clustersFF(clusters, detId);
-  for (iter_t c = clusterset.begin(); c < clusterset.end(); c++) {
+  for (auto c = clusterset.begin(); c < clusterset.end(); c++) {
     uint16_t firststrip = c->getParameter<unsigned>("FirstStrip");
     std::vector<unsigned> amplitudes = c->getParameter<std::vector<unsigned> >("Amplitudes");
     std::vector<uint16_t> a16(amplitudes.begin(), amplitudes.end());
@@ -80,7 +80,7 @@ void ClusterizerUnitTester::constructClusters(const VPSet& clusterset, output_t&
 
 std::string ClusterizerUnitTester::printDigis(const VPSet& stripset) {
   std::stringstream s;
-  for (iter_t strip = stripset.begin(); strip < stripset.end(); strip++) {
+  for (auto strip = stripset.begin(); strip < stripset.end(); strip++) {
     s << "\t(" << strip->getParameter<unsigned>("Strip") << ", " << strip->getParameter<unsigned>("ADC") << ", "
       << strip->getParameter<double>("Noise") << ", " << strip->getParameter<double>("Gain") << ", "
       << (strip->getParameter<bool>("Quality") ? "good" : "bad") << " )\n";
@@ -125,8 +125,8 @@ std::string ClusterizerUnitTester::printDSV(const output_t& dsv) {
 std::string ClusterizerUnitTester::printCluster(const SiStripCluster& cluster) {
   std::stringstream s;
   s << "\t" << cluster.firstStrip() << " [ ";
-  for (unsigned i = 0; i < cluster.amplitudes().size(); i++) {
-    s << static_cast<int>(cluster.amplitudes()[i]) << " ";
+  for (unsigned char i : cluster.amplitudes()) {
+    s << static_cast<int>(i) << " ";
   }
   s << "]" << std::endl;
   return s.str();

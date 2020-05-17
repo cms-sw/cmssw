@@ -31,7 +31,7 @@ void FWMuonGlimpseProxyBuilder::build(const reco::Muon& iData,
                                       unsigned int iIndex,
                                       TEveElement& oItemHolder,
                                       const FWViewContext*) {
-  TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("", "");
+  auto* marker = new TEveScalableStraightLineSet("", "");
   marker->SetLineWidth(2);
   fireworks::addStraightLineSegment(marker, &iData, 1.0);
   setupAddElement(marker, &oItemHolder);

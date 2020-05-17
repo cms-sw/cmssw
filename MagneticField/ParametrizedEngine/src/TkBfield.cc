@@ -6,6 +6,7 @@
 // #include <iomanip>
 #include <cmath>
 #include <algorithm>
+#include <utility>
 
 using namespace magfieldparam;
 
@@ -34,7 +35,7 @@ namespace {
     throw cms::Exception("BadParameters") << "Undefined field value " << fld;
   }
 
-  BCylParam<float> const& findPar(std::string fld) {
+  BCylParam<float> const& findPar(const std::string& fld) {
     auto f = std::find(flds, flds + 5, fld);
     if (f - flds > 4)
       throw cms::Exception("BadParameters") << "Undefined key - "  // abort!\n";
@@ -46,7 +47,7 @@ namespace {
 
 TkBfield::TkBfield(float fld) : bcyl(findPar(fld)) {}
 
-TkBfield::TkBfield(std::string fld) : bcyl(findPar(fld)) {}
+TkBfield::TkBfield(std::string fld) : bcyl(findPar(std::move(fld))) {}
 
 void TkBfield::getBrfz(float const* __restrict__ x, float* __restrict__ Brfz) const {
   float br;

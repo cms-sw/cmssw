@@ -16,9 +16,9 @@ namespace edm {
 class LumiBasedUpdateAnalyzer : public edm::EDAnalyzer {
 public:
   explicit LumiBasedUpdateAnalyzer(const edm::ParameterSet& iConfig);
-  virtual ~LumiBasedUpdateAnalyzer();
-  virtual void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup);
-  virtual void endJob();
+  ~LumiBasedUpdateAnalyzer() override;
+  void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) override;
+  void endJob() override;
 
 private:
   std::string m_record;

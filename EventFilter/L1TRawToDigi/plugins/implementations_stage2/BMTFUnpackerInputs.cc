@@ -37,8 +37,8 @@ namespace l1t {
       bool ownFlag(false);
 
       //Checks if the given block coresponds to 1 of the OWN links
-      for (int i = 0; i < 10; i++) {
-        if (block.header().getID() / 2 == ownLinks[i])
+      for (unsigned int ownLink : ownLinks) {
+        if (block.header().getID() / 2 == ownLink)
           ownFlag = true;
       }
       if (!ownFlag)  //if not returns that the "job here done"
@@ -67,7 +67,7 @@ namespace l1t {
         bxBlocks =
             block.getBxBlocks((unsigned int)6, false);  //it returnes 6-32bit bxBlocks originated from the amc13 Block
 
-      for (auto ibx : bxBlocks)  //Bx iteration
+      for (const auto& ibx : bxBlocks)  //Bx iteration
       {
         int bxNum = ibx.header().getBx();
         uint32_t inputWords[ibx.getSize()];  //array of 6 uint32_t payload-words (size of the payload in the BxBlock)

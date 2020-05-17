@@ -66,14 +66,14 @@ namespace ecaldqm {
   }
 
   void TestPulseTask::runOnRawData(EcalRawDataCollection const& _rawData) {
-    for (EcalRawDataCollection::const_iterator rItr(_rawData.begin()); rItr != _rawData.end(); ++rItr) {
-      unsigned iDCC(rItr->id() - 1);
+    for (const auto& rItr : _rawData) {
+      unsigned iDCC(rItr.id() - 1);
 
       if (!enable_[iDCC]) {
         gain_[iDCC] = 0;
         continue;
       }
-      switch (rItr->getMgpaGain()) {
+      switch (rItr.getMgpaGain()) {
         case 1:
           gain_[iDCC] = 12;
           break;
@@ -127,8 +127,8 @@ namespace ecaldqm {
 
     unsigned iME(-1);
 
-    for (EcalPnDiodeDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr) {
-      EcalPnDiodeDetId const& id(digiItr->id());
+    for (const auto& _digi : _digis) {
+      EcalPnDiodeDetId const& id(_digi.id());
 
       int iDCC(dccId(id) - 1);
 
@@ -136,7 +136,7 @@ namespace ecaldqm {
         continue;
 
       int gain(0);
-      switch (digiItr->sample(0).gainId()) {
+      switch (_digi.sample(0).gainId()) {
         case 0:
           gain = 1;
           break;
@@ -157,13 +157,13 @@ namespace ecaldqm {
 
       float pedestal(0.);
       for (int iSample(0); iSample < 4; iSample++)
-        pedestal += digiItr->sample(iSample).adc();
+        pedestal += _digi.sample(iSample).adc();
       pedestal /= 4.;
 
       float max(0.);
       for (int iSample(0); iSample < 50; iSample++)
-        if (digiItr->sample(iSample).adc() > max)
-          max = digiItr->sample(iSample).adc();
+        if (_digi.sample(iSample).adc() > max)
+          max = _digi.sample(iSample).adc();
 
       double amplitude(max - pedestal);
 
@@ -176,8 +176,8 @@ namespace ecaldqm {
 
     unsigned iME(-1);
 
-    for (EcalUncalibratedRecHitCollection::const_iterator uhitItr(_uhits.begin()); uhitItr != _uhits.end(); ++uhitItr) {
-      DetId id(uhitItr->id());
+    for (const auto& _uhit : _uhits) {
+      DetId id(_uhit.id());
 
       int iDCC(dccId(id) - 1);
 
@@ -189,7 +189,7 @@ namespace ecaldqm {
         static_cast<MESetMulti&>(meAmplitude).use(iME);
       }
 
-      meAmplitude.fill(id, uhitItr->amplitude());
+      meAmplitude.fill(id, _uhit.amplitude());
     }
   }
 

@@ -50,8 +50,8 @@ namespace ecaldqm {
       vector<vector<float> > weights(hSr->dccNormalizedWeights_);
       if (weights.size() == 1) {
         vector<double> normWeights;
-        for (vector<float>::iterator it(weights[0].begin()); it != weights[0].end(); it++)
-          normWeights.push_back(*it);
+        for (float& it : weights[0])
+          normWeights.push_back(it);
 
         setFIRWeights_(normWeights);
       } else
@@ -90,12 +90,12 @@ namespace ecaldqm {
   }
 
   void SelectiveReadoutTask::runOnRawData(EcalRawDataCollection const& _dcchs) {
-    for (EcalRawDataCollection::const_iterator dcchItr(_dcchs.begin()); dcchItr != _dcchs.end(); ++dcchItr) {
-      std::vector<short> const& feStatus(dcchItr->getFEStatus());
+    for (const auto& _dcch : _dcchs) {
+      std::vector<short> const& feStatus(_dcch.getFEStatus());
       unsigned nFE(feStatus.size());
       for (unsigned iFE(0); iFE < nFE; ++iFE)
         if (feStatus[iFE] == Disabled)
-          suppressed_.insert(std::make_pair(dcchItr->id(), iFE + 1));
+          suppressed_.insert(std::make_pair(_dcch.id(), iFE + 1));
     }
   }
 
@@ -288,10 +288,10 @@ namespace ecaldqm {
       throw cms::Exception("InvalidConfiguration") << "weightsForZsFIR" << std::endl;
 
     bool notNormalized(false), notInt(false);
-    for (std::vector<double>::const_iterator it(_normWeights.begin()); it != _normWeights.end(); ++it) {
-      if (*it > 1.)
+    for (double _normWeight : _normWeights) {
+      if (_normWeight > 1.)
         notNormalized = true;
-      if (int(*it) != *it)
+      if (int(_normWeight) != _normWeight)
         notInt = true;
     }
     if (notInt && notNormalized) {

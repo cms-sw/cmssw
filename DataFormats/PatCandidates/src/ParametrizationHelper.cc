@@ -29,7 +29,7 @@ pat::CandKinResolution::Parametrization pat::helper::ParametrizationHelper::from
                                                        {"EMomDev", pat::CandKinResolution::EMomDev},
                                                        {"MCMomDev", pat::CandKinResolution::MCMomDev},
                                                        {"EScaledMomDev", pat::CandKinResolution::EScaledMomDev}};
-  map<string, Parametrization>::const_iterator itP = parMaps.find(name);
+  auto itP = parMaps.find(name);
   if (itP == parMaps.end()) {
     throw cms::Exception("StringResolutionProvider") << "Bad parametrization '" << name.c_str() << "'";
   }

@@ -24,8 +24,8 @@ void PtAssignmentEngine::read(int pt_lut_version, const std::string& xml_dir) {
   std::cout << xml_dir_full << std::endl;
   std::cout << "Non-standard operation; if it fails, now you know why" << std::endl;
 
-  for (unsigned i = 0; i < allowedModes_.size(); ++i) {
-    int mode = allowedModes_.at(i);  // For 2016, maps to "mode_inv"
+  for (int mode : allowedModes_) {
+    // For 2016, maps to "mode_inv"
     std::stringstream ss;
     ss << xml_dir_full << "/" << mode;
     forests_.at(mode).loadForestFromXML(ss.str().c_str(), xml_nTrees);
@@ -41,11 +41,8 @@ void PtAssignmentEngine::load(int pt_lut_version, const L1TMuonEndCapForest* pay
 
   edm::LogInfo("L1T") << "EMTF using pt_lut_ver: " << pt_lut_version;
 
-  for (unsigned i = 0; i < allowedModes_.size(); ++i) {
-    int mode = allowedModes_.at(i);
-
-    L1TMuonEndCapForest::DForestMap::const_iterator index =
-        payload->forest_map_.find(mode);  // associates mode to index
+  for (int mode : allowedModes_) {
+    auto index = payload->forest_map_.find(mode);  // associates mode to index
     if (index == payload->forest_map_.end())
       continue;
 

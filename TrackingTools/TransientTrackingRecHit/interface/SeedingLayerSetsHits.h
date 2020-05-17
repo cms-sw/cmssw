@@ -200,8 +200,8 @@ public:
 
   /// Get the SeedingLayerSet at a given index
   SeedingLayerSet operator[](LayerSetIndex index) const {
-    std::vector<LayerSetIndex>::const_iterator begin = layerSetIndices_->begin() + nlayers_ * index;
-    std::vector<LayerSetIndex>::const_iterator end = begin + nlayers_;
+    auto begin = layerSetIndices_->begin() + nlayers_ * index;
+    auto end = begin + nlayers_;
     return SeedingLayerSet(this, begin, end);
   }
 

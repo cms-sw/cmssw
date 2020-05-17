@@ -227,7 +227,7 @@ void FW3DViewBase::enableSceneClip(bool x) {
   }
 
   geoScene()->GetGLScene()->SetClip(x ? m_glClip : nullptr);
-  for (TEveElement::List_i it = gEve->GetScenes()->BeginChildren(); it != gEve->GetScenes()->EndChildren(); ++it) {
+  for (auto it = gEve->GetScenes()->BeginChildren(); it != gEve->GetScenes()->EndChildren(); ++it) {
     if (strncmp((*it)->GetElementName(), "TopGeoNodeScene", 15) == 0)
       ((TEveScene*)(*it))->GetGLScene()->SetClip(x ? m_glClip : nullptr);
   }
@@ -267,8 +267,8 @@ namespace {
     inn *= 10000;
     TGLLine3 line(TGLVertex3(), TGLVertex3(inn.fX, inn.fY, inn.fZ));
     std::vector<float> res;
-    for (TGLPlaneSet_i i = ps.begin(); i != ps.end(); ++i) {
-      std::pair<Bool_t, TGLVertex3> r = Intersection(*i, line, false);
+    for (auto& p : ps) {
+      std::pair<Bool_t, TGLVertex3> r = Intersection(p, line, false);
       if (r.first) {
         TGLVector3 vr(r.second.X(), r.second.Y(), r.second.Z());
         res.push_back(vr.Mag());
@@ -343,8 +343,8 @@ void FW3DViewBase::updateClipPlanes(bool resetCamera) {
     c[2] -= b1;
     c[3] += b0;
     c[3] -= b1;
-    for (int i = 0; i < 4; ++i)
-      c[i] += in;
+    for (auto& i : c)
+      i += in;
 
     TEveVector aOff = in;
     aOff.NegateXYZ();
@@ -429,7 +429,7 @@ void FW3DViewBase::updateHGCalVisibility(bool) {
 void FW3DViewBase::addTo(FWConfiguration& iTo) const {
   // take care of parameters
   FWEveView::addTo(iTo);
-  TGLPerspectiveCamera* camera = dynamic_cast<TGLPerspectiveCamera*>(&(viewerGL()->CurrentCamera()));
+  auto* camera = dynamic_cast<TGLPerspectiveCamera*>(&(viewerGL()->CurrentCamera()));
   if (camera)
     addToPerspectiveCamera(camera, "Plain3D", iTo);
 }
@@ -439,7 +439,7 @@ void FW3DViewBase::setFrom(const FWConfiguration& iFrom) {
   // take care of parameters
   FWEveView::setFrom(iFrom);
 
-  TGLPerspectiveCamera* camera = dynamic_cast<TGLPerspectiveCamera*>(&(viewerGL()->CurrentCamera()));
+  auto* camera = dynamic_cast<TGLPerspectiveCamera*>(&(viewerGL()->CurrentCamera()));
   if (camera)
     setFromPerspectiveCamera(camera, "Plain3D", iFrom);
 
@@ -511,8 +511,8 @@ void FW3DViewBase::showEcalBarrel(bool x) {
     std::vector<unsigned int> ids =
         geom->getMatchedIds(FWGeometry::Detector::Ecal, FWGeometry::SubDetector::PixelBarrel);
     m_ecalBarrel->Reset(TEveBoxSet::kBT_FreeBox, true, ids.size());
-    for (std::vector<unsigned int>::iterator it = ids.begin(); it != ids.end(); ++it) {
-      const float* cor = context().getGeom()->getCorners(*it);
+    for (unsigned int& id : ids) {
+      const float* cor = context().getGeom()->getCorners(id);
       m_ecalBarrel->AddBox(cor);
     }
     m_ecalBarrel->RefitPlex();

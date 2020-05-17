@@ -47,7 +47,7 @@ void SiStripMergeZeroSuppression::produce(edm::Event& event, const edm::EventSet
     LogTrace("SiStripMergeZeroSuppression::produce") << "Looping over the raw data collection "
                                                      << "\n";
     for (const auto& rawDigis : *inputraw) {
-      edm::DetSet<SiStripRawDigi>::const_iterator itRawDigis = rawDigis.begin();
+      auto itRawDigis = rawDigis.begin();
       uint16_t nAPV = rawDigis.size() / 128;
       uint32_t rawDetId = rawDigis.id;
 

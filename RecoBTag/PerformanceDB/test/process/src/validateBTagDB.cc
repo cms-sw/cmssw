@@ -47,15 +47,15 @@
 class validateBTagDB : public edm::EDAnalyzer {
 public:
   explicit validateBTagDB(const edm::ParameterSet&);
-  ~validateBTagDB();
+  ~validateBTagDB() override;
 
 private:
   std::string beff, mistag, ceff;
   std::vector<std::string> algoNames;
   std::vector<std::string> fileList;
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   // ----------member data ---------------------------
 };

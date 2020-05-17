@@ -107,7 +107,7 @@ void FWConversionProxyBuilder::buildViewType(const reco::Conversion& conversion,
                                              FWViewType::EType type,
                                              const FWViewContext*) {
   TEveElementList* lines = requestCommon();
-  TEveElement::List_i linIt = lines->BeginChildren();
+  auto linIt = lines->BeginChildren();
   std::advance(linIt, iIndex);
   TEveLine* line = (TEveLine*)((*linIt)->CloneElement());
   TEveVector bvec = line->GetLineStart();

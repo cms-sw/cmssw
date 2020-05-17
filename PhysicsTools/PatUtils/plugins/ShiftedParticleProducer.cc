@@ -12,9 +12,8 @@ ShiftedParticleProducer::ShiftedParticleProducer(const edm::ParameterSet& cfg) {
   if (cfg.exists("binning")) {
     typedef std::vector<edm::ParameterSet> vParameterSet;
     vParameterSet cfgBinning = cfg.getParameter<vParameterSet>("binning");
-    for (vParameterSet::const_iterator cfgBinningEntry = cfgBinning.begin(); cfgBinningEntry != cfgBinning.end();
-         ++cfgBinningEntry) {
-      binning_.push_back(new binningEntryType(*cfgBinningEntry, moduleLabel_));
+    for (const auto& cfgBinningEntry : cfgBinning) {
+      binning_.push_back(new binningEntryType(cfgBinningEntry, moduleLabel_));
     }
   } else {
     std::string uncertainty = cfg.getParameter<std::string>("uncertainty");
@@ -25,8 +24,8 @@ ShiftedParticleProducer::ShiftedParticleProducer(const edm::ParameterSet& cfg) {
 }
 
 ShiftedParticleProducer::~ShiftedParticleProducer() {
-  for (std::vector<binningEntryType*>::const_iterator it = binning_.begin(); it != binning_.end(); ++it) {
-    delete (*it);
+  for (auto it : binning_) {
+    delete it;
   }
 }
 
@@ -71,16 +70,15 @@ void ShiftedParticleProducer::produce(edm::Event& evt, const edm::EventSetup& es
 double ShiftedParticleProducer::getUncShift(const reco::Candidate& originalParticle) {
   double valx = 0;
   double valy = 0;
-  for (std::vector<binningEntryType*>::iterator binningEntry = binning_.begin(); binningEntry != binning_.end();
-       ++binningEntry) {
-    if ((!(*binningEntry)->binSelection_) || (*(*binningEntry)->binSelection_)(originalParticle)) {
-      if ((*binningEntry)->energyDep_)
+  for (auto& binningEntry : binning_) {
+    if ((!binningEntry->binSelection_) || (*binningEntry->binSelection_)(originalParticle)) {
+      if (binningEntry->energyDep_)
         valx = originalParticle.energy();
       else
         valx = originalParticle.pt();
 
       valy = originalParticle.eta();
-      return (*binningEntry)->binUncFormula_->Eval(valx, valy);
+      return binningEntry->binUncFormula_->Eval(valx, valy);
     }
   }
   return 0;

@@ -48,7 +48,7 @@ void FWCSCSegmentProxyBuilder::build(const CSCSegment& iData,
     return;
   }
 
-  TEveStraightLineSet* segmentSet = new TEveStraightLineSet();
+  auto* segmentSet = new TEveStraightLineSet();
   // FIXME: This should be set elsewhere.
   segmentSet->SetLineWidth(3);
   setupAddElement(segmentSet, &oItemHolder);

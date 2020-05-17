@@ -33,7 +33,7 @@ public:
   typedef std::pair<const GeomDet*, TrajectoryStateOnSurface> DetWithState;
   typedef std::vector<GenericTransientTrackingRecHit::RecHitPointer> MTDRecHitContainer;
 
-  MTDDetLayerMeasurements(edm::InputTag mtdlabel, edm::ConsumesCollector& iC);
+  MTDDetLayerMeasurements(const edm::InputTag& mtdlabel, edm::ConsumesCollector& iC);
 
   virtual ~MTDDetLayerMeasurements();
 

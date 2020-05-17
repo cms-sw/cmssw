@@ -41,18 +41,18 @@ float CaloIsolationEnergy::calculate(const reco::Track& theTrack,
   // calculate iso energy
   //const CaloTower * closestTower = 0;
   float closestDR = 10000;
-  for (std::vector<CaloTower>::const_iterator itTower = theTowers.begin(); itTower != theTowers.end(); itTower++) {
+  for (const auto& theTower : theTowers) {
     // calculate dPhi with correct sign
-    float dPhi = theTrack.phi() - itTower->phi();
+    float dPhi = theTrack.phi() - theTower.phi();
     if (dPhi > M_PI)
       dPhi = -2 * M_PI + dPhi;
     if (dPhi < -M_PI)
       dPhi = 2 * M_PI + dPhi;
     // calculate dR
-    float dR = sqrt(std::pow(theTrack.eta() - itTower->eta(), 2) + std::pow(dPhi, 2));
+    float dR = sqrt(std::pow(theTrack.eta() - theTower.eta(), 2) + std::pow(dPhi, 2));
     // calculate energy in cone around direction at vertex of the track
     if (dR < isoCone) {
-      isoELepton += itTower->energy();
+      isoELepton += theTower.energy();
       if (dR < closestDR) {
         closestDR = dR;
         //closestTower = &(*itTower);

@@ -24,7 +24,7 @@ using namespace edm;
 class TrackInfoAnalyzer : public edm::EDAnalyzer {
 public:
   TrackInfoAnalyzer(const edm::ParameterSet& pset);
-  void beginJob() {
+  void beginJob() override {
     //       cout << "beginJob" <<endl;
     //     edm::ESHandle<TrackerGeometry> tkgeom;
     //    c.get<TrackerDigiGeometryRecord>().get( tkgeom );
@@ -40,9 +40,9 @@ public:
     tib4ext = new TH1F("Tib4Ext", "Tib Layer 4 Ext", 100, -0.5, 0.5);
   }
 
-  ~TrackInfoAnalyzer() { delete output; }
+  ~TrackInfoAnalyzer() override { delete output; }
 
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) {  //analyze
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override {  //analyze
 
     using namespace reco;
 
@@ -63,7 +63,7 @@ public:
       reco::TrackInfo::TrajectoryInfo::const_iterator iter;
       edm::LogInfo("TrackInfoAnalyzer") << "N hits in the seed: " << track->seed().nHits();
       edm::LogInfo("TrackInfoAnalyzer") << "Starting state " << track->seed().startingState().parameters().position();
-      if (track->trajStateMap().size() > 0) {
+      if (!track->trajStateMap().empty()) {
         for (iter = track->trajStateMap().begin(); iter != track->trajStateMap().end(); ++iter) {
           edm::LogInfo("TrackInfoAnalyzer")
               << "LocalMomentum: " << (track->stateOnDet(Combined, (*iter).first)->parameters()).momentum();
@@ -109,7 +109,7 @@ public:
       }
     }
   }
-  void endJob() {
+  void endJob() override {
     output->Write();
     output->Close();
   }

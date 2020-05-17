@@ -3,6 +3,7 @@
 #include <iostream>
 // #include <pmmintrin.h>
 #include <typeinfo>
+#include <utility>
 
 #include "FWCore/Utilities/interface/HRRealTime.h"
 
@@ -22,7 +23,7 @@ namespace {
     T ave;
     T rms;
     T amax;
-    Stat(std::string in) : name(in), n(0), npos(0), bias(0), ave(0), rms(0), amax(0) {}
+    Stat(std::string in) : name(std::move(in)), n(0), npos(0), bias(0), ave(0), rms(0), amax(0) {}
     void operator()(T x, T ref);
 
     ~Stat() {

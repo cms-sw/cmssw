@@ -2,8 +2,10 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <utility>
 
-CSCTriggerElectronicsMappingFromFile::CSCTriggerElectronicsMappingFromFile(std::string filename) : filename_(filename) {
+CSCTriggerElectronicsMappingFromFile::CSCTriggerElectronicsMappingFromFile(std::string filename)
+    : filename_(std::move(filename)) {
   fill();
 }
 

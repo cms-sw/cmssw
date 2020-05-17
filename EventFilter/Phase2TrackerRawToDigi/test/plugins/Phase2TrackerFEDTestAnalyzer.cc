@@ -55,7 +55,7 @@ void Phase2TrackerFEDTestAnalyzer::analyze(const edm::Event& event, const edm::E
     const FEDRawData& fed = buffers->FEDData(fedIndex);
     if (fed.size() != 0 && fedIndex >= Phase2Tracker::FED_ID_MIN && fedIndex <= Phase2Tracker::FED_ID_MAX) {
       // construct buffer
-      Phase2Tracker::Phase2TrackerFEDBuffer* buffer = 0;
+      Phase2Tracker::Phase2TrackerFEDBuffer* buffer = nullptr;
       buffer = new Phase2Tracker::Phase2TrackerFEDBuffer(fed.data(), fed.size());
 
       cout << " -------------------------------------------- " << endl;
@@ -100,7 +100,7 @@ void Phase2TrackerFEDTestAnalyzer::analyze(const edm::Event& event, const edm::E
           if (channel.length() > 0) {
             cout << dec << " reading channel : " << icbc << " on FE " << ife;
             cout << dec << " with length  : " << (int)channel.length() << endl;
-            Phase2TrackerFEDRawChannelUnpacker unpacker = Phase2TrackerFEDRawChannelUnpacker(channel);
+            auto unpacker = Phase2TrackerFEDRawChannelUnpacker(channel);
             while (unpacker.hasData()) {
               std::cout << (unpacker.stripOn() ? "1" : "_");
               unpacker++;

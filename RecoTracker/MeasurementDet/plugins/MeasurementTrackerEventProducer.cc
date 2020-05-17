@@ -191,8 +191,7 @@ void MeasurementTrackerEventProducer::updatePixels(const edm::Event& event,
                 << "Do not find either roc_first or roc_last in the cabling map.";
             continue;
           }
-          const PixelGeomDetUnit* theGeomDet =
-              dynamic_cast<const PixelGeomDetUnit*>(trackerGeom.idToDet(roc_first->rawId()));
+          const auto* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>(trackerGeom.idToDet(roc_first->rawId()));
           PixelTopology const* topology = &(theGeomDet->specificTopology());
           sipixelobjects::LocalPixel::RocRowCol local = {
               topology->rowsperroc() / 2, topology->colsperroc() / 2};  //corresponding to center of ROC row, col

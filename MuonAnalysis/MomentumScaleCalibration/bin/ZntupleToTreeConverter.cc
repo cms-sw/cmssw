@@ -143,11 +143,11 @@ int main(int argc, char* argv[]) {
       double muon2[3] = {(*muon2pt)[i], (*muon2eta)[i], (*muon2phi)[i]};
 
       // pairVector.push_back( std::make_pair( fromPtEtaPhiToPxPyPz(muon1), fromPtEtaPhiToPxPyPz(muon2) ) );
-      pairVector.push_back(
-          MuonPair(fromPtEtaPhiToPxPyPz(muon1), fromPtEtaPhiToPxPyPz(muon2), MuScleFitEvent(0, 0, 0, 0, 0, 0)));
+      pairVector.emplace_back(
+          fromPtEtaPhiToPxPyPz(muon1), fromPtEtaPhiToPxPyPz(muon2), MuScleFitEvent(0, 0, 0, 0, 0, 0));
     }
   }
-  size_t namePos = fileName.find_last_of("/");
+  size_t namePos = fileName.find_last_of('/');
   treeHandler.writeTree(("tree_" + fileName.substr(namePos + 1, fileName.size())).c_str(), &pairVector);
 
   // close input file

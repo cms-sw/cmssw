@@ -45,8 +45,8 @@ public:
 private:
   // create electrons from tracks
   //void process(edm::Handle<reco::TrackCollection> tracksH, reco::ElectronCollection & outEle, Global3DPoint & bs);
-  void process(edm::Handle<reco::TrackCollection> tracksH,
-               edm::Handle<reco::GsfTrackCollection> gsfTracksH,
+  void process(const edm::Handle<reco::TrackCollection>& tracksH,
+               const edm::Handle<reco::GsfTrackCollection>& gsfTracksH,
                reco::ElectronCollection& outEle,
                Global3DPoint& bs);
   bool isInnerMostWithLostHits(const reco::GsfTrackRef&, const reco::GsfTrackRef&, bool&);

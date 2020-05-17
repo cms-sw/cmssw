@@ -87,8 +87,7 @@ void EgammaHLTRecoEcalCandidateProducers::produce(edm::StreamID sid,
   int iSC = 0;  // index in recoecal collection
   int lSC = 0;  // local index on barrel
 
-  for (reco::SuperClusterCollection::const_iterator aClus = scBarrelHandle->begin(); aClus != scBarrelHandle->end();
-       aClus++) {
+  for (auto aClus = scBarrelHandle->begin(); aClus != scBarrelHandle->end(); aClus++) {
     const reco::Particle::Point vtx(0, 0, 0);
 
     // compute correctly the momentum vector of the recoecal from primary vertex and cluster position
@@ -109,8 +108,7 @@ void EgammaHLTRecoEcalCandidateProducers::produce(edm::StreamID sid,
   //  Loop over Endcap SC and fill the  recoecal collection
   lSC = 0;  // reset local index for endcap
 
-  for (reco::SuperClusterCollection::const_iterator aClus = scEndcapHandle->begin(); aClus != scEndcapHandle->end();
-       aClus++) {
+  for (auto aClus = scEndcapHandle->begin(); aClus != scEndcapHandle->end(); aClus++) {
     const reco::Particle::Point vtx(0, 0, 0);
 
     math::XYZVector direction = aClus->position() - vtx;

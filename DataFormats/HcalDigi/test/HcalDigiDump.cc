@@ -14,7 +14,7 @@ using namespace std;
 class HcalDigiDump : public edm::EDAnalyzer {
 public:
   explicit HcalDigiDump(edm::ParameterSet const& conf);
-  virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
+  void analyze(edm::Event const& e, edm::EventSetup const& c) override;
 };
 
 HcalDigiDump::HcalDigiDump(edm::ParameterSet const& conf) {
@@ -58,8 +58,8 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
 
       cout << "HB/HE Digis: " << i->provenance()->branchName() << endl;
 
-      for (HBHEDigiCollection::const_iterator j = c.begin(); j != c.end(); j++)
-        cout << *j << std::endl;
+      for (const auto& j : c)
+        cout << j << std::endl;
     }
   } catch (...) {
     cout << "No HB/HE Digis." << endl;
@@ -73,8 +73,8 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
 
       cout << "HF Digis: " << i->provenance()->branchName() << endl;
 
-      for (HFDigiCollection::const_iterator j = c.begin(); j != c.end(); j++)
-        cout << *j << std::endl;
+      for (const auto& j : c)
+        cout << j << std::endl;
     }
   } catch (...) {
     cout << "No HF Digis." << endl;
@@ -88,8 +88,8 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
 
       cout << "HO Digis: " << i->provenance()->branchName() << endl;
 
-      for (HODigiCollection::const_iterator j = c.begin(); j != c.end(); j++)
-        cout << *j << std::endl;
+      for (const auto& j : c)
+        cout << j << std::endl;
     }
   } catch (...) {
     cout << "No HO Digis." << endl;
@@ -103,8 +103,8 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
 
       cout << "HcalTrigPrim Digis: " << i->provenance()->branchName() << endl;
 
-      for (HcalTrigPrimDigiCollection::const_iterator j = c.begin(); j != c.end(); j++)
-        cout << *j << std::endl;
+      for (const auto& j : c)
+        cout << j << std::endl;
     }
   } catch (...) {
     cout << "No HCAL Trigger Primitive Digis." << endl;
@@ -118,8 +118,8 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
 
       cout << "HO TP Digis: " << i->provenance()->branchName() << endl;
 
-      for (HOTrigPrimDigiCollection::const_iterator j = c.begin(); j != c.end(); j++)
-        cout << *j << std::endl;
+      for (auto j : c)
+        cout << j << std::endl;
     }
   } catch (...) {
     cout << "No HCAL Trigger Primitive Digis." << endl;
@@ -133,8 +133,8 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
 
       cout << "Calibration Digis: " << i->provenance()->branchName() << endl;
 
-      for (HcalCalibDigiCollection::const_iterator j = c.begin(); j != c.end(); j++)
-        cout << *j << std::endl;
+      for (const auto& j : c)
+        cout << j << std::endl;
     }
   } catch (...) {
   }
@@ -147,8 +147,8 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
 
       cout << "ZDC Digis: " << i->provenance()->branchName() << endl;
 
-      for (ZDCDigiCollection::const_iterator j = c.begin(); j != c.end(); j++)
-        cout << *j << std::endl;
+      for (const auto& j : c)
+        cout << j << std::endl;
     }
   } catch (...) {
   }
@@ -161,8 +161,8 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
 
       cout << "Castor Digis: " << i->provenance()->branchName() << endl;
 
-      for (CastorDigiCollection::const_iterator j = c.begin(); j != c.end(); j++)
-        cout << *j << std::endl;
+      for (const auto& j : c)
+        cout << j << std::endl;
     }
   } catch (...) {
   }
@@ -173,8 +173,8 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
     for (i = castortp.begin(); i != castortp.end(); i++) {
       const CastorTrigPrimDigiCollection& c = *(*i);
 
-      for (CastorTrigPrimDigiCollection::const_iterator j = c.begin(); j != c.end(); j++)
-        cout << *j << std::endl;
+      for (const auto& j : c)
+        cout << j << std::endl;
     }
   } catch (...) {
     cout << "No CASTOR Trigger Primitive Digis." << endl;
@@ -186,8 +186,8 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
     for (i = ttp.begin(); i != ttp.end(); i++) {
       const HcalTTPDigiCollection& c = *(*i);
 
-      for (HcalTTPDigiCollection::const_iterator j = c.begin(); j != c.end(); j++)
-        cout << *j << std::endl;
+      for (const auto& j : c)
+        cout << j << std::endl;
     }
   } catch (...) {
   }
@@ -198,8 +198,8 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
     for (i = hh.begin(); i != hh.end(); i++) {
       const HcalHistogramDigiCollection& c = *(*i);
 
-      for (HcalHistogramDigiCollection::const_iterator j = c.begin(); j != c.end(); j++)
-        cout << *j << std::endl;
+      for (const auto& j : c)
+        cout << j << std::endl;
     }
   } catch (...) {
   }

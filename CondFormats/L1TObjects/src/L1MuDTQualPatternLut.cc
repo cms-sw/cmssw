@@ -60,7 +60,7 @@ L1MuDTQualPatternLut::L1MuDTQualPatternLut() {
 //--------------
 
 L1MuDTQualPatternLut::~L1MuDTQualPatternLut() {
-  LUT::iterator iter = m_lut.begin();
+  auto iter = m_lut.begin();
   while (iter != m_lut.end()) {
     (*iter).second.second.clear();
     iter++;
@@ -173,7 +173,7 @@ void L1MuDTQualPatternLut::print() const {
 
   int spold = 0;
 
-  LUT::const_iterator iter = m_lut.begin();
+  auto iter = m_lut.begin();
   while (iter != m_lut.end()) {
     int sp = (*iter).first.first;
     if (sp != spold) {
@@ -201,7 +201,7 @@ void L1MuDTQualPatternLut::print() const {
 // get coarse eta value for a given sector processor [1-6] and address [1-22]
 //
 int L1MuDTQualPatternLut::getCoarseEta(int sp, int adr) const {
-  LUT::const_iterator it = m_lut.find(make_pair(sp, adr));
+  auto it = m_lut.find(make_pair(sp, adr));
   if (it == m_lut.end()) {
     cerr << "Error: L1MuDTQualPatternLut: no coarse eta found for address " << adr << endl;
     return 0;
@@ -213,7 +213,7 @@ int L1MuDTQualPatternLut::getCoarseEta(int sp, int adr) const {
 // get list of qualified patterns for a given sector processor [1-6] and address [1-22]
 //
 const vector<short>& L1MuDTQualPatternLut::getQualifiedPatterns(int sp, int adr) const {
-  LUT::const_iterator it = m_lut.find(make_pair(sp, adr));
+  auto it = m_lut.find(make_pair(sp, adr));
   if (it == m_lut.end()) {
     cerr << "Error: L1MuDTQualPatternLut: no pattern list found for address " << adr << endl;
   }

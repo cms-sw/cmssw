@@ -58,6 +58,6 @@ private:
   COND_SERIALIZABLE;
 };
 
-std::ostream& operator<<(std::ostream& os, const L1GctChannelMask obj);
+std::ostream& operator<<(std::ostream& os, const L1GctChannelMask& obj);
 
 #endif

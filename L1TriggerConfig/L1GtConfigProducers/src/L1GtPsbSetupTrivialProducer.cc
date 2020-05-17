@@ -55,29 +55,25 @@ L1GtPsbSetupTrivialProducer::L1GtPsbSetupTrivialProducer(const edm::ParameterSet
   std::vector<bool> enableRecSerLink;
   enableRecSerLink.reserve(L1GtPsbConfig::PsbSerLinkNumberChannels);
 
-  for (std::vector<edm::ParameterSet>::const_iterator itPSet = psbSetup.begin(); itPSet != psbSetup.end(); ++itPSet) {
+  for (const auto& itPSet : psbSetup) {
     //
-    L1GtPsbConfig psbConfig(itPSet->getParameter<int>("Slot"));
+    L1GtPsbConfig psbConfig(itPSet.getParameter<int>("Slot"));
 
-    psbConfig.setGtPsbCh0SendLvds(itPSet->getParameter<bool>("Ch0SendLvds"));
-    psbConfig.setGtPsbCh1SendLvds(itPSet->getParameter<bool>("Ch1SendLvds"));
+    psbConfig.setGtPsbCh0SendLvds(itPSet.getParameter<bool>("Ch0SendLvds"));
+    psbConfig.setGtPsbCh1SendLvds(itPSet.getParameter<bool>("Ch1SendLvds"));
 
-    enableRecLvdsInt = itPSet->getParameter<std::vector<unsigned int> >("EnableRecLvds");
+    enableRecLvdsInt = itPSet.getParameter<std::vector<unsigned int> >("EnableRecLvds");
 
-    for (std::vector<unsigned int>::const_iterator cIt = enableRecLvdsInt.begin(); cIt != enableRecLvdsInt.end();
-         ++cIt) {
-      bool val = *cIt;
+    for (bool val : enableRecLvdsInt) {
       enableRecLvds.push_back(val);
     }
 
     psbConfig.setGtPsbEnableRecLvds(enableRecLvds);
     enableRecLvds.clear();
 
-    enableRecSerLinkInt = itPSet->getParameter<std::vector<unsigned int> >("EnableRecSerLink");
+    enableRecSerLinkInt = itPSet.getParameter<std::vector<unsigned int> >("EnableRecSerLink");
 
-    for (std::vector<unsigned int>::const_iterator cIt = enableRecSerLinkInt.begin(); cIt != enableRecSerLinkInt.end();
-         ++cIt) {
-      bool val = *cIt;
+    for (bool val : enableRecSerLinkInt) {
       enableRecSerLink.push_back(val);
     }
 

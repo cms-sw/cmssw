@@ -68,8 +68,8 @@ bool DTuROSDigiToRaw::fillRawData(edm::Event& e, const edm::EventSetup& c, FEDRa
 }
 
 void DTuROSDigiToRaw::process(int DTuROSFED,
-                              edm::Handle<DTDigiCollection> digis,
-                              edm::ESHandle<DTReadOutMapping> mapping,
+                              const edm::Handle<DTDigiCollection>& digis,
+                              const edm::ESHandle<DTReadOutMapping>& mapping,
                               FEDRawDataCollection& data) {
   clear();
 

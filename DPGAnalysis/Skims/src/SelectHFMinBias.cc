@@ -39,15 +39,15 @@ bool SelectHFMinBias::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
   int negTowers = 0;
   int posTowers = 0;
-  for (CaloTowerCollection::const_iterator cal = towers->begin(); cal != towers->end(); ++cal) {
-    for (unsigned int i = 0; i < cal->constituentsSize(); i++) {
-      const DetId id = cal->constituent(i);
+  for (const auto& cal : *towers) {
+    for (unsigned int i = 0; i < cal.constituentsSize(); i++) {
+      const DetId id = cal.constituent(i);
       if (id.det() == DetId::Hcal) {
         HcalSubdetector subdet = (HcalSubdetector(id.subdetId()));
         if (subdet == HcalForward) {
-          if (cal->energy() > 3. && cal->eta() < -3.)
+          if (cal.energy() > 3. && cal.eta() < -3.)
             negTowers++;
-          if (cal->energy() > 3. && cal->eta() > 3.)
+          if (cal.energy() > 3. && cal.eta() > 3.)
             posTowers++;
         }
       }

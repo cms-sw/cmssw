@@ -25,7 +25,7 @@ void SRBlockFormatter::DigiToRaw(int dccid, int dcc_channel, int flag, FEDRawDat
   if (debug_)
     cout << "size of header_ map is " << header_.size() << endl;
 
-  std::map<int, int>::const_iterator it_header = header_.find(icode);
+  auto it_header = header_.find(icode);
 
   if (it_header != header_.end()) {
     SRP_index = rawdata.size() / 8 - Nrows_SRP;

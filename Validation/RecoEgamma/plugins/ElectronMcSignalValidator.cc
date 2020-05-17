@@ -3404,8 +3404,8 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
 
     // select requested matching gen particle
     matchingID = false;
-    for (unsigned int i = 0; i < matchingIDs_.size(); i++) {
-      if (mcIter->pdgId() == matchingIDs_[i]) {
+    for (int i : matchingIDs_) {
+      if (mcIter->pdgId() == i) {
         matchingID = true;
         /*                // DEBUG LINES - KEEP IT !
 			std::cout << "\nMatching mis-reco : matchingIDs_.size() = " << matchingIDs_.size() << ", evt ID = " << iEvent.id() ; 
@@ -3418,7 +3418,7 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
       // always include single particle with no mother
       const Candidate *mother = mcIter->mother();
       matchingMotherID = false;
-      for (unsigned int i = 0; i < matchingMotherIDs_.size(); i++) {
+      for (int i : matchingMotherIDs_) {
         /*                // DEBUG LINES - KEEP IT !
                 std::cout << "Matching : matchingMotherID[" << ii << "] : "<< matchingMotherIDs_[ii]  << ", evt ID = " << iEvent.id() << ", mother : "  << mother ; 
                 if (mother != 0) { 
@@ -3432,7 +3432,7 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
 
         if (mother == nullptr) {
           matchingMotherID = true;
-        } else if (mother->pdgId() == matchingMotherIDs_[i]) {
+        } else if (mother->pdgId() == i) {
           if (mother->numberOfDaughters() <= 2) {
             matchingMotherID = true;
             /*                // DEBUG LINES - KEEP IT !
@@ -3509,8 +3509,8 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
 
     // select requested matching gen particle
     matchingID = false;
-    for (unsigned int i = 0; i < matchingIDs_.size(); i++) {
-      if (mcIter->pdgId() == matchingIDs_[i]) {
+    for (int i : matchingIDs_) {
+      if (mcIter->pdgId() == i) {
         matchingID = true;
       }
     }
@@ -3521,8 +3521,8 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
     // always include single particle with no mother
     const Candidate *mother = mcIter->mother();
     matchingMotherID = false;
-    for (unsigned int i = 0; i < matchingMotherIDs_.size(); i++) {
-      if ((mother == nullptr) || ((mother != nullptr) && mother->pdgId() == matchingMotherIDs_[i])) {
+    for (int i : matchingMotherIDs_) {
+      if ((mother == nullptr) || ((mother != nullptr) && mother->pdgId() == i)) {
         matchingMotherID = true;
         /*                // DEBUG LINES - KEEP IT !
 			std::cout << "Matching mc-reco : matchingMotherID[" << i << "] : " << matchingMotherIDs_[i] << ", evt ID = " << iEvent.id() << ", mother : " << mother ; 

@@ -189,14 +189,14 @@ void PatBJetTrackAnalyzer::analyze(const edm::Event &event, const edm::EventSetu
   math::XYZPoint pv = (*pvHandle)[0].position();
 
   // now go through all jets
-  for (pat::JetCollection::const_iterator jet = jetsHandle->begin(); jet != jetsHandle->end(); ++jet) {
+  for (const auto &jet : *jetsHandle) {
     // only look at jets that pass the pt and eta cut
-    if (jet->pt() < jetPtCut_ || std::abs(jet->eta()) > jetEtaCut_)
+    if (jet.pt() < jetPtCut_ || std::abs(jet.eta()) > jetEtaCut_)
       continue;
 
     Flavour flavour;
     // find out the jet flavour (differs between quark and anti-quark)
-    switch (std::abs(jet->partonFlavour())) {
+    switch (std::abs(jet.partonFlavour())) {
       case 1:
       case 2:
       case 3:
@@ -228,15 +228,15 @@ void PatBJetTrackAnalyzer::analyze(const edm::Event &event, const edm::EventSetu
     // withour rerunning the PAT producer
 
     // now loop through all tracks
-    for (reco::TrackCollection::const_iterator track = tracksHandle->begin(); track != tracksHandle->end(); ++track) {
+    for (const auto &track : *tracksHandle) {
       // check the quality criteria
-      if (track->pt() < minPt_ || track->hitPattern().numberOfValidHits() < (int)minTotalHits_ ||
-          track->hitPattern().numberOfValidPixelHits() < (int)minPixelHits_)
+      if (track.pt() < minPt_ || track.hitPattern().numberOfValidHits() < (int)minTotalHits_ ||
+          track.hitPattern().numberOfValidPixelHits() < (int)minPixelHits_)
         continue;
 
       // check the Delta R between jet axis and track
       // (Delta_R^2 = Delta_Eta^2 + Delta_Phi^2)
-      double deltaR = ROOT::Math::VectorUtil::DeltaR(jet->momentum(), track->momentum());
+      double deltaR = ROOT::Math::VectorUtil::DeltaR(jet.momentum(), track.momentum());
 
       plots_[ALL_JETS].allDeltaR->Fill(deltaR);
       plots_[flavour].allDeltaR->Fill(deltaR);
@@ -263,8 +263,8 @@ void PatBJetTrackAnalyzer::analyze(const edm::Event &event, const edm::EventSetu
       //
       // see ->tagInfoTrackIP() method
 
-      double ipError = track->dxyError();
-      double ipValue = std::abs(track->dxy(pv));
+      double ipError = track.dxyError();
+      double ipValue = std::abs(track.dxy(pv));
 
       // in order to compute the sign, we check if
       // the point of closest approach to the vertex
@@ -273,15 +273,15 @@ void PatBJetTrackAnalyzer::analyze(const edm::Event &event, const edm::EventSetu
       //
       // dot product between reference point and jet axis
 
-      math::XYZVector closestPoint = track->referencePoint() - beamSpot->position();
+      math::XYZVector closestPoint = track.referencePoint() - beamSpot->position();
       // only interested in transverse component, z -> 0
       closestPoint.SetZ(0.);
-      double sign = closestPoint.Dot(jet->momentum());
+      double sign = closestPoint.Dot(jet.momentum());
 
       if (sign < 0)
         ipValue = -ipValue;
 
-      ipValErr.push_back(Measurement1D(ipValue, ipError));
+      ipValErr.emplace_back(ipValue, ipError);
     }
 
     // now order all tracks by significance (highest first)
@@ -292,16 +292,16 @@ void PatBJetTrackAnalyzer::analyze(const edm::Event &event, const edm::EventSetu
 
     // plot all tracks
 
-    for (std::vector<Measurement1D>::const_iterator iter = ipValErr.begin(); iter != ipValErr.end(); ++iter) {
-      plots_[ALL_JETS].allIP->Fill(iter->value());
-      plots_[flavour].allIP->Fill(iter->value());
+    for (const auto &iter : ipValErr) {
+      plots_[ALL_JETS].allIP->Fill(iter.value());
+      plots_[flavour].allIP->Fill(iter.value());
 
-      plots_[ALL_JETS].allIPErr->Fill(iter->error());
-      plots_[flavour].allIPErr->Fill(iter->error());
+      plots_[ALL_JETS].allIPErr->Fill(iter.error());
+      plots_[flavour].allIPErr->Fill(iter.error());
 
       // significance (is really just value / error)
-      plots_[ALL_JETS].allIPSig->Fill(iter->significance());
-      plots_[flavour].allIPSig->Fill(iter->significance());
+      plots_[ALL_JETS].allIPSig->Fill(iter.significance());
+      plots_[flavour].allIPSig->Fill(iter.significance());
     }
 
     // check if we have enough tracks to fulfill the

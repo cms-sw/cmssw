@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "OnlineDB/EcalCondDB/interface/LMFPnPrimDat.h"
 
 LMFPnPrimDat::LMFPnPrimDat() : LMFColoredTable() { init(); }
@@ -11,8 +13,8 @@ LMFPnPrimDat::LMFPnPrimDat(EcalDBConnection *c) : LMFColoredTable(c) { init(); }
 
 LMFPnPrimDat::LMFPnPrimDat(std::string color, std::string system) : LMFColoredTable() {
   init();
-  setColor(color);
-  setSystem(system);
+  setColor(std::move(color));
+  setSystem(std::move(system));
 }
 
 LMFPnPrimDat::LMFPnPrimDat(oracle::occi::Environment *env,
@@ -21,8 +23,8 @@ LMFPnPrimDat::LMFPnPrimDat(oracle::occi::Environment *env,
                            std::string system)
     : LMFColoredTable(env, conn) {
   init();
-  setColor(color);
-  setSystem(system);
+  setColor(std::move(color));
+  setSystem(std::move(system));
 }
 
 LMFPnPrimDat::LMFPnPrimDat(EcalDBConnection *c, std::string color, std::string system, bool d) : LMFColoredTable(c) {
@@ -30,33 +32,33 @@ LMFPnPrimDat::LMFPnPrimDat(EcalDBConnection *c, std::string color, std::string s
     debug();
   }
   init();
-  setColor(color);
-  setSystem(system);
+  setColor(std::move(color));
+  setSystem(std::move(system));
 }
 
 LMFPnPrimDat::LMFPnPrimDat(EcalDBConnection *c, std::string color, std::string system) : LMFColoredTable(c) {
   init();
-  setColor(color);
-  setSystem(system);
+  setColor(std::move(color));
+  setSystem(std::move(system));
 }
 
 LMFPnPrimDat::LMFPnPrimDat(int color, std::string system) : LMFColoredTable() {
   init();
   setColor(color);
-  setSystem(system);
+  setSystem(std::move(system));
 }
 
 LMFPnPrimDat::LMFPnPrimDat(oracle::occi::Environment *env, oracle::occi::Connection *conn, int color, std::string system)
     : LMFColoredTable(env, conn) {
   init();
   setColor(color);
-  setSystem(system);
+  setSystem(std::move(system));
 }
 
 LMFPnPrimDat::LMFPnPrimDat(EcalDBConnection *c, int color, std::string system) : LMFColoredTable(c) {
   init();
   setColor(color);
-  setSystem(system);
+  setSystem(std::move(system));
 }
 
 LMFPnPrimDat &LMFPnPrimDat::setSystem(std::string s) {
@@ -71,8 +73,8 @@ LMFPnPrimDat &LMFPnPrimDat::setSystem(std::string s) {
     if (m_debug) {
       std::cout << "Data: " << m_data.size() << " Keys: " << m_keys.size() << " Type: " << m_type.size() << std::endl;
     }
-    std::map<std::string, unsigned int>::iterator i = m_keys.begin();
-    std::map<std::string, unsigned int>::iterator e = m_keys.end();
+    auto i = m_keys.begin();
+    auto e = m_keys.end();
     while (i != e) {
       // modify indexes
       (i->second)--;

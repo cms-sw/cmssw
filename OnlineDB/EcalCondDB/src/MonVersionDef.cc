@@ -18,7 +18,7 @@ MonVersionDef::~MonVersionDef() {}
 
 string MonVersionDef::getMonitoringVersion() const { return m_monVer; }
 
-void MonVersionDef::setMonitoringVersion(string ver) {
+void MonVersionDef::setMonitoringVersion(const string& ver) {
   if (ver != m_monVer) {
     m_ID = 0;
     m_monVer = ver;

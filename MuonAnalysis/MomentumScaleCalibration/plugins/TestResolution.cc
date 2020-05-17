@@ -3,6 +3,8 @@
 
 #include "TestResolution.h"
 
+#include <memory>
+
 #include "TCanvas.h"
 #include "TLegend.h"
 
@@ -30,8 +32,8 @@ TestResolution::TestResolution(const edm::ParameterSet& iConfig)
   sigmaPt_ = new TProfile("sigmaPtOverPt", "sigmaPt/Pt vs muon Pt", 1000, 0, 100);
   eventCounter_ = 0;
   // Create the corrector and set the parameters
-  resolutionFunction_.reset(
-      new ResolutionFunction(iConfig.getUntrackedParameter<std::string>("ResolutionsIdentifier")));
+  resolutionFunction_ =
+      std::make_unique<ResolutionFunction>(iConfig.getUntrackedParameter<std::string>("ResolutionsIdentifier"));
   std::cout << "resolutionFunction_ = " << &*resolutionFunction_ << std::endl;
 }
 
@@ -88,7 +90,7 @@ void TestResolution::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   }
 
   // Loop on the recMuons
-  std::vector<reco::LeafCandidate>::const_iterator recMuon = muons.begin();
+  auto recMuon = muons.begin();
   for (; recMuon != muons.end(); ++recMuon) {
     // Fill the histogram with uncorrected pt values
     sigmaPt_->Fill(resolutionFunction_->sigmaPt(*recMuon, 0), recMuon->pt());

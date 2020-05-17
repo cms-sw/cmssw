@@ -116,7 +116,7 @@ void PFSuperClusterReader::analyze(const edm::Event& iEvent, const edm::EventSet
 
 const reco::PFCandidate* PFSuperClusterReader::findPFCandidate(const reco::PFCandidateCollection* coll,
                                                                const reco::GsfTrackRef& ref) {
-  const reco::PFCandidate* result = 0;
+  const reco::PFCandidate* result = nullptr;
   unsigned ncand = coll->size();
   for (unsigned icand = 0; icand < ncand; ++icand) {
     if (!(*coll)[icand].gsfTrackRef().isNull() && (*coll)[icand].gsfTrackRef() == ref) {

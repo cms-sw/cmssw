@@ -235,7 +235,7 @@ public:
   }
 
   ExaminerStatusType payloadForChamber(CSCIdType chamber) const {
-    std::map<CSCIdType, ExaminerStatusType>::const_iterator item = bCHAMB_PAYLOAD.find(chamber);
+    auto item = bCHAMB_PAYLOAD.find(chamber);
     if (item != bCHAMB_PAYLOAD.end())
       return item->second;
     else
@@ -243,7 +243,7 @@ public:
   }
 
   ExaminerStatusType statusForChamber(CSCIdType chamber) const {
-    std::map<CSCIdType, ExaminerStatusType>::const_iterator item = bCHAMB_STATUS.find(chamber);
+    auto item = bCHAMB_STATUS.find(chamber);
     if (item != bCHAMB_STATUS.end())
       return item->second;
     else
@@ -251,7 +251,7 @@ public:
   }
 
   ExaminerStatusType errorsForChamber(CSCIdType chamber) const {
-    std::map<CSCIdType, ExaminerStatusType>::const_iterator item = bCHAMB_ERR.find(chamber);
+    auto item = bCHAMB_ERR.find(chamber);
     /// Print (for debugging, to be removed)
 
     // for(item =bCHAMB_ERR.begin() ; item !=bCHAMB_ERR.end() ; item++)
@@ -265,7 +265,7 @@ public:
   }
 
   ExaminerStatusType warningsForChamber(CSCIdType chamber) const {
-    std::map<CSCIdType, ExaminerStatusType>::const_iterator item = bCHAMB_WRN.find(chamber);
+    auto item = bCHAMB_WRN.find(chamber);
     if (item != bCHAMB_WRN.end())
       return item->second;
     else
@@ -273,14 +273,14 @@ public:
   }
 
   ExaminerStatusType errorsForDDU(DDUIdType dduSourceID) const {
-    std::map<DDUIdType, ExaminerStatusType>::const_iterator item = bDDU_ERR.find(dduSourceID);
+    auto item = bDDU_ERR.find(dduSourceID);
     if (item != bDDU_ERR.end())
       return item->second;
     else
       return 0;
   }
   ExaminerStatusType warningsForDDU(DDUIdType dduSourceID) const {
-    std::map<DDUIdType, ExaminerStatusType>::const_iterator item = bDDU_WRN.find(dduSourceID);
+    auto item = bDDU_WRN.find(dduSourceID);
     if (item != bDDU_WRN.end())
       return item->second;
     else
@@ -288,7 +288,7 @@ public:
   }
   std::vector<DDUIdType> listOfDDUs(void) const {
     std::vector<DDUIdType> DDUs;
-    std::map<DDUIdType, ExaminerStatusType>::const_iterator item = bDDU_ERR.begin();
+    auto item = bDDU_ERR.begin();
     while (item != bDDU_ERR.end()) {
       DDUs.push_back(item->first);
       item++;

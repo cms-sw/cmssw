@@ -10,22 +10,22 @@ namespace hcaldqm {
       if (_etype != fHcalElectronicsMap) {
         if (_etype == fD2EHashMap) {
           std::vector<HcalElectronicsId> eids = emap->allElectronicsIdPrecision();
-          for (std::vector<HcalElectronicsId>::const_iterator it = eids.begin(); it != eids.end(); ++it) {
-            HcalGenericDetId did = HcalGenericDetId(_emap->lookup(*it));
+          for (auto eid : eids) {
+            HcalGenericDetId did = HcalGenericDetId(_emap->lookup(eid));
             EMapType::iterator dit = _ids.find(did.rawId());
             if (dit != _ids.end())
               continue;
             //						if (!did.isHcalDetId())
             //							continue;
 
-            _ids.insert(std::make_pair(did.rawId(), it->rawId()));
+            _ids.insert(std::make_pair(did.rawId(), eid.rawId()));
           }
         } else if (_etype == fT2EHashMap) {
           //	HcalTrigTowerDetId -> HcalElectronicsId
           std::vector<HcalTrigTowerDetId> tids = emap->allTriggerId();
-          for (std::vector<HcalTrigTowerDetId>::const_iterator it = tids.begin(); it != tids.end(); ++it) {
-            HcalElectronicsId eid = _emap->lookupTrigger(*it);
-            uint32_t hash = it->rawId();
+          for (auto tid : tids) {
+            HcalElectronicsId eid = _emap->lookupTrigger(tid);
+            uint32_t hash = tid.rawId();
             EMapType::iterator eit = _ids.find(hash);
             if (eit != _ids.end())
               continue;
@@ -35,9 +35,9 @@ namespace hcaldqm {
         } else if (_etype == fE2DHashMap) {
           //	HcalElectronicId -> HcalDetId hash map
           std::vector<HcalElectronicsId> eids = emap->allElectronicsIdPrecision();
-          for (std::vector<HcalElectronicsId>::const_iterator it = eids.begin(); it != eids.end(); ++it) {
-            HcalGenericDetId did = HcalGenericDetId(_emap->lookup(*it));
-            uint32_t hash = it->rawId();
+          for (auto eid : eids) {
+            HcalGenericDetId did = HcalGenericDetId(_emap->lookup(eid));
+            uint32_t hash = eid.rawId();
             EMapType::iterator eit = _ids.find(hash);
             if (eit != _ids.end())
               continue;
@@ -48,14 +48,14 @@ namespace hcaldqm {
         } else if (_etype == fE2THashMap) {
           //	HcalElectronicId -> HcalDetId hash map
           std::vector<HcalElectronicsId> eids = emap->allElectronicsIdTrigger();
-          for (std::vector<HcalElectronicsId>::const_iterator it = eids.begin(); it != eids.end(); ++it) {
-            HcalTrigTowerDetId tid = HcalTrigTowerDetId(_emap->lookupTrigger(*it));
-            EMapType::iterator eit = _ids.find(it->rawId());
+          for (auto eid : eids) {
+            HcalTrigTowerDetId tid = HcalTrigTowerDetId(_emap->lookupTrigger(eid));
+            EMapType::iterator eit = _ids.find(eid.rawId());
             if (eit != _ids.end())
               continue;
 
             //	eid.rawId() -> tid.rawId()
-            _ids.insert(std::make_pair(it->rawId(), tid.rawId()));
+            _ids.insert(std::make_pair(eid.rawId(), tid.rawId()));
           }
         }
       }
@@ -74,30 +74,30 @@ namespace hcaldqm {
       if (_etype != fHcalElectronicsMap) {
         if (_etype == fD2EHashMap) {
           std::vector<HcalElectronicsId> eids = emap->allElectronicsIdPrecision();
-          for (std::vector<HcalElectronicsId>::const_iterator it = eids.begin(); it != eids.end(); ++it) {
-            HcalGenericDetId did = HcalGenericDetId(_emap->lookup(*it));
-            if (filter.filter(*it))
+          for (auto eid : eids) {
+            HcalGenericDetId did = HcalGenericDetId(_emap->lookup(eid));
+            if (filter.filter(eid))
               continue;
             //	skip those that are not detid or calib ids
             //						if (!did.isHcalDetId())
             //							continue;
 
-            _ids.insert(std::make_pair(did.rawId(), it->rawId()));
+            _ids.insert(std::make_pair(did.rawId(), eid.rawId()));
           }
         } else if (_etype == fT2EHashMap) {
           std::vector<HcalElectronicsId> eids = emap->allElectronicsIdTrigger();
-          for (std::vector<HcalElectronicsId>::const_iterator it = eids.begin(); it != eids.end(); ++it) {
-            if (filter.filter(*it))
+          for (auto eid : eids) {
+            if (filter.filter(eid))
               continue;
-            HcalTrigTowerDetId tid = emap->lookupTrigger(*it);
-            _ids.insert(std::make_pair(tid.rawId(), it->rawId()));
+            HcalTrigTowerDetId tid = emap->lookupTrigger(eid);
+            _ids.insert(std::make_pair(tid.rawId(), eid.rawId()));
           }
         } else if (_etype == fE2DHashMap) {
           std::vector<HcalElectronicsId> eids = emap->allElectronicsIdPrecision();
-          for (std::vector<HcalElectronicsId>::const_iterator it = eids.begin(); it != eids.end(); ++it) {
-            HcalGenericDetId did = HcalGenericDetId(_emap->lookup(*it));
-            uint32_t hash = hashfunctions::hash_EChannel(*it);
-            if (filter.filter(*it))
+          for (auto eid : eids) {
+            HcalGenericDetId did = HcalGenericDetId(_emap->lookup(eid));
+            uint32_t hash = hashfunctions::hash_EChannel(eid);
+            if (filter.filter(eid))
               continue;
             //	skip those that are not detid or calib ids
             //						if (!did.isHcalDetId())
@@ -108,11 +108,11 @@ namespace hcaldqm {
           }
         } else if (_etype == fE2THashMap) {
           std::vector<HcalElectronicsId> eids = emap->allElectronicsIdTrigger();
-          for (std::vector<HcalElectronicsId>::const_iterator it = eids.begin(); it != eids.end(); ++it) {
-            if (filter.filter(*it))
+          for (auto eid : eids) {
+            if (filter.filter(eid))
               continue;
-            HcalTrigTowerDetId tid = emap->lookupTrigger(*it);
-            _ids.insert(std::make_pair(it->rawId(), tid.rawId()));
+            HcalTrigTowerDetId tid = emap->lookupTrigger(eid);
+            _ids.insert(std::make_pair(eid.rawId(), tid.rawId()));
           }
         }
       }

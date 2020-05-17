@@ -80,9 +80,9 @@ void KDTreeLinkerTrackEcal::insertFieldClusterElt(reco::PFBlockElement *ecalClus
 
   // We create a list of ecalCluster
   fieldClusterSet_.insert(ecalCluster);
-  for (size_t rhit = 0; rhit < fraction.size(); ++rhit) {
-    const reco::PFRecHitRef &rh = fraction[rhit].recHitRef();
-    double fract = fraction[rhit].fraction();
+  for (const auto &rhit : fraction) {
+    const reco::PFRecHitRef &rh = rhit.recHitRef();
+    double fract = rhit.fraction();
 
     if ((rh.isNull()) || (fract < cutOffFrac))
       continue;
@@ -102,23 +102,23 @@ void KDTreeLinkerTrackEcal::buildTree() {
   std::vector<KDTreeNodeInfo<reco::PFRecHit const *, 2>> eltList;
 
   // Filling of this list
-  for (RecHitSet::const_iterator it = rechitsSet_.begin(); it != rechitsSet_.end(); it++) {
-    const reco::PFRecHit::REPPoint &posrep = (*it)->positionREP();
+  for (auto it : rechitsSet_) {
+    const reco::PFRecHit::REPPoint &posrep = it->positionREP();
 
-    KDTreeNodeInfo<reco::PFRecHit const *, 2> rh1(*it, posrep.eta(), posrep.phi());
+    KDTreeNodeInfo<reco::PFRecHit const *, 2> rh1(it, posrep.eta(), posrep.phi());
     eltList.push_back(rh1);
 
     // Here we solve the problem of phi circular set by duplicating some rechits
     // too close to -Pi (or to Pi) and adding (substracting) to them 2 * Pi.
     if (rh1.dims[1] > (M_PI - phiOffset_)) {
       float phi = rh1.dims[1] - 2 * M_PI;
-      KDTreeNodeInfo<reco::PFRecHit const *, 2> rh2(*it, float(posrep.eta()), phi);
+      KDTreeNodeInfo<reco::PFRecHit const *, 2> rh2(it, float(posrep.eta()), phi);
       eltList.push_back(rh2);
     }
 
     if (rh1.dims[1] < (M_PI * -1.0 + phiOffset_)) {
       float phi = rh1.dims[1] + 2 * M_PI;
-      KDTreeNodeInfo<reco::PFRecHit const *, 2> rh3(*it, float(posrep.eta()), phi);
+      KDTreeNodeInfo<reco::PFRecHit const *, 2> rh3(it, float(posrep.eta()), phi);
       eltList.push_back(rh3);
     }
   }
@@ -138,12 +138,12 @@ void KDTreeLinkerTrackEcal::searchLinks() {
   // Most of the code has been taken from LinkByRecHit.cc
 
   // We iterate over the tracks.
-  for (BlockEltSet::iterator it = targetSet_.begin(); it != targetSet_.end(); it++) {
-    reco::PFRecTrackRef trackref = (*it)->trackRefPF();
+  for (auto it : targetSet_) {
+    reco::PFRecTrackRef trackref = it->trackRefPF();
 
     // We set the multilinks flag of the track to true. It will allow us to
     // use in an optimized way our algo results in the recursive linking algo.
-    (*it)->setIsValidMultilinks(true);
+    it->setIsValidMultilinks(true);
 
     const reco::PFTrajectoryPoint &atECAL = trackref->extrapolatedPoint(reco::PFTrajectoryPoint::ECALShowerMax);
 
@@ -187,10 +187,10 @@ void KDTreeLinkerTrackEcal::searchLinks() {
         dphi = 2. * M_PI - dphi;
 
       // Find all clusters associated to given rechit
-      RecHit2BlockEltMap::iterator ret = rechit2ClusterLinks_.find(recHit);
+      auto ret = rechit2ClusterLinks_.find(recHit);
 
-      for (BlockEltSet::const_iterator clusterIt = ret->second.begin(); clusterIt != ret->second.end(); clusterIt++) {
-        reco::PFClusterRef clusterref = (*clusterIt)->clusterRef();
+      for (auto clusterIt : ret->second) {
+        reco::PFClusterRef clusterref = clusterIt->clusterRef();
         double clusterz = clusterref->position().z();
         int fracsNbr = clusterref->recHitFractions().size();
 
@@ -204,7 +204,7 @@ void KDTreeLinkerTrackEcal::searchLinks() {
 
           // Check if the track and the cluster are linked
           if (deta < (_rhsizeeta / 2.) && dphi < (_rhsizephi / 2.))
-            target2ClusterLinks_[*it].insert(*clusterIt);
+            target2ClusterLinks_[it].insert(clusterIt);
 
         } else {  // ENDCAP
 
@@ -231,7 +231,7 @@ void KDTreeLinkerTrackEcal::searchLinks() {
 
           // Check if the track and the cluster are linked
           if (isinside)
-            target2ClusterLinks_[*it].insert(*clusterIt);
+            target2ClusterLinks_[it].insert(clusterIt);
         }
       }
     }
@@ -242,17 +242,17 @@ void KDTreeLinkerTrackEcal::updatePFBlockEltWithLinks() {
   //TODO YG : Check if cluster positionREP() is valid ?
 
   // Here we save in each track the list of phi/eta values of linked clusters.
-  for (BlockElt2BlockEltMap::iterator it = target2ClusterLinks_.begin(); it != target2ClusterLinks_.end(); ++it) {
+  for (auto &target2ClusterLink : target2ClusterLinks_) {
     reco::PFMultiLinksTC multitracks(true);
 
-    for (BlockEltSet::iterator jt = it->second.begin(); jt != it->second.end(); ++jt) {
+    for (auto jt = target2ClusterLink.second.begin(); jt != target2ClusterLink.second.end(); ++jt) {
       double clusterphi = (*jt)->clusterRef()->positionREP().phi();
       double clustereta = (*jt)->clusterRef()->positionREP().eta();
 
       multitracks.linkedClusters.push_back(std::make_pair(clusterphi, clustereta));
     }
 
-    it->first->setMultilinks(multitracks);
+    target2ClusterLink.first->setMultilinks(multitracks);
   }
 }
 

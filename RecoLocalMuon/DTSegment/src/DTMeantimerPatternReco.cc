@@ -61,7 +61,7 @@ edm::OwnVector<DTSLRecSegment2D> DTMeantimerPatternReco::reconstruct(const DTSup
 
   vector<DTSegmentCand*> candidates = buildSegments(sl, hitsForFit);
 
-  vector<DTSegmentCand*>::const_iterator cand = candidates.begin();
+  auto cand = candidates.begin();
   while (cand < candidates.end()) {
     DTSLRecSegment2D* segment = (**cand);
     theUpdator->update(segment, true);
@@ -85,8 +85,8 @@ void DTMeantimerPatternReco::setES(const edm::EventSetup& setup) {
 vector<std::shared_ptr<DTHitPairForFit>> DTMeantimerPatternReco::initHits(const DTSuperLayer* sl,
                                                                           const std::vector<DTRecHit1DPair>& hits) {
   hitCont result;
-  for (vector<DTRecHit1DPair>::const_iterator hit = hits.begin(); hit != hits.end(); ++hit) {
-    result.push_back(std::make_shared<DTHitPairForFit>(*hit, *sl, theDTGeometry));
+  for (const auto& hit : hits) {
+    result.push_back(std::make_shared<DTHitPairForFit>(hit, *sl, theDTGeometry));
   }
   return result;
 }
@@ -98,8 +98,8 @@ vector<DTSegmentCand*> DTMeantimerPatternReco::buildSegments(
 
   if (debug) {
     cout << "buildSegments: " << sl->id() << " nHits " << hits.size() << endl;
-    for (hitIter hit = hits.begin(); hit != hits.end(); ++hit)
-      cout << **hit << " wire: " << (*hit)->id() << " DigiTime: " << (*hit)->digiTime() << endl;
+    for (const auto& hit : hits)
+      cout << *hit << " wire: " << hit->id() << " DigiTime: " << hit->digiTime() << endl;
   }
 
   if (hits.size() > theMaxAllowedHits) {
@@ -120,24 +120,24 @@ vector<DTSegmentCand*> DTMeantimerPatternReco::buildSegments(
 
   // get two hits in different layers and see if there are other hits
   //  compatible with them
-  for (hitCont::const_iterator firstHit = hits.begin(); firstHit != hits.end(); ++firstHit) {
-    for (hitCont::const_reverse_iterator lastHit = hits.rbegin(); (*lastHit) != (*firstHit); ++lastHit) {
+  for (auto firstHit = hits.begin(); firstHit != hits.end(); ++firstHit) {
+    for (auto lastHit = hits.rbegin(); (*lastHit) != (*firstHit); ++lastHit) {
       // a geometrical sensibility cut for the two hits
       if (!geometryFilter((*firstHit)->id(), (*lastHit)->id()))
         continue;
 
       // create a set of hits for the fit (only the hits between the two selected ones)
       hitCont hitsForFit;
-      for (hitCont::const_iterator tmpHit = firstHit + 1; (*tmpHit) != (*lastHit); tmpHit++)
+      for (auto tmpHit = firstHit + 1; (*tmpHit) != (*lastHit); tmpHit++)
         if ((geometryFilter((*tmpHit)->id(), (*lastHit)->id())) && (geometryFilter((*tmpHit)->id(), (*firstHit)->id())))
           hitsForFit.push_back(*tmpHit);
 
-      for (int firstLR = 0; firstLR < 2; ++firstLR) {
-        for (int lastLR = 0; lastLR < 2; ++lastLR) {
+      for (auto& code : codes) {
+        for (auto& lastLR : codes) {
           // TODO move the global transformation in the DTHitPairForFit class
           // when it will be moved I will able to remove the sl from the input parameter
-          GlobalPoint gposFirst = sl->toGlobal((*firstHit)->localPosition(codes[firstLR]));
-          GlobalPoint gposLast = sl->toGlobal((*lastHit)->localPosition(codes[lastLR]));
+          GlobalPoint gposFirst = sl->toGlobal((*firstHit)->localPosition(code));
+          GlobalPoint gposLast = sl->toGlobal((*lastHit)->localPosition(lastLR));
           GlobalVector gvec = gposLast - gposFirst;
           GlobalVector gvecIP = gposLast - IP;
 
@@ -154,8 +154,8 @@ vector<DTSegmentCand*> DTMeantimerPatternReco::buildSegments(
 
           DTSegmentCand::AssPointCont pointSet;
           auto segCand = std::make_unique<DTSegmentCand>(pointSet, sl);
-          segCand->add(*firstHit, codes[firstLR]);
-          segCand->add(*lastHit, codes[lastLR]);
+          segCand->add(*firstHit, code);
+          segCand->add(*lastHit, lastLR);
 
           // run hit adding/segment building
           maxfound = 3;
@@ -168,16 +168,16 @@ vector<DTSegmentCand*> DTMeantimerPatternReco::buildSegments(
   // now I have a couple of segment hypotheses, should check for ghosts
   if (debug) {
     cout << "Result (before cleaning): " << result.size() << endl;
-    for (vector<DTSegmentCand*>::const_iterator seg = result.begin(); seg != result.end(); ++seg)
-      cout << *(*seg) << endl;
+    for (auto seg : result)
+      cout << *seg << endl;
   }
 
   result = theCleaner->clean(result);
 
   if (debug) {
     cout << "Result (after cleaning): " << result.size() << endl;
-    for (vector<DTSegmentCand*>::const_iterator seg = result.begin(); seg != result.end(); ++seg)
-      cout << *(*seg) << endl;
+    for (auto seg : result)
+      cout << *seg << endl;
   }
 
   return result;
@@ -197,7 +197,7 @@ void DTMeantimerPatternReco::addHits(DTSegmentCand* segCand,
     return;
 
   // loop over the remaining hits
-  for (hitCont::const_iterator hit = hits.begin(); hit != hits.end(); ++hit) {
+  for (auto hit = hits.begin(); hit != hits.end(); ++hit) {
     //    if (debug) {
     //      cout << "     Trying B: " << **hit<< " wire: " << (*hit)->id() << endl;
     //      printPattern(assHits,*hit);
@@ -231,7 +231,7 @@ void DTMeantimerPatternReco::addHits(DTSegmentCand* segCand,
 
     // prepare the hit set for the next search, start from the other side
     hitCont hitsForFit;
-    for (hitCont::const_iterator tmpHit = hit + 1; tmpHit != hits.end(); tmpHit++)
+    for (auto tmpHit = hit + 1; tmpHit != hits.end(); tmpHit++)
       if (geometryFilter((*tmpHit)->id(), (*hit)->id()))
         hitsForFit.push_back(*tmpHit);
 
@@ -291,7 +291,7 @@ void DTMeantimerPatternReco::addHits(DTSegmentCand* segCand,
   }
 }
 
-bool DTMeantimerPatternReco::geometryFilter(const DTWireId first, const DTWireId second) const {
+bool DTMeantimerPatternReco::geometryFilter(const DTWireId& first, const DTWireId& second) const {
   //  return true;
 
   const int layerLowerCut[4] = {0, -1, -2, -2};
@@ -358,11 +358,11 @@ DTSegmentCand* DTMeantimerPatternReco::fitWithT0(DTSegmentCand* seg, const bool 
 }
 
 bool DTMeantimerPatternReco::checkDoubleCandidates(vector<DTSegmentCand*>& cands, DTSegmentCand* seg) {
-  for (vector<DTSegmentCand*>::iterator cand = cands.begin(); cand != cands.end(); ++cand) {
-    if (*(*cand) == *seg)
+  for (auto& cand : cands) {
+    if (*cand == *seg)
       return false;
-    if (((*cand)->nHits() >= seg->nHits()) && ((*cand)->chi2ndof() < seg->chi2ndof()))
-      if ((*cand)->nSharedHitPairs(*seg) > int(seg->nHits() - 2))
+    if ((cand->nHits() >= seg->nHits()) && (cand->chi2ndof() < seg->chi2ndof()))
+      if (cand->nSharedHitPairs(*seg) > int(seg->nHits() - 2))
         return false;
   }
   return true;
@@ -372,11 +372,10 @@ void DTMeantimerPatternReco::printPattern(vector<DTSegmentCand::AssPoint>& assHi
   char mark[26] = {". . . . . . . . . . . . "};
   int wire[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-  for (vector<DTSegmentCand::AssPoint>::const_iterator assHit = assHits.begin(); assHit != assHits.end(); ++assHit) {
-    int lay =
-        (((*assHit).first)->id().superlayerId().superLayer() - 1) * 4 + ((*assHit).first)->id().layerId().layer() - 1;
-    wire[lay] = ((*assHit).first)->id().wire();
-    if ((*assHit).second == DTEnums::Left)
+  for (const auto& assHit : assHits) {
+    int lay = ((assHit.first)->id().superlayerId().superLayer() - 1) * 4 + (assHit.first)->id().layerId().layer() - 1;
+    wire[lay] = (assHit.first)->id().wire();
+    if (assHit.second == DTEnums::Left)
       mark[lay * 2] = 'L';
     else
       mark[lay * 2] = 'R';
@@ -387,9 +386,9 @@ void DTMeantimerPatternReco::printPattern(vector<DTSegmentCand::AssPoint>& assHi
   mark[lay * 2] = '*';
 
   cout << "   " << mark << endl << "  ";
-  for (int i = 0; i < 12; i++)
-    if (wire[i])
-      cout << setw(2) << wire[i];
+  for (int i : wire)
+    if (i)
+      cout << setw(2) << i;
     else
       cout << "  ";
   cout << endl;

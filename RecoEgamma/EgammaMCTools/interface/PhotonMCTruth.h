@@ -21,17 +21,17 @@ class PhotonMCTruth {
 public:
   PhotonMCTruth() : isAConversion_(0), thePhoton_(0., 0., 0.), theConvVertex_(0., 0., 0.){};
 
-  PhotonMCTruth(CLHEP::HepLorentzVector v) : thePhoton_(v){};
+  PhotonMCTruth(const CLHEP::HepLorentzVector& v) : thePhoton_(v){};
 
   PhotonMCTruth(int isAConversion,
-                CLHEP::HepLorentzVector v,
+                const CLHEP::HepLorentzVector& v,
                 int vertIndex,
                 int trackId,
                 int motherId,
-                CLHEP::HepLorentzVector mothMom,
-                CLHEP::HepLorentzVector mothVtx,
-                CLHEP::HepLorentzVector convVertex,
-                CLHEP::HepLorentzVector pV,
+                const CLHEP::HepLorentzVector& mothMom,
+                const CLHEP::HepLorentzVector& mothVtx,
+                const CLHEP::HepLorentzVector& convVertex,
+                const CLHEP::HepLorentzVector& pV,
                 std::vector<ElectronMCTruth>& electrons);
 
   CLHEP::HepLorentzVector primaryVertex() const { return thePrimaryVertex_; }

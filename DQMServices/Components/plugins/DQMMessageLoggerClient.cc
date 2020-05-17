@@ -55,7 +55,7 @@ void DQMMessageLoggerClient::fillHistograms() {
 
   int mel = 0;
 
-  for (auto ent = entries.begin(); ent != entries.end(); ++ent) {
+  for (auto& entrie : entries) {
     mel++;
     //RESET VECTORS
     binContent.clear();
@@ -63,9 +63,9 @@ void DQMMessageLoggerClient::fillHistograms() {
 
     // RETURN ME
 
-    MonitorElement* me = theDbe->get(*ent);
+    MonitorElement* me = theDbe->get(entrie);
     // GET TH1F
-    if (theDbe->get(*ent)) {
+    if (theDbe->get(entrie)) {
       if (TH1* rootHisto = me->getTH1()) {
         int nonzeros = 0;
         int Nbins = me->getNbinsX();

@@ -62,11 +62,11 @@ namespace hcaldqm {
 
     //	GET THE NOMINAL NUMBER OF CHANNELS PER FED
     std::vector<HcalGenericDetId> gids = _emap->allPrecisionId();
-    for (std::vector<HcalGenericDetId>::const_iterator it = gids.begin(); it != gids.end(); ++it) {
-      if (!it->isHcalDetId())
+    for (auto gid : gids) {
+      if (!gid.isHcalDetId())
         continue;
-      HcalDetId did(it->rawId());
-      HcalElectronicsId eid = HcalElectronicsId(_ehashmap.lookup(did));
+      HcalDetId did(gid.rawId());
+      auto eid = HcalElectronicsId(_ehashmap.lookup(did));
       _xNChsNominal.get(eid)++;
     }
   }
@@ -125,12 +125,12 @@ namespace hcaldqm {
 
     //	ANALYZE THIS LS for LS BASED FLAGS
     std::vector<HcalGenericDetId> gids = _emap->allPrecisionId();
-    for (std::vector<HcalGenericDetId>::const_iterator it = gids.begin(); it != gids.end(); ++it) {
-      if (!it->isHcalDetId())
+    for (auto gid : gids) {
+      if (!gid.isHcalDetId())
         continue;
 
-      HcalDetId did = HcalDetId(it->rawId());
-      HcalElectronicsId eid = HcalElectronicsId(_ehashmap.lookup(did));
+      HcalDetId did = HcalDetId(gid.rawId());
+      auto eid = HcalElectronicsId(_ehashmap.lookup(did));
 
       cOccupancy_depth.getBinContent(did) > 0 ? _xNChs.get(eid)++ : _xNChs.get(eid) += 0;
       _cOccupancy_depth.fill(did, cOccupancy_depth.getBinContent(did));
@@ -146,14 +146,14 @@ namespace hcaldqm {
     vtmpflags[fNChsHF] = flag::Flag("NChsHF");
     vtmpflags[fUnknownIds] = flag::Flag("UnknownIds");
     vtmpflags[fLED] = flag::Flag("LEDMisfire");
-    for (std::vector<uint32_t>::const_iterator it = _vhashCrates.begin(); it != _vhashCrates.end(); ++it) {
-      HcalElectronicsId eid(*it);
+    for (unsigned int _vhashCrate : _vhashCrates) {
+      HcalElectronicsId eid(_vhashCrate);
       HcalDetId did = HcalDetId(_emap->lookup(eid));
 
       //	reset all the tmp flags to fNA
       //	MUST DO IT NOW! AS NCDAQ MIGHT OVERWRITE IT!
-      for (std::vector<flag::Flag>::iterator ft = vtmpflags.begin(); ft != vtmpflags.end(); ++ft)
-        ft->reset();
+      for (auto& vtmpflag : vtmpflags)
+        vtmpflag.reset();
 
       if (_xDigiSize.get(eid) > 0)
         vtmpflags[fDigiSize]._state = flag::fBAD;
@@ -285,12 +285,12 @@ namespace hcaldqm {
 
     //	ANALYZE RUN BASED QUANTITIES
     std::vector<HcalGenericDetId> gids = _emap->allPrecisionId();
-    for (std::vector<HcalGenericDetId>::const_iterator it = gids.begin(); it != gids.end(); ++it) {
-      if (!it->isHcalDetId())
+    for (auto gid : gids) {
+      if (!gid.isHcalDetId())
         continue;
 
-      HcalDetId did = HcalDetId(it->rawId());
-      HcalElectronicsId eid = HcalElectronicsId(_ehashmap.lookup(did));
+      HcalDetId did = HcalDetId(gid.rawId());
+      auto eid = HcalElectronicsId(_ehashmap.lookup(did));
 
       if (_cOccupancy_depth.getBinContent(did) < 1) {
         _xDead.get(eid)++;
@@ -335,17 +335,15 @@ namespace hcaldqm {
       HcalDetId did = HcalDetId(_emap->lookup(eid));
 
       //	ITERATE OVER EACH LS
-      for (std::vector<LSSummary>::const_iterator itls = _vflagsLS.begin(); itls != _vflagsLS.end(); ++itls) {
+      for (const auto& itls : _vflagsLS) {
         int iflag = 0;
         flag::Flag fSumLS("DIGI");
-        for (std::vector<flag::Flag>::const_iterator ft = itls->_vflags[icrate].begin();
-             ft != itls->_vflags[icrate].end();
-             ++ft) {
-          cSummaryvsLS_Crate.setBinContent(eid, itls->_LS, int(iflag), ft->_state);
+        for (auto ft = itls._vflags[icrate].begin(); ft != itls._vflags[icrate].end(); ++ft) {
+          cSummaryvsLS_Crate.setBinContent(eid, itls._LS, int(iflag), ft->_state);
           fSumLS += (*ft);
           iflag++;
         }
-        cSummaryvsLS.setBinContent(eid, itls->_LS, fSumLS._state);
+        cSummaryvsLS.setBinContent(eid, itls._LS, fSumLS._state);
         fSumRun += fSumLS;
       }
 

@@ -157,9 +157,8 @@ namespace cscdqm {
     }
 
     // run through the FED's
-    for (unsigned int i = 0; i < cscFEDids.size(); i++)  // loop over all CSC FEDs (DCCs and DDUs)
+    for (unsigned int id : cscFEDids)  // loop over all CSC FEDs (DCCs and DDUs)
     {
-      unsigned int id = cscFEDids[i];
       bool isDDU_FED = ((id >= FEDNumbering::MINCSCDDUFEDID) && (id <= FEDNumbering::MAXCSCDDUFEDID)) ? true : false;
       // Take a reference to this FED's data and
       // construct the DCC data object
@@ -280,14 +279,14 @@ namespace cscdqm {
                 bool fDCC_DDU_L1A_mismatch = false;
                 bool fDCC_DDU_L1A_mismatch_with_CSC_data = false;
                 int DCC_L1A = dccData.dccHeader().getCDFEventNumber();
-                for (int ddu = 0; ddu < (int)dduData.size(); ddu++) {
-                  if (DCC_L1A != dduData[ddu].header().lvl1num()) {
+                for (const auto& ddu : dduData) {
+                  if (DCC_L1A != ddu.header().lvl1num()) {
                     fDCC_DDU_L1A_mismatch = true;
                     fGlobal_DCC_DDU_L1A_mismatch = true;
                     nDDUs_out_of_sync++;
 
                     /// Check if DDU potentially has CSC data
-                    if (dduData[ddu].sizeInWords() > 24) {
+                    if (ddu.sizeInWords() > 24) {
                       fDCC_DDU_L1A_mismatch_with_CSC_data = true;
                       fGlobal_DCC_DDU_L1A_mismatch_with_CSC_data = true;
                       nDDUs_with_CSC_data_out_of_sync++;
@@ -300,7 +299,7 @@ namespace cscdqm {
                                       */
                     }
                   }
-                  processDDU(dduData[ddu], binChecker);
+                  processDDU(ddu, binChecker);
                 }
 
                 if (fDCC_DDU_L1A_mismatch && getEMUHisto(h::EMU_FED_DDU_L1A_MISMATCH, mo))

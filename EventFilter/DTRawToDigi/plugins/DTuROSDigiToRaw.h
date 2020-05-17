@@ -65,8 +65,8 @@ private:
   //process data
 
   void process(int DTuROSFED,
-               edm::Handle<DTDigiCollection> digis,
-               edm::ESHandle<DTReadOutMapping> mapping,
+               const edm::Handle<DTDigiCollection>& digis,
+               const edm::ESHandle<DTReadOutMapping>& mapping,
                FEDRawDataCollection& data);
 
   // utilities

@@ -132,10 +132,8 @@ EcalEleCalibLooper::EcalEleCalibLooper(const edm::ParameterSet& iConfig)
 //!LP destructor
 EcalEleCalibLooper::~EcalEleCalibLooper() {
   edm::LogInfo("IML") << "[EcalEleCalibLooper][dtor]";
-  for (std::vector<VEcalCalibBlock*>::iterator calibBlock = m_EcalCalibBlocks.begin();
-       calibBlock != m_EcalCalibBlocks.end();
-       ++calibBlock)
-    delete (*calibBlock);
+  for (auto& m_EcalCalibBlock : m_EcalCalibBlocks)
+    delete m_EcalCalibBlock;
 }
 
 //---------------------------------------------------------------------------
@@ -150,12 +148,10 @@ void EcalEleCalibLooper::beginOfJob() { isfirstcall_ = true; }
 void EcalEleCalibLooper::startingNewLoop(unsigned int ciclo) {
   edm::LogInfo("IML") << "[InvMatrixCalibLooper][Start] entering loop " << ciclo;
 
-  for (std::vector<VEcalCalibBlock*>::iterator calibBlock = m_EcalCalibBlocks.begin();
-       calibBlock != m_EcalCalibBlocks.end();
-       ++calibBlock)
-    (*calibBlock)->reset();
-  for (std::map<int, int>::iterator it = m_xtalNumOfHits.begin(); it != m_xtalNumOfHits.end(); ++it)
-    it->second = 0;
+  for (auto& m_EcalCalibBlock : m_EcalCalibBlocks)
+    m_EcalCalibBlock->reset();
+  for (auto& m_xtalNumOfHit : m_xtalNumOfHits)
+    m_xtalNumOfHit.second = 0;
   return;
 }
 
@@ -173,15 +169,13 @@ edm::EDLooper::Status EcalEleCalibLooper::duringLoop(const edm::Event& iEvent, c
     const CaloGeometry& geometry = *geoHandle;
     m_barrelCells = geometry.getValidDetIds(DetId::Ecal, EcalBarrel);
     m_endcapCells = geometry.getValidDetIds(DetId::Ecal, EcalEndcap);
-    for (std::vector<DetId>::const_iterator barrelIt = m_barrelCells.begin(); barrelIt != m_barrelCells.end();
-         ++barrelIt) {
-      m_barrelMap[*barrelIt] = 1;
-      m_xtalNumOfHits[barrelIt->rawId()] = 0;
+    for (auto m_barrelCell : m_barrelCells) {
+      m_barrelMap[m_barrelCell] = 1;
+      m_xtalNumOfHits[m_barrelCell.rawId()] = 0;
     }
-    for (std::vector<DetId>::const_iterator endcapIt = m_endcapCells.begin(); endcapIt != m_endcapCells.end();
-         ++endcapIt) {
-      m_endcapMap[*endcapIt] = 1;
-      m_xtalNumOfHits[endcapIt->rawId()] = 0;
+    for (auto m_endcapCell : m_endcapCells) {
+      m_endcapMap[m_endcapCell] = 1;
+      m_xtalNumOfHits[m_endcapCell.rawId()] = 0;
     }
 
     isfirstcall_ = false;
@@ -216,25 +210,25 @@ edm::EDLooper::Status EcalEleCalibLooper::duringLoop(const edm::Event& iEvent, c
   }
 
   //Start the loop over the electrons
-  for (reco::GsfElectronCollection::const_iterator eleIt = pElectrons->begin(); eleIt != pElectrons->end(); ++eleIt) {
+  for (const auto& eleIt : *pElectrons) {
     double pSubtract = 0;
     double pTk = 0;
     std::map<int, double> xtlMap;
     DetId Max = 0;
-    if (std::abs(eleIt->eta()) < 1.49)
-      Max = EcalClusterTools::getMaximum(eleIt->superCluster()->hitsAndFractions(), barrelHitsCollection).first;
+    if (std::abs(eleIt.eta()) < 1.49)
+      Max = EcalClusterTools::getMaximum(eleIt.superCluster()->hitsAndFractions(), barrelHitsCollection).first;
     else
-      Max = EcalClusterTools::getMaximum(eleIt->superCluster()->hitsAndFractions(), endcapHitsCollection).first;
+      Max = EcalClusterTools::getMaximum(eleIt.superCluster()->hitsAndFractions(), endcapHitsCollection).first;
     if (Max.det() == 0)
       continue;
     m_MapFiller->fillMap(
-        eleIt->superCluster()->hitsAndFractions(), Max, barrelHitsCollection, endcapHitsCollection, xtlMap, pSubtract);
+        eleIt.superCluster()->hitsAndFractions(), Max, barrelHitsCollection, endcapHitsCollection, xtlMap, pSubtract);
     if (m_maxSelectedNumPerXtal > 0 && m_xtalNumOfHits[Max.rawId()] > m_maxSelectedNumPerXtal)
       continue;
     ++m_xtalNumOfHits[Max.rawId()];
     if (m_xtalRegionId[Max.rawId()] == -1)
       continue;
-    pTk = eleIt->trackMomentumAtVtx().R();
+    pTk = eleIt.trackMomentumAtVtx().R();
     m_EcalCalibBlocks.at(m_xtalRegionId[Max.rawId()])->Fill(xtlMap.begin(), xtlMap.end(), pTk, pSubtract);
   }  //End of the loop over the electron collection
 
@@ -248,10 +242,8 @@ edm::EDLooper::Status EcalEleCalibLooper::duringLoop(const edm::Event& iEvent, c
 //!Takes the coefficients solving the calibBlock;
 edm::EDLooper::Status EcalEleCalibLooper::endOfLoop(const edm::EventSetup& dumb, unsigned int iCounter) {
   edm::LogInfo("IML") << "[InvMatrixCalibLooper][endOfLoop] entering...";
-  for (std::vector<VEcalCalibBlock*>::iterator calibBlock = m_EcalCalibBlocks.begin();
-       calibBlock != m_EcalCalibBlocks.end();
-       ++calibBlock)
-    (*calibBlock)->solve(m_usingBlockSolver, m_minCoeff, m_maxCoeff);
+  for (auto& m_EcalCalibBlock : m_EcalCalibBlocks)
+    m_EcalCalibBlock->solve(m_usingBlockSolver, m_minCoeff, m_maxCoeff);
 
   TH1F* EBcoeffEnd = new TH1F("EBRegion", "EBRegion", 100, 0.5, 2.1);
   TH2F* EBcoeffMap = new TH2F("EBcoeff", "EBcoeff", 171, -85, 85, 360, 1, 361);
@@ -260,32 +252,30 @@ edm::EDLooper::Status EcalEleCalibLooper::endOfLoop(const edm::EventSetup& dumb,
   TH2F* EEPcoeffMap = new TH2F("EEPcoeffMap", "EEPcoeffMap", 101, 1, 101, 101, 0, 101);
   TH2F* EEMcoeffMap = new TH2F("EEMcoeffMap", "EEMcoeffMap", 101, 1, 101, 101, 0, 101);
   //loop over the barrel xtals to get the coeffs
-  for (std::vector<DetId>::const_iterator barrelIt = m_barrelCells.begin(); barrelIt != m_barrelCells.end();
-       ++barrelIt) {
-    EBDetId ee(*barrelIt);
-    int index = barrelIt->rawId();
+  for (auto m_barrelCell : m_barrelCells) {
+    EBDetId ee(m_barrelCell);
+    int index = m_barrelCell.rawId();
     if (m_xtalRegionId[index] == -1)
       continue;
-    m_barrelMap[*barrelIt] *= m_EcalCalibBlocks.at(m_xtalRegionId[index])->at(m_xtalPositionInRegion[index]);
-    EBcoeffEnd->Fill(m_barrelMap[*barrelIt]);
-    EBcoeffMap->Fill(ee.ieta(), ee.iphi(), m_barrelMap[*barrelIt]);
+    m_barrelMap[m_barrelCell] *= m_EcalCalibBlocks.at(m_xtalRegionId[index])->at(m_xtalPositionInRegion[index]);
+    EBcoeffEnd->Fill(m_barrelMap[m_barrelCell]);
+    EBcoeffMap->Fill(ee.ieta(), ee.iphi(), m_barrelMap[m_barrelCell]);
   }  //PG loop over phi
 
   // loop over the EndCap to get the recalib coefficients
-  for (std::vector<DetId>::const_iterator endcapIt = m_endcapCells.begin(); endcapIt != m_endcapCells.end();
-       ++endcapIt) {
-    EEDetId ee(*endcapIt);
-    int index = endcapIt->rawId();
+  for (auto m_endcapCell : m_endcapCells) {
+    EEDetId ee(m_endcapCell);
+    int index = m_endcapCell.rawId();
     if (ee.zside() > 0) {
       if (m_xtalRegionId[index] == -1)
         continue;
-      m_endcapMap[*endcapIt] *= m_EcalCalibBlocks.at(m_xtalRegionId[index])->at(m_xtalPositionInRegion[index]);
-      EEPcoeffEnd->Fill(m_endcapMap[*endcapIt]);
-      EEPcoeffMap->Fill(ee.ix(), ee.iy(), m_endcapMap[*endcapIt]);
+      m_endcapMap[m_endcapCell] *= m_EcalCalibBlocks.at(m_xtalRegionId[index])->at(m_xtalPositionInRegion[index]);
+      EEPcoeffEnd->Fill(m_endcapMap[m_endcapCell]);
+      EEPcoeffMap->Fill(ee.ix(), ee.iy(), m_endcapMap[m_endcapCell]);
     } else {
-      m_endcapMap[*endcapIt] *= m_EcalCalibBlocks.at(m_xtalRegionId[index])->at(m_xtalPositionInRegion[index]);
-      EEMcoeffEnd->Fill(m_endcapMap[*endcapIt]);
-      EEMcoeffMap->Fill(ee.ix(), ee.iy(), m_endcapMap[*endcapIt]);
+      m_endcapMap[m_endcapCell] *= m_EcalCalibBlocks.at(m_xtalRegionId[index])->at(m_xtalPositionInRegion[index]);
+      EEMcoeffEnd->Fill(m_endcapMap[m_endcapCell]);
+      EEMcoeffMap->Fill(ee.ix(), ee.iy(), m_endcapMap[m_endcapCell]);
     }
   }  // loop over the EndCap to get the recalib coefficients
 
@@ -323,15 +313,13 @@ void EcalEleCalibLooper::endOfJob() {
   //Writes the coeffs
   calibXMLwriter barrelWriter(EcalBarrel);
   calibXMLwriter endcapWriter(EcalEndcap);
-  for (std::vector<DetId>::const_iterator barrelIt = m_barrelCells.begin(); barrelIt != m_barrelCells.end();
-       ++barrelIt) {
-    EBDetId eb(*barrelIt);
-    barrelWriter.writeLine(eb, m_barrelMap[*barrelIt]);
+  for (auto m_barrelCell : m_barrelCells) {
+    EBDetId eb(m_barrelCell);
+    barrelWriter.writeLine(eb, m_barrelMap[m_barrelCell]);
   }
-  for (std::vector<DetId>::const_iterator endcapIt = m_endcapCells.begin(); endcapIt != m_endcapCells.end();
-       ++endcapIt) {
-    EEDetId ee(*endcapIt);
-    endcapWriter.writeLine(ee, m_endcapMap[*endcapIt]);
+  for (auto m_endcapCell : m_endcapCells) {
+    EEDetId ee(m_endcapCell);
+    endcapWriter.writeLine(ee, m_endcapMap[m_endcapCell]);
   }
   edm::LogInfo("IML") << "[InvMatrixCalibLooper][endOfJob] Exiting";
 }

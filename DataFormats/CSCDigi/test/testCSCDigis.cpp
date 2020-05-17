@@ -47,7 +47,7 @@
 //#include "DataFormats/CSCDigi/interface/CSCEventFormatStatusDigi.h"
 //#include "DataFormats/CSCDigi/interface/CSCEventFormatStatusDigiCollection.h"
 
-#include <stdio.h>
+#include <cstdio>
 #include <iostream>
 
 using namespace std;
@@ -62,8 +62,8 @@ class testCSCDigis : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
 
   void fillCSCWireDigi(CSCWireDigiCollection &);
   void fillCSCComparatorDigi(CSCComparatorDigiCollection &);
@@ -429,8 +429,8 @@ void testCSCDigis::readCSCWireDigi(CSCWireDigiCollection &collection) {
              (*digiIt).getTimeBin());
       std::cout << " CSC Wire Time Bins On ";
       std::vector<int> tbins = (*digiIt).getTimeBinsOn();
-      for (unsigned int i = 0; i < tbins.size(); ++i)
-        std::cout << tbins[i] << " ";
+      for (int tbin : tbins)
+        std::cout << tbin << " ";
       std::cout << std::endl;
       std::cout << " CSC Wire Word with Time Bins Bits On " << (*digiIt).getTimeBinWord() << std::endl;
     }  // for digis in layer
@@ -463,8 +463,8 @@ void testCSCDigis::readCSCComparatorDigi(CSCComparatorDigiCollection &collection
           (*digiIt).getTimeBin());
       std::cout << " CSCComparatorDigi - time bins ON: ";
       std::vector<int> tbins = (*digiIt).getTimeBinsOn();
-      for (unsigned int i = 0; i < tbins.size(); ++i)
-        std::cout << tbins[i] << " ";
+      for (int tbin : tbins)
+        std::cout << tbin << " ";
       std::cout << std::endl;
 
     }  // for digis in layer

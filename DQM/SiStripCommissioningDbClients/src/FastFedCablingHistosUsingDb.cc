@@ -40,8 +40,8 @@ void FastFedCablingHistosUsingDb::uploadConfigurations() {
     return;
   }
 
-  SiStripDbParams::SiStripPartitions::const_iterator ip = db()->dbParams().partitions().begin();
-  SiStripDbParams::SiStripPartitions::const_iterator jp = db()->dbParams().partitions().end();
+  auto ip = db()->dbParams().partitions().begin();
+  auto jp = db()->dbParams().partitions().end();
   for (; ip != jp; ++ip) {
     // Retrieve descriptions
     db()->clearFedConnections();
@@ -93,10 +93,10 @@ void FastFedCablingHistosUsingDb::update(SiStripConfigDb::FedConnectionsV& conns
                                          SiStripConfigDb::DeviceDescriptionsRange dcus,
                                          SiStripConfigDb::DcuDetIdsRange detids) {
   // Update FED-FEC mapping in base class, based on analysis results
-  Analyses::iterator ianal = data().begin();
-  Analyses::iterator janal = data().end();
+  auto ianal = data().begin();
+  auto janal = data().end();
   for (; ianal != janal; ++ianal) {
-    FastFedCablingAnalysis* anal = dynamic_cast<FastFedCablingAnalysis*>(ianal->second);
+    auto* anal = dynamic_cast<FastFedCablingAnalysis*>(ianal->second);
     if (!anal) {
       edm::LogError(mlDqmClient_) << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
                                   << " NULL pointer to analysis object!";
@@ -110,7 +110,7 @@ void FastFedCablingHistosUsingDb::update(SiStripConfigDb::FedConnectionsV& conns
     SiStripFecKey fec_key(anal->fecKey());
     SiStripFedKey fed_key(anal->fedKey());
 
-    ConnectionDescription* conn = new ConnectionDescription();
+    auto* conn = new ConnectionDescription();
     conn->setFedId(fed_key.fedId());
     conn->setFedChannel(fed_key.fedChannel());
     conn->setFecHardwareId("");  //@@
@@ -124,7 +124,7 @@ void FastFedCablingHistosUsingDb::update(SiStripConfigDb::FedConnectionsV& conns
 
     // Retrieve FED crate and slot numbers
     bool found = false;
-    SiStripConfigDb::FedDescriptionsV::const_iterator ifed = feds.begin();
+    auto ifed = feds.begin();
     while (ifed != feds.end() && !found) {
       if (*ifed) {
         uint16_t fed_id = static_cast<uint16_t>((*ifed)->getFedId());
@@ -150,7 +150,7 @@ void FastFedCablingHistosUsingDb::update(SiStripConfigDb::FedConnectionsV& conns
   }
 
   if (false) {
-    SiStripConfigDb::FedConnectionsV::iterator ifed = conns.begin();
+    auto ifed = conns.begin();
     for (; ifed != conns.end(); ifed++) {
       (*ifed)->display();
     }
@@ -161,8 +161,8 @@ void FastFedCablingHistosUsingDb::update(SiStripConfigDb::FedConnectionsV& conns
 /** */
 void FastFedCablingHistosUsingDb::update(SiStripConfigDb::FedDescriptionsRange feds) {
   // Iterate through feds and disable all channels
-  SiStripConfigDb::FedDescriptionsV::const_iterator ifed = feds.begin();
-  SiStripConfigDb::FedDescriptionsV::const_iterator jfed = feds.end();
+  auto ifed = feds.begin();
+  auto jfed = feds.end();
   try {
     for (; ifed != jfed; ++ifed) {
       for (uint16_t ichan = 0; ichan < sistrip::FEDCH_PER_FED; ichan++) {
@@ -191,7 +191,7 @@ void FastFedCablingHistosUsingDb::update(SiStripConfigDb::FedDescriptionsRange f
       uint32_t fed_key = fed.key();
 
       // Retrieve analysis for given FED id and channel
-      Analyses::const_iterator iter = data().find(fed_key);
+      auto iter = data().find(fed_key);
       if (iter == data().end()) {
         continue;
       }
@@ -200,7 +200,7 @@ void FastFedCablingHistosUsingDb::update(SiStripConfigDb::FedDescriptionsRange f
         continue;
       }
 
-      FastFedCablingAnalysis* anal = dynamic_cast<FastFedCablingAnalysis*>(iter->second);
+      auto* anal = dynamic_cast<FastFedCablingAnalysis*>(iter->second);
       if (!anal) {
         edm::LogError(mlDqmClient_) << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
                                     << " NULL pointer to OptoScanAnalysis object!";
@@ -241,13 +241,13 @@ void FastFedCablingHistosUsingDb::update(SiStripConfigDb::FedDescriptionsRange f
   std::stringstream ss;
   ss << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
      << " Dump of enabled FED channels:" << std::endl;
-  std::map<uint16_t, std::vector<uint16_t> >::const_iterator fed = enabled.begin();
+  auto fed = enabled.begin();
   for (; fed != enabled.end(); fed++) {
     ss << " Enabled " << fed->second.size() << " channels for FED id " << std::setw(3) << fed->first << ": ";
     if (!fed->second.empty()) {
       uint16_t first = fed->second.front();
       uint16_t last = fed->second.front();
-      std::vector<uint16_t>::const_iterator chan = fed->second.begin();
+      auto chan = fed->second.begin();
       for (; chan != fed->second.end(); chan++) {
         if (chan != fed->second.begin()) {
           if (*chan != last + 1) {
@@ -292,8 +292,8 @@ void FastFedCablingHistosUsingDb::addDcuDetIds() {
                                 << " DCU-DetId map is empty!";
   }
 
-  Analyses::iterator ianal = data().begin();
-  Analyses::iterator janal = data().end();
+  auto ianal = data().begin();
+  auto janal = data().end();
   for (; ianal != janal; ++ianal) {
     // check if analysis is valid (ie, dcu id and lld channel have been identified)
     if (!ianal->second->isValid()) {
@@ -301,7 +301,7 @@ void FastFedCablingHistosUsingDb::addDcuDetIds() {
     }
 
     // retrieve analysis object
-    FastFedCablingAnalysis* anal = dynamic_cast<FastFedCablingAnalysis*>(ianal->second);
+    auto* anal = dynamic_cast<FastFedCablingAnalysis*>(ianal->second);
 
     if (!anal) {
       edm::LogError(mlDqmClient_) << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
@@ -311,8 +311,8 @@ void FastFedCablingHistosUsingDb::addDcuDetIds() {
 
     // find dcu that matches analysis result
     bool found = false;
-    SiStripConfigDb::DeviceDescriptionsV::const_iterator idcu = dcus.begin();
-    SiStripConfigDb::DeviceDescriptionsV::const_iterator jdcu = dcus.end();
+    auto idcu = dcus.begin();
+    auto jdcu = dcus.end();
     while (!found && idcu != jdcu) {
       dcuDescription* dcu = dynamic_cast<dcuDescription*>(*idcu);
       if (dcu) {
@@ -325,7 +325,7 @@ void FastFedCablingHistosUsingDb::addDcuDetIds() {
                 SiStripFecKey(addr.fecCrate_, addr.fecSlot_, addr.fecRing_, addr.ccuAddr_, addr.ccuChan_, anal->lldCh())
                     .key();
             anal->fecKey(fec_key);
-            SiStripConfigDb::DcuDetIdsV::const_iterator idet = detids.end();
+            auto idet = detids.end();
             idet = SiStripConfigDb::findDcuDetId(detids.begin(), detids.end(), dcu->getDcuHardId());
             if (idet != detids.end()) {
               anal->detId(idet->second->getDetId());
@@ -341,7 +341,7 @@ void FastFedCablingHistosUsingDb::addDcuDetIds() {
 // -----------------------------------------------------------------------------
 /** */
 void FastFedCablingHistosUsingDb::create(SiStripConfigDb::AnalysisDescriptionsV& desc, Analysis analysis) {
-  FastFedCablingAnalysis* anal = dynamic_cast<FastFedCablingAnalysis*>(analysis->second);
+  auto* anal = dynamic_cast<FastFedCablingAnalysis*>(analysis->second);
   if (!anal) {
     return;
   }
@@ -385,8 +385,8 @@ void FastFedCablingHistosUsingDb::create(SiStripConfigDb::AnalysisDescriptionsV&
     // Add comments
     typedef std::vector<std::string> Strings;
     Strings errors = anal->getErrorCodes();
-    Strings::const_iterator istr = errors.begin();
-    Strings::const_iterator jstr = errors.end();
+    auto istr = errors.begin();
+    auto jstr = errors.end();
     for (; istr != jstr; ++istr) {
       tmp->addComments(*istr);
     }
@@ -410,11 +410,11 @@ void FastFedCablingHistosUsingDb::connections(SiStripConfigDb::DeviceDescription
 
   // iterate through analyses
   std::vector<uint32_t> found_dcus;
-  Analyses::iterator ianal = data().begin();
-  Analyses::iterator janal = data().end();
+  auto ianal = data().begin();
+  auto janal = data().end();
   for (; ianal != janal; ++ianal) {
     // extract fast fed cabling object
-    FastFedCablingAnalysis* anal = dynamic_cast<FastFedCablingAnalysis*>(ianal->second);
+    auto* anal = dynamic_cast<FastFedCablingAnalysis*>(ianal->second);
     if (!anal) {
       continue;
     }
@@ -442,8 +442,8 @@ void FastFedCablingHistosUsingDb::connections(SiStripConfigDb::DeviceDescription
   }
 
   // iterate through dcu devices
-  SiStripConfigDb::DeviceDescriptionsV::const_iterator idcu = dcus.begin();
-  SiStripConfigDb::DeviceDescriptionsV::const_iterator jdcu = dcus.end();
+  auto idcu = dcus.begin();
+  auto jdcu = dcus.end();
   for (; idcu != jdcu; ++idcu) {
     // extract dcu description
     dcuDescription* dcu = dynamic_cast<dcuDescription*>(*idcu);
@@ -456,13 +456,13 @@ void FastFedCablingHistosUsingDb::connections(SiStripConfigDb::DeviceDescription
     SiStripConfigDb::DeviceAddress dcu_addr = db()->deviceAddress(*dcu);
 
     // continue if dcu has been "found"
-    std::vector<uint32_t>::const_iterator iter = find(found_dcus.begin(), found_dcus.end(), dcu->getDcuHardId());
+    auto iter = find(found_dcus.begin(), found_dcus.end(), dcu->getDcuHardId());
     if (iter != found_dcus.end()) {
       continue;
     }
 
     // find detid for "missing" dcu
-    SiStripConfigDb::DcuDetIdsV::const_iterator idet = detids.end();
+    auto idet = detids.end();
     idet = SiStripConfigDb::findDcuDetId(detids.begin(), detids.end(), dcu->getDcuHardId());
     if (idet == detids.end()) {
       continue;
@@ -478,8 +478,8 @@ void FastFedCablingHistosUsingDb::connections(SiStripConfigDb::DeviceDescription
     vector<bool> addrs;
     addrs.resize(6, false);
     SiStripConfigDb::DeviceDescriptionsRange apvs = db()->getDeviceDescriptions(APV25);
-    SiStripConfigDb::DeviceDescriptionsV::const_iterator iapv = apvs.begin();
-    SiStripConfigDb::DeviceDescriptionsV::const_iterator japv = apvs.end();
+    auto iapv = apvs.begin();
+    auto japv = apvs.end();
     for (; iapv != japv; ++iapv) {
       apvDescription* apv = dynamic_cast<apvDescription*>(*iapv);
       if (!apv) {
@@ -610,8 +610,8 @@ void FastFedCablingHistosUsingDb::connections(SiStripConfigDb::DeviceDescription
     std::stringstream ss;
     ss << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
        << " List of \"good\" connections: " << std::endl;
-    std::vector<std::string>::const_iterator istr = valid.begin();
-    std::vector<std::string>::const_iterator jstr = valid.end();
+    auto istr = valid.begin();
+    auto jstr = valid.end();
     for (; istr != jstr; ++istr) {
       ss << *istr << std::endl;
     }
@@ -623,8 +623,8 @@ void FastFedCablingHistosUsingDb::connections(SiStripConfigDb::DeviceDescription
     std::stringstream ss;
     ss << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
        << " List of \"dirty\" connections: " << std::endl;
-    std::vector<std::string>::const_iterator istr = dirty.begin();
-    std::vector<std::string>::const_iterator jstr = dirty.end();
+    auto istr = dirty.begin();
+    auto jstr = dirty.end();
     for (; istr != jstr; ++istr) {
       ss << *istr << std::endl;
     }
@@ -636,8 +636,8 @@ void FastFedCablingHistosUsingDb::connections(SiStripConfigDb::DeviceDescription
     std::stringstream ss;
     ss << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
        << " List of \"bad\" TrimDAC settings: " << std::endl;
-    std::vector<std::string>::const_iterator istr = trimdac.begin();
-    std::vector<std::string>::const_iterator jstr = trimdac.end();
+    auto istr = trimdac.begin();
+    auto jstr = trimdac.end();
     for (; istr != jstr; ++istr) {
       ss << *istr << std::endl;
     }
@@ -649,8 +649,8 @@ void FastFedCablingHistosUsingDb::connections(SiStripConfigDb::DeviceDescription
     std::stringstream ss;
     ss << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
        << " List of \"missing\" connections: " << std::endl;
-    std::vector<std::string>::const_iterator istr = missing.begin();
-    std::vector<std::string>::const_iterator jstr = missing.end();
+    auto istr = missing.begin();
+    auto jstr = missing.end();
     for (; istr != jstr; ++istr) {
       ss << *istr << std::endl;
     }
@@ -662,8 +662,8 @@ void FastFedCablingHistosUsingDb::connections(SiStripConfigDb::DeviceDescription
     std::stringstream ss;
     ss << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
        << " List of \"missing\" APVs: " << std::endl;
-    std::vector<std::string>::const_iterator istr = devices.begin();
-    std::vector<std::string>::const_iterator jstr = devices.end();
+    auto istr = devices.begin();
+    auto jstr = devices.end();
     for (; istr != jstr; ++istr) {
       ss << *istr << std::endl;
     }

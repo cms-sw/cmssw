@@ -77,9 +77,9 @@ void CMSMonopolePhysics::ConstructProcess() {
   }
   G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
 
-  for (unsigned int ii = 0; ii < monopoles.size(); ++ii) {
-    if (monopoles[ii]) {
-      Monopole* mpl = monopoles[ii];
+  for (auto& monopole : monopoles) {
+    if (monopole) {
+      Monopole* mpl = monopole;
       G4ProcessManager* pmanager = mpl->GetProcessManager();
       if (!pmanager) {
         std::ostringstream o;
@@ -103,16 +103,16 @@ void CMSMonopolePhysics::ConstructProcess() {
 
       if (mpl->GetPDGCharge() != 0.0) {
         if (multiSc) {
-          G4hMultipleScattering* hmsc = new G4hMultipleScattering();
+          auto* hmsc = new G4hMultipleScattering();
           ph->RegisterProcess(hmsc, mpl);
         }
         G4hIonisation* hioni = new G4hIonisation();
         ph->RegisterProcess(hioni, mpl);
       }
       if (magn != 0.0) {
-        CMSmplIonisation* mplioni = new CMSmplIonisation(magn);
+        auto* mplioni = new CMSmplIonisation(magn);
         if (!deltaRay) {
-          G4mplIonisationModel* ion = new G4mplIonisationModel(magn, "PAI");
+          auto* ion = new G4mplIonisationModel(magn, "PAI");
           ion->SetParticle(mpl);
           mplioni->AddEmModel(0, ion, ion);
         }

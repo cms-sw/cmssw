@@ -809,9 +809,7 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
   // Filling eta-phi map for muons for BX=-2,-1,0,+1,+2
   for (int itBX = MuonBxCollection->getFirstBX(); itBX <= MuonBxCollection->getLastBX(); ++itBX) {
-    for (l1t::MuonBxCollection::const_iterator Muon = MuonBxCollection->begin(itBX);
-         Muon != MuonBxCollection->end(itBX);
-         ++Muon) {
+    for (auto Muon = MuonBxCollection->begin(itBX); Muon != MuonBxCollection->end(itBX); ++Muon) {
       if (Muon->pt() >= muonPtCut_ and Muon->hwQual() >= muonQualCut_) {
         denominator_muons->Fill(Muon->eta(), Muon->phi());
         // the correlation from itBX to respective index of the vector
@@ -823,8 +821,7 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
   // Filling eta-phi map for jets for BX=-2,-1,0,+1,+2
   for (int itBX = JetBxCollection->getFirstBX(); itBX <= JetBxCollection->getLastBX(); ++itBX) {
-    for (l1t::JetBxCollection::const_iterator jet = JetBxCollection->begin(itBX); jet != JetBxCollection->end(itBX);
-         ++jet) {
+    for (auto jet = JetBxCollection->begin(itBX); jet != JetBxCollection->end(itBX); ++jet) {
       if (jet->pt() >= jetPtCut_) {
         denominator_jet->Fill(jet->eta(), jet->phi());
         int index =
@@ -839,9 +836,7 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
   // Filling eta-phi map for egamma for BX=-2,-1,0,+1,+2
   for (int itBX = EGammaBxCollection->getFirstBX(); itBX <= EGammaBxCollection->getLastBX(); ++itBX) {
-    for (l1t::EGammaBxCollection::const_iterator egamma = EGammaBxCollection->begin(itBX);
-         egamma != EGammaBxCollection->end(itBX);
-         ++egamma) {
+    for (auto egamma = EGammaBxCollection->begin(itBX); egamma != EGammaBxCollection->end(itBX); ++egamma) {
       if (egamma->pt() >= egammaPtCut_) {
         denominator_egamma->Fill(egamma->eta(), egamma->phi());
         int index =
@@ -856,8 +851,7 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
   // Filling eta-phi map for tau for BX=-2,-1,0,+1,+2
   for (int itBX = TauBxCollection->getFirstBX(); itBX <= TauBxCollection->getLastBX(); ++itBX) {
-    for (l1t::TauBxCollection::const_iterator tau = TauBxCollection->begin(itBX); tau != TauBxCollection->end(itBX);
-         ++tau) {
+    for (auto tau = TauBxCollection->begin(itBX); tau != TauBxCollection->end(itBX); ++tau) {
       if (tau->pt() >= tauPtCut_) {
         denominator_tau->Fill(tau->eta(), tau->phi());
         int index =
@@ -872,9 +866,7 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
   // Filling eta-phi map for etsum for BX=-2,-1,0,+1,+2
   for (int itBX = EtSumBxCollection->getFirstBX(); itBX <= EtSumBxCollection->getLastBX(); ++itBX) {
-    for (l1t::EtSumBxCollection::const_iterator EtSum = EtSumBxCollection->begin(itBX);
-         EtSum != EtSumBxCollection->end(itBX);
-         ++EtSum) {
+    for (auto EtSum = EtSumBxCollection->begin(itBX); EtSum != EtSumBxCollection->end(itBX); ++EtSum) {
       if (EtSum->pt() >= etsumPtCut_) {
         int index =
             itBX - std::min(0,
@@ -907,7 +899,7 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
   int bxShiftIso = -999;
   int bxShiftLast = -999;
   for (int bx = uGtAlgs->getFirstBX(); bx <= uGtAlgs->getLastBX(); ++bx) {
-    for (GlobalAlgBlkBxCollection::const_iterator itr = uGtAlgs->begin(bx); itr != uGtAlgs->end(bx); ++itr) {
+    for (auto itr = uGtAlgs->begin(bx); itr != uGtAlgs->end(bx); ++itr) {
       // first bunch in train
       if (algoBitFirstBxInTrain_ != -1) {
         bool bit = false;
@@ -973,8 +965,7 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
          ++itBX) {
       int index = itBX - bxShiftFirst - uGtAlgs->getFirstBX();
       if (index >= 0 and index < (int)muons_eta_phi_firstbunch.size()) {
-        for (l1t::MuonBxCollection::const_iterator muon = MuonBxCollection->begin(itBX);
-             muon != MuonBxCollection->end(itBX);
+        for (auto muon = MuonBxCollection->begin(itBX); muon != MuonBxCollection->end(itBX);
              ++muon) {  // Starting with Muons
           if (muon->pt() >= muonPtCut_ and muon->hwQual() >= muonQualCut_) {
             denominator_muons_firstbunch->Fill(muon->eta(), muon->phi());
@@ -989,8 +980,7 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
          ++itBX) {
       int index = itBX - bxShiftFirst - uGtAlgs->getFirstBX();
       if (index >= 0 and index < (int)jet_eta_phi_firstbunch.size()) {
-        for (l1t::JetBxCollection::const_iterator jet = JetBxCollection->begin(itBX); jet != JetBxCollection->end(itBX);
-             ++jet) {
+        for (auto jet = JetBxCollection->begin(itBX); jet != JetBxCollection->end(itBX); ++jet) {
           if (jet->pt() >= jetPtCut_) {
             denominator_jet_firstbunch->Fill(jet->eta(), jet->phi());
             jet_eta_phi_firstbunch.at(index)->Fill(jet->eta(), jet->phi());
@@ -1003,9 +993,7 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
          itBX <= std::min(EGammaBxCollection->getLastBX(), EGammaBxCollection->getLastBX() + bxShiftFirst);
          ++itBX) {
       int index = itBX - bxShiftFirst - uGtAlgs->getFirstBX();
-      for (l1t::EGammaBxCollection::const_iterator egamma = EGammaBxCollection->begin(itBX);
-           egamma != EGammaBxCollection->end(itBX);
-           ++egamma) {
+      for (auto egamma = EGammaBxCollection->begin(itBX); egamma != EGammaBxCollection->end(itBX); ++egamma) {
         for (size_t i = 0; i < egammaPtCuts_.size(); ++i) {
           if (egamma->pt() >= egammaPtCuts_.at(i)) {
             if (index >= 0 and index < (int)egamma_eta_phi_firstbunch.size()) {
@@ -1026,8 +1014,7 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
          ++itBX) {
       int index = itBX - bxShiftFirst - uGtAlgs->getFirstBX();
       if (index >= 0 and index < (int)tau_eta_phi_firstbunch.size()) {
-        for (l1t::TauBxCollection::const_iterator tau = TauBxCollection->begin(itBX); tau != TauBxCollection->end(itBX);
-             ++tau) {
+        for (auto tau = TauBxCollection->begin(itBX); tau != TauBxCollection->end(itBX); ++tau) {
           if (tau->pt() >= tauPtCut_) {
             denominator_tau_firstbunch->Fill(tau->eta(), tau->phi());
             tau_eta_phi_firstbunch.at(index)->Fill(tau->eta(), tau->phi());
@@ -1041,9 +1028,7 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
          ++itBX) {
       int index = itBX - bxShiftFirst - uGtAlgs->getFirstBX();
       if (index >= 0) {
-        for (l1t::EtSumBxCollection::const_iterator EtSum = EtSumBxCollection->begin(itBX);
-             EtSum != EtSumBxCollection->end(itBX);
-             ++EtSum) {
+        for (auto EtSum = EtSumBxCollection->begin(itBX); EtSum != EtSumBxCollection->end(itBX); ++EtSum) {
           if (EtSum->pt() >= etsumPtCut_) {
             if (l1t::EtSum::EtSumType::kMissingEt == EtSum->getType()) {
               if (index < (int)etsum_eta_phi_MET_firstbunch.size()) {
@@ -1080,8 +1065,7 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
          ++itBX) {
       auto correctedBx = itBX - bxShiftLast;
       if (correctedBx >= 0 and correctedBx < (int)muons_eta_phi_lastbunch.size()) {
-        for (l1t::MuonBxCollection::const_iterator muon = MuonBxCollection->begin(itBX);
-             muon != MuonBxCollection->end(itBX);
+        for (auto muon = MuonBxCollection->begin(itBX); muon != MuonBxCollection->end(itBX);
              ++muon) {  // Starting with Muons
           if (muon->pt() >= muonPtCut_ and muon->hwQual() >= muonQualCut_) {
             denominator_muons_lastbunch->Fill(muon->eta(), muon->phi());
@@ -1096,8 +1080,7 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
          ++itBX) {
       auto correctedBx = itBX - bxShiftLast;
       if (correctedBx >= 0 and correctedBx < (int)jet_eta_phi_lastbunch.size()) {
-        for (l1t::JetBxCollection::const_iterator jet = JetBxCollection->begin(itBX); jet != JetBxCollection->end(itBX);
-             ++jet) {
+        for (auto jet = JetBxCollection->begin(itBX); jet != JetBxCollection->end(itBX); ++jet) {
           if (jet->pt() >= jetPtCut_) {
             denominator_jet_lastbunch->Fill(jet->eta(), jet->phi());
             jet_eta_phi_lastbunch.at(correctedBx)->Fill(jet->eta(), jet->phi());
@@ -1110,9 +1093,7 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
          itBX <= std::min(EGammaBxCollection->getLastBX(), EGammaBxCollection->getLastBX() + bxShiftLast);
          ++itBX) {
       auto correctedBx = itBX - bxShiftLast;
-      for (l1t::EGammaBxCollection::const_iterator egamma = EGammaBxCollection->begin(itBX);
-           egamma != EGammaBxCollection->end(itBX);
-           ++egamma) {
+      for (auto egamma = EGammaBxCollection->begin(itBX); egamma != EGammaBxCollection->end(itBX); ++egamma) {
         for (size_t i = 0; i < egammaPtCuts_.size(); ++i) {
           if (egamma->pt() >= egammaPtCuts_.at(i)) {
             if (correctedBx >= 0 and correctedBx < (int)egamma_eta_phi_lastbunch.size()) {
@@ -1133,8 +1114,7 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
          ++itBX) {
       auto correctedBx = itBX - bxShiftLast;
       if (correctedBx >= 0 and correctedBx < (int)tau_eta_phi_lastbunch.size()) {
-        for (l1t::TauBxCollection::const_iterator tau = TauBxCollection->begin(itBX); tau != TauBxCollection->end(itBX);
-             ++tau) {
+        for (auto tau = TauBxCollection->begin(itBX); tau != TauBxCollection->end(itBX); ++tau) {
           if (tau->pt() >= tauPtCut_) {
             denominator_tau_lastbunch->Fill(tau->eta(), tau->phi());
             tau_eta_phi_lastbunch.at(correctedBx)->Fill(tau->eta(), tau->phi());
@@ -1148,9 +1128,7 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
          ++itBX) {
       auto correctedBx = itBX - bxShiftLast;
       if (correctedBx >= 0) {
-        for (l1t::EtSumBxCollection::const_iterator EtSum = EtSumBxCollection->begin(itBX);
-             EtSum != EtSumBxCollection->end(itBX);
-             ++EtSum) {
+        for (auto EtSum = EtSumBxCollection->begin(itBX); EtSum != EtSumBxCollection->end(itBX); ++EtSum) {
           if (EtSum->pt() >= etsumPtCut_) {
             if (l1t::EtSum::EtSumType::kMissingEt == EtSum->getType()) {
               if (correctedBx < (int)etsum_eta_phi_MET_lastbunch.size()) {
@@ -1187,8 +1165,7 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
          ++itBX) {
       int index = itBX - bxShiftIso - uGtAlgs->getFirstBX();
       if (index >= 0 and index < (int)muons_eta_phi_isolated.size()) {
-        for (l1t::MuonBxCollection::const_iterator muon = MuonBxCollection->begin(itBX);
-             muon != MuonBxCollection->end(itBX);
+        for (auto muon = MuonBxCollection->begin(itBX); muon != MuonBxCollection->end(itBX);
              ++muon) {  // Starting with Muons
           if (muon->pt() >= muonPtCut_ and muon->hwQual() >= muonQualCut_) {
             denominator_muons_isolated->Fill(muon->eta(), muon->phi());
@@ -1203,8 +1180,7 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
          ++itBX) {
       int index = itBX - bxShiftIso - uGtAlgs->getFirstBX();
       if (index >= 0 and index < (int)jet_eta_phi_isolated.size()) {
-        for (l1t::JetBxCollection::const_iterator jet = JetBxCollection->begin(itBX); jet != JetBxCollection->end(itBX);
-             ++jet) {
+        for (auto jet = JetBxCollection->begin(itBX); jet != JetBxCollection->end(itBX); ++jet) {
           if (jet->pt() >= jetPtCut_) {
             denominator_jet_isolated->Fill(jet->eta(), jet->phi());
             jet_eta_phi_isolated.at(index)->Fill(jet->eta(), jet->phi());
@@ -1217,9 +1193,7 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
          itBX <= std::min(EGammaBxCollection->getLastBX(), EGammaBxCollection->getLastBX() + bxShiftIso);
          ++itBX) {
       int index = itBX - bxShiftIso - uGtAlgs->getFirstBX();
-      for (l1t::EGammaBxCollection::const_iterator egamma = EGammaBxCollection->begin(itBX);
-           egamma != EGammaBxCollection->end(itBX);
-           ++egamma) {
+      for (auto egamma = EGammaBxCollection->begin(itBX); egamma != EGammaBxCollection->end(itBX); ++egamma) {
         for (size_t i = 0; i < egammaPtCuts_.size(); ++i) {
           if (egamma->pt() >= egammaPtCuts_.at(i)) {
             if (index >= 0 and index < (int)egamma_eta_phi_isolated.size()) {
@@ -1240,8 +1214,7 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
          ++itBX) {
       int index = itBX - bxShiftIso - uGtAlgs->getFirstBX();
       if (index >= 0 and index < (int)tau_eta_phi_isolated.size()) {
-        for (l1t::TauBxCollection::const_iterator tau = TauBxCollection->begin(itBX); tau != TauBxCollection->end(itBX);
-             ++tau) {
+        for (auto tau = TauBxCollection->begin(itBX); tau != TauBxCollection->end(itBX); ++tau) {
           if (tau->pt() >= tauPtCut_) {
             denominator_tau_isolated->Fill(tau->eta(), tau->phi());
             tau_eta_phi_isolated.at(index)->Fill(tau->eta(), tau->phi());
@@ -1255,9 +1228,7 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
          ++itBX) {
       int index = itBX - bxShiftIso - uGtAlgs->getFirstBX();
       if (index >= 0) {
-        for (l1t::EtSumBxCollection::const_iterator EtSum = EtSumBxCollection->begin(itBX);
-             EtSum != EtSumBxCollection->end(itBX);
-             ++EtSum) {
+        for (auto EtSum = EtSumBxCollection->begin(itBX); EtSum != EtSumBxCollection->end(itBX); ++EtSum) {
           if (EtSum->pt() >= etsumPtCut_) {
             if (l1t::EtSum::EtSumType::kMissingEt == EtSum->getType()) {
               if (index < (int)etsum_eta_phi_MET_isolated.size()) {

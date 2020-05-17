@@ -74,7 +74,7 @@ uint32_t SummaryHistogramFactory<T>::extract(const std::map<uint32_t, T>& data) 
 
   // Transfer appropriate monitorables info to generator object
   generator_->clearMap();
-  typename std::map<uint32_t, T>::const_iterator iter = data.begin();
+  auto iter = data.begin();
   for (; iter != data.end(); iter++) {
     generator_->fillMap(level_,                             // top-level directory
                         gran_,                              // granularity

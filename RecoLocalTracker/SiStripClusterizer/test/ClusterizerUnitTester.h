@@ -18,10 +18,10 @@ class ClusterizerUnitTester : public edm::EDAnalyzer {
 
 public:
   ClusterizerUnitTester(const PSet& conf) : testGroups(conf.getParameter<VPSet>("ClusterizerTestGroups")) {}
-  ~ClusterizerUnitTester() {}
+  ~ClusterizerUnitTester() override {}
 
 private:
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   void initializeTheGroup(const PSet&, const edm::EventSetup&);
   void testTheGroup(const PSet&);

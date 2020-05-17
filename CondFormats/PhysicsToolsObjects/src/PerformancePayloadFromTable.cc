@@ -29,13 +29,13 @@ bool PerformancePayloadFromTable::matches(const BinningPointByMap& _p, PhysicsPe
   BinningPointByMap p = _p;
   std::vector<BinningVariables::BinningVariablesType> t = myBinning();
 
-  for (std::vector<BinningVariables::BinningVariablesType>::const_iterator it = t.begin(); it != t.end(); ++it) {
+  for (auto it : t) {
     //
     // first the binning point map must contain ALL the quantities here
     //
     //    if (! p.isKeyAvailable(*it) ) return false;
-    float v = p.value(*it);
-    if (!(v >= row[minPos(*it)] && v < row[maxPos(*it)]))
+    float v = p.value(it);
+    if (!(v >= row[minPos(it)] && v < row[maxPos(it)]))
       return false;
   }
   return true;
@@ -49,8 +49,8 @@ bool PerformancePayloadFromTable::isInPayload(PerformanceResult::ResultType res,
     return false;
   // now look whther the binning point contains all the info
   std::vector<BinningVariables::BinningVariablesType> t = myBinning();
-  for (std::vector<BinningVariables::BinningVariablesType>::const_iterator it = t.begin(); it != t.end(); ++it) {
-    if (!point.isKeyAvailable(*it))
+  for (auto it : t) {
+    if (!point.isKeyAvailable(it))
       return false;
   }
   // then, look if there is a matching row

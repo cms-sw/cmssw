@@ -7,6 +7,8 @@
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
+#include <memory>
+
 #include <sstream>
 #include <iomanip>
 #include "TProfile.h"
@@ -20,7 +22,7 @@ SamplingHistograms::SamplingHistograms(const edm::ParameterSet& pset, DQMStore* 
     : CommissioningHistograms(pset.getParameter<edm::ParameterSet>("SamplingParameters"), bei, task), sOnCut_(3) {
   LogTrace(mlDqmClient_) << "[SamplingHistograms::" << __func__ << "]"
                          << " Constructing object...";
-  factory_ = unique_ptr<SamplingSummaryFactory>(new SamplingSummaryFactory);
+  factory_ = std::make_unique<SamplingSummaryFactory>();
   // retreive the latency code from the root file
   std::string dataPath = std::string(sistrip::collate_) + "/" + sistrip::root_ + "/latencyCode";
   MonitorElement* codeElement = bei->get(dataPath);
@@ -50,7 +52,7 @@ void SamplingHistograms::histoAnalysis(bool debug) {
   data().clear();
 
   // Iterate through map containing vectors of profile histograms
-  HistosMap::const_iterator iter = histos().begin();
+  auto iter = histos().begin();
   for (; iter != histos().end(); iter++) {
     // Check vector of histos is not empty (should be 1 histo)
     if (iter->second.empty()) {
@@ -61,7 +63,7 @@ void SamplingHistograms::histoAnalysis(bool debug) {
 
     // Retrieve pointers to profile histos for this FED channel
     vector<TH1*> profs;
-    Histos::const_iterator ihis = iter->second.begin();
+    auto ihis = iter->second.begin();
     for (; ihis != iter->second.end(); ihis++) {
       TProfile* prof = ExtractTObject<TProfile>().extract((*ihis)->me_);
       if (prof) {
@@ -70,7 +72,7 @@ void SamplingHistograms::histoAnalysis(bool debug) {
     }
 
     // Perform histo analysis
-    SamplingAnalysis* anal = new SamplingAnalysis(iter->first);
+    auto* anal = new SamplingAnalysis(iter->first);
     anal->setSoNcut(sOnCut_);
     SamplingAlgorithm algo(this->pset(), anal, latencyCode_);
     algo.analysis(profs);

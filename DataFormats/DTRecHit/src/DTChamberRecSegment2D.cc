@@ -7,11 +7,11 @@
 #include "DataFormats/DTRecHit/interface/DTChamberRecSegment2D.h"
 
 // c'tor from hits
-DTChamberRecSegment2D::DTChamberRecSegment2D(const DTChamberId id, const std::vector<DTRecHit1D> &hits)
+DTChamberRecSegment2D::DTChamberRecSegment2D(const DTChamberId &id, const std::vector<DTRecHit1D> &hits)
     : DTRecSegment2D(id, hits) {}
 
 // complete constructor
-DTChamberRecSegment2D::DTChamberRecSegment2D(const DTChamberId id,
+DTChamberRecSegment2D::DTChamberRecSegment2D(const DTChamberId &id,
                                              LocalPoint &position,
                                              LocalVector &direction,
                                              AlgebraicSymMatrix &covMatrix,

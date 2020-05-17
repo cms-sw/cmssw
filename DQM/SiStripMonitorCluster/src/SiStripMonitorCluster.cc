@@ -283,8 +283,7 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es, DQMStore::IBook
 
     // loop over detectors and book MEs
     edm::LogInfo("SiStripTkDQM|SiStripMonitorCluster") << "nr. of activeDets:  " << activeDets.size();
-    for (std::vector<uint32_t>::iterator detid_iterator = activeDets.begin(); detid_iterator != activeDets.end();
-         detid_iterator++) {
+    for (auto detid_iterator = activeDets.begin(); detid_iterator != activeDets.end(); detid_iterator++) {
       uint32_t detid = (*detid_iterator);
       // remove any eventual zero elements - there should be none, but just in
       // case
@@ -309,7 +308,7 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es, DQMStore::IBook
       SiStripHistoId hidmanager;
       std::string label = hidmanager.getSubdetid(detid, tTopo, false);
 
-      std::map<std::string, LayerMEs>::iterator iLayerME = LayerMEsMap.find(label);
+      auto iLayerME = LayerMEsMap.find(label);
       if (iLayerME == LayerMEsMap.end()) {
         // get detids for the layer
         int32_t lnumber = det_layer_pair.second;
@@ -624,7 +623,7 @@ void SiStripMonitorCluster::bookHistograms(DQMStore::IBooker& ibooker, const edm
   } else if (reset_each_run) {
     edm::LogInfo("SiStripMonitorCluster") << "SiStripMonitorCluster::bookHistograms: "
                                           << " Resetting MEs ";
-    for (std::map<uint32_t, ModMEs>::const_iterator idet = ModuleMEsMap.begin(); idet != ModuleMEsMap.end(); idet++) {
+    for (auto idet = ModuleMEsMap.begin(); idet != ModuleMEsMap.end(); idet++) {
       ResetModuleMEs(idet->first);
     }
   }
@@ -701,9 +700,8 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
     }
   }
   // initialise # of clusters to zero
-  for (std::map<std::string, SubDetMEs>::iterator iSubdet = SubDetMEsMap.begin(); iSubdet != SubDetMEsMap.end();
-       iSubdet++) {
-    iSubdet->second.totNClusters = 0;
+  for (auto& iSubdet : SubDetMEsMap) {
+    iSubdet.second.totNClusters = 0;
   }
 
   SiStripFolderOrganizer folder_organizer;
@@ -711,13 +709,11 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
   // Map of cumulative clusters per fed ID.
   std::map<int, int> FEDID_v_clustersum;
 
-  for (std::map<std::string, std::vector<uint32_t> >::const_iterator iterLayer = LayerDetMap.begin();
-       iterLayer != LayerDetMap.end();
-       iterLayer++) {
+  for (auto iterLayer = LayerDetMap.begin(); iterLayer != LayerDetMap.end(); iterLayer++) {
     std::string layer_label = iterLayer->first;
 
     int ncluster_layer = 0;
-    std::map<std::string, LayerMEs>::iterator iLayerME = LayerMEsMap.find(layer_label);
+    auto iLayerME = LayerMEsMap.find(layer_label);
 
     // get Layer MEs
     LayerMEs layer_single;
@@ -732,13 +728,9 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
     uint16_t iDet = 0;
     std::string subdet_label = "";
     // loop over all modules in the layer
-    for (std::vector<uint32_t>::const_iterator iterDets = iterLayer->second.begin();
-         iterDets != iterLayer->second.end();
-         iterDets++) {
+    for (unsigned int detid : iterLayer->second) {
       iDet++;
       // detid and type of ME
-      uint32_t detid = (*iterDets);
-
       // Get SubDet label once
       if (subdet_label.empty())
         subdet_label = folder_organizer.getSubDetFolderAndTag(detid, tTopo).second;
@@ -746,7 +738,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
       // DetId and corresponding set of MEs
       ModMEs mod_single;
       if (Mod_On_) {
-        std::map<uint32_t, ModMEs>::iterator imodME = ModuleMEsMap.find(detid);
+        auto imodME = ModuleMEsMap.find(detid);
         if (imodME != ModuleMEsMap.end()) {
           mod_single = imodME->second;
           found_module_me = true;
@@ -836,21 +828,19 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
       SiStripApvGain::Range detGainRange = siStripGain.getRange(detid);
       SiStripQuality::Range qualityRange = siStripQuality.getRange(detid);
 
-      for (edmNew::DetSet<SiStripCluster>::const_iterator clusterIter = cluster_detset.begin();
-           clusterIter != cluster_detset.end();
-           clusterIter++) {
-        const auto& ampls = clusterIter->amplitudes();
+      for (const auto& clusterIter : cluster_detset) {
+        const auto& ampls = clusterIter.amplitudes();
         // cluster position
-        float cluster_position = clusterIter->barycenter();
+        float cluster_position = clusterIter.barycenter();
         // start defined as nr. of first strip beloning to the cluster
-        short cluster_start = clusterIter->firstStrip();
+        short cluster_start = clusterIter.firstStrip();
         // width defined as nr. of strips that belong to cluster
         short cluster_width = ampls.size();
         // add nr of strips of this cluster to total nr. of clusterized strips
         total_clusterized_strips = total_clusterized_strips + cluster_width;
 
         if (clusterchtkhistomapon and passDCSFilter_)
-          tkmapclusterch->fill(detid, static_cast<float>(clusterIter->charge()));
+          tkmapclusterch->fill(detid, static_cast<float>(clusterIter.charge()));
 
         // cluster signal and noise from the amplitudes
         float cluster_signal = 0.0;
@@ -861,9 +851,9 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
         for (uint iamp = 0; iamp < ampls.size(); iamp++) {
           if (ampls[iamp] > 0) {  // nonzero amplitude
             cluster_signal += ampls[iamp];
-            if (!siStripQuality.IsStripBad(qualityRange, clusterIter->firstStrip() + iamp)) {
-              noise = siStripNoises.getNoise(clusterIter->firstStrip() + iamp, detNoiseRange) /
-                      siStripGain.getStripGain(clusterIter->firstStrip() + iamp, detGainRange);
+            if (!siStripQuality.IsStripBad(qualityRange, clusterIter.firstStrip() + iamp)) {
+              noise = siStripNoises.getNoise(clusterIter.firstStrip() + iamp, detNoiseRange) /
+                      siStripGain.getStripGain(clusterIter.firstStrip() + iamp, detGainRange);
             }
             noise2 += noise * noise;
             nrnonzeroamplitudes++;
@@ -897,7 +887,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
         }
 
         if (subdetswitchcluschargeon || subdetswitchcluswidthon) {
-          std::map<std::string, SubDetMEs>::iterator iSubdet = SubDetMEsMap.find(subdet_label);
+          auto iSubdet = SubDetMEsMap.find(subdet_label);
           if (iSubdet != SubDetMEsMap.end()) {
             if (subdetswitchcluschargeon and passDCSFilter_)
               iSubdet->second.SubDetClusterChargeTH1->Fill(cluster_signal);
@@ -907,7 +897,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
         }
 
         if (subdet_clusterWidth_vs_amplitude_on and passDCSFilter_) {
-          std::map<std::string, SubDetMEs>::iterator iSubdet = SubDetMEsMap.find(subdet_label);
+          auto iSubdet = SubDetMEsMap.find(subdet_label);
           if (iSubdet != SubDetMEsMap.end())
             iSubdet->second.SubDetClusWidthVsAmpTH2->Fill(cluster_signal, cluster_width);
         }
@@ -925,7 +915,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
       }  // end loop over clusters
 
       if (subdetswitchtotclusprofon) {
-        std::map<std::string, SubDetMEs>::iterator iSubdet = SubDetMEsMap.find(subdet_label);
+        auto iSubdet = SubDetMEsMap.find(subdet_label);
         std::pair<std::string, int32_t> det_layer_pair = folder_organizer.GetSubDetAndLayer(detid, tTopo);
         iSubdet->second.SubDetNumberOfClusterPerLayerTrend->Fill(
             trendVar, std::abs(det_layer_pair.second), ncluster_layer);
@@ -959,7 +949,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
     if (subdetswitchtotclusprofon)
       fillME(layer_single.LayerNumberOfClusterTrend, trendVar, ncluster_layer);
 
-    std::map<std::string, SubDetMEs>::iterator iSubdet = SubDetMEsMap.find(subdet_label);
+    auto iSubdet = SubDetMEsMap.find(subdet_label);
     if (iSubdet != SubDetMEsMap.end())
       iSubdet->second.totNClusters += ncluster_layer;
   }  /// end of layer loop
@@ -987,10 +977,10 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
     }
     // plot n 2
 
-    for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
-      std::string sdet = it->first;
+    for (auto& it : SubDetMEsMap) {
+      std::string sdet = it.first;
       // std::string sdet = sdet_tag.substr(0,sdet_tag.find_first_of("_"));
-      SubDetMEs sdetmes = it->second;
+      SubDetMEs sdetmes = it.second;
 
       int the_phase = APVCyclePhaseCollection::invalid;
       long long tbx_corr = tbx;
@@ -1088,7 +1078,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 // -- Reset MEs
 //------------------------------------------------------------------------------
 void SiStripMonitorCluster::ResetModuleMEs(uint32_t idet) {
-  std::map<uint32_t, ModMEs>::iterator pos = ModuleMEsMap.find(idet);
+  auto pos = ModuleMEsMap.find(idet);
   ModMEs mod_me = pos->second;
 
   if (moduleswitchncluson)
@@ -1228,7 +1218,7 @@ void SiStripMonitorCluster::createModuleMEs(ModMEs& mod_single,
 //
 // -- Create Module Level MEs
 //
-void SiStripMonitorCluster::createLayerMEs(std::string label, int ndets, DQMStore::IBooker& ibooker) {
+void SiStripMonitorCluster::createLayerMEs(const std::string& label, int ndets, DQMStore::IBooker& ibooker) {
   SiStripHistoId hidmanager;
 
   LayerMEs layerMEs;
@@ -1351,7 +1341,7 @@ void SiStripMonitorCluster::createLayerMEs(std::string label, int ndets, DQMStor
 //
 // -- Create SubDetector MEs
 //
-void SiStripMonitorCluster::createSubDetMEs(std::string label, DQMStore::IBooker& ibooker) {
+void SiStripMonitorCluster::createSubDetMEs(const std::string& label, DQMStore::IBooker& ibooker) {
   SubDetMEs subdetMEs;
   subdetMEs.totNClusters = 0;
   subdetMEs.SubDetTotClusterTH1 = nullptr;

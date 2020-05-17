@@ -185,13 +185,10 @@ void FWModelContextMenuHandler::chosenItem(Int_t iChoice) {
 }
 
 void FWModelContextMenuHandler::colorChangeRequested(Color_t color) {
-  for (std::set<FWModelId>::const_iterator it = m_selectionManager->selected().begin(),
-                                           itEnd = m_selectionManager->selected().end();
-       it != itEnd;
-       ++it) {
-    FWDisplayProperties changeProperties = it->item()->modelInfo(it->index()).displayProperties();
+  for (auto it : m_selectionManager->selected()) {
+    FWDisplayProperties changeProperties = it.item()->modelInfo(it.index()).displayProperties();
     changeProperties.setColor(color);
-    it->item()->setDisplayProperties(it->index(), changeProperties);
+    it.item()->setDisplayProperties(it.index(), changeProperties);
   }
 }
 

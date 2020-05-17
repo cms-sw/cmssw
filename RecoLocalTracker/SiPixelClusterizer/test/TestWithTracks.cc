@@ -118,11 +118,11 @@ using namespace std;
 class TestWithTracks : public edm::EDAnalyzer {
 public:
   explicit TestWithTracks(const edm::ParameterSet &conf);
-  virtual ~TestWithTracks();
-  virtual void analyze(const edm::Event &e, const edm::EventSetup &c) override;
-  virtual void beginRun(edm::Run const &, edm::EventSetup const &) override;
-  virtual void beginJob() override;
-  virtual void endJob() override;
+  ~TestWithTracks() override;
+  void analyze(const edm::Event &e, const edm::EventSetup &c) override;
+  void beginRun(edm::Run const &, edm::EventSetup const &) override;
+  void beginJob() override;
+  void endJob() override;
 
 private:
   edm::ParameterSet conf_;
@@ -612,14 +612,14 @@ void TestWithTracks::analyze(const edm::Event &e, const edm::EventSetup &es) {
     cout << " PV list " << vertices->size() << endl;
   int pvNotFake = 0, pvsTrue = 0;
   vector<float> pvzVector;
-  for (reco::VertexCollection::const_iterator iv = vertices->begin(); iv != vertices->end(); ++iv) {
-    if ((iv->isFake()) == 1)
+  for (const auto &iv : *vertices) {
+    if ((iv.isFake()) == 1)
       continue;
     pvNotFake++;
-    float pvx = iv->x();
-    float pvy = iv->y();
-    float pvz = iv->z();
-    int numTracksPerPV = iv->tracksSize();
+    float pvx = iv.x();
+    float pvy = iv.y();
+    float pvz = iv.z();
+    int numTracksPerPV = iv.tracksSize();
     //int numTracksPerPV = iv->nTracks();
 
     //float xe = iv->xError();
@@ -664,7 +664,7 @@ void TestWithTracks::analyze(const edm::Event &e, const edm::EventSetup &es) {
 
   if (PRINT)
     cout << " Tracks " << recTracks->size() << endl;
-  for (reco::TrackCollection::const_iterator t = recTracks->begin(); t != recTracks->end(); ++t) {
+  for (const auto &t : *recTracks) {
     trackNumber++;
     numOfClusPerTrk1 = 0;  // this is confusing, it is used as clus per track
     numOfClusPerTrk2 = 0;
@@ -673,13 +673,13 @@ void TestWithTracks::analyze(const edm::Event &e, const edm::EventSetup &es) {
     numOfClusPerTrk5 = 0;
     int pixelHits = 0;
 
-    int size = t->recHitsSize();
-    float pt = t->pt();
-    float eta = t->eta();
-    float phi = t->phi();
+    int size = t.recHitsSize();
+    float pt = t.pt();
+    float eta = t.eta();
+    float phi = t.phi();
     //float trackCharge = t->charge(); // unused
-    float d0 = t->d0();
-    float dz = t->dz();
+    float d0 = t.d0();
+    float dz = t.dz();
     //float tkvx = t->vx();  // unused
     //float tkvy = t->vy();
     //float tkvz = t->vz();
@@ -698,8 +698,7 @@ void TestWithTracks::analyze(const edm::Event &e, const edm::EventSetup &es) {
       continue;  // skip
 
     bool goodTrack = false;
-    for (vector<float>::iterator m = pvzVector.begin(); m != pvzVector.end(); ++m) {
-      float z = *m;
+    for (float z : pvzVector) {
       float tmp = abs(z - dz);
       hzdiff->Fill(tmp);
       if (tmp < 1.)
@@ -712,7 +711,7 @@ void TestWithTracks::analyze(const edm::Event &e, const edm::EventSetup &es) {
     hPt->Fill(pt);
 
     // Loop over rechits
-    for (trackingRecHit_iterator recHit = t->recHitsBegin(); recHit != t->recHitsEnd(); ++recHit) {
+    for (auto recHit = t.recHitsBegin(); recHit != t.recHitsEnd(); ++recHit) {
       if (!((*recHit)->isValid()))
         continue;
 
@@ -788,7 +787,7 @@ void TestWithTracks::analyze(const edm::Event &e, const edm::EventSetup &es) {
       }
 
       // Get the geom-detector
-      const PixelGeomDetUnit *theGeomDet = dynamic_cast<const PixelGeomDetUnit *>(theTracker.idToDet(hit_detId));
+      const auto *theGeomDet = dynamic_cast<const PixelGeomDetUnit *>(theTracker.idToDet(hit_detId));
       //double detZ = theGeomDet->surface().position().z();  // unused
       //double detR = theGeomDet->surface().position().perp(); // unused
       const PixelTopology *topol = &(theGeomDet->specificTopology());  // pixel topology

@@ -683,9 +683,8 @@ TCanvas* drawMap(const char* cname,
   TList etalines;
   TList etalabels;
   TList paperlabels;
-  for (int i = 0; i < 10; ++i) {
+  for (double eta : etavalext) {
     //	double eta = 3.0-i*0.2;
-    double eta = etavalext[i];
     TLine* lin = new TLine(295, 2 * 295 / (exp(eta) - exp(-eta)), 305, 2 * 305 / (exp(eta) - exp(-eta)));
     etalines.Add(lin);
     char lab[100];
@@ -695,9 +694,9 @@ TCanvas* drawMap(const char* cname,
     label->SetTextAlign(22);
     etalabels.Add(label);
   }
-  for (int i = 0; i < 10; ++i) {
+  for (double i : etavalext) {
     //	double eta = -3.0+i*0.2;
-    double eta = -1 * etavalext[i];
+    double eta = -1 * i;
     TLine* lin = new TLine(-295, -2 * 295 / (exp(eta) - exp(-eta)), -305, -2 * 305 / (exp(eta) - exp(-eta)));
     etalines.Add(lin);
     char lab[100];
@@ -707,9 +706,8 @@ TCanvas* drawMap(const char* cname,
     label->SetTextAlign(22);
     etalabels.Add(label);
   }
-  for (int i = 0; i < 15; ++i) {
+  for (double eta : etavalint) {
     //	double eta = -1.4+i*0.2;
-    double eta = etavalint[i];
     TLine* lin = new TLine(130. * (exp(eta) - exp(-eta)) / 2., 130, 138. * (exp(eta) - exp(-eta)) / 2., 138);
     etalines.Add(lin);
     char lab[100];
@@ -870,11 +868,11 @@ TH1D* TrendPlotSingleBin(TFile* ff, const char* module, const char* hname, const
   std::sort(runs.begin(), runs.end());
 
   {
-    for (unsigned int i = 0; i < runs.size(); ++i) {
+    for (unsigned int run : runs) {
       char runlabel[100];
-      sprintf(runlabel, "%d", runs[i]);
+      sprintf(runlabel, "%d", run);
       char runpath[100];
-      sprintf(runpath, "run_%d", runs[i]);
+      sprintf(runpath, "run_%d", run);
       caoccu.setPath(runpath);
 
       TProfile* occu = nullptr;

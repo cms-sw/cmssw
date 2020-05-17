@@ -44,7 +44,7 @@ bool FWCaloDataHistProxyBuilder::assertCaloDataSlice() {
     TH1::AddDirectory(kFALSE);  //Keeps histogram from going into memory
     m_hist = new TH2F("caloHist", "caloHist", fw3dlego::xbins_n - 1, fw3dlego::xbins, 72, -M_PI, M_PI);
     TH1::AddDirectory(status);
-    TEveCaloDataHist* ch = static_cast<TEveCaloDataHist*>(m_caloData);
+    auto* ch = static_cast<TEveCaloDataHist*>(m_caloData);
     m_sliceIndex = ch->AddHistogram(m_hist);
 
     m_caloData->RefSliceInfo(m_sliceIndex)
@@ -56,7 +56,7 @@ bool FWCaloDataHistProxyBuilder::assertCaloDataSlice() {
     // add new selector
     FWFromTEveCaloDataSelector* sel = nullptr;
     if (m_caloData->GetUserData()) {
-      FWFromEveSelectorBase* base = reinterpret_cast<FWFromEveSelectorBase*>(m_caloData->GetUserData());
+      auto* base = reinterpret_cast<FWFromEveSelectorBase*>(m_caloData->GetUserData());
       assert(nullptr != base);
       sel = dynamic_cast<FWFromTEveCaloDataSelector*>(base);
       assert(nullptr != sel);

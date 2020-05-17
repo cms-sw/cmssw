@@ -69,12 +69,12 @@ void L1TOccupancyClient::book(DQMStore::IBooker& ibooker, DQMStore::IGetter& ige
   //dbe_->setCurrentFolder("L1T/L1TOccupancy/Certification");
 
   // Loop over all tests in defined
-  for (vector<ParameterSet>::iterator it = tests_.begin(); it != tests_.end(); it++) {
+  for (auto& test : tests_) {
     // If the test algorithm is XYSymmetry we create the necessary histograms
-    if ((*it).getUntrackedParameter<string>("algoName", "XYSymmetry") == "XYSymmetry") {
+    if (test.getUntrackedParameter<string>("algoName", "XYSymmetry") == "XYSymmetry") {
       // Getting Parameters for the test
-      string testName = (*it).getParameter<string>("testName");
-      ParameterSet algoParameters = (*it).getParameter<ParameterSet>("algoParams");
+      string testName = test.getParameter<string>("testName");
+      ParameterSet algoParameters = test.getParameter<ParameterSet>("algoParams");
       string histPath = algoParameters.getParameter<string>("histPath");
 
       if (verbose_) {
@@ -120,7 +120,7 @@ void L1TOccupancyClient::book(DQMStore::IBooker& ibooker, DQMStore::IGetter& ige
         m->setTitle(title);
         meCertification[title] = m;
 
-        mValidTests.push_back(&(*it));
+        mValidTests.push_back(&test);
       }
     }
   }
@@ -141,8 +141,8 @@ void L1TOccupancyClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter
   }
 
   // Loop over every test in python
-  for (std::vector<ParameterSet*>::iterator it = mValidTests.begin(); it != mValidTests.end(); it++) {
-    ParameterSet& test = (**it);
+  for (auto& mValidTest : mValidTests) {
+    ParameterSet& test = (*mValidTest);
     string algo_name = test.getUntrackedParameter<string>("algoName", "XYSymmetry");
     string test_name = test.getParameter<string>("testName");
 
@@ -151,7 +151,7 @@ void L1TOccupancyClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter
     }
 
     if (algo_name == "XYSymmetry") {
-      ParameterSet ps = (**it).getParameter<ParameterSet>("algoParams");
+      ParameterSet ps = (*mValidTest).getParameter<ParameterSet>("algoParams");
       string histPath = ps.getParameter<string>("histPath");
 
       vector<pair<int, double> > deadChannels;
@@ -207,8 +207,8 @@ void L1TOccupancyClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter
         vector<int> lsCertification = hservice_->getLSCertification(test_name);
 
         // Fill fraction of dead channels
-        for (unsigned int i = 0; i < lsCertification.size(); i++) {
-          int bin = meCertification[test_name]->getTH1()->FindBin(lsCertification[i]);
+        for (int i : lsCertification) {
+          int bin = meCertification[test_name]->getTH1()->FindBin(i);
           meCertification[test_name]->getTH1()->SetBinContent(bin, 1 - dead);
         }
 
@@ -228,8 +228,8 @@ void L1TOccupancyClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter
         vector<int> lsCertification = hservice_->getLSCertification(test_name);
 
         // Fill fraction of dead channels
-        for (unsigned int i = 0; i < lsCertification.size(); i++) {
-          int bin = meCertification[test_name]->getTH1()->FindBin(lsCertification[i]);
+        for (int i : lsCertification) {
+          int bin = meCertification[test_name]->getTH1()->FindBin(i);
           meCertification[test_name]->getTH1()->SetBinContent(bin, -1);
         }
       }
@@ -276,8 +276,8 @@ void L1TOccupancyClient::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
   }
 
   // Loop over every test in python
-  for (std::vector<ParameterSet*>::const_iterator it = mValidTests.begin(); it != mValidTests.end(); it++) {
-    ParameterSet& test = (**it);
+  for (auto mValidTest : mValidTests) {
+    ParameterSet& test = (*mValidTest);
     string algo_name = test.getUntrackedParameter<string>("algoName", "XYSymmetry");
     string test_name = test.getParameter<string>("testName");
 
@@ -286,7 +286,7 @@ void L1TOccupancyClient::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
     }
 
     if (algo_name == "XYSymmetry") {
-      ParameterSet ps = (**it).getParameter<ParameterSet>("algoParams");
+      ParameterSet ps = (*mValidTest).getParameter<ParameterSet>("algoParams");
       string histPath = ps.getParameter<string>("histPath");
 
       vector<pair<int, double> > deadChannels;
@@ -339,8 +339,8 @@ void L1TOccupancyClient::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
         vector<int> lsCertification = hservice_->getLSCertification(test_name);
 
         // Fill fraction of dead channels
-        for (unsigned int i = 0; i < lsCertification.size(); i++) {
-          int bin = meCertification[test_name]->getTH1()->FindBin(lsCertification[i]);
+        for (int i : lsCertification) {
+          int bin = meCertification[test_name]->getTH1()->FindBin(i);
           meCertification[test_name]->getTH1()->SetBinContent(bin, 1 - dead);
         }
 
@@ -386,7 +386,7 @@ void L1TOccupancyClient::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
 // * double = fraction of bins that failed test, DeadChannels in vector, in: ParameterSet of test parameters
 //____________________________________________________________________________
 double L1TOccupancyClient::xySymmetry(const ParameterSet& ps,
-                                      string iTestName,
+                                      const string& iTestName,
                                       vector<pair<int, double> >& deadChannels,
                                       vector<pair<int, double> >& statDev,
                                       bool& enoughStats) {
@@ -594,7 +594,8 @@ double L1TOccupancyClient::xySymmetry(const ParameterSet& ps,
 // Outputs:
 // * double = Average of input strip
 //____________________________________________________________________________
-double L1TOccupancyClient::getAvrg(TH2F* iHist, string iTestName, int iAxis, int iNBins, int iBinStrip, int iAvgMode) {
+double L1TOccupancyClient::getAvrg(
+    TH2F* iHist, const string& iTestName, int iAxis, int iNBins, int iBinStrip, int iAvgMode) {
   double avg = 0.0;
   TH1D* proj = nullptr;
   TH2F* histo = new TH2F(*iHist);
@@ -672,7 +673,7 @@ double L1TOccupancyClient::getAvrg(TH2F* iHist, string iTestName, int iAxis, int
 void L1TOccupancyClient::printDeadChannels(const vector<pair<int, double> >& iDeadChannels,
                                            TH2F* oHistDeadChannels,
                                            const vector<std::pair<int, double> >& statDev,
-                                           string iTestName) {
+                                           const string& iTestName) {
   // Reset the dead channels histogram
   oHistDeadChannels->Reset();
   if (verbose_) {
@@ -683,8 +684,8 @@ void L1TOccupancyClient::printDeadChannels(const vector<pair<int, double> >& iDe
   float chi2 = 0.0;
 
   // put all bad (value=1) and masked (value=-1) cells in histo
-  for (std::vector<pair<int, double> >::const_iterator it = iDeadChannels.begin(); it != iDeadChannels.end(); it++) {
-    int bin = (*it).first;
+  for (const auto& iDeadChannel : iDeadChannels) {
+    int bin = iDeadChannel.first;
     oHistDeadChannels->GetBinXYZ(bin, x, y, z);
 
     if (hservice_->isMasked(iTestName, x, y)) {
@@ -701,8 +702,8 @@ void L1TOccupancyClient::printDeadChannels(const vector<pair<int, double> >& iDe
   }
 
   // FIXME: Is this needed?
-  for (std::vector<pair<int, double> >::const_iterator it = statDev.begin(); it != statDev.end(); it++) {
-    double dev = (*it).second;
+  for (const auto& it : statDev) {
+    double dev = it.second;
     chi2 += dev;
   }
   //put total chi2 in float
@@ -729,7 +730,7 @@ void L1TOccupancyClient::printDeadChannels(const vector<pair<int, double> >& iDe
 // * int = Number of dead channels
 //____________________________________________________________________________
 int L1TOccupancyClient::compareWithStrip(TH2F* iHist,
-                                         string iTestName,
+                                         const string& iTestName,
                                          int iBinStrip,
                                          int iNBins,
                                          int iAxis,
@@ -790,15 +791,14 @@ int L1TOccupancyClient::compareWithStrip(TH2F* iHist,
 
       // If channel is masked -> set it to value -1
       if (hservice_->isMasked(iTestName, iBinStrip, i)) {
-        oChannels.push_back(pair<int, double>(iHist->GetBin(iBinStrip, i), -1.0));
+        oChannels.emplace_back(iHist->GetBin(iBinStrip, i), -1.0);
       }
       //else perform test
       else if (muup > sigma_up || mulow > sigma_low ||
                ((fabs(muup) == std::numeric_limits<double>::infinity()) &&
                 (fabs(mulow) == std::numeric_limits<double>::infinity()))) {
         dead++;
-        oChannels.push_back(
-            pair<int, double>(iHist->GetBin(iBinStrip, i), abs(iHist->GetBinContent(iBinStrip, i) - iAvg) / iAvg));
+        oChannels.emplace_back(iHist->GetBin(iBinStrip, i), abs(iHist->GetBinContent(iBinStrip, i) - iAvg) / iAvg);
       }
     }
   }
@@ -854,15 +854,14 @@ int L1TOccupancyClient::compareWithStrip(TH2F* iHist,
 
       //if channel is masked -> set it to value -1
       if (hservice_->isMasked(iTestName, i, iBinStrip)) {
-        oChannels.push_back(pair<int, double>(iHist->GetBin(iBinStrip, i), -1.0));
+        oChannels.emplace_back(iHist->GetBin(iBinStrip, i), -1.0);
       }
       //else perform test
       else if (muup > sigma_up || mulow > sigma_low ||
                ((fabs(muup) == std::numeric_limits<double>::infinity()) &&
                 (fabs(mulow) == std::numeric_limits<double>::infinity()))) {
         dead++;
-        oChannels.push_back(
-            pair<int, double>(iHist->GetBin(i, iBinStrip), abs(iHist->GetBinContent(i, iBinStrip) - iAvg) / iAvg));
+        oChannels.emplace_back(iHist->GetBin(i, iBinStrip), abs(iHist->GetBinContent(i, iBinStrip) - iAvg) / iAvg);
       }
     }
   } else {

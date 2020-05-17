@@ -32,7 +32,7 @@ public:
   static const IndexIntoFile::EntryType kEvent = IndexIntoFile::kEvent;
   static const IndexIntoFile::EntryType kEnd = IndexIntoFile::kEnd;
 
-  void setUp() {
+  void setUp() override {
     // Make some fake processHistoryID's to work with
     nullPHID = ProcessHistoryID();
 
@@ -56,7 +56,7 @@ public:
     fakePHID3 = ph3.id();
   }
 
-  void tearDown() {}
+  void tearDown() override {}
 
   void testRunOrLumiEntry();
   void testRunOrLumiIndexes();

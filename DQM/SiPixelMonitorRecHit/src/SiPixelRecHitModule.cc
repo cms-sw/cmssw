@@ -72,7 +72,7 @@ void SiPixelRecHitModule::book(const edm::ParameterSet &iConfig,
   // Get DQM interface
 
   if (type == 0) {
-    SiPixelHistogramId *theHistogramId = new SiPixelHistogramId(src.label());
+    auto *theHistogramId = new SiPixelHistogramId(src.label());
     if (!reducedSet) {
       if (twoD) {
         // XYPosition

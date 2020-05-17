@@ -21,7 +21,7 @@ void AlignPCLThresholds::setNRecords(const int &Nrecords) { m_nrecords = Nrecord
 
 //****************************************************************************//
 AlignPCLThreshold AlignPCLThresholds::getAlignPCLThreshold(const std::string &AlignableId) const {
-  threshold_map::const_iterator it = m_thresholds.find(AlignableId);
+  auto it = m_thresholds.find(AlignableId);
 
   if (it != m_thresholds.end()) {
     return it->second;
@@ -184,47 +184,53 @@ void AlignPCLThresholds::printAll() const {
   edm::LogVerbatim("AlignPCLThresholds") << " ========================================================================="
                                             "==========================================";
   edm::LogVerbatim("AlignPCLThresholds") << "N records cut: " << this->getNrecords();
-  for (auto it = m_thresholds.begin(); it != m_thresholds.end(); ++it) {
+  for (const auto &m_threshold : m_thresholds) {
     edm::LogVerbatim("AlignPCLThresholds") << " ======================================================================="
                                               "============================================";
     edm::LogVerbatim("AlignPCLThresholds")
-        << "key : " << it->first << " \n"
-        << "- Xcut             : " << std::setw(4) << (it->second).getXcut() << std::setw(5) << "   um"
-        << "| sigXcut          : " << std::setw(4) << (it->second).getSigXcut() << std::setw(1) << " "
-        << "| maxMoveXcut      : " << std::setw(4) << (it->second).getMaxMoveXcut() << std::setw(5) << "   um"
-        << "| ErrorXcut        : " << std::setw(4) << (it->second).getErrorXcut() << std::setw(5) << "   um\n"
+        << "key : " << m_threshold.first << " \n"
+        << "- Xcut             : " << std::setw(4) << (m_threshold.second).getXcut() << std::setw(5) << "   um"
+        << "| sigXcut          : " << std::setw(4) << (m_threshold.second).getSigXcut() << std::setw(1) << " "
+        << "| maxMoveXcut      : " << std::setw(4) << (m_threshold.second).getMaxMoveXcut() << std::setw(5) << "   um"
+        << "| ErrorXcut        : " << std::setw(4) << (m_threshold.second).getErrorXcut() << std::setw(5) << "   um\n"
 
-        << "- thetaXcut        : " << std::setw(4) << (it->second).getThetaXcut() << std::setw(5) << " urad"
-        << "| sigThetaXcut     : " << std::setw(4) << (it->second).getSigThetaXcut() << std::setw(1) << " "
-        << "| maxMoveThetaXcut : " << std::setw(4) << (it->second).getMaxMoveThetaXcut() << std::setw(5) << " urad"
-        << "| ErrorThetaXcut   : " << std::setw(4) << (it->second).getErrorThetaXcut() << std::setw(5) << " urad\n"
+        << "- thetaXcut        : " << std::setw(4) << (m_threshold.second).getThetaXcut() << std::setw(5) << " urad"
+        << "| sigThetaXcut     : " << std::setw(4) << (m_threshold.second).getSigThetaXcut() << std::setw(1) << " "
+        << "| maxMoveThetaXcut : " << std::setw(4) << (m_threshold.second).getMaxMoveThetaXcut() << std::setw(5)
+        << " urad"
+        << "| ErrorThetaXcut   : " << std::setw(4) << (m_threshold.second).getErrorThetaXcut() << std::setw(5)
+        << " urad\n"
 
-        << "- Ycut             : " << std::setw(4) << (it->second).getYcut() << std::setw(5) << "   um"
-        << "| sigYcut          : " << std::setw(4) << (it->second).getSigXcut() << std::setw(1) << " "
-        << "| maxMoveYcut      : " << std::setw(4) << (it->second).getMaxMoveYcut() << std::setw(5) << "   um"
-        << "| ErrorYcut        : " << std::setw(4) << (it->second).getErrorYcut() << std::setw(5) << "   um\n"
+        << "- Ycut             : " << std::setw(4) << (m_threshold.second).getYcut() << std::setw(5) << "   um"
+        << "| sigYcut          : " << std::setw(4) << (m_threshold.second).getSigXcut() << std::setw(1) << " "
+        << "| maxMoveYcut      : " << std::setw(4) << (m_threshold.second).getMaxMoveYcut() << std::setw(5) << "   um"
+        << "| ErrorYcut        : " << std::setw(4) << (m_threshold.second).getErrorYcut() << std::setw(5) << "   um\n"
 
-        << "- thetaYcut        : " << std::setw(4) << (it->second).getThetaYcut() << std::setw(5) << " urad"
-        << "| sigThetaYcut     : " << std::setw(4) << (it->second).getSigThetaYcut() << std::setw(1) << " "
-        << "| maxMoveThetaYcut : " << std::setw(4) << (it->second).getMaxMoveThetaYcut() << std::setw(5) << " urad"
-        << "| ErrorThetaYcut   : " << std::setw(4) << (it->second).getErrorThetaYcut() << std::setw(5) << " urad\n"
+        << "- thetaYcut        : " << std::setw(4) << (m_threshold.second).getThetaYcut() << std::setw(5) << " urad"
+        << "| sigThetaYcut     : " << std::setw(4) << (m_threshold.second).getSigThetaYcut() << std::setw(1) << " "
+        << "| maxMoveThetaYcut : " << std::setw(4) << (m_threshold.second).getMaxMoveThetaYcut() << std::setw(5)
+        << " urad"
+        << "| ErrorThetaYcut   : " << std::setw(4) << (m_threshold.second).getErrorThetaYcut() << std::setw(5)
+        << " urad\n"
 
-        << "- Zcut             : " << std::setw(4) << (it->second).getZcut() << std::setw(5) << "   um"
-        << "| sigZcut          : " << std::setw(4) << (it->second).getSigZcut() << std::setw(1) << " "
-        << "| maxMoveZcut      : " << std::setw(4) << (it->second).getMaxMoveZcut() << std::setw(5) << "   um"
-        << "| ErrorZcut        : " << std::setw(4) << (it->second).getErrorZcut() << std::setw(5) << "   um\n"
+        << "- Zcut             : " << std::setw(4) << (m_threshold.second).getZcut() << std::setw(5) << "   um"
+        << "| sigZcut          : " << std::setw(4) << (m_threshold.second).getSigZcut() << std::setw(1) << " "
+        << "| maxMoveZcut      : " << std::setw(4) << (m_threshold.second).getMaxMoveZcut() << std::setw(5) << "   um"
+        << "| ErrorZcut        : " << std::setw(4) << (m_threshold.second).getErrorZcut() << std::setw(5) << "   um\n"
 
-        << "- thetaZcut        : " << std::setw(4) << (it->second).getThetaZcut() << std::setw(5) << " urad"
-        << "| sigThetaZcut     : " << std::setw(4) << (it->second).getSigThetaZcut() << std::setw(1) << " "
-        << "| maxMoveThetaZcut : " << std::setw(4) << (it->second).getMaxMoveThetaZcut() << std::setw(5) << " urad"
-        << "| ErrorThetaZcut   : " << std::setw(4) << (it->second).getErrorThetaZcut() << std::setw(5) << " urad";
+        << "- thetaZcut        : " << std::setw(4) << (m_threshold.second).getThetaZcut() << std::setw(5) << " urad"
+        << "| sigThetaZcut     : " << std::setw(4) << (m_threshold.second).getSigThetaZcut() << std::setw(1) << " "
+        << "| maxMoveThetaZcut : " << std::setw(4) << (m_threshold.second).getMaxMoveThetaZcut() << std::setw(5)
+        << " urad"
+        << "| ErrorThetaZcut   : " << std::setw(4) << (m_threshold.second).getErrorThetaZcut() << std::setw(5)
+        << " urad";
 
-    if ((it->second).hasExtraDOF()) {
-      for (unsigned int j = 0; j < (it->second).extraDOFSize(); j++) {
-        std::array<float, 4> extraDOFCuts = getExtraDOFCutsForAlignable(it->first, j);
+    if ((m_threshold.second).hasExtraDOF()) {
+      for (unsigned int j = 0; j < (m_threshold.second).extraDOFSize(); j++) {
+        std::array<float, 4> extraDOFCuts = getExtraDOFCutsForAlignable(m_threshold.first, j);
 
         edm::LogVerbatim("AlignPCLThresholds")
-            << "Extra DOF " << j << " with label: " << getExtraDOFLabelForAlignable(it->first, j);
+            << "Extra DOF " << j << " with label: " << getExtraDOFLabelForAlignable(m_threshold.first, j);
         edm::LogVerbatim("AlignPCLThresholds")
             << "- cut              : " << std::setw(4) << extraDOFCuts.at(0) << std::setw(5) << "    "
             << "| sigCut           : " << std::setw(4) << extraDOFCuts.at(1) << std::setw(1) << " "
@@ -240,8 +246,8 @@ std::vector<std::string> AlignPCLThresholds::getAlignableList() const {
   std::vector<std::string> alignables_;
   alignables_.reserve(m_thresholds.size());
 
-  for (auto it = m_thresholds.begin(); it != m_thresholds.end(); ++it) {
-    alignables_.push_back(it->first);
+  for (const auto &m_threshold : m_thresholds) {
+    alignables_.push_back(m_threshold.first);
   }
   return alignables_;
 }

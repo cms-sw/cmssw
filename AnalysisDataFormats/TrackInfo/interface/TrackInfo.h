@@ -34,21 +34,21 @@ namespace reco {
 
     const TrajectorySeed &seed() const;
 
-    const RecHitType type(TrackingRecHitRef) const;
+    const RecHitType type(const TrackingRecHitRef &) const;
 
-    const PTrajectoryStateOnDet *stateOnDet(StateType, TrackingRecHitRef) const;
+    const PTrajectoryStateOnDet *stateOnDet(StateType, const TrackingRecHitRef &) const;
 
-    const LocalVector localTrackMomentum(StateType, TrackingRecHitRef) const;
+    const LocalVector localTrackMomentum(StateType, const TrackingRecHitRef &) const;
 
-    const LocalVector localTrackMomentumOnMono(StateType, TrackingRecHitRef) const;
+    const LocalVector localTrackMomentumOnMono(StateType, const TrackingRecHitRef &) const;
 
-    const LocalVector localTrackMomentumOnStereo(StateType, TrackingRecHitRef) const;
+    const LocalVector localTrackMomentumOnStereo(StateType, const TrackingRecHitRef &) const;
 
-    const LocalPoint localTrackPosition(StateType, TrackingRecHitRef) const;
+    const LocalPoint localTrackPosition(StateType, const TrackingRecHitRef &) const;
 
-    const LocalPoint localTrackPositionOnMono(StateType, TrackingRecHitRef) const;
+    const LocalPoint localTrackPositionOnMono(StateType, const TrackingRecHitRef &) const;
 
-    const LocalPoint localTrackPositionOnStereo(StateType, TrackingRecHitRef) const;
+    const LocalPoint localTrackPositionOnStereo(StateType, const TrackingRecHitRef &) const;
 
     const TrajectoryInfo &trajStateMap() const;
 

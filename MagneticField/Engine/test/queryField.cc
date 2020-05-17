@@ -33,9 +33,9 @@ class queryField : public edm::EDAnalyzer {
 public:
   queryField(const edm::ParameterSet& pset) {}
 
-  ~queryField() {}
+  ~queryField() override {}
 
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) {
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override {
     ESHandle<MagneticField> magfield;
     setup.get<IdealMagneticFieldRecord>().get(magfield);
 
@@ -45,7 +45,7 @@ public:
 
     double x, y, z;
 
-    while (1) {
+    while (true) {
       cout << "Enter X Y Z (cm): ";
 
       if (!(cin >> x >> y >> z))

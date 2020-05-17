@@ -276,9 +276,9 @@ void ZeeCalibration::endOfJob() {
   Float_t rms[25] = {0.};
   Float_t tempRms[10][25];
 
-  for (int ia = 0; ia < 10; ia++) {
+  for (auto& tempRm : tempRms) {
     for (int ib = 0; ib < 25; ib++) {
-      tempRms[ia][ib] = 0.;
+      tempRm[ib] = 0.;
     }
   }
 
@@ -427,9 +427,9 @@ void ZeeCalibration::endOfJob() {
 
   //build array of RMS
   for (int ic = 0; ic < 25; ic++) {
-    for (int id = 0; id < 10; id++) {
-      if (tempRms[id][ic] > 0.) {
-        rms[ic] += (tempRms[id][ic] - mean[j]) * (tempRms[id][ic] - mean[j]);
+    for (auto& tempRm : tempRms) {
+      if (tempRm[ic] > 0.) {
+        rms[ic] += (tempRm[ic] - mean[j]) * (tempRm[ic] - mean[j]);
       }
     }
     rms[ic] /= 10.;  //this is approximate
@@ -643,8 +643,8 @@ edm::EDLooper::Status ZeeCalibration::duringLoop(const edm::Event& iEvent, const
 
       if (miscalibMap) {
         initCalibCoeff[k] = 0.;
-        for (unsigned int iid = 0; iid < ringIds.size(); ++iid) {
-          float miscalib = *(miscalibMap->get().getMap().find(ringIds[iid]));
+        for (auto& ringId : ringIds) {
+          float miscalib = *(miscalibMap->get().getMap().find(ringId));
           //	      float miscalib=miscalibMap->get().getMap().find(ringIds[iid])->second; ////////AP
           initCalibCoeff[k] += miscalib;
         }
@@ -671,33 +671,33 @@ edm::EDLooper::Status ZeeCalibration::duringLoop(const edm::Event& iEvent, const
       if (calibMode_ == "ABS_SCALE" || calibMode_ == "ETA_ET_MODE")
         ringIds = EcalRingCalibrationTools::getDetIdsInECAL();
 
-      for (unsigned int iid = 0; iid < ringIds.size(); ++iid) {
+      for (auto& ringId : ringIds) {
         //	ical->setValue( ringIds[iid], 1. * initCalibCoeff[k] );
 
-        if (ringIds[iid].subdetId() == EcalBarrel) {
-          EBDetId myEBDetId(ringIds[iid]);
+        if (ringId.subdetId() == EcalBarrel) {
+          EBDetId myEBDetId(ringId);
           h2_xtalMiscalibCoeffBarrel_->SetBinContent(
               myEBDetId.ieta() + 86,
               myEBDetId.iphi(),
-              *(miscalibMap->get().getMap().find(ringIds[iid])));  //fill TH2 with miscalibCoeff
+              *(miscalibMap->get().getMap().find(ringId)));  //fill TH2 with miscalibCoeff
         }
 
-        if (ringIds[iid].subdetId() == EcalEndcap) {
-          EEDetId myEEDetId(ringIds[iid]);
+        if (ringId.subdetId() == EcalEndcap) {
+          EEDetId myEEDetId(ringId);
           if (myEEDetId.zside() < 0)
             h2_xtalMiscalibCoeffEndcapMinus_->SetBinContent(
                 myEEDetId.ix(),
                 myEEDetId.iy(),
-                *(miscalibMap->get().getMap().find(ringIds[iid])));  //fill TH2 with miscalibCoeff
+                *(miscalibMap->get().getMap().find(ringId)));  //fill TH2 with miscalibCoeff
 
           if (myEEDetId.zside() > 0)
             h2_xtalMiscalibCoeffEndcapPlus_->SetBinContent(
                 myEEDetId.ix(),
                 myEEDetId.iy(),
-                *(miscalibMap->get().getMap().find(ringIds[iid])));  //fill TH2 with miscalibCoeff
+                *(miscalibMap->get().getMap().find(ringId)));  //fill TH2 with miscalibCoeff
         }
 
-        ical->setValue(ringIds[iid], *(miscalibMap->get().getMap().find(ringIds[iid])));
+        ical->setValue(ringId, *(miscalibMap->get().getMap().find(ringId)));
       }
 
       read_events = 0;
@@ -708,8 +708,8 @@ edm::EDLooper::Status ZeeCalibration::duringLoop(const edm::Event& iEvent, const
 
   ////////////////////////////////////////////////////////////////////////////HLT begin
 
-  for (unsigned int iHLT = 0; iHLT < 200; ++iHLT) {
-    aHLTResults[iHLT] = false;
+  for (bool& aHLTResult : aHLTResults) {
+    aHLTResult = false;
   }
 
 #ifdef DEBUG
@@ -836,8 +836,8 @@ edm::EDLooper::Status ZeeCalibration::duringLoop(const edm::Event& iEvent, const
 
 #ifdef DEBUG
   std::cout << "scCollection->size()" << scCollection->size() << std::endl;
-  for (reco::SuperClusterCollection::const_iterator scIt = scCollection->begin(); scIt != scCollection->end(); scIt++) {
-    std::cout << scIt->energy() << std::endl;
+  for (const auto& scIt : *scCollection) {
+    std::cout << scIt.energy() << std::endl;
   }
 #endif
 
@@ -927,7 +927,7 @@ edm::EDLooper::Status ZeeCalibration::duringLoop(const edm::Event& iEvent, const
 
   //#####################################Electron-SC association map: end#####################################################
   for (unsigned int e_it = 0; e_it != electronCollection->size(); e_it++) {
-    calibElectrons.push_back(calib::CalibElectron(&((*electronCollection)[e_it]), hits, ehits));
+    calibElectrons.emplace_back(&((*electronCollection)[e_it]), hits, ehits);
 #ifdef DEBUG
     std::cout << calibElectrons.back().getRecoElectron()->superCluster()->energy() << " "
               << calibElectrons.back().getRecoElectron()->energy() << std::endl;
@@ -970,8 +970,7 @@ edm::EDLooper::Status ZeeCalibration::duringLoop(const edm::Event& iEvent, const
       std::cout << "#######################mass " << mass << std::endl;
 #endif
 
-      zeeCandidates.push_back(
-          std::pair<calib::CalibElectron*, calib::CalibElectron*>(&(calibElectrons[e_it]), &(calibElectrons[p_it])));
+      zeeCandidates.emplace_back(&(calibElectrons[e_it]), &(calibElectrons[p_it]));
       double DeltaMinv = fabs(mass - MZ);
 
       if (DeltaMinv < DeltaMinvMin) {
@@ -1395,17 +1394,17 @@ edm::EDLooper::Status ZeeCalibration::endOfLoop(const edm::EventSetup& iSetup, u
     if (calibMode_ == "ABS_SCALE" || calibMode_ == "ETA_ET_MODE")
       ringIds = EcalRingCalibrationTools::getDetIdsInECAL();
 
-    for (unsigned int iid = 0; iid < ringIds.size(); ++iid) {
-      if (ringIds[iid].subdetId() == EcalBarrel) {
-        EBDetId myEBDetId(ringIds[iid]);
+    for (auto& ringId : ringIds) {
+      if (ringId.subdetId() == EcalBarrel) {
+        EBDetId myEBDetId(ringId);
         h2_xtalRecalibCoeffBarrel_[loopFlag_]->SetBinContent(
             myEBDetId.ieta() + 86,
             myEBDetId.iphi(),
             100 * (calibCoeff[ieta] * initCalibCoeff[ieta] - 1.));  //fill TH2 with recalibCoeff
       }
 
-      if (ringIds[iid].subdetId() == EcalEndcap) {
-        EEDetId myEEDetId(ringIds[iid]);
+      if (ringId.subdetId() == EcalEndcap) {
+        EEDetId myEEDetId(ringId);
         if (myEEDetId.zside() < 0)
           h2_xtalRecalibCoeffEndcapMinus_[loopFlag_]->SetBinContent(
               myEEDetId.ix(),
@@ -1419,7 +1418,7 @@ edm::EDLooper::Status ZeeCalibration::endOfLoop(const edm::EventSetup& iSetup, u
               100 * (calibCoeff[ieta] * initCalibCoeff[ieta] - 1.));  //fill TH2 with recalibCoeff
       }
 
-      ical->setValue(ringIds[iid], *(ical->getMap().find(ringIds[iid])) * optimizedCoefficients[ieta]);
+      ical->setValue(ringId, *(ical->getMap().find(ringId)) * optimizedCoefficients[ieta]);
     }
   }
 
@@ -1817,20 +1816,17 @@ double ZeeCalibration::fEtaBarrelGood(double scEta) const {
 void ZeeCalibration::fillMCmap(const std::vector<const reco::GsfElectron*>* electronCollection,
                                const std::vector<HepMC::GenParticle*>& mcEle,
                                std::map<HepMC::GenParticle*, const reco::GsfElectron*>& myMCmap) {
-  for (unsigned int i = 0; i < mcEle.size(); i++) {
+  for (auto i : mcEle) {
     float minDR = 0.1;
     const reco::GsfElectron* myMatchEle = nullptr;
-    for (unsigned int j = 0; j < electronCollection->size(); j++) {
-      float dr = EvalDR(mcEle[i]->momentum().pseudoRapidity(),
-                        (*(*electronCollection)[j]).eta(),
-                        mcEle[i]->momentum().phi(),
-                        (*(*electronCollection)[j]).phi());
+    for (auto j : *electronCollection) {
+      float dr = EvalDR(i->momentum().pseudoRapidity(), (*j).eta(), i->momentum().phi(), (*j).phi());
       if (dr < minDR) {
-        myMatchEle = (*electronCollection)[j];
+        myMatchEle = j;
         minDR = dr;
       }
     }
-    myMCmap.insert(std::pair<HepMC::GenParticle*, const reco::GsfElectron*>(mcEle[i], myMatchEle));
+    myMCmap.insert(std::pair<HepMC::GenParticle*, const reco::GsfElectron*>(i, myMatchEle));
   }
 }
 
@@ -1859,34 +1855,34 @@ float ZeeCalibration::EvalDPhi(float Phi, float Phi_ref) {
 
 void ZeeCalibration::fillEleInfo(std::vector<HepMC::GenParticle*>& mcEle,
                                  std::map<HepMC::GenParticle*, const reco::GsfElectron*>& associationMap) {
-  for (unsigned int i = 0; i < mcEle.size(); i++) {
-    h_eleEffEta_[0]->Fill(fabs(mcEle[i]->momentum().pseudoRapidity()));
-    h_eleEffPhi_[0]->Fill(mcEle[i]->momentum().phi());
-    h_eleEffPt_[0]->Fill(mcEle[i]->momentum().perp());
+  for (auto& i : mcEle) {
+    h_eleEffEta_[0]->Fill(fabs(i->momentum().pseudoRapidity()));
+    h_eleEffPhi_[0]->Fill(i->momentum().phi());
+    h_eleEffPt_[0]->Fill(i->momentum().perp());
 
-    std::map<HepMC::GenParticle*, const reco::GsfElectron*>::const_iterator mIter = associationMap.find(mcEle[i]);
+    auto mIter = associationMap.find(i);
     if (mIter == associationMap.end())
       continue;
 
     if ((*mIter).second) {
       const reco::GsfElectron* myEle = (*mIter).second;
 
-      h_eleEffEta_[1]->Fill(fabs(mcEle[i]->momentum().pseudoRapidity()));
-      h_eleEffPhi_[1]->Fill(mcEle[i]->momentum().phi());
-      h_eleEffPt_[1]->Fill(mcEle[i]->momentum().perp());
-      h1_eleEtaResol_->Fill(myEle->eta() - mcEle[i]->momentum().eta());
-      h1_elePhiResol_->Fill(myEle->phi() - mcEle[i]->momentum().phi());
+      h_eleEffEta_[1]->Fill(fabs(i->momentum().pseudoRapidity()));
+      h_eleEffPhi_[1]->Fill(i->momentum().phi());
+      h_eleEffPt_[1]->Fill(i->momentum().perp());
+      h1_eleEtaResol_->Fill(myEle->eta() - i->momentum().eta());
+      h1_elePhiResol_->Fill(myEle->phi() - i->momentum().phi());
 
       const reco::SuperCluster* mySC = &(*(myEle->superCluster()));
       if (/*fabs(mySC->position().eta()) < 2.4*/ true) {
         //      if(myEle->classification()>=100)std::cout<<"mySC->preshowerEnergy()"<<mySC->preshowerEnergy()<<std::endl;
 
-        h_ESCEtrue_[loopFlag_]->Fill(mySC->energy() / mcEle[i]->momentum().e());
-        h_ESCEtrueVsEta_[loopFlag_]->Fill(fabs(mySC->position().eta()), mySC->energy() / mcEle[i]->momentum().e());
+        h_ESCEtrue_[loopFlag_]->Fill(mySC->energy() / i->momentum().e());
+        h_ESCEtrueVsEta_[loopFlag_]->Fill(fabs(mySC->position().eta()), mySC->energy() / i->momentum().e());
 
         double corrSCenergy = (mySC->energy()) / getEtaCorrection(myEle);
-        h_ESCcorrEtrue_[loopFlag_]->Fill(corrSCenergy / mcEle[i]->momentum().e());
-        h_ESCcorrEtrueVsEta_[loopFlag_]->Fill(fabs(mySC->position().eta()), corrSCenergy / mcEle[i]->momentum().e());
+        h_ESCcorrEtrue_[loopFlag_]->Fill(corrSCenergy / i->momentum().e());
+        h_ESCcorrEtrueVsEta_[loopFlag_]->Fill(fabs(mySC->position().eta()), corrSCenergy / i->momentum().e());
 
         //	      std::vector<DetId> mySCRecHits = mySC->seed()->getHitsByDetId();
 
@@ -1952,17 +1948,16 @@ std::pair<DetId, double> ZeeCalibration::getHottestDetId(const std::vector<std::
 
   std::pair<DetId, double> myPair(DetId(0), -9999.);
 
-  for (std::vector<std::pair<DetId, float> >::const_iterator idIt = mySCRecHits.begin(); idIt != mySCRecHits.end();
-       idIt++) {
-    if (idIt->first.subdetId() == EcalBarrel) {
-      hottestRecHit = &(*(ebhits->find((*idIt).first)));
+  for (const auto& mySCRecHit : mySCRecHits) {
+    if (mySCRecHit.first.subdetId() == EcalBarrel) {
+      hottestRecHit = &(*(ebhits->find(mySCRecHit.first)));
 
       if (hottestRecHit == &(*(ebhits->end()))) {
         std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@ NO RECHIT FOUND SHOULD NEVER HAPPEN" << std::endl;
         continue;
       }
-    } else if (idIt->first.subdetId() == EcalEndcap) {
-      hottestRecHit = &(*(eehits->find((*idIt).first)));
+    } else if (mySCRecHit.first.subdetId() == EcalEndcap) {
+      hottestRecHit = &(*(eehits->find(mySCRecHit.first)));
       if (hottestRecHit == &(*(eehits->end()))) {
         std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@ NO RECHIT FOUND SHOULD NEVER HAPPEN" << std::endl;
         continue;

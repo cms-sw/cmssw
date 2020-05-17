@@ -154,8 +154,8 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent, const edm::EventSetup &iS
       } else {
         // Get GMT candidates from all bunch crossings
         vector<L1MuGMTReadoutRecord> records = hwMuCollection->getRecords();
-        vector<L1MuGMTReadoutRecord>::const_iterator rItr = records.begin();
-        vector<L1MuGMTReadoutRecord>::const_iterator rEnd = records.end();
+        auto rItr = records.begin();
+        auto rEnd = records.end();
 
         for (; rItr != rEnd; ++rItr) {
           vector<L1MuGMTExtendedCand> tmpCands = rItr->getGMTCands();
@@ -165,8 +165,8 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent, const edm::EventSetup &iS
       }
 
       //       cout << "HW muons" << endl ;
-      vector<L1MuGMTExtendedCand>::const_iterator muItr = hwMuCands.begin();
-      vector<L1MuGMTExtendedCand>::const_iterator muEnd = hwMuCands.end();
+      auto muItr = hwMuCands.begin();
+      auto muEnd = hwMuCands.end();
       for (int i = 0; muItr != muEnd; ++muItr, ++i) {
         // 	 cout << "#" << i
         // 	      << " name " << muItr->name()
@@ -243,8 +243,8 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent, const edm::EventSetup &iS
     } else {
       //       cout << "HW iso EM" << endl ;
 
-      L1GctEmCandCollection::const_iterator emItr = hwIsoEmCands->begin();
-      L1GctEmCandCollection::const_iterator emEnd = hwIsoEmCands->end();
+      auto emItr = hwIsoEmCands->begin();
+      auto emEnd = hwIsoEmCands->end();
       for (int i = 0; emItr != emEnd; ++emItr, ++i) {
         // 	 cout << "#" << i
         // 	      << " name " << emItr->name()
@@ -277,8 +277,8 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent, const edm::EventSetup &iS
                                        << "\nrequested in configuration, but not found in the event." << std::endl;
     } else {
       //       cout << "HW non-iso EM" << endl ;
-      L1GctEmCandCollection::const_iterator emItr = hwNonIsoEmCands->begin();
-      L1GctEmCandCollection::const_iterator emEnd = hwNonIsoEmCands->end();
+      auto emItr = hwNonIsoEmCands->begin();
+      auto emEnd = hwNonIsoEmCands->end();
       for (int i = 0; emItr != emEnd; ++emItr, ++i) {
         // 	 cout << "#" << i
         // 	      << " name " << emItr->name()
@@ -317,8 +317,8 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent, const edm::EventSetup &iS
                                        << "\nrequested in configuration, but not found in the event." << std::endl;
     } else {
       //       cout << "HW central jets" << endl ;
-      L1GctJetCandCollection::const_iterator jetItr = hwCenJetCands->begin();
-      L1GctJetCandCollection::const_iterator jetEnd = hwCenJetCands->end();
+      auto jetItr = hwCenJetCands->begin();
+      auto jetEnd = hwCenJetCands->end();
       for (int i = 0; jetItr != jetEnd; ++jetItr, ++i) {
         // 	 cout << "#" << i
         // 	      << " name " << jetItr->name()
@@ -354,8 +354,8 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent, const edm::EventSetup &iS
                                        << "\nrequested in configuration, but not found in the event." << std::endl;
     } else {
       //       cout << "HW forward jets" << endl ;
-      L1GctJetCandCollection::const_iterator jetItr = hwForJetCands->begin();
-      L1GctJetCandCollection::const_iterator jetEnd = hwForJetCands->end();
+      auto jetItr = hwForJetCands->begin();
+      auto jetEnd = hwForJetCands->end();
       for (int i = 0; jetItr != jetEnd; ++jetItr, ++i) {
         // 	 cout << "#" << i
         // 	      << " name " << jetItr->name()
@@ -391,8 +391,8 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent, const edm::EventSetup &iS
       LogDebug("L1ExtraParticlesProd") << "\nWarning: L1GctJetCandCollection with " << tauJetSource_
                                        << "\nrequested in configuration, but not found in the event." << std::endl;
     } else {
-      L1GctJetCandCollection::const_iterator jetItr = hwTauJetCands->begin();
-      L1GctJetCandCollection::const_iterator jetEnd = hwTauJetCands->end();
+      auto jetItr = hwTauJetCands->begin();
+      auto jetEnd = hwTauJetCands->end();
       for (int i = 0; jetItr != jetEnd; ++jetItr, ++i) {
         // 	 cout << "#" << i
         // 	      << " name " << jetItr->name()
@@ -428,8 +428,8 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent, const edm::EventSetup &iS
       LogDebug("L1ExtraParticlesProd") << "\nWarning: L1GctJetCandCollection with " << isoTauJetSource_
                                        << "\nrequested in configuration, but not found in the event." << std::endl;
     } else {
-      L1GctJetCandCollection::const_iterator jetItr = hwIsoTauJetCands->begin();
-      L1GctJetCandCollection::const_iterator jetEnd = hwIsoTauJetCands->end();
+      auto jetItr = hwIsoTauJetCands->begin();
+      auto jetEnd = hwIsoTauJetCands->end();
       for (int i = 0; jetItr != jetEnd; ++jetItr, ++i) {
         // 	 cout << "#" << i
         // 	      << " name " << jetItr->name()
@@ -478,15 +478,15 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent, const edm::EventSetup &iS
       // have a corresponding L1GctEtTotal object.
       std::vector<bool> etMissMatched;
 
-      L1GctEtMissCollection::const_iterator hwEtMissItr = hwEtMissColl->begin();
-      L1GctEtMissCollection::const_iterator hwEtMissEnd = hwEtMissColl->end();
+      auto hwEtMissItr = hwEtMissColl->begin();
+      auto hwEtMissEnd = hwEtMissColl->end();
       for (; hwEtMissItr != hwEtMissEnd; ++hwEtMissItr) {
         etMissMatched.push_back(false);
       }
 
       // Collate energy sums by bx
-      L1GctEtTotalCollection::const_iterator hwEtTotItr = hwEtTotColl->begin();
-      L1GctEtTotalCollection::const_iterator hwEtTotEnd = hwEtTotColl->end();
+      auto hwEtTotItr = hwEtTotColl->begin();
+      auto hwEtTotEnd = hwEtTotColl->end();
 
       int iTot = 0;
       for (; hwEtTotItr != hwEtTotEnd; ++hwEtTotItr, ++iTot) {
@@ -631,8 +631,8 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent, const edm::EventSetup &iS
         // Make a L1EtMissParticle even if either L1GctEtHad or L1GctHtMiss
         // is missing for a given bx. Keep track of which L1GctHtMiss objects
         // have a corresponding L1GctHtTotal object.
-        L1GctHtMissCollection::const_iterator hwHtMissItr = hwHtMissColl->begin();
-        L1GctHtMissCollection::const_iterator hwHtMissEnd = hwHtMissColl->end();
+        auto hwHtMissItr = hwHtMissColl->begin();
+        auto hwHtMissEnd = hwHtMissColl->end();
         for (; hwHtMissItr != hwHtMissEnd; ++hwHtMissItr) {
           htMissMatched.push_back(false);
         }
@@ -646,8 +646,8 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent, const edm::EventSetup &iS
       LogDebug("L1ExtraParticlesProd") << "\nWarning: L1GctHtMissCollection with " << htMissSource_
                                        << "\nrequested in configuration, but not found in the event." << std::endl;
     } else {
-      L1GctEtHadCollection::const_iterator hwEtHadItr = hwEtHadColl->begin();
-      L1GctEtHadCollection::const_iterator hwEtHadEnd = hwEtHadColl->end();
+      auto hwEtHadItr = hwEtHadColl->begin();
+      auto hwEtHadEnd = hwEtHadColl->end();
 
       int iHad = 0;
       for (; hwEtHadItr != hwEtHadEnd; ++hwEtHadItr, ++iHad) {
@@ -665,8 +665,8 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent, const edm::EventSetup &iS
           Ref<L1GctHtMissCollection> mhtRef;
 
           if (!ignoreHtMiss_) {
-            L1GctHtMissCollection::const_iterator hwHtMissItr = hwHtMissColl->begin();
-            L1GctHtMissCollection::const_iterator hwHtMissEnd = hwHtMissColl->end();
+            auto hwHtMissItr = hwHtMissColl->begin();
+            auto hwHtMissEnd = hwHtMissColl->end();
 
             int iMiss = 0;
             for (; hwHtMissItr != hwHtMissEnd; ++hwHtMissItr, ++iMiss) {
@@ -729,8 +729,8 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent, const edm::EventSetup &iS
         // a matched L1GctHtTotal object.
         double htTot = 0.;
 
-        L1GctHtMissCollection::const_iterator hwHtMissItr = hwHtMissColl->begin();
-        L1GctHtMissCollection::const_iterator hwHtMissEnd = hwHtMissColl->end();
+        auto hwHtMissItr = hwHtMissColl->begin();
+        auto hwHtMissEnd = hwHtMissColl->end();
 
         int iMiss = 0;
         for (; hwHtMissItr != hwHtMissEnd; ++hwHtMissItr, ++iMiss) {
@@ -786,16 +786,16 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent, const edm::EventSetup &iS
       LogDebug("L1ExtraParticlesProd") << "\nWarning: L1GctHFBitCountsCollection with " << hfRingBitCountsSource_
                                        << "\nrequested in configuration, but not found in the event." << std::endl;
     } else {
-      L1GctHFRingEtSumsCollection::const_iterator hwHFEtSumsItr = hwHFEtSumsColl->begin();
-      L1GctHFRingEtSumsCollection::const_iterator hwHFEtSumsEnd = hwHFEtSumsColl->end();
+      auto hwHFEtSumsItr = hwHFEtSumsColl->begin();
+      auto hwHFEtSumsEnd = hwHFEtSumsColl->end();
 
       int iEtSums = 0;
       for (; hwHFEtSumsItr != hwHFEtSumsEnd; ++hwHFEtSumsItr, ++iEtSums) {
         int bx = hwHFEtSumsItr->bx();
 
         if (!centralBxOnly_ || bx == 0) {
-          L1GctHFBitCountsCollection::const_iterator hwHFBitCountsItr = hwHFBitCountsColl->begin();
-          L1GctHFBitCountsCollection::const_iterator hwHFBitCountsEnd = hwHFBitCountsColl->end();
+          auto hwHFBitCountsItr = hwHFBitCountsColl->begin();
+          auto hwHFBitCountsEnd = hwHFBitCountsColl->end();
 
           int iBitCounts = 0;
           for (; hwHFBitCountsItr != hwHFBitCountsEnd; ++hwHFBitCountsItr, ++iBitCounts) {

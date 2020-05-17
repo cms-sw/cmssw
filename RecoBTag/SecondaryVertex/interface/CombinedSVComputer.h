@@ -231,9 +231,7 @@ void CombinedSVComputer::fillCommonVariables(reco::TaggingVariableList &vars,
   if (vtxType == btag::Vertices::NoVertex && vertexKinematics.numberOfTracks() >= pseudoMultiplicityMin &&
       pseudoVertexV0Filter(pseudoVertexTracks)) {
     vtxType = btag::Vertices::PseudoVertex;
-    for (typename std::vector<TrackRef>::const_iterator trkIt = pseudoVertexTracks.begin();
-         trkIt != pseudoVertexTracks.end();
-         ++trkIt) {
+    for (auto trkIt = pseudoVertexTracks.begin(); trkIt != pseudoVertexTracks.end(); ++trkIt) {
       vars.insert(btau::trackEtaRel, reco::btau::etaRel(jetDir, (*trkIt)->momentum()), true);
       vtx_track_ptSum += std::sqrt((*trkIt)->momentum().Perp2());
       vtx_track_ESum += std::sqrt((*trkIt)->momentum().Mag2() + ROOT::Math::Square(ParticleMasses::piPlus));

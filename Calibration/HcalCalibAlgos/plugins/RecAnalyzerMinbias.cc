@@ -177,7 +177,7 @@ RecAnalyzerMinbias::RecAnalyzerMinbias(const edm::ParameterSet& iConfig) : init_
         break;
       HcalDetId detId(id);
       nrec++;
-      std::map<DetId, double>::iterator itr = corrFactor_.find(detId);
+      auto itr = corrFactor_.find(detId);
       if (itr == corrFactor_.end()) {
         corrFactor_[detId] = cfac;
         ndets++;
@@ -538,11 +538,10 @@ void RecAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
     iEvent.getByToken(tok_hltL1GtMap_, gtObjectMapRecord);
     if (gtObjectMapRecord.isValid()) {
       const std::vector<L1GlobalTriggerObjectMap>& objMapVec = gtObjectMapRecord->gtObjectMap();
-      for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itMap = objMapVec.begin(); itMap != objMapVec.end();
-           ++itMap) {
-        bool resultGt = (*itMap).algoGtlResult();
+      for (const auto& itMap : objMapVec) {
+        bool resultGt = itMap.algoGtlResult();
         if (resultGt) {
-          int algoBit = (*itMap).algoBitNumber();
+          int algoBit = itMap.algoBitNumber();
           if (std::find(trigbit_.begin(), trigbit_.end(), algoBit) != trigbit_.end()) {
             select = true;
             break;
@@ -573,11 +572,10 @@ void RecAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
     if (gtObjectMapRecord.isValid()) {
       const std::vector<L1GlobalTriggerObjectMap>& objMapVec = gtObjectMapRecord->gtObjectMap();
       bool ok(false);
-      for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itMap = objMapVec.begin(); itMap != objMapVec.end();
-           ++itMap) {
-        bool resultGt = (*itMap).algoGtlResult();
+      for (const auto& itMap : objMapVec) {
+        bool resultGt = itMap.algoGtlResult();
         if (resultGt) {
-          int algoBit = (*itMap).algoBitNumber();
+          int algoBit = itMap.algoBitNumber();
           analyzeHcal(HithbheMB, HithfMB, algoBit, (!ok), eventWeight);
           ok = true;
         }
@@ -593,18 +591,18 @@ void RecAnalyzerMinbias::analyzeHcal(
     const HBHERecHitCollection& HithbheMB, const HFRecHitCollection& HithfMB, int algoBit, bool fill, double weight) {
   // Signal part for HB HE
   int count(0), countHB(0), countHE(0), count2(0), count2HB(0), count2HE(0);
-  for (HBHERecHitCollection::const_iterator hbheItr = HithbheMB.begin(); hbheItr != HithbheMB.end(); hbheItr++) {
+  for (const auto& hbheItr : HithbheMB) {
     // Recalibration of energy
-    DetId mydetid = hbheItr->id().rawId();
+    DetId mydetid = hbheItr.id().rawId();
     double icalconst(1.);
     if (theRecalib_) {
-      std::map<DetId, double>::iterator itr = corrFactor_.find(mydetid);
+      auto itr = corrFactor_.find(mydetid);
       if (itr != corrFactor_.end())
         icalconst = itr->second;
     }
-    HBHERecHit aHit(hbheItr->id(), hbheItr->energy() * icalconst, hbheItr->time());
+    HBHERecHit aHit(hbheItr.id(), hbheItr.energy() * icalconst, hbheItr.time());
     double energyhit = aHit.energy();
-    DetId id = (*hbheItr).detid();
+    DetId id = hbheItr.detid();
     HcalDetId hid = HcalDetId(id);
     double eLow = (hid.subdet() == HcalEndcap) ? eLowHE_ : eLowHB_;
     double eHigh = (hid.subdet() == HcalEndcap) ? eHighHE_ : eHighHB_;
@@ -621,7 +619,7 @@ void RecAnalyzerMinbias::analyzeHcal(
         }
       }
       if (fillHist_) {
-        std::map<HcalDetId, TH1D*>::iterator itr1 = histHC_.find(hid);
+        auto itr1 = histHC_.find(hid);
         if (itr1 != histHC_.end())
           itr1->second->Fill(energyhit);
       }
@@ -640,8 +638,7 @@ void RecAnalyzerMinbias::analyzeHcal(
     }
     if (!fillHist_) {
       if (Noise_ || runNZS_ || (energyhit >= eLow && energyhit <= eHigh)) {
-        std::map<std::pair<int, HcalDetId>, myInfo>::iterator itr1 =
-            myMap_.find(std::pair<int, HcalDetId>(algoBit, hid));
+        auto itr1 = myMap_.find(std::pair<int, HcalDetId>(algoBit, hid));
         if (itr1 == myMap_.end()) {
           myInfo info;
           myMap_[std::pair<int, HcalDetId>(algoBit, hid)] = info;
@@ -671,19 +668,19 @@ void RecAnalyzerMinbias::analyzeHcal(
 #endif
   int countHF(0), count2HF(0);
   // Signal part for HF
-  for (HFRecHitCollection::const_iterator hfItr = HithfMB.begin(); hfItr != HithfMB.end(); hfItr++) {
+  for (const auto& hfItr : HithfMB) {
     // Recalibration of energy
-    DetId mydetid = hfItr->id().rawId();
+    DetId mydetid = hfItr.id().rawId();
     double icalconst(1.);
     if (theRecalib_) {
-      std::map<DetId, double>::iterator itr = corrFactor_.find(mydetid);
+      auto itr = corrFactor_.find(mydetid);
       if (itr != corrFactor_.end())
         icalconst = itr->second;
     }
-    HFRecHit aHit(hfItr->id(), hfItr->energy() * icalconst, hfItr->time());
+    HFRecHit aHit(hfItr.id(), hfItr.energy() * icalconst, hfItr.time());
 
     double energyhit = aHit.energy();
-    DetId id = (*hfItr).detid();
+    DetId id = hfItr.detid();
     HcalDetId hid = HcalDetId(id);
     ++countHF;
     if (fill) {
@@ -694,7 +691,7 @@ void RecAnalyzerMinbias::analyzeHcal(
         }
       }
       if (fillHist_) {
-        std::map<HcalDetId, TH1D*>::iterator itr1 = histHC_.find(hid);
+        auto itr1 = histHC_.find(hid);
         if (itr1 != histHC_.end())
           itr1->second->Fill(energyhit);
       }
@@ -710,8 +707,7 @@ void RecAnalyzerMinbias::analyzeHcal(
     //
     if (!fillHist_) {
       if (((Noise_ || runNZS_) && fabs(energyhit) <= 40.) || (energyhit >= eLowHF_ && energyhit <= eHighHF_)) {
-        std::map<std::pair<int, HcalDetId>, myInfo>::iterator itr1 =
-            myMap_.find(std::pair<int, HcalDetId>(algoBit, hid));
+        auto itr1 = myMap_.find(std::pair<int, HcalDetId>(algoBit, hid));
         if (itr1 == myMap_.end()) {
           myInfo info;
           myMap_[std::pair<int, HcalDetId>(algoBit, hid)] = info;

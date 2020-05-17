@@ -25,7 +25,7 @@ void GenMETExtractor::produce(edm::StreamID streamID, edm::Event &iEvent, const 
 
   const reco::GenMET *genMet = src->front().genMET();
 
-  std::vector<reco::GenMET> *genMetCol = new std::vector<reco::GenMET>();
+  auto *genMetCol = new std::vector<reco::GenMET>();
   genMetCol->push_back((*genMet));
 
   std::unique_ptr<std::vector<reco::GenMET> > genMETs(genMetCol);

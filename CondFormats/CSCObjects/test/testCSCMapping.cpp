@@ -30,7 +30,7 @@ class testCSCMapping : public CppUnit::TestFixture {
 public:
   testCSCMapping() : myName_("testCSCMapping"), dashedLineWidth(104), dashedLine(std::string(dashedLineWidth, '-')) {}
 
-  void setUp() {
+  void setUp() override {
     char* ret = getenv("CMSSW_BASE");
     if (!ret) {
       std::cerr << "env variable SCRAMRT_LOCALRT not set, try eval `scramv1 runt -sh`" << std::endl;
@@ -48,7 +48,7 @@ public:
     }
   }
 
-  void tearDown() {}
+  void tearDown() override {}
 
   void testRead();
 

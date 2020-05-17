@@ -40,26 +40,26 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::vector<std::vector<std::st
   CALIB_OBJ_DATA_CLOB			    NOT NULL CLOB
   */
 
-  colNames.push_back("CONFIG_KEY");
-  colNames.push_back("KEY_TYPE");
-  colNames.push_back("KEY_ALIAS");
-  colNames.push_back("VERSION");
-  colNames.push_back("KIND_OF_COND");
-  colNames.push_back("CALIB_TYPE");
-  colNames.push_back("CALIB_OBJ_DATA_FILE");
-  colNames.push_back("CALIB_OBJ_DATA_CLOB");
+  colNames.emplace_back("CONFIG_KEY");
+  colNames.emplace_back("KEY_TYPE");
+  colNames.emplace_back("KEY_ALIAS");
+  colNames.emplace_back("VERSION");
+  colNames.emplace_back("KIND_OF_COND");
+  colNames.emplace_back("CALIB_TYPE");
+  colNames.emplace_back("CALIB_OBJ_DATA_FILE");
+  colNames.emplace_back("CALIB_OBJ_DATA_CLOB");
 
   for (unsigned int c = 0; c < tableMat[0].size(); c++) {
-    for (unsigned int n = 0; n < colNames.size(); n++) {
-      if (tableMat[0][c] == colNames[n]) {
-        colM[colNames[n]] = c;
+    for (const auto& colName : colNames) {
+      if (tableMat[0][c] == colName) {
+        colM[colName] = c;
         break;
       }
     }
   }  //end for
-  for (unsigned int n = 0; n < colNames.size(); n++) {
-    if (colM.find(colNames[n]) == colM.end()) {
-      std::cerr << mthn << "Couldn't find in the database the column with name " << colNames[n] << std::endl;
+  for (const auto& colName : colNames) {
+    if (colM.find(colName) == colM.end()) {
+      std::cerr << mthn << "Couldn't find in the database the column with name " << colName << std::endl;
       assert(0);
     }
   }
@@ -264,10 +264,8 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::vector<std::vector<std::st
   rocAndModuleListsBuilt_ = false;
   if (buildROCListNow) {
     std::set<PixelROCName> rocSet;
-    for (std::vector<std::string>::iterator rocListInstructions_itr = rocListInstructions_.begin();
-         rocListInstructions_itr != rocListInstructions_.end();
-         ++rocListInstructions_itr) {
-      PixelROCName rocname(*rocListInstructions_itr);
+    for (auto& rocListInstruction : rocListInstructions_) {
+      PixelROCName rocname(rocListInstruction);
       rocSet.insert(rocname);
     }
     buildROCAndModuleListsFromROCSet(rocSet);
@@ -282,7 +280,8 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::vector<std::vector<std::st
   return;
 }
 
-PixelCalibConfiguration::PixelCalibConfiguration(std::string filename) : PixelCalibBase(), PixelConfigBase("", "", "") {
+PixelCalibConfiguration::PixelCalibConfiguration(const std::string& filename)
+    : PixelCalibBase(), PixelConfigBase("", "", "") {
   std::string mthn = "[PixelCalibConfiguration::PixelCalibConfiguration()]\t    ";
 
   _bufferData = true;
@@ -498,10 +497,8 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::string filename) : PixelCa
   rocAndModuleListsBuilt_ = false;
   if (buildROCListNow) {
     std::set<PixelROCName> rocSet;
-    for (std::vector<std::string>::iterator rocListInstructions_itr = rocListInstructions_.begin();
-         rocListInstructions_itr != rocListInstructions_.end();
-         ++rocListInstructions_itr) {
-      PixelROCName rocname(*rocListInstructions_itr);
+    for (auto& rocListInstruction : rocListInstructions_) {
+      PixelROCName rocname(rocListInstruction);
       rocSet.insert(rocname);
     }
     buildROCAndModuleListsFromROCSet(rocSet);
@@ -540,11 +537,7 @@ void PixelCalibConfiguration::buildROCAndModuleLists(const PixelNameTranslation*
   std::set<PixelROCName> rocSet;
   bool addNext = true;
   const map<PixelROCName, PixelROCStatus>& iroclist = detconfig->getROCsList();
-  for (std::vector<std::string>::iterator rocListInstructions_itr = rocListInstructions_.begin();
-       rocListInstructions_itr != rocListInstructions_.end();
-       ++rocListInstructions_itr) {
-    std::string instruction = *rocListInstructions_itr;
-
+  for (auto instruction : rocListInstructions_) {
     if (instruction == "+") {
       addNext = true;
       continue;
@@ -558,18 +551,14 @@ void PixelCalibConfiguration::buildROCAndModuleLists(const PixelNameTranslation*
       if (addNext)  // add all ROCs in the configuration
       {
         const std::vector<PixelModuleName>& moduleList = detconfig->getModuleList();
-        for (std::vector<PixelModuleName>::const_iterator moduleList_itr = moduleList.begin();
-             moduleList_itr != moduleList.end();
-             ++moduleList_itr) {
-          std::vector<PixelROCName> ROCsOnThisModule = translation->getROCsFromModule(*moduleList_itr);
-          for (std::vector<PixelROCName>::const_iterator ROCsOnThisModule_itr = ROCsOnThisModule.begin();
-               ROCsOnThisModule_itr != ROCsOnThisModule.end();
-               ++ROCsOnThisModule_itr) {
-            map<PixelROCName, PixelROCStatus>::const_iterator it = iroclist.find(*ROCsOnThisModule_itr);
+        for (const auto& moduleList_itr : moduleList) {
+          std::vector<PixelROCName> ROCsOnThisModule = translation->getROCsFromModule(moduleList_itr);
+          for (const auto& ROCsOnThisModule_itr : ROCsOnThisModule) {
+            auto it = iroclist.find(ROCsOnThisModule_itr);
             assert(it != iroclist.end());
             PixelROCStatus istatus = it->second;
             if (!istatus.get(PixelROCStatus::noAnalogSignal))
-              rocSet.insert(*ROCsOnThisModule_itr);
+              rocSet.insert(ROCsOnThisModule_itr);
           }
         }
       } else  // remove all ROCs
@@ -592,17 +581,15 @@ void PixelCalibConfiguration::buildROCAndModuleLists(const PixelNameTranslation*
     if (modulename.modulename() == instruction)  // it's a module
     {
       std::vector<PixelROCName> ROCsOnThisModule = translation->getROCsFromModule(modulename);
-      for (std::vector<PixelROCName>::iterator ROCsOnThisModule_itr = ROCsOnThisModule.begin();
-           ROCsOnThisModule_itr != ROCsOnThisModule.end();
-           ++ROCsOnThisModule_itr) {
+      for (auto& ROCsOnThisModule_itr : ROCsOnThisModule) {
         if (addNext) {
-          map<PixelROCName, PixelROCStatus>::const_iterator it = iroclist.find(*ROCsOnThisModule_itr);
+          auto it = iroclist.find(ROCsOnThisModule_itr);
           assert(it != iroclist.end());
           PixelROCStatus istatus = it->second;
           if (!istatus.get(PixelROCStatus::noAnalogSignal))
-            rocSet.insert(*ROCsOnThisModule_itr);
+            rocSet.insert(ROCsOnThisModule_itr);
         } else
-          rocSet.erase(*ROCsOnThisModule_itr);
+          rocSet.erase(ROCsOnThisModule_itr);
       }
       addNext = true;
       continue;
@@ -613,15 +600,14 @@ void PixelCalibConfiguration::buildROCAndModuleLists(const PixelNameTranslation*
         // Only add this ROC if it's in the configuration.
         bool foundIt = false;
         std::list<const PixelROCName*> allROCs = translation->getROCs();
-        for (std::list<const PixelROCName*>::iterator allROCs_itr = allROCs.begin(); allROCs_itr != allROCs.end();
-             ++allROCs_itr) {
-          if ((*(*allROCs_itr)) == rocname) {
+        for (auto& allROC : allROCs) {
+          if ((*allROC) == rocname) {
             foundIt = true;
             break;
           }
         }
         if (foundIt) {
-          map<PixelROCName, PixelROCStatus>::const_iterator it = iroclist.find(rocname);
+          auto it = iroclist.find(rocname);
           assert(it != iroclist.end());
           PixelROCStatus istatus = it->second;
           if (!istatus.get(PixelROCStatus::noAnalogSignal))
@@ -649,8 +635,8 @@ void PixelCalibConfiguration::buildROCAndModuleListsFromROCSet(const std::set<Pi
 
   std::string mthn = "[PixelCalibConfiguration::buildROCAndModuleListsFromROCSet()]    ";
   // Build the ROC list from the ROC set.
-  for (std::set<PixelROCName>::iterator rocSet_itr = rocSet.begin(); rocSet_itr != rocSet.end(); ++rocSet_itr) {
-    rocs_.push_back(*rocSet_itr);
+  for (const auto& rocSet_itr : rocSet) {
+    rocs_.push_back(rocSet_itr);
   }
 
   //t.stop();
@@ -659,9 +645,9 @@ void PixelCalibConfiguration::buildROCAndModuleListsFromROCSet(const std::set<Pi
 
   // Build the module set from the ROC set.
   std::map<PixelModuleName, unsigned int> countROC;
-  for (std::set<PixelROCName>::iterator rocSet_itr = rocSet.begin(); rocSet_itr != rocSet.end(); ++rocSet_itr) {
+  for (const auto& rocSet_itr : rocSet) {
     //t1.start();
-    PixelModuleName modulename(*rocSet_itr);
+    PixelModuleName modulename(rocSet_itr);
     //t1.stop();
     //t2.start();
     modules_.insert(modulename);
@@ -692,10 +678,9 @@ void PixelCalibConfiguration::buildROCAndModuleListsFromROCSet(const std::set<Pi
   nROC_ = 1;
   if (singleROC_) {
     unsigned maxROCs = 0;
-    for (std::map<PixelModuleName, unsigned int>::iterator imodule = countROC.begin(); imodule != countROC.end();
-         ++imodule) {
-      if (imodule->second > maxROCs)
-        maxROCs = imodule->second;
+    for (auto& imodule : countROC) {
+      if (imodule.second > maxROCs)
+        maxROCs = imodule.second;
     }
     nROC_ = maxROCs;
 
@@ -717,8 +702,8 @@ void PixelCalibConfiguration::buildObjectsDependingOnTheNameTranslation(const Pi
 
   // Build the channel list.
   assert(channels_.empty());
-  for (std::vector<PixelROCName>::const_iterator rocs_itr = rocs_.begin(); rocs_itr != rocs_.end(); ++rocs_itr) {
-    channels_.insert(aNameTranslation->getChannelForROC(*rocs_itr));
+  for (const auto& roc : rocs_) {
+    channels_.insert(aNameTranslation->getChannelForROC(roc));
   }
 
   // Build the maps from ROC to ROC number.
@@ -727,27 +712,23 @@ void PixelCalibConfiguration::buildObjectsDependingOnTheNameTranslation(const Pi
 
   std::set<PixelROCName> tempROCs;
 
-  for (std::vector<PixelROCName>::const_iterator it = rocs_.begin(); it != rocs_.end(); ++it) {
-    tempROCs.insert(*it);
+  for (const auto& roc : rocs_) {
+    tempROCs.insert(roc);
   }
 
-  for (std::set<PixelChannel>::const_iterator channels_itr = channels_.begin(); channels_itr != channels_.end();
-       ++channels_itr) {
-    std::vector<PixelROCName> rocsOnChannel = aNameTranslation->getROCsFromChannel(*channels_itr);
+  for (const auto& channel : channels_) {
+    std::vector<PixelROCName> rocsOnChannel = aNameTranslation->getROCsFromChannel(channel);
 
     std::set<PixelROCName> foundROCs;
 
-    for (std::vector<PixelROCName>::const_iterator rocsOnChannel_itr = rocsOnChannel.begin();
-         rocsOnChannel_itr != rocsOnChannel.end();
-         ++rocsOnChannel_itr) {
-      if (tempROCs.find(*rocsOnChannel_itr) != tempROCs.end()) {
-        ROCNumberOnChannelAmongThoseCalibrated_[*rocsOnChannel_itr] = foundROCs.size();
-        foundROCs.insert(*rocsOnChannel_itr);
+    for (const auto& rocsOnChannel_itr : rocsOnChannel) {
+      if (tempROCs.find(rocsOnChannel_itr) != tempROCs.end()) {
+        ROCNumberOnChannelAmongThoseCalibrated_[rocsOnChannel_itr] = foundROCs.size();
+        foundROCs.insert(rocsOnChannel_itr);
       }
     }
 
-    for (std::set<PixelROCName>::const_iterator foundROCs_itr = foundROCs.begin(); foundROCs_itr != foundROCs.end();
-         ++foundROCs_itr) {
+    for (auto foundROCs_itr = foundROCs.begin(); foundROCs_itr != foundROCs.end(); ++foundROCs_itr) {
       numROCsCalibratedOnChannel_[*foundROCs_itr] = foundROCs.size();
     }
   }
@@ -755,7 +736,7 @@ void PixelCalibConfiguration::buildObjectsDependingOnTheNameTranslation(const Pi
   objectsDependingOnTheNameTranslationBuilt_ = true;
 }
 
-unsigned int PixelCalibConfiguration::iScan(std::string dac) const {
+unsigned int PixelCalibConfiguration::iScan(const std::string& dac) const {
   for (unsigned int i = 0; i < dacs_.size(); i++) {
     if (dac == dacs_[i].name())
       return i;
@@ -808,14 +789,14 @@ unsigned int PixelCalibConfiguration::scanValue(unsigned int iscan, unsigned int
 
 unsigned int PixelCalibConfiguration::ROCNumberOnChannelAmongThoseCalibrated(PixelROCName roc) const {
   assert(objectsDependingOnTheNameTranslationBuilt_);
-  std::map<PixelROCName, unsigned int>::const_iterator foundROC = ROCNumberOnChannelAmongThoseCalibrated_.find(roc);
+  auto foundROC = ROCNumberOnChannelAmongThoseCalibrated_.find(roc);
   assert(foundROC != ROCNumberOnChannelAmongThoseCalibrated_.end());
   return foundROC->second;
 }
 
 unsigned int PixelCalibConfiguration::numROCsCalibratedOnChannel(PixelROCName roc) const {
   assert(objectsDependingOnTheNameTranslationBuilt_);
-  std::map<PixelROCName, unsigned int>::const_iterator foundROC = numROCsCalibratedOnChannel_.find(roc);
+  auto foundROC = numROCsCalibratedOnChannel_.find(roc);
   assert(foundROC != numROCsCalibratedOnChannel_.end());
   return foundROC->second;
 }
@@ -883,14 +864,14 @@ void PixelCalibConfiguration::nextFECState(std::map<unsigned int, PixelFECConfig
 
   if (rocInfo_.empty()) {
     //here we will do some initialization...
-    for (unsigned int i = 0; i < rocs_.size(); i++) {
-      const PixelHdwAddress* hdwadd = trans->getHdwAddress(rocs_[i]);
+    for (auto& roc : rocs_) {
+      const PixelHdwAddress* hdwadd = trans->getHdwAddress(roc);
       PixelROCInfo rocInfo;
       rocInfo.use_ = true;
       //FIXME This is very inefficient
-      PixelModuleName module(rocs_[i].rocname());
+      PixelModuleName module(roc.rocname());
 
-      std::map<pos::PixelModuleName, pos::PixelMaskBase*>::const_iterator foundMask = masks->find(module);
+      auto foundMask = masks->find(module);
       if (foundMask == masks->end()) {
         rocInfo.use_ = false;
         rocInfo_.push_back(rocInfo);
@@ -898,25 +879,24 @@ void PixelCalibConfiguration::nextFECState(std::map<unsigned int, PixelFECConfig
       }
 
       rocInfo.hdwadd_ = hdwadd;
-      rocInfo.trims_ = (*trims)[module]->getTrimBits(rocs_[i]);
-      rocInfo.masks_ = (*masks)[module]->getMaskBits(rocs_[i]);
+      rocInfo.trims_ = (*trims)[module]->getTrimBits(roc);
+      rocInfo.masks_ = (*masks)[module]->getMaskBits(roc);
 
 #ifdef BPIX
-      const PixelChannel channel = trans->getChannelForROC(rocs_[i]);
+      const PixelChannel channel = trans->getChannelForROC(roc);
       string tbmChannel = channel.TBMChannelString();
       //cout<<" tbm channel "<<tbmChannel<<endl;
       rocInfo.tbmChannel_ = tbmChannel;
 #endif
 
       std::map<std::string, unsigned int> defaultDACValues;
-      (*dacs)[PixelModuleName(rocs_[i].rocname())]->getDACSettings(rocs_[i])->getDACs(defaultDACValues);
+      (*dacs)[PixelModuleName(roc.rocname())]->getDACSettings(roc)->getDACs(defaultDACValues);
 
-      for (std::vector<PixelDACScanRange>::const_iterator dacs_itr = dacs_.begin(); dacs_itr != dacs_.end();
-           ++dacs_itr) {
-        std::map<std::string, unsigned int>::const_iterator foundThisDAC = defaultDACValues.find(dacs_itr->name());
+      for (const auto& dac : dacs_) {
+        auto foundThisDAC = defaultDACValues.find(dac.name());
         assert(foundThisDAC != defaultDACValues.end());
 
-        pair<unsigned int, unsigned int> dacchannelAndValue(dacs_itr->dacchannel(), foundThisDAC->second);
+        pair<unsigned int, unsigned int> dacchannelAndValue(dac.dacchannel(), foundThisDAC->second);
 
         rocInfo.defaultDACs_.push_back(dacchannelAndValue);
       }
@@ -1151,7 +1131,7 @@ void PixelCalibConfiguration::nextFECState(std::map<unsigned int, PixelFECConfig
   }    // end of loop over ROCs
 
   if (_bufferData) {
-    std::map<unsigned int, PixelFECConfigInterface*>::iterator iPixelFEC = pixelFECs.begin();
+    auto iPixelFEC = pixelFECs.begin();
     for (; iPixelFEC != pixelFECs.end(); ++iPixelFEC) {
       iPixelFEC->second->qbufsend();
     }
@@ -1188,11 +1168,11 @@ std::vector<std::pair<unsigned int, std::vector<unsigned int> > >& PixelCalibCon
 
   assert(!rocs_.empty());
 
-  for (unsigned int i = 0; i < rocs_.size(); i++) {
-    PixelModuleName module(rocs_[i].rocname());
+  for (auto& roc : rocs_) {
+    PixelModuleName module(roc.rocname());
     if (!detconfig->containsModule(module))
       continue;
-    const PixelHdwAddress* hdw = translation->getHdwAddress(rocs_[i]);
+    const PixelHdwAddress* hdw = translation->getHdwAddress(roc);
     assert(hdw != nullptr);
     //std::cout << "ROC, fednumber:"<<rocs_[i]<<" "<<hdw->fednumber()
     //	  << std::endl;
@@ -1218,8 +1198,8 @@ std::vector<std::pair<unsigned int, std::vector<unsigned int> > >& PixelCalibCon
     //Now look and see if the channel has been added
     std::vector<unsigned int>& channels = fedCardsAndChannels_[index].second;
     bool found = false;
-    for (unsigned int k = 0; k < channels.size(); k++) {
-      if (channels[k] == hdw->fedchannel()) {
+    for (unsigned int channel : channels) {
+      if (channel == hdw->fedchannel()) {
         found = true;
         break;
       }
@@ -1238,7 +1218,7 @@ std::map<unsigned int, std::set<unsigned int> > PixelCalibConfiguration::getFEDs
 
   std::map<unsigned int, std::set<unsigned int> > fedsChannels;
   assert(!rocs_.empty());
-  std::vector<PixelROCName>::iterator iroc = rocs_.begin();
+  auto iroc = rocs_.begin();
 
   for (; iroc != rocs_.end(); ++iroc) {
     const PixelHdwAddress* roc_hdwaddress = translation->getHdwAddress(*iroc);
@@ -1256,14 +1236,12 @@ std::set<unsigned int> PixelCalibConfiguration::getFEDCrates(const PixelNameTran
 
   std::set<unsigned int> fedcrates;
   assert(!modules_.empty());
-  std::set<PixelModuleName>::iterator imodule = modules_.begin();
+  auto imodule = modules_.begin();
 
   for (; imodule != modules_.end(); ++imodule) {
     std::set<PixelChannel> channelsOnThisModule = translation->getChannelsOnModule(*imodule);
-    for (std::set<PixelChannel>::const_iterator channelsOnThisModule_itr = channelsOnThisModule.begin();
-         channelsOnThisModule_itr != channelsOnThisModule.end();
-         ++channelsOnThisModule_itr) {
-      const PixelHdwAddress& channel_hdwaddress = translation->getHdwAddress(*channelsOnThisModule_itr);
+    for (const auto& channelsOnThisModule_itr : channelsOnThisModule) {
+      const PixelHdwAddress& channel_hdwaddress = translation->getHdwAddress(channelsOnThisModule_itr);
       unsigned int fednumber = channel_hdwaddress.fednumber();
       fedcrates.insert(fedconfig->crateFromFEDNumber(fednumber));
     }
@@ -1278,14 +1256,12 @@ std::set<unsigned int> PixelCalibConfiguration::getFECCrates(const PixelNameTran
 
   std::set<unsigned int> feccrates;
   assert(!modules_.empty());
-  std::set<PixelModuleName>::iterator imodule = modules_.begin();
+  auto imodule = modules_.begin();
 
   for (; imodule != modules_.end(); ++imodule) {
     std::set<PixelChannel> channelsOnThisModule = translation->getChannelsOnModule(*imodule);
-    for (std::set<PixelChannel>::const_iterator channelsOnThisModule_itr = channelsOnThisModule.begin();
-         channelsOnThisModule_itr != channelsOnThisModule.end();
-         ++channelsOnThisModule_itr) {
-      const PixelHdwAddress& channel_hdwaddress = translation->getHdwAddress(*channelsOnThisModule_itr);
+    for (const auto& channelsOnThisModule_itr : channelsOnThisModule) {
+      const PixelHdwAddress& channel_hdwaddress = translation->getHdwAddress(channelsOnThisModule_itr);
       unsigned int fecnumber = channel_hdwaddress.fecnumber();
       feccrates.insert(fecconfig->crateFromFECNumber(fecnumber));
     }
@@ -1302,16 +1278,13 @@ std::set<unsigned int> PixelCalibConfiguration::getTKFECCrates(
 
   std::set<unsigned int> tkfeccrates;
   assert(!modules_.empty());
-  std::set<PixelModuleName>::iterator imodule = modules_.begin();
+  auto imodule = modules_.begin();
 
   for (; imodule != modules_.end(); ++imodule) {
     // implement this by module --(PixelPortcardMap)-> port card(s) --(PixelPortCardConfig)-> FEC # --(PixelFECConfig theTKFECConfiguration_)-> crate
     const std::set<std::string> portCards = portcardmap->portcards(*imodule);
-    for (std::set<std::string>::const_iterator portCards_itr = portCards.begin(); portCards_itr != portCards.end();
-         ++portCards_itr) {
-      const std::string portcardname = *portCards_itr;
-      std::map<std::string, PixelPortCardConfig*>::const_iterator portcardconfig_itr =
-          mapNamePortCard.find(portcardname);
+    for (auto portcardname : portCards) {
+      auto portcardconfig_itr = mapNamePortCard.find(portcardname);
       assert(portcardconfig_itr != mapNamePortCard.end());
       PixelPortCardConfig* portcardconfig = portcardconfig_itr->second;
       std::string TKFECID = portcardconfig->getTKFECID();
@@ -1325,25 +1298,23 @@ std::set<unsigned int> PixelCalibConfiguration::getTKFECCrates(
 std::ostream& pos::operator<<(std::ostream& s, const PixelCalibConfiguration& calib) {
   if (!calib.parameters_.empty()) {
     s << "Parameters:" << std::endl;
-    for (std::map<std::string, std::string>::const_iterator paramItr = calib.parameters_.begin();
-         paramItr != calib.parameters_.end();
-         ++paramItr) {
-      s << paramItr->first << " " << paramItr->second << std::endl;
+    for (const auto& parameter : calib.parameters_) {
+      s << parameter.first << " " << parameter.second << std::endl;
     }
   }
 
   s << "Rows:" << std::endl;
-  for (unsigned int i = 0; i < calib.rows_.size(); i++) {
-    for (unsigned int j = 0; j < calib.rows_[i].size(); j++) {
-      s << calib.rows_[i][j] << " " << std::endl;
+  for (const auto& row : calib.rows_) {
+    for (unsigned int j = 0; j < row.size(); j++) {
+      s << row[j] << " " << std::endl;
     }
     s << "|" << std::endl;
   }
 
   s << "Cols:" << std::endl;
-  for (unsigned int i = 0; i < calib.cols_.size(); i++) {
-    for (unsigned int j = 0; j < calib.cols_[i].size(); j++) {
-      s << calib.cols_[i][j] << " " << std::endl;
+  for (const auto& col : calib.cols_) {
+    for (unsigned int j = 0; j < col.size(); j++) {
+      s << col[j] << " " << std::endl;
     }
     s << "|" << std::endl;
   }
@@ -1444,8 +1415,8 @@ void PixelCalibConfiguration::disablePixels(PixelFECConfigInterface* pixelFEC,
   }
 }
 
-std::string PixelCalibConfiguration::parameterValue(std::string parameterName) const {
-  std::map<std::string, std::string>::const_iterator itr = parameters_.find(parameterName);
+std::string PixelCalibConfiguration::parameterValue(const std::string& parameterName) const {
+  auto itr = parameters_.find(parameterName);
   if (itr == parameters_.end())  // parameterName is not in the list
   {
     return "";
@@ -1467,15 +1438,15 @@ void PixelCalibConfiguration::writeASCII(std::string dir) const {
     out << "SingleROC" << endl;
   if (!parameters_.empty()) {
     out << "Parameters:" << endl;
-    std::map<std::string, std::string>::const_iterator it = parameters_.begin();
+    auto it = parameters_.begin();
     for (; it != parameters_.end(); ++it) {
       out << it->first << "        " << it->second << endl;
     }
   }
   out << "Rows:" << endl;
   for (unsigned int i = 0; i < rows_.size(); i++) {
-    for (unsigned int j = 0; j < rows_[i].size(); j++) {
-      out << rows_[i][j] << " ";
+    for (unsigned int j : rows_[i]) {
+      out << j << " ";
     }
     if (i != rows_.size() - 1)
       out << "|";
@@ -1483,8 +1454,8 @@ void PixelCalibConfiguration::writeASCII(std::string dir) const {
   }
   out << "Cols:" << endl;
   for (unsigned int i = 0; i < cols_.size(); i++) {
-    for (unsigned int j = 0; j < cols_[i].size(); j++) {
-      out << cols_[i][j] << " ";
+    for (unsigned int j : cols_[i]) {
+      out << j << " ";
     }
     if (i != cols_.size() - 1)
       out << "|";
@@ -1497,21 +1468,21 @@ void PixelCalibConfiguration::writeASCII(std::string dir) const {
     out << "VcalLow" << endl;
   }
 
-  for (unsigned int i = 0; i < dacs_.size(); i++) {
-    if (dacs_[i].uniformSteps()) {
-      if (dacs_[i].first() != dacs_[i].last()) {
-        out << "Scan: " << dacs_[i].name() << " ";
-        out << dacs_[i].first() << " ";
-        out << dacs_[i].last() << " ";
-        out << dacs_[i].step() << endl;
+  for (const auto& dac : dacs_) {
+    if (dac.uniformSteps()) {
+      if (dac.first() != dac.last()) {
+        out << "Scan: " << dac.name() << " ";
+        out << dac.first() << " ";
+        out << dac.last() << " ";
+        out << dac.step() << endl;
       } else {
-        out << "Set: " << dacs_[i].name() << " ";
-        out << dacs_[i].first() << endl;
+        out << "Set: " << dac.name() << " ";
+        out << dac.first() << endl;
       }
     } else {
-      out << "ScanValues: " << dacs_[i].name() << " ";
-      for (unsigned int ival = 0; ival < dacs_[i].getNPoints(); ival++) {
-        out << dacs_[i].value(ival) << " ";
+      out << "ScanValues: " << dac.name() << " ";
+      for (unsigned int ival = 0; ival < dac.getNPoints(); ival++) {
+        out << dac.value(ival) << " ";
       }
       out << " -1" << endl;
     }
@@ -1525,9 +1496,9 @@ void PixelCalibConfiguration::writeASCII(std::string dir) const {
   } else {
     out << "ToCalibrate:" << endl;
   }
-  for (unsigned int i = 0; i < rocListInstructions_.size(); i++) {
-    out << rocListInstructions_[i] << endl;
-    if (rocListInstructions_[i] == "+" || rocListInstructions_[i] == "-") {
+  for (const auto& rocListInstruction : rocListInstructions_) {
+    out << rocListInstruction << endl;
+    if (rocListInstruction == "+" || rocListInstruction == "-") {
       out << " ";
     } else {
       out << endl;
@@ -1539,11 +1510,9 @@ void PixelCalibConfiguration::writeASCII(std::string dir) const {
 
 unsigned int PixelCalibConfiguration::maxNumHitsPerROC() const {
   unsigned int returnValue = 0;
-  for (std::vector<std::vector<unsigned int> >::const_iterator rows_itr = rows_.begin(); rows_itr != rows_.end();
-       ++rows_itr) {
-    for (std::vector<std::vector<unsigned int> >::const_iterator cols_itr = cols_.begin(); cols_itr != cols_.end();
-         ++cols_itr) {
-      unsigned int theSize = rows_itr->size() * cols_itr->size();
+  for (const auto& row : rows_) {
+    for (const auto& col : cols_) {
+      unsigned int theSize = row.size() * col.size();
       returnValue = max(returnValue, theSize);
     }
   }
@@ -1554,20 +1523,16 @@ std::set<std::pair<unsigned int, unsigned int> > PixelCalibConfiguration::pixels
   std::set<std::pair<unsigned int, unsigned int> > pixels;
   //                  column #      row #
 
-  for (std::vector<unsigned int>::const_iterator col_itr = cols_[colCounter(state)].begin();
-       col_itr != cols_[colCounter(state)].end();
-       ++col_itr) {
-    for (std::vector<unsigned int>::const_iterator row_itr = rows_[rowCounter(state)].begin();
-         row_itr != rows_[rowCounter(state)].end();
-         ++row_itr) {
-      pixels.insert(std::pair<unsigned int, unsigned int>(*col_itr, *row_itr));
+  for (auto col_itr = cols_[colCounter(state)].begin(); col_itr != cols_[colCounter(state)].end(); ++col_itr) {
+    for (unsigned int row_itr : rows_[rowCounter(state)]) {
+      pixels.insert(std::pair<unsigned int, unsigned int>(*col_itr, row_itr));
     }
   }
 
   return pixels;
 }
 
-bool PixelCalibConfiguration::containsScan(std::string name) const {
+bool PixelCalibConfiguration::containsScan(const std::string& name) const {
   for (unsigned int i = 0; i < numberOfScanVariables(); i++) {
     if (scanName(i) == name) {
       return true;

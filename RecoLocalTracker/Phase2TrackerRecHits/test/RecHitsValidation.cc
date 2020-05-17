@@ -81,7 +81,7 @@ public:
   typedef std::map<unsigned int, SimTrack> SimTracksMap;
 
   explicit Phase2TrackerRecHitsValidation(const edm::ParameterSet&);
-  ~Phase2TrackerRecHitsValidation();
+  ~Phase2TrackerRecHitsValidation() override;
   void beginJob() override;
   void endJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
@@ -182,10 +182,9 @@ void Phase2TrackerRecHitsValidation::analyze(const edm::Event& event, const edm:
 
   // Rearrange the simTracks for ease of use <simTrackID, simTrack>
   SimTracksMap simTracks;
-  for (edm::SimTrackContainer::const_iterator simTrackIt(simTracksRaw->begin()); simTrackIt != simTracksRaw->end();
-       ++simTrackIt) {
-    if (simTrackIt->momentum().pt() > simtrackminpt_) {
-      simTracks.insert(std::pair<unsigned int, SimTrack>(simTrackIt->trackId(), *simTrackIt));
+  for (const auto& simTrackIt : *simTracksRaw) {
+    if (simTrackIt.momentum().pt() > simtrackminpt_) {
+      simTracks.insert(std::pair<unsigned int, SimTrack>(simTrackIt.trackId(), simTrackIt));
     }
   }
 
@@ -236,15 +235,14 @@ void Phase2TrackerRecHitsValidation::analyze(const edm::Event& event, const edm:
     }
 
     // Create histograms if they do not yet exist for this layer
-    std::map<unsigned int, RecHitHistos>::iterator histogramLayer(histograms_.find(layer));
+    auto histogramLayer(histograms_.find(layer));
     if (histogramLayer == histograms_.end())
       histogramLayer = createLayerHistograms(layer);
 
     // Loop over the rechits in the detector unit
-    for (edmNew::DetSet<Phase2TrackerRecHit1D>::const_iterator rechitIt = DSViter->begin(); rechitIt != DSViter->end();
-         ++rechitIt) {
+    for (const auto& rechitIt : *DSViter) {
       // determine the position
-      LocalPoint localPosClu = rechitIt->localPosition();
+      LocalPoint localPosClu = rechitIt.localPosition();
       Global3DPoint globalPosClu = geomDetUnit->surface().toGlobal(localPosClu);
 
       // restrict eta range
@@ -253,34 +251,32 @@ void Phase2TrackerRecHitsValidation::analyze(const edm::Event& event, const edm:
         continue;
 
       // Get the cluster from the rechit
-      const Phase2TrackerCluster1D* clustIt = &*rechitIt->cluster();
+      const Phase2TrackerCluster1D* clustIt = &*rechitIt.cluster();
 
       // Get all the simTracks that form the cluster
       std::vector<unsigned int> clusterSimTrackIds;
       for (unsigned int i(0); i < clustIt->size(); ++i) {
         unsigned int channel(Phase2TrackerDigi::pixelToChannel(clustIt->firstRow() + i, clustIt->column()));
         std::vector<unsigned int> simTrackIds(getSimTrackId(pixelSimLinks, detId, channel));
-        for (unsigned int i = 0; i < simTrackIds.size(); ++i) {
+        for (unsigned int simTrackId : simTrackIds) {
           bool add = true;
-          for (unsigned int j = 0; j < clusterSimTrackIds.size(); ++j) {
+          for (unsigned int clusterSimTrackId : clusterSimTrackIds) {
             // only save simtrackids that are not present yet
-            if (simTrackIds.at(i) == clusterSimTrackIds.at(j))
+            if (simTrackId == clusterSimTrackId)
               add = false;
           }
           if (add)
-            clusterSimTrackIds.push_back(simTrackIds.at(i));
+            clusterSimTrackIds.push_back(simTrackId);
         }
       }
 
       // find the closest simhit
       // this is needed because otherwise you get cases with simhits and clusters being swapped
       // when there are more than 1 cluster with common simtrackids
-      const PSimHit* simhit = 0;  // bad naming to avoid changing code below. This is the closest simhit in x
+      const PSimHit* simhit = nullptr;  // bad naming to avoid changing code below. This is the closest simhit in x
       float minx = 10000;
-      for (unsigned int simhitidx = 0; simhitidx < 2; ++simhitidx) {  // loop over both barrel and endcap hits
-        for (edm::PSimHitContainer::const_iterator simhitIt(simHitsRaw[simhitidx]->begin());
-             simhitIt != simHitsRaw[simhitidx]->end();
-             ++simhitIt) {
+      for (auto& simhitidx : simHitsRaw) {  // loop over both barrel and endcap hits
+        for (auto simhitIt(simhitidx->begin()); simhitIt != simhitidx->end(); ++simhitIt) {
           if (rawid == simhitIt->detUnitId()) {
             //std::cout << "=== " << rawid << " " << &*simhitIt << " " << simhitIt->trackId() << " " << simhitIt->localPosition().x() << " " << simhitIt->localPosition().y() << std::endl;
             auto it = std::lower_bound(clusterSimTrackIds.begin(), clusterSimTrackIds.end(), simhitIt->trackId());
@@ -309,7 +305,7 @@ void Phase2TrackerRecHitsValidation::analyze(const edm::Event& event, const edm:
       ++(nOtherSimHits[det].at(layer));
 
       // cluster size
-      unsigned int nch = rechitIt->cluster()->size();
+      unsigned int nch = rechitIt.cluster()->size();
       histogramLayer->second.clusterSize[det]->Fill(nch);
       if (nch > 4)
         nch = 4;  // collapse 4 or more strips to 4
@@ -341,30 +337,30 @@ void Phase2TrackerRecHitsValidation::analyze(const edm::Event& event, const edm:
       histogramLayer->second.deltaX[det][nch]->Fill(localPosClu.x() - localPosHit.x());
       histogramLayer->second.deltaY[det][0]->Fill(localPosClu.y() - localPosHit.y());
       histogramLayer->second.deltaY[det][nch]->Fill(localPosClu.y() - localPosHit.y());
-      if (rechitIt->localPositionError().xx() && rechitIt->localPositionError().yy()) {
+      if (rechitIt.localPositionError().xx() && rechitIt.localPositionError().yy()) {
         histogramLayer->second.pullX[det][0]->Fill((localPosClu.x() - localPosHit.x()) /
-                                                   sqrt(rechitIt->localPositionError().xx()));
+                                                   sqrt(rechitIt.localPositionError().xx()));
         histogramLayer->second.pullX[det][nch]->Fill((localPosClu.x() - localPosHit.x()) /
-                                                     sqrt(rechitIt->localPositionError().xx()));
+                                                     sqrt(rechitIt.localPositionError().xx()));
         histogramLayer->second.pullY[det][0]->Fill((localPosClu.y() - localPosHit.y()) /
-                                                   sqrt(rechitIt->localPositionError().yy()));
+                                                   sqrt(rechitIt.localPositionError().yy()));
         histogramLayer->second.pullY[det][nch]->Fill((localPosClu.y() - localPosHit.y()) /
-                                                     sqrt(rechitIt->localPositionError().yy()));
+                                                     sqrt(rechitIt.localPositionError().yy()));
       }
       if (makeEtaPlots_) {
         histogramLayer->second.deltaX_eta[det][0]->Fill(eta, localPosClu.x() - localPosHit.x());
         histogramLayer->second.deltaX_eta[det][nch]->Fill(eta, localPosClu.x() - localPosHit.x());
         histogramLayer->second.deltaY_eta[det][0]->Fill(eta, localPosClu.y() - localPosHit.y());
         histogramLayer->second.deltaY_eta[det][nch]->Fill(eta, localPosClu.y() - localPosHit.y());
-        if (rechitIt->localPositionError().xx() && rechitIt->localPositionError().yy()) {
+        if (rechitIt.localPositionError().xx() && rechitIt.localPositionError().yy()) {
           histogramLayer->second.pullX_eta[det][0]->Fill(
-              eta, (localPosClu.x() - localPosHit.x()) / sqrt(rechitIt->localPositionError().xx()));
+              eta, (localPosClu.x() - localPosHit.x()) / sqrt(rechitIt.localPositionError().xx()));
           histogramLayer->second.pullX_eta[det][nch]->Fill(
-              eta, (localPosClu.x() - localPosHit.x()) / sqrt(rechitIt->localPositionError().xx()));
+              eta, (localPosClu.x() - localPosHit.x()) / sqrt(rechitIt.localPositionError().xx()));
           histogramLayer->second.pullY_eta[det][0]->Fill(
-              eta, (localPosClu.y() - localPosHit.y()) / sqrt(rechitIt->localPositionError().yy()));
+              eta, (localPosClu.y() - localPosHit.y()) / sqrt(rechitIt.localPositionError().yy()));
           histogramLayer->second.pullY_eta[det][nch]->Fill(
-              eta, (localPosClu.y() - localPosHit.y()) / sqrt(rechitIt->localPositionError().yy()));
+              eta, (localPosClu.y() - localPosHit.y()) / sqrt(rechitIt.localPositionError().yy()));
         }
       }
 
@@ -378,30 +374,30 @@ void Phase2TrackerRecHitsValidation::analyze(const edm::Event& event, const edm:
         histogramLayer->second.deltaX_P[det][nch]->Fill(localPosClu.x() - localPosHit.x());
         histogramLayer->second.deltaY_P[det][0]->Fill(localPosClu.y() - localPosHit.y());
         histogramLayer->second.deltaY_P[det][nch]->Fill(localPosClu.y() - localPosHit.y());
-        if (rechitIt->localPositionError().xx() && rechitIt->localPositionError().yy()) {
+        if (rechitIt.localPositionError().xx() && rechitIt.localPositionError().yy()) {
           histogramLayer->second.pullX_P[det][0]->Fill((localPosClu.x() - localPosHit.x()) /
-                                                       sqrt(rechitIt->localPositionError().xx()));
+                                                       sqrt(rechitIt.localPositionError().xx()));
           histogramLayer->second.pullX_P[det][nch]->Fill((localPosClu.x() - localPosHit.x()) /
-                                                         sqrt(rechitIt->localPositionError().xx()));
+                                                         sqrt(rechitIt.localPositionError().xx()));
           histogramLayer->second.pullY_P[det][0]->Fill((localPosClu.y() - localPosHit.y()) /
-                                                       sqrt(rechitIt->localPositionError().yy()));
+                                                       sqrt(rechitIt.localPositionError().yy()));
           histogramLayer->second.pullY_P[det][nch]->Fill((localPosClu.y() - localPosHit.y()) /
-                                                         sqrt(rechitIt->localPositionError().yy()));
+                                                         sqrt(rechitIt.localPositionError().yy()));
         }
         if (makeEtaPlots_) {
           histogramLayer->second.deltaX_eta_P[det][0]->Fill(eta, localPosClu.x() - localPosHit.x());
           histogramLayer->second.deltaX_eta_P[det][nch]->Fill(eta, localPosClu.x() - localPosHit.x());
           histogramLayer->second.deltaY_eta_P[det][0]->Fill(eta, localPosClu.y() - localPosHit.y());
           histogramLayer->second.deltaY_eta_P[det][nch]->Fill(eta, localPosClu.y() - localPosHit.y());
-          if (rechitIt->localPositionError().xx() && rechitIt->localPositionError().yy()) {
+          if (rechitIt.localPositionError().xx() && rechitIt.localPositionError().yy()) {
             histogramLayer->second.pullX_eta_P[det][0]->Fill(
-                eta, (localPosClu.x() - localPosHit.x()) / sqrt(rechitIt->localPositionError().xx()));
+                eta, (localPosClu.x() - localPosHit.x()) / sqrt(rechitIt.localPositionError().xx()));
             histogramLayer->second.pullX_eta_P[det][nch]->Fill(
-                eta, (localPosClu.x() - localPosHit.x()) / sqrt(rechitIt->localPositionError().xx()));
+                eta, (localPosClu.x() - localPosHit.x()) / sqrt(rechitIt.localPositionError().xx()));
             histogramLayer->second.pullY_eta_P[det][0]->Fill(
-                eta, (localPosClu.y() - localPosHit.y()) / sqrt(rechitIt->localPositionError().yy()));
+                eta, (localPosClu.y() - localPosHit.y()) / sqrt(rechitIt.localPositionError().yy()));
             histogramLayer->second.pullY_eta_P[det][nch]->Fill(
-                eta, (localPosClu.y() - localPosHit.y()) / sqrt(rechitIt->localPositionError().yy()));
+                eta, (localPosClu.y() - localPosHit.y()) / sqrt(rechitIt.localPositionError().yy()));
           }
         }
       }
@@ -463,8 +459,8 @@ std::map<unsigned int, RecHitHistos>::iterator Phase2TrackerRecHitsValidation::c
     }
   }
 
-  TFileDirectory td1 = fs->mkdir(fname1.str().c_str());
-  TFileDirectory td = td1.mkdir(fname2.str().c_str());
+  TFileDirectory td1 = fs->mkdir(fname1.str());
+  TFileDirectory td = td1.mkdir(fname2.str());
 
   RecHitHistos local_histos;
 
@@ -722,12 +718,12 @@ std::map<unsigned int, RecHitHistos>::iterator Phase2TrackerRecHitsValidation::c
 std::vector<unsigned int> Phase2TrackerRecHitsValidation::getSimTrackId(
     const edm::Handle<edm::DetSetVector<PixelDigiSimLink> >& pixelSimLinks, const DetId& detId, unsigned int channel) {
   std::vector<unsigned int> retvec;
-  edm::DetSetVector<PixelDigiSimLink>::const_iterator DSViter(pixelSimLinks->find(detId));
+  auto DSViter(pixelSimLinks->find(detId));
   if (DSViter == pixelSimLinks->end())
     return retvec;
-  for (edm::DetSet<PixelDigiSimLink>::const_iterator it = DSViter->data.begin(); it != DSViter->data.end(); ++it) {
-    if (channel == it->channel()) {
-      retvec.push_back(it->SimTrackId());
+  for (const auto& it : DSViter->data) {
+    if (channel == it.channel()) {
+      retvec.push_back(it.SimTrackId());
     }
   }
   return retvec;

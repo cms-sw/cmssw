@@ -142,8 +142,8 @@ vector<HDigiFP420> FP420DigiMain::run(const std::vector<PSimHit> &input, const G
   //
   // First: loop on the SimHits
   //
-  std::vector<PSimHit>::const_iterator simHitIter = input.begin();
-  std::vector<PSimHit>::const_iterator simHitIterEnd = input.end();
+  auto simHitIter = input.begin();
+  auto simHitIterEnd = input.end();
   for (; simHitIter != simHitIterEnd; ++simHitIter) {
     const PSimHit ihit = *simHitIter;
 
@@ -220,16 +220,16 @@ void FP420DigiMain::push_digis(const DigitalMapType &dm,
   digis.reserve(50);
   digis.clear();
   //   link_coll.clear();
-  for (DigitalMapType::const_iterator i = dm.begin(); i != dm.end(); i++) {
+  for (auto i : dm) {
     // Load digis
     // push to digis the content of first and second words of HDigiFP420 vector
     // for every strip pointer (*i)
-    digis.push_back(HDigiFP420((*i).first, (*i).second));
+    digis.emplace_back(i.first, i.second);
     ndigis++;
     // very useful check:
     if (verbosity > 0) {
       std::cout << " ****FP420DigiMain:push_digis:  ndigis = " << ndigis << std::endl;
-      std::cout << "push_digis: strip  = " << (*i).first << "  adc = " << (*i).second << std::endl;
+      std::cout << "push_digis: strip  = " << i.first << "  adc = " << i.second << std::endl;
     }
   }
 
@@ -237,15 +237,13 @@ void FP420DigiMain::push_digis(const DigitalMapType &dm,
 
   // reworked to access the fraction of amplitude per simhit
 
-  for (HitToDigisMapType::const_iterator mi = htd.begin(); mi != htd.end(); mi++) {
+  for (const auto &mi : htd) {
     //
-    if (dm.find((*mi).first) != dm.end()) {
+    if (dm.find(mi.first) != dm.end()) {
       // --- For each channel, sum up the signals from a simtrack
       //
       map<const PSimHit *, Amplitude> totalAmplitudePerSimHit;
-      for (std::vector<std::pair<const PSimHit *, Amplitude>>::const_iterator simul = (*mi).second.begin();
-           simul != (*mi).second.end();
-           simul++) {
+      for (auto simul = mi.second.begin(); simul != mi.second.end(); simul++) {
         totalAmplitudePerSimHit[(*simul).first] += (*simul).second;
       }
       /*

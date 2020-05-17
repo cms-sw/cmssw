@@ -21,6 +21,7 @@
 
 #include <string>
 #include <fstream>
+#include <utility>
 
 #include <TFile.h>
 #include <TDirectoryFile.h>
@@ -231,7 +232,7 @@ int GEMDQMStatusDigi::SetInfoChambers() {
     int nLayer = sch->nChambers();
     for (int l = 0; l < nLayer; l++) {
       Bool_t bExist = false;
-      for (auto ch : gemChambers_)
+      for (const auto &ch : gemChambers_)
         if (ch.id() == sch->chamber(l + 1)->id())
           bExist = true;
       if (bExist)
@@ -248,7 +249,7 @@ int GEMDQMStatusDigi::SetInfoChambers() {
   m_listLayers.clear();
 
   // Summarizing geometry configurations
-  for (auto ch : gemChambers_) {
+  for (const auto &ch : gemChambers_) {
     GEMDetId gid = ch.id();
 
     GEMDetId layerID(gid.region(), gid.ring(), gid.station(), (bPerSuperchamber_ ? gid.layer() : 0), 0, 0);
@@ -329,7 +330,7 @@ int GEMDQMStatusDigi::SetConfigTimeRecord() {
     listTimeStore_[layerId] = newTimeStore;
   }
 
-  for (auto ch : gemChambers_) {
+  for (const auto &ch : gemChambers_) {
     auto chId = ch.id();
     GEMDetId chIdStatus(chId.region(), chId.ring(), chId.station(), chId.layer(), chId.chamber(), 1);
     GEMDetId chIdDigi(chId.region(), chId.ring(), chId.station(), chId.layer(), chId.chamber(), 2);
@@ -491,7 +492,7 @@ void GEMDQMStatusDigi::bookHistogramsStationPart(DQMStore::IBooker &ibooker, GEM
   auto newbookGEB = [this](DQMStore::IBooker &ibooker,
                            std::string strName,
                            std::string strTitle,
-                           std::string strAxis,
+                           const std::string &strAxis,
                            GEMDetId &lid,
                            int nLayer,
                            int nStation,
@@ -607,7 +608,7 @@ void GEMDQMStatusDigi::bookHistogramsTimeRecordPart(DQMStore::IBooker &ibooker) 
 
 // To make labels like python, with std::(unordered_)map
 std::string printfWithMap(std::string strFmt, std::unordered_map<std::string, Int_t> mapArg) {
-  std::string strRes = strFmt;
+  std::string strRes = std::move(strFmt);
   char szOutFmt[64];
   size_t unPos, unPosEnd;
 
@@ -663,7 +664,7 @@ void GEMDQMStatusDigi::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const
   ibooker.cd();
   ibooker.setCurrentFolder("GEM/StatusDigi");
 
-  for (auto ch : gemChambers_) {
+  for (const auto &ch : gemChambers_) {
     GEMDetId gid = ch.id();
     bookHistogramsChamberPart(ibooker, gid);
   }
@@ -791,14 +792,14 @@ void GEMDQMStatusDigi::analyze(edm::Event const &event, edm::EventSetup const &e
       listCurr.h2Histo->setBinContent(nX, nY, listCurr.h2Histo->getBinContent(nX, nY) + 1);
   };
 
-  for (GEMVfatStatusDigiCollection::DigiRangeIterator vfatIt = gemVFAT->begin(); vfatIt != gemVFAT->end(); ++vfatIt) {
-    GEMDetId gemid = (*vfatIt).first;
+  for (auto &&vfatIt : *gemVFAT) {
+    GEMDetId gemid = vfatIt.first;
     GEMDetId gemchId = gemid.chamberId();
     GEMDetId gemOnlychId(0, 1, 1, (bPerSuperchamber_ ? 0 : gemid.layer()), gemid.chamber(), 0);
 
     int nIdx = seekIdx(m_listChambers, gemOnlychId);
     int nRoll = gemid.roll();
-    const GEMVfatStatusDigiCollection::Range &range = (*vfatIt).second;
+    const GEMVfatStatusDigiCollection::Range &range = vfatIt.second;
 
     GEMDetId chIdStatus(gemid.region(), gemid.ring(), gemid.station(), gemid.layer(), gemid.chamber(), 1);
     if (listTimeStore_.find((UInt_t)chIdStatus) == listTimeStore_.end()) {
@@ -839,8 +840,8 @@ void GEMDQMStatusDigi::analyze(edm::Event const &event, edm::EventSetup const &e
     }
   }
 
-  for (GEMGEBdataCollection::DigiRangeIterator gebIt = gemGEB->begin(); gebIt != gemGEB->end(); ++gebIt) {
-    GEMDetId gemid = (*gebIt).first;
+  for (auto &&gebIt : *gemGEB) {
+    GEMDetId gemid = gebIt.first;
     GEMDetId lid(gemid.region(), gemid.ring(), gemid.station(), (bPerSuperchamber_ ? gemid.layer() : 0), 0, 0);
     GEMDetId chid(0, 1, 1, (bPerSuperchamber_ ? 0 : gemid.layer()), gemid.chamber(), 0);
 
@@ -854,7 +855,7 @@ void GEMDQMStatusDigi::analyze(edm::Event const &event, edm::EventSetup const &e
 
     auto &listCurr = listTimeStore_[lid];
 
-    const GEMGEBdataCollection::Range &range = (*gebIt).second;
+    const GEMGEBdataCollection::Range &range = gebIt.second;
     for (auto GEBStatus = range.first; GEBStatus != range.second; ++GEBStatus) {
       bIsNotEmpty = true;
 
@@ -912,8 +913,8 @@ void GEMDQMStatusDigi::analyze(edm::Event const &event, edm::EventSetup const &e
     return -1;
   };
 
-  for (GEMAMCdataCollection::DigiRangeIterator amcIt = gemAMC->begin(); amcIt != gemAMC->end(); ++amcIt) {
-    const GEMAMCdataCollection::Range &range = (*amcIt).second;
+  for (auto &&amcIt : *gemAMC) {
+    const GEMAMCdataCollection::Range &range = amcIt.second;
     auto &listCurr = listTimeStore_[0];
     for (auto amc = range.first; amc != range.second; ++amc) {
       Int_t nIdAMC = findAMCIdx(amc->amcNum());
@@ -955,7 +956,7 @@ void GEMDQMStatusDigi::analyze(edm::Event const &event, edm::EventSetup const &e
   };
 
   // Checking if there is a fire (data)
-  for (auto ch : gemChambers_) {
+  for (const auto &ch : gemChambers_) {
     GEMDetId cId = ch.id();
     Bool_t bIsHit = false;
 

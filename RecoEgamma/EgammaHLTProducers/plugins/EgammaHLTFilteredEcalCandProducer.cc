@@ -15,7 +15,7 @@ DEFINE_FWK_MODULE(EgammaHLTFilteredEcalCandProducer);
 template <>
 void EgammaHLTFilteredObjProducer<std::vector<edm::Ptr<reco::Candidate> > >::addObj(
     const reco::RecoEcalCandidateRef& cand, std::vector<edm::Ptr<reco::Candidate> >& output) {
-  output.push_back(edm::refToPtr(cand));
+  output.emplace_back(edm::refToPtr(cand));
 }
 
 using EgammaHLTFilteredEcalCandPtrProducer = EgammaHLTFilteredObjProducer<std::vector<edm::Ptr<reco::Candidate> > >;

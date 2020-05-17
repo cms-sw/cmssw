@@ -28,8 +28,8 @@ public:
  * Constructor with previous (before constraint)
  * state of the vertex
  */
-  static RefCountedKinematicVertex vertex(const VertexState state,
-                                          const ReferenceCountingPointer<KinematicVertex> pVertex,
+  static RefCountedKinematicVertex vertex(const VertexState& state,
+                                          const ReferenceCountingPointer<KinematicVertex>& pVertex,
                                           float totalChiSq,
                                           float degreesOfFr) {
     return ReferenceCountingPointer<KinematicVertex>(new KinematicVertex(state, pVertex, totalChiSq, degreesOfFr));

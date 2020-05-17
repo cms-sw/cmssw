@@ -1,3 +1,5 @@
+#include <memory>
+
 #include <vector>
 #include <string>
 #include <iostream>
@@ -106,25 +108,25 @@ JetCorrFactorsProducer::JetCorrFactorsProducer(const edm::ParameterSet& cfg)
 std::vector<std::string> JetCorrFactorsProducer::expand(const std::vector<std::string>& levels,
                                                         const JetCorrFactors::Flavor& flavor) {
   std::vector<std::string> expand;
-  for (std::vector<std::string>::const_iterator level = levels.begin(); level != levels.end(); ++level) {
-    if ((*level) == "L5Flavor" || (*level) == "L7Parton") {
+  for (const auto& level : levels) {
+    if (level == "L5Flavor" || level == "L7Parton") {
       if (flavor == JetCorrFactors::GLUON) {
-        if (*level == "L7Parton" && type_ == "T") {
+        if (level == "L7Parton" && type_ == "T") {
           edm::LogWarning message("L7Parton::GLUON not available");
           message << "Jet energy corrections requested for level: L7Parton and type: 'T'. \n"
                   << "For this combination there is no GLUON correction available. The    \n"
                   << "correction for this flavor type will be taken from 'J'.";
         }
-        expand.push_back(std::string(*level).append("_").append("g").append("J"));
+        expand.push_back(std::string(level).append("_").append("g").append("J"));
       }
       if (flavor == JetCorrFactors::UDS)
-        expand.push_back(std::string(*level).append("_").append("q").append(type_));
+        expand.push_back(std::string(level).append("_").append("q").append(type_));
       if (flavor == JetCorrFactors::CHARM)
-        expand.push_back(std::string(*level).append("_").append("c").append(type_));
+        expand.push_back(std::string(level).append("_").append("c").append(type_));
       if (flavor == JetCorrFactors::BOTTOM)
-        expand.push_back(std::string(*level).append("_").append("b").append(type_));
+        expand.push_back(std::string(level).append("_").append("b").append(type_));
     } else {
-      expand.push_back(*level);
+      expand.push_back(level);
     }
   }
   return expand;
@@ -133,8 +135,8 @@ std::vector<std::string> JetCorrFactorsProducer::expand(const std::vector<std::s
 std::vector<JetCorrectorParameters> JetCorrFactorsProducer::params(const JetCorrectorParametersCollection& parameters,
                                                                    const std::vector<std::string>& levels) const {
   std::vector<JetCorrectorParameters> params;
-  for (std::vector<std::string>::const_iterator level = levels.begin(); level != levels.end(); ++level) {
-    const JetCorrectorParameters& ip = parameters[*level];  //ip.printScreen();
+  for (const auto& level : levels) {
+    const JetCorrectorParameters& ip = parameters[level];  //ip.printScreen();
     params.push_back(ip);
   }
   return params;
@@ -200,12 +202,12 @@ void JetCorrFactorsProducer::produce(edm::Event& event, const edm::EventSetup& s
     edm::ESHandle<JetCorrectorParametersCollection> parameters;
     setup.get<JetCorrectionsRecord>().get(payload(), parameters);
     // initialize jet correctors
-    for (FlavorCorrLevelMap::const_iterator flavor = levels_.begin(); flavor != levels_.end(); ++flavor) {
-      correctors_[flavor->first].reset(new FactorizedJetCorrector(params(*parameters, flavor->second)));
+    for (auto flavor = levels_.begin(); flavor != levels_.end(); ++flavor) {
+      correctors_[flavor->first] = std::make_unique<FactorizedJetCorrector>(params(*parameters, flavor->second));
     }
     // initialize extra jet corrector for jpt if needed
     if (!extraJPTOffset_.empty()) {
-      extraJPTOffsetCorrector_.reset(new FactorizedJetCorrector(params(*parameters, extraJPTOffset_)));
+      extraJPTOffsetCorrector_ = std::make_unique<FactorizedJetCorrector>(params(*parameters, extraJPTOffset_));
     }
     cacheId_ = rec.cacheIdentifier();
   }
@@ -227,7 +229,7 @@ void JetCorrFactorsProducer::produce(edm::Event& event, const edm::EventSetup& s
     // levels listed for that element. If this is not the only element all jec levels, which
     // are flavor independent will give the same correction factors until the first flavor
     // dependent correction level is reached. So the first element is still a good choice.
-    FlavorCorrLevelMap::const_iterator corrLevel = levels_.begin();
+    auto corrLevel = levels_.begin();
     if (corrLevel == levels_.end()) {
       throw cms::Exception("No JECFactors")
           << "You request to create a jetCorrFactors object with no JEC Levels indicated. \n"
@@ -238,7 +240,7 @@ void JetCorrFactorsProducer::produce(edm::Event& event, const edm::EventSetup& s
       std::vector<float> factors;
       if (corrLevel->second[idx].find("L5Flavor") != std::string::npos ||
           corrLevel->second[idx].find("L7Parton") != std::string::npos) {
-        for (FlavorCorrLevelMap::const_iterator flavor = corrLevel; flavor != levels_.end(); ++flavor) {
+        for (auto flavor = corrLevel; flavor != levels_.end(); ++flavor) {
           if (!primaryVertices_.label().empty()) {
             // if primaryVerticesToken_ has a value the number of primary vertices needs to be
             // specified
@@ -274,7 +276,7 @@ void JetCorrFactorsProducer::produce(edm::Event& event, const edm::EventSetup& s
       // factors, which might be flavor dependent or not. In the default configuration
       // the CorrectionFactor will look like this: 'Uncorrected': 1 ; 'L2Relative': x ;
       // 'L3Absolute': x ; 'L5Flavor': v, x, y, z ; 'L7Parton': v, x, y, z
-      jec.push_back(std::make_pair((corrLevel->second[idx]).substr(0, (corrLevel->second[idx]).find("_")), factors));
+      jec.emplace_back((corrLevel->second[idx]).substr(0, (corrLevel->second[idx]).find('_')), factors);
     }
     // create the actual object with the scale factors we want the valuemap to refer to
     // label_ corresponds to the label of the module instance
@@ -304,12 +306,12 @@ void JetCorrFactorsProducer::fillDescriptions(edm::ConfigurationDescriptions& de
   iDesc.add<std::string>("extraJPTOffset", "L1Offset");
 
   std::vector<std::string> levels;
-  levels.push_back(std::string("L1Offset"));
-  levels.push_back(std::string("L2Relative"));
-  levels.push_back(std::string("L3Absolute"));
-  levels.push_back(std::string("L2L3Residual"));
-  levels.push_back(std::string("L5Flavor"));
-  levels.push_back(std::string("L7Parton"));
+  levels.emplace_back("L1Offset");
+  levels.emplace_back("L2Relative");
+  levels.emplace_back("L3Absolute");
+  levels.emplace_back("L2L3Residual");
+  levels.emplace_back("L5Flavor");
+  levels.emplace_back("L7Parton");
   iDesc.add<std::vector<std::string> >("levels", levels);
   descriptions.add("JetCorrFactorsProducer", iDesc);
 }

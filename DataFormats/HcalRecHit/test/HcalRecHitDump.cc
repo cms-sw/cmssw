@@ -94,7 +94,7 @@ using namespace std;
 class HcalRecHitDump : public edm::stream::EDAnalyzer<> {
 public:
   explicit HcalRecHitDump(edm::ParameterSet const& conf);
-  virtual void analyze(edm::Event const& e, edm::EventSetup const& c) override;
+  void analyze(edm::Event const& e, edm::EventSetup const& c) override;
 
 private:
   string hbhePrefix_;
@@ -126,7 +126,7 @@ private:
       cout << prefix << " Error: no " << name << " rechit data" << endl;
     }
     if (found) {
-      for (typename Collection::const_iterator j = coll->begin(); j != coll->end(); ++j) {
+      for (auto j = coll->begin(); j != coll->end(); ++j) {
         cout << prefix << *j;
         printRecHitAuxInfo(cout, *j, bits_, printPlan1Info);
         cout << endl;

@@ -94,7 +94,7 @@ void testMethodsOfHtxVariant() {
   assert(testObj2.hty() == 0);
   assert(testObj2.overflow() == false);
 
-  L1GctInternHtMiss testObj3(testObj1);  // Copy constructor
+  const L1GctInternHtMiss& testObj3(testObj1);  // Copy constructor
 
   assert(testObj1 == testObj3);  // Test equality & copy ctor.
   assert(testObj1 != testObj2);  // Test inequality.
@@ -131,7 +131,7 @@ void testMethodsOfHtyVariant() {
   assert(testObj2.hty() == 7583);
   assert(testObj2.overflow() == false);
 
-  L1GctInternHtMiss testObj3(testObj1);  // Copy constructor
+  const L1GctInternHtMiss& testObj3(testObj1);  // Copy constructor
 
   assert(testObj1 == testObj3);  // Test equality & copy ctor.
   assert(testObj1 != testObj2);  // Test inequality.
@@ -168,7 +168,7 @@ void testMethodsOfHtxHtyVariant() {
   assert(testObj2.hty() == -1714);
   assert(testObj2.overflow() == false);
 
-  L1GctInternHtMiss testObj3(testObj1);  // Copy constructor
+  const L1GctInternHtMiss& testObj3(testObj1);  // Copy constructor
 
   assert(testObj1 == testObj3);  // Test equality & copy ctor.
   assert(testObj1 != testObj2);  // Test inequality.

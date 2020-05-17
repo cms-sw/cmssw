@@ -12,11 +12,11 @@
 class test_Template : public edm::EDAnalyzer {
 public:
   test_Template(const edm::ParameterSet&);
-  ~test_Template();
+  ~test_Template() override;
 
-  void beginJob();
-  void analyze(const edm::Event&, const edm::EventSetup&);
-  void endJob() { ; }
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override { ; }
 
 private:
 };

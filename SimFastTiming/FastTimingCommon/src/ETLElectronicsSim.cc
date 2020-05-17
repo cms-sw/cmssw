@@ -24,15 +24,15 @@ void ETLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
   std::vector<double> emptyV;
   std::vector<double> eta(1);
 
-  for (MTDSimHitDataAccumulator::const_iterator it = input.begin(); it != input.end(); it++) {
+  for (const auto& it : input) {
     chargeColl.fill(0.f);
     toa.fill(0.f);
-    for (size_t i = 0; i < it->second.hit_info[0].size(); i++) {
-      if ((it->second).hit_info[0][i] < adcThreshold_MIP_)
+    for (size_t i = 0; i < it.second.hit_info[0].size(); i++) {
+      if ((it.second).hit_info[0][i] < adcThreshold_MIP_)
         continue;
 
       // time of arrival
-      float finalToA = (it->second).hit_info[1][i];
+      float finalToA = (it.second).hit_info[1][i];
 
       // Gaussian smearing of the time of arrival
       eta[0] = 2.;  // This is just temporary. Once the RECO geometry is
@@ -47,15 +47,15 @@ void ETLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
       if ((i + ibucket) >= chargeColl.size())
         continue;
 
-      chargeColl[i + ibucket] += (it->second).hit_info[0][i];
+      chargeColl[i + ibucket] += (it.second).hit_info[0][i];
 
       if (toa[i + ibucket] == 0. || (finalToA - ibucket * bxTime_) < toa[i + ibucket])
         toa[i + ibucket] = finalToA - ibucket * bxTime_;
     }
 
     // run the shaper to create a new data frame
-    ETLDataFrame rawDataFrame(it->first.detid_);
-    runTrivialShaper(rawDataFrame, chargeColl, toa, it->first.row_, it->first.column_);
+    ETLDataFrame rawDataFrame(it.first.detid_);
+    runTrivialShaper(rawDataFrame, chargeColl, toa, it.first.row_, it.first.column_);
     updateOutput(output, rawDataFrame);
   }
 }

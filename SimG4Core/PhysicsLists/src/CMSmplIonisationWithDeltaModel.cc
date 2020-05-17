@@ -262,7 +262,7 @@ void CMSmplIonisationWithDeltaModel::SampleSecondaries(vector<G4DynamicParticle*
   deltaDirection.rotateUz(direction);
 
   // create G4DynamicParticle object for delta ray
-  G4DynamicParticle* delta = new G4DynamicParticle(theElectron, deltaDirection, deltaKinEnergy);
+  auto* delta = new G4DynamicParticle(theElectron, deltaDirection, deltaKinEnergy);
 
   vdp->push_back(delta);
 

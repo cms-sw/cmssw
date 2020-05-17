@@ -14,11 +14,12 @@
 #include "TString.h"
 #include <string>
 #include <iostream>
+#include <utility>
 
 class HCSCGains {
 public:
   /// Constructor from collection name
-  HCSCGains(std::string name_) {
+  HCSCGains(const std::string &name_) {
     TString N = name_.c_str();
     name = N;
     hGains = new TH1F("hGain_" + name, name, 200, 0.75, 3.75);
@@ -28,7 +29,7 @@ public:
 
   /// Constructor from collection name and TFile.
   HCSCGains(TString name_, TFile *file) {
-    name = name_;
+    name = std::move(name_);
     hGains = (TH1F *)file->Get("hGains_" + name);
     hGaindiff = (TH1F *)file->Get("hGaindiff_" + name);
     hGainvsch = (TH2F *)file->Get("hGainvsch_" + name);

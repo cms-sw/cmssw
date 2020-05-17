@@ -71,7 +71,7 @@ namespace popcon {
              << this->logDBEntry().exectime << "\n"
              << this->logDBEntry().execmessage << "\n"
              << "\n\n-- user text "
-             << this->logDBEntry().usertext.substr(this->logDBEntry().usertext.find_last_of("@"));
+             << this->logDBEntry().usertext.substr(this->logDBEntry().usertext.find_last_of('@'));
         } else {
           ss << " First object for this tag ";
         }
@@ -109,7 +109,7 @@ namespace popcon {
 
       //get log information from previous upload
       if (this->tagInfo().size)
-        ss_logdb << this->logDBEntry().usertext.substr(this->logDBEntry().usertext.find_last_of("@"));
+        ss_logdb << this->logDBEntry().usertext.substr(this->logDBEntry().usertext.find_last_of('@'));
       else
         ss_logdb << "";
 
@@ -174,13 +174,11 @@ namespace popcon {
         const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>& DetInfos = reader.getAllData();
 
         int count = -1;
-        for (std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>::const_iterator it = DetInfos.begin();
-             it != DetInfos.end();
-             it++) {
+        for (const auto& it : DetInfos) {
           count++;
           //Generate Noise for det detid
           SiStripNoises::InputVector theSiStripVector;
-          for (int strip = 0; strip < 128 * it->second.nApvs; ++strip) {
+          for (int strip = 0; strip < 128 * it.second.nApvs; ++strip) {
             float MeanNoise = 5;
             float RmsNoise = 1;
 
@@ -191,12 +189,12 @@ namespace popcon {
 
             obj->setData(noise, theSiStripVector);
             if (count < 6)
-              edm::LogInfo("SiStripNoisesBuilder") << "detid " << it->first << " \t"
+              edm::LogInfo("SiStripNoisesBuilder") << "detid " << it.first << " \t"
                                                    << " strip " << strip << " \t" << noise << " \t"
                                                    << theSiStripVector.back() / 10 << " \t" << std::endl;
           }
 
-          if (!obj->put(it->first, theSiStripVector))
+          if (!obj->put(it.first, theSiStripVector))
             edm::LogError("SiStripNoisesBuilder")
                 << "[SiStripNoisesBuilder::analyze] detid already exists" << std::endl;
         }

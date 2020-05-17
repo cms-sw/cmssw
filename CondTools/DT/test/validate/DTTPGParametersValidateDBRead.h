@@ -15,9 +15,9 @@ class DTTPGParametersValidateDBRead : public edm::EDAnalyzer {
 public:
   explicit DTTPGParametersValidateDBRead(edm::ParameterSet const& p);
   explicit DTTPGParametersValidateDBRead(int i);
-  virtual ~DTTPGParametersValidateDBRead();
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-  virtual void endJob();
+  ~DTTPGParametersValidateDBRead() override;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void endJob() override;
 
 private:
   std::string dataFileName;

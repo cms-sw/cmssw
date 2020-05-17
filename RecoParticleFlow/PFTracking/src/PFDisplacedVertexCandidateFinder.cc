@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "RecoParticleFlow/PFTracking/interface/PFDisplacedVertexCandidateFinder.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
@@ -29,8 +31,8 @@ PFDisplacedVertexCandidateFinder::~PFDisplacedVertexCandidateFinder() {
 #endif
 }
 
-void PFDisplacedVertexCandidateFinder::setPrimaryVertex(edm::Handle<reco::VertexCollection> mainVertexHandle,
-                                                        edm::Handle<reco::BeamSpot> beamSpotHandle) {
+void PFDisplacedVertexCandidateFinder::setPrimaryVertex(const edm::Handle<reco::VertexCollection>& mainVertexHandle,
+                                                        const edm::Handle<reco::BeamSpot>& beamSpotHandle) {
   const math::XYZPoint beamSpot = beamSpotHandle.isValid()
                                       ? math::XYZPoint(beamSpotHandle->x0(), beamSpotHandle->y0(), beamSpotHandle->z0())
                                       : math::XYZPoint(0, 0, 0);
@@ -54,8 +56,8 @@ void PFDisplacedVertexCandidateFinder::setInput(const edm::Handle<TrackCollectio
   eventTrackTrajectories_.clear();
   eventTrackTrajectories_.resize(trackh->size());
 
-  for (unsigned i = 0; i < trackMask_.size(); i++)
-    trackMask_[i] = true;
+  for (auto&& i : trackMask_)
+    i = true;
 
   eventTracks_.clear();
   if (trackh.isValid()) {
@@ -85,10 +87,10 @@ void PFDisplacedVertexCandidateFinder::findDisplacedVertexCandidates() {
   if (vertexCandidates_.get())
     vertexCandidates_->clear();
   else
-    vertexCandidates_.reset(new PFDisplacedVertexCandidateCollection);
+    vertexCandidates_ = std::make_unique<PFDisplacedVertexCandidateCollection>();
 
   vertexCandidates_->reserve(vertexCandidatesSize_);
-  for (IE ie = eventTracks_.begin(); ie != eventTracks_.end();) {
+  for (auto ie = eventTracks_.begin(); ie != eventTracks_.end();) {
     // Run the recursive procedure to find all tracks link together
     // In one blob called Candidate
 
@@ -156,7 +158,7 @@ PFDisplacedVertexCandidateFinder::IE PFDisplacedVertexCandidateFinder::associate
   }
 #endif
 
-  for (IE ie = eventTracks_.begin(); ie != eventTracks_.end();) {
+  for (auto ie = eventTracks_.begin(); ie != eventTracks_.end();) {
     if (ie == last || ie == next) {
       ++ie;
       continue;
@@ -181,7 +183,7 @@ PFDisplacedVertexCandidateFinder::IE PFDisplacedVertexCandidateFinder::associate
   }
 #endif
 
-  IE iteratorToNextFreeElement = eventTracks_.erase(next);
+  auto iteratorToNextFreeElement = eventTracks_.erase(next);
 
 #ifdef PFLOW_DEBUG
   if (debug_)
@@ -358,18 +360,18 @@ ostream& operator<<(std::ostream& out, const PFDisplacedVertexCandidateFinder& a
 
   out << endl;
 
-  for (PFDisplacedVertexCandidateFinder::IEC ie = a.eventTracks_.begin(); ie != a.eventTracks_.end(); ie++) {
-    double pt = (*ie).get()->pt();
+  for (const auto& eventTrack : a.eventTracks_) {
+    double pt = eventTrack.get()->pt();
 
-    math::XYZPoint Pi = (*ie).get()->innerPosition();
-    math::XYZPoint Po = (*ie).get()->outerPosition();
+    math::XYZPoint Pi = eventTrack.get()->innerPosition();
+    math::XYZPoint Po = eventTrack.get()->outerPosition();
 
     double innermost_radius = sqrt(Pi.x() * Pi.x() + Pi.y() * Pi.y() + Pi.z() * Pi.z());
     double outermost_radius = sqrt(Po.x() * Po.x() + Po.y() * Po.y() + Po.z() * Po.z());
     double innermost_rho = sqrt(Pi.x() * Pi.x() + Pi.y() * Pi.y());
     double outermost_rho = sqrt(Po.x() * Po.x() + Po.y() * Po.y());
 
-    out << "ie = " << (*ie).key() << " pt = " << pt << " innermost hit radius = " << innermost_radius
+    out << "ie = " << eventTrack.key() << " pt = " << pt << " innermost hit radius = " << innermost_radius
         << " rho = " << innermost_rho << " outermost hit radius = " << outermost_radius << " rho = " << outermost_rho
         << endl;
   }
@@ -382,8 +384,8 @@ ostream& operator<<(std::ostream& out, const PFDisplacedVertexCandidateFinder& a
     out << "number of vertexCandidates : " << vertexCandidates->size() << endl;
     out << endl;
 
-    for (PFDisplacedVertexCandidateFinder::IBC ib = vertexCandidates->begin(); ib != vertexCandidates->end(); ib++)
-      ib->Dump();
+    for (const auto& ib : *vertexCandidates)
+      ib.Dump();
   }
 
   return out;

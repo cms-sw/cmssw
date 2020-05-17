@@ -10,7 +10,7 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 //
 void ApvTimingSummaryFactory::extract(Iterator iter) {
-  ApvTimingAnalysis* anal = dynamic_cast<ApvTimingAnalysis*>(iter->second);
+  auto* anal = dynamic_cast<ApvTimingAnalysis*>(iter->second);
   if (!anal) {
     return;
   }

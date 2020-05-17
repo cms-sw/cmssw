@@ -42,10 +42,10 @@
 typedef std::shared_ptr<npstat::StorableMultivariateFunctor> StorableFunctorPtr;
 
 static void insertLUTItem(FFTJetLookupTableSequence& seq,
-                          StorableFunctorPtr fptr,
+                          const StorableFunctorPtr& fptr,
                           const std::string& name,
                           const std::string& category) {
-  FFTJetLookupTableSequence::iterator it = seq.find(category);
+  auto it = seq.find(category);
   if (it == seq.end())
     it = seq.insert(std::make_pair(category, FFTJetDict<std::string, StorableFunctorPtr>())).first;
   it->second.insert(std::make_pair(name, fptr));

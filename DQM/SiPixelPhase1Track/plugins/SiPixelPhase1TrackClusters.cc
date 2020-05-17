@@ -196,13 +196,13 @@ namespace {
           continue;
         auto const& cluster = *clustp;
         const std::vector<SiPixelCluster::Pixel> pixelsVec = cluster.pixels();
-        for (unsigned int i = 0; i < pixelsVec.size(); ++i) {
-          float pixx = pixelsVec[i].x;  // index as float=iteger, row index
-          float pixy = pixelsVec[i].y;  // same, col index
+        for (auto i : pixelsVec) {
+          float pixx = i.x;  // index as float=iteger, row index
+          float pixy = i.y;  // same, col index
 
           bool bigInX = topol.isItBigPixelInX(int(pixx));
           bool bigInY = topol.isItBigPixelInY(int(pixy));
-          float pixel_charge = pixelsVec[i].adc;
+          float pixel_charge = i.adc;
 
           if (bigInX == true || bigInY == true) {
             histo[ON_TRACK_BIGPIXELCHARGE].fill(pixel_charge, id, &iEvent);

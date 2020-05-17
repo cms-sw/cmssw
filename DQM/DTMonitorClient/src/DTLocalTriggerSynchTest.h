@@ -28,14 +28,17 @@ public:
 protected:
   /// Book the new MEs (for each chamber)
 
-  void bookChambHistos(DQMStore::IBooker &, DTChamberId chambId, std::string htype, std::string subfolder = "");
+  void bookChambHistos(DQMStore::IBooker &,
+                       const DTChamberId &chambId,
+                       std::string htype,
+                       const std::string &subfolder = "");
 
   /// Compute efficiency plots
   void makeRatioME(TH1F *numerator, TH1F *denominator, MonitorElement *result);
 
   /// Get float MEs
 
-  float getFloatFromME(DQMStore::IGetter &, DTChamberId chId, std::string meType);
+  float getFloatFromME(DQMStore::IGetter &, const DTChamberId &chId, const std::string &meType);
 
   /// begin Run
   void beginRun(const edm::Run &run, const edm::EventSetup &c) override;

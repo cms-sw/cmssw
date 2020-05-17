@@ -14,8 +14,8 @@ namespace edm {
     // This implementation is ripe for optimization.
     std::ostringstream oss;
     oss << moduleDescriptionID_ << ' ';
-    for (std::vector<BranchID>::const_iterator i = parents_.begin(), e = parents_.end(); i != e; ++i) {
-      oss << *i << ' ';
+    for (auto parent : parents_) {
+      oss << parent << ' ';
     }
 
     std::string stringrep = oss.str();

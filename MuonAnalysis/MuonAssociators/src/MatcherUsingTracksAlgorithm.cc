@@ -307,7 +307,7 @@ void MatcherUsingTracksAlgorithm::init(const edm::EventSetup &iSetup) {
 
 reco::TrackRef MatcherUsingTracksAlgorithm::getTrack(const reco::Candidate &reco, WhichTrack whichTrack) const {
   reco::TrackRef tk;
-  const reco::RecoCandidate *rc = dynamic_cast<const reco::RecoCandidate *>(&reco);
+  const auto *rc = dynamic_cast<const reco::RecoCandidate *>(&reco);
   if (rc == nullptr)
     throw cms::Exception("Invalid Data") << "Input object is not a RecoCandidate.\n";
   switch (whichTrack) {
@@ -631,7 +631,7 @@ void MatcherUsingTracksAlgorithm::cropAndInvert(AlgebraicSymMatrix55 &cov, bool 
     cov.Invert();
   } else {
     // get 3x3 covariance
-    AlgebraicSymMatrix33 momCov = cov.Sub<AlgebraicSymMatrix33>(0, 0);  // get 3x3 matrix
+    auto momCov = cov.Sub<AlgebraicSymMatrix33>(0, 0);  // get 3x3 matrix
     if (diagonalOnly) {
       momCov(0, 1) = 0;
       momCov(0, 2) = 0;

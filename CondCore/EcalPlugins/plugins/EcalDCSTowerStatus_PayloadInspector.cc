@@ -113,9 +113,8 @@ namespace {
       unsigned int shift = 0, mask = 1;
       unsigned int statusCode;
 
-      for (std::vector<EcalChannelStatusCode>::const_iterator iItems = vItems.begin(); iItems != vItems.end();
-           ++iItems) {
-        statusCode = iItems->getStatusCode();
+      for (auto vItem : vItems) {
+        statusCode = vItem.getStatusCode();
         for (shift = 0; shift < 6; ++shift) {
           mask = 1 << (shift);
           if (statusCode & mask) {

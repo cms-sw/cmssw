@@ -203,7 +203,7 @@ void ElectronStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                                      << ihit->time();
       }
     }
-    edm::SimTrackContainer::const_iterator simTrkItr = SimTk->begin();
+    auto simTrkItr = SimTk->begin();
     for (indx = 0; simTrkItr != SimTk->end(); simTrkItr++, indx++) {
       if (verbose_ > 0)
         edm::LogVerbatim("IsoTrack") << "ElectronStudy: Track[" << indx << "] ID " << simTrkItr->trackId() << " type "

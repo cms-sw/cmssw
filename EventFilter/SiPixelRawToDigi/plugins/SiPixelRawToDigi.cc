@@ -8,6 +8,8 @@
 
 #include "SiPixelRawToDigi.h"
 
+#include <memory>
+
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
@@ -73,7 +75,7 @@ SiPixelRawToDigi::SiPixelRawToDigi(const edm::ParameterSet& conf)
   // Timing
   bool timing = config_.getUntrackedParameter<bool>("Timing", false);
   if (timing) {
-    theTimer.reset(new edm::CPUTimer);
+    theTimer = std::make_unique<edm::CPUTimer>();
     hCPU = new TH1D("hCPU", "hCPU", 100, 0., 0.050);
     hDigi = new TH1D("hDigi", "hDigi", 50, 0., 15000.);
   }
@@ -201,9 +203,7 @@ void SiPixelRawToDigi::produce(edm::Event& ev, const edm::EventSetup& es) {
                                  << regions_->nForwardModules() << " " << regions_->nModules();
   }
 
-  for (auto aFed = fedIds.begin(); aFed != fedIds.end(); ++aFed) {
-    int fedId = *aFed;
-
+  for (int fedId : fedIds) {
     if (!usePilotBlade && (fedId == 40))
       continue;  // skip pilot blade data
 
@@ -224,7 +224,7 @@ void SiPixelRawToDigi::produce(edm::Event& ev, const edm::EventSetup& es) {
     //pack errors into collection
     if (includeErrors) {
       typedef PixelDataFormatter::Errors::iterator IE;
-      for (IE is = errors.begin(); is != errors.end(); is++) {
+      for (auto is = errors.begin(); is != errors.end(); is++) {
         uint32_t errordetid = is->first;
         if (errordetid == dummydetid) {  // errors given dummy detId must be sorted by Fed
           nodeterrors.insert(nodeterrors.end(), errors[errordetid].begin(), errors[errordetid].end());
@@ -264,8 +264,7 @@ void SiPixelRawToDigi::produce(edm::Event& ev, const edm::EventSetup& es) {
             } else {
               // fill list of detIds to be turned off by tracking
               if (!tkerrorlist.empty()) {
-                std::vector<int>::iterator it_find =
-                    find(tkerrorlist.begin(), tkerrorlist.end(), aPixelError.getType());
+                auto it_find = find(tkerrorlist.begin(), tkerrorlist.end(), aPixelError.getType());
                 if (it_find != tkerrorlist.end()) {
                   tkerror_detidcollection->push_back(errordetid);
                 }
@@ -274,8 +273,7 @@ void SiPixelRawToDigi::produce(edm::Event& ev, const edm::EventSetup& es) {
 
             // fill list of detIds with errors to be studied
             if (!usererrorlist.empty()) {
-              std::vector<int>::iterator it_find =
-                  find(usererrorlist.begin(), usererrorlist.end(), aPixelError.getType());
+              auto it_find = find(usererrorlist.begin(), usererrorlist.end(), aPixelError.getType());
               if (it_find != usererrorlist.end()) {
                 usererror_detidcollection->push_back(errordetid);
               }

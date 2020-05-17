@@ -34,16 +34,16 @@ PixelForwardLayerPhase1::PixelForwardLayerPhase1(vector<const Phase1PixelBlade*>
   // or probably need to change the way this is done, e.g. a smarter binFinder
   float theRmin = (*(theComps.begin()))->surface().position().perp();
   float theRmax = theRmin;
-  for (vector<const GeometricSearchDet*>::const_iterator it = theComps.begin(); it != theComps.end(); it++) {
-    theRmin = std::min(theRmin, (*it)->surface().position().perp());
-    theRmax = std::max(theRmax, (*it)->surface().position().perp());
+  for (auto theComp : theComps) {
+    theRmin = std::min(theRmin, theComp->surface().position().perp());
+    theRmax = std::max(theRmax, theComp->surface().position().perp());
   }
   //float split_inner_outer_radius = 0.5 * (theRmin + theRmax);
   // force the splitting rdius to be 10 cm to cope also with the FPIX disks with only the outer ring
   float split_inner_outer_radius = 10.;
   _num_innerpanels = 0;
-  for (vector<const GeometricSearchDet*>::const_iterator it = theComps.begin(); it != theComps.end(); it++) {
-    if ((**it).surface().position().perp() <= split_inner_outer_radius)
+  for (auto theComp : theComps) {
+    if ((*theComp).surface().position().perp() <= split_inner_outer_radius)
       ++_num_innerpanels;
   }
   _num_outerpanels = theComps.size() - _num_innerpanels;
@@ -52,8 +52,8 @@ PixelForwardLayerPhase1::PixelForwardLayerPhase1(vector<const Phase1PixelBlade*>
                               << " num inner, outer disks = " << _num_innerpanels << ", " << _num_outerpanels
                               << std::endl;
 
-  for (vector<const GeometricSearchDet*>::const_iterator it = theComps.begin(); it != theComps.end(); it++) {
-    theBasicComps.insert(theBasicComps.end(), (**it).basicComponents().begin(), (**it).basicComponents().end());
+  for (auto theComp : theComps) {
+    theBasicComps.insert(theBasicComps.end(), (*theComp).basicComponents().begin(), (*theComp).basicComponents().end());
   }
 
   //They should be already phi-ordered. TO BE CHECKED!!
@@ -77,9 +77,9 @@ PixelForwardLayerPhase1::PixelForwardLayerPhase1(vector<const Phase1PixelBlade*>
                           << "\n"
                           << "PixelForwardLayerPhase1.surfcace.outerR(): " << this->specificSurface().outerRadius();
 
-  for (vector<const GeometricSearchDet*>::const_iterator it = theComps.begin(); it != theComps.end(); it++) {
-    LogDebug("TkDetLayers") << "blades phi,z,r: " << (*it)->surface().position().phi() << " , "
-                            << (*it)->surface().position().z() << " , " << (*it)->surface().position().perp();
+  for (auto theComp : theComps) {
+    LogDebug("TkDetLayers") << "blades phi,z,r: " << theComp->surface().position().phi() << " , "
+                            << theComp->surface().position().z() << " , " << theComp->surface().position().perp();
     //for(vector<const GeomDet*>::const_iterator iu=(**it).basicComponents().begin();
     //    iu!=(**it).basicComponents().end();iu++){
     //  std::cout << "   basic component rawId = " << hex << (**iu).geographicalId().rawId() << dec <<std::endl;

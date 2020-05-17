@@ -21,7 +21,7 @@ public:
   GenericBinFinderInZ(ConstItr first, ConstItr last) : theNbins(last - first) {
     theBins.reserve(theNbins);
     theBorders.reserve(theNbins - 1);
-    for (ConstItr i = first; i < last - 1; i++) {
+    for (auto i = first; i < last - 1; i++) {
       theBins.push_back((**i).position().z());
       theBorders.push_back(((**i).position().z() + (**(i + 1)).position().z()) / 2.);
     }

@@ -16,8 +16,8 @@ namespace edmtest {
   public:
     explicit DTFullMapPrint(edm::ParameterSet const& p);
     explicit DTFullMapPrint(int i);
-    virtual ~DTFullMapPrint();
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    ~DTFullMapPrint() override;
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   private:
   };

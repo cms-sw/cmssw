@@ -12,11 +12,11 @@
 class testSiStripFecKey : public edm::EDAnalyzer {
 public:
   testSiStripFecKey(const edm::ParameterSet&);
-  ~testSiStripFecKey();
+  ~testSiStripFecKey() override;
 
-  void beginJob();
-  void analyze(const edm::Event&, const edm::EventSetup&);
-  void endJob() { ; }
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override { ; }
 
 private:
   uint32_t crate_;

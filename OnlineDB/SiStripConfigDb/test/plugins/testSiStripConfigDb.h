@@ -17,11 +17,11 @@ class SiStripConfigDb;
 class testSiStripConfigDb : public edm::EDAnalyzer {
 public:
   testSiStripConfigDb(const edm::ParameterSet&);
-  ~testSiStripConfigDb();
+  ~testSiStripConfigDb() override;
 
-  void beginJob();
-  void analyze(const edm::Event&, const edm::EventSetup&) { ; }
-  void endJob() { ; }
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override { ; }
+  void endJob() override { ; }
 
 private:
   SiStripConfigDb* db_;

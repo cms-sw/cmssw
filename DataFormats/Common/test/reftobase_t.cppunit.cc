@@ -11,8 +11,8 @@ class testRefToBase : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
   void check();
 };
 
@@ -24,10 +24,10 @@ namespace testreftobase {
   };
 
   struct Inherit1 : public Base {
-    virtual int val() const { return 1; }
+    int val() const override { return 1; }
   };
   struct Inherit2 : public Base {
-    virtual int val() const { return 2; }
+    int val() const override { return 2; }
   };
 }  // namespace testreftobase
 
@@ -48,7 +48,7 @@ void testRefToBase::check() {
   CPPUNIT_ASSERT(b1.id() == ProductID(1, 1));
 
   //copy constructor
-  RefToBase<Base> b2(b1);
+  const RefToBase<Base>& b2(b1);
   CPPUNIT_ASSERT(&(*b2) == static_cast<Base*>(&(v1[1])));
   CPPUNIT_ASSERT(b2.id() == b1.id());
 

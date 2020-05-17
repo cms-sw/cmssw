@@ -21,8 +21,8 @@ class testME0DetId : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
 
   void testOne();
   void testFail();
@@ -57,45 +57,45 @@ void testME0DetId::testFail() {
   try {
     // Wrong Layer
     ME0DetId detid(0, 57, 0, 0);
-    CPPUNIT_ASSERT("Failed to throw required exception 0" == 0);
+    CPPUNIT_ASSERT("Failed to throw required exception 0" == nullptr);
     detid.rawId();  // avoid compiler warning
   } catch (cms::Exception& e) {
     // OK
   } catch (...) {
-    CPPUNIT_ASSERT("Threw wrong kind of exception 0" == 0);
+    CPPUNIT_ASSERT("Threw wrong kind of exception 0" == nullptr);
   }
 
   try {
     // Wrong Region
     ME0DetId detid(2, 0, 0, 0);
-    CPPUNIT_ASSERT("Failed to throw required exception 1" == 0);
+    CPPUNIT_ASSERT("Failed to throw required exception 1" == nullptr);
     detid.rawId();  // avoid compiler warning
   } catch (cms::Exception& e) {
     // OK
   } catch (...) {
-    CPPUNIT_ASSERT("Threw wrong kind of exception 1" == 0);
+    CPPUNIT_ASSERT("Threw wrong kind of exception 1" == nullptr);
   }
 
   try {
     // Not existant chamber number
     ME0DetId detid(-1, 1, 37, 1);
-    CPPUNIT_ASSERT("Failed to throw required exception 2" == 0);
+    CPPUNIT_ASSERT("Failed to throw required exception 2" == nullptr);
     detid.rawId();  // avoid compiler warning
   } catch (cms::Exception& e) {
     // OK
   } catch (...) {
-    CPPUNIT_ASSERT("Threw wrong kind of exception 2" == 0);
+    CPPUNIT_ASSERT("Threw wrong kind of exception 2" == nullptr);
   }
 
   // contruct using an invalid input id
   try {
     ME0DetId detid(100);
-    CPPUNIT_ASSERT("Failed to throw required exception 3" == 0);
+    CPPUNIT_ASSERT("Failed to throw required exception 3" == nullptr);
     detid.rawId();  // avoid compiler warning
   } catch (cms::Exception& e) {
     // OK
   } catch (...) {
-    CPPUNIT_ASSERT("Threw wrong kind of exception 3" == 0);
+    CPPUNIT_ASSERT("Threw wrong kind of exception 3" == nullptr);
   }
 }
 

@@ -33,7 +33,7 @@ public:
     }
     return "";
   }
-  int itype(std::string s) const {
+  int itype(const std::string& s) const {
     if (s == "none")
       return 0;
     if (s == "fixed")

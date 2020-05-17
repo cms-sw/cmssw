@@ -47,7 +47,7 @@ public:
 
 protected:
   std::shared_ptr<FactorizedJetCorrectorCalculator const> getCalculator(
-      edm::EventSetup const&, std::function<void(std::string const&)> levelCheck);
+      edm::EventSetup const&, const std::function<void(std::string const&)>& levelCheck);
 
 private:
   JetCorrectorImplMakerBase(const JetCorrectorImplMakerBase&) = delete;  // stop default

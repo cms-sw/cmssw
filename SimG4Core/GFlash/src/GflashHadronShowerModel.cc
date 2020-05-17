@@ -32,7 +32,7 @@
 
 using namespace CLHEP;
 
-GflashHadronShowerModel::GflashHadronShowerModel(G4String modelName,
+GflashHadronShowerModel::GflashHadronShowerModel(const G4String &modelName,
                                                  G4Region *envelope,
                                                  const edm::ParameterSet &parSet)
     : G4VFastSimulationModel(modelName, envelope), theParSet(parSet) {
@@ -137,8 +137,8 @@ void GflashHadronShowerModel::makeHits(const G4FastTrack &fastTrack) {
   theGflashNavigator->SetWorldVolume(
       G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume());
 
-  std::vector<GflashHit>::const_iterator spotIter = gflashHitList.begin();
-  std::vector<GflashHit>::const_iterator spotIterEnd = gflashHitList.end();
+  auto spotIter = gflashHitList.begin();
+  auto spotIterEnd = gflashHitList.end();
 
   for (; spotIter != spotIterEnd; spotIter++) {
     theGflashNavigator->LocateGlobalPointAndUpdateTouchableHandle(
@@ -217,8 +217,7 @@ G4bool GflashHadronShowerModel::isFirstInelasticInteraction(const G4FastTrack &f
     //@@@may require an additional condition only for hadron interaction with
     // the process name, but it will not change the result anyway
 
-    for (unsigned int isec = 0; isec < fSecondaryVector->size(); isec++) {
-      G4Track *fSecondaryTrack = (*fSecondaryVector)[isec];
+    for (auto fSecondaryTrack : *fSecondaryVector) {
       G4double secondaryEnergy = fSecondaryTrack->GetKineticEnergy();
 
       if (secondaryEnergy > leadingEnergy) {

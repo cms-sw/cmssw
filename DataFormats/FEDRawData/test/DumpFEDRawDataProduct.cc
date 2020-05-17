@@ -34,11 +34,11 @@ namespace test {
       consumes<FEDRawDataCollection>(label_);
       ids = pset.getUntrackedParameter<std::vector<int> >("feds", std::vector<int>());
       dumpPayload_ = pset.getUntrackedParameter<bool>("dumpPayload", false);
-      for (std::vector<int>::iterator i = ids.begin(); i != ids.end(); i++)
-        FEDids_.insert(*i);
+      for (int& id : ids)
+        FEDids_.insert(id);
     }
 
-    void analyze(const Event& e, const EventSetup& c) {
+    void analyze(const Event& e, const EventSetup& c) override {
       cout << "--- Run: " << e.id().run() << " Event: " << e.id().event() << endl;
       Handle<FEDRawDataCollection> rawdata;
       e.getByLabel(label_, rawdata);

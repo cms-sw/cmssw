@@ -43,8 +43,8 @@ TH1F** RunHistogramManager::makeTH1F(
 }
 
 RunHistogramManager::~RunHistogramManager() {
-  for (std::vector<BaseHistoParams*>::const_iterator hp = _histograms.begin(); hp != _histograms.end(); ++hp) {
-    delete *hp;
+  for (auto _histogram : _histograms) {
+    delete _histogram;
   }
   LogDebug("Destructor") << "All BaseHistoParams destroyed ";
 }
@@ -141,7 +141,7 @@ void RunHistogramManager::beginRun(const unsigned int irun, TFileDirectory& subd
 
   // loop on the histograms and update the pointer references
 
-  for (unsigned int ih = 0; ih < _histograms.size(); ++ih) {
-    _histograms[ih]->beginRun(irun, subrun, fillrun);
+  for (auto& _histogram : _histograms) {
+    _histogram->beginRun(irun, subrun, fillrun);
   }
 }

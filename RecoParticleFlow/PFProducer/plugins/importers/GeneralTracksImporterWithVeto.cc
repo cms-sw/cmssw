@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoParticleFlow/PFProducer/interface/BlockElementImporterBase.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
@@ -25,7 +27,7 @@ public:
             conf.existsAs<bool>("cleanBadConvertedBrems") ? conf.getParameter<bool>("cleanBadConvertedBrems") : false) {
     bool postMuonCleaning =
         conf.existsAs<bool>("postMuonCleaning") ? conf.getParameter<bool>("postMuonCleaning") : false;
-    pfmu_ = std::unique_ptr<PFMuonAlgo>(new PFMuonAlgo(conf, postMuonCleaning));
+    pfmu_ = std::make_unique<PFMuonAlgo>(conf, postMuonCleaning);
   }
 
   void importToBlock(const edm::Event&, ElementList&) const override;
@@ -52,8 +54,8 @@ void GeneralTracksImporterWithVeto::importToBlock(const edm::Event& e,
   auto vetosH = e.getHandle(veto_);
   const auto& vetos = *vetosH;
   std::unordered_set<unsigned> vetoed;
-  for (unsigned i = 0; i < vetos.size(); ++i) {
-    vetoed.insert(vetos[i].trackRef().key());
+  for (const auto& veto : vetos) {
+    vetoed.insert(veto.trackRef().key());
   }
   auto muons = e.getHandle(muons_);
   elems.reserve(elems.size() + tracks->size());

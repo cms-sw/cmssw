@@ -24,8 +24,8 @@ namespace edmtest {
   public:
     explicit CSCReadoutMapTest(edm::ParameterSet const& p) {}
     explicit CSCReadoutMapTest(int i) {}
-    virtual ~CSCReadoutMapTest() {}
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    ~CSCReadoutMapTest() override {}
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   private:
   };
@@ -65,7 +65,7 @@ namespace edmtest {
         if (jdmb >= 6)
           --cscid;
         int key = jcrate * 10 + cscid;
-        CSCCrateMap::CSCMap::const_iterator it = (pcrate->crate_map).find(key);
+        auto it = (pcrate->crate_map).find(key);
         if (it != (pcrate->crate_map).end()) {
           ++count;
           CSCDetId id = pcrate->detId(jcrate, jdmb, jcfeb);  // *** TEST THE detId BUILDER FOR CHAMBER ***

@@ -21,7 +21,7 @@
 std::string PrintoutHelper::dumpMeasurements(const std::vector<TrajectoryMeasurement>& v) {
   std::stringstream buffer;
   buffer << v.size() << " total measurements\n";
-  std::vector<TrajectoryMeasurement>::const_iterator it = v.begin();
+  auto it = v.begin();
   for (; it != v.end(); ++it) {
     buffer << dumpMeasurement(*it);
     buffer << "\n";
@@ -89,15 +89,15 @@ std::string PrintoutHelper::regressionTest(const TrackerGeometry& tracker, std::
   */
 
   buffer << "number of finalTrajectories: " << unsmoothedResult.size() << std::endl;
-  for (std::vector<Trajectory>::const_iterator it = unsmoothedResult.begin(); it != unsmoothedResult.end(); it++) {
-    if (it->lastMeasurement().updatedState().isValid()) {
-      buffer << "candidate's n valid and invalid hit, chi2, pt, eta : " << it->foundHits() << " , " << it->lostHits()
-             << " , " << it->chiSquared() << " , " << it->lastMeasurement().updatedState().globalMomentum().perp()
-             << " , " << it->lastMeasurement().updatedState().globalMomentum().eta() << std::endl;
-    } else if (it->lastMeasurement().predictedState().isValid()) {
-      buffer << "candidate's n valid and invalid hit, chi2, pt, eta : " << it->foundHits() << " , " << it->lostHits()
-             << " , " << it->chiSquared() << " , " << it->lastMeasurement().predictedState().globalMomentum().perp()
-             << " , " << it->lastMeasurement().predictedState().globalMomentum().eta() << std::endl;
+  for (const auto& it : unsmoothedResult) {
+    if (it.lastMeasurement().updatedState().isValid()) {
+      buffer << "candidate's n valid and invalid hit, chi2, pt, eta : " << it.foundHits() << " , " << it.lostHits()
+             << " , " << it.chiSquared() << " , " << it.lastMeasurement().updatedState().globalMomentum().perp()
+             << " , " << it.lastMeasurement().updatedState().globalMomentum().eta() << std::endl;
+    } else if (it.lastMeasurement().predictedState().isValid()) {
+      buffer << "candidate's n valid and invalid hit, chi2, pt, eta : " << it.foundHits() << " , " << it.lostHits()
+             << " , " << it.chiSquared() << " , " << it.lastMeasurement().predictedState().globalMomentum().perp()
+             << " , " << it.lastMeasurement().predictedState().globalMomentum().eta() << std::endl;
     } else
       buffer << "candidate with invalid last measurement state!" << std::endl;
   }

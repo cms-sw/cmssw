@@ -89,23 +89,23 @@ std::unique_ptr<L1RCTParameters> L1RCTParametersOnlineProd::newObject(const std:
   // 'rct_cmssw_def');
 
   std::vector<std::string> queryStrings;
-  queryStrings.push_back("EGAMMA_LSB");
-  queryStrings.push_back("JETMET_LSB");
-  queryStrings.push_back("E_MIN_FOR_FG_CUT");
-  queryStrings.push_back("E_MAX_FOR_FG_CUT");
-  queryStrings.push_back("H_OVER_E_CUT");
-  queryStrings.push_back("E_MIN_FOR_H_OVER_E_CUT");
-  queryStrings.push_back("E_MAX_FOR_H_OVER_E_CUT");
-  queryStrings.push_back("H_MIN_FOR_H_OVER_E_CUT");
-  queryStrings.push_back("E_ACTIVITY_CUT");
-  queryStrings.push_back("H_ACTIVITY_CUT");
-  queryStrings.push_back("EIC_ISOLATION_THRESHOLD");
-  queryStrings.push_back("JSC_QUIET_THRESHOLD_BARREL");
-  queryStrings.push_back("JSC_QUIET_THRESHOLD_ENDCAP");
-  queryStrings.push_back("NOISEVETOHB");
-  queryStrings.push_back("NOISEVETOHEPLUS");
-  queryStrings.push_back("NOISEVETOHEMINUS");
-  queryStrings.push_back("USECORR");
+  queryStrings.emplace_back("EGAMMA_LSB");
+  queryStrings.emplace_back("JETMET_LSB");
+  queryStrings.emplace_back("E_MIN_FOR_FG_CUT");
+  queryStrings.emplace_back("E_MAX_FOR_FG_CUT");
+  queryStrings.emplace_back("H_OVER_E_CUT");
+  queryStrings.emplace_back("E_MIN_FOR_H_OVER_E_CUT");
+  queryStrings.emplace_back("E_MAX_FOR_H_OVER_E_CUT");
+  queryStrings.emplace_back("H_MIN_FOR_H_OVER_E_CUT");
+  queryStrings.emplace_back("E_ACTIVITY_CUT");
+  queryStrings.emplace_back("H_ACTIVITY_CUT");
+  queryStrings.emplace_back("EIC_ISOLATION_THRESHOLD");
+  queryStrings.emplace_back("JSC_QUIET_THRESHOLD_BARREL");
+  queryStrings.emplace_back("JSC_QUIET_THRESHOLD_ENDCAP");
+  queryStrings.emplace_back("NOISEVETOHB");
+  queryStrings.emplace_back("NOISEVETOHEPLUS");
+  queryStrings.emplace_back("NOISEVETOHEMINUS");
+  queryStrings.emplace_back("USECORR");
   l1t::OMDSReader::QueryResults paremResults =
       m_omdsReader.basicQuery(queryStrings, rctSchema, "PAREM_CONF", "PAREM_CONF.PAREM_KEY", paremKeyResults);
 
@@ -164,8 +164,8 @@ std::unique_ptr<L1RCTParameters> L1RCTParametersOnlineProd::newObject(const std:
   // 'rct_cmssw_def'));
 
   std::vector<std::string> scaleFactorQueryStrings;
-  scaleFactorQueryStrings.push_back("SCALEFACTOR");
-  scaleFactorQueryStrings.push_back("FK_RCT_ETA");
+  scaleFactorQueryStrings.emplace_back("SCALEFACTOR");
+  scaleFactorQueryStrings.emplace_back("FK_RCT_ETA");
 
   l1t::OMDSReader::QueryResults egammaEcalResults = m_omdsReader.basicQuery(
       scaleFactorQueryStrings,
@@ -274,10 +274,10 @@ std::unique_ptr<L1RCTParameters> L1RCTParametersOnlineProd::newObject(const std:
   if (useCorr) {  //lindsay corrections
 
     std::vector<std::string> scaleFactorQuery3Strings;
-    scaleFactorQuery3Strings.push_back("SCALEFACTOR");
-    scaleFactorQuery3Strings.push_back("SF2");
-    scaleFactorQuery3Strings.push_back("SF3");
-    scaleFactorQuery3Strings.push_back("FK_RCT_ETA");
+    scaleFactorQuery3Strings.emplace_back("SCALEFACTOR");
+    scaleFactorQuery3Strings.emplace_back("SF2");
+    scaleFactorQuery3Strings.emplace_back("SF3");
+    scaleFactorQuery3Strings.emplace_back("FK_RCT_ETA");
 
     l1t::OMDSReader::QueryResults hcalCalibResults = m_omdsReader.basicQuery(
         scaleFactorQuery3Strings,
@@ -330,13 +330,13 @@ std::unique_ptr<L1RCTParameters> L1RCTParametersOnlineProd::newObject(const std:
     fillScaleFactors(ecalCalibResults, ecalCalibScaleFactors, 3);
 
     std::vector<std::string> scaleFactorQuery6Strings;
-    scaleFactorQuery6Strings.push_back("SCALEFACTOR");
-    scaleFactorQuery6Strings.push_back("SF2");
-    scaleFactorQuery6Strings.push_back("SF3");
-    scaleFactorQuery6Strings.push_back("SF4");
-    scaleFactorQuery6Strings.push_back("SF5");
-    scaleFactorQuery6Strings.push_back("SF6");
-    scaleFactorQuery6Strings.push_back("FK_RCT_ETA");
+    scaleFactorQuery6Strings.emplace_back("SCALEFACTOR");
+    scaleFactorQuery6Strings.emplace_back("SF2");
+    scaleFactorQuery6Strings.emplace_back("SF3");
+    scaleFactorQuery6Strings.emplace_back("SF4");
+    scaleFactorQuery6Strings.emplace_back("SF5");
+    scaleFactorQuery6Strings.emplace_back("SF6");
+    scaleFactorQuery6Strings.emplace_back("FK_RCT_ETA");
     l1t::OMDSReader::QueryResults crossTermResults = m_omdsReader.basicQuery(
         scaleFactorQuery6Strings,
         rctSchema,
@@ -434,12 +434,12 @@ void L1RCTParametersOnlineProd::fillScaleFactors(const l1t::OMDSReader::QueryRes
   }
 
   std::vector<std::string> scaleFactorQuery6Strings;
-  scaleFactorQuery6Strings.push_back("SCALEFACTOR");
-  scaleFactorQuery6Strings.push_back("SF2");
-  scaleFactorQuery6Strings.push_back("SF3");
-  scaleFactorQuery6Strings.push_back("SF4");
-  scaleFactorQuery6Strings.push_back("SF5");
-  scaleFactorQuery6Strings.push_back("SF6");
+  scaleFactorQuery6Strings.emplace_back("SCALEFACTOR");
+  scaleFactorQuery6Strings.emplace_back("SF2");
+  scaleFactorQuery6Strings.emplace_back("SF3");
+  scaleFactorQuery6Strings.emplace_back("SF4");
+  scaleFactorQuery6Strings.emplace_back("SF5");
+  scaleFactorQuery6Strings.emplace_back("SF6");
   // Store scale factors in temporary array to get ordering right.
   // Reserve space for 100 bins.
 

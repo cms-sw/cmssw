@@ -446,15 +446,14 @@ void HcalRecHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
       double enSimHitsHFS = 0.;
       // sum of SimHits in the cone
 
-      for (std::vector<PCaloHit>::const_iterator SimHits = SimHitResult->begin(); SimHits != SimHitResult->end();
-           ++SimHits) {
+      for (const auto &SimHits : *SimHitResult) {
         int sub, depth;
         HcalDetId cell;
 
         if (testNumber_)
-          cell = HcalHitRelabeller::relabel(SimHits->id(), hcons);
+          cell = HcalHitRelabeller::relabel(SimHits.id(), hcons);
         else
-          cell = HcalDetId(SimHits->id());
+          cell = HcalDetId(SimHits.id());
 
         sub = cell.subdet();
         depth = cell.depth();
@@ -468,7 +467,7 @@ void HcalRecHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
             dynamic_cast<const HcalGeometry *>(geo->getSubdetectorGeometry(DetId::Hcal, cell.subdet()));
         double etaS = cellGeometry->getPosition(cell).eta();
         double phiS = cellGeometry->getPosition(cell).phi();
-        double en = SimHits->energy();
+        double en = SimHits.energy();
 
         double r = dR(eta_MC, phi_MC, etaS, phiS);
 
@@ -542,8 +541,8 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const &ev) {
     if (ev.getByToken(tok_hbhe_, hbhecoll)) {
       const CaloGeometry *geo = geometry.product();
 
-      for (HBHERecHitCollection::const_iterator j = hbhecoll->begin(); j != hbhecoll->end(); j++) {
-        HcalDetId cell(j->id());
+      for (const auto &j : *hbhecoll) {
+        HcalDetId cell(j.id());
         const HcalGeometry *cellGeometry =
             dynamic_cast<const HcalGeometry *>(geo->getSubdetectorGeometry(DetId::Hcal, cell.subdet()));
         double eta = cellGeometry->getPosition(cell).eta();
@@ -553,9 +552,9 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const &ev) {
         int depth = cell.depth();
         int inteta = cell.ieta();
         int intphi = cell.iphi() - 1;
-        double en = j->energy();
-        double t = j->time();
-        double chi2 = j->chi2();
+        double en = j.energy();
+        double t = j.time();
+        double chi2 = j.chi2();
 
         if ((iz > 0 && eta > 0.) || (iz < 0 && eta < 0.) || iz == 0) {
           csub.push_back(sub);
@@ -577,8 +576,8 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const &ev) {
     // HF
     edm::Handle<HFRecHitCollection> hfcoll;
     if (ev.getByToken(tok_hf_, hfcoll)) {
-      for (HFRecHitCollection::const_iterator j = hfcoll->begin(); j != hfcoll->end(); j++) {
-        HcalDetId cell(j->id());
+      for (const auto &j : *hfcoll) {
+        HcalDetId cell(j.id());
         auto cellGeometry = geometry->getSubdetectorGeometry(cell)->getGeometry(cell);
 
         double eta = cellGeometry->getPosition().eta();
@@ -588,8 +587,8 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const &ev) {
         int depth = cell.depth();
         int inteta = cell.ieta();
         int intphi = cell.iphi() - 1;
-        double en = j->energy();
-        double t = j->time();
+        double en = j.energy();
+        double t = j.time();
 
         if ((iz > 0 && eta > 0.) || (iz < 0 && eta < 0.) || iz == 0) {
           csub.push_back(sub);
@@ -611,8 +610,8 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const &ev) {
   if (subdet_ == 3 || subdet_ == 5 || subdet_ == 6 || subdet_ == 0) {
     edm::Handle<HORecHitCollection> hocoll;
     if (ev.getByToken(tok_ho_, hocoll)) {
-      for (HORecHitCollection::const_iterator j = hocoll->begin(); j != hocoll->end(); j++) {
-        HcalDetId cell(j->id());
+      for (const auto &j : *hocoll) {
+        HcalDetId cell(j.id());
         auto cellGeometry = geometry->getSubdetectorGeometry(cell)->getGeometry(cell);
 
         double eta = cellGeometry->getPosition().eta();
@@ -622,8 +621,8 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const &ev) {
         int depth = cell.depth();
         int inteta = cell.ieta();
         int intphi = cell.iphi() - 1;
-        double t = j->time();
-        double en = j->energy();
+        double t = j.time();
+        double en = j.energy();
 
         if ((iz > 0 && eta > 0.) || (iz < 0 && eta < 0.) || iz == 0) {
           csub.push_back(sub);

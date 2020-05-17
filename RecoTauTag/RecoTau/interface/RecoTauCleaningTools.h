@@ -35,10 +35,10 @@ namespace reco::tau {
     // Output container of clean objects
     Container clean;
     OverlapFunction overlapChecker;
-    for (Iterator candidate = dirty.begin(); candidate != dirty.end(); ++candidate) {
+    for (auto candidate = dirty.begin(); candidate != dirty.end(); ++candidate) {
       // Check if this overlaps with a pizero already in the clean list
       bool overlaps = false;
-      for (Iterator cleaned = clean.begin(); cleaned != clean.end() && !overlaps; ++cleaned) {
+      for (auto cleaned = clean.begin(); cleaned != clean.end() && !overlaps; ++cleaned) {
         overlaps = overlapChecker(*candidate, *cleaned);
       }
       // If it didn't overlap with anything clean, add it to the clean list

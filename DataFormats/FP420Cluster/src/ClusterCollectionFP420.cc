@@ -21,8 +21,8 @@ void ClusterCollectionFP420::put(ClusterCollectionFP420::Range input, unsigned i
 
   // fill input in temporary vector for sorting
   std::vector<ClusterFP420> temporary;
-  ClusterCollectionFP420::ContainerIterator sort_begin = input.first;
-  ClusterCollectionFP420::ContainerIterator sort_end = input.second;
+  auto sort_begin = input.first;
+  auto sort_end = input.second;
 #ifdef mydigidebug
   std::cout << "   !!!!!!!!!!!!!!!!    ClusterCollectionFP420:: !!!!  put !!!!           start " << std::endl;
 #endif
@@ -35,8 +35,8 @@ void ClusterCollectionFP420::put(ClusterCollectionFP420::Range input, unsigned i
   std::sort(temporary.begin(), temporary.end());
 
   // iterators over input
-  ClusterCollectionFP420::ContainerIterator begin = temporary.begin();
-  ClusterCollectionFP420::ContainerIterator end = temporary.end();
+  auto begin = temporary.begin();
+  auto end = temporary.end();
   for (; begin != end; ++begin) {
     container_.push_back(*begin);
     if (first) {
@@ -72,7 +72,7 @@ const ClusterCollectionFP420::Range ClusterCollectionFP420::get(unsigned int det
 #ifdef mydigidebug
   std::cout << "ClusterCollectionFP420::get:detID= " << detID << std::endl;
 #endif
-  ClusterCollectionFP420::RegistryIterator returnIndex = map_.find(detID);
+  auto returnIndex = map_.find(detID);
   ClusterCollectionFP420::IndexRange returnIndexRange = returnIndex->second;
 #ifdef mydigidebug
   std::cout << "ClusterCollectionFP420::get1: returnIndexRange.first= " << returnIndexRange.first << std::endl;
@@ -99,16 +99,16 @@ void ClusterCollectionFP420::putclear(ClusterCollectionFP420::Range input, unsig
   ClusterCollectionFP420::IndexRange inputRange;
 
   std::vector<ClusterFP420> temporary;
-  ClusterCollectionFP420::ContainerIterator sort_begin = input.first;
-  ClusterCollectionFP420::ContainerIterator sort_end = input.second;
+  auto sort_begin = input.first;
+  auto sort_end = input.second;
   for (; sort_begin != sort_end; ++sort_begin) {
     temporary.push_back(*sort_begin);
   }
   std::sort(temporary.begin(), temporary.end());
 
   //	temporary.clear();
-  ClusterCollectionFP420::ContainerIterator begin = temporary.begin();
-  ClusterCollectionFP420::ContainerIterator end = temporary.end();
+  auto begin = temporary.begin();
+  auto end = temporary.end();
   for (; begin != end; ++begin) {
     container_.push_back(*begin);
   }
@@ -131,8 +131,8 @@ const std::vector<unsigned int> ClusterCollectionFP420::detIDs() const {
 #ifdef mydigidebug
   std::cout << "ClusterCollectionFP420::detIDs:start " << std::endl;
 #endif
-  ClusterCollectionFP420::RegistryIterator begin = map_.begin();
-  ClusterCollectionFP420::RegistryIterator end = map_.end();
+  auto begin = map_.begin();
+  auto end = map_.end();
 
   std::vector<unsigned int> output;
 

@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "RecoParticleFlow/Benchmark/interface/PFTauElecRejectionBenchmark.h"
 
 // preprocessor macro for booking 1d histos with DQMStore -or- bare Root
@@ -41,7 +43,7 @@ void PFTauElecRejectionBenchmark::write() {
     cout << "No output file specified (" << outputFile_ << "). Results will not be saved!" << endl;
 }
 
-void PFTauElecRejectionBenchmark::setup(string Filename,
+void PFTauElecRejectionBenchmark::setup(const string& Filename,
                                         string benchmarkLabel,
                                         double maxDeltaR,
                                         double minRecoPt,
@@ -52,13 +54,13 @@ void PFTauElecRejectionBenchmark::setup(string Filename,
                                         bool applyEcalCrackCut,
                                         DQMStore* db_store) {
   maxDeltaR_ = maxDeltaR;
-  benchmarkLabel_ = benchmarkLabel;
+  benchmarkLabel_ = std::move(benchmarkLabel);
   outputFile_ = Filename;
   minRecoPt_ = minRecoPt;
   maxRecoAbsEta_ = maxRecoAbsEta;
   minMCPt_ = minMCPt;
   maxMCAbsEta_ = maxMCAbsEta;
-  sGenMatchObjectLabel_ = sGenMatchObjectLabel;
+  sGenMatchObjectLabel_ = std::move(sGenMatchObjectLabel);
   applyEcalCrackCut_ = applyEcalCrackCut;
 
   file_ = nullptr;
@@ -202,10 +204,10 @@ void PFTauElecRejectionBenchmark::setup(string Filename,
   SETAXES(EmfracvsEoP_preid1, "E/p", "em fraction");
 }
 
-void PFTauElecRejectionBenchmark::process(edm::Handle<edm::HepMCProduct> mcevt,
-                                          edm::Handle<reco::PFTauCollection> pfTaus,
-                                          edm::Handle<reco::PFTauDiscriminator> pfTauIsoDiscr,
-                                          edm::Handle<reco::PFTauDiscriminator> pfTauElecDiscr) {
+void PFTauElecRejectionBenchmark::process(const edm::Handle<edm::HepMCProduct>& mcevt,
+                                          const edm::Handle<reco::PFTauCollection>& pfTaus,
+                                          const edm::Handle<reco::PFTauDiscriminator>& pfTauIsoDiscr,
+                                          const edm::Handle<reco::PFTauDiscriminator>& pfTauElecDiscr) {
   // Find Gen Objects to be matched with
   HepMC::GenEvent* generated_event = new HepMC::GenEvent(*(mcevt->GetEvent()));
   _GenObjects.clear();
@@ -255,10 +257,10 @@ void PFTauElecRejectionBenchmark::process(edm::Handle<edm::HepMCProduct> mcevt,
               continue;  // do nothing
             } else {
               // Match with gen object
-              for (unsigned int i = 0; i < _GenObjects.size(); i++) {
-                if (_GenObjects[i].Et() >= minMCPt_ && std::abs(_GenObjects[i].Eta()) < maxMCAbsEta_) {
+              for (auto& _GenObject : _GenObjects) {
+                if (_GenObject.Et() >= minMCPt_ && std::abs(_GenObject.Eta()) < maxMCAbsEta_) {
                   TLorentzVector pftau((*thePFTau).px(), (*thePFTau).py(), (*thePFTau).pz(), (*thePFTau).energy());
-                  double GenDeltaR = pftau.DeltaR(_GenObjects[i]);
+                  double GenDeltaR = pftau.DeltaR(_GenObject);
                   if (GenDeltaR < maxDeltaR_) {
                     hleadTk_pt->Fill((float)myleadTk->pt());
                     hleadTk_eta->Fill((float)myleadTk->eta());
@@ -307,8 +309,8 @@ void PFTauElecRejectionBenchmark::process(edm::Handle<edm::HepMCProduct> mcevt,
 
                 // Loop over all PFCands for cluster plots
                 std::vector<CandidatePtr> myPFCands = (*thePFTau).pfTauTagInfoRef()->PFCands();
-                for (int i = 0; i < (int)myPFCands.size(); i++) {
-                  const reco::PFCandidate* pfCand = dynamic_cast<const reco::PFCandidate*>(myPFCands[i].get());
+                for (auto& myPFCand : myPFCands) {
+                  const auto* pfCand = dynamic_cast<const reco::PFCandidate*>(myPFCand.get());
                   if (pfCand == nullptr)
                     continue;
 
@@ -321,7 +323,7 @@ void PFTauElecRejectionBenchmark::process(edm::Handle<edm::HepMCProduct> mcevt,
 
                   //double deltaR   = ROOT::Math::VectorUtil::DeltaR(myleadTkEcalPos,candPos);
                   double deltaPhi = ROOT::Math::VectorUtil::DeltaPhi(myleadTkEcalPos, candPos);
-                  double deltaEta = std::abs(myleadTkEcalPos.eta() - myPFCands[i]->eta());
+                  double deltaEta = std::abs(myleadTkEcalPos.eta() - myPFCand->eta());
                   double deltaPhiOverQ = deltaPhi / (double)myleadTk->charge();
 
                   hpfcand_deltaEta->Fill(deltaEta);

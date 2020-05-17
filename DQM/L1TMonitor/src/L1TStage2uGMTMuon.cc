@@ -157,9 +157,7 @@ void L1TStage2uGMTMuon::analyze(const edm::Event& e, const edm::EventSetup& c) {
   ugmtnMuons->Fill(MuonBxCollection->size(0));
 
   for (int itBX = MuonBxCollection->getFirstBX(); itBX <= MuonBxCollection->getLastBX(); ++itBX) {
-    for (l1t::MuonBxCollection::const_iterator Muon = MuonBxCollection->begin(itBX);
-         Muon != MuonBxCollection->end(itBX);
-         ++Muon) {
+    for (auto Muon = MuonBxCollection->begin(itBX); Muon != MuonBxCollection->end(itBX); ++Muon) {
       ugmtMuonBX->Fill(itBX);
       ugmtMuonhwPt->Fill(Muon->hwPt());
       ugmtMuonhwEta->Fill(Muon->hwEta());

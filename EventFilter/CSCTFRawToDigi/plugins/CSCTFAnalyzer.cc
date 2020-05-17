@@ -65,8 +65,7 @@ void CSCTFAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) {
     e.getByToken(L1CSCS_Tok, status);
     if (status.isValid()) {
       edm::LogInfo("CSCTFAnalyzer") << "  Unpacking Errors: " << status->first;
-      for (std::vector<L1CSCSPStatusDigi>::const_iterator stat = status->second.begin(); stat != status->second.end();
-           stat++) {
+      for (auto stat = status->second.begin(); stat != status->second.end(); stat++) {
         //edm::LogInfo("CSCTFAnalyzer") << "   Status: SP in slot "<<stat->slot()<<"  FMM: "<<stat->FMM()<<" SE: 0x"<<std::hex<<stat->SEs()<<" VP: 0x"<<stat->VPs()<<std::dec;
       }
     } else
@@ -80,20 +79,20 @@ void CSCTFAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) {
     if (dtStubs.isValid()) {
       std::vector<csctf::TrackStub> vstubs = dtStubs->get();
       std::cout << "DT size=" << vstubs.end() - vstubs.begin() << std::endl;
-      for (std::vector<csctf::TrackStub>::const_iterator stub = vstubs.begin(); stub != vstubs.end(); stub++) {
-        int dtSector = (stub->sector() - 1) * 2 + stub->subsector() - 1;
-        int dtEndcap = stub->endcap() - 1;
+      for (const auto& vstub : vstubs) {
+        int dtSector = (vstub.sector() - 1) * 2 + vstub.subsector() - 1;
+        int dtEndcap = vstub.endcap() - 1;
         if (dtSector >= 0 && dtSector < 12 && dtEndcap >= 0 && dtEndcap < 2) {
-          dtPhi[dtSector][dtEndcap] = stub->phiPacked();
+          dtPhi[dtSector][dtEndcap] = vstub.phiPacked();
         } else {
           edm::LogInfo("CSCTFAnalyzer: DT digi are out of range: ")
               << " dtSector=" << dtSector << " dtEndcap=" << dtEndcap;
         }
-        edm::LogInfo("CSCTFAnalyzer") << "   DT data: tbin=" << stub->BX() << " CSC sector=" << stub->sector()
-                                      << " CSC subsector=" << stub->subsector() << " station=" << stub->station()
-                                      << " endcap=" << stub->endcap() << " phi=" << stub->phiPacked()
-                                      << " phiBend=" << stub->getBend() << " quality=" << stub->getQuality()
-                                      << " mb_bxn=" << stub->cscid();
+        edm::LogInfo("CSCTFAnalyzer") << "   DT data: tbin=" << vstub.BX() << " CSC sector=" << vstub.sector()
+                                      << " CSC subsector=" << vstub.subsector() << " station=" << vstub.station()
+                                      << " endcap=" << vstub.endcap() << " phi=" << vstub.phiPacked()
+                                      << " phiBend=" << vstub.getBend() << " quality=" << vstub.getQuality()
+                                      << " mb_bxn=" << vstub.cscid();
       }
     } else
       edm::LogInfo("CSCTFAnalyzer") << "  No valid CSCTriggerContainer<csctf::TrackStub> products found";
@@ -109,7 +108,7 @@ void CSCTFAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) {
            csc++) {
         int lctId = 0;
         CSCCorrelatedLCTDigiCollection::Range range1 = corrlcts.product()->get((*csc).first);
-        for (CSCCorrelatedLCTDigiCollection::const_iterator lct = range1.first; lct != range1.second; lct++, lctId++) {
+        for (auto lct = range1.first; lct != range1.second; lct++, lctId++) {
           int station = (*csc).first.station() - 1;
           int cscId = (*csc).first.triggerCscId() - 1;
           int sector = (*csc).first.triggerSector() - 1;  // + ( (*csc).first.endcap()==1 ? 0 : 6 );
@@ -140,7 +139,7 @@ void CSCTFAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) {
     e.getByToken(L1CST_Tok, tracks);
     if (tracks.isValid()) {
       int nTrk = 0;
-      for (L1CSCTrackCollection::const_iterator trk = tracks->begin(); trk < tracks->end(); trk++, nTrk++) {
+      for (auto trk = tracks->begin(); trk < tracks->end(); trk++, nTrk++) {
         int sector = 6 * (trk->first.endcap() - 1) + trk->first.sector() - 1;
         int tbin = trk->first.BX();
         edm::LogInfo("CSCTFAnalyzer") << "   Track sector: " << (sector + 1) << "  tbin: " << tbin << " "
@@ -157,8 +156,7 @@ void CSCTFAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) {
              csc++) {
           int lctId = 0;
           CSCCorrelatedLCTDigiCollection::Range range1 = trk->second.get((*csc).first);
-          for (CSCCorrelatedLCTDigiCollection::const_iterator lct = range1.first; lct != range1.second;
-               lct++, lctId++) {
+          for (auto lct = range1.first; lct != range1.second; lct++, lctId++) {
             int station = (*csc).first.station() - 1;
             int cscId = (*csc).first.triggerCscId() - 1;
             int sector = (*csc).first.triggerSector() - 1;  // + ( (*csc).first.endcap()==1 ? 0 : 6 );

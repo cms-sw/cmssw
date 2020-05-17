@@ -30,10 +30,10 @@ namespace reco {
     float discriminator(
         double matching_cone, double leading_trk_pt, double signal_cone, double cluster_track_cone, double m_cut) const;
 
-    void setIsolatedTauTag(const IsolatedTauTagInfoRef);
+    void setIsolatedTauTag(const IsolatedTauTagInfoRef&);
     const IsolatedTauTagInfoRef& getIsolatedTauTag() const;
 
-    void storeClusterTrackCollection(reco::BasicClusterRef clusterRef, float dr);
+    void storeClusterTrackCollection(const reco::BasicClusterRef& clusterRef, float dr);
     TauMassTagInfo::ClusterTrackAssociationCollection clusterTrackCollection() const { return clusterMap; }
 
     double getInvariantMassTrk(double matching_cone, double leading_trk_pt, double signal_cone) const;

@@ -79,9 +79,7 @@ void CTPPSPixelRawToDigi::produce(edm::Event& ev, const edm::EventSetup& es) {
     bool errorsInEvent = false;
     CTPPSPixelDataFormatter::DetErrors nodeterrors;
 
-    for (auto aFed = fedIds_.begin(); aFed != fedIds_.end(); ++aFed) {
-      int fedId = *aFed;
-
+    for (int fedId : fedIds_) {
       edm::LogInfo("CTPPSPixelRawToDigi") << " PRODUCE DIGI FOR FED: " << dec << fedId << endl;
 
       CTPPSPixelDataFormatter::Errors errors;

@@ -90,7 +90,7 @@ namespace {
       else
         return nullptr;
     }
-    const pat::PackedCandidate* packedCand = dynamic_cast<const pat::PackedCandidate*>(&cand);
+    const auto* packedCand = dynamic_cast<const pat::PackedCandidate*>(&cand);
     if (packedCand != nullptr && packedCand->hasTrackDetails())
       return &packedCand->pseudoTrack();
 

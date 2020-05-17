@@ -80,7 +80,7 @@ NoCQTask::NoCQTask(edm::ParameterSet const& ps) : DQTask(ps) {
                      _tagReport.instance());
 
   //	RAW Bad Quality
-  for (std::vector<DetId>::const_iterator it = creport->bad_quality_begin(); it != creport->bad_quality_end(); ++it) {
+  for (auto it = creport->bad_quality_begin(); it != creport->bad_quality_end(); ++it) {
     if (!HcalGenericDetId(*it).isHcalDetId())
       continue;
 
@@ -88,37 +88,37 @@ NoCQTask::NoCQTask(edm::ParameterSet const& ps) : DQTask(ps) {
   }
 
   //	DIGI HBH, HO, HF
-  for (HBHEDigiCollection::const_iterator it = chbhe->begin(); it != chbhe->end(); ++it) {
-    double sumQ = hcaldqm::utilities::sumQ<HBHEDataFrame>(*it, 2.5, 0, it->size() - 1);
-    HcalDetId const& did = it->id();
+  for (const auto& it : *chbhe) {
+    double sumQ = hcaldqm::utilities::sumQ<HBHEDataFrame>(it, 2.5, 0, it.size() - 1);
+    HcalDetId const& did = it.id();
 
     _cOccupancy_depth.fill(did);
     if (sumQ > _cutSumQ_HBHE) {
-      double timing = hcaldqm::utilities::aveTS<HBHEDataFrame>(*it, 2.5, 0, it->size() - 1);
+      double timing = hcaldqm::utilities::aveTS<HBHEDataFrame>(it, 2.5, 0, it.size() - 1);
       _cOccupancyCut_depth.fill(did);
       _cTimingCut_depth.fill(did, timing);
     }
   }
 
-  for (HODigiCollection::const_iterator it = cho->begin(); it != cho->end(); ++it) {
-    double sumQ = hcaldqm::utilities::sumQ<HODataFrame>(*it, 8.5, 0, it->size() - 1);
-    HcalDetId const& did = it->id();
+  for (const auto& it : *cho) {
+    double sumQ = hcaldqm::utilities::sumQ<HODataFrame>(it, 8.5, 0, it.size() - 1);
+    HcalDetId const& did = it.id();
 
     _cOccupancy_depth.fill(did);
     if (sumQ > _cutSumQ_HO) {
-      double timing = hcaldqm::utilities::aveTS<HODataFrame>(*it, 8.5, 0, it->size() - 1);
+      double timing = hcaldqm::utilities::aveTS<HODataFrame>(it, 8.5, 0, it.size() - 1);
       _cOccupancyCut_depth.fill(did);
       _cTimingCut_depth.fill(did, timing);
     }
   }
 
-  for (HFDigiCollection::const_iterator it = chf->begin(); it != chf->end(); ++it) {
-    double sumQ = hcaldqm::utilities::sumQ<HFDataFrame>(*it, 2.5, 0, it->size() - 1);
-    HcalDetId const& did = it->id();
+  for (const auto& it : *chf) {
+    double sumQ = hcaldqm::utilities::sumQ<HFDataFrame>(it, 2.5, 0, it.size() - 1);
+    HcalDetId const& did = it.id();
 
     _cOccupancy_depth.fill(did);
     if (sumQ > _cutSumQ_HF) {
-      double timing = hcaldqm::utilities::aveTS<HFDataFrame>(*it, 2.5, 0, it->size() - 1);
+      double timing = hcaldqm::utilities::aveTS<HFDataFrame>(it, 2.5, 0, it.size() - 1);
       _cOccupancyCut_depth.fill(did);
       _cTimingCut_depth.fill(did, timing);
     }

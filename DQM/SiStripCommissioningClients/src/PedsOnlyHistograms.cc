@@ -6,6 +6,8 @@
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
+#include <memory>
+
 #include <sstream>
 #include <iomanip>
 #include "TProfile.h"
@@ -17,7 +19,7 @@ using namespace sistrip;
 /** */
 PedsOnlyHistograms::PedsOnlyHistograms(const edm::ParameterSet& pset, DQMStore* bei)
     : CommissioningHistograms(pset.getParameter<edm::ParameterSet>("PedsOnlyParameters"), bei, sistrip::PEDS_ONLY) {
-  factory_ = unique_ptr<PedsOnlySummaryFactory>(new PedsOnlySummaryFactory);
+  factory_ = std::make_unique<PedsOnlySummaryFactory>();
   LogTrace(mlDqmClient_) << "[PedsOnlyHistograms::" << __func__ << "]"
                          << " Constructing object...";
 }
@@ -59,7 +61,7 @@ void PedsOnlyHistograms::histoAnalysis(bool debug) {
 
     // Retrieve pointers to profile histos
     std::vector<TH1*> profs;
-    Histos::const_iterator ihis = iter->second.begin();
+    auto ihis = iter->second.begin();
     for (; ihis != iter->second.end(); ihis++) {
       TProfile* prof = ExtractTObject<TProfile>().extract((*ihis)->me_);
       if (prof) {
@@ -71,7 +73,7 @@ void PedsOnlyHistograms::histoAnalysis(bool debug) {
     }
 
     // Perform histo analysis
-    PedsOnlyAnalysis* anal = new PedsOnlyAnalysis(iter->first);
+    auto* anal = new PedsOnlyAnalysis(iter->first);
     PedsOnlyAlgorithm algo(this->pset(), anal);
     algo.analysis(profs);
     data()[iter->first] = anal;
@@ -109,8 +111,8 @@ void PedsOnlyHistograms::histoAnalysis(bool debug) {
 // -----------------------------------------------------------------------------
 /** */
 void PedsOnlyHistograms::printAnalyses() {
-  Analyses::iterator ianal = data().begin();
-  Analyses::iterator janal = data().end();
+  auto ianal = data().begin();
+  auto janal = data().end();
   for (; ianal != janal; ++ianal) {
     if (ianal->second) {
       std::stringstream ss;

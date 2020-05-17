@@ -32,7 +32,7 @@ bSector::bSector(handles::const_iterator begin, handles::const_iterator end, boo
       cout << "   Rod at: 0 elements: " << end - begin << " unique volumes: ";
       printUniqueNames(begin, end);
     }
-    rods.push_back(bRod(begin, end, debug));
+    rods.emplace_back(begin, end, debug);
   } else {
     // Clusterize in phi. Use bin edge so that complete clusters can be
     // easily found (not trivial using bin centers!)
@@ -61,10 +61,10 @@ bSector::bSector(handles::const_iterator begin, handles::const_iterator end, boo
     }
     ClusterizingHistogram hisPhi(int((phiMax - phiMin) / resolution) + 1, phiMin, phiMax);
 
-    handles::const_iterator first = volumes.begin();
-    handles::const_iterator last = volumes.end();
+    auto first = volumes.begin();
+    auto last = volumes.end();
 
-    for (handles::const_iterator i = first; i != last; ++i) {
+    for (auto i = first; i != last; ++i) {
       hisPhi.fill((*i)->maxPhi() - phi0);
     }
     vector<float> phiClust = hisPhi.clusterize(resolution);
@@ -73,8 +73,8 @@ bSector::bSector(handles::const_iterator begin, handles::const_iterator end, boo
       cout << "     Found " << phiClust.size() << " clusters in Phi, "
            << " rods: " << endl;
 
-    handles::const_iterator rodStart = first;
-    handles::const_iterator separ = first;
+    auto rodStart = first;
+    auto separ = first;
 
     float DZ = (*max_element(first, last, LessZ()))->maxZ() - (*min_element(first, last, LessZ()))->minZ();
 
@@ -117,7 +117,7 @@ bSector::bSector(handles::const_iterator begin, handles::const_iterator end, boo
           printUniqueNames(rodStart, separ);
         }
 
-        rods.push_back(bRod(rodStart, separ, debug));
+        rods.emplace_back(rodStart, separ, debug);
         rodStart = separ;
         DZ1 = 0.;
       }
@@ -133,8 +133,8 @@ bSector::bSector(handles::const_iterator begin, handles::const_iterator end, boo
 MagBSector* bSector::buildMagBSector() const {
   if (msector == nullptr) {
     vector<MagBRod*> mRods;
-    for (vector<bRod>::const_iterator rod = rods.begin(); rod != rods.end(); ++rod) {
-      mRods.push_back((*rod).buildMagBRod());
+    for (const auto& rod : rods) {
+      mRods.push_back(rod.buildMagBRod());
     }
     msector = new MagBSector(mRods, volumes.front()->minPhi());  //FIXME
     // Never deleted. When is it safe to delete it?

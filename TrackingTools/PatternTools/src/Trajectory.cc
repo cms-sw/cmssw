@@ -9,6 +9,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <algorithm>
+#include <utility>
 
 namespace {
   template <typename DataContainer>
@@ -237,7 +238,7 @@ TrajectoryStateOnSurface Trajectory::geometricalInnermostState() const {
 namespace {
   /// used to determine closest measurement to given point
   struct LessMag {
-    LessMag(GlobalPoint point) : thePoint(point) {}
+    LessMag(GlobalPoint point) : thePoint(std::move(point)) {}
     bool operator()(const TrajectoryMeasurement& lhs, const TrajectoryMeasurement& rhs) const {
       if (lhs.updatedState().isValid() && rhs.updatedState().isValid())
         return (lhs.updatedState().globalPosition() - thePoint).mag2() <
@@ -255,8 +256,7 @@ namespace {
 
 TrajectoryMeasurement const& Trajectory::closestMeasurement(GlobalPoint point) const {
   check();
-  vector<TrajectoryMeasurement>::const_iterator iter =
-      std::min_element(measurements().begin(), measurements().end(), LessMag(point));
+  auto iter = std::min_element(measurements().begin(), measurements().end(), LessMag(std::move(point)));
 
   return (*iter);
 }

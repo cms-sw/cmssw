@@ -77,10 +77,10 @@ namespace edm {
       m_offsets.reserve(it.size() + 1);
       m_offsets.push_back(0);
       size_type tot = 0;
-      for (typename TheMap::const_iterator p = it.begin(); p != it.end(); ++p)
+      for (auto p = it.begin(); p != it.end(); ++p)
         tot += (*p).second.size();
       m_data.reserve(tot);
-      for (typename TheMap::const_iterator p = it.begin(); p != it.end(); ++p)
+      for (auto p = it.begin(); p != it.end(); ++p)
         loadNext((*p).first, (*p).second);
     }
 
@@ -108,12 +108,12 @@ namespace edm {
     }
 
     range find(K const& k) const {
-      key_iterator p = findKey(k);
+      auto p = findKey(k);
       if (p == m_keys.end())
         return emptyRange();
       size_type loc = p - m_keys.begin();
-      data_iterator b = m_data.begin() + m_offsets[loc];
-      data_iterator e = m_data.begin() + m_offsets[loc + 1];
+      auto b = m_data.begin() + m_offsets[loc];
+      auto e = m_data.begin() + m_offsets[loc + 1];
       return range(b, e);
     }
 

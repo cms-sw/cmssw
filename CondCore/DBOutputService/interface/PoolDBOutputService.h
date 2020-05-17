@@ -220,7 +220,7 @@ namespace cond {
                         const std::string& recordName);
       **/
       void createNewIOV(const std::string& firstPayloadId,
-                        const std::string payloadType,
+                        const std::string& payloadType,
                         cond::Time_t firstSinceTime,
                         Record& record);
 

@@ -264,11 +264,11 @@ void PFPhotonTranslator::produce(edm::Event &iEvent, const edm::EventSetup &iSet
       //std::cout << "nDoubleLegConv="<<cand.photonExtraRef()->conversionRef().size()<<std::endl;
 
       if (!cand.photonExtraRef()->conversionRef().empty()) {
-        pfConv_.push_back(reco::ConversionRefVector());
+        pfConv_.emplace_back();
 
         const reco::ConversionRefVector &doubleLegConvColl = cand.photonExtraRef()->conversionRef();
-        for (unsigned int iconv = 0; iconv < doubleLegConvColl.size(); iconv++) {
-          pfConv_[iconv2leg].push_back(doubleLegConvColl[iconv]);
+        for (const auto &iconv : doubleLegConvColl) {
+          pfConv_[iconv2leg].push_back(iconv);
         }
 
         conv2legPFCandidateIndex_.push_back(iconv2leg);
@@ -282,8 +282,8 @@ void PFPhotonTranslator::produce(edm::Event &iEvent, const edm::EventSetup &iSet
       //std::cout << "nSingleLegConv=" <<singleLegConvColl.size() << std::endl;
 
       if (!singleLegConvColl.empty()) {
-        pfSingleLegConv_.push_back(std::vector<reco::TrackRef>());
-        pfSingleLegConvMva_.push_back(std::vector<float>());
+        pfSingleLegConv_.emplace_back();
+        pfSingleLegConvMva_.emplace_back();
 
         //cout << "nTracks="<< singleLegConvColl.size()<<endl;
         for (unsigned int itk = 0; itk < singleLegConvColl.size(); itk++) {
@@ -304,18 +304,18 @@ void PFPhotonTranslator::produce(edm::Event &iEvent, const edm::EventSetup &iSet
     pfPhotonMva_.push_back(cand.mva_nothing_gamma());
     energyRegression_.push_back(cand.photonExtraRef()->MVAGlobalCorrE());
     energyRegressionError_.push_back(cand.photonExtraRef()->MVAGlobalCorrEError());
-    basicClusters_.push_back(reco::BasicClusterCollection());
-    pfClusters_.push_back(std::vector<const reco::PFCluster *>());
-    preshowerClusters_.push_back(reco::PreshowerClusterCollection());
-    superClusters_.push_back(reco::SuperClusterCollection());
+    basicClusters_.emplace_back();
+    pfClusters_.emplace_back();
+    preshowerClusters_.emplace_back();
+    superClusters_.emplace_back();
 
     reco::PFCandidatePtr ptrToPFPhoton(pfCandidates, i);
-    CandidatePtr_.push_back(ptrToPFPhoton);
+    CandidatePtr_.emplace_back(ptrToPFPhoton);
     egSCRef_.push_back(cand.superClusterRef());
     //std::cout << "PFPhoton cand " << iphot << std::endl;
 
     int iegphot = 0;
-    for (reco::PhotonCollection::const_iterator gamIter = egPhotons->begin(); gamIter != egPhotons->end(); ++gamIter) {
+    for (auto gamIter = egPhotons->begin(); gamIter != egPhotons->end(); ++gamIter) {
       if (cand.superClusterRef() == gamIter->superCluster()) {
         reco::PhotonRef PhotRef(reco::PhotonRef(egPhotons, iegphot));
         egPhotonRef_.push_back(PhotRef);
@@ -713,9 +713,9 @@ void PFPhotonTranslator::createSuperClusters(const reco::PFCandidateCollection &
       //	  std::cout <<"Adding Ref to SC " << basicClusterPtr_[iphot][ibc].index() << std::endl;
       const std::vector<std::pair<DetId, float> > &v1 = basicClusters_[iphot][ibc].hitsAndFractions();
       //	  std::cout << " Number of cells " << v1.size() << std::endl;
-      for (std::vector<std::pair<DetId, float> >::const_iterator diIt = v1.begin(); diIt != v1.end(); ++diIt) {
+      for (const auto &diIt : v1) {
         //	    std::cout << " Adding DetId " << (diIt->first).rawId() << " " << diIt->second << std::endl;
-        mySuperCluster.addHitAndFraction(diIt->first, diIt->second);
+        mySuperCluster.addHitAndFraction(diIt.first, diIt.second);
       }  // loop over rechits
     }
 
@@ -847,8 +847,8 @@ void PFPhotonTranslator::createPhotonCores(const edm::OrphanHandle<reco::SuperCl
     myPhotonCore.setSuperCluster(egSCRef_[iphot]);
 
     reco::ElectronSeedRefVector pixelSeeds = egPhotonRef_[iphot]->electronPixelSeeds();
-    for (unsigned iseed = 0; iseed < pixelSeeds.size(); iseed++) {
-      myPhotonCore.addElectronPixelSeed(pixelSeeds[iseed]);
+    for (const auto &pixelSeed : pixelSeeds) {
+      myPhotonCore.addElectronPixelSeed(pixelSeed);
     }
 
     //cout << "PhotonCores : SC OK" << endl;
@@ -883,8 +883,8 @@ void PFPhotonTranslator::createPhotonCores(const edm::OrphanHandle<reco::SuperCl
     }
 
     if (conv2legPFCandidateIndex_[iphot] > -1) {
-      for (unsigned int iConv = 0; iConv < pfConv_[conv2legPFCandidateIndex_[iphot]].size(); iConv++) {
-        const reco::ConversionRef &TwoLegRef(pfConv_[conv2legPFCandidateIndex_[iphot]][iConv]);
+      for (const auto &iConv : pfConv_[conv2legPFCandidateIndex_[iphot]]) {
+        const reco::ConversionRef &TwoLegRef(iConv);
         myPhotonCore.addConversion(TwoLegRef);
       }
       //cout << "PhotonCores : 2-leg OK" << endl;
@@ -1076,7 +1076,7 @@ const reco::PFCandidate &PFPhotonTranslator::correspondingDaughterCandidate(cons
   reco::PFCandidate::const_iterator itend = cand.end();
 
   for (; myDaughterCandidate != itend; ++myDaughterCandidate) {
-    const reco::PFCandidate *myPFCandidate = (const reco::PFCandidate *)&*myDaughterCandidate;
+    const auto *myPFCandidate = (const reco::PFCandidate *)&*myDaughterCandidate;
     if (myPFCandidate->elementsInBlocks().size() != 1) {
       //	  std::cout << " Daughter with " << myPFCandidate.elementsInBlocks().size()<< " element in block " << std::endl;
       return cand;

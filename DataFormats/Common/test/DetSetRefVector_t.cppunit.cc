@@ -10,8 +10,8 @@ class testDetSetRefVector : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
   void checkConstruction();
   void checkFind();
 };
@@ -77,7 +77,7 @@ void testDetSetRefVector::checkConstruction() {
     edm::DetSetRefVector<Value> refVector(pc2, ids);
     CPPUNIT_ASSERT(refVector.size() == ids.size());
 
-    dsv_type::const_iterator dsvItr = c.begin();
+    auto dsvItr = c.begin();
     for (edm::DetSetRefVector<Value>::const_iterator it = refVector.begin(), itEnd = refVector.end(); it != itEnd;
          ++it, ++dsvItr) {
       CPPUNIT_ASSERT(it->id == dsvItr->id);
@@ -93,8 +93,7 @@ void testDetSetRefVector::checkConstruction() {
     CPPUNIT_ASSERT(refVector.size() == ids.size());
 
     edm::DetSetRefVector<Value>::const_iterator itRef = refVector.begin();
-    for (std::vector<edm::det_id_type>::const_iterator itId = ids.begin(), itIdEnd = ids.end(); itId != itIdEnd;
-         ++itRef, ++itId) {
+    for (auto itId = ids.begin(), itIdEnd = ids.end(); itId != itIdEnd; ++itRef, ++itId) {
       CPPUNIT_ASSERT(itRef->id == *itId);
       CPPUNIT_ASSERT(itRef->id == c.find(*itId)->id);
       CPPUNIT_ASSERT(itRef->data.size() == c.find(*itId)->data.size());

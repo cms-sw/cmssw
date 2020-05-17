@@ -7,7 +7,7 @@ const GlobalParamsHelper* GlobalParamsHelper::readFromEventSetup(const L1TGlobal
 }
 
 GlobalParamsHelper* GlobalParamsHelper::readAndWriteFromEventSetup(const L1TGlobalParameters* es) {
-  GlobalParamsHelper* x = new GlobalParamsHelper(es);
+  auto* x = new GlobalParamsHelper(es);
   x->useCopy();
   return x;
 }

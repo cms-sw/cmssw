@@ -56,9 +56,9 @@ using namespace reco;
 class TrackProbabilityAnalyzer : public edm::EDAnalyzer {
 public:
   explicit TrackProbabilityAnalyzer(const edm::ParameterSet&);
-  ~TrackProbabilityAnalyzer() {}
+  ~TrackProbabilityAnalyzer() override {}
 
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
 private:
   string m_assoc;

@@ -40,9 +40,9 @@ std::vector<EventRecords> RPCRecordFormatter::recordPack(uint32_t rawDetId, cons
   RPCReadOutMapping::StripInDetUnit duFrame(rawDetId, stripInDU);
   RawDataFrames rawDataFrames = readoutMapping->rawDataFrame(duFrame);
 
-  for (RawDataFrames::const_iterator ir = rawDataFrames.begin(); ir != rawDataFrames.end(); ir++) {
-    const LinkBoardElectronicIndex& eleIndex = (*ir).first;
-    const LinkBoardPackedStrip& lbPackedStrip = (*ir).second;
+  for (const auto& rawDataFrame : rawDataFrames) {
+    const LinkBoardElectronicIndex& eleIndex = rawDataFrame.first;
+    const LinkBoardPackedStrip& lbPackedStrip = rawDataFrame.second;
 
     if (eleIndex.dccId == currentFED) {
       LogTrace("pack:") << " dccId= " << eleIndex.dccId << " dccInputChannelNum= " << eleIndex.dccInputChannelNum
@@ -65,7 +65,7 @@ std::vector<EventRecords> RPCRecordFormatter::recordPack(uint32_t rawDetId, cons
       int partitionNumber = packedStrip / 8;
       RecordCD cdr(lbInLink, partitionNumber, eod, halfP, vector<int>(1, packedStrip));
 
-      result.push_back(EventRecords(trigger_BX, bxr, lbr, cdr));
+      result.emplace_back(trigger_BX, bxr, lbr, cdr);
     }
   }
   return result;
@@ -113,8 +113,9 @@ int RPCRecordFormatter::recordUnpack(const EventRecords& event,
     return error.type();
   }
 
-  for (std::vector<int>::iterator is = packStrips.begin(); is != packStrips.end(); ++is) {
-    RPCReadOutMapping::StripInDetUnit duFrame = readoutMapping->detUnitFrame(*linkBoard, LinkBoardPackedStrip(*is));
+  for (int& packStrip : packStrips) {
+    RPCReadOutMapping::StripInDetUnit duFrame =
+        readoutMapping->detUnitFrame(*linkBoard, LinkBoardPackedStrip(packStrip));
 
     uint32_t rawDetId = duFrame.first;
     int geomStrip = duFrame.second;

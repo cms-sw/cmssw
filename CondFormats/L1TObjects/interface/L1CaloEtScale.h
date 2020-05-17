@@ -83,6 +83,6 @@ private:
   COND_SERIALIZABLE;
 };
 
-std::ostream& operator<<(std::ostream& os, const L1CaloEtScale onj);
+std::ostream& operator<<(std::ostream& os, const L1CaloEtScale& onj);
 
 #endif

@@ -20,13 +20,14 @@
 #include "TPaveStats.h"
 #include <string>
 #include <fstream>
+#include <utility>
 
 namespace {
 
   class HcalGainContainer : public HcalObjRepresent::HcalDataContainer<HcalGains, HcalGain> {
   public:
     HcalGainContainer(std::shared_ptr<HcalGains> payload, unsigned int run)
-        : HcalObjRepresent::HcalDataContainer<HcalGains, HcalGain>(payload, run) {}
+        : HcalObjRepresent::HcalDataContainer<HcalGains, HcalGain>(std::move(payload), run) {}
     float getValue(HcalGain* gain) override {
       return gain->getValue(0) + gain->getValue(1) + gain->getValue(2) + gain->getValue(3);
     }
@@ -43,7 +44,7 @@ namespace {
       auto iov = iovs.front();
       std::shared_ptr<HcalGains> payload = fetchPayload(std::get<1>(iov));
       if (payload.get()) {
-        HcalGainContainer* objContainer = new HcalGainContainer(payload, std::get<0>(iov));
+        auto* objContainer = new HcalGainContainer(payload, std::get<0>(iov));
         std::string ImageName(m_imageFileName);
         objContainer->getCanvasAll()->SaveAs(ImageName.c_str());
         return true;
@@ -69,8 +70,8 @@ namespace {
       std::shared_ptr<HcalGains> payload2 = fetchPayload(std::get<1>(iov2));
 
       if (payload1.get() && payload2.get()) {
-        HcalGainContainer* objContainer1 = new HcalGainContainer(payload1, std::get<0>(iov1));
-        HcalGainContainer* objContainer2 = new HcalGainContainer(payload2, std::get<0>(iov2));
+        auto* objContainer1 = new HcalGainContainer(payload1, std::get<0>(iov1));
+        auto* objContainer2 = new HcalGainContainer(payload2, std::get<0>(iov2));
 
         objContainer2->Divide(objContainer1);
 
@@ -93,7 +94,7 @@ namespace {
       auto iov = iovs.front();
       std::shared_ptr<HcalGains> payload = fetchPayload(std::get<1>(iov));
       if (payload.get()) {
-        HcalGainContainer* objContainer = new HcalGainContainer(payload, std::get<0>(iov));
+        auto* objContainer = new HcalGainContainer(payload, std::get<0>(iov));
         std::string ImageName(m_imageFileName);
         objContainer->getCanvasAll("PhiProfile")->SaveAs(ImageName.c_str());
         return true;
@@ -119,8 +120,8 @@ namespace {
       std::shared_ptr<HcalGains> payload2 = fetchPayload(std::get<1>(iov2));
 
       if (payload1.get() && payload2.get()) {
-        HcalGainContainer* objContainer1 = new HcalGainContainer(payload1, std::get<0>(iov1));
-        HcalGainContainer* objContainer2 = new HcalGainContainer(payload2, std::get<0>(iov2));
+        auto* objContainer1 = new HcalGainContainer(payload1, std::get<0>(iov1));
+        auto* objContainer2 = new HcalGainContainer(payload2, std::get<0>(iov2));
 
         objContainer2->Divide(objContainer1);
 
@@ -143,7 +144,7 @@ namespace {
       auto iov = iovs.front();
       std::shared_ptr<HcalGains> payload = fetchPayload(std::get<1>(iov));
       if (payload.get()) {
-        HcalGainContainer* objContainer = new HcalGainContainer(payload, std::get<0>(iov));
+        auto* objContainer = new HcalGainContainer(payload, std::get<0>(iov));
         std::string ImageName(m_imageFileName);
         objContainer->getCanvasAll("EtaProfile")->SaveAs(ImageName.c_str());
         return true;
@@ -169,8 +170,8 @@ namespace {
       std::shared_ptr<HcalGains> payload2 = fetchPayload(std::get<1>(iov2));
 
       if (payload1.get() && payload2.get()) {
-        HcalGainContainer* objContainer1 = new HcalGainContainer(payload1, std::get<0>(iov1));
-        HcalGainContainer* objContainer2 = new HcalGainContainer(payload2, std::get<0>(iov2));
+        auto* objContainer1 = new HcalGainContainer(payload1, std::get<0>(iov1));
+        auto* objContainer2 = new HcalGainContainer(payload2, std::get<0>(iov2));
 
         objContainer2->Divide(objContainer1);
 

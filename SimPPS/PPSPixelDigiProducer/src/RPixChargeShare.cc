@@ -44,29 +44,29 @@ std::map<unsigned short, double> RPixChargeShare::Share(const std::vector<RPixSi
 
   double CH = 0;
 
-  for (std::vector<RPixSignalPoint>::const_iterator i = charge_map.begin(); i != charge_map.end(); ++i) {
+  for (const auto &i : charge_map) {
     double hit_pos_x, hit_pos_y;
     // Used to avoid the abort due to hits out of detector
-    if (((*i).Position().x() + 16.6 / 2) < 0 || ((*i).Position().x() + 16.6 / 2) > 16.6) {
+    if ((i.Position().x() + 16.6 / 2) < 0 || (i.Position().x() + 16.6 / 2) > 16.6) {
       edm::LogInfo("RPixChargeShare")
           << "**** Attention ((*i).Position().x()+simX_width_/2.)<0||((*i).Position().x()+simX_width_/2.)>simX_width  ";
-      edm::LogInfo("RPixChargeShare") << "(*i).Position().x() = " << (*i).Position().x();
+      edm::LogInfo("RPixChargeShare") << "(*i).Position().x() = " << i.Position().x();
       continue;
     }
-    if (((*i).Position().y() + 24.4 / 2.) < 0 || ((*i).Position().y() + 24.4 / 2.) > 24.4) {
+    if ((i.Position().y() + 24.4 / 2.) < 0 || (i.Position().y() + 24.4 / 2.) > 24.4) {
       edm::LogInfo("RPixChargeShare")
           << "**** Attention ((*i).Position().y()+simY_width_/2.)<0||((*i).Position().y()+simY_width_/2.)>simY_width  ";
-      edm::LogInfo("RPixChargeShare") << "(*i).Position().y() = " << (*i).Position().y();
+      edm::LogInfo("RPixChargeShare") << "(*i).Position().y() = " << i.Position().y();
       continue;
     }
 
-    CTPPSPixelSimTopology::PixelInfo relevant_pixels = theRPixDetTopology_.getPixelsInvolved(
-        (*i).Position().x(), (*i).Position().y(), (*i).Sigma(), hit_pos_x, hit_pos_y);
+    CTPPSPixelSimTopology::PixelInfo relevant_pixels =
+        theRPixDetTopology_.getPixelsInvolved(i.Position().x(), i.Position().y(), i.Sigma(), hit_pos_x, hit_pos_y);
     double effic = relevant_pixels.effFactor();
 
     unsigned short pixel_no = relevant_pixels.pixelIndex();
 
-    double charge_in_pixel = (*i).Charge() * effic;
+    double charge_in_pixel = i.Charge() * effic;
 
     CH += charge_in_pixel;
 
@@ -96,8 +96,8 @@ std::map<unsigned short, double> RPixChargeShare::Share(const std::vector<RPixSi
       double pixel_center_x = pixel_lower_x + (pixel_width_x) / 2.;
       double pixel_center_y = pixel_lower_y + (pixel_width_y) / 2.;
       // xbin and ybin are coordinates (um) ??nside the pixel as in the test beam, swapped wrt plane coodinates.
-      int xbin = int((((*i).Position().y() - pixel_center_y) + pixel_width_y / 2.) * 1.e3 / 5.);
-      int ybin = int((((*i).Position().x() - pixel_center_x) + pixel_width_x / 2.) * 1.e3 / 5.);
+      int xbin = int(((i.Position().y() - pixel_center_y) + pixel_width_y / 2.) * 1.e3 / 5.);
+      int ybin = int(((i.Position().x() - pixel_center_x) + pixel_width_x / 2.) * 1.e3 / 5.);
       if (pixel_width_x < 0.11 && pixel_width_y < 0.151) {  // pixel 100x150 um^2
         psize = 0;
         if (xbin > xBinMax_[psize] || ybin > yBinMax_[psize])
@@ -143,8 +143,8 @@ std::map<unsigned short, double> RPixChargeShare::Share(const std::vector<RPixSi
               k, l, neighbour_pixel_lower_x, neighbour_pixel_upper_x, neighbour_pixel_lower_y, neighbour_pixel_upper_y);
           neighbour_pixel_center_x = neighbour_pixel_lower_x + (neighbour_pixel_upper_x - neighbour_pixel_lower_x) / 2.;
           neighbour_pixel_center_y = neighbour_pixel_lower_y + (neighbour_pixel_upper_y - neighbour_pixel_lower_y) / 2.;
-          hit2neighbour[m] = sqrt(pow((*i).Position().x() - neighbour_pixel_center_x, 2.) +
-                                  pow((*i).Position().y() - neighbour_pixel_center_y, -2.));
+          hit2neighbour[m] = sqrt(pow(i.Position().x() - neighbour_pixel_center_x, 2.) +
+                                  pow(i.Position().y() - neighbour_pixel_center_y, -2.));
           neighbour_no[m] = l * pxlRowSize_ + k;
           if (hit2neighbour[m] > closer_neighbour) {
             closer_neighbour = hit2neighbour[m];

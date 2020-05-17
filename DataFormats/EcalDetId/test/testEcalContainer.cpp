@@ -39,7 +39,7 @@ void testEcalContainer::testContainer() {
         {
           EBDetId aPositiveId(ieta, iphi);
           ec[aPositiveId] = aPositiveId.hashedIndex();
-          EcalContainer<EBDetId, float>::const_iterator citer = ec.find(aPositiveId.rawId());
+          auto citer = ec.find(aPositiveId.rawId());
           if (citer != ec.end()) {
             CPPUNIT_ASSERT(*(ec.find(aPositiveId.rawId())) == aPositiveId.hashedIndex());
           }
@@ -49,7 +49,7 @@ void testEcalContainer::testContainer() {
         {
           EBDetId aNegativeId(-1 * ieta, iphi);
           ec[aNegativeId] = aNegativeId.hashedIndex();
-          EcalContainer<EBDetId, float>::const_iterator citer = ec.find(aNegativeId.rawId());
+          auto citer = ec.find(aNegativeId.rawId());
           if (citer != ec.end()) {
             CPPUNIT_ASSERT(*(ec.find(aNegativeId.rawId())) == aNegativeId.hashedIndex());
           }
@@ -70,8 +70,8 @@ void testEcalContainer::testContainer() {
   }
 
   float i = 0.;
-  for (EcalContainer<EBDetId, float>::const_iterator citer = ec.begin(); citer != ec.end(); citer++) {
-    CPPUNIT_ASSERT((*citer) == i);
+  for (float citer : ec) {
+    CPPUNIT_ASSERT(citer == i);
     ++i;
   }
 }

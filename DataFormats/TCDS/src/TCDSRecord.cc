@@ -49,13 +49,12 @@ TCDSRecord::TCDSRecord(const unsigned char* rawData) {
 
   bst_ = BSTRecord(tcdsRaw->bst);
 
-  for (auto i = 0; i < tcds::l1aHistoryDepth_v1; ++i) {
-    l1aHistory_.emplace_back(L1aInfo(tcdsRaw->l1aHistory.l1aInfo[i]));
+  for (auto i : tcdsRaw->l1aHistory.l1aInfo) {
+    l1aHistory_.emplace_back(L1aInfo(i));
   }
 
-  for (auto i = 0; i < tcds::bgoCount_v1; ++i) {
-    lastBgos_.emplace_back(((uint64_t)(tcdsRaw->bgoHistory.lastBGo[i].orbithigh) << 32) |
-                           tcdsRaw->bgoHistory.lastBGo[i].orbitlow);
+  for (auto i : tcdsRaw->bgoHistory.lastBGo) {
+    lastBgos_.emplace_back(((uint64_t)(i.orbithigh) << 32) | i.orbitlow);
   }
 }
 

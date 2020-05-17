@@ -86,12 +86,8 @@ std::vector<TrackParticle> TrackHelixVertexFitter::getRefitTracks() {
     TVectorT<double> TrackPar = computePar(FreePar);
     TMatrixTSym<double> TrackCov =
         ErrorMatrixPropagator::propagateError(&TrackHelixVertexFitter::computePar, FreePar, FreeParCov);
-    refitParticles.push_back(TrackParticle(TrackPar,
-                                           TrackCov,
-                                           particles_[p].pdgId(),
-                                           particles_[p].mass(),
-                                           particles_[p].charge(),
-                                           particles_[p].bField()));
+    refitParticles.emplace_back(
+        TrackPar, TrackCov, particles_[p].pdgId(), particles_[p].mass(), particles_[p].charge(), particles_[p].bField());
   }
   return refitParticles;
 }
@@ -112,8 +108,7 @@ std::vector<LorentzVectorParticle> TrackHelixVertexFitter::getRefitLorentzVector
     TVectorT<double> LVPar = computeLorentzVectorPar(FreePar);
     TMatrixTSym<double> LVCov =
         ErrorMatrixPropagator::propagateError(&TrackHelixVertexFitter::computeLorentzVectorPar, FreePar, FreeParCov);
-    refitParticles.push_back(
-        LorentzVectorParticle(LVPar, LVCov, particles_[p].pdgId(), particles_[p].charge(), particles_[p].bField()));
+    refitParticles.emplace_back(LVPar, LVCov, particles_[p].pdgId(), particles_[p].charge(), particles_[p].bField());
   }
   return refitParticles;
 }

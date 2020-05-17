@@ -136,8 +136,8 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
   auto const& beamSportPosition = e.get(beamSpotTag_).position();
 
   // loop over barrel + endcap
-  for (unsigned int i = 0; i < 2; i++) {
-    auto clusterRefs = filterClusters(beamSportPosition, e.getHandle(superClusters_[i]));
+  for (auto superCluster : superClusters_) {
+    auto clusterRefs = filterClusters(beamSportPosition, e.getHandle(superCluster));
     matcher_->run(e, iSetup, clusterRefs, initialSeedCollections, *seeds);
   }
 

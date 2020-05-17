@@ -36,10 +36,10 @@ namespace edmtest {
       m_pathForErrorFile = pathForErrorFolder + "/lumi_read_" + m_processId + ".txt";
     }
     explicit LumiTestReadAnalyzer(int i) {}
-    virtual ~LumiTestReadAnalyzer() {}
-    virtual void beginJob();
-    virtual void beginRun(const edm::Run&, const edm::EventSetup& context);
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    ~LumiTestReadAnalyzer() override {}
+    void beginJob() override;
+    void beginRun(const edm::Run&, const edm::EventSetup& context) override;
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   private:
     std::string m_processId;

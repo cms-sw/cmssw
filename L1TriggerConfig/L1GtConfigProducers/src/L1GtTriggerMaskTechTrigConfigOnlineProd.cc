@@ -50,8 +50,8 @@ std::unique_ptr<L1GtTriggerMask> L1GtTriggerMaskTechTrigConfigOnlineProd::newObj
   const std::vector<std::string>& columns = m_omdsReader.columnNames(gtSchema, "GT_PARTITION_FINOR_TT");
 
   if (edm::isDebugEnabled()) {
-    for (std::vector<std::string>::const_iterator iter = columns.begin(); iter != columns.end(); iter++) {
-      LogTrace("L1GtTriggerMaskTechTrigConfigOnlineProd") << (*iter) << std::endl;
+    for (const auto& column : columns) {
+      LogTrace("L1GtTriggerMaskTechTrigConfigOnlineProd") << column << std::endl;
     }
   }
 

@@ -1,10 +1,12 @@
+#include <utility>
+
 #include "Validation/Geometry/interface/MaterialBudgetTxt.h"
 #include "Validation/Geometry/interface/MaterialBudgetData.h"
 #include "G4EventManager.hh"
 #include "G4Event.hh"
 
 MaterialBudgetTxt::MaterialBudgetTxt(std::shared_ptr<MaterialBudgetData> data, const std::string& fileName)
-    : MaterialBudgetFormat(data) {
+    : MaterialBudgetFormat(std::move(data)) {
   const char* fnamechar = fileName.c_str();
   theFile = new std::ofstream(fnamechar, std::ios::out);
   edm::LogInfo("MaterialBudget") << "MaterialBudgetTxt: Dumping  Material Budget to " << fileName;

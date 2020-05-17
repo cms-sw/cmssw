@@ -75,7 +75,7 @@ void SeedFromConsecutiveHitsCreator::makeSeed(TrajectorySeedCollection& seedColl
   if (region->direction().x() != 0 &&
       forceKinematicWithRegionDirection_)  // a direction was given, check if it is an etaPhi region
   {
-    const RectangularEtaPhiTrackingRegion* etaPhiRegion = dynamic_cast<const RectangularEtaPhiTrackingRegion*>(region);
+    const auto* etaPhiRegion = dynamic_cast<const RectangularEtaPhiTrackingRegion*>(region);
     if (etaPhiRegion) {
       //the following completely reset the kinematics, perhaps it makes no sense and newKine=kine would do better
       GlobalVector direction = region->direction() / region->direction().mag();

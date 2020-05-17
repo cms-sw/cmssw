@@ -15,9 +15,9 @@ class DTHVStatusValidateDBRead : public edm::EDAnalyzer {
 public:
   explicit DTHVStatusValidateDBRead(edm::ParameterSet const& p);
   explicit DTHVStatusValidateDBRead(int i);
-  virtual ~DTHVStatusValidateDBRead();
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-  virtual void endJob();
+  ~DTHVStatusValidateDBRead() override;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void endJob() override;
 
 private:
   std::string dataFileName;

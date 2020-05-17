@@ -149,10 +149,10 @@ void FastMonitor::commit(std::vector<unsigned int>* streamLumisPtr) {
     fregDpCount_ = dataPointsFastOnly_.size();
     assert(!(fastPathStrictChecking_ && fjsonNames.size() == fregDpCount_));
     std::map<unsigned int, bool> fhasJson;
-    for (unsigned int i = 0; i < fjsonNames.size(); i++) {
+    for (const auto& fjsonName : fjsonNames) {
       bool notFoundVar = true;
       for (unsigned int j = 0; j < fregDpCount_; j++) {
-        if (dataPointsFastOnly_[j]->getName() == fjsonNames[i]) {
+        if (dataPointsFastOnly_[j]->getName() == fjsonName) {
           jsonDpIndexFast_.push_back(dataPointsFastOnly_[j]);
           fhasJson[j] = true;
           notFoundVar = false;
@@ -164,7 +164,7 @@ void FastMonitor::commit(std::vector<unsigned int>* streamLumisPtr) {
 
         bool notFoundVarSlow = true;
         for (unsigned int j = 0; j < regDpCount_; j++) {
-          if (dataPoints_[j]->getName() == fjsonNames[i]) {
+          if (dataPoints_[j]->getName() == fjsonName) {
             jsonDpIndexFast_.push_back(dataPoints_[j]);
             //fhasJson[j]=true;
             notFoundVarSlow = false;
@@ -176,7 +176,7 @@ void FastMonitor::commit(std::vector<unsigned int>* streamLumisPtr) {
         //push dummy DP if not registered by the service so that we output required JSON/CSV
         if (notFoundVarSlow) {
           DataPoint* dummyDp = new DataPoint(sourceInfo_, defPathFast_);
-          dummyDp->trackDummy(fjsonNames[i], true);
+          dummyDp->trackDummy(fjsonName, true);
           dataPointsFastOnly_.push_back(dummyDp);
           jsonDpIndexFast_.push_back(dummyDp);
         }
@@ -246,8 +246,8 @@ bool FastMonitor::outputFullJSONs(std::string const& pathstem, std::string const
   recentSnaps_ = recentSnapsTimer_ = 0;
   for (unsigned int i = 0; i < nStreams_; i++) {
     Json::Value serializeRoot;
-    for (unsigned int j = 0; j < jsonDpIndex_.size(); j++) {
-      dataPoints_[jsonDpIndex_[j]]->mergeAndSerialize(serializeRoot, lumi, true, i);
+    for (unsigned int j : jsonDpIndex_) {
+      dataPoints_[j]->mergeAndSerialize(serializeRoot, lumi, true, i);
     }
     //get extension
     std::stringstream tidext;

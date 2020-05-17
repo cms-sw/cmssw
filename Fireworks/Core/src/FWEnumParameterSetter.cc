@@ -63,7 +63,7 @@ TGFrame* FWEnumParameterSetter::build(TGFrame* iParent, bool labelBack) {
   TGCompositeFrame* frame = new TGHorizontalFrame(iParent);
 
   m_widget = new TGComboBox(frame);
-  std::map<Long_t, std::string>::const_iterator me = m_param->entryMap().begin();
+  auto me = m_param->entryMap().begin();
   UInt_t max_len = 0;
   while (me != m_param->entryMap().end()) {
     m_widget->AddEntry(me->second.c_str(), static_cast<Int_t>(me->first));

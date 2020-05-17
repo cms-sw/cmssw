@@ -41,13 +41,13 @@ void L1TriggerKeyExtViewer::analyze(const edm::Event& iEvent, const edm::EventSe
 
   cout << "Records: " << endl;
 
-  L1TriggerKeyExt::RecordToKey::const_iterator itr = ptr1->recordToKeyMap().begin();
-  L1TriggerKeyExt::RecordToKey::const_iterator end = ptr1->recordToKeyMap().end();
+  auto itr = ptr1->recordToKeyMap().begin();
+  auto end = ptr1->recordToKeyMap().end();
 
   for (; itr != end; ++itr) {
     std::string recordType = itr->first;
     std::string objectKey = itr->second;
-    std::string recordName(recordType, 0, recordType.find_first_of("@"));
+    std::string recordName(recordType, 0, recordType.find_first_of('@'));
     cout << " record " << recordName << " key: " << itr->second << endl;
   }
 

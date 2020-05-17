@@ -136,7 +136,7 @@ namespace reco {
       //qcuts_ = new RecoTauQualityCuts(qcuts_pset);
       //std::unique_ptr<RecoTauQualityCuts> qcuts_(new RecoTauQualityCuts(qcuts_pset));
 
-      qcuts_.reset(new RecoTauQualityCuts(qcuts_pset));
+      qcuts_ = std::make_unique<RecoTauQualityCuts>(qcuts_pset);
 
       inputParticleIds_ = pset.getParameter<std::vector<int> >("stripCandidatesParticleIds");
       const edm::ParameterSet& stripSize_eta_pset = pset.getParameterSet("stripEtaAssociationDistanceFunc");
@@ -197,8 +197,8 @@ namespace reco {
 
     namespace {
       void markCandsInStrip(std::vector<bool>& candFlags, const std::set<size_t>& candIds) {
-        for (std::set<size_t>::const_iterator candId = candIds.begin(); candId != candIds.end(); ++candId) {
-          candFlags[*candId] = true;
+        for (unsigned long candId : candIds) {
+          candFlags[candId] = true;
         }
       }
 
@@ -238,16 +238,16 @@ namespace reco {
       CandPtrs seedCands;
       CandPtrs addCands;
       int idx = 0;
-      for (CandPtrs::iterator cand = candsVector.begin(); cand != candsVector.end(); ++cand) {
+      for (auto& cand : candsVector) {
         if (verbosity_ >= 1) {
           edm::LogPrint("RecoTauPiZeroStripPlugin3")
-              << "PFGamma #" << idx << " (" << cand->id() << ":" << cand->key() << "): Et = " << (*cand)->et()
-              << ", eta = " << (*cand)->eta() << ", phi = " << (*cand)->phi();
+              << "PFGamma #" << idx << " (" << cand.id() << ":" << cand.key() << "): Et = " << cand->et()
+              << ", eta = " << cand->eta() << ", phi = " << cand->phi();
         }
-        if ((*cand)->et() > minGammaEtStripSeed_) {
+        if (cand->et() > minGammaEtStripSeed_) {
           if (verbosity_ >= 2) {
             edm::LogPrint("RecoTauPiZeroStripPlugin3") << "--> assigning seedCandId = " << seedCands.size();
-            const reco::TrackBaseRef candTrack = getTrack(**cand);
+            const reco::TrackBaseRef candTrack = getTrack(*cand);
             if (candTrack.isNonnull()) {
               edm::LogPrint("RecoTauPiZeroStripPlugin3")
                   << "track: Pt = " << candTrack->pt() << " eta = " << candTrack->eta()
@@ -261,12 +261,12 @@ namespace reco {
                   << ", dPt/Pt = " << (candTrack->ptError() / candTrack->pt()) << ")";
             }
           }
-          seedCands.push_back(*cand);
-        } else if ((*cand)->et() > minGammaEtStripAdd_) {
+          seedCands.push_back(cand);
+        } else if (cand->et() > minGammaEtStripAdd_) {
           if (verbosity_ >= 2) {
             edm::LogPrint("RecoTauPiZeroStripPlugin3") << "--> assigning addCandId = " << addCands.size();
           }
-          addCands.push_back(*cand);
+          addCands.push_back(cand);
         }
         ++idx;
       }
@@ -382,11 +382,11 @@ namespace reco {
 
       // Compute correction to account for spread of photon energy in eta and phi
       // in case charged pions make nuclear interactions or photons convert within the tracking detector
-      for (PiZeroVector::iterator strip = output.begin(); strip != output.end(); ++strip) {
+      for (auto& strip : output) {
         double bendCorrEta = 0.;
         double bendCorrPhi = 0.;
         double energySum = 0.;
-        for (auto const& gamma : strip->daughterPtrVector()) {
+        for (auto const& gamma : strip.daughterPtrVector()) {
           bendCorrEta += (gamma->energy() * etaAssociationDistance_->Eval(gamma->pt()));
           bendCorrPhi += (gamma->energy() * phiAssociationDistance_->Eval(gamma->pt()));
           energySum += gamma->energy();
@@ -396,8 +396,8 @@ namespace reco {
           bendCorrPhi /= energySum;
         }
         //std::cout << "stripPt = " << strip->pt() << ": bendCorrEta = " << bendCorrEta << ", bendCorrPhi = " << bendCorrPhi << std::endl;
-        strip->setBendCorrEta(bendCorrEta);
-        strip->setBendCorrPhi(bendCorrPhi);
+        strip.setBendCorrEta(bendCorrEta);
+        strip.setBendCorrPhi(bendCorrPhi);
       }
 
       return output.release();

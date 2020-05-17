@@ -28,10 +28,10 @@ namespace edmtest {
   public:
     explicit PedestalsAnalyzer(edm::ParameterSet const& p) { std::cout << "PedestalsAnalyzer" << std::endl; }
     explicit PedestalsAnalyzer(int i) { std::cout << "PedestalsAnalyzer " << i << std::endl; }
-    virtual ~PedestalsAnalyzer() { std::cout << "~PedestalsAnalyzer " << std::endl; }
-    virtual void beginJob();
-    virtual void beginRun(const edm::Run&, const edm::EventSetup& context);
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    ~PedestalsAnalyzer() override { std::cout << "~PedestalsAnalyzer " << std::endl; }
+    void beginJob() override;
+    void beginRun(const edm::Run&, const edm::EventSetup& context) override;
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   private:
   };
@@ -66,9 +66,8 @@ namespace edmtest {
     std::cout << "got context" << std::endl;
     const Pedestals* myped = pPeds.product();
     std::cout << "Pedestals* " << myped << std::endl;
-    for (std::vector<Pedestals::Item>::const_iterator it = myped->m_pedestals.begin(); it != myped->m_pedestals.end();
-         ++it)
-      std::cout << " mean: " << it->m_mean << " variance: " << it->m_variance;
+    for (const auto& m_pedestal : myped->m_pedestals)
+      std::cout << " mean: " << m_pedestal.m_mean << " variance: " << m_pedestal.m_variance;
     std::cout << std::endl;
 
     TFile* f = TFile::Open("MyPedestal.xml", "recreate");

@@ -11,7 +11,7 @@ int CSCReadoutMapping::chamber(int endcap, int station, int vme, int dmb, int tm
   int cid = 0;
   int hid = hwId(endcap, station, vme, dmb, tmb);
   // Search for that hw id in mapping
-  std::map<int, int>::const_iterator it = hw2sw_.find(hid);
+  auto it = hw2sw_.find(hid);
   if (it != hw2sw_.end()) {
     cid = it->second;
     //    std::cout << "hwid = " << hid << ", swid = " << cid << std::endl;
@@ -78,7 +78,7 @@ CSCReadoutMapping::CSCLabel CSCReadoutMapping::findHardwareId(const CSCDetId& id
   CSCLabel hid;
   int sid = CSCDetId::rawIdMaker(id.endcap(), id.station(), id.ring(), id.chamber(), 0);
   /// Search for that sw id in mapping
-  std::map<int, CSCLabel>::const_iterator it = sw2hw_.find(sid);
+  auto it = sw2hw_.find(sid);
   if (it != sw2hw_.end()) {
     hid = it->second;
     //    std::cout << "hwid = " << hid << ", swid = " << cid << std::endl;

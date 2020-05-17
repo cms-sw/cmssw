@@ -46,7 +46,7 @@ namespace edm {
 
     RunPrincipal& runPrincipal() { return *runPrincipal_; }
 
-    void setRunPrincipal(std::shared_ptr<RunPrincipal> rp) { runPrincipal_ = rp; }
+    void setRunPrincipal(const std::shared_ptr<RunPrincipal>& rp) { runPrincipal_ = rp; }
 
     LuminosityBlockIndex index() const { return index_; }
 
@@ -60,7 +60,7 @@ namespace edm {
 
     LuminosityBlockNumber_t luminosityBlock() const { return aux().luminosityBlock(); }
 
-    void setAux(LuminosityBlockAuxiliary iAux) { aux_ = std::move(iAux); }
+    void setAux(const LuminosityBlockAuxiliary& iAux) { aux_ = iAux; }
     LuminosityBlockAuxiliary const& aux() const { return aux_; }
 
     RunNumber_t run() const { return aux().run(); }

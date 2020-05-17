@@ -133,7 +133,7 @@ void HGCalGeometryCheck::beginRun(const edm::Run&, const edm::EventSetup& iSetup
             if (verbose_)
               edm::LogVerbatim("HGCalGeom") << "R: " << r << " ID " << detId;
           } else if (mode == HGCalGeometryMode::Trapezoid) {
-            HGCScintillatorDetId detId = HGCScintillatorDetId(id);
+            auto detId = HGCScintillatorDetId(id);
             h_Mod_.back()->Fill(detId.ieta());
             if (verbose_)
               edm::LogVerbatim("HGCalGeom") << "R: " << r << " ID " << detId;

@@ -16,14 +16,12 @@ TECLayer* TECLayerBuilder::build(const GeometricDet* aTECLayer, const TrackerGeo
 
   TECPetalBuilder myPetalBuilder;
 
-  for (vector<const GeometricDet*>::const_iterator it = theGeometricDetPetals.begin();
-       it != theGeometricDetPetals.end();
-       it++) {
-    if (std::abs((*it)->positionBounds().z()) < std::abs(meanZ))
-      theInnerPetals.push_back(myPetalBuilder.build(*it, theGeomDetGeometry));
+  for (auto theGeometricDetPetal : theGeometricDetPetals) {
+    if (std::abs(theGeometricDetPetal->positionBounds().z()) < std::abs(meanZ))
+      theInnerPetals.push_back(myPetalBuilder.build(theGeometricDetPetal, theGeomDetGeometry));
 
-    if (std::abs((*it)->positionBounds().z()) > std::abs(meanZ))
-      theOuterPetals.push_back(myPetalBuilder.build(*it, theGeomDetGeometry));
+    if (std::abs(theGeometricDetPetal->positionBounds().z()) > std::abs(meanZ))
+      theOuterPetals.push_back(myPetalBuilder.build(theGeometricDetPetal, theGeomDetGeometry));
   }
 
   return new TECLayer(theInnerPetals, theOuterPetals);

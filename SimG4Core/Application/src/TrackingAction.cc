@@ -31,7 +31,7 @@ void TrackingAction::PreUserTrackingAction(const G4Track* aTrack) {
   BeginOfTrack bt(aTrack);
   m_beginOfTrackSignal(&bt);
 
-  TrackInformation* trkInfo = (TrackInformation*)aTrack->GetUserInformation();
+  auto* trkInfo = (TrackInformation*)aTrack->GetUserInformation();
   if (trkInfo && trkInfo->isPrimary()) {
     eventAction_->prepareForNewPrimary();
   }

@@ -156,9 +156,9 @@ namespace cscdqm {
         parameters.push_back(h::PAR_CSC_SIDEMINUS);
         parameters.push_back(h::PAR_REPORT_SUMMARY);
 
-        for (size_t i = 0; i < parameters.size(); i++) {
-          ParHistoDef histoD(parameters[i]);
-          auto histodef = HistoDef(parameters[i]);
+        for (unsigned int parameter : parameters) {
+          ParHistoDef histoD(parameter);
+          auto histodef = HistoDef(parameter);
           HistoBookRequest req(histodef, config->getFOLDER_PAR(), -1.0f);
           MonitorObject* me = provider->bookMonitorObject(req);
           cache.put(histoD, me);

@@ -41,8 +41,7 @@ bool CSCSPEvent::unpack(const unsigned short *&buf) throw() {
 
     // Link initial LCTs to the tracks in each time bin
     for (unsigned short tbin = 0; tbin < header_.nTBINs(); tbin++) {
-      for (unsigned short trk = 0; trk < 3; trk++) {
-        CSCSP_SPblock &track = record_[tbin].sp[trk];
+      for (auto &track : record_[tbin].sp) {
         if (track.ME1_id() == 0 && track.ME2_id() == 0 && track.ME3_id() == 0 && track.ME4_id() == 0 &&
             track.MB_id() == 0)
           continue;
@@ -65,7 +64,7 @@ bool CSCSPEvent::unpack(const unsigned short *&buf) throw() {
           int earliest_lct_delay = -1;  //, second_earliest_lct_delay = -1;
           // Going from largest to smallest delay (earliest LCT pops up first in the loop)
           for (int delay = 7; delay >= 0 && second_earliest_lct_delay == -1; delay--) {
-            std::list<int>::const_iterator iter = timeline[delay].begin();
+            auto iter = timeline[delay].begin();
             while (iter != timeline[delay].end() && second_earliest_lct_delay == -1) {
               if (earliest_lct_delay == -1)
                 earliest_lct_delay = delay;
@@ -85,11 +84,11 @@ bool CSCSPEvent::unpack(const unsigned short *&buf) throw() {
           ///                                     if( track.ME1_tbin()>2 ) unpackError |= true; // because bxaDepth<=2
           if (ME1_tbin >= 0 && ME1_tbin < 7) {
             std::vector<CSCSP_MEblock> lcts = record_[ME1_tbin].LCTs(mpc);
-            for (std::vector<CSCSP_MEblock>::const_iterator lct = lcts.begin(); lct != lcts.end(); lct++)
+            for (const auto &lct : lcts)
               // Due to old MPC firmware link information was not accessible for some data:
               //if( lct->link()==(mpc?track.ME1_id()-3:track.ME1_id()) ){
-              if (((lct->spInput() - 1) % 3 + 1) == (mpc ? track.ME1_id() - 3 : track.ME1_id())) {
-                track.lct_[0] = *lct;
+              if (((lct.spInput() - 1) % 3 + 1) == (mpc ? track.ME1_id() - 3 : track.ME1_id())) {
+                track.lct_[0] = lct;
                 track.lctFilled[0] = true;
               }
           }
@@ -99,11 +98,11 @@ bool CSCSPEvent::unpack(const unsigned short *&buf) throw() {
           ///                                     if( track.ME2_tbin()>2 ) unpackError |= true; // because bxaDepth<=2
           if (ME2_tbin >= 0 && ME2_tbin < 7) {
             std::vector<CSCSP_MEblock> lcts = record_[ME2_tbin].LCTs(2);
-            for (std::vector<CSCSP_MEblock>::const_iterator lct = lcts.begin(); lct != lcts.end(); lct++)
+            for (const auto &lct : lcts)
               // Due to old MPC firmware link information was not accessible for some data:
               //if( lct->link()==track.ME2_id() ){
-              if (((lct->spInput() - 1) % 3 + 1) == track.ME2_id()) {
-                track.lct_[1] = *lct;
+              if (((lct.spInput() - 1) % 3 + 1) == track.ME2_id()) {
+                track.lct_[1] = lct;
                 track.lctFilled[1] = true;
               }
           }
@@ -113,11 +112,11 @@ bool CSCSPEvent::unpack(const unsigned short *&buf) throw() {
           ///                                     if( track.ME3_tbin()>2 ) unpackError |= true; // because bxaDepth<=2
           if (ME3_tbin >= 0 && ME3_tbin < 7) {
             std::vector<CSCSP_MEblock> lcts = record_[ME3_tbin].LCTs(3);
-            for (std::vector<CSCSP_MEblock>::const_iterator lct = lcts.begin(); lct != lcts.end(); lct++)
+            for (const auto &lct : lcts)
               // Due to old MPC firmware link information was not accessible for some data:
               //if( lct->link()==track.ME3_id() ){
-              if (((lct->spInput() - 1) % 3 + 1) == track.ME3_id()) {
-                track.lct_[2] = *lct;
+              if (((lct.spInput() - 1) % 3 + 1) == track.ME3_id()) {
+                track.lct_[2] = lct;
                 track.lctFilled[2] = true;
               }
           }
@@ -127,11 +126,11 @@ bool CSCSPEvent::unpack(const unsigned short *&buf) throw() {
           ///                                     if( track.ME4_tbin()>2 ) unpackError |= true; // because bxaDepth<=2
           if (ME4_tbin >= 0 && ME4_tbin < 7) {
             std::vector<CSCSP_MEblock> lcts = record_[ME4_tbin].LCTs(4);
-            for (std::vector<CSCSP_MEblock>::const_iterator lct = lcts.begin(); lct != lcts.end(); lct++)
+            for (const auto &lct : lcts)
               // Due to old MPC firmware link information was not accessible for some data:
               //if( lct->link()==track.ME4_id() ){
-              if (((lct->spInput() - 1) % 3 + 1) == track.ME4_id()) {
-                track.lct_[3] = *lct;
+              if (((lct.spInput() - 1) % 3 + 1) == track.ME4_id()) {
+                track.lct_[3] = lct;
                 track.lctFilled[3] = true;
               }
           }
@@ -141,9 +140,9 @@ bool CSCSPEvent::unpack(const unsigned short *&buf) throw() {
           ///                                     if( track.MB_tbin()>2 ) unpackError |= true; // because bxaDepth<=2
           if (MB_tbin >= 0 && MB_tbin < 7) {
             std::vector<CSCSP_MBblock> stubs = record_[MB_tbin].mbStubs();
-            for (std::vector<CSCSP_MBblock>::const_iterator stub = stubs.begin(); stub != stubs.end(); stub++)
-              if ((stub->id() == 1 && track.MB_id() % 2 == 1) || (stub->id() == 2 && track.MB_id() % 2 == 0)) {
-                track.dt_ = *stub;
+            for (const auto &stub : stubs)
+              if ((stub.id() == 1 && track.MB_id() % 2 == 1) || (stub.id() == 2 && track.MB_id() % 2 == 0)) {
+                track.dt_ = stub;
                 track.dtFilled = true;
               }
           }

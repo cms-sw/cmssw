@@ -136,7 +136,7 @@ namespace pat {
     // embed various impact parameters with errors
     // embed high level selection
     void embedHighLevel(pat::Electron& anElectron,
-                        reco::GsfTrackRef track,
+                        const reco::GsfTrackRef& track,
                         reco::TransientTrack& tt,
                         reco::Vertex& primaryVertex,
                         bool primaryVertexIsValid,
@@ -231,7 +231,7 @@ void pat::PATElectronProducer::readIsolationLabels(const edm::ParameterSet& iCon
     }
     if (depconf.exists("user")) {
       std::vector<edm::InputTag> userdeps = depconf.getParameter<std::vector<edm::InputTag> >("user");
-      std::vector<edm::InputTag>::const_iterator it = userdeps.begin(), ed = userdeps.end();
+      auto it = userdeps.begin(), ed = userdeps.end();
       int key = pat::IsolationKeys::UserBaseIso;
       for (; it != ed; ++it, ++key) {
         labels.push_back(std::make_pair(pat::IsolationKeys(key), *it));

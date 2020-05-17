@@ -150,7 +150,7 @@ void CMSEmNoDeltaRay::ConstructProcess() {
       pmanager->AddDiscreteProcess(new G4GammaConversion);
 
     } else if (particleName == "e-") {
-      G4eMultipleScattering* msc = new G4eMultipleScattering;
+      auto* msc = new G4eMultipleScattering;
       msc->SetStepLimitType(fMinimal);
       if (reg != nullptr) {
         G4UrbanMscModel* msc_el = new G4UrbanMscModel();
@@ -162,7 +162,7 @@ void CMSEmNoDeltaRay::ConstructProcess() {
       pmanager->AddProcess(new G4eBremsstrahlung, -1, -3, 2);
 
     } else if (particleName == "e+") {
-      G4eMultipleScattering* msc = new G4eMultipleScattering;
+      auto* msc = new G4eMultipleScattering;
       msc->SetStepLimitType(fMinimal);
       if (reg != nullptr) {
         G4UrbanMscModel* msc_pos = new G4UrbanMscModel();

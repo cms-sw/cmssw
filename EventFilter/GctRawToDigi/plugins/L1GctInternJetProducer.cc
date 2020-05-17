@@ -68,8 +68,8 @@ void L1GctInternJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 
   } else {
     //std::cout << "apparently the collection was found" <<std::endl;
-    L1GctInternJetDataCollection::const_iterator jetItr = hwIntJetCands->begin();
-    L1GctInternJetDataCollection::const_iterator jetEnd = hwIntJetCands->end();
+    auto jetItr = hwIntJetCands->begin();
+    auto jetEnd = hwIntJetCands->end();
     int i;
     for (i = 0; jetItr != jetEnd; ++jetItr, ++i) {
       //std::cout << " JetS a plenty" <<std::endl;

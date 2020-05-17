@@ -38,7 +38,7 @@ void FWBeamSpotOnlineProxyBuilder::build(const BeamSpotOnline& iData,
   TEvePointSet* pointSet = new TEvePointSet;
   setupAddElement(pointSet, &oItemHolder);
 
-  TEveStraightLineSet* lineSet = new TEveStraightLineSet;
+  auto* lineSet = new TEveStraightLineSet;
   setupAddElement(lineSet, &oItemHolder);
 
   double posx = iData.x();

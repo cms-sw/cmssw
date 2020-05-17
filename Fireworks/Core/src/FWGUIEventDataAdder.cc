@@ -90,11 +90,11 @@ public:
   std::vector<std::string> getTitles() const override {
     std::vector<std::string> returnValue;
     returnValue.reserve(kNColumns);
-    returnValue.push_back("Purpose");
-    returnValue.push_back("Module Label");
-    returnValue.push_back("Product Instance Label");
-    returnValue.push_back("Process Name");
-    returnValue.push_back("C++ Class");
+    returnValue.emplace_back("Purpose");
+    returnValue.emplace_back("Module Label");
+    returnValue.emplace_back("Product Instance Label");
+    returnValue.emplace_back("Process Name");
+    returnValue.emplace_back("C++ Class");
     return returnValue;
   }
 
@@ -386,9 +386,9 @@ void FWGUIEventDataAdder::addNewItem() {
     if (*(m_manager->begin()))
       largest = (*(m_manager->begin()))->layer();
   }
-  for (FWEventItemsManager::const_iterator it = m_manager->begin(), itEnd = m_manager->end(); it != itEnd; ++it) {
-    if ((*it) && largest < (*it)->layer()) {
-      largest = (*it)->layer();
+  for (auto it : *m_manager) {
+    if (it && largest < it->layer()) {
+      largest = it->layer();
     }
   }
   ++largest;
@@ -553,9 +553,7 @@ void FWGUIEventDataAdder::newIndexSelected(int iSelectedIndex) {
     // process name in order to correctly get the data they want
     bool isMostRecentProcess = true;
     int index = 0;
-    for (std::vector<FWJobMetadataManager::Data>::iterator it = metadata.begin(), itEnd = metadata.end();
-         it != itEnd && isMostRecentProcess;
-         ++it, ++index) {
+    for (auto it = metadata.begin(), itEnd = metadata.end(); it != itEnd && isMostRecentProcess; ++it, ++index) {
       if (index == iSelectedIndex) {
         continue;
       }

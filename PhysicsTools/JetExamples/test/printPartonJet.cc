@@ -30,8 +30,8 @@ using namespace edm;
 class printPartonJet : public edm::EDAnalyzer {
 public:
   explicit printPartonJet(const edm::ParameterSet&);
-  ~printPartonJet(){};
-  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  ~printPartonJet() override{};
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
 private:
   edm::EDGetTokenT<View<Candidate> > sourceToken_;
@@ -61,9 +61,9 @@ void printPartonJet::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
            (*partonJets)[j].et(),
            (*partonJets)[j].eta(),
            (*partonJets)[j].phi());
-    for (Candidate::const_iterator itC = (*partonJets)[j].begin(); itC != (*partonJets)[j].end(); itC++) {
-      cout << "              Constituent (pt,eta,phi,pdgId): " << itC->pt() << " " << itC->eta() << " " << itC->phi()
-           << " " << itC->pdgId() << endl;
+    for (const auto& itC : (*partonJets)[j]) {
+      cout << "              Constituent (pt,eta,phi,pdgId): " << itC.pt() << " " << itC.eta() << " " << itC.phi()
+           << " " << itC.pdgId() << endl;
     }
   }
 }

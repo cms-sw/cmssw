@@ -96,7 +96,7 @@ private:
   double gainFactor(const edm::ESHandle<HcalDbService>&, const HcalDetId&);
   int depth16HE(int, int);
   bool goodCell(const HcalDetId&, const reco::Track*, const CaloGeometry*, const MagneticField*);
-  void fillTrackParameters(const reco::Track*, math::XYZPoint);
+  void fillTrackParameters(const reco::Track*, const math::XYZPoint&);
 
   // ----------member data ---------------------------
   const edm::InputTag labelEBRecHit_, labelEERecHit_, labelHBHERecHit_;
@@ -375,8 +375,8 @@ void HcalHBHEMuonHighEtaAnalyzer::analyze(const edm::Event& iEvent, const edm::E
     return;
   }
 
-  reco::VertexCollection::const_iterator firstGoodVertex = vtx->end();
-  for (reco::VertexCollection::const_iterator it = vtx->begin(); it != vtx->end(); it++) {
+  auto firstGoodVertex = vtx->end();
+  for (auto it = vtx->begin(); it != vtx->end(); it++) {
     if (isGoodVertex(*it)) {
       if (firstGoodVertex == vtx->end())
         firstGoodVertex = it;
@@ -497,46 +497,45 @@ bool HcalHBHEMuonHighEtaAnalyzer::analyzeMuon(const edm::Event& iEvent, math::XY
   if (_Muon.isValid()) {
     int nTrack(0);
     std::vector<spr::propagatedTrackID> trkCaloDets;
-    for (reco::MuonCollection::const_iterator RecMuon = _Muon->begin(); RecMuon != _Muon->end(); ++RecMuon) {
-      if (RecMuon->innerTrack().isNonnull()) {
-        const reco::Track* pTrack = (RecMuon->innerTrack()).get();
+    for (const auto& RecMuon : *_Muon) {
+      if (RecMuon.innerTrack().isNonnull()) {
+        const reco::Track* pTrack = (RecMuon.innerTrack()).get();
         if (std::abs(pTrack->eta()) > etaMin_) {
           if (analyzeTracks(pTrack, leadPV, nTrack, trkCaloDets, false)) {
             accept = true;
-            ptGlob_.emplace_back((RecMuon)->pt());
-            etaGlob_.emplace_back(RecMuon->eta());
-            phiGlob_.emplace_back(RecMuon->phi());
-            energyMuon_.push_back(RecMuon->energy());
-            pMuon_.emplace_back(RecMuon->p());
-            bool mediumMuon = (((RecMuon->isPFMuon()) && (RecMuon->isGlobalMuon() || RecMuon->isTrackerMuon())) &&
-                               (RecMuon->innerTrack()->validFraction() > 0.49));
+            ptGlob_.emplace_back(RecMuon.->pt());
+            etaGlob_.emplace_back(RecMuon.eta());
+            phiGlob_.emplace_back(RecMuon.phi());
+            energyMuon_.push_back(RecMuon.energy());
+            pMuon_.emplace_back(RecMuon.p());
+            bool mediumMuon = (((RecMuon.isPFMuon()) && (RecMuon.isGlobalMuon() || RecMuon.isTrackerMuon())) &&
+                               (RecMuon.innerTrack()->validFraction() > 0.49));
             if (mediumMuon) {
-              double chiGlobal =
-                  ((RecMuon->globalTrack().isNonnull()) ? RecMuon->globalTrack()->normalizedChi2() : 999);
+              double chiGlobal = ((RecMuon.globalTrack().isNonnull()) ? RecMuon.globalTrack()->normalizedChi2() : 999);
               bool goodGlob =
-                  (RecMuon->isGlobalMuon() && chiGlobal < 3 && RecMuon->combinedQuality().chi2LocalPosition < 12 &&
-                   RecMuon->combinedQuality().trkKink < 20);
-              mediumMuon = muon::segmentCompatibility(*RecMuon) > (goodGlob ? 0.303 : 0.451);
+                  (RecMuon.isGlobalMuon() && chiGlobal < 3 && RecMuon.combinedQuality().chi2LocalPosition < 12 &&
+                   RecMuon.combinedQuality().trkKink < 20);
+              mediumMuon = muon::segmentCompatibility(RecMuon) > (goodGlob ? 0.303 : 0.451);
             }
             mediumMuon_.emplace_back(mediumMuon);
             bool isoR03 =
-                ((RecMuon->pfIsolationR03().sumChargedHadronPt +
+                ((RecMuon.pfIsolationR03().sumChargedHadronPt +
                   std::max(0.,
-                           RecMuon->pfIsolationR03().sumNeutralHadronEt + RecMuon->pfIsolationR03().sumPhotonEt -
-                               (0.5 * RecMuon->pfIsolationR03().sumPUPt))) /
-                 RecMuon->pt());
+                           RecMuon.pfIsolationR03().sumNeutralHadronEt + RecMuon.pfIsolationR03().sumPhotonEt -
+                               (0.5 * RecMuon.pfIsolationR03().sumPUPt))) /
+                 RecMuon.pt());
             bool isoR04 =
-                ((RecMuon->pfIsolationR04().sumChargedHadronPt +
+                ((RecMuon.pfIsolationR04().sumChargedHadronPt +
                   std::max(0.,
-                           RecMuon->pfIsolationR04().sumNeutralHadronEt + RecMuon->pfIsolationR04().sumPhotonEt -
-                               (0.5 * RecMuon->pfIsolationR04().sumPUPt))) /
-                 RecMuon->pt());
+                           RecMuon.pfIsolationR04().sumNeutralHadronEt + RecMuon.pfIsolationR04().sumPhotonEt -
+                               (0.5 * RecMuon.pfIsolationR04().sumPUPt))) /
+                 RecMuon.pt());
             isolationR03_.emplace_back(isoR03);
             isolationR04_.emplace_back(isoR04);
 
-            ecalEnergy_.emplace_back(RecMuon->calEnergy().emS9);
-            hcalEnergy_.emplace_back(RecMuon->calEnergy().hadS9);
-            hoEnergy_.emplace_back(RecMuon->calEnergy().hoS9);
+            ecalEnergy_.emplace_back(RecMuon.calEnergy().emS9);
+            hcalEnergy_.emplace_back(RecMuon.calEnergy().hadS9);
+            hoEnergy_.emplace_back(RecMuon.calEnergy().hoS9);
 #ifdef EDM_ML_DEBUG
             if ((verbosity_ / 100) % 10 > 0)
               edm::LogVerbatim("HBHEMuon")
@@ -682,8 +681,8 @@ bool HcalHBHEMuonHighEtaAnalyzer::analyzeTracks(const reco::Track* pTrack,
                             useRaw_,
                             depth16HE(ieta, iphi),
                             false);
-        for (int i = 0; i < depthMax_; ++i)
-          eHcalDetId[i] = HcalDetId();
+        for (auto& i : eHcalDetId)
+          i = HcalDetId();
         for (unsigned int i = 0; i < ehdepth.size(); ++i) {
           HcalSubdetector subdet0 =
               (hborhe) ? ((ehdepth[i].second >= depth16HE(ieta, iphi)) ? HcalEndcap : HcalBarrel) : subdet;
@@ -758,8 +757,8 @@ bool HcalHBHEMuonHighEtaAnalyzer::analyzeTracks(const reco::Track* pTrack,
                               useRaw_,
                               depth16HE(ieta, iphi),
                               false);
-          for (int i = 0; i < depthMax_; ++i)
-            eHcalDetId[i] = HcalDetId();
+          for (auto& i : eHcalDetId)
+            i = HcalDetId();
           for (unsigned int i = 0; i < ehdepth.size(); ++i) {
             HcalSubdetector subdet0 =
                 (hborhe) ? ((ehdepth[i].second >= depth16HE(ieta, iphi)) ? HcalEndcap : HcalBarrel) : subdet;
@@ -946,19 +945,17 @@ double HcalHBHEMuonHighEtaAnalyzer::activeLength(const DetId& hid) {
   }
   double lx(0);
   if (id.subdet() == HcalBarrel) {
-    for (unsigned int i = 0; i < actHB.size(); ++i) {
-      if ((ieta == actHB[i].ieta) && (zside == actHB[i].zside) &&
-          (std::find(dpths.begin(), dpths.end(), actHB[i].depth) != dpths.end()) &&
-          (std::find(actHB[i].iphis.begin(), actHB[i].iphis.end(), iphi) != actHB[i].iphis.end())) {
-        lx += actHB[i].thick;
+    for (auto& i : actHB) {
+      if ((ieta == i.ieta) && (zside == i.zside) && (std::find(dpths.begin(), dpths.end(), i.depth) != dpths.end()) &&
+          (std::find(i.iphis.begin(), i.iphis.end(), iphi) != i.iphis.end())) {
+        lx += i.thick;
       }
     }
   } else {
-    for (unsigned int i = 0; i < actHE.size(); ++i) {
-      if ((ieta == actHE[i].ieta) && (zside == actHE[i].zside) &&
-          (std::find(dpths.begin(), dpths.end(), actHE[i].depth) != dpths.end()) &&
-          (std::find(actHE[i].iphis.begin(), actHE[i].iphis.end(), iphi) != actHE[i].iphis.end())) {
-        lx += actHE[i].thick;
+    for (auto& i : actHE) {
+      if ((ieta == i.ieta) && (zside == i.zside) && (std::find(dpths.begin(), dpths.end(), i.depth) != dpths.end()) &&
+          (std::find(i.iphis.begin(), i.iphis.end(), iphi) != i.iphis.end())) {
+        lx += i.thick;
       }
     }
   }
@@ -1023,7 +1020,7 @@ bool HcalHBHEMuonHighEtaAnalyzer::goodCell(const HcalDetId& hcid,
   return match;
 }
 
-void HcalHBHEMuonHighEtaAnalyzer::fillTrackParameters(const reco::Track* pTrack, math::XYZPoint leadPV) {
+void HcalHBHEMuonHighEtaAnalyzer::fillTrackParameters(const reco::Track* pTrack, const math::XYZPoint& leadPV) {
   trackDz_.emplace_back(pTrack->dz(leadPV));
   const reco::HitPattern& hitp = pTrack->hitPattern();
   trackLayerCrossed_.emplace_back(hitp.trackerLayersWithMeasurement());

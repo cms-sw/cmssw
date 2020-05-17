@@ -18,7 +18,7 @@
 
 class PreMixingMTDWorker : public PreMixingWorker {
 public:
-  PreMixingMTDWorker(const edm::ParameterSet& ps, edm::ProducesCollector, edm::ConsumesCollector&& iC);
+  PreMixingMTDWorker(const edm::ParameterSet& ps, const edm::ProducesCollector&, edm::ConsumesCollector&& iC);
   ~PreMixingMTDWorker() override = default;
 
   PreMixingMTDWorker(const PreMixingMTDWorker&) = delete;
@@ -40,7 +40,7 @@ private:
 };
 
 PreMixingMTDWorker::PreMixingMTDWorker(const edm::ParameterSet& ps,
-                                       edm::ProducesCollector producesCollector,
+                                       const edm::ProducesCollector& producesCollector,
                                        edm::ConsumesCollector&& iC)
     : signalToken_(iC.consumes<PMTDSimAccumulator>(ps.getParameter<edm::InputTag>("digiTagSig"))),
       pileInputTag_(ps.getParameter<edm::InputTag>("pileInputTag")),

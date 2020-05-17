@@ -15,7 +15,7 @@
 #include <algorithm>
 #include <iostream>
 #include <sstream>
-#include <time.h>
+#include <ctime>
 #include <vector>
 #include <cstdint>
 
@@ -48,7 +48,7 @@ void testSiStripHashedDetId::initialize(const edm::EventSetup &setup) {
   // Build list of DetIds
   std::vector<uint32_t> dets;
   dets.reserve(16000);
-  TrackerGeometry::DetContainer::const_iterator iter = geom->detUnits().begin();
+  auto iter = geom->detUnits().begin();
   for (; iter != geom->detUnits().end(); ++iter) {
     const auto strip = dynamic_cast<const StripGeomDetUnit *>(*iter);
     if (strip) {
@@ -95,11 +95,11 @@ void testSiStripHashedDetId::initialize(const edm::EventSetup &setup) {
 
   // Retrieve hashed indices
   std::vector<uint32_t> hashes;
-  uint32_t istart = time(NULL);
+  uint32_t istart = time(nullptr);
   for (uint16_t tt = 0; tt < 10000; ++tt) {  // 10000 loops just to see some non-negligible time meaasurement!
     hashes.clear();
     hashes.reserve(dets.size());
-    std::vector<uint32_t>::const_iterator idet = dets.begin();
+    auto idet = dets.begin();
     for (; idet != dets.end(); ++idet) {
       hashes.push_back(hash.hashedIndex(*idet));
     }
@@ -108,7 +108,7 @@ void testSiStripHashedDetId::initialize(const edm::EventSetup &setup) {
   // Some debug
   std::stringstream ss;
   ss << "[testSiStripHashedDetId::" << __func__ << "]";
-  std::vector<uint32_t>::const_iterator ii = hashes.begin();
+  auto ii = hashes.begin();
   uint16_t cntr1 = 0;
   for (; ii != hashes.end(); ++ii) {
     if (*ii == sistrip::invalid32_) {
@@ -117,7 +117,7 @@ void testSiStripHashedDetId::initialize(const edm::EventSetup &setup) {
       continue;
     }
     uint32_t detid = hash.unhashIndex(*ii);
-    std::vector<uint32_t>::const_iterator iter = find(dets.begin(), dets.end(), detid);
+    auto iter = find(dets.begin(), dets.end(), detid);
     if (iter == dets.end()) {
       cntr1++;
       ss << std::endl << " Did not find value " << detid << " at index " << ii - hashes.begin() << " in vector!";
@@ -135,12 +135,12 @@ void testSiStripHashedDetId::initialize(const edm::EventSetup &setup) {
   LogTrace(mlDqmCommon_) << ss.str();
 
   edm::LogVerbatim(mlDqmCommon_) << "[testSiStripHashedDetId::" << __func__ << "]"
-                                 << " Processed " << hashes.size() << " DetIds in " << (time(NULL) - istart)
+                                 << " Processed " << hashes.size() << " DetIds in " << (time(nullptr) - istart)
                                  << " seconds";
 
   // Retrieve DetIds
   std::vector<uint32_t> detids;
-  uint32_t jstart = time(NULL);
+  uint32_t jstart = time(nullptr);
   for (uint16_t ttt = 0; ttt < 10000; ++ttt) {  // 10000 loops just to see some non-negligible time
                                                 // meaasurement!
     detids.clear();
@@ -154,7 +154,7 @@ void testSiStripHashedDetId::initialize(const edm::EventSetup &setup) {
   std::stringstream sss;
   sss << "[testSiStripHashedDetId::" << __func__ << "]";
   uint16_t cntr2 = 0;
-  std::vector<uint32_t>::const_iterator iii = detids.begin();
+  auto iii = detids.begin();
   for (; iii != detids.end(); ++iii) {
     if (*iii != dets.at(iii - detids.begin())) {
       cntr2++;
@@ -171,7 +171,7 @@ void testSiStripHashedDetId::initialize(const edm::EventSetup &setup) {
   LogTrace(mlDqmCommon_) << sss.str();
 
   edm::LogVerbatim(mlDqmCommon_) << "[testSiStripHashedDetId::" << __func__ << "]"
-                                 << " Processed " << detids.size() << " hashed indices in " << (time(NULL) - jstart)
+                                 << " Processed " << detids.size() << " hashed indices in " << (time(nullptr) - jstart)
                                  << " seconds";
 }
 

@@ -51,9 +51,9 @@ void FWGEMDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pro
   }
   const FWGeometry* geom = iItem->getGeom();
 
-  for (GEMDigiCollection::DigiRangeIterator dri = digis->begin(), driEnd = digis->end(); dri != driEnd; ++dri) {
-    unsigned int rawid = (*dri).first.rawId();
-    const GEMDigiCollection::Range& range = (*dri).second;
+  for (auto&& digi : *digis) {
+    unsigned int rawid = digi.first.rawId();
+    const GEMDigiCollection::Range& range = digi.second;
 
     if (!geom->contains(rawid)) {
       fwLog(fwlog::kWarning) << "Failed to get geometry of GEM roll with detid: " << rawid << std::endl;
@@ -71,7 +71,7 @@ void FWGEMDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pro
     float bottomPitch = parameters[4];
 
     for (GEMDigiCollection::const_iterator dit = range.first; dit != range.second; ++dit) {
-      TEveStraightLineSet* stripDigiSet = new TEveStraightLineSet;
+      auto* stripDigiSet = new TEveStraightLineSet;
       stripDigiSet->SetLineWidth(3);
       setupAddElement(stripDigiSet, product);
 
@@ -127,9 +127,9 @@ void FWGEMPadDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* 
   }
   const FWGeometry* geom = iItem->getGeom();
 
-  for (GEMPadDigiCollection::DigiRangeIterator dri = digis->begin(), driEnd = digis->end(); dri != driEnd; ++dri) {
-    unsigned int rawid = (*dri).first.rawId();
-    const GEMPadDigiCollection::Range& range = (*dri).second;
+  for (auto&& digi : *digis) {
+    unsigned int rawid = digi.first.rawId();
+    const GEMPadDigiCollection::Range& range = digi.second;
 
     if (!geom->contains(rawid)) {
       fwLog(fwlog::kWarning) << "Failed to get geometry of GEM roll with detid: " << rawid << std::endl;
@@ -148,7 +148,7 @@ void FWGEMPadDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* 
     float bottomPitch = parameters[4] * nStrips / nPads;
 
     for (GEMPadDigiCollection::const_iterator dit = range.first; dit != range.second; ++dit) {
-      TEveStraightLineSet* stripDigiSet = new TEveStraightLineSet;
+      auto* stripDigiSet = new TEveStraightLineSet;
       stripDigiSet->SetLineWidth(3 * nStrips / nPads);
       setupAddElement(stripDigiSet, product);
 

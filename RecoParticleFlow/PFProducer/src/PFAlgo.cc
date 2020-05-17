@@ -8,6 +8,7 @@
 
 #include <numeric>
 #include <fstream>
+#include <utility>
 
 using namespace std;
 using namespace reco;
@@ -25,7 +26,7 @@ PFAlgo::PFAlgo(double nSigmaECAL,
       nSigmaHCAL_(nSigmaHCAL),
       nSigmaHFEM_(nSigmaHFEM),
       nSigmaHFHAD_(nSigmaHFHAD),
-      resolHF_square_(resolHF_square),
+      resolHF_square_(std::move(resolHF_square)),
       calibration_(calibration),
       thepfEnergyCalibrationHF_(thepfEnergyCalibrationHF),
       connector_() {
@@ -229,10 +230,10 @@ void PFAlgo::egammaFilters(const reco::PFBlockRef& blockref,
 
   for (unsigned int ieg = 0; ieg < negmcandidates; ++ieg) {
     //      const reco::PFCandidate & egmcand((*pfEgammaCandidates_)[ieg]);
-    reco::PFCandidateRef pfEgmRef = pfEgammaCandidates_->refAt(ieg).castTo<reco::PFCandidateRef>();
+    auto pfEgmRef = pfEgammaCandidates_->refAt(ieg).castTo<reco::PFCandidateRef>();
 
     const PFCandidate::ElementsInBlocks& theElements = (*pfEgmRef).elementsInBlocks();
-    PFCandidate::ElementsInBlocks::const_iterator iegfirst = theElements.begin();
+    auto iegfirst = theElements.begin();
     bool sameBlock = false;
     bool isGoodElectron = false;
     bool isGoodPhoton = false;
@@ -803,8 +804,8 @@ bool PFAlgo::recoTracksNotHCAL(const reco::PFBlock& block,
       (*pfCandidates_)[tmpj].setPs2Energy(0.);
       (*pfCandidates_)[tmpj].addElementInBlock(blockref, iEcal);
       bNeutralProduced = true;
-      for (unsigned ic = 0; ic < kTrack.size(); ++ic)
-        (*pfCandidates_)[tmpj].addElementInBlock(blockref, kTrack[ic]);
+      for (unsigned int ic : kTrack)
+        (*pfCandidates_)[tmpj].addElementInBlock(blockref, ic);
     }  // End neutral energy
 
     // Set elements in blocks and ECAL energies to all tracks
@@ -1262,8 +1263,8 @@ void PFAlgo::createCandidatesHF(const reco::PFBlock& block,
   // inds.trackIs can be empty, even if there are tracks in this block,
   // but what we want to check is if this block has any track including inactive ones
   if (!trackInBlock)
-    for (unsigned iEle = 0; iEle < elements.size(); iEle++) {
-      PFBlockElement::Type type = elements[iEle].type();
+    for (const auto& element : elements) {
+      PFBlockElement::Type type = element.type();
       if (type == PFBlockElement::TRACK) {
         trackInBlock = true;
         break;
@@ -3017,9 +3018,7 @@ void PFAlgo::createCandidatesECAL(const reco::PFBlock& block,
 
   // for each ecal element iEcal = ecalIs[i] in turn:
 
-  for (unsigned i = 0; i < inds.ecalIs.size(); i++) {
-    unsigned iEcal = inds.ecalIs[i];
-
+  for (unsigned int iEcal : inds.ecalIs) {
     LogTrace("PFAlgo|createCandidatesECAL") << "elements[" << iEcal << "]=" << elements[iEcal];
 
     if (!active[iEcal]) {
@@ -3461,7 +3460,7 @@ void PFAlgo::associatePSClusters(unsigned iEcal,
   }
 }
 
-bool PFAlgo::isFromSecInt(const reco::PFBlockElement& eTrack, string order) const {
+bool PFAlgo::isFromSecInt(const reco::PFBlockElement& eTrack, const string& order) const {
   reco::PFBlockElement::TrackType T_TO_DISP = reco::PFBlockElement::T_TO_DISP;
   reco::PFBlockElement::TrackType T_FROM_DISP = reco::PFBlockElement::T_FROM_DISP;
   //  reco::PFBlockElement::TrackType T_FROM_GAMMACONV = reco::PFBlockElement::T_FROM_GAMMACONV;

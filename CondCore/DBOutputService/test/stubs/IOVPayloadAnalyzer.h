@@ -15,9 +15,9 @@ namespace edm {
 class IOVPayloadAnalyzer : public edm::EDAnalyzer {
 public:
   explicit IOVPayloadAnalyzer(const edm::ParameterSet& iConfig);
-  virtual ~IOVPayloadAnalyzer();
-  virtual void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup);
-  virtual void endJob();
+  ~IOVPayloadAnalyzer() override;
+  void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) override;
+  void endJob() override;
 
 private:
   std::string m_record;

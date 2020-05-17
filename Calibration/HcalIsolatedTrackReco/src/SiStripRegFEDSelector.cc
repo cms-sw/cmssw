@@ -41,13 +41,13 @@ void SiStripRegFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& i
   const SiStripRegionCabling::ElementCabling elcabling;
 
   bool fedSaved[1000];
-  for (int i = 0; i < 1000; i++)
-    fedSaved[i] = false;
+  for (bool& i : fedSaved)
+    i = false;
 
   //cycle on seeds
-  for (uint32_t p = 0; p < isoPixTrackRefs.size(); p++) {
-    double etaObj_ = isoPixTrackRefs[p]->track()->eta();
-    double phiObj_ = isoPixTrackRefs[p]->track()->phi();
+  for (auto& isoPixTrackRef : isoPixTrackRefs) {
+    double etaObj_ = isoPixTrackRef->track()->eta();
+    double phiObj_ = isoPixTrackRef->track()->phi();
 
     //cycle on regions
     for (uint32_t i = 0; i < ccab.size(); i++) {
@@ -67,11 +67,11 @@ void SiStripRegFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& i
         for (uint32_t ilayer = 0; ilayer < SiStripRegionCabling::ALLLAYERS; ilayer++) {
           //get map of vectors of feds withing the layer of subdet of region
           const SiStripRegionCabling::ElementCabling fedVectorMap = regSubdetLayers[ilayer];
-          SiStripRegionCabling::ElementCabling::const_iterator it = fedVectorMap.begin();
+          auto it = fedVectorMap.begin();
           for (; it != fedVectorMap.end(); it++) {
-            for (uint32_t op = 0; op < (it->second).size(); op++) {
+            for (const auto& op : (it->second)) {
               //get fed id
-              int fediid = (it->second)[op].fedId();
+              int fediid = op.fedId();
               if (!fedSaved[fediid]) {
                 stripFEDVec.push_back(fediid);
               }
@@ -92,8 +92,8 @@ void SiStripRegFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& i
 
   for (int j = 0; j < FEDNumbering::MAXFEDID; ++j) {
     bool rightFED = false;
-    for (uint32_t k = 0; k < stripFEDVec.size(); k++) {
-      if (j == stripFEDVec[k]) {
+    for (int k : stripFEDVec) {
+      if (j == k) {
         rightFED = true;
       }
     }

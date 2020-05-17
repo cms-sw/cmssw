@@ -59,12 +59,11 @@ public:
           << "tau: Pt = " << pfTau->pt() << ", eta = " << pfTau->eta() << ", phi = " << pfTau->phi();
     }
     double discriminator = 1.;
-    for (std::vector<towerInfo>::const_iterator badTower = badTowers_.begin(); badTower != badTowers_.end();
-         ++badTower) {
-      if (deltaR(badTower->eta_, badTower->phi_, pfTau->eta(), pfTau->phi()) < dR_) {
+    for (const auto& badTower : badTowers_) {
+      if (deltaR(badTower.eta_, badTower.phi_, pfTau->eta(), pfTau->phi()) < dR_) {
         if (verbosity_) {
           edm::LogPrint("PFTauAgainstEleDeadECAL")
-              << " matches badTower: eta = " << badTower->eta_ << ", phi = " << badTower->phi_;
+              << " matches badTower: eta = " << badTower.eta_ << ", phi = " << badTower.phi_;
         }
         discriminator = 0.;
       }
@@ -110,10 +109,9 @@ private:
         nBadCrystals, maxStatus, sumEta, sumPhi, channelStatus.product(), caloGeometry.product(), ttMap.product());
 
     badTowers_.clear();
-    for (std::map<uint32_t, unsigned>::const_iterator it = nBadCrystals.begin(); it != nBadCrystals.end(); ++it) {
+    for (auto it = nBadCrystals.begin(); it != nBadCrystals.end(); ++it) {
       uint32_t key = it->first;
-      badTowers_.push_back(
-          towerInfo(key, it->second, maxStatus[key], sumEta[key] / it->second, sumPhi[key] / it->second));
+      badTowers_.emplace_back(key, it->second, maxStatus[key], sumEta[key] / it->second, sumPhi[key] / it->second);
     }
 
     isFirstEvent_ = false;
@@ -133,7 +131,7 @@ private:
       Id id = Id::unhashIndex(i);
       if (id == Id(0))
         continue;
-      EcalChannelStatusMap::const_iterator it = channelStatus->getMap().find(id.rawId());
+      auto it = channelStatus->getMap().find(id.rawId());
       unsigned status = (it == channelStatus->end()) ? 0 : (it->getStatusCode() & statusMask_);
       if (status >= minStatus_) {
         const GlobalPoint& point = caloGeometry->getPosition(id);

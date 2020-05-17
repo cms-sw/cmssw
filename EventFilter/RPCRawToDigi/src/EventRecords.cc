@@ -60,19 +60,18 @@ vector<EventRecords> EventRecords::mergeRecords(const vector<EventRecords>& data
   std::vector<EventRecords> result;
   typedef vector<EventRecords>::const_iterator ICR;
   typedef vector<EventRecords>::iterator IR;
-  for (ICR id = data.begin(), idEnd = data.end(); id != idEnd; ++id) {
+  for (const auto& id : data) {
     bool merged = false;
-    for (IR ir = result.begin(), irEnd = result.end(); ir != irEnd; ++ir) {
-      EventRecords& event = *ir;
-      if (id->samePartition(event)) {
+    for (auto& event : result) {
+      if (id.samePartition(event)) {
         DataRecord::Data lbd = event.recordCD().data();
-        lbd |= id->recordCD().data();
+        lbd |= id.recordCD().data();
         event.add(RecordCD(lbd));
         merged = true;
       }
     }
     if (!merged)
-      result.push_back(*id);
+      result.push_back(id);
   }
   return result;
 }
@@ -88,7 +87,7 @@ std::string EventRecords::print(const DataRecord::DataRecordType& type) const {
     str << theRecordCD.print();
   if (type == DataRecord::Empty)
     str << " EPMTY";
-  for (vector<DataRecord>::const_iterator ie = theErrors.begin(); ie < theErrors.end(); ++ie) {
+  for (auto ie = theErrors.begin(); ie < theErrors.end(); ++ie) {
     if (type == DataRecord::RDDM)
       str << ErrorRDDM(*ie).print();
     if (type == DataRecord::SDDM)

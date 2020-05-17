@@ -140,10 +140,10 @@ void HGCalBHValidation::analyze(const edm::Event& e, const edm::EventSetup&) {
     edm::LogVerbatim("HGCalValidation") << "HGCalBHValidation: PCaloHit buffer " << hitsHcal->size();
     unsigned i(0);
     std::map<unsigned int, double> map_try;
-    for (edm::PCaloHitContainer::const_iterator it = hitsHcal->begin(); it != hitsHcal->end(); ++it) {
-      double energy = it->energy();
-      double time = it->time();
-      unsigned int id = it->id();
+    for (const auto& it : *hitsHcal) {
+      double energy = it.energy();
+      double time = it.time();
+      unsigned int id = it.id();
       int subdet, z, depth, eta, phi, lay;
       bool hbhe, bh;
       if (geomType_ == 0) {
@@ -179,8 +179,8 @@ void HGCalBHValidation::analyze(const edm::Event& e, const edm::EventSetup&) {
             << depth << " Eta " << eta << " Phi " << phi << " layer " << lay << " E " << energy << " time " << time;
       }
     }
-    for (std::map<unsigned int, double>::iterator itr = map_try.begin(); itr != map_try.end(); ++itr) {
-      hsimE2_->Fill((*itr).second);
+    for (auto& itr : map_try) {
+      hsimE2_->Fill(itr.second);
     }
   }
 
@@ -217,8 +217,7 @@ void HGCalBHValidation::analyze(const edm::Event& e, const edm::EventSetup&) {
     if (hbhecoll.isValid()) {
       edm::LogVerbatim("HGCalValidation") << "HGCalBHValidation: HGCalDigi "
                                           << "buffer " << hbhecoll->size();
-      for (HGCalDigiCollection::const_iterator it = hbhecoll->begin(); it != hbhecoll->end(); ++it) {
-        HGCalDataFrame df(*it);
+      for (auto df : *hbhecoll) {
         double energy = df[iSample_].data();
         if (geomType_ == 0) {
           HcalDetId cell(df.id());

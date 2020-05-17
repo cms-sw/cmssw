@@ -417,7 +417,7 @@ void SiStripFEDMonitorPlugin::getMajority(const std::vector<std::pair<unsigned i
                                           unsigned int& aMajorityCounter,
                                           std::vector<unsigned int>& afedIds) {
   unsigned int lMajAddress = 0;
-  std::vector<std::pair<unsigned int, unsigned int> >::const_iterator lIter = aFeMajVec.begin();
+  auto lIter = aFeMajVec.begin();
   unsigned int lMajAddr = (*lIter).second;
   unsigned int lCounter = 0;
 
@@ -471,7 +471,7 @@ void SiStripFEDMonitorPlugin::getMajority(const std::vector<std::pair<unsigned i
   //std::cout << " -- Found " << lfedIds.size() << " elements not matching the majority." << std::endl;
   if (!afedIds.empty()) {
     std::sort(afedIds.begin(), afedIds.end());
-    std::vector<unsigned int>::iterator lIt = std::unique(afedIds.begin(), afedIds.end());
+    auto lIt = std::unique(afedIds.begin(), afedIds.end());
     afedIds.erase(lIt, afedIds.end());
   }
 }

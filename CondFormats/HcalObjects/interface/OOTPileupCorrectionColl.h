@@ -2,6 +2,7 @@
 #define CondFormats_HcalObjects_OOTPileupCorrectionColl_h
 
 #include <string>
+#include <utility>
 
 #include "boost/serialization/shared_ptr.hpp"
 #include "boost/serialization/map.hpp"
@@ -11,7 +12,7 @@
 class OOTPileupCorrectionColl {
 public:
   inline void add(const std::string& name, const std::string& category, std::shared_ptr<AbsOOTPileupCorrection> ptr) {
-    data_[category][name] = ptr;
+    data_[category][name] = std::move(ptr);
   }
 
   inline void clear() { data_.clear(); }

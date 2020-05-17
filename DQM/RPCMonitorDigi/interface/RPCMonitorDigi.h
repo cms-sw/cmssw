@@ -42,7 +42,7 @@ protected:
 private:
   bool useMuonDigis_;
 
-  void performSourceOperation(std::map<RPCDetId, std::vector<RPCRecHit> > &, std::string);
+  void performSourceOperation(std::map<RPCDetId, std::vector<RPCRecHit> > &, const std::string &);
   int stripsInRoll(const RPCDetId &id, const RPCGeometry *rpcGeo) const;
 
   static const std::array<std::string, 3> regionNames_;

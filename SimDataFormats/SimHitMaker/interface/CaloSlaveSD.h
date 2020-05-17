@@ -19,7 +19,7 @@ public:
   typedef Collection::iterator iterator;
   typedef Collection::const_iterator const_iterator;
 
-  CaloSlaveSD(std::string);
+  CaloSlaveSD(const std::string &);
   virtual ~CaloSlaveSD();
   virtual void Initialize();
   std::string name() const { return name_; }

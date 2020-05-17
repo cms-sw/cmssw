@@ -13,15 +13,15 @@
 
 class ConstMagneticField : public MagneticField {
 public:
-  virtual GlobalVector inTesla(const GlobalPoint&) const { return GlobalVector(0, 0, 4); }
+  GlobalVector inTesla(const GlobalPoint&) const override { return GlobalVector(0, 0, 4); }
 };
 
 namespace {
-  inline GlobalPoint mean(std::pair<GlobalPoint, GlobalPoint> pr) {
+  inline GlobalPoint mean(const std::pair<GlobalPoint, GlobalPoint>& pr) {
     return GlobalPoint(0.5 * (pr.first.basicVector() + pr.second.basicVector()));
   }
 
-  inline double dist(std::pair<GlobalPoint, GlobalPoint> pr) { return (pr.first - pr.second).mag(); }
+  inline double dist(const std::pair<GlobalPoint, GlobalPoint>& pr) { return (pr.first - pr.second).mag(); }
 }  // namespace
 
 void compute(GlobalTrajectoryParameters const& gtp1, GlobalTrajectoryParameters const& gtp2) {

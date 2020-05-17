@@ -36,20 +36,20 @@ public:
   /// extrapolation with default (=geometrical) propagator
   TrajectoryStateOnSurface extrapolate(const FreeTrajectoryState& fts, const GlobalPoint& vtx) const;
   /// as above, but from TrajectoryStateOnSurface
-  TrajectoryStateOnSurface extrapolate(const TrajectoryStateOnSurface tsos, const GlobalPoint& vtx) const;
+  TrajectoryStateOnSurface extrapolate(const TrajectoryStateOnSurface& tsos, const GlobalPoint& vtx) const;
 
   /// extrapolation with user-supplied propagator
   TrajectoryStateOnSurface extrapolate(const FreeTrajectoryState& fts,
                                        const GlobalPoint& vtx,
                                        const Propagator& u) const;
   /// as above, but from TrajectoryStateOnSurface
-  TrajectoryStateOnSurface extrapolate(const TrajectoryStateOnSurface tsos,
+  TrajectoryStateOnSurface extrapolate(const TrajectoryStateOnSurface& tsos,
                                        const GlobalPoint& vtx,
                                        const Propagator& u) const;
 
 private:
   /// extrapolation of (multi) TSOS with (internal or user-supplied) propagator
-  TrajectoryStateOnSurface doExtrapolation(const TrajectoryStateOnSurface tsos,
+  TrajectoryStateOnSurface doExtrapolation(const TrajectoryStateOnSurface& tsos,
                                            const GlobalPoint& vtx,
                                            const Propagator& u) const;
   /// extrapolation of (single) FTS with (internal or user-supplied) propagator

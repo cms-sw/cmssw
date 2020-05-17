@@ -51,7 +51,7 @@ void DTROMapValidateHandler::getNewObjects() {
   std::string dRobTag(dataVersion);
   dRosTag += "_ROS";
   dRobTag += "_ROB";
-  DTReadOutMapping* ro = new DTReadOutMapping(dRosTag, dRobTag);
+  auto* ro = new DTReadOutMapping(dRosTag, dRobTag);
 
   //  std::stringstream run_fn;
   //  run_fn << "run" << irun << dataFileName;

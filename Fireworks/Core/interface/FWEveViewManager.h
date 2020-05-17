@@ -19,6 +19,8 @@
 //
 
 // system include files
+#include <utility>
+
 #include <vector>
 #include <map>
 #include <set>
@@ -49,7 +51,7 @@ public:
 
     void classType(std::string&, bool&) const;
 
-    BuilderInfo(std::string name, int viewBit) : m_name(name), m_viewBit(viewBit) {}
+    BuilderInfo(std::string name, int viewBit) : m_name(std::move(name)), m_viewBit(viewBit) {}
   };
 
   FWEveViewManager(FWGUIManager*);
@@ -85,7 +87,7 @@ private:
   const FWEveViewManager& operator=(const FWEveViewManager&) = delete;  // stop default
 
   FWViewBase* buildView(TEveWindowSlot* iParent, const std::string& type);
-  FWEveView* finishViewCreate(std::shared_ptr<FWEveView>);
+  FWEveView* finishViewCreate(const std::shared_ptr<FWEveView>&);
 
   void beingDestroyed(const FWViewBase*);
   void modelChanges(const FWModelIds& iIds);

@@ -33,8 +33,8 @@ namespace edmtest {
     context.get<DTDeadFlagRcd>().get(dList);
     std::cout << dList->version() << std::endl;
     std::cout << std::distance(dList->begin(), dList->end()) << " data in the container" << std::endl;
-    DTDeadFlag::const_iterator iter = dList->begin();
-    DTDeadFlag::const_iterator iend = dList->end();
+    auto iter = dList->begin();
+    auto iend = dList->end();
     while (iter != iend) {
       const std::pair<DTDeadFlagId, DTDeadFlagData>& data = *iter++;
       const DTDeadFlagId& id = data.first;

@@ -307,20 +307,18 @@ void ConversionProducer::buildCollection(edm::Event& iEvent,
 
   //2 propagate all tracks into ECAL, record its eta and phi
 
-  for (std::multimap<float, edm::Ptr<reco::ConversionTrack> >::const_iterator tk_ref = allTracks.begin();
-       tk_ref != allTracks.end();
-       ++tk_ref) {
-    const reco::Track* tk = tk_ref->second->trackRef().get();
+  for (const auto& allTrack : allTracks) {
+    const reco::Track* tk = allTrack.second->trackRef().get();
 
     //check impact position then match with BC
     math::XYZPointF ew;
     if (getTrackImpactPosition(tk, trackerGeom, magField, ew)) {
-      trackImpactPosition[tk_ref->second] = ew;
+      trackImpactPosition[allTrack.second] = ew;
 
       reco::CaloClusterPtr closest_bc;  //the closest matching BC to track
 
       if (getMatchedBC(basicClusterPtrs, ew, closest_bc)) {
-        trackMatchedBC[tk_ref->second] = closest_bc;
+        trackMatchedBC[allTrack.second] = closest_bc;
       }
     }
   }
@@ -328,9 +326,7 @@ void ConversionProducer::buildCollection(edm::Event& iEvent,
   //3. pair up tracks:
   //TODO it is k-Closest pair of point problem
   //std::cout << " allTracks.size() " <<  allTracks.size() << std::endl;
-  for (std::multimap<float, edm::Ptr<reco::ConversionTrack> >::const_iterator ll = allTracks.begin();
-       ll != allTracks.end();
-       ++ll) {
+  for (auto ll = allTracks.begin(); ll != allTracks.end(); ++ll) {
     bool track1HighPurity = true;
     //std::cout << " Loop on allTracks " << std::endl;
     const edm::RefToBase<reco::Track>& left = ll->second->trackRef();
@@ -363,7 +359,7 @@ void ConversionProducer::buildCollection(edm::Event& iEvent,
 
     //inner loop only over tracks between eta and eta + deltaEta of the first track
     float etasearch = ll->first + deltaEta_;
-    std::multimap<float, edm::Ptr<reco::ConversionTrack> >::const_iterator rr = ll;
+    auto rr = ll;
     ++rr;
     for (; rr != allTracks.lower_bound(etasearch); ++rr) {
       bool track2HighPurity = true;
@@ -475,19 +471,15 @@ void ConversionProducer::buildCollection(edm::Event& iEvent,
         //const int lbc_handle = bcHandleId[ll-allTracks.begin()],
         //	      rbc_handle = bcHandleId[rr-allTracks.begin()];
 
-        std::map<edm::Ptr<reco::ConversionTrack>, math::XYZPointF>::const_iterator trackImpactPositionLeft =
-            trackImpactPosition.find(ll->second);
-        std::map<edm::Ptr<reco::ConversionTrack>, math::XYZPointF>::const_iterator trackImpactPositionRight =
-            trackImpactPosition.find(rr->second);
-        std::map<edm::Ptr<reco::ConversionTrack>, reco::CaloClusterPtr>::const_iterator trackMatchedBCLeft =
-            trackMatchedBC.find(ll->second);
-        std::map<edm::Ptr<reco::ConversionTrack>, reco::CaloClusterPtr>::const_iterator trackMatchedBCRight =
-            trackMatchedBC.find(rr->second);
+        auto trackImpactPositionLeft = trackImpactPosition.find(ll->second);
+        auto trackImpactPositionRight = trackImpactPosition.find(rr->second);
+        auto trackMatchedBCLeft = trackMatchedBC.find(ll->second);
+        auto trackMatchedBCRight = trackMatchedBC.find(rr->second);
 
         if (trackImpactPositionLeft != trackImpactPosition.end()) {
           trkPositionAtEcal.push_back(trackImpactPositionLeft->second);  //left track
         } else {
-          trkPositionAtEcal.push_back(math::XYZPointF());  //left track
+          trkPositionAtEcal.emplace_back();  //left track
         }
         if (trackImpactPositionRight != trackImpactPosition.end()) {  //second track ECAL position may be invalid
           trkPositionAtEcal.push_back(trackImpactPositionRight->second);
@@ -498,7 +490,7 @@ void ConversionProducer::buildCollection(edm::Event& iEvent,
           matchingBC.push_back(trackMatchedBCLeft->second);  //left track
           total_e_bc += trackMatchedBCLeft->second->energy();
         } else {
-          matchingBC.push_back(reco::CaloClusterPtr());  //left track
+          matchingBC.emplace_back();  //left track
         }
         if (trackMatchedBCRight != trackMatchedBC.end()) {  //second track ECAL position may be invalid
           matchingBC.push_back(trackMatchedBCRight->second);
@@ -644,9 +636,8 @@ bool ConversionProducer::matchingSC(const std::multimap<double, reco::CaloCluste
   double detaMin = 999.;
   double dphiMin = 999.;
   reco::CaloClusterPtr match;
-  for (std::multimap<double, reco::CaloClusterPtr>::const_iterator scItr = scMap.begin(); scItr != scMap.end();
-       scItr++) {
-    const reco::CaloClusterPtr& sc = scItr->second;
+  for (const auto& scItr : scMap) {
+    const reco::CaloClusterPtr& sc = scItr.second;
     const double delta_phi = reco::deltaPhi(aConv.refittedPairMomentum().phi(), sc->phi());
     double sceta = sc->eta();
     double conveta = etaTransformation(aConv.refittedPairMomentum().eta(), aConv.zOfPrimaryVertexFromTracks());
@@ -673,8 +664,7 @@ bool ConversionProducer::getMatchedBC(const std::multimap<double, reco::CaloClus
 
   double min_eta = 999., min_phi = 999.;
   reco::CaloClusterPtr closest_bc;
-  for (std::multimap<double, reco::CaloClusterPtr>::const_iterator bc = bcMap.lower_bound(track_eta - halfWayEta_);
-       bc != bcMap.upper_bound(track_eta + halfWayEta_);
+  for (auto bc = bcMap.lower_bound(track_eta - halfWayEta_); bc != bcMap.upper_bound(track_eta + halfWayEta_);
        ++bc) {  //use eta map to select possible BC collection then loop in
     const reco::CaloClusterPtr& ebc = bc->second;
     const double delta_eta = track_eta - (ebc->position().eta());

@@ -22,14 +22,14 @@ void APVShot::computeShot(const std::vector<SiStripDigi>& digis, const DetId& de
   _median = -1;
 
   std::vector<unsigned int> charge;
-  for (std::vector<SiStripDigi>::const_iterator digi = digis.begin(); digi != digis.end(); ++digi) {
-    if (!_zs || digi->adc() > 0) {
+  for (auto digi : digis) {
+    if (!_zs || digi.adc() > 0) {
       int oldapv = _apv;
-      _apv = digi->strip() / 128;
+      _apv = digi.strip() / 128;
       if (oldapv >= 0 && oldapv != _apv)
         throw cms::Exception("WrongDigiVector") << "Digis from Different APVs";
 
-      charge.push_back(digi->adc());
+      charge.push_back(digi.adc());
       ++_nstrips;
     }
   }

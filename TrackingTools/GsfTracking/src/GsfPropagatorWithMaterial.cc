@@ -113,7 +113,7 @@ std::pair<TrajectoryStateOnSurface, double> GsfPropagatorWithMaterial::convolute
 }
 
 TrajectoryStateOnSurface GsfPropagatorWithMaterial::convoluteStateWithMaterial(
-    const TrajectoryStateOnSurface tsos, const PropagationDirection propDir) const {
+    const TrajectoryStateOnSurface& tsos, const PropagationDirection propDir) const {
   //
   // convolute with material
   //

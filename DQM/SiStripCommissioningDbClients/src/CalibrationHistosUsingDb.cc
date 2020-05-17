@@ -29,9 +29,8 @@ CalibrationHistosUsingDb::CalibrationHistosUsingDb(const edm::ParameterSet& pset
 
   // Load and dump the current ISHA/VFS values. This is used by the standalone analysis script
   const SiStripConfigDb::DeviceDescriptionsRange& apvDescriptions = db->getDeviceDescriptions(APV25);
-  for (SiStripConfigDb::DeviceDescriptionsV::const_iterator apv = apvDescriptions.begin(); apv != apvDescriptions.end();
-       ++apv) {
-    apvDescription* desc = dynamic_cast<apvDescription*>(*apv);
+  for (auto apv : apvDescriptions) {
+    apvDescription* desc = dynamic_cast<apvDescription*>(apv);
     if (!desc) {
       continue;
     }
@@ -130,9 +129,9 @@ void CalibrationHistosUsingDb::update(SiStripConfigDb::DeviceDescriptionsRange& 
       SiStripFecKey fec_key(addr.fecCrate_, addr.fecSlot_, addr.fecRing_, addr.ccuAddr_, addr.ccuChan_, ichan + 1);
 
       // Iterate through all channels and extract LLD settings
-      Analyses::const_iterator iter = data(allowSelectiveUpload_).find(fec_key.key());
+      auto iter = data(allowSelectiveUpload_).find(fec_key.key());
       if (iter != data(allowSelectiveUpload_).end()) {
-        CalibrationScanAnalysis* anal = dynamic_cast<CalibrationScanAnalysis*>(iter->second);
+        auto* anal = dynamic_cast<CalibrationScanAnalysis*>(iter->second);
 
         if (!anal) {
           edm::LogError(mlDqmClient_) << "[CalibrationHistosUsingDb::" << __func__ << "]"
@@ -179,7 +178,7 @@ void CalibrationHistosUsingDb::create(SiStripConfigDb::AnalysisDescriptionsV& de
   if (task() == sistrip::CALIBRATION or
       task() == sistrip::CALIBRATION_DECO) {  // calibration run --> pulse shape measurement
 
-    CalibrationAnalysis* anal = dynamic_cast<CalibrationAnalysis*>(analysis->second);
+    auto* anal = dynamic_cast<CalibrationAnalysis*>(analysis->second);
     if (!anal) {
       return;
     }
@@ -218,8 +217,8 @@ void CalibrationHistosUsingDb::create(SiStripConfigDb::AnalysisDescriptionsV& de
       // Add comments
       typedef std::vector<std::string> Strings;
       Strings errors = anal->getErrorCodes();
-      Strings::const_iterator istr = errors.begin();
-      Strings::const_iterator jstr = errors.end();
+      auto istr = errors.begin();
+      auto jstr = errors.end();
       for (; istr != jstr; ++istr) {
         tmp->addComments(*istr);
       }
@@ -227,7 +226,7 @@ void CalibrationHistosUsingDb::create(SiStripConfigDb::AnalysisDescriptionsV& de
       desc.push_back(tmp);
     }
   } else if (task() == sistrip::CALIBRATION_SCAN or task() == sistrip::CALIBRATION_SCAN_DECO) {
-    CalibrationScanAnalysis* anal = dynamic_cast<CalibrationScanAnalysis*>(analysis->second);
+    auto* anal = dynamic_cast<CalibrationScanAnalysis*>(analysis->second);
     if (!anal) {
       return;
     }
@@ -266,8 +265,8 @@ void CalibrationHistosUsingDb::create(SiStripConfigDb::AnalysisDescriptionsV& de
       // Add comments
       typedef std::vector<std::string> Strings;
       Strings errors = anal->getErrorCodes();
-      Strings::const_iterator istr = errors.begin();
-      Strings::const_iterator jstr = errors.end();
+      auto istr = errors.begin();
+      auto jstr = errors.end();
       for (; istr != jstr; ++istr) {
         tmp->addComments(*istr);
       }

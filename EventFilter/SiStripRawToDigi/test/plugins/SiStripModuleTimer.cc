@@ -9,8 +9,8 @@ SiStripModuleTimer::SiStripModuleTimer(const ParameterSet& pset)
 
       moduleLabels_(pset.getUntrackedParameter<vector<string> >("ModuleLabels")),
       times_(moduleLabels_.size()),
-      file_(0),
-      tree_(0) {
+      file_(nullptr),
+      tree_(nullptr) {
   file_ = new TFile(pset.getUntrackedParameter<string>("FileName", "SiStripTiming.root").c_str(), "UPDATE");
   tree_ = new TTree(pset.getUntrackedParameter<string>("TreeName", "Tree").c_str(), "");
   for (unsigned short i = 0; i < moduleLabels_.size(); i++) {

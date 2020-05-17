@@ -112,7 +112,7 @@ void FedTimingHistograms::histoAnalysis(bool debug) {
        << " has minimum delay (rising edge) [ns]:" << time_min << endl;
 
   // Set maximum time for all analysis objects
-  std::map<uint32_t, FedTimingAnalysis>::iterator ianal = data_.begin();
+  auto ianal = data_.begin();
   for (; ianal != data_.end(); ianal++) {
     ianal->second.max(time_max);
     static uint16_t cntr = 0;

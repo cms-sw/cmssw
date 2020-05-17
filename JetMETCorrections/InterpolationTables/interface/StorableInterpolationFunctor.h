@@ -169,7 +169,7 @@ namespace npstat {
     bool isEqual(const StorableMultivariateFunctor& other) const override {
       // Note the use of static_cast rather than dynamic_cast below.
       // static_cast works faster and it is guaranteed to succeed here.
-      const StorableInterpolationFunctor& r = static_cast<const StorableInterpolationFunctor&>(other);
+      const auto& r = static_cast<const StorableInterpolationFunctor&>(other);
       return table_ == r.table_ && this->description() == other.description();
     }
 

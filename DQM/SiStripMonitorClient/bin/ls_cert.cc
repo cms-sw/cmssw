@@ -25,9 +25,9 @@ using namespace std;
 //global vars
 int numlumis = -1;
 
-int     nlumis     ( string filename ); //get number of run lumisections
-string  runnum_str ( string filename ); //read the run number, return in string
-void    ls_cert( float threshold_pixel , float threshold , string filename ) ;
+int nlumis(const string& filename);         //get number of run lumisections
+string runnum_str(const string& filename);  //read the run number, return in string
+void ls_cert(float threshold_pixel, float threshold, const string& filename);
 
 int main(int argc , char *argv[]) {
 
@@ -53,11 +53,23 @@ int main(int argc , char *argv[]) {
 
 }
 
-void    ls_cert( float threshold_pixel , float threshold , string filename ) 
-{
-  void ls_cert_type ( string iDir , float threshold , string filename , vector <string>& , vector<pair<string,vector<float> > >& , vector<pair<string,vector<float> > >& , vector<pair<string,vector<float> > >& );
-  void cert_plot    ( float threshold_pixel , float threshold , string filename , 
-		      vector <string>& , vector <string>& , vector <string>& , vector<pair<string,vector<float> > >& , vector<pair<string,vector<float> > >& , vector<pair<string,vector<float> > >& );
+void ls_cert(float threshold_pixel, float threshold, const string& filename) {
+  void ls_cert_type(const string& iDir,
+                    float threshold,
+                    const string& filename,
+                    vector<string>&,
+                    vector<pair<string, vector<float> > >&,
+                    vector<pair<string, vector<float> > >&,
+                    vector<pair<string, vector<float> > >&);
+  void cert_plot(float threshold_pixel,
+                 float threshold,
+                 const string& filename,
+                 vector<string>&,
+                 vector<string>&,
+                 vector<string>&,
+                 vector<pair<string, vector<float> > >&,
+                 vector<pair<string, vector<float> > >&,
+                 vector<pair<string, vector<float> > >&);
 
   //presets
   numlumis = -1;
@@ -149,8 +161,13 @@ void    ls_cert( float threshold_pixel , float threshold , string filename )
   cert_plot ( threshold_pixel , threshold , filename , cert_strip , cert_track , cert_pixel , gLS_strip , gLS_track , gLS_pixel );
 }
 
-void ls_cert_type(string iDir, float threshold, string filename, vector <string>& cert, vector<pair<string,vector<float> > >& gLS, vector<pair<string,vector<float> > >& bLS, vector<pair<string,vector<float> > >& mLS ) 
-{  
+void ls_cert_type(const string& iDir,
+                  float threshold,
+                  const string& filename,
+                  vector<string>& cert,
+                  vector<pair<string, vector<float> > >& gLS,
+                  vector<pair<string, vector<float> > >& bLS,
+                  vector<pair<string, vector<float> > >& mLS) {
   void Cleaning(vector<int> &);
   string ListOut(vector<int> &);
 
@@ -183,7 +200,7 @@ void ls_cert_type(string iDir, float threshold, string filename, vector <string>
       TDirectory *curr_dir = dynamic_cast<TDirectory*>(key->ReadObj());
       string name = curr_dir->GetName();
       if (name == "Run summary") continue;
-      name = name.substr(name.find("-")+1);
+      name = name.substr(name.find('-') + 1);
       float temp1 = atof(name.c_str()); 
       ls.push_back(temp1);
     }
@@ -240,9 +257,9 @@ void ls_cert_type(string iDir, float threshold, string filename, vector <string>
       if (classname=="TObjString" ){
 	string sflag = keyTemp->GetName();
 	string tempname = sflag.substr(sflag.find("f=")+2);
-	size_t pos1 = tempname.find("<");
-	size_t pos2 = sflag.find_first_of(">");
-	string detvalue = tempname.substr(0,pos1);
+        size_t pos1 = tempname.find('<');
+        size_t pos2 = sflag.find_first_of('>');
+        string detvalue = tempname.substr(0,pos1);
 	string typecert = sflag.substr(1,pos2-1);
 	if (debug) std::cout << typecert.c_str() << std::endl;
 	tempvalue = atof(detvalue.c_str());
@@ -309,16 +326,21 @@ void ls_cert_type(string iDir, float threshold, string filename, vector <string>
       string missingList = ListOut( missingLS );
 
       //save lumisections for this certification type
-      gLS.push_back ( make_pair ( goodList    , allLSthr ) );
-      bLS.push_back ( make_pair ( badList     , allLSthr ) );
-      mLS.push_back ( make_pair ( missingList , allLSthr ) );      
+      gLS.emplace_back(goodList, allLSthr);
+      bLS.emplace_back(badList, allLSthr);
+      mLS.emplace_back(missingList, allLSthr);
     }
 }
 
-void cert_plot( float threshold_pixel , float threshold , string filename , vector <string>& cert_strip , vector <string>& cert_track , 
-		vector <string>& cert_pixel , vector<pair<string,vector<float> > >& LS_strip , vector<pair<string,vector<float> > >& LS_track , 
-		vector<pair<string,vector<float> > >& LS_pixel )
-{
+void cert_plot(float threshold_pixel,
+               float threshold,
+               const string& filename,
+               vector<string>& cert_strip,
+               vector<string>& cert_track,
+               vector<string>& cert_pixel,
+               vector<pair<string, vector<float> > >& LS_strip,
+               vector<pair<string, vector<float> > >& LS_track,
+               vector<pair<string, vector<float> > >& LS_pixel) {
   int nLumiSections = nlumis( filename );
 
   char plottitles[200];
@@ -429,9 +451,7 @@ void cert_plot( float threshold_pixel , float threshold , string filename , vect
   delete cc;
 }
 
-
-int nlumis( string filename )
-{
+int nlumis(const string& filename) {
   if ( numlumis > -1 ) 
     return numlumis;
 
@@ -466,9 +486,9 @@ int nlumis( string filename )
 	    {
 	      string sflag = eiKey->GetName();
 	      string tempname = sflag.substr(sflag.find("i=")+2);
-	      size_t pos1 = tempname.find("<");
-	      size_t pos2 = sflag.find_first_of(">");
-	      string detvalue = tempname.substr(0,pos1);
+              size_t pos1 = tempname.find('<');
+              size_t pos2 = sflag.find_first_of('>');
+              string detvalue = tempname.substr(0,pos1);
 	      string numlumisec = sflag.substr(1,pos2-1);
 	      if ( numlumisec == (string)"iLumiSection" )
 		{
@@ -490,10 +510,7 @@ int nlumis( string filename )
   return numlumis;
 }
 
-string runnum_str( string filename )
-{
-  return filename.substr(filename.find("_R000")+5, 6);  
-}
+string runnum_str(const string& filename) { return filename.substr(filename.find("_R000") + 5, 6); }
 
 void Cleaning( vector<int> &LSlist)
 {

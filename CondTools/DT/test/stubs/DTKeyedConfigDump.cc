@@ -50,8 +50,8 @@ namespace edmtest {
     auto const& keyList = context.getData(keyListToken_);
     // loop over chambers
     DTCCBConfig::ccb_config_map configKeys(conf.configKeyMap());
-    DTCCBConfig::ccb_config_iterator iter = configKeys.begin();
-    DTCCBConfig::ccb_config_iterator iend = configKeys.end();
+    auto iter = configKeys.begin();
+    auto iend = configKeys.end();
     while (iter != iend) {
       // get chamber id
       const DTCCBId& ccbId = iter->first;
@@ -59,8 +59,8 @@ namespace edmtest {
       std::cout << std::endl;
       // get brick identifiers list
       const std::vector<int>& ccbConf = iter->second;
-      std::vector<int>::const_iterator cfgIter = ccbConf.begin();
-      std::vector<int>::const_iterator cfgIend = ccbConf.end();
+      auto cfgIter = ccbConf.begin();
+      auto cfgIend = ccbConf.end();
 
       // loop over configuration bricks
       while (cfgIter != cfgIend) {
@@ -70,15 +70,15 @@ namespace edmtest {
         std::cout << std::endl;
         if (!dumpAllData)
           continue;
-        const DTKeyedConfig* kBrick = 0;
+        const DTKeyedConfig* kBrick = nullptr;
         cfgCache.get(keyList, id, kBrick);
         allBricks[nBricks++] = kBrick;
-        if (kBrick == 0) {
+        if (kBrick == nullptr) {
           std::cout << "brick missing" << std::endl;
           continue;
         }
-        std::vector<std::string>::const_iterator s_iter = kBrick->dataBegin();
-        std::vector<std::string>::const_iterator s_iend = kBrick->dataEnd();
+        auto s_iter = kBrick->dataBegin();
+        auto s_iend = kBrick->dataEnd();
         while (s_iter != s_iend)
           std::cout << "        ----> " << *s_iter++ << std::endl;
       }

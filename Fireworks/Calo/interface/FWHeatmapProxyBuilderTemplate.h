@@ -107,24 +107,24 @@ protected:
       if (recHitHandleEE.isValid()) {
         const auto& rechitsEE = *recHitHandleEE;
 
-        for (unsigned int i = 0; i < rechitsEE.size(); ++i) {
-          hitmap[rechitsEE[i].detid().rawId()] = &rechitsEE[i];
+        for (const auto& i : rechitsEE) {
+          hitmap[i.detid().rawId()] = &i;
         }
       }
 
       if (recHitHandleFH.isValid()) {
         const auto& rechitsFH = *recHitHandleFH;
 
-        for (unsigned int i = 0; i < rechitsFH.size(); ++i) {
-          hitmap[rechitsFH[i].detid().rawId()] = &rechitsFH[i];
+        for (const auto& i : rechitsFH) {
+          hitmap[i.detid().rawId()] = &i;
         }
       }
 
       if (recHitHandleBH.isValid()) {
         const auto& rechitsBH = *recHitHandleBH;
 
-        for (unsigned int i = 0; i < rechitsBH.size(); ++i) {
-          hitmap[rechitsBH[i].detid().rawId()] = &rechitsBH[i];
+        for (const auto& i : rechitsBH) {
+          hitmap[i.detid().rawId()] = &i;
         }
       }
     }

@@ -39,42 +39,41 @@ std::vector<L1GtObject> chInputObjects(const std::vector<std::string>& chInputSt
 
   L1GtObject obj;
 
-  for (std::vector<std::string>::const_iterator itObj = chInputStrings.begin(); itObj != chInputStrings.end();
-       ++itObj) {
-    if ((*itObj) == "Mu") {
+  for (const auto& chInputString : chInputStrings) {
+    if (chInputString == "Mu") {
       obj = Mu;
-    } else if ((*itObj) == "NoIsoEG") {
+    } else if (chInputString == "NoIsoEG") {
       obj = NoIsoEG;
-    } else if ((*itObj) == "IsoEG") {
+    } else if (chInputString == "IsoEG") {
       obj = IsoEG;
-    } else if ((*itObj) == "CenJet") {
+    } else if (chInputString == "CenJet") {
       obj = CenJet;
-    } else if ((*itObj) == "ForJet") {
+    } else if (chInputString == "ForJet") {
       obj = ForJet;
-    } else if ((*itObj) == "TauJet") {
+    } else if (chInputString == "TauJet") {
       obj = TauJet;
-    } else if ((*itObj) == "ETM") {
+    } else if (chInputString == "ETM") {
       obj = ETM;
-    } else if ((*itObj) == "ETT") {
+    } else if (chInputString == "ETT") {
       obj = ETT;
-    } else if ((*itObj) == "HTT") {
+    } else if (chInputString == "HTT") {
       obj = HTT;
-    } else if ((*itObj) == "HTM") {
+    } else if (chInputString == "HTM") {
       obj = HTM;
-    } else if ((*itObj) == "JetCounts") {
+    } else if (chInputString == "JetCounts") {
       obj = JetCounts;
-    } else if ((*itObj) == "HfBitCounts") {
+    } else if (chInputString == "HfBitCounts") {
       obj = HfBitCounts;
-    } else if ((*itObj) == "HfRingEtSums") {
+    } else if (chInputString == "HfRingEtSums") {
       obj = HfRingEtSums;
-    } else if ((*itObj) == "TechTrig") {
+    } else if (chInputString == "TechTrig") {
       obj = TechTrig;
-    } else if ((*itObj) == "BPTX") {
+    } else if (chInputString == "BPTX") {
       obj = BPTX;
-    } else if ((*itObj) == "GtExternal") {
+    } else if (chInputString == "GtExternal") {
       obj = GtExternal;
     } else {
-      throw cms::Exception("Configuration") << "\nError: no such L1 GT object: " << (*itObj) << "\n"
+      throw cms::Exception("Configuration") << "\nError: no such L1 GT object: " << chInputString << "\n"
                                             << "\n       Can not define the mapping of the L1 GT boards.     \n"
                                             << std::endl;
     }
@@ -190,23 +189,23 @@ L1GtBoardMapsTrivialProducer::L1GtBoardMapsTrivialProducer(const edm::ParameterS
   // fill the maps
   int posVec = 0;
 
-  for (std::vector<std::string>::const_iterator it = boardList.begin(); it != boardList.end(); ++it) {
+  for (const auto& it : boardList) {
     L1GtBoardType boardType;
 
-    if ((*it) == "GTFE") {
+    if (it == "GTFE") {
       boardType = GTFE;
-    } else if ((*it) == "FDL") {
+    } else if (it == "FDL") {
       boardType = FDL;
-    } else if ((*it) == "PSB") {
+    } else if (it == "PSB") {
       boardType = PSB;
-    } else if ((*it) == "GMT") {
+    } else if (it == "GMT") {
       boardType = GMT;
-    } else if ((*it) == "TCS") {
+    } else if (it == "TCS") {
       boardType = TCS;
-    } else if ((*it) == "TIM") {
+    } else if (it == "TIM") {
       boardType = TIM;
     } else {
-      throw cms::Exception("Configuration") << "\nError: no such board: " << (*it).c_str() << "\n"
+      throw cms::Exception("Configuration") << "\nError: no such board: " << it.c_str() << "\n"
                                             << "\n       Can not define the mapping of the L1 GT boards.     \n"
                                             << std::endl;
     }
@@ -248,55 +247,55 @@ L1GtBoardMapsTrivialProducer::L1GtBoardMapsTrivialProducer(const edm::ParameterS
       int iPsb = 0;
       std::vector<L1GtPsbQuad> quadVec(L1GtBoard::NumberCablesBoard);
 
-      for (std::vector<std::string>::const_iterator cIt = cableList.begin(); cIt != cableList.end(); ++cIt) {
-        if (*cIt == "TechTr") {
+      for (const auto& cIt : cableList) {
+        if (cIt == "TechTr") {
           psbQuad = TechTr;
-        } else if (*cIt == "IsoEGQ") {
+        } else if (cIt == "IsoEGQ") {
           psbQuad = IsoEGQ;
-        } else if (*cIt == "NoIsoEGQ") {
+        } else if (cIt == "NoIsoEGQ") {
           psbQuad = NoIsoEGQ;
-        } else if (*cIt == "CenJetQ") {
+        } else if (cIt == "CenJetQ") {
           psbQuad = CenJetQ;
-        } else if (*cIt == "ForJetQ") {
+        } else if (cIt == "ForJetQ") {
           psbQuad = ForJetQ;
-        } else if (*cIt == "TauJetQ") {
+        } else if (cIt == "TauJetQ") {
           psbQuad = TauJetQ;
-        } else if (*cIt == "ESumsQ") {
+        } else if (cIt == "ESumsQ") {
           psbQuad = ESumsQ;
-        } else if (*cIt == "JetCountsQ") {
+        } else if (cIt == "JetCountsQ") {
           psbQuad = JetCountsQ;
-        } else if (*cIt == "MQB1") {
+        } else if (cIt == "MQB1") {
           psbQuad = MQB1;
-        } else if (*cIt == "MQB2") {
+        } else if (cIt == "MQB2") {
           psbQuad = MQB2;
-        } else if (*cIt == "MQF3") {
+        } else if (cIt == "MQF3") {
           psbQuad = MQF3;
-        } else if (*cIt == "MQF4") {
+        } else if (cIt == "MQF4") {
           psbQuad = MQF4;
-        } else if (*cIt == "MQB5") {
+        } else if (cIt == "MQB5") {
           psbQuad = MQB5;
-        } else if (*cIt == "MQB6") {
+        } else if (cIt == "MQB6") {
           psbQuad = MQB6;
-        } else if (*cIt == "MQF7") {
+        } else if (cIt == "MQF7") {
           psbQuad = MQF7;
-        } else if (*cIt == "MQF8") {
+        } else if (cIt == "MQF8") {
           psbQuad = MQF8;
-        } else if (*cIt == "MQB9") {
+        } else if (cIt == "MQB9") {
           psbQuad = MQB9;
-        } else if (*cIt == "MQB10") {
+        } else if (cIt == "MQB10") {
           psbQuad = MQB10;
-        } else if (*cIt == "MQF11") {
+        } else if (cIt == "MQF11") {
           psbQuad = MQF11;
-        } else if (*cIt == "MQF12") {
+        } else if (cIt == "MQF12") {
           psbQuad = MQF12;
-        } else if (*cIt == "Free") {
+        } else if (cIt == "Free") {
           psbQuad = Free;
-        } else if (*cIt == "HfQ") {
+        } else if (cIt == "HfQ") {
           psbQuad = HfQ;
         } else {
           // should not arrive here
           throw cms::Exception("Configuration")
-              << "\nError: no such quadruplet: " << (*cIt).c_str() << "\n"
+              << "\nError: no such quadruplet: " << cIt.c_str() << "\n"
               << "\n       Can not define the mapping of quadruplets to the L1 PSB boards.\n"
               << std::endl;
         }
@@ -327,55 +326,54 @@ L1GtBoardMapsTrivialProducer::L1GtBoardMapsTrivialProducer(const edm::ParameterS
 
       std::vector<L1GtObject> chObjects;
 
-      for (std::vector<edm::ParameterSet>::const_iterator itPSet = psbInput.begin(); itPSet != psbInput.end();
-           ++itPSet) {
+      for (const auto& itPSet : psbInput) {
         //
-        int slot = itPSet->getParameter<int>("Slot");
+        int slot = itPSet.getParameter<int>("Slot");
 
         if (slot == boardSlot) {
-          chStrings = itPSet->getParameter<std::vector<std::string> >("Ch0");
+          chStrings = itPSet.getParameter<std::vector<std::string> >("Ch0");
           chObjects = chInputObjects(chStrings);
           inputPsbChannels[0] = chObjects;
           chStrings.clear();
           chObjects.clear();
 
-          chStrings = itPSet->getParameter<std::vector<std::string> >("Ch1");
+          chStrings = itPSet.getParameter<std::vector<std::string> >("Ch1");
           chObjects = chInputObjects(chStrings);
           inputPsbChannels[1] = chObjects;
           chStrings.clear();
           chObjects.clear();
 
-          chStrings = itPSet->getParameter<std::vector<std::string> >("Ch2");
+          chStrings = itPSet.getParameter<std::vector<std::string> >("Ch2");
           chObjects = chInputObjects(chStrings);
           inputPsbChannels[2] = chObjects;
           chStrings.clear();
           chObjects.clear();
 
-          chStrings = itPSet->getParameter<std::vector<std::string> >("Ch3");
+          chStrings = itPSet.getParameter<std::vector<std::string> >("Ch3");
           chObjects = chInputObjects(chStrings);
           inputPsbChannels[3] = chObjects;
           chStrings.clear();
           chObjects.clear();
 
-          chStrings = itPSet->getParameter<std::vector<std::string> >("Ch4");
+          chStrings = itPSet.getParameter<std::vector<std::string> >("Ch4");
           chObjects = chInputObjects(chStrings);
           inputPsbChannels[4] = chObjects;
           chStrings.clear();
           chObjects.clear();
 
-          chStrings = itPSet->getParameter<std::vector<std::string> >("Ch5");
+          chStrings = itPSet.getParameter<std::vector<std::string> >("Ch5");
           chObjects = chInputObjects(chStrings);
           inputPsbChannels[5] = chObjects;
           chStrings.clear();
           chObjects.clear();
 
-          chStrings = itPSet->getParameter<std::vector<std::string> >("Ch6");
+          chStrings = itPSet.getParameter<std::vector<std::string> >("Ch6");
           chObjects = chInputObjects(chStrings);
           inputPsbChannels[6] = chObjects;
           chStrings.clear();
           chObjects.clear();
 
-          chStrings = itPSet->getParameter<std::vector<std::string> >("Ch7");
+          chStrings = itPSet.getParameter<std::vector<std::string> >("Ch7");
           chObjects = chInputObjects(chStrings);
           inputPsbChannels[7] = chObjects;
           chStrings.clear();

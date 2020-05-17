@@ -35,7 +35,7 @@ public:
 
   explicit HistogramManager(const edm::ParameterSet& iConfig, GeometryInterface& geo);
 
-  void addSpec(SummationSpecification spec);
+  void addSpec(const SummationSpecification& spec);
 
   // Event is only needed for time-based quantities; row, col only if strcture within module is interesting.
   void fill(DetId sourceModule, const edm::Event* sourceEvent = nullptr, int col = 0, int row = 0);

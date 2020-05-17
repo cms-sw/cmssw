@@ -165,9 +165,7 @@ namespace ecaldqm {
         continue;
 
       std::vector<DetId> ids(getTrigTowerMap()->constituentsOf(ttid));
-      for (unsigned iD(0); iD < ids.size(); ++iD) {
-        DetId& id(ids[iD]);
-
+      for (auto& id : ids) {
         int quality(meQualitySummary.getBinContent(id));
         if (quality == kMBad || quality == kBad)
           continue;

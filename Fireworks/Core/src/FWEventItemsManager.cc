@@ -143,41 +143,41 @@ static const std::string kTransparency("transparency");
 void FWEventItemsManager::addTo(FWConfiguration& iTo) const {
   FWColorManager* cm = m_context->colorManager();
   assert(nullptr != cm);
-  for (std::vector<FWEventItem*>::const_iterator it = m_items.begin(); it != m_items.end(); ++it) {
-    if (!*it)
+  for (auto m_item : m_items) {
+    if (!m_item)
       continue;
     FWConfiguration conf(6);
-    edm::TypeWithDict dataType((*((*it)->type()->GetTypeInfo())));
+    edm::TypeWithDict dataType((*(m_item->type()->GetTypeInfo())));
     assert(dataType != edm::TypeWithDict());
 
     conf.addKeyValue(kType, FWConfiguration(dataType.name()));
-    conf.addKeyValue(kModuleLabel, FWConfiguration((*it)->moduleLabel()));
-    conf.addKeyValue(kProductInstanceLabel, FWConfiguration((*it)->productInstanceLabel()));
-    conf.addKeyValue(kProcessName, FWConfiguration((*it)->processName()));
-    conf.addKeyValue(kFilterExpression, FWConfiguration((*it)->filterExpression()));
+    conf.addKeyValue(kModuleLabel, FWConfiguration(m_item->moduleLabel()));
+    conf.addKeyValue(kProductInstanceLabel, FWConfiguration(m_item->productInstanceLabel()));
+    conf.addKeyValue(kProcessName, FWConfiguration(m_item->processName()));
+    conf.addKeyValue(kFilterExpression, FWConfiguration(m_item->filterExpression()));
     {
       std::ostringstream os;
-      os << (*it)->defaultDisplayProperties().color();
+      os << m_item->defaultDisplayProperties().color();
       conf.addKeyValue(kColor, FWConfiguration(os.str()));
     }
-    conf.addKeyValue(kIsVisible, FWConfiguration((*it)->defaultDisplayProperties().isVisible() ? kTrue : kFalse));
+    conf.addKeyValue(kIsVisible, FWConfiguration(m_item->defaultDisplayProperties().isVisible() ? kTrue : kFalse));
     {
       std::ostringstream os;
-      os << (*it)->layer();
+      os << m_item->layer();
       conf.addKeyValue(kLayer, FWConfiguration(os.str()));
     }
-    conf.addKeyValue(kPurpose, (*it)->purpose());
+    conf.addKeyValue(kPurpose, m_item->purpose());
     {
       std::ostringstream os;
-      os << static_cast<int>((*it)->defaultDisplayProperties().transparency());
+      os << static_cast<int>(m_item->defaultDisplayProperties().transparency());
       conf.addKeyValue(kTransparency, FWConfiguration(os.str()));
     }
 
     FWConfiguration pbTmp;
-    (*it)->getConfig()->addTo(pbTmp);
+    m_item->getConfig()->addTo(pbTmp);
     conf.addKeyValue("PBConfig", pbTmp, true);
 
-    iTo.addKeyValue((*it)->name(), conf, true);
+    iTo.addKeyValue(m_item->name(), conf, true);
   }
 }
 
@@ -196,9 +196,9 @@ void FWEventItemsManager::setFrom(const FWConfiguration& iFrom) {
   std::vector<FWEventItem*> newItems;
   newItems.reserve(keyValues->size());
 
-  for (FWConfiguration::KeyValues::const_iterator it = keyValues->begin(); it != keyValues->end(); ++it) {
-    const std::string& name = it->first;
-    const FWConfiguration& conf = it->second;
+  for (const auto& keyValue : *keyValues) {
+    const std::string& name = keyValue.first;
+    const FWConfiguration& conf = keyValue.second;
     const FWConfiguration::KeyValues* keyValues = conf.keyValues();
     assert(nullptr != keyValues);
     const std::string& type = (*keyValues)[0].second.value();

@@ -18,7 +18,7 @@ public:
   virtual TrajectoryContainer trajectories(const Trajectory& traj) const {
     Trajectory&& nt = trajectory(traj);
     if (nt.isValid())
-      return TrajectoryContainer(1, std::move(nt));
+      return TrajectoryContainer(1, nt);
     return TrajectoryContainer();
   }
   virtual Trajectory trajectory(const Trajectory&) const = 0;

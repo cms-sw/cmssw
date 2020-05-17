@@ -65,20 +65,20 @@ MultiGaussianState1D MultiGaussianStateTransform::multiState1D(
   return MultiGaussianState1D(components);
 }
 
-MultiGaussianState<5> MultiGaussianStateTransform::multiState(const TrajectoryStateOnSurface tsos) {
+MultiGaussianState<5> MultiGaussianStateTransform::multiState(const TrajectoryStateOnSurface& tsos) {
   GetComponents comps(tsos);
   auto const& tsosComponents = comps();
   MultiGaussianState<5>::SingleStateContainer components;
   components.reserve(tsosComponents.size());
-  for (auto i = tsosComponents.begin(); i != tsosComponents.end(); ++i) {
-    MultiGaussianState<5>::SingleStatePtr sgs(
-        new MultiGaussianState<5>::SingleState(i->localParameters().vector(), i->localError().matrix(), i->weight()));
+  for (const auto& tsosComponent : tsosComponents) {
+    MultiGaussianState<5>::SingleStatePtr sgs(new MultiGaussianState<5>::SingleState(
+        tsosComponent.localParameters().vector(), tsosComponent.localError().matrix(), tsosComponent.weight()));
     components.push_back(sgs);
   }
   return MultiGaussianState<5>(components);
 }
 
-MultiGaussianState1D MultiGaussianStateTransform::multiState1D(const TrajectoryStateOnSurface tsos,
+MultiGaussianState1D MultiGaussianStateTransform::multiState1D(const TrajectoryStateOnSurface& tsos,
                                                                unsigned int index) {
   if (index >= N)
     throw cms::Exception("LogicError") << "MultiGaussianStateTransform: index out of range";
@@ -86,15 +86,16 @@ MultiGaussianState1D MultiGaussianStateTransform::multiState1D(const TrajectoryS
   auto const& tsosComponents = comps();
   MultiGaussianState1D::SingleState1dContainer components;
   components.reserve(tsosComponents.size());
-  for (auto i = tsosComponents.begin(); i != tsosComponents.end(); ++i) {
-    components.push_back(SingleGaussianState1D(
-        i->localParameters().vector()(index), i->localError().matrix()(index, index), i->weight()));
+  for (const auto& tsosComponent : tsosComponents) {
+    components.push_back(SingleGaussianState1D(tsosComponent.localParameters().vector()(index),
+                                               tsosComponent.localError().matrix()(index, index),
+                                               tsosComponent.weight()));
   }
   return MultiGaussianState1D(components);
 }
 
 TrajectoryStateOnSurface MultiGaussianStateTransform::tsosFromSingleState(const SingleGaussianState<5>& singleState,
-                                                                          const TrajectoryStateOnSurface refTsos) {
+                                                                          const TrajectoryStateOnSurface& refTsos) {
   const LocalTrajectoryParameters& refPars(refTsos.localParameters());
   double pzSign = refPars.pzSign();
   bool charged = refPars.charge() != 0;

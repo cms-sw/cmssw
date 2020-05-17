@@ -1,6 +1,8 @@
 // Implementation of class LXXXCorrectorImpl.
 // Generic LX jet corrector class.
 
+#include <utility>
+
 #include "JetMETCorrections/Algorithms/interface/LXXXCorrectorImpl.h"
 #include "CondFormats/JetMETObjects/interface/FactorizedJetCorrectorCalculator.h"
 
@@ -15,7 +17,7 @@
 
 using namespace std;
 
-LXXXCorrectorImplMaker::LXXXCorrectorImplMaker(edm::ParameterSet const& fConfig, edm::ConsumesCollector)
+LXXXCorrectorImplMaker::LXXXCorrectorImplMaker(edm::ParameterSet const& fConfig, const edm::ConsumesCollector&)
     : JetCorrectorImplMakerBase(fConfig) {}
 
 std::unique_ptr<reco::JetCorrectorImpl> LXXXCorrectorImplMaker::make(edm::Event const&, edm::EventSetup const& fSetup) {
@@ -51,7 +53,7 @@ void LXXXCorrectorImplMaker::fillDescriptions(edm::ConfigurationDescriptions& iD
 //------------------------------------------------------------------------
 LXXXCorrectorImpl::LXXXCorrectorImpl(std::shared_ptr<FactorizedJetCorrectorCalculator const> calculator,
                                      unsigned int level)
-    : mLevel(level), mCorrector(calculator) {}
+    : mLevel(level), mCorrector(std::move(calculator)) {}
 //------------------------------------------------------------------------
 //--- Returns correction for a given 4-vector ----------------------------
 //------------------------------------------------------------------------

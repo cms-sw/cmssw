@@ -26,12 +26,12 @@ namespace {
     void const* addr() const { return this; }
   };
   struct DummyDer1 : public DummyBase {
-    virtual int id() const { return 1; }
-    virtual DummyDer1* clone() const { return new DummyDer1(*this); }
+    int id() const override { return 1; }
+    DummyDer1* clone() const override { return new DummyDer1(*this); }
   };
   struct DummyDer2 : public DummyBase {
-    virtual int id() const { return 2; }
-    virtual DummyDer2* clone() const { return new DummyDer2(*this); }
+    int id() const override { return 2; }
+    DummyDer2* clone() const override { return new DummyDer2(*this); }
   };
 }  // namespace
 
@@ -66,8 +66,8 @@ class testMultiAssociation : public CppUnit::TestFixture {
    */
 public:
   testMultiAssociation();
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
   void checkAll();
   void checkVals();
   void checkTwoFillers();
@@ -116,11 +116,11 @@ public:
   template <typename Key, typename UnaryFunc, typename BinaryFunc>
   void fastFillRefs(edm::TestHandle<Key> const& handle, MultiRef& map, UnaryFunc const& u, BinaryFunc const& f) {
     MultiRef::FastFiller filler = map.fastFiller(handle);
-    for (typename Key::const_iterator it = handle->begin(), ed = handle->end(); it != ed; ++it) {
+    for (auto it = handle->begin(), ed = handle->end(); it != ed; ++it) {
       if (!u(*it))
         continue;
       RefVector<CVal> vals;
-      for (std::vector<double>::const_iterator it2 = k.begin(), ed2 = k.end(); it2 != ed2; ++it2) {
+      for (auto it2 = k.begin(), ed2 = k.end(); it2 != ed2; ++it2) {
         if (f(*it, *it2)) {
           vals.push_back(Ref<CVal>(handleV, it2 - k.begin()));
         }
@@ -133,11 +133,11 @@ public:
   void lazyFillRefs(
       edm::TestHandle<Key> const& handle, MultiRef& map, UnaryFunc const& u, BinaryFunc const& f, bool swap) {
     MultiRef::LazyFiller filler = map.lazyFiller(handle, true);
-    for (typename Key::const_iterator it = handle->begin(), ed = handle->end(); it != ed; ++it) {
+    for (auto it = handle->begin(), ed = handle->end(); it != ed; ++it) {
       if (!u(*it))
         continue;
       RefVector<CVal> vals;
-      for (std::vector<double>::const_iterator it2 = k.begin(), ed2 = k.end(); it2 != ed2; ++it2) {
+      for (auto it2 = k.begin(), ed2 = k.end(); it2 != ed2; ++it2) {
         if (f(*it, *it2)) {
           vals.push_back(Ref<CVal>(handleV, it2 - k.begin()));
         }
@@ -153,13 +153,13 @@ public:
   template <typename Key, typename UnaryFunc, typename BinaryFunc>
   void fastFillVals(edm::TestHandle<Key> const& handle, MultiVal& map, UnaryFunc const& u, BinaryFunc const& f) {
     MultiVal::FastFiller filler = map.fastFiller(handle);
-    for (typename Key::const_iterator it = handle->begin(), ed = handle->end(); it != ed; ++it) {
+    for (auto it = handle->begin(), ed = handle->end(); it != ed; ++it) {
       if (!u(*it))
         continue;
       CVal vals;
-      for (std::vector<double>::const_iterator it2 = k.begin(), ed2 = k.end(); it2 != ed2; ++it2) {
-        if (f(*it, *it2)) {
-          vals.push_back(*it2);
+      for (double it2 : k) {
+        if (f(*it, it2)) {
+          vals.push_back(it2);
         }
       }
       filler.setValues(Ref<Key>(handle, it - handle->begin()), vals);
@@ -170,13 +170,13 @@ public:
   void lazyFillVals(
       edm::TestHandle<Key> const& handle, MultiVal& map, UnaryFunc const& u, BinaryFunc const& f, bool swap) {
     MultiVal::LazyFiller filler = map.lazyFiller(handle, true);
-    for (typename Key::const_iterator it = handle->begin(), ed = handle->end(); it != ed; ++it) {
+    for (auto it = handle->begin(), ed = handle->end(); it != ed; ++it) {
       if (!u(*it))
         continue;
       CVal vals;
-      for (std::vector<double>::const_iterator it2 = k.begin(), ed2 = k.end(); it2 != ed2; ++it2) {
-        if (f(*it, *it2)) {
-          vals.push_back(*it2);
+      for (double it2 : k) {
+        if (f(*it, it2)) {
+          vals.push_back(it2);
         }
       }
       if (swap) {
@@ -469,7 +469,7 @@ void testMultiAssociation::test(MultiRef const& assoc) {
   r2 = assoc.getValues(edm::Ref<CKey1>(handleK1, 1));
   r3 = assoc.getValues(edm::Ref<CKey1>(handleK1, 2));
   r4 = assoc.getValues(edm::Ref<CKey1>(handleK1, 3));
-  CPPUNIT_ASSERT(r1.size() == 0);
+  CPPUNIT_ASSERT(r1.empty());
   CPPUNIT_ASSERT(r2.size() == 1);
   CPPUNIT_ASSERT(r3.size() == 2);
   CPPUNIT_ASSERT(r4.size() == 3);
@@ -640,11 +640,11 @@ bool testMultiAssociation::tryBadFill(int i) {
     } break;
     case 11: {  // Can copy a LazyFiller, but crash if I fill twice
       MultiRef::LazyFiller filler = m.lazyFiller(handleK1, true);
-      MultiRef::LazyFiller filler2 = filler;
+      const MultiRef::LazyFiller& filler2 = filler;
     } break;
     case 12: {  // Can copy a FastFiller
       MultiRef::FastFiller filler = m.fastFiller(handleK1);
-      MultiRef::FastFiller filler2 = filler;
+      const MultiRef::FastFiller& filler2 = filler;
     } break;
     default:
       if (i % 2 == 1)

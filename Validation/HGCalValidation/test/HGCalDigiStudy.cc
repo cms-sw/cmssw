@@ -361,7 +361,7 @@ void HGCalDigiStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
           h_C1_->Fill(id.cellU());
           h_C2_->Fill(id.cellV());
         } else {
-          HGCScintillatorDetId id = HGCScintillatorDetId(detId);
+          auto id = HGCScintillatorDetId(detId);
           h_Ly_->Fill(id.layer());
           h_W1_->Fill(id.ieta());
           h_C1_->Fill(id.iphi());

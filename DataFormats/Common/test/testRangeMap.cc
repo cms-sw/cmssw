@@ -8,8 +8,8 @@ class testRangeMap : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
   void checkAll();
 };
 
@@ -52,7 +52,7 @@ void testRangeMap::checkAll() {
 
   m.post_insert();
 
-  map::const_iterator i = m.begin();
+  auto i = m.begin();
   CPPUNIT_ASSERT(*i++ == 8);
   CPPUNIT_ASSERT(*i++ == 9);
   CPPUNIT_ASSERT(*i++ == 5);

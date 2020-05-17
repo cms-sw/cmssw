@@ -74,7 +74,7 @@ void SeedGeneratorFromRegionHitsEDProducer::produce(edm::Event& ev, const edm::E
   typedef Regions::const_iterator IR;
   Regions regions = theRegionProducer->regions(ev, es);
 
-  for (IR ir = regions.begin(), irEnd = regions.end(); ir < irEnd; ++ir) {
+  for (auto ir = regions.begin(), irEnd = regions.end(); ir < irEnd; ++ir) {
     const TrackingRegion& region = **ir;
 
     // make job

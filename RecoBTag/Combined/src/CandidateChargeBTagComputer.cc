@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "RecoBTag/Combined/interface/CandidateChargeBTagComputer.h"
 
 CandidateChargeBTagComputer::Tokens::Tokens(const edm::ParameterSet& parameters, edm::ESConsumesCollector&& cc) {
@@ -11,13 +13,13 @@ CandidateChargeBTagComputer::CandidateChargeBTagComputer(const edm::ParameterSet
       useAdaBoost_(parameters.getParameter<bool>("useAdaBoost")),
       jetChargeExp_(parameters.getParameter<double>("jetChargeExp")),
       svChargeExp_(parameters.getParameter<double>("svChargeExp")),
-      tokens_{std::move(tokens)} {
+      tokens_{tokens} {
   uses(0, "pfImpactParameterTagInfos");
   uses(1, "pfInclusiveSecondaryVertexFinderCvsLTagInfos");
   uses(2, "softPFMuonsTagInfos");
   uses(3, "softPFElectronsTagInfos");
 
-  mvaID.reset(new TMVAEvaluator());
+  mvaID = std::make_unique<TMVAEvaluator>();
 }
 
 CandidateChargeBTagComputer::~CandidateChargeBTagComputer() {}
@@ -50,10 +52,10 @@ void CandidateChargeBTagComputer::initialize(const JetTagComputerRecord& record)
 
 float CandidateChargeBTagComputer::discriminator(const TagInfoHelper& tagInfo) const {
   // get TagInfos
-  const reco::CandIPTagInfo& ip_info = tagInfo.get<reco::CandIPTagInfo>(0);
-  const reco::CandSecondaryVertexTagInfo& sv_info = tagInfo.get<reco::CandSecondaryVertexTagInfo>(1);
-  const reco::CandSoftLeptonTagInfo& sm_info = tagInfo.get<reco::CandSoftLeptonTagInfo>(2);
-  const reco::CandSoftLeptonTagInfo& se_info = tagInfo.get<reco::CandSoftLeptonTagInfo>(3);
+  const auto& ip_info = tagInfo.get<reco::CandIPTagInfo>(0);
+  const auto& sv_info = tagInfo.get<reco::CandSecondaryVertexTagInfo>(1);
+  const auto& sm_info = tagInfo.get<reco::CandSoftLeptonTagInfo>(2);
+  const auto& se_info = tagInfo.get<reco::CandSoftLeptonTagInfo>(3);
 
   size_t n_ip_info = ip_info.jet()->getJetConstituents().size();
   size_t n_sv_info = sv_info.nVertices();

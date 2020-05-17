@@ -11,6 +11,8 @@
 #include "DQMStreamerReader.h"
 
 #include <fstream>
+#include <memory>
+
 #include <queue>
 #include <cstdlib>
 #include <boost/regex.hpp>
@@ -96,7 +98,7 @@ namespace dqmservices {
     std::string path = entry.get_data_path();
 
     file_.lumi_ = entry;
-    file_.streamFile_.reset(new edm::StreamerInputFile(path));
+    file_.streamFile_ = std::make_unique<edm::StreamerInputFile>(path);
 
     InitMsgView const* header = getHeaderMsg();
     if (isFirstFile_) {
@@ -342,8 +344,7 @@ namespace dqmservices {
  */
   bool DQMStreamerReader::triggerSel() {
     acceptAllEvt_ = false;
-    for (Strings::const_iterator i(hltSel_.begin()), end(hltSel_.end()); i != end; ++i) {
-      std::string hltPath(*i);
+    for (auto hltPath : hltSel_) {
       boost::erase_all(hltPath, " \t");
       if (hltPath == "*")
         acceptAllEvt_ = true;
@@ -356,8 +357,7 @@ namespace dqmservices {
  */
   bool DQMStreamerReader::matchTriggerSel(Strings const& tnames) {
     matchTriggerSel_ = false;
-    for (Strings::const_iterator i(hltSel_.begin()), end(hltSel_.end()); i != end; ++i) {
-      std::string hltPath(*i);
+    for (auto hltPath : hltSel_) {
       boost::erase_all(hltPath, " \t");
       std::vector<Strings::const_iterator> matches = edm::regexMatch(tnames, hltPath);
       if (!matches.empty()) {

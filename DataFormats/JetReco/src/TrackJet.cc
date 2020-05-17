@@ -20,7 +20,7 @@ edm::Ptr<reco::Track> reco::TrackJet::track(size_t i) const {
   // check the daughter to be ok
   if (dau.isNonnull() && dau.isAvailable()) {
     // convert to concrete candidate type
-    const RecoChargedRefCandidate* trkCand = dynamic_cast<const RecoChargedRefCandidate*>(dau.get());
+    const auto* trkCand = dynamic_cast<const RecoChargedRefCandidate*>(dau.get());
     // check the candidate is of the right type
     if (trkCand) {
       // check the track link in the recochargedcandidate to be there

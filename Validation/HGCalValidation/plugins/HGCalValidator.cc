@@ -108,9 +108,8 @@ void HGCalValidator::bookHistograms(DQMStore::IBooker& ibook,
   }
 
   //Booking histograms for multiclusters
-  for (unsigned int www = 0; www < label_mcl.size(); www++) {
+  for (auto algo : label_mcl) {
     ibook.cd();
-    InputTag algo = label_mcl[www];
     string dirName = dirName_;
     if (!algo.process().empty())
       dirName += algo.process() + "_";
@@ -246,8 +245,8 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
                                                     totallayers_to_monitor_,
                                                     thicknesses_to_monitor_);
 
-    for (unsigned int layerclusterIndex = 0; layerclusterIndex < clusters.size(); layerclusterIndex++) {
-      histoProducerAlgo_->fill_cluster_histos(histograms.histoProducerAlgo, w, clusters[layerclusterIndex]);
+    for (const auto& cluster : clusters) {
+      histoProducerAlgo_->fill_cluster_histos(histograms.histoProducerAlgo, w, cluster);
     }
 
     //General Info on hgcalLayerClusters

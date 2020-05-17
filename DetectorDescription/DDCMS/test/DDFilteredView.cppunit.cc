@@ -102,7 +102,7 @@ void testDDFilteredView::checkFilteredView() {
 
   std::cout << "Get LongFL from hf as double values:\n";
   count = 0;
-  std::vector<double> LongFL = fview.get<std::vector<double>>("hf", "LongFL");
+  auto LongFL = fview.get<std::vector<double>>("hf", "LongFL");
   for (auto const& i : LongFL) {
     std::cout << "LongFL " << i << " == " << refdLongFL_[count] << "\n";
     CPPUNIT_ASSERT(abs(i - refdLongFL_[count]) < 10e-2);
@@ -111,7 +111,7 @@ void testDDFilteredView::checkFilteredView() {
 
   std::cout << "Get LongFL from hf as string values:\n";
   count = 0;
-  std::vector<std::string> sLongFL = fview.get<std::vector<std::string>>("hf", "LongFL");
+  auto sLongFL = fview.get<std::vector<std::string>>("hf", "LongFL");
   for (auto const& i : sLongFL) {
     std::cout << "LongFL " << i << " == " << refsLongFL_[count] << "\n";
     CPPUNIT_ASSERT(i.compare(refsLongFL_[count]) == 0);
@@ -119,7 +119,7 @@ void testDDFilteredView::checkFilteredView() {
   }
 
   cout << "Get CSC upar parameters for ChamberSpecs_ME11 as a vector of strings:\n";
-  std::vector<std::string> cscsPars = fview.get<std::vector<std::string>>("ChamberSpecs_ME11", "upar");
+  auto cscsPars = fview.get<std::vector<std::string>>("ChamberSpecs_ME11", "upar");
   for (auto const& i : cscsPars) {
     std::cout << i << ", ";
     count++;

@@ -15,9 +15,9 @@ class Pedestals;
 class IOVPayloadEndOfJob : public edm::EDAnalyzer {
 public:
   explicit IOVPayloadEndOfJob(const edm::ParameterSet& iConfig);
-  virtual ~IOVPayloadEndOfJob();
-  virtual void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup);
-  virtual void endJob();
+  ~IOVPayloadEndOfJob() override;
+  void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) override;
+  void endJob() override;
 
 private:
   std::string m_record;

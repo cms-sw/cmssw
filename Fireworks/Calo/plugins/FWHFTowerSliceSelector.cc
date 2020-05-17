@@ -39,7 +39,7 @@ void FWHFTowerSliceSelector::doSelect(const TEveCaloData::CellId_t& iCell) {
 
   int index = 0;
   FWChangeSentry sentry(*(m_item->changeManager()));
-  for (HFRecHitCollection::const_iterator it = hits->begin(); it != hits->end(); ++it, ++index) {
+  for (auto it = hits->begin(); it != hits->end(); ++it, ++index) {
     HcalDetId id((*it).detid().rawId());
     if (findBinFromId(id, iCell.fTower) && m_item->modelInfo(index).m_displayProperties.isVisible() &&
         !m_item->modelInfo(index).isSelected()) {
@@ -59,7 +59,7 @@ void FWHFTowerSliceSelector::doUnselect(const TEveCaloData::CellId_t& iCell) {
 
   int index = 0;
   FWChangeSentry sentry(*(m_item->changeManager()));
-  for (HFRecHitCollection::const_iterator it = hits->begin(); it != hits->end(); ++it, ++index) {
+  for (auto it = hits->begin(); it != hits->end(); ++it, ++index) {
     HcalDetId id((*it).detid().rawId());
     if (findBinFromId(id, iCell.fTower) && m_item->modelInfo(index).m_displayProperties.isVisible() &&
         m_item->modelInfo(index).isSelected()) {

@@ -29,9 +29,9 @@ void PatMuonAnalyzer::analyze(const edm::EventBase& event) {
   event.getByLabel(muons_, muons);
 
   // loop muon collection and fill histograms
-  for (std::vector<Muon>::const_iterator mu1 = muons->begin(); mu1 != muons->end(); ++mu1) {
-    hists_["muonPt"]->Fill(mu1->pt());
-    hists_["muonEta"]->Fill(mu1->eta());
-    hists_["muonPhi"]->Fill(mu1->phi());
+  for (const auto& mu1 : *muons) {
+    hists_["muonPt"]->Fill(mu1.pt());
+    hists_["muonEta"]->Fill(mu1.eta());
+    hists_["muonPhi"]->Fill(mu1.phi());
   }
 }

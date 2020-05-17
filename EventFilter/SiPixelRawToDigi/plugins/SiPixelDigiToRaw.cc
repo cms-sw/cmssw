@@ -157,7 +157,7 @@ void SiPixelDigiToRaw::produce(edm::StreamID, edm::Event& ev, const edm::EventSe
   for (auto const* fed : cache->cablingTree_->fedList()) {
     LogDebug("SiPixelDigiToRaw") << " PRODUCE DATA FOR FED_id: " << fed->id();
     FEDRawData& fedRawData = buffers.FEDData(fed->id());
-    PixelDataFormatter::RawData::iterator fedbuffer = rawdata.find(fed->id());
+    auto fedbuffer = rawdata.find(fed->id());
     if (fedbuffer != rawdata.end())
       fedRawData = fedbuffer->second;
     LogDebug("SiPixelDigiToRaw") << "size of data in fedRawData: " << fedRawData.size();

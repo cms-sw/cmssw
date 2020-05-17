@@ -32,8 +32,8 @@ void TTStubAlgorithm_official<Ref_Phase2TrackerDigi_>::PatternHitCorrelation(
   const GeomDetUnit* det1 = theTrackerGeom_->idToDetUnit(stDetId + 2);
 
   /// Find pixel pitch and topology related information
-  const PixelGeomDetUnit* pix0 = dynamic_cast<const PixelGeomDetUnit*>(det0);
-  const PixelGeomDetUnit* pix1 = dynamic_cast<const PixelGeomDetUnit*>(det1);
+  const auto* pix0 = dynamic_cast<const PixelGeomDetUnit*>(det0);
+  const auto* pix1 = dynamic_cast<const PixelGeomDetUnit*>(det1);
   const PixelTopology* top0 = dynamic_cast<const PixelTopology*>(&(pix0->specificTopology()));
   const PixelTopology* top1 = dynamic_cast<const PixelTopology*>(&(pix1->specificTopology()));
   std::pair<float, float> pitch0 = top0->pitch();

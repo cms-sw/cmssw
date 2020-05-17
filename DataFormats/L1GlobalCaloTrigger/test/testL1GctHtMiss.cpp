@@ -20,12 +20,12 @@ public:
         bxInput(0),
         etInput(0),
         phiInput(0),
-        overflowInput(0),
+        overflowInput(false),
         rawOutput(0),
         bxOutput(0),
         etOutput(0),
         phiOutput(0),
-        overflowOutput(0) {}
+        overflowOutput(false) {}
 
   uint32_t rawInput;
   int16_t bxInput;

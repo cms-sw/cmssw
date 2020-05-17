@@ -10,7 +10,7 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 //
 void FastFedCablingSummaryFactory::extract(Iterator iter) {
-  FastFedCablingAnalysis* anal = dynamic_cast<FastFedCablingAnalysis*>(iter->second);
+  auto* anal = dynamic_cast<FastFedCablingAnalysis*>(iter->second);
   if (!anal) {
     return;
   }

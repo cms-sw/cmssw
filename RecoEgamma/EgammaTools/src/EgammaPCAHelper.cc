@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <memory>
 
 using namespace hgcal;
 
@@ -63,8 +64,8 @@ void EGammaPCAHelper::fillHitMap(const HGCRecHitCollection& rechitsEE,
 void EGammaPCAHelper::storeRecHits(const reco::HGCalMultiCluster& cluster) {
   theCluster_ = &cluster;
   std::vector<std::pair<DetId, float>> result;
-  for (reco::HGCalMultiCluster::component_iterator it = cluster.begin(); it != cluster.end(); it++) {
-    const std::vector<std::pair<DetId, float>>& hf = (*it)->hitsAndFractions();
+  for (auto&& it : cluster) {
+    const std::vector<std::pair<DetId, float>>& hf = (it)->hitsAndFractions();
     result.insert(result.end(), hf.begin(), hf.end());
   }
   storeRecHits(result);
@@ -97,7 +98,7 @@ void EGammaPCAHelper::storeRecHits(const std::vector<std::pair<DetId, float>>& h
     unsigned int layer = recHitTools_->getLayerWithOffset(hf[j].first);
 
     const DetId rh_detid = hf[j].first;
-    std::map<DetId, const HGCRecHit*>::const_iterator itcheck = hitMap_->find(rh_detid);
+    auto itcheck = hitMap_->find(rh_detid);
     if (itcheck == hitMap_->end()) {
       edm::LogWarning("EgammaPCAHelper") << " Big problem, unable to find a hit " << rh_detid.rawId() << " "
                                          << rh_detid.det() << " " << HGCalDetId(rh_detid) << std::endl;
@@ -131,7 +132,7 @@ void EGammaPCAHelper::storeRecHits(const std::vector<std::pair<DetId, float>>& h
 
 void EGammaPCAHelper::computePCA(float radius, bool withHalo) {
   // very important - to reset
-  pca_.reset(new TPrincipal(3, "D"));
+  pca_ = std::make_unique<TPrincipal>(3, "D");
   bool initialCalculation = radius < 0;
   if (debug_)
     std::cout << " Initial calculation " << initialCalculation << std::endl;

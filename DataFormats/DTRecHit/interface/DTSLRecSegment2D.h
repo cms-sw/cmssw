@@ -18,10 +18,10 @@ public:
   DTSLRecSegment2D(){};
 
   /// c'tor from hits
-  DTSLRecSegment2D(const DTSuperLayerId id, const std::vector<DTRecHit1D> &hits);
+  DTSLRecSegment2D(const DTSuperLayerId &id, const std::vector<DTRecHit1D> &hits);
 
   /// complete constructor
-  DTSLRecSegment2D(const DTSuperLayerId id,
+  DTSLRecSegment2D(const DTSuperLayerId &id,
                    LocalPoint &position,
                    LocalVector &direction,
                    AlgebraicSymMatrix &covMatrix,

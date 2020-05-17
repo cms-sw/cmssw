@@ -179,7 +179,7 @@ void FWPFCandidateDetailView::build(const FWModelId& id, const reco::PFCandidate
   makeLegend();
   setTextInfo(id, candidate);
 
-  TGCompositeFrame* p = (TGCompositeFrame*)m_guiFrame->GetParent();
+  auto* p = (TGCompositeFrame*)m_guiFrame->GetParent();
   p->MapSubwindows();
   p->Layout();
 
@@ -236,9 +236,9 @@ void FWPFCandidateDetailView::voteMaxEtEVal(const std::vector<reco::PFRecHit>* h
 
   // FIXME: require access to geometry while reading from reco file
   if ((!hits->empty()) && hits->front().hasCaloCell())
-    for (std::vector<reco::PFRecHit>::const_iterator it = hits->begin(); it != hits->end(); ++it) {
-      TEveVector centre(it->position().x(), it->position().y(), it->position().z());
-      float E = it->energy();
+    for (const auto& hit : *hits) {
+      TEveVector centre(hit.position().x(), hit.position().y(), hit.position().z());
+      float E = hit.energy();
       float Et = FWPFMaths::calculateEt(centre, E);
       item()->context().voteMaxEtAndEnergy(Et, E);
     }
@@ -247,7 +247,7 @@ void FWPFCandidateDetailView::voteMaxEtEVal(const std::vector<reco::PFRecHit>* h
 //______________________________________________________________________________
 
 void FWPFCandidateDetailView::addTracks(const std::vector<reco::PFRecTrack>* tracks) {
-  for (std::vector<reco::PFRecTrack>::const_iterator it = tracks->begin(); it != tracks->end(); ++it) {
+  for (auto it = tracks->begin(); it != tracks->end(); ++it) {
     /// AMT trackRef() is a collection !!!
     /*
       if (!isPntInRng(it->trackRef().innerMomentum().Eta(), it->position().Phi()))
@@ -276,7 +276,7 @@ void FWPFCandidateDetailView::addClusters(const std::vector<reco::PFCluster>* cl
 
   Color_t col = kViolet + 9;
 
-  TEveStraightLineSet* ls = new TEveStraightLineSet("cluster_ls");
+  auto* ls = new TEveStraightLineSet("cluster_ls");
   ls->SetMainColor(col);
   m_eventList->AddElement(ls);
 
@@ -286,11 +286,11 @@ void FWPFCandidateDetailView::addClusters(const std::vector<reco::PFCluster>* cl
   ps->SetMarkerSize(0.005);
   m_eventList->AddElement(ps);
 
-  for (std::vector<reco::PFCluster>::const_iterator it = cluster->begin(); it != cluster->end(); ++it) {
-    if (!isPntInRng(it->position().Eta(), it->position().Phi()))
+  for (const auto& it : *cluster) {
+    if (!isPntInRng(it.position().Eta(), it.position().Phi()))
       continue;
 
-    ps->SetNextPoint(it->position().Eta(), it->position().Phi(), 0);
+    ps->SetNextPoint(it.position().Eta(), it.position().Phi(), 0);
 
     /*
       const std::vector< reco::PFRecHitFraction >& fractions = it->recHitFractions();
@@ -344,14 +344,16 @@ void FWPFCandidateDetailView::addHits(const std::vector<reco::PFRecHit>* hits) {
 
   // FIXME, requires access to geometry
   if ((!hits->empty()) && hits->front().hasCaloCell())
-    for (std::vector<reco::PFRecHit>::const_iterator it = hits->begin(); it != hits->end(); ++it) {
-      const auto& corners = it->getCornersXYZ();
+    for (const auto& hit : *hits) {
+      const auto& corners = hit.getCornersXYZ();
       if (!isPntInRng(corners[0].eta(), corners[0].phi()))
         continue;
 
       std::vector<TEveVector> hc;
+      hc.reserve(4);
+
       for (int k = 0; k < 4; ++k) {
-        hc.push_back(TEveVector(corners[k].eta(), corners[k].phi(), 0));
+        hc.emplace_back(corners[k].eta(), corners[k].phi(), 0);
         // ps->SetNextPoint(corners[k].eta(),corners[k].phi(),0 ); //debug
       }
 
@@ -367,15 +369,17 @@ void FWPFCandidateDetailView::addHits(const std::vector<reco::PFRecHit>* hits) {
       centerOfGravity *= 0.25;
 
       std::vector<TEveVector> radialVectors;
+      radialVectors.reserve(4);
+
       for (int k = 0; k < 4; ++k)
         radialVectors.push_back(TEveVector(hc[k] - centerOfGravity));
 
       float factor = 1;
       if (m_plotEt) {
-        float Et = FWPFMaths::calculateEt(TEveVector(corners[0].x(), corners[0].y(), corners[0].z()), it->energy());
+        float Et = FWPFMaths::calculateEt(TEveVector(corners[0].x(), corners[0].y(), corners[0].z()), hit.energy());
         factor = Et / context().getMaxEnergyInEvent(m_plotEt);
       } else
-        factor = it->energy() / context().getMaxEnergyInEvent(false);
+        factor = hit.energy() / context().getMaxEnergyInEvent(false);
 
       std::vector<TEveVector> scaledCorners;
       for (int k = 0; k < 4; ++k) {
@@ -383,7 +387,7 @@ void FWPFCandidateDetailView::addHits(const std::vector<reco::PFRecHit>* hits) {
         scaledCorners.push_back(TEveVector(radialVectors[k] + centerOfGravity));
       }
 
-      TEveStraightLineSet* ls = (TEveStraightLineSet*)m_eventList->FindChild(Form("%d_rechit", it->depth()));
+      TEveStraightLineSet* ls = (TEveStraightLineSet*)m_eventList->FindChild(Form("%d_rechit", hit.depth()));
       AddLineToLineSet(ls, scaledCorners, 0, 1);
       AddLineToLineSet(ls, scaledCorners, 1, 2);
       AddLineToLineSet(ls, scaledCorners, 2, 3);
@@ -400,7 +404,7 @@ void FWPFCandidateDetailView::buildGLEventScene() {
     m_eventList->DestroyElements();
 
   for (int depth = 0; depth < 6; ++depth) {
-    TEveStraightLineSet* ls = new TEveStraightLineSet(Form("%d_rechit", depth));
+    auto* ls = new TEveStraightLineSet(Form("%d_rechit", depth));
 
     if (depth == 0)
       ls->SetLineColor(kGray);
@@ -419,7 +423,7 @@ void FWPFCandidateDetailView::buildGLEventScene() {
     m_eventList->AddElement(ls);
   }
 
-  TEveStraightLineSet* ls = new TEveStraightLineSet("outlines");
+  auto* ls = new TEveStraightLineSet("outlines");
   ls->SetLineColor(kGray);
   ls->SetMainTransparency(80);
   m_eventList->AddElement(ls);

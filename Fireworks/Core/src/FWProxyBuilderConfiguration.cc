@@ -69,7 +69,7 @@ void FWProxyBuilderConfiguration::populateFrame(TGCompositeFrame* settersFrame) 
   TGCompositeFrame* frame = new TGVerticalFrame(settersFrame);
   settersFrame->AddFrame(frame, new TGLayoutHints(kLHintsExpandX));  //|kLHintsExpandY
 
-  for (const_iterator it = begin(); it != end(); ++it)
+  for (auto it = begin(); it != end(); ++it)
     makeSetter(frame, *it);
 
   settersFrame->MapSubwindows();
@@ -81,13 +81,13 @@ void FWProxyBuilderConfiguration::keepEntries(bool b) { m_keepEntries = b; }
 
 template <class T>
 FWGenericParameter<T>* FWProxyBuilderConfiguration::assertParam(const std::string& name, T def) {
-  for (const_iterator i = begin(); i != end(); ++i) {
-    if ((*i)->name() == name) {
+  for (auto i : *this) {
+    if (i->name() == name) {
       return nullptr;
     }
   }
 
-  FWGenericParameter<T>* mode = new FWGenericParameter<T>(this, name, def);
+  auto* mode = new FWGenericParameter<T>(this, name, def);
 
   //   std::cout << "FWProxyBuilderConfiguration::getVarParameter(). No parameter with name " << name << std::endl;
   if (m_txtConfig) {
@@ -101,13 +101,13 @@ FWGenericParameter<T>* FWProxyBuilderConfiguration::assertParam(const std::strin
 
 template <class T>
 FWGenericParameterWithRange<T>* FWProxyBuilderConfiguration::assertParam(const std::string& name, T def, T min, T max) {
-  for (const_iterator i = begin(); i != end(); ++i) {
-    if ((*i)->name() == name) {
+  for (auto i : *this) {
+    if (i->name() == name) {
       return nullptr;
     }
   }
 
-  FWGenericParameterWithRange<T>* mode = new FWGenericParameterWithRange<T>(this, name, def, min, max);
+  auto* mode = new FWGenericParameterWithRange<T>(this, name, def, min, max);
 
   //   std::cout << "FWProxyBuilderConfiguration::getVarParameter(). No parameter with name " << name << std::endl;
   const FWConfiguration* varConfig =
@@ -123,9 +123,9 @@ template <class T>
 T FWProxyBuilderConfiguration::value(const std::string& pname) {
   FWGenericParameter<T>* param = nullptr;
 
-  for (FWConfigurableParameterizable::const_iterator i = begin(); i != end(); ++i) {
-    if ((*i)->name() == pname) {
-      param = (FWGenericParameter<T>*)(*i);
+  for (auto i : *this) {
+    if (i->name() == pname) {
+      param = (FWGenericParameter<T>*)i;
       break;
     }
   }

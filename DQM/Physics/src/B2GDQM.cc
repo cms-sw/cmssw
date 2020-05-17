@@ -87,10 +87,8 @@ B2GDQM::B2GDQM(const edm::ParameterSet& ps) {
 
   // Jets
   jetLabels_ = ps.getParameter<std::vector<edm::InputTag> >("jetLabels");
-  for (std::vector<edm::InputTag>::const_iterator jetlabel = jetLabels_.begin(), jetlabelEnd = jetLabels_.end();
-       jetlabel != jetlabelEnd;
-       ++jetlabel) {
-    jetTokens_.push_back(consumes<edm::View<reco::Jet> >(*jetlabel));
+  for (const auto& jetLabel : jetLabels_) {
+    jetTokens_.push_back(consumes<edm::View<reco::Jet> >(jetLabel));
   }
   sdjetLabel_ = ps.getParameter<edm::InputTag>("sdjetLabel");
   sdjetToken_ = consumes<edm::View<reco::BasicJet> >(sdjetLabel_);
@@ -144,9 +142,9 @@ void B2GDQM::bookHistograms(DQMStore::IBooker& bei, edm::Run const&, edm::EventS
 
   //--- Jets
 
-  for (unsigned int icoll = 0; icoll < jetLabels_.size(); ++icoll) {
+  for (auto& jetLabel : jetLabels_) {
     std::stringstream ss;
-    ss << "Physics/B2G/" << jetLabels_[icoll].label();
+    ss << "Physics/B2G/" << jetLabel.label();
     bei.setCurrentFolder(ss.str());
     pfJet_pt.push_back(bei.book1D("pfJet_pt", "Pt of PFJet (GeV)", 50, 0.0, 1000));
     pfJet_y.push_back(bei.book1D("pfJet_y", "Rapidity of PFJet", 60, -6.0, 6.0));

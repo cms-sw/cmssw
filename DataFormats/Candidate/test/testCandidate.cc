@@ -11,8 +11,8 @@ class testCandidate : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
   void checkAll();
 };
 
@@ -35,7 +35,7 @@ namespace test {
       cc[0].x = y1;
       cc[1].x = y2;
     }
-    virtual DummyCandidate1* clone() const { return new DummyCandidate1(*this); }
+    DummyCandidate1* clone() const override { return new DummyCandidate1(*this); }
     DummyComponent cmp() const { return c; }
     DummyComponent2 cmp2(size_t i) const { return cc[i]; }
     size_t cmpSize2() const { return 2; }

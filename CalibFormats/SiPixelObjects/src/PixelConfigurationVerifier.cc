@@ -27,7 +27,7 @@ void PixelConfigurationVerifier::checkChannelEnable(PixelFEDCard *theFEDCard,
     usedChannel[i] = false;
   }
 
-  set<PixelChannel>::const_iterator iChannel = channels.begin();
+  auto iChannel = channels.begin();
 
   map<int, int> nrocs;
   for (; iChannel != channels.end(); ++iChannel) {
@@ -61,7 +61,7 @@ void PixelConfigurationVerifier::checkChannelEnable(PixelFEDCard *theFEDCard,
       //make sure that all rocs on a channel have the same noAnalogSignal status
       vector<PixelROCName> rocsOnThisChannel = theNameTranslation->getROCsFromFEDChannel(fedid, jChannel);
       bool onehasNAS = false, onedoesnothaveNAS = false;
-      vector<PixelROCName>::const_iterator jROC = rocsOnThisChannel.begin();
+      auto jROC = rocsOnThisChannel.begin();
       for (; jROC != rocsOnThisChannel.end(); ++jROC) {
         PixelROCStatus thisROCstatus = roclistcopy[*jROC];
         if (thisROCstatus.get(PixelROCStatus::noAnalogSignal))

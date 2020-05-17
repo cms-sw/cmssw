@@ -145,30 +145,28 @@ namespace trigger {
 
     /// setters - to build EDProduct
     void addFilterObject(const edm::InputTag& filterTag, const TriggerFilterObjectWithRefs& tfowr) {
-      filterObjects_.push_back(
-
-          TriggerFilterObject(filterTag,
-                              addObjects(tfowr.photonIds(), tfowr.photonRefs()),
-                              addObjects(tfowr.electronIds(), tfowr.electronRefs()),
-                              addObjects(tfowr.muonIds(), tfowr.muonRefs()),
-                              addObjects(tfowr.jetIds(), tfowr.jetRefs()),
-                              addObjects(tfowr.compositeIds(), tfowr.compositeRefs()),
-                              addObjects(tfowr.basemetIds(), tfowr.basemetRefs()),
-                              addObjects(tfowr.calometIds(), tfowr.calometRefs()),
-                              addObjects(tfowr.pixtrackIds(), tfowr.pixtrackRefs()),
-                              addObjects(tfowr.l1emIds(), tfowr.l1emRefs()),
-                              addObjects(tfowr.l1muonIds(), tfowr.l1muonRefs()),
-                              addObjects(tfowr.l1jetIds(), tfowr.l1jetRefs()),
-                              addObjects(tfowr.l1etmissIds(), tfowr.l1etmissRefs()),
-                              addObjects(tfowr.l1hfringsIds(), tfowr.l1hfringsRefs()),
-                              addObjects(tfowr.pfjetIds(), tfowr.pfjetRefs()),
-                              addObjects(tfowr.pftauIds(), tfowr.pftauRefs()),
-                              addObjects(tfowr.pfmetIds(), tfowr.pfmetRefs()),
-                              addObjects(tfowr.l1tmuonIds(), tfowr.l1tmuonRefs()),
-                              addObjects(tfowr.l1tegammaIds(), tfowr.l1tegammaRefs()),
-                              addObjects(tfowr.l1tjetIds(), tfowr.l1tjetRefs()),
-                              addObjects(tfowr.l1ttauIds(), tfowr.l1ttauRefs()),
-                              addObjects(tfowr.l1tetsumIds(), tfowr.l1tetsumRefs()))
+      filterObjects_.emplace_back(filterTag,
+                                  addObjects(tfowr.photonIds(), tfowr.photonRefs()),
+                                  addObjects(tfowr.electronIds(), tfowr.electronRefs()),
+                                  addObjects(tfowr.muonIds(), tfowr.muonRefs()),
+                                  addObjects(tfowr.jetIds(), tfowr.jetRefs()),
+                                  addObjects(tfowr.compositeIds(), tfowr.compositeRefs()),
+                                  addObjects(tfowr.basemetIds(), tfowr.basemetRefs()),
+                                  addObjects(tfowr.calometIds(), tfowr.calometRefs()),
+                                  addObjects(tfowr.pixtrackIds(), tfowr.pixtrackRefs()),
+                                  addObjects(tfowr.l1emIds(), tfowr.l1emRefs()),
+                                  addObjects(tfowr.l1muonIds(), tfowr.l1muonRefs()),
+                                  addObjects(tfowr.l1jetIds(), tfowr.l1jetRefs()),
+                                  addObjects(tfowr.l1etmissIds(), tfowr.l1etmissRefs()),
+                                  addObjects(tfowr.l1hfringsIds(), tfowr.l1hfringsRefs()),
+                                  addObjects(tfowr.pfjetIds(), tfowr.pfjetRefs()),
+                                  addObjects(tfowr.pftauIds(), tfowr.pftauRefs()),
+                                  addObjects(tfowr.pfmetIds(), tfowr.pfmetRefs()),
+                                  addObjects(tfowr.l1tmuonIds(), tfowr.l1tmuonRefs()),
+                                  addObjects(tfowr.l1tegammaIds(), tfowr.l1tegammaRefs()),
+                                  addObjects(tfowr.l1tjetIds(), tfowr.l1tjetRefs()),
+                                  addObjects(tfowr.l1ttauIds(), tfowr.l1ttauRefs()),
+                                  addObjects(tfowr.l1tetsumIds(), tfowr.l1tetsumRefs())
 
       );
     }

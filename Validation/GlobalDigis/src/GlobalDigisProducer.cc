@@ -116,7 +116,7 @@ void GlobalDigisProducer::beginJob(void) {
   //   iSetup.get<EcalADCToGeVConstantRcd>().get(pAgc);
   //   const EcalADCToGeVConstant* agc = pAgc.product();
 
-  EcalMGPAGainRatio *defaultRatios = new EcalMGPAGainRatio();
+  auto *defaultRatios = new EcalMGPAGainRatio();
 
   ECalgainConv_[0] = 0.;
   ECalgainConv_[1] = 1.;
@@ -194,23 +194,23 @@ void GlobalDigisProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
     if (printProvenanceInfo && (verbosity >= 0)) {
       TString eventout("\nProvenance info:\n");
 
-      for (unsigned int i = 0; i < AllProv.size(); ++i) {
+      for (auto &i : AllProv) {
         eventout += "\n       ******************************";
         eventout += "\n       Module       : ";
         // eventout += (AllProv[i]->product).moduleLabel();
-        eventout += AllProv[i]->moduleLabel();
+        eventout += i->moduleLabel();
         eventout += "\n       ProductID    : ";
         // eventout += (AllProv[i]->product).productID_.id_;
-        eventout += AllProv[i]->productID().id();
+        eventout += i->productID().id();
         eventout += "\n       ClassName    : ";
         // eventout += (AllProv[i]->product).fullClassName_;
-        eventout += AllProv[i]->className();
+        eventout += i->className();
         eventout += "\n       InstanceName : ";
         // eventout += (AllProv[i]->product).productInstanceName_;
-        eventout += AllProv[i]->productInstanceName();
+        eventout += i->productInstanceName();
         eventout += "\n       BranchName   : ";
         // eventout += (AllProv[i]->product).branchName_;
-        eventout += AllProv[i]->branchName();
+        eventout += i->branchName();
       }
       eventout += "\n       ******************************\n";
       edm::LogInfo(MsgLoggerCat) << eventout << "\n";
@@ -649,22 +649,21 @@ void GlobalDigisProducer::fillHCal(edm::Event &iEvent, const edm::EventSetup &iS
   MapType fHEEnergySimHits;
   MapType fHOEnergySimHits;
   MapType fHFEnergySimHits;
-  for (std::vector<PCaloHit>::const_iterator simhits = simhitResult->begin(); simhits != simhitResult->end();
-       ++simhits) {
-    HcalDetId detId(simhits->id());
+  for (const auto &simhits : *simhitResult) {
+    HcalDetId detId(simhits.id());
     uint32_t cellid = detId.rawId();
 
     if (detId.subdet() == sdHcalBrl) {
-      fHBEnergySimHits[cellid] += simhits->energy();
+      fHBEnergySimHits[cellid] += simhits.energy();
     }
     if (detId.subdet() == sdHcalEC) {
-      fHEEnergySimHits[cellid] += simhits->energy();
+      fHEEnergySimHits[cellid] += simhits.energy();
     }
     if (detId.subdet() == sdHcalOut) {
-      fHOEnergySimHits[cellid] += simhits->energy();
+      fHOEnergySimHits[cellid] += simhits.energy();
     }
     if (detId.subdet() == sdHcalFwd) {
-      fHFEnergySimHits[cellid] += simhits->energy();
+      fHFEnergySimHits[cellid] += simhits.energy();
     }
   }
 
@@ -899,8 +898,8 @@ void GlobalDigisProducer::fillTrk(edm::Event &iEvent, const edm::EventSetup &iSe
   for (DSViter = stripDigis->begin(); DSViter != stripDigis->end(); ++DSViter) {
     unsigned int id = DSViter->id;
     DetId detId(id);
-    edm::DetSet<SiStripDigi>::const_iterator begin = DSViter->data.begin();
-    edm::DetSet<SiStripDigi>::const_iterator end = DSViter->data.end();
+    auto begin = DSViter->data.begin();
+    auto end = DSViter->data.end();
     edm::DetSet<SiStripDigi>::const_iterator iter;
 
     // get TIB
@@ -1031,8 +1030,8 @@ void GlobalDigisProducer::fillTrk(edm::Event &iEvent, const edm::EventSetup &iSe
   for (DPViter = pixelDigis->begin(); DPViter != pixelDigis->end(); ++DPViter) {
     unsigned int id = DPViter->id;
     DetId detId(id);
-    edm::DetSet<PixelDigi>::const_iterator begin = DPViter->data.begin();
-    edm::DetSet<PixelDigi>::const_iterator end = DPViter->data.end();
+    auto begin = DPViter->data.begin();
+    auto end = DPViter->data.end();
     edm::DetSet<PixelDigi>::const_iterator iter;
 
     // get Barrel pixels
@@ -1459,9 +1458,9 @@ void GlobalDigisProducer::fillMuon(edm::Event &iEvent, const edm::EventSetup &iS
   }
 
   int nStrips = 0;
-  for (CSCStripDigiCollection::DigiRangeIterator j = strips->begin(); j != strips->end(); ++j) {
-    std::vector<CSCStripDigi>::const_iterator digiItr = (*j).second.first;
-    std::vector<CSCStripDigi>::const_iterator last = (*j).second.second;
+  for (auto &&j : *strips) {
+    auto digiItr = j.second.first;
+    auto last = j.second.second;
 
     for (; digiItr != last; ++digiItr) {
       ++nStrips;
@@ -1495,9 +1494,9 @@ void GlobalDigisProducer::fillMuon(edm::Event &iEvent, const edm::EventSetup &iS
   }
 
   int nWires = 0;
-  for (CSCWireDigiCollection::DigiRangeIterator j = wires->begin(); j != wires->end(); ++j) {
-    std::vector<CSCWireDigi>::const_iterator digiItr = (*j).second.first;
-    std::vector<CSCWireDigi>::const_iterator endDigi = (*j).second.second;
+  for (auto &&j : *wires) {
+    auto digiItr = j.second.first;
+    auto endDigi = j.second.second;
 
     for (; digiItr != endDigi; ++digiItr) {
       ++nWires;
@@ -1570,18 +1569,18 @@ void GlobalDigisProducer::storeMuon(PGlobalDigi &product) {
     // CSC Strip
     eventout += "\n         nCSCStrip     = ";
     eventout += CSCStripADC.size();
-    for (unsigned int i = 0; i < CSCStripADC.size(); ++i) {
+    for (float i : CSCStripADC) {
       eventout += "\n      (adc) = (";
-      eventout += CSCStripADC[i];
+      eventout += i;
       eventout += ")";
     }
 
     // CSC Wire
     eventout += "\n         nCSCWire     = ";
     eventout += CSCWireTime.size();
-    for (unsigned int i = 0; i < CSCWireTime.size(); ++i) {
+    for (float i : CSCWireTime) {
       eventout += "\n      (time) = (";
-      eventout += CSCWireTime[i];
+      eventout += i;
       eventout += ")";
     }
 

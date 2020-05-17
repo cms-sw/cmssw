@@ -17,7 +17,7 @@ RunModeDef::~RunModeDef() {}
 
 string RunModeDef::getRunMode() const { return m_runMode; }
 
-void RunModeDef::setRunMode(string runmode) {
+void RunModeDef::setRunMode(const string& runmode) {
   if (runmode != m_runMode) {
     m_ID = 0;
     m_runMode = runmode;

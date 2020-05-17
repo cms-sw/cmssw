@@ -28,8 +28,8 @@ namespace edmtest {
     }
 
     explicit CSCReadBadWiresAnalyzer(int i) {}
-    virtual ~CSCReadBadWiresAnalyzer() {}
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    ~CSCReadBadWiresAnalyzer() override {}
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
     // Test code from CSCConditions
 
@@ -147,8 +147,8 @@ namespace edmtest {
 
       int icount = 0;
 
-      for (size_t i = 0; i < theBadWires->chambers.size(); ++i) {  // loop over bad chambers
-        int indexc = theBadWires->chambers[i].chamber_index;
+      for (auto chamber : theBadWires->chambers) {  // loop over bad chambers
+        int indexc = chamber.chamber_index;
 
         // The following is not in standard CSCConditions version but was required for our prototype bad strip db
         if (indexc == 0) {
@@ -156,8 +156,8 @@ namespace edmtest {
           break;  // prototype db has zero line at end
         }
 
-        int start = theBadWires->chambers[i].pointer;  // where this chamber's bad channels start in vector<BadChannel>
-        int nbad = theBadWires->chambers[i].bad_channels;
+        int start = chamber.pointer;  // where this chamber's bad channels start in vector<BadChannel>
+        int nbad = chamber.bad_channels;
 
         CSCDetId id = indexer.detIdFromChamberIndex(indexc);  // We need this to build layer index (1-3240)
 
@@ -180,7 +180,7 @@ namespace edmtest {
           std::cout << "count " << ++icount << " bad channel " << chan << " in layer " << lay << " of chamber=" << id
                     << " chamber index=" << indexc << " layer index=" << indexl << std::endl;
 
-          badWireWords[indexl - 1].set(chan - 1, 1);  // set bit in 112-bit bitset representing this layer
+          badWireWords[indexl - 1].set(chan - 1, true);  // set bit in 112-bit bitset representing this layer
         }                                             // j
       }                                               // i
     }

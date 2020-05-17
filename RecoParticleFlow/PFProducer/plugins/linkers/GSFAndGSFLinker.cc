@@ -22,8 +22,8 @@ DEFINE_EDM_PLUGIN(BlockElementLinkerFactory, GSFAndGSFLinker, "GSFAndGSFLinker")
 double GSFAndGSFLinker::testLink(const reco::PFBlockElement* elem1, const reco::PFBlockElement* elem2) const {
   constexpr reco::PFBlockElement::TrackType T_FROM_GAMMACONV = reco::PFBlockElement::T_FROM_GAMMACONV;
   double dist = -1.0;
-  const reco::PFBlockElementGsfTrack* gsfelem1 = static_cast<const reco::PFBlockElementGsfTrack*>(elem1);
-  const reco::PFBlockElementGsfTrack* gsfelem2 = static_cast<const reco::PFBlockElementGsfTrack*>(elem2);
+  const auto* gsfelem1 = static_cast<const reco::PFBlockElementGsfTrack*>(elem1);
+  const auto* gsfelem2 = static_cast<const reco::PFBlockElementGsfTrack*>(elem2);
   const reco::GsfPFRecTrackRef& gsfref1 = gsfelem1->GsftrackRefPF();
   const reco::GsfPFRecTrackRef& gsfref2 = gsfelem2->GsftrackRefPF();
   if (gsfref1.isNonnull() && gsfref2.isNonnull()) {

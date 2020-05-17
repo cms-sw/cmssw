@@ -92,7 +92,7 @@ bool ElectronIdFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<edm::ValueMap<float> > eIDValueMap;
   iEvent.getByToken(edmValueMapFloatToken_, eIDValueMap);
   const edm::ValueMap<float>& eIDmap = *eIDValueMap;
-  reco::GsfElectronCollection* product = new reco::GsfElectronCollection();
+  auto* product = new reco::GsfElectronCollection();
 
   // Loop over electrons
   for (unsigned int i = 0; i < electrons->size(); i++) {

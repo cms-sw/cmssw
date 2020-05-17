@@ -57,11 +57,11 @@ L1TTwinMuxRawToDigi::L1TTwinMuxRawToDigi(const edm::ParameterSet& pset)
     throw cms::Exception("TwinMux_unpacker")
         << "Configuration file error. Size of \'wheels\' and \'amcsecmap\' differs.\n";
 
-  for (size_t wh_i = 0; wh_i < amcsecmap_.size(); ++wh_i) {
+  for (long long wh_i : amcsecmap_) {
     std::array<short, 12> whmap;
     for (size_t amc_i = 1; amc_i < 13; ++amc_i) {
       short shift = (12 - amc_i) * 4;
-      whmap[amc_i - 1] = (amcsecmap_[wh_i] >> shift) & 0xF;
+      whmap[amc_i - 1] = (wh_i >> shift) & 0xF;
     }
     amcsec_.push_back(whmap);
   }
@@ -134,7 +134,7 @@ int L1TTwinMuxRawToDigi::benAngConversion(int benAng_) const {
 void L1TTwinMuxRawToDigi::processFed(int twinMuxFed,
                                      int twinMuxWheel,
                                      std::array<short, 12> const& twinMuxAmcSec,
-                                     edm::Handle<FEDRawDataCollection> data,
+                                     const edm::Handle<FEDRawDataCollection>& data,
                                      L1MuDTChambPhContainer::Phi_Container& phiSegments,
                                      L1MuDTChambThContainer::The_Container& theSegments,
                                      L1MuDTChambPhContainer::Phi_Container& phioutSegments) const {
@@ -221,8 +221,8 @@ void L1TTwinMuxRawToDigi::processFed(int twinMuxFed,
   }
 
   ///--> Store payloads
-  std::map<int, int>::iterator AMCiterator = AMCsizes.begin();
-  std::map<int, int>::iterator AMCitend = AMCsizes.end();
+  auto AMCiterator = AMCsizes.begin();
+  auto AMCitend = AMCsizes.end();
   for (; AMCiterator != AMCitend; ++AMCiterator) {
     for (int k = 0; k < AMCiterator->second; ++k) {
       lineFED = readline(lineFED, nline, dataWord);
@@ -268,8 +268,8 @@ void L1TTwinMuxRawToDigi::processFed(int twinMuxFed,
   }
 
   // --> Analyze event
-  std::vector<long>::iterator DTTM7iterator = DTTM7WordContainer.begin();
-  std::vector<long>::iterator DTTM7itend = DTTM7WordContainer.end();
+  auto DTTM7iterator = DTTM7WordContainer.begin();
+  auto DTTM7itend = DTTM7WordContainer.end();
 
   int lcounter = 0;
   for (; DTTM7iterator != DTTM7itend; ++DTTM7iterator) {

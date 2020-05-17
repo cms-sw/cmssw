@@ -48,9 +48,8 @@ void SiStripThresholdDQM::fillModMEs(const std::vector<uint32_t> &selectedDetIds
 
   ModMEs CondObj_ME;
 
-  for (std::vector<uint32_t>::const_iterator detIter_ = selectedDetIds.begin(); detIter_ != selectedDetIds.end();
-       detIter_++) {
-    fillMEsForDet(CondObj_ME, *detIter_, tTopo);
+  for (unsigned int selectedDetId : selectedDetIds) {
+    fillMEsForDet(CondObj_ME, selectedDetId, tTopo);
   }
 }
 // -----
@@ -88,9 +87,8 @@ void SiStripThresholdDQM::fillSummaryMEs(const std::vector<uint32_t> &selectedDe
   es.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology *const tTopo = tTopoHandle.product();
 
-  for (std::vector<uint32_t>::const_iterator detIter_ = selectedDetIds.begin(); detIter_ != selectedDetIds.end();
-       detIter_++) {
-    fillMEsForLayer(/*SummaryMEsMap_,*/ *detIter_, tTopo);
+  for (unsigned int selectedDetId : selectedDetIds) {
+    fillMEsForLayer(/*SummaryMEsMap_,*/ selectedDetId, tTopo);
   }
 }
 // -----
@@ -110,7 +108,7 @@ void SiStripThresholdDQM::fillMEsForLayer(
   }
   // ----
 
-  std::map<uint32_t, ModMEs>::iterator selMEsMapIter_ = SummaryMEsMap_.find(getLayerNameAndId(selDetId_, tTopo).second);
+  auto selMEsMapIter_ = SummaryMEsMap_.find(getLayerNameAndId(selDetId_, tTopo).second);
   ModMEs selME_;
   if (selMEsMapIter_ != SummaryMEsMap_.end())
     selME_ = selMEsMapIter_->second;

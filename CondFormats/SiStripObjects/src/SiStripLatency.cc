@@ -28,7 +28,7 @@ bool SiStripLatency::put(const uint32_t detId, const uint16_t apv, const uint16_
 
   // Store all the values in the vectors
   uint32_t detIdAndApv = (detId << 3) | apv;
-  latIt pos = lower_bound(latencies_.begin(), latencies_.end(), detIdAndApv, OrderByDetIdAndApv());
+  auto pos = lower_bound(latencies_.begin(), latencies_.end(), detIdAndApv, OrderByDetIdAndApv());
 
   if (pos != latencies_.end() && pos->detIdAndApv == detIdAndApv) {
     std::cout << "Value already inserted, skipping insertion" << std::endl;
@@ -41,7 +41,7 @@ bool SiStripLatency::put(const uint32_t detId, const uint16_t apv, const uint16_
 }
 
 void SiStripLatency::compress() {
-  latIt lat = latencies_.begin();
+  auto lat = latencies_.begin();
   while (lat != latencies_.end()) {
     // If it is not the last and it has the same latency and mode as the next one remove it
     if (((lat + 1) != latencies_.end()) && ((lat + 1)->mode == lat->mode) && ((lat + 1)->latency == lat->latency)) {
@@ -82,7 +82,7 @@ uint16_t SiStripLatency::singleLatency() const {
   }
   int differentLatenciesNum = 0;
   // Count the number of different latencies
-  for (latConstIt it = latencies_.begin(); it != latencies_.end() - 1; ++it) {
+  for (auto it = latencies_.begin(); it != latencies_.end() - 1; ++it) {
     if (it->latency != (it + 1)->latency) {
       ++differentLatenciesNum;
     }
@@ -99,7 +99,7 @@ uint16_t SiStripLatency::singleMode() const {
   }
   int differentModesNum = 0;
   // Count the number of different modes
-  for (latConstIt it = latencies_.begin(); it != latencies_.end() - 1; ++it) {
+  for (auto it = latencies_.begin(); it != latencies_.end() - 1; ++it) {
     if (it->mode != (it + 1)->mode) {
       ++differentModesNum;
     }
@@ -111,8 +111,8 @@ uint16_t SiStripLatency::singleMode() const {
 }
 
 void SiStripLatency::allModes(std::vector<uint16_t>& allModesVector) const {
-  for (latConstIt it = latencies_.begin(); it != latencies_.end(); ++it) {
-    allModesVector.push_back(it->mode);
+  for (auto latencie : latencies_) {
+    allModesVector.push_back(latencie.mode);
   }
   // The Latencies are sorted by DetIdAndApv, we need to sort the modes again and then remove duplicates
   sort(allModesVector.begin(), allModesVector.end());
@@ -132,7 +132,7 @@ int16_t SiStripLatency::singleReadOutMode() const {
     bool allInDecoMode = true;
     std::vector<uint16_t> allModesVector;
     allModes(allModesVector);
-    std::vector<uint16_t>::const_iterator it = allModesVector.begin();
+    auto it = allModesVector.begin();
     if (allModesVector.size() == 1 && allModesVector[0] == 0)
       allInPeakMode = false;
     else {
@@ -154,8 +154,8 @@ int16_t SiStripLatency::singleReadOutMode() const {
 }
 
 void SiStripLatency::allLatencies(std::vector<uint16_t>& allLatenciesVector) const {
-  for (latConstIt it = latencies_.begin(); it != latencies_.end(); ++it) {
-    allLatenciesVector.push_back(it->latency);
+  for (auto latencie : latencies_) {
+    allLatenciesVector.push_back(latencie.latency);
   }
   // The Latencies are sorted by DetIdAndApv, we need to sort the latencies again and then remove duplicates
   sort(allLatenciesVector.begin(), allLatenciesVector.end());
@@ -197,11 +197,11 @@ void SiStripLatency::printSummary(std::stringstream& ss, const TrackerTopology* 
 
 void SiStripLatency::printDebug(std::stringstream& ss, const TrackerTopology* /*trackerTopo*/) const {
   ss << "List of all the latencies and modes for the " << latencies_.size() << " ranges in the object:" << std::endl;
-  for (latConstIt it = latencies_.begin(); it != latencies_.end(); ++it) {
-    int detId = it->detIdAndApv >> 3;
-    int apv = it->detIdAndApv & 7;  // 7 is 0...0111
-    ss << "for detId = " << detId << " and apv pair = " << apv << " latency = " << int(it->latency)
-       << " and mode = " << int(it->mode) << std::endl;
+  for (auto latencie : latencies_) {
+    int detId = latencie.detIdAndApv >> 3;
+    int apv = latencie.detIdAndApv & 7;  // 7 is 0...0111
+    ss << "for detId = " << detId << " and apv pair = " << apv << " latency = " << int(latencie.latency)
+       << " and mode = " << int(latencie.mode) << std::endl;
   }
 }
 

@@ -19,11 +19,11 @@ bool PixelFEDLink::checkRocNumbering() const {
   bool result = true;
   unsigned int idx_expected = 0;
   typedef ROCs::const_iterator CIR;
-  for (CIR it = theROCs.begin(); it != theROCs.end(); it++) {
+  for (const auto& theROC : theROCs) {
     idx_expected++;
-    if (idx_expected != (*it).idInLink()) {
+    if (idx_expected != theROC.idInLink()) {
       result = false;
-      cout << "** PixelFEDLink, idInLink in ROC, expected: " << idx_expected << " has: " << (*it).idInLink() << endl;
+      cout << "** PixelFEDLink, idInLink in ROC, expected: " << idx_expected << " has: " << theROC.idInLink() << endl;
     }
   }
   return result;
@@ -45,8 +45,8 @@ string PixelFEDLink::print(int depth) const {
     else {
       out << endl;
       typedef ROCs::const_iterator CIR;
-      for (CIR ir = theROCs.begin(); ir != theROCs.end(); ir++)
-        out << (ir)->print(depth);
+      for (const auto& theROC : theROCs)
+        out << theROC.->print(depth);
       out << "#  total number of ROCs: " << numberOfROCs() << endl;
     }
   }
@@ -63,7 +63,7 @@ string PixelFEDLink::printForMap() const {
     int maxroc = -1;
     bool first = true;
     PixelBarrelName prev;
-    for (CIR ir = theROCs.begin(); ir < theROCs.end(); ir++) {
+    for (auto ir = theROCs.begin(); ir < theROCs.end(); ir++) {
       DetId detid = DetId(ir->rawId());
       bool barrel = PixelModuleName::isBarrel(detid.rawId());
       if (!barrel)
@@ -96,7 +96,7 @@ string PixelFEDLink::printForMap() const {
   {
     bool first = true;
     PixelEndcapName prev;
-    for (CIR ir = theROCs.begin(); ir < theROCs.end(); ir++) {
+    for (auto ir = theROCs.begin(); ir < theROCs.end(); ir++) {
       DetId detid = DetId(ir->rawId());
       bool barrel = PixelModuleName::isBarrel(detid.rawId());
       if (barrel)

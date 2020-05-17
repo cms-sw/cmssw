@@ -42,6 +42,8 @@
 #include <Math/SVector.h>
 #include <Math/SMatrix.h>
 
+#include <utility>
+
 #include <vector>
 
 class GEMCSCSegFit {
@@ -69,9 +71,9 @@ public:
   //@@ WANT OBJECT TO CACHE THE SET OF HITS SO CANNOT PASS BY REF
   GEMCSCSegFit(std::map<uint32_t, const CSCLayer*> csclayermap,
                std::map<uint32_t, const GEMEtaPartition*> gemrollmap,
-               const std::vector<const TrackingRecHit*> hits)
-      : csclayermap_(csclayermap),
-        gemetapartmap_(gemrollmap),
+               const std::vector<const TrackingRecHit*>& hits)
+      : csclayermap_(std::move(csclayermap)),
+        gemetapartmap_(std::move(gemrollmap)),
         hits_(hits),
         scaleXError_(1.0),
         refid_(csclayermap_.begin()->first),
@@ -82,8 +84,7 @@ public:
     // --- LogDebug for CSC Layer map -------------------------------------------------------------------
     std::stringstream csclayermapss;
     csclayermapss << "[GEMCSCSegFit::ctor] :: csclayermap :: elements [" << std::endl;
-    for (std::map<uint32_t, const CSCLayer*>::const_iterator mapIt = csclayermap_.begin(); mapIt != csclayermap_.end();
-         ++mapIt) {
+    for (auto mapIt = csclayermap_.begin(); mapIt != csclayermap_.end(); ++mapIt) {
       csclayermapss << "[CSC DetId " << mapIt->first << " =" << CSCDetId(mapIt->first) << ", CSC Layer "
                     << mapIt->second << " =" << (mapIt->second)->id() << "]," << std::endl;
     }
@@ -95,9 +96,7 @@ public:
     // --- LogDebug for GEM Eta Partition map ------------------------------------------------------------
     std::stringstream gemetapartmapss;
     gemetapartmapss << "[GEMCSCSegFit::ctor] :: gemetapartmap :: elements [" << std::endl;
-    for (std::map<uint32_t, const GEMEtaPartition*>::const_iterator mapIt = gemetapartmap_.begin();
-         mapIt != gemetapartmap_.end();
-         ++mapIt) {
+    for (auto mapIt = gemetapartmap_.begin(); mapIt != gemetapartmap_.end(); ++mapIt) {
       gemetapartmapss << "[GEM DetId " << mapIt->first << " =" << GEMDetId(mapIt->first) << ", GEM EtaPart "
                       << mapIt->second << "]," << std::endl;
     }

@@ -76,7 +76,7 @@ pat::VertexAssociation pat::helper::VertexingHelper::associate(const reco::Candi
       GlobalPoint vtxGP(vtx->x(), vtx->y(), vtx->z());  // need to convert XYZPoint to GlobalPoint
       TrajectoryStateClosestToPoint tscp = tt.trajectoryStateClosestToPoint(vtxGP);
       GlobalPoint trackPos = tscp.theState().position();
-      AlgebraicSymMatrix33 trackErr = tscp.theState().cartesianError().matrix().Sub<AlgebraicSymMatrix33>(0, 0);
+      auto trackErr = tscp.theState().cartesianError().matrix().Sub<AlgebraicSymMatrix33>(0, 0);
       association.setDistances(trackPos, vtx->position(), trackErr + vtx->error());
     }
     if (assoSelector_(association))
@@ -86,11 +86,11 @@ pat::VertexAssociation pat::helper::VertexingHelper::associate(const reco::Candi
 }
 
 reco::TrackBaseRef pat::helper::VertexingHelper::getTrack_(const reco::Candidate &c) const {
-  const reco::RecoCandidate *rc = dynamic_cast<const reco::RecoCandidate *>(&c);
+  const auto *rc = dynamic_cast<const reco::RecoCandidate *>(&c);
   if (rc != nullptr) {
     return rc->bestTrackRef();
   }
-  const reco::PFCandidate *pfc = dynamic_cast<const reco::PFCandidate *>(&c);
+  const auto *pfc = dynamic_cast<const reco::PFCandidate *>(&c);
   if (pfc != nullptr) {
     return reco::TrackBaseRef(pfc->trackRef());
   }

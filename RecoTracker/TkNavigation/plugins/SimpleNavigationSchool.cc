@@ -36,7 +36,7 @@ void SimpleNavigationSchool::init() {
     theForwardLayers.push_back(i);
   }
 
-  FDLI middle = find_if(theForwardLayers.begin(), theForwardLayers.end(), [](const GeometricSearchDet* a) {
+  auto middle = find_if(theForwardLayers.begin(), theForwardLayers.end(), [](const GeometricSearchDet* a) {
     return a->position().z() >= 0.0;
   });
   theLeftLayers = FDLC(theForwardLayers.begin(), middle);
@@ -52,32 +52,30 @@ void SimpleNavigationSchool::init() {
 
 void SimpleNavigationSchool::cleanMemory() {
   // free the memory allocated to the SimpleNavigableLayers
-  for (vector<SimpleBarrelNavigableLayer*>::const_iterator ib = theBarrelNLC.begin(); ib != theBarrelNLC.end(); ib++) {
-    delete (*ib);
+  for (auto ib : theBarrelNLC) {
+    delete ib;
   }
   theBarrelNLC.clear();
-  for (vector<SimpleForwardNavigableLayer*>::const_iterator ifl = theForwardNLC.begin(); ifl != theForwardNLC.end();
-       ifl++) {
-    delete (*ifl);
+  for (auto ifl : theForwardNLC) {
+    delete ifl;
   }
   theForwardNLC.clear();
 }
 
 SimpleNavigationSchool::StateType SimpleNavigationSchool::navigableLayers() {
   StateType result;
-  for (vector<SimpleBarrelNavigableLayer*>::const_iterator ib = theBarrelNLC.begin(); ib != theBarrelNLC.end(); ib++) {
-    result.push_back(*ib);
+  for (auto ib : theBarrelNLC) {
+    result.push_back(ib);
   }
-  for (vector<SimpleForwardNavigableLayer*>::const_iterator ifl = theForwardNLC.begin(); ifl != theForwardNLC.end();
-       ifl++) {
-    result.push_back(*ifl);
+  for (auto ifl : theForwardNLC) {
+    result.push_back(ifl);
   }
   return result;
 }
 
 void SimpleNavigationSchool::linkBarrelLayers(SymmetricLayerFinder& symFinder) {
   // Link barrel layers outwards
-  for (BDLI i = theBarrelLayers.begin(); i != theBarrelLayers.end(); i++) {
+  for (auto i = theBarrelLayers.begin(); i != theBarrelLayers.end(); i++) {
     BDLC reachableBL;
     FDLC leftFL;
     FDLC rightFL;
@@ -105,10 +103,10 @@ void SimpleNavigationSchool::linkNextForwardLayer(const BarrelDetLayer* bl, FDLC
   // find first forward layer with larger Z and larger outer radius
   float length = bl->surface().bounds().length() / 2.;
   float radius = bl->specificSurface().radius();
-  for (FDLI fli = theRightLayers.begin(); fli != theRightLayers.end(); fli++) {
+  for (auto fli = theRightLayers.begin(); fli != theRightLayers.end(); fli++) {
     if (length < (**fli).position().z() && radius < (**fli).specificSurface().outerRadius()) {
       //search if there are any sovrapposition between forward layers
-      for (FDLI fliNext = fli; fliNext != theRightLayers.end(); fliNext++) {
+      for (auto fliNext = fli; fliNext != theRightLayers.end(); fliNext++) {
         if ((**fliNext).position().z() < (**fli).position().z() &&
             (**fliNext).specificSurface().innerRadius() < (**fli).specificSurface().outerRadius()) {
           rightFL.push_back(*fliNext);
@@ -126,7 +124,7 @@ void SimpleNavigationSchool::linkNextLargerLayer(BDLI bli, BDLI end, BDLC& reach
   float length = (**(bli + 1)).surface().bounds().length();
   float epsilon = 0.1;
 
-  for (BDLI i = bli + 2; i < end; i++) {
+  for (auto i = bli + 2; i < end; i++) {
     if (length + epsilon < (**i).surface().bounds().length()) {
       reachableBL.push_back(*i);
       return;
@@ -139,12 +137,12 @@ void SimpleNavigationSchool::linkForwardLayers(SymmetricLayerFinder& symFinder) 
   vector<FDLC> groups = splitForwardLayers();
 
   LogDebug("TkNavigation") << "SimpleNavigationSchool, Forward groups size = " << groups.size();
-  for (vector<FDLC>::iterator g = groups.begin(); g != groups.end(); g++) {
+  for (auto g = groups.begin(); g != groups.end(); g++) {
     LogDebug("TkNavigation") << "group " << g - groups.begin() << " has " << g->size() << " layers ";
   }
 
-  for (vector<FDLC>::iterator group = groups.begin(); group != groups.end(); group++) {
-    for (FDLI i = group->begin(); i != group->end(); i++) {
+  for (auto group = groups.begin(); group != groups.end(); group++) {
+    for (auto i = group->begin(); i != group->end(); i++) {
       BDLC reachableBL;
       FDLC reachableFL;
 
@@ -186,9 +184,10 @@ void SimpleNavigationSchool::linkNextBarrelLayer(const ForwardDetLayer* fl, BDLC
 
   float outerRadius = fl->specificSurface().outerRadius();
   float zpos = fl->position().z();
-  for (BDLI bli = theBarrelLayers.begin(); bli != theBarrelLayers.end(); bli++) {
-    if (outerRadius < (**bli).specificSurface().radius() && zpos < (**bli).surface().bounds().length() / 2.) {
-      reachableBL.push_back(*bli);
+  for (auto& theBarrelLayer : theBarrelLayers) {
+    if (outerRadius < (*theBarrelLayer).specificSurface().radius() &&
+        zpos < (*theBarrelLayer).surface().bounds().length() / 2.) {
+      reachableBL.push_back(theBarrelLayer);
       return;
     }
   }
@@ -225,7 +224,7 @@ void SimpleNavigationSchool::linkNextLayerInGroup(FDLI fli, const FDLC& group, F
 void SimpleNavigationSchool::linkOuterGroup(const ForwardDetLayer* fl, const FDLC& group, FDLC& reachableFL) {
   // insert N layers with Z grater than fl
 
-  ConstFDLI first = find_if(group.begin(), group.end(), [fl](const GeometricSearchDet* a) {
+  auto first = find_if(group.begin(), group.end(), [fl](const GeometricSearchDet* a) {
     return a->position().z() >= fl->position().z();
   });
   if (first != group.end()) {
@@ -237,7 +236,7 @@ void SimpleNavigationSchool::linkOuterGroup(const ForwardDetLayer* fl, const FDL
 }
 
 void SimpleNavigationSchool::linkWithinGroup(FDLI fl, const FDLC& group, FDLC& reachableFL) {
-  ConstFDLI biggerLayer = outerRadiusIncrease(fl, group);
+  auto biggerLayer = outerRadiusIncrease(fl, group);
   if (biggerLayer != group.end() && biggerLayer != fl + 1) {
     reachableFL.push_back(*biggerLayer);
   }
@@ -258,8 +257,8 @@ vector<SimpleNavigationSchool::FDLC> SimpleNavigationSchool::splitForwardLayers(
   // only work on positive Z side; negative by mirror symmetry later
 
   FDLC myRightLayers(theRightLayers);
-  FDLI begin = myRightLayers.begin();
-  FDLI end = myRightLayers.end();
+  auto begin = myRightLayers.begin();
+  auto end = myRightLayers.end();
 
   // sort according to inner radius, but keeping the ordering in z!
   std::stable_sort(begin, end, [](const ForwardDetLayer* a, const ForwardDetLayer* b) {
@@ -270,7 +269,7 @@ vector<SimpleNavigationSchool::FDLC> SimpleNavigationSchool::splitForwardLayers(
   vector<FDLC> result;
   FDLC current;
   current.push_back(*begin);
-  for (FDLI i = begin + 1; i != end; i++) {
+  for (auto i = begin + 1; i != end; i++) {
 #ifdef EDM_ML_DEBUG
     LogDebug("TkNavigation") << "(**i).specificSurface().innerRadius()      = " << (**i).specificSurface().innerRadius()
                              << endl
@@ -302,8 +301,8 @@ vector<SimpleNavigationSchool::FDLC> SimpleNavigationSchool::splitForwardLayers(
   result.push_back(current);  // save last one too
 
   // now sort subsets in Z
-  for (vector<FDLC>::iterator ivec = result.begin(); ivec != result.end(); ivec++) {
-    std::stable_sort(ivec->begin(), ivec->end(), isDetLessZ);
+  for (auto& ivec : result) {
+    std::stable_sort(ivec.begin(), ivec.end(), isDetLessZ);
   }
 
   return result;
@@ -311,8 +310,8 @@ vector<SimpleNavigationSchool::FDLC> SimpleNavigationSchool::splitForwardLayers(
 
 float SimpleNavigationSchool::barrelLength() {
   if (theBarrelLength < 1.) {
-    for (BDLI i = theBarrelLayers.begin(); i != theBarrelLayers.end(); i++) {
-      theBarrelLength = max(theBarrelLength, (**i).surface().bounds().length() / 2.f);
+    for (auto& theBarrelLayer : theBarrelLayers) {
+      theBarrelLength = max(theBarrelLength, (*theBarrelLayer).surface().bounds().length() / 2.f);
     }
 
     LogDebug("TkNavigation") << "The barrel length is " << theBarrelLength;

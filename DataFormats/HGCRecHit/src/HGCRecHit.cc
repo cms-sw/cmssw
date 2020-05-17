@@ -95,9 +95,8 @@ bool HGCRecHit::isTimeErrorValid() const {
 
 /// check if one of the flags in a set is true
 bool HGCRecHit::checkFlags(const std::vector<int>& flagsvec) const {
-  for (std::vector<int>::const_iterator flagPtr = flagsvec.begin(); flagPtr != flagsvec.end();
-       ++flagPtr) {  // check if one of the flags is up
-    if (checkFlag(*flagPtr))
+  for (int flagPtr : flagsvec) {  // check if one of the flags is up
+    if (checkFlag(flagPtr))
       return true;
   }
   return false;

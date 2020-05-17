@@ -38,13 +38,13 @@ public:
 
   /** Destructor
    */
-  virtual ~DTRangeT0ValidateHandler();
+  ~DTRangeT0ValidateHandler() override;
 
   /** Operations
    */
   ///
-  void getNewObjects();
-  std::string id() const;
+  void getNewObjects() override;
+  std::string id() const override;
 
 private:
   int firstRun;

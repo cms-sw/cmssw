@@ -44,9 +44,9 @@ public:
                         const TrackerTopology* ttopo);
 
 protected:
-  void fillStates(TrajectoryStateOnSurface tsos, std::vector<reco::GsfComponent5D>& states) const;
+  void fillStates(const TrajectoryStateOnSurface& tsos, std::vector<reco::GsfComponent5D>& states) const;
   void fillMode(reco::GsfTrack& track,
-                const TrajectoryStateOnSurface innertsos,
+                const TrajectoryStateOnSurface& innertsos,
                 const Propagator& gsfProp,
                 const TransverseImpactPointExtrapolator& tipExtrapolator,
                 TrajectoryStateClosestToBeamLineBuilder& tscblBuilder,
@@ -54,7 +54,7 @@ protected:
 
 private:
   /// local parameters rescaled with q/p from mode
-  void localParametersFromQpMode(const TrajectoryStateOnSurface tsos,
+  void localParametersFromQpMode(const TrajectoryStateOnSurface& tsos,
                                  AlgebraicVector5& parameters,
                                  AlgebraicSymMatrix55& covariance) const;
   /// position, momentum and estimated deltaP at an intermediate measurement (true if successful)

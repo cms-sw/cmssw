@@ -72,30 +72,30 @@ void ME0HitsValidation::analyze(const edm::Event &e, const edm::EventSetup &iSet
   Float_t timeOfFlightMuon = 0.;
   Float_t energyLossMuon = 0;
 
-  for (auto hits = ME0Hits->begin(); hits != ME0Hits->end(); hits++) {
-    const ME0DetId id(hits->detUnitId());
+  for (const auto &hits : *ME0Hits) {
+    const ME0DetId id(hits.detUnitId());
     Int_t region = id.region();
     Int_t layer = id.layer();
 
     // Int_t even_odd = id.chamber()%2;
-    if (ME0Geometry_->idToDet(hits->detUnitId()) == nullptr) {
+    if (ME0Geometry_->idToDet(hits.detUnitId()) == nullptr) {
       std::cout << "simHit did not matched with GEMGeometry." << std::endl;
       continue;
     }
 
-    const LocalPoint hitLP(hits->localPosition());
+    const LocalPoint hitLP(hits.localPosition());
 
-    const GlobalPoint hitGP(ME0Geometry_->idToDet(hits->detUnitId())->surface().toGlobal(hitLP));
+    const GlobalPoint hitGP(ME0Geometry_->idToDet(hits.detUnitId())->surface().toGlobal(hitLP));
     Float_t g_r = hitGP.perp();
     Float_t g_x = hitGP.x();
     Float_t g_y = hitGP.y();
     Float_t g_z = hitGP.z();
-    Float_t energyLoss = hits->energyLoss();
-    Float_t timeOfFlight = hits->timeOfFlight();
+    Float_t energyLoss = hits.energyLoss();
+    Float_t timeOfFlight = hits.timeOfFlight();
 
-    if (abs(hits->particleType()) == 13) {
-      timeOfFlightMuon = hits->timeOfFlight();
-      energyLossMuon = hits->energyLoss();
+    if (abs(hits.particleType()) == 13) {
+      timeOfFlightMuon = hits.timeOfFlight();
+      energyLossMuon = hits.energyLoss();
       // fill histos for Muons only
       me0_sh_tofMu[(int)(region / 2. + 0.5)][layer - 1]->Fill(timeOfFlightMuon);
       me0_sh_elossMu[(int)(region / 2. + 0.5)][layer - 1]->Fill(energyLossMuon * 1.e9);

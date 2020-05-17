@@ -79,8 +79,8 @@ int readMultipleStreams(bool verbose) {
 
     int evCount = 0;
     std::vector<std::string> streamFiles;
-    streamFiles.push_back("file:teststreamfile.dat");
-    streamFiles.push_back("file:teststreamfile.dat");
+    streamFiles.emplace_back("file:teststreamfile.dat");
+    streamFiles.emplace_back("file:teststreamfile.dat");
 
     edm::InputFileCatalog catalog(streamFiles, "");
 
@@ -130,7 +130,7 @@ int readInvalidLFN(bool verbose) {
 
     int evCount = 0;
     std::vector<std::string> streamFiles;
-    streamFiles.push_back("teststreamfile.dat");
+    streamFiles.emplace_back("teststreamfile.dat");
 
     edm::InputFileCatalog catalog(streamFiles, "");
 

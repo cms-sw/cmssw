@@ -292,7 +292,7 @@ FWDialogBuilder &FWDialogBuilder::addTextButton(const char *text, TGTextButton *
 
 FWDialogBuilder &FWDialogBuilder::addValidatingTextEntry(const char *defaultText,
                                                          FWGUIValidatingTextEntry **out /*= 0*/) {
-  FWGUIValidatingTextEntry *entry = new FWGUIValidatingTextEntry(nextFrame());
+  auto *entry = new FWGUIValidatingTextEntry(nextFrame());
   currentFrame()->AddFrame(entry, nextHints());
 
   return extract(entry, out);
@@ -346,7 +346,7 @@ FWDialogBuilder &FWDialogBuilder::addHSeparator(size_t horizontalPadding /*= 4*/
   TGLayoutHints *hints =
       new TGLayoutHints(kLHintsExpandX, horizontalPadding, horizontalPadding, verticalPadding, verticalPadding);
 
-  TGHorizontal3DLine *separator = new TGHorizontal3DLine(nextFrame(), 200, 2);
+  auto *separator = new TGHorizontal3DLine(nextFrame(), 200, 2);
   currentFrame()->AddFrame(separator, hints);
   return newRow();
 }

@@ -92,10 +92,10 @@ private:
   MonitorElement* bookMETrend(DQMStore::IBooker&, const char*);
   // internal evaluation of monitorables
   void AllClusters(const edm::Event& ev);
-  void trackStudyFromTrack(edm::Handle<reco::TrackCollection> trackCollectionHandle,
+  void trackStudyFromTrack(const edm::Handle<reco::TrackCollection>& trackCollectionHandle,
                            const edm::DetSetVector<SiStripDigi>& digilist,
                            const edm::Event& ev);
-  void trackStudyFromTrajectory(edm::Handle<reco::TrackCollection> trackCollectionHandle,
+  void trackStudyFromTrajectory(const edm::Handle<reco::TrackCollection>& trackCollectionHandle,
                                 const edm::DetSetVector<SiStripDigi>& digilist,
                                 const edm::Event& ev);
   void trajectoryStudy(const reco::Track& track,
@@ -111,13 +111,13 @@ private:
                 const SiStripMatchedRecHit2D* matchedhit,
                 const SiStripRecHit2D* hit2D,
                 const SiStripRecHit1D* hit1D,
-                LocalVector localMomentum,
+                const LocalVector& localMomentum,
                 const bool track_ok);
   bool clusterInfos(SiStripClusterInfo* cluster,
                     const uint32_t detid,
                     enum ClusterFlags flags,
                     bool track_ok,
-                    LocalVector LV,
+                    const LocalVector& LV,
                     const Det2MEs& MEs,
                     const TrackerTopology* tTopo,
                     const SiStripGain* stripGain,
@@ -127,7 +127,7 @@ private:
                     float clustPhi);
   template <class T>
   void RecHitInfo(const T* tkrecHit,
-                  LocalVector LV,
+                  const LocalVector& LV,
                   const edm::DetSetVector<SiStripDigi>& digilist,
                   const edm::Event& ev,
                   bool track_ok);

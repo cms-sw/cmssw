@@ -8,8 +8,8 @@ class testCompositeCandidate : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
   void checkAll();
 };
 
@@ -19,7 +19,7 @@ namespace test {
   class DummyCandidate : public reco::LeafCandidate {
   public:
     DummyCandidate(const LorentzVector& p, Charge q = 0, int x = 0) : reco::LeafCandidate(q, p), x_(x) {}
-    virtual DummyCandidate* clone() const { return new DummyCandidate(*this); }
+    DummyCandidate* clone() const override { return new DummyCandidate(*this); }
     int x() const { return x_; }
 
   private:
@@ -58,8 +58,8 @@ void testCompositeCandidate::checkAll() {
     int idx = 0;
     const reco::CompositeCandidate& cand = c;
     CPPUNIT_ASSERT(c.numberOfDaughters() == 2);
-    for (reco::Candidate::const_iterator i = cand.begin(); i != cand.end(); ++i) {
-      d[idx++] = &*i;
+    for (const auto& i : cand) {
+      d[idx++] = &i;
     }
     CPPUNIT_ASSERT(d[0]->charge() == q1);
     CPPUNIT_ASSERT((d[0]->p4() - p1).M2() < 1.e-4);

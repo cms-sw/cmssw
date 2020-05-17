@@ -21,7 +21,7 @@ class CPEAccessTester : public edm::EDAnalyzer {
 public:
   CPEAccessTester(const edm::ParameterSet& pset) : conf_(pset) {}
 
-  ~CPEAccessTester() {}
+  ~CPEAccessTester() override {}
 
   void analyze(const edm::Event& event, const edm::EventSetup& setup) override {
     //

@@ -28,8 +28,8 @@ int main() {
   VD vd2;
   std::swap(vd, vd2);
   assert(10 == vd2.size());
-  for (auto i = 0U; i < vd2.size(); ++i)
-    std::cout << *vd2[i] << ' ';
+  for (auto& i : vd2)
+    std::cout << *i << ' ';
   std::cout << std::endl;
   for (auto i = 0U; i < vd2.size(); ++i)
     if (i % 2 == 0)
@@ -50,8 +50,8 @@ int main() {
   std::cout << std::endl;
   vd2.resize(last - vd2.begin());
   assert(8 == vd2.size());
-  for (auto i = 0U; i < vd2.size(); ++i)
-    std::cout << *vd2[i] << ' ';
+  for (auto& i : vd2)
+    std::cout << *i << ' ';
   std::cout << std::endl;
 
   return 0;

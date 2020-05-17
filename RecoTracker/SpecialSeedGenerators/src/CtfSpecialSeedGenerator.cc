@@ -138,12 +138,12 @@ bool CtfSpecialSeedGenerator::run(const edm::EventSetup& iSetup,
                                   TrajectorySeedCollection& output) {
   std::vector<std::unique_ptr<TrackingRegion>> regions = theRegionProducer->regions(e, iSetup);
   bool ok = true;
-  for (auto iReg = regions.begin(); iReg != regions.end(); iReg++) {
+  for (auto& region : regions) {
     if (!theSeedBuilder->momentumFromPSet())
-      theSeedBuilder->setMomentumTo((*iReg)->ptMin());
+      theSeedBuilder->setMomentumTo(region->ptMin());
     int i = 0;
-    for (auto iGen = theGenerators.begin(); iGen != theGenerators.end(); iGen++) {
-      ok = buildSeeds(iSetup, e, (*iGen)->run(**iReg, e, iSetup), theNavDirs[i], thePropDirs[i], output);
+    for (auto& theGenerator : theGenerators) {
+      ok = buildSeeds(iSetup, e, theGenerator->run(*region, e, iSetup), theNavDirs[i], thePropDirs[i], output);
       i++;
       if (!ok)
         break;
@@ -166,15 +166,15 @@ bool CtfSpecialSeedGenerator::buildSeeds(const edm::EventSetup& iSetup,
     SeedingHitSet shs = osh[i];
     if (preliminaryCheck(shs, iSetup)) {
       std::vector<TrajectorySeed*> seeds = theSeedBuilder->seed(shs, dir, navdir, iSetup);
-      for (std::vector<TrajectorySeed*>::const_iterator iSeed = seeds.begin(); iSeed != seeds.end(); iSeed++) {
-        if (!*iSeed) {
+      for (auto seed : seeds) {
+        if (!seed) {
           edm::LogError("CtfSpecialSeedGenerator") << "a seed pointer is null. skipping.";
           continue;
         }
-        if (postCheck(**iSeed)) {
-          output.push_back(**iSeed);
+        if (postCheck(*seed)) {
+          output.push_back(*seed);
         }
-        delete *iSeed;
+        delete seed;
         edm::LogVerbatim("CtfSpecialSeedGenerator") << "Seed built";
       }
     }
@@ -234,7 +234,7 @@ bool CtfSpecialSeedGenerator::preliminaryCheck(const SeedingHitSet& shs, const e
 	  */
     }
     //vSeedLayerNames.push_back(iHits->seedinglayer().name());
-    vSubdetLayer.push_back(std::make_pair(subid, layer));
+    vSubdetLayer.emplace_back(subid, layer);
   }
   return true;
 }

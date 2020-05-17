@@ -7,63 +7,63 @@ using namespace hcaldqm::filter;
 
 HFRaddamTask::HFRaddamTask(edm::ParameterSet const& ps) : DQTask(ps) {
   //	List all the DetIds
-  _vDetIds.push_back(HcalDetId(HcalForward, -30, 35, 1));
-  _vDetIds.push_back(HcalDetId(HcalForward, -30, 71, 1));
-  _vDetIds.push_back(HcalDetId(HcalForward, -32, 15, 1));
-  _vDetIds.push_back(HcalDetId(HcalForward, -32, 51, 1));
-  _vDetIds.push_back(HcalDetId(HcalForward, -34, 35, 1));
-  _vDetIds.push_back(HcalDetId(HcalForward, -34, 71, 1));
-  _vDetIds.push_back(HcalDetId(HcalForward, -36, 15, 1));
-  _vDetIds.push_back(HcalDetId(HcalForward, -36, 51, 1));
-  _vDetIds.push_back(HcalDetId(HcalForward, -38, 35, 1));
-  _vDetIds.push_back(HcalDetId(HcalForward, -38, 71, 1));
-  _vDetIds.push_back(HcalDetId(HcalForward, -40, 15, 1));
-  _vDetIds.push_back(HcalDetId(HcalForward, -40, 51, 1));
-  _vDetIds.push_back(HcalDetId(HcalForward, -41, 35, 1));
-  _vDetIds.push_back(HcalDetId(HcalForward, -41, 71, 1));
-  _vDetIds.push_back(HcalDetId(HcalForward, -30, 15, 2));
-  _vDetIds.push_back(HcalDetId(HcalForward, -30, 51, 2));
-  _vDetIds.push_back(HcalDetId(HcalForward, -32, 35, 2));
-  _vDetIds.push_back(HcalDetId(HcalForward, -32, 71, 2));
-  _vDetIds.push_back(HcalDetId(HcalForward, -34, 15, 2));
-  _vDetIds.push_back(HcalDetId(HcalForward, -34, 51, 2));
-  _vDetIds.push_back(HcalDetId(HcalForward, -36, 35, 2));
-  _vDetIds.push_back(HcalDetId(HcalForward, -36, 71, 2));
-  _vDetIds.push_back(HcalDetId(HcalForward, -38, 15, 2));
-  _vDetIds.push_back(HcalDetId(HcalForward, -38, 51, 2));
-  _vDetIds.push_back(HcalDetId(HcalForward, -40, 35, 2));
-  _vDetIds.push_back(HcalDetId(HcalForward, -40, 71, 2));
-  _vDetIds.push_back(HcalDetId(HcalForward, -41, 15, 2));
-  _vDetIds.push_back(HcalDetId(HcalForward, -41, 51, 2));
+  _vDetIds.emplace_back(HcalForward, -30, 35, 1);
+  _vDetIds.emplace_back(HcalForward, -30, 71, 1);
+  _vDetIds.emplace_back(HcalForward, -32, 15, 1);
+  _vDetIds.emplace_back(HcalForward, -32, 51, 1);
+  _vDetIds.emplace_back(HcalForward, -34, 35, 1);
+  _vDetIds.emplace_back(HcalForward, -34, 71, 1);
+  _vDetIds.emplace_back(HcalForward, -36, 15, 1);
+  _vDetIds.emplace_back(HcalForward, -36, 51, 1);
+  _vDetIds.emplace_back(HcalForward, -38, 35, 1);
+  _vDetIds.emplace_back(HcalForward, -38, 71, 1);
+  _vDetIds.emplace_back(HcalForward, -40, 15, 1);
+  _vDetIds.emplace_back(HcalForward, -40, 51, 1);
+  _vDetIds.emplace_back(HcalForward, -41, 35, 1);
+  _vDetIds.emplace_back(HcalForward, -41, 71, 1);
+  _vDetIds.emplace_back(HcalForward, -30, 15, 2);
+  _vDetIds.emplace_back(HcalForward, -30, 51, 2);
+  _vDetIds.emplace_back(HcalForward, -32, 35, 2);
+  _vDetIds.emplace_back(HcalForward, -32, 71, 2);
+  _vDetIds.emplace_back(HcalForward, -34, 15, 2);
+  _vDetIds.emplace_back(HcalForward, -34, 51, 2);
+  _vDetIds.emplace_back(HcalForward, -36, 35, 2);
+  _vDetIds.emplace_back(HcalForward, -36, 71, 2);
+  _vDetIds.emplace_back(HcalForward, -38, 15, 2);
+  _vDetIds.emplace_back(HcalForward, -38, 51, 2);
+  _vDetIds.emplace_back(HcalForward, -40, 35, 2);
+  _vDetIds.emplace_back(HcalForward, -40, 71, 2);
+  _vDetIds.emplace_back(HcalForward, -41, 15, 2);
+  _vDetIds.emplace_back(HcalForward, -41, 51, 2);
 
-  _vDetIds.push_back(HcalDetId(HcalForward, 30, 21, 1));
-  _vDetIds.push_back(HcalDetId(HcalForward, 30, 57, 1));
-  _vDetIds.push_back(HcalDetId(HcalForward, 32, 1, 1));
-  _vDetIds.push_back(HcalDetId(HcalForward, 32, 37, 1));
-  _vDetIds.push_back(HcalDetId(HcalForward, 34, 21, 1));
-  _vDetIds.push_back(HcalDetId(HcalForward, 34, 57, 1));
-  _vDetIds.push_back(HcalDetId(HcalForward, 36, 1, 1));
-  _vDetIds.push_back(HcalDetId(HcalForward, 36, 37, 1));
-  _vDetIds.push_back(HcalDetId(HcalForward, 38, 21, 1));
-  _vDetIds.push_back(HcalDetId(HcalForward, 38, 57, 1));
-  _vDetIds.push_back(HcalDetId(HcalForward, 40, 35, 1));
-  _vDetIds.push_back(HcalDetId(HcalForward, 40, 71, 1));
-  _vDetIds.push_back(HcalDetId(HcalForward, 41, 19, 1));
-  _vDetIds.push_back(HcalDetId(HcalForward, 41, 55, 1));
-  _vDetIds.push_back(HcalDetId(HcalForward, 30, 1, 2));
-  _vDetIds.push_back(HcalDetId(HcalForward, 30, 37, 2));
-  _vDetIds.push_back(HcalDetId(HcalForward, 32, 21, 2));
-  _vDetIds.push_back(HcalDetId(HcalForward, 32, 57, 2));
-  _vDetIds.push_back(HcalDetId(HcalForward, 34, 1, 2));
-  _vDetIds.push_back(HcalDetId(HcalForward, 34, 37, 2));
-  _vDetIds.push_back(HcalDetId(HcalForward, 36, 21, 2));
-  _vDetIds.push_back(HcalDetId(HcalForward, 36, 57, 2));
-  _vDetIds.push_back(HcalDetId(HcalForward, 38, 1, 2));
-  _vDetIds.push_back(HcalDetId(HcalForward, 38, 37, 2));
-  _vDetIds.push_back(HcalDetId(HcalForward, 40, 19, 2));
-  _vDetIds.push_back(HcalDetId(HcalForward, 40, 55, 2));
-  _vDetIds.push_back(HcalDetId(HcalForward, 41, 35, 2));
-  _vDetIds.push_back(HcalDetId(HcalForward, 41, 71, 2));
+  _vDetIds.emplace_back(HcalForward, 30, 21, 1);
+  _vDetIds.emplace_back(HcalForward, 30, 57, 1);
+  _vDetIds.emplace_back(HcalForward, 32, 1, 1);
+  _vDetIds.emplace_back(HcalForward, 32, 37, 1);
+  _vDetIds.emplace_back(HcalForward, 34, 21, 1);
+  _vDetIds.emplace_back(HcalForward, 34, 57, 1);
+  _vDetIds.emplace_back(HcalForward, 36, 1, 1);
+  _vDetIds.emplace_back(HcalForward, 36, 37, 1);
+  _vDetIds.emplace_back(HcalForward, 38, 21, 1);
+  _vDetIds.emplace_back(HcalForward, 38, 57, 1);
+  _vDetIds.emplace_back(HcalForward, 40, 35, 1);
+  _vDetIds.emplace_back(HcalForward, 40, 71, 1);
+  _vDetIds.emplace_back(HcalForward, 41, 19, 1);
+  _vDetIds.emplace_back(HcalForward, 41, 55, 1);
+  _vDetIds.emplace_back(HcalForward, 30, 1, 2);
+  _vDetIds.emplace_back(HcalForward, 30, 37, 2);
+  _vDetIds.emplace_back(HcalForward, 32, 21, 2);
+  _vDetIds.emplace_back(HcalForward, 32, 57, 2);
+  _vDetIds.emplace_back(HcalForward, 34, 1, 2);
+  _vDetIds.emplace_back(HcalForward, 34, 37, 2);
+  _vDetIds.emplace_back(HcalForward, 36, 21, 2);
+  _vDetIds.emplace_back(HcalForward, 36, 57, 2);
+  _vDetIds.emplace_back(HcalForward, 38, 1, 2);
+  _vDetIds.emplace_back(HcalForward, 38, 37, 2);
+  _vDetIds.emplace_back(HcalForward, 40, 19, 2);
+  _vDetIds.emplace_back(HcalForward, 40, 55, 2);
+  _vDetIds.emplace_back(HcalForward, 41, 35, 2);
+  _vDetIds.emplace_back(HcalForward, 41, 71, 2);
 
   //	tags
   _tagHF = ps.getUntrackedParameter<edm::InputTag>("tagHF", edm::InputTag("hcalDigis"));
@@ -74,7 +74,7 @@ HFRaddamTask::HFRaddamTask(edm::ParameterSet const& ps) : DQTask(ps) {
 
 /* virtual */ void HFRaddamTask::bookHistograms(DQMStore::IBooker& ib, edm::Run const& r, edm::EventSetup const& es) {
   //	Initialize all the Single Containers
-  for (std::vector<HcalDetId>::const_iterator it = _vDetIds.begin(); it != _vDetIds.end(); ++it) {
+  for (auto it = _vDetIds.begin(); it != _vDetIds.end(); ++it) {
     _vcShape.push_back(ContainerSingle1D(_name,
                                          "Shape",
                                          new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
@@ -94,8 +94,8 @@ HFRaddamTask::HFRaddamTask(edm::ParameterSet const& ps) : DQTask(ps) {
   if (!e.getByToken(_tokHF, chf))
     _logger.dqmthrow("Collection HFDigiCollection isn't avalaible" + _tagHF.label() + " " + _tagHF.instance());
 
-  for (HFDigiCollection::const_iterator it = chf->begin(); it != chf->end(); ++it) {
-    const HFDataFrame digi = (const HFDataFrame)(*it);
+  for (const auto& it : *chf) {
+    const HFDataFrame digi = (const HFDataFrame)it;
     for (unsigned int i = 0; i < _vDetIds.size(); i++)
       if (digi.id() == _vDetIds[i]) {
         for (int j = 0; j < digi.size(); j++)

@@ -391,10 +391,10 @@ namespace ecaldqm {
 
     int nSC(0);
 
-    for (reco::SuperClusterCollection::const_iterator scItr(_scs.begin()); scItr != _scs.end(); ++scItr) {
-      DetId seedId(scItr->seed()->seed());
+    for (const auto& _sc : _scs) {
+      DetId seedId(_sc.seed()->seed());
       if (seedId.null()) {
-        math::XYZPoint const& position(scItr->position());
+        math::XYZPoint const& position(_sc.position());
 
         GlobalPoint gp(position.x(), position.y(), position.z());
 
@@ -407,19 +407,19 @@ namespace ecaldqm {
       if (seedId.null() || (seedId.subdetId() != subdet))
         continue;
 
-      EcalRecHitCollection::const_iterator seedItr(hits->find(seedId));
+      auto seedItr(hits->find(seedId));
       if (seedItr == hits->end())
         continue;
 
       ++nSC;
 
-      float energy(scItr->energy());
-      float size(scItr->size());
+      float energy(_sc.energy());
+      float size(_sc.size());
 
       meSCE.fill(seedId, energy);
       meSCELow.fill(seedId, energy);
 
-      meSCNBCs.fill(seedId, scItr->clustersSize());
+      meSCNBCs.fill(seedId, _sc.clustersSize());
       meSCNcrystals.fill(seedId, size);
 
       if (doExtra_)
@@ -434,10 +434,10 @@ namespace ecaldqm {
       if (doExtra_ && energy > energyThreshold_)
         meSCSeedOccupancyHighE->fill(seedId);
 
-      if (scItr->size() == 1)
+      if (_sc.size() == 1)
         meSingleCrystalCluster.fill(seedId);
 
-      float e3x3(EcalClusterTools::e3x3(*scItr->seed(), hits, getTopology()));
+      float e3x3(EcalClusterTools::e3x3(*_sc.seed(), hits, getTopology()));
       meSCR9.fill(seedId, e3x3 / energy);
 
       if (doExtra_) {
@@ -457,16 +457,16 @@ namespace ecaldqm {
           }
         }
 
-        meSCOccupancyProjEta->fill(subdet, scItr->eta());
-        meSCOccupancyProjPhi->fill(subdet, phi(scItr->phi()));
+        meSCOccupancyProjEta->fill(subdet, _sc.eta());
+        meSCOccupancyProjPhi->fill(subdet, phi(_sc.phi()));
 
         if (isBarrel) {
-          float e1(EcalClusterTools::eMax(*scItr, ebHits_));
+          float e1(EcalClusterTools::eMax(_sc, ebHits_));
           if (e1 > swissCrossMaxThreshold_) {
-            float e4(EcalClusterTools::eTop(*scItr, ebHits_, getTopology()) +
-                     EcalClusterTools::eRight(*scItr, ebHits_, getTopology()) +
-                     EcalClusterTools::eBottom(*scItr, ebHits_, getTopology()) +
-                     EcalClusterTools::eLeft(*scItr, ebHits_, getTopology()));
+            float e4(EcalClusterTools::eTop(_sc, ebHits_, getTopology()) +
+                     EcalClusterTools::eRight(_sc, ebHits_, getTopology()) +
+                     EcalClusterTools::eBottom(_sc, ebHits_, getTopology()) +
+                     EcalClusterTools::eLeft(_sc, ebHits_, getTopology()));
 
             meSCSwissCross->fill(1. - e4 / e1);
           }

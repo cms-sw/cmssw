@@ -95,7 +95,7 @@ int main(int argc, char* argv[]) {
   MiscalibReaderFromXMLEcalBarrel barrelreader(EBscalibMap);
   if (!barrelfile.empty())
     barrelreader.parseXMLMiscalibFile(barrelfile);
-  EcalIntercalibConstants* EBconstants = new EcalIntercalibConstants(EBscalibMap.get());
+  auto* EBconstants = new EcalIntercalibConstants(EBscalibMap.get());
   const EcalIntercalibConstantMap& iEBscalibMap = EBconstants->getMap();  //MF prende i vecchi coeff
 
   CaloMiscalibMapEcal EEscalibMap;
@@ -103,7 +103,7 @@ int main(int argc, char* argv[]) {
   MiscalibReaderFromXMLEcalEndcap endcapreader(EEscalibMap);
   if (!endcapfile.empty())
     endcapreader.parseXMLMiscalibFile(endcapfile);
-  EcalIntercalibConstants* EEconstants = new EcalIntercalibConstants(EEscalibMap.get());
+  auto* EEconstants = new EcalIntercalibConstants(EEscalibMap.get());
   const EcalIntercalibConstantMap& iEEscalibMap = EEconstants->getMap();  //MF prende i vecchi coeff
 
   //PG get the recalibration files for EB and EE
@@ -114,7 +114,7 @@ int main(int argc, char* argv[]) {
   MiscalibReaderFromXMLEcalBarrel calibBarrelreader(EBcalibMap);
   if (!calibBarrelfile.empty())
     calibBarrelreader.parseXMLMiscalibFile(calibBarrelfile);
-  EcalIntercalibConstants* EBCconstants = new EcalIntercalibConstants(EBcalibMap.get());
+  auto* EBCconstants = new EcalIntercalibConstants(EBcalibMap.get());
   const EcalIntercalibConstantMap& iEBcalibMap = EBCconstants->getMap();  //MF prende i vecchi coeff
 
   CaloMiscalibMapEcal EEcalibMap;
@@ -122,7 +122,7 @@ int main(int argc, char* argv[]) {
   MiscalibReaderFromXMLEcalEndcap calibEndcapreader(EEcalibMap);
   if (!calibEndcapfile.empty())
     calibEndcapreader.parseXMLMiscalibFile(calibEndcapfile);
-  EcalIntercalibConstants* EECconstants = new EcalIntercalibConstants(EEcalibMap.get());
+  auto* EECconstants = new EcalIntercalibConstants(EEcalibMap.get());
   const EcalIntercalibConstantMap& iEEcalibMap = EECconstants->getMap();  //MF prende i vecchi coeff
 
   //PG fill the histograms

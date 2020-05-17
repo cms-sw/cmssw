@@ -169,10 +169,10 @@ protected:
   inline bool usingDb() const;
 
   /** Returns pointer to DeviceFactory API, with check if NULL. */
-  DeviceFactory* const deviceFactory(std::string method_name = "") const;
+  DeviceFactory* const deviceFactory(const std::string& method_name = "") const;
 
   /** Returns pointer to DeviceFactory API, with check if NULL. */
-  DbClient* const databaseCache(std::string method_name = "") const;
+  DbClient* const databaseCache(const std::string& method_name = "") const;
 
   // ---------- Run numbers for partitions and run types ----------
 
@@ -194,7 +194,7 @@ protected:
   void runs(Runs&) const;
 
   /** Runs organsed by type, optionally for given partition. */
-  void runs(const Runs& in, RunsByType& out, std::string optional_partition = "") const;
+  void runs(const Runs& in, RunsByType& out, const std::string& optional_partition = "") const;
 
   /** Runs organsed by partition, optionally for given type. */
   void runs(const Runs& in, RunsByPartition& out, sistrip::RunType optional_type = sistrip::UNDEFINED_RUN_TYPE) const;
@@ -207,40 +207,40 @@ protected:
   // ---------- FED connections ----------
 
   /** Returns local cache (just for given partition if specified). */
-  FedConnectionsRange getFedConnections(std::string partition = "");
+  FedConnectionsRange getFedConnections(const std::string& partition = "");
 
   /** Add to local cache (just for given partition if specified). */
-  void addFedConnections(std::string partition, FedConnectionsV&);
+  void addFedConnections(const std::string& partition, FedConnectionsV&);
 
   /** Uploads to database (just for given partition if specified). */
-  void uploadFedConnections(std::string partition = "");
+  void uploadFedConnections(const std::string& partition = "");
 
   /** Clears local cache (just for given partition if specified). */
-  void clearFedConnections(std::string partition = "");
+  void clearFedConnections(const std::string& partition = "");
 
   /** Prints local cache (just for given partition if specified). */
-  void printFedConnections(std::string partition = "");
+  void printFedConnections(const std::string& partition = "");
 
   // ---------- FEC / Front-End devices ----------
 
   /** Returns local cache (just for given partition if specified). */
-  DeviceDescriptionsRange getDeviceDescriptions(std::string partition = "");
+  DeviceDescriptionsRange getDeviceDescriptions(const std::string& partition = "");
 
   /** Returns (pair of iterators to) descriptions of given type. */
   /** (APV25, APVMUX, DCU, LASERDRIVER, PLL, DOH). */
   DeviceDescriptionsRange getDeviceDescriptions(DeviceType, std::string partition = "");
 
   /** Adds to local cache (just for given partition if specified). */
-  void addDeviceDescriptions(std::string partition, DeviceDescriptionsV&);
+  void addDeviceDescriptions(const std::string& partition, DeviceDescriptionsV&);
 
   /** Uploads to database (just for given partition if specified). */
-  void uploadDeviceDescriptions(std::string partition = "");
+  void uploadDeviceDescriptions(const std::string& partition = "");
 
   /** Clears local cache (just for given partition if specified). */
-  void clearDeviceDescriptions(std::string partition = "");
+  void clearDeviceDescriptions(const std::string& partition = "");
 
   /** Prints local cache (just for given partition if specified). */
-  void printDeviceDescriptions(std::string partition = "");
+  void printDeviceDescriptions(const std::string& partition = "");
 
   /** Extracts unique hardware address of device from description. */
   DeviceAddress deviceAddress(const deviceDescription&);  //@@ uses temp offsets!
@@ -248,19 +248,19 @@ protected:
   // ---------- FED descriptions ----------
 
   /** Returns local cache (just for given partition if specified). */
-  FedDescriptionsRange getFedDescriptions(std::string partition = "");
+  FedDescriptionsRange getFedDescriptions(const std::string& partition = "");
 
   /** Adds to local cache (just for given partition if specified). */
-  void addFedDescriptions(std::string partition, FedDescriptionsV&);
+  void addFedDescriptions(const std::string& partition, FedDescriptionsV&);
 
   /** Uploads to database (just for given partition if specified). */
-  void uploadFedDescriptions(std::string partition = "");
+  void uploadFedDescriptions(const std::string& partition = "");
 
   /** Clears local cache (just for given partition if specified). */
-  void clearFedDescriptions(std::string partition = "");
+  void clearFedDescriptions(const std::string& partition = "");
 
   /** Prints local cache (just for given partition if specified). */
-  void printFedDescriptions(std::string partition = "");
+  void printFedDescriptions(const std::string& partition = "");
 
   /** Extracts FED ids from FED descriptions. */
   FedIdsRange getFedIds(std::string partition = "");
@@ -274,19 +274,19 @@ protected:
   // ---------- DCU-DetId info ----------
 
   /** Returns local cache (just for given partition if specified). */
-  DcuDetIdsRange getDcuDetIds(std::string partition = "");
+  DcuDetIdsRange getDcuDetIds(const std::string& partition = "");
 
   /** Adds to local cache (just for given partition if specified). */
-  void addDcuDetIds(std::string partition, DcuDetIdsV&);
+  void addDcuDetIds(const std::string& partition, DcuDetIdsV&);
 
   /** Uploads to database (just for given partition if specified). */
-  void uploadDcuDetIds(std::string partition = "");
+  void uploadDcuDetIds(const std::string& partition = "");
 
   /** Clears local cache (just for given partition if specified). */
-  void clearDcuDetIds(std::string partition = "");
+  void clearDcuDetIds(const std::string& partition = "");
 
   /** Prints local cache (just for given partition if specified). */
-  void printDcuDetIds(std::string partition = "");
+  void printDcuDetIds(const std::string& partition = "");
 
   /** Utility method. */
   static DcuDetIdsV::const_iterator findDcuDetId(DcuDetIdsV::const_iterator begin,
@@ -299,19 +299,19 @@ protected:
   // ---------- Commissioning analyses ----------
 
   /** Returns local cache (just for given partition if specified). */
-  AnalysisDescriptionsRange getAnalysisDescriptions(AnalysisType, std::string partition = "");
+  AnalysisDescriptionsRange getAnalysisDescriptions(AnalysisType, const std::string& partition = "");
 
   /** Adds to local cache (just for given partition if specified). */
-  void addAnalysisDescriptions(std::string partition, AnalysisDescriptionsV&);
+  void addAnalysisDescriptions(const std::string& partition, AnalysisDescriptionsV&);
 
   /** Uploads to database (just for given partition if specified). */
-  void uploadAnalysisDescriptions(bool calibration_for_physics = false, std::string partition = "");
+  void uploadAnalysisDescriptions(bool calibration_for_physics = false, const std::string& partition = "");
 
   /** Clears local cache (just for given partition if specified). */
-  void clearAnalysisDescriptions(std::string partition = "");
+  void clearAnalysisDescriptions(const std::string& partition = "");
 
   /** Prints local cache (just for given partition if specified). */
-  void printAnalysisDescriptions(std::string partition = "");
+  void printAnalysisDescriptions(const std::string& partition = "");
 
   /** Extracts unique hardware address of device from description. */
   DeviceAddress deviceAddress(const AnalysisDescription&);  //@@ uses temp offsets!

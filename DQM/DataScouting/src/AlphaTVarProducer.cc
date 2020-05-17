@@ -70,9 +70,9 @@ double AlphaTVarProducer::CalcAlphaT(const std::vector<TLorentzVector> &jets) {
   TVector3 MHT{CalcMHT(jets), 0.0, 0.0};
   float HT = CalcHT(jets);
   // float HT = 0;
-  for (unsigned int i = 0; i < jets.size(); i++) {
-    if (jets[i].Et() > 50. && fabs(jets[i].Eta()) < 2.5)
-      ETs.push_back(jets[i].Et());
+  for (const auto &jet : jets) {
+    if (jet.Et() > 50. && fabs(jet.Eta()) < 2.5)
+      ETs.push_back(jet.Et());
     // HT += jets[i].Et();
   }
   if (ETs.size() < 2.)
@@ -107,9 +107,9 @@ double AlphaTVarProducer::alphaT(const double HT, const double DHT, const double
 
 double AlphaTVarProducer::CalcHT(const std::vector<TLorentzVector> &jets) {
   double HT = 0;
-  for (unsigned int i = 0; i < jets.size(); i++) {
-    if (jets[i].Et() > 50. && fabs(jets[i].Eta()) < 2.5)
-      HT += jets[i].Et();
+  for (const auto &jet : jets) {
+    if (jet.Et() > 50. && fabs(jet.Eta()) < 2.5)
+      HT += jet.Et();
   }
 
   return HT;
@@ -117,9 +117,9 @@ double AlphaTVarProducer::CalcHT(const std::vector<TLorentzVector> &jets) {
 
 double AlphaTVarProducer::CalcMHT(const std::vector<TLorentzVector> &jets) {
   TVector3 MHT;
-  for (unsigned int i = 0; i < jets.size(); i++) {
-    if (jets[i].Et() > 50. && fabs(jets[i].Eta()) < 2.5)
-      MHT -= jets[i].Vect();
+  for (const auto &jet : jets) {
+    if (jet.Et() > 50. && fabs(jet.Eta()) < 2.5)
+      MHT -= jet.Vect();
   }
   MHT.SetZ(0.0);
   return MHT.Mag();

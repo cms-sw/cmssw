@@ -23,7 +23,7 @@ namespace fwlite {
   RunFactory::RunFactory() {}
   RunFactory::~RunFactory() {}
 
-  std::shared_ptr<fwlite::Run> RunFactory::makeRun(std::shared_ptr<BranchMapReader> branchMap) const {
+  std::shared_ptr<fwlite::Run> RunFactory::makeRun(const std::shared_ptr<BranchMapReader>& branchMap) const {
     if (not run_) {
       run_ = std::make_shared<fwlite::Run>(branchMap);
     }

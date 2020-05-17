@@ -91,7 +91,7 @@ int main(int argc, char* argv[]) {
     MiscalibReaderFromXMLEcalBarrel barrelreader(map);
     if (!fileName.empty())
       barrelreader.parseXMLMiscalibFile(fileName);
-    EcalIntercalibConstants* constants = new EcalIntercalibConstants(map.get());
+    auto* constants = new EcalIntercalibConstants(map.get());
     recalibrators[currentIndex] = constants->getMap();
   }  //PG loop on EB eta indexes
 
@@ -100,9 +100,7 @@ int main(int argc, char* argv[]) {
   //PG this command outputs an XML file with a fixed name
   calibXMLwriter barrelWriter(EcalBarrel);
   //PG loop on EB eta slices
-  for (std::map<int, EcalIntercalibConstantMap>::const_iterator itMap = recalibrators.begin();
-       itMap != recalibrators.end();
-       ++itMap) {
+  for (auto itMap = recalibrators.begin(); itMap != recalibrators.end(); ++itMap) {
     //PG compute the values of the limits
     //PG FIXME questo forse non e' sufficiente, bisogna anche considerare il caso
     //PG FIXME in cui currentIndex e' positivo e effEtaIndex start no

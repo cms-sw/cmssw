@@ -42,7 +42,7 @@ namespace edm {
     explicit RefToBaseVector(REFV const&);
     template <typename C>
     explicit RefToBaseVector(Handle<C> const&);
-    RefToBaseVector(std::shared_ptr<reftobase::RefVectorHolderBase> p);
+    RefToBaseVector(const std::shared_ptr<reftobase::RefVectorHolderBase>& p);
     RefToBaseVector& operator=(RefToBaseVector const& iRHS);
     void swap(RefToBaseVector& other);
 
@@ -118,7 +118,7 @@ namespace edm {
       : holder_(iOther.holder_ ? iOther.holder_->clone() : nullptr) {}
 
   template <class T>
-  inline RefToBaseVector<T>::RefToBaseVector(std::shared_ptr<reftobase::RefVectorHolderBase> p)
+  inline RefToBaseVector<T>::RefToBaseVector(const std::shared_ptr<reftobase::RefVectorHolderBase>& p)
       : holder_(new reftobase::IndirectVectorHolder<T>(p)) {}
 
   template <class T>

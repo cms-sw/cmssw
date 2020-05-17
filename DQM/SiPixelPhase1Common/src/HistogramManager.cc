@@ -35,7 +35,7 @@ HistogramManager::HistogramManager(const edm::ParameterSet& iconfig, GeometryInt
       range_y_min(iconfig.getParameter<double>("range_y_min")),
       range_y_max(iconfig.getParameter<double>("range_y_max")) {
   auto spec_configs = iconfig.getParameter<edm::VParameterSet>("specs");
-  for (auto spec : spec_configs) {
+  for (const auto& spec : spec_configs) {
     // this would fit better in SummationSpecification(...), but it has to
     // happen here.
     auto conf = spec.getParameter<edm::ParameterSet>("conf");
@@ -45,11 +45,11 @@ HistogramManager::HistogramManager(const edm::ParameterSet& iconfig, GeometryInt
   }
 }
 
-void HistogramManager::addSpec(SummationSpecification spec) {
+void HistogramManager::addSpec(const SummationSpecification& spec) {
   specs.push_back(spec);
-  tables.push_back(Table());
-  counters.push_back(Table());
-  significantvalues.push_back(GeometryInterface::Values());
+  tables.emplace_back();
+  counters.emplace_back();
+  significantvalues.emplace_back();
   fastpath.push_back(nullptr);
 }
 

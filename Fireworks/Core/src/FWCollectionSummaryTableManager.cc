@@ -83,9 +83,8 @@ namespace {
     for (int index = 0; index < size; ++index) {
       iMap.insert(std::make_pair(iGetter.valueFor(iItem.modelData(index), iCol), index));
     }
-    std::vector<int>::iterator itVec = oNewSort.begin();
-    for (typename std::map<double, int, S>::iterator it = iMap.begin(), itEnd = iMap.end(); it != itEnd;
-         ++it, ++itVec) {
+    auto itVec = oNewSort.begin();
+    for (auto it = iMap.begin(), itEnd = iMap.end(); it != itEnd; ++it, ++itVec) {
       *itVec = it->second;
     }
   }

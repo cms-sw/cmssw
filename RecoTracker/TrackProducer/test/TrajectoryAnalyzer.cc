@@ -45,10 +45,10 @@
 class TrajectoryAnalyzer : public edm::stream::EDAnalyzer<> {
 public:
   explicit TrajectoryAnalyzer(const edm::ParameterSet&);
-  ~TrajectoryAnalyzer();
+  ~TrajectoryAnalyzer() override;
 
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
   edm::EDGetTokenT<std::vector<Trajectory>> trajTag;
@@ -85,12 +85,12 @@ void TrajectoryAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   iEvent.getByToken(trajTag, trajCollectionHandle);
 
   COUT("TrajectoryAnalyzer") << "trajColl->size(): " << trajCollectionHandle->size() << std::endl;
-  for (auto it = trajCollectionHandle->begin(); it != trajCollectionHandle->end(); it++) {
-    COUT("TrajectoryAnalyzer") << "this traj has " << it->foundHits() << " valid hits"
+  for (const auto& it : *trajCollectionHandle) {
+    COUT("TrajectoryAnalyzer") << "this traj has " << it.foundHits() << " valid hits"
                                << " , "
-                               << "isValid: " << it->isValid() << std::endl;
+                               << "isValid: " << it.isValid() << std::endl;
 
-    auto const& tmColl = it->measurements();
+    auto const& tmColl = it.measurements();
     for (auto itTraj = tmColl.begin(); itTraj != tmColl.end(); itTraj++) {
       if (!itTraj->updatedState().isValid())
         continue;

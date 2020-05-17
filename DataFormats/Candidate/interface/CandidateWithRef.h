@@ -54,8 +54,8 @@ namespace reco {
 
   template <typename Ref>
   bool CandidateWithRef<Ref>::overlap(const Candidate &c) const {
-    const CandidateWithRef *o = dynamic_cast<const CandidateWithRef *>(&c);
-    if (o == 0)
+    const auto *o = dynamic_cast<const CandidateWithRef *>(&c);
+    if (o == nullptr)
       return false;
     if (ref().isNull())
       return false;

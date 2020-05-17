@@ -82,7 +82,7 @@ SiStripDetWithSomething<T>::SiStripDetWithSomething(const edm::ParameterSet& iCo
   sort(_wantedmod.begin(), _wantedmod.end());
 
   edm::LogInfo("SelectedModules") << "Selected module list";
-  for (std::vector<unsigned int>::const_iterator mod = _wantedmod.begin(); mod != _wantedmod.end(); mod++) {
+  for (auto mod = _wantedmod.begin(); mod != _wantedmod.end(); mod++) {
     edm::LogVerbatim("SelectedModules") << *mod;
   }
 }
@@ -105,10 +105,8 @@ bool SiStripDetWithSomething<T>::filter(edm::Event& iEvent, const edm::EventSetu
   Handle<T> digis;
   iEvent.getByToken(_digicollectionToken, digis);
 
-  for (typename T::const_iterator it = digis->begin(); it != digis->end(); it++) {
-    for (std::vector<unsigned int>::const_iterator mod = _wantedmod.begin();
-         mod != _wantedmod.end() && it->detId() >= *mod;
-         mod++) {
+  for (auto it = digis->begin(); it != digis->end(); it++) {
+    for (auto mod = _wantedmod.begin(); mod != _wantedmod.end() && it->detId() >= *mod; mod++) {
       if (*mod == it->detId()) {
         edm::LogInfo("ModuleFound") << " module " << *mod << " found with " << it->size() << " digis/clusters";
         return true;

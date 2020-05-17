@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
     }
 
     std::cout << names.size() << " namespaces found: " << std::endl << std::endl;
-    ns_type::const_iterator nit = names.begin();
+    auto nit = names.begin();
     for (; nit != names.end(); ++nit) {
       std::cout << nit->first << " has " << nit->second.size() << " entries." << std::endl;
     }

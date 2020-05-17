@@ -242,7 +242,7 @@ bool MixCollection<T>::MixItr::getNewPileups(typename std::vector<const T *>::co
   while (iPileup_ < nrDets_) {
     mixCol_->crossingFrames_[iPileup_]->getPileups(first, last);
     int s = 0;
-    for (typename std::vector<const T *>::const_iterator it = first; it != last; it++) {
+    for (auto it = first; it != last; it++) {
       s++;
     }
     myCF_ = mixCol_->crossingFrames_[iPileup_];

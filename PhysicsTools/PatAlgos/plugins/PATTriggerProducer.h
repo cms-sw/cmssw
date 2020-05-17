@@ -132,7 +132,7 @@ namespace pat {
       void init(const HLTConfigProvider&);
       void clear() { map_.clear(); }
       const std::vector<PathAndFlags>& operator[](const std::string& filter) const {
-        std::map<std::string, std::vector<PathAndFlags> >::const_iterator it = map_.find(filter);
+        auto it = map_.find(filter);
         return (it == map_.end() ? empty_ : it->second);
       }
 

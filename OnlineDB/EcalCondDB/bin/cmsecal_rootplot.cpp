@@ -13,6 +13,8 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <utility>
+
 #include <vector>
 #include <cfloat>
 
@@ -24,10 +26,9 @@ public:
   static const int DEFAULT_AXIS = 111;
   static const int TIME_AXIS = 222;
 
-  RootPlot(string type, string format, string file, float hmin=0., float hmax=0.) 
-  {
-    m_isInit = 0;
-    m_type = type;
+  RootPlot(string type, const string& format, const string& file, float hmin = 0., float hmax = 0.) {
+    m_isInit = false;
+    m_type = std::move(type);
     m_outputFormat = format;
     m_outputFile = file+"."+format;
     m_outputRoot = file+".root";
@@ -57,7 +58,7 @@ public:
     gROOT->SetStyle("Plain");
     gStyle->SetOptStat(111111);
     gStyle->SetOptFit();
-    gStyle->SetPalette(1,0);
+    gStyle->SetPalette(1, nullptr);
 
     int pCol[2] = { 2, 3 };
     if((m_type == "Map" || m_type == "EBEEMap") && (TString(m_title).Contains("status")) ) {
@@ -94,10 +95,9 @@ public:
 
   };
 
-
-  void setTitle(string title) { m_title = title; }
-  void setXTitle(string xtitle) { m_xtitle = xtitle; }
-  void setYTitle(string ytitle) { m_ytitle = ytitle; }
+  void setTitle(string title) { m_title = std::move(title); }
+  void setXTitle(string xtitle) { m_xtitle = std::move(xtitle); }
+  void setYTitle(string ytitle) { m_ytitle = std::move(ytitle); }
   void setDebug(int debug) { m_debug = debug; }
   void setXAxisType(int code) { m_xAxisType = code; }
 
@@ -105,7 +105,7 @@ public:
   {
     if (!m_isInit) {
       this->init();
-      m_isInit = 1;
+      m_isInit = true;
     }
 
     if (str[0] == '#') {
@@ -191,7 +191,7 @@ public:
       this->drawEBEEMap();
     }
 
-    m_isInit = 0;
+    m_isInit = false;
   };
 
   void drawTH1F()
@@ -591,8 +591,7 @@ private:
   TDatime m_T0;
 };
 
-void arg_error(string msg)
-{
+void arg_error(const string& msg) {
   cerr << "ERROR:  " << msg << endl;
   cerr << "Use 'ECALrootPlotter -h' for help" << endl;
   exit(1);
@@ -694,8 +693,8 @@ int main (int argc, char* argv[])
   if (vm.count("debug")) { debug = 1; }
   
   string path = "";
-  if ((int)file.find("/") >= 0) {
-    path = file.substr(0, file.rfind("/"));
+  if ((int)file.find('/') >= 0) {
+    path = file.substr(0, file.rfind('/'));
   }
   outputFile = path + "/" + outputFile;
 

@@ -3,7 +3,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 bool SiStripBackPlaneCorrection::putBackPlaneCorrection(const uint32_t& detid, float value) {
-  std::map<unsigned int, float>::const_iterator id = m_BPC.find(detid);
+  auto id = m_BPC.find(detid);
   if (id != m_BPC.end()) {
     edm::LogError("SiStripBackPlaneCorrection")
         << "SiStripBackPlaneCorrection for DetID " << detid << " is already stored. Skippig this put" << std::endl;
@@ -13,7 +13,7 @@ bool SiStripBackPlaneCorrection::putBackPlaneCorrection(const uint32_t& detid, f
   return true;
 }
 float SiStripBackPlaneCorrection::getBackPlaneCorrection(const uint32_t& detid) const {
-  std::map<unsigned int, float>::const_iterator id = m_BPC.find(detid);
+  auto id = m_BPC.find(detid);
   if (id != m_BPC.end())
     return id->second;
   else {

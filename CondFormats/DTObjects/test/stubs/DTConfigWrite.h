@@ -16,9 +16,9 @@ namespace edmtest {
   public:
     explicit DTConfigWrite(edm::ParameterSet const& p);
     explicit DTConfigWrite(int i);
-    virtual ~DTConfigWrite();
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-    virtual void endJob();
+    ~DTConfigWrite() override;
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+    void endJob() override;
 
   private:
   };

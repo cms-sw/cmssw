@@ -3,6 +3,7 @@
 
 #include <map>
 #include <string>
+#include <utility>
 
 #include "OnlineDB/EcalCondDB/interface/IODConfig.h"
 #include "OnlineDB/EcalCondDB/interface/Tm.h"
@@ -21,19 +22,19 @@ public:
   inline void setId(int id) { m_ID = id; }
   inline int getId() const { return m_ID; }
 
-  inline void setType(std::string x) { m_type = x; }
+  inline void setType(std::string x) { m_type = std::move(x); }
   inline std::string getType() const { return m_type; }
 
   inline void setRecordDate(const Tm& x) { m_rec_time = x; }
   inline Tm getRecordDate() const { return m_rec_time; }
 
-  inline void setLocation(std::string x) { m_loc = x; }
+  inline void setLocation(std::string x) { m_loc = std::move(x); }
   inline std::string getLocation() const { return m_loc; }
 
   inline void setRunNumber(int id) { m_run = id; }
   inline int getRunNumber() const { return m_run; }
 
-  inline void setDescription(std::string x) { m_desc = x; }
+  inline void setDescription(std::string x) { m_desc = std::move(x); }
   inline std::string getDescription() const { return m_desc; }
 
   inline void setDBDate(const Tm& x) { m_db_time = x; }

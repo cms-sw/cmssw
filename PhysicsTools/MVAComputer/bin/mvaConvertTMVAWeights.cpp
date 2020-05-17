@@ -61,8 +61,8 @@ static Calibration::VarProcessor *getCalibration(const std::string &file, const 
   TString methodName = fullname(0, idxtit);
 
   std::size_t size = getStreamSize(in) + methodName.Length();
-  for (std::vector<std::string>::const_iterator iter = names.begin(); iter != names.end(); ++iter)
-    size += iter->size() + 1;
+  for (const auto &name : names)
+    size += name.size() + 1;
   size += (size / 32) + 128;
 
   char *buffer = nullptr;
@@ -73,8 +73,8 @@ static Calibration::VarProcessor *getCalibration(const std::string &file, const 
       ext::ozstream ozs(&os);
       ozs << methodName << "\n";
       ozs << names.size() << "\n";
-      for (std::vector<std::string>::const_iterator iter = names.begin(); iter != names.end(); ++iter)
-        ozs << *iter << "\n";
+      for (const auto &name : names)
+        ozs << name << "\n";
       ozs << in.rdbuf();
       ozs.flush();
     }
@@ -102,7 +102,7 @@ int main(int argc, char **argv) {
 
   std::vector<std::string> names;
   for (int i = 3; i < argc; i++)
-    names.push_back(argv[i]);
+    names.emplace_back(argv[i]);
 
   try {
     std::unique_ptr<Calibration::VarProcessor> proc(getCalibration(argv[1], names));

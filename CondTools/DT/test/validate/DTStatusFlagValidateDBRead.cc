@@ -5,7 +5,7 @@ Toy EDAnalyzer for testing purposes only.
 
 ----------------------------------------------------------------------*/
 
-#include <math.h>
+#include <cmath>
 #include <stdexcept>
 #include <string>
 #include <iostream>
@@ -65,8 +65,8 @@ void DTStatusFlagValidateDBRead::analyze(const edm::Event& e, const edm::EventSe
   bool cknohvFlag;
 
   int status;
-  DTStatusFlag::const_iterator iter = sf->begin();
-  DTStatusFlag::const_iterator iend = sf->end();
+  auto iter = sf->begin();
+  auto iend = sf->end();
   while (iter != iend) {
     const DTStatusFlagId& sfId = iter->first;
     const DTStatusFlagData& sfData = iter->second;

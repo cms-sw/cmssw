@@ -26,7 +26,7 @@ public:
 
 protected:
   /// Book the new MEs (for each chamber)
-  void bookChambHistos(DQMStore::IBooker&, DTChamberId chambId, std::string htype);
+  void bookChambHistos(DQMStore::IBooker&, const DTChamberId& chambId, const std::string& htype);
 
   /// Compute efficiency plots
   void makeEfficiencyME(TH1D* numerator, TH1D* denominator, MonitorElement* result);

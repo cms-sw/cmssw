@@ -19,7 +19,7 @@ namespace cms {
 
     bool compareEqual(string_view node, string_view name) { return (name == node); }
 
-    bool compareEqual(string_view node, regex pattern) { return regex_match(begin(node), end(node), pattern); }
+    bool compareEqual(string_view node, const regex& pattern) { return regex_match(begin(node), end(node), pattern); }
 
     bool accepted(vector<std::regex> const& keys, string_view node) {
       return (find_if(begin(keys), end(keys), [&](const auto& n) -> bool { return compareEqual(node, n); }) !=

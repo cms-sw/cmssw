@@ -106,6 +106,8 @@ void CalibratedPhotonProducerT<T>::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<bool>("produceCalibratedObjs", true);
   desc.add<bool>("semiDeterministic", true);
   std::vector<std::string> valMapsProduced;
+  valMapsProduced.reserve(valMapsToStore_.size());
+
   for (auto varToStore : valMapsToStore_)
     valMapsProduced.push_back(EGEnergySysIndex::name(varToStore));
   desc.add<std::vector<std::string>>("valueMapsStored", valMapsProduced)

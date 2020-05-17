@@ -125,26 +125,25 @@ EventTimeDistribution::EventTimeDistribution(const edm::ParameterSet& iConfig)
   std::vector<edm::ParameterSet> dbxhistoparams(iConfig.getUntrackedParameter<std::vector<edm::ParameterSet> >(
       "dbxHistosParams", std::vector<edm::ParameterSet>()));
 
-  for (std::vector<edm::ParameterSet>::const_iterator params = dbxhistoparams.begin(); params != dbxhistoparams.end();
-       ++params) {
-    m_dbxindices.push_back(std::pair<unsigned int, unsigned int>(params->getParameter<unsigned int>("firstEvent"),
-                                                                 params->getParameter<unsigned int>("secondEvent")));
+  for (const auto& dbxhistoparam : dbxhistoparams) {
+    m_dbxindices.emplace_back(dbxhistoparam.getParameter<unsigned int>("firstEvent"),
+                              dbxhistoparam.getParameter<unsigned int>("secondEvent"));
     char hname[300];
     sprintf(hname,
             "dbx_%d_%d",
-            params->getParameter<unsigned int>("firstEvent"),
-            params->getParameter<unsigned int>("secondEvent"));
+            dbxhistoparam.getParameter<unsigned int>("firstEvent"),
+            dbxhistoparam.getParameter<unsigned int>("secondEvent"));
     char htitle[300];
     sprintf(htitle,
             "dbx(%d,%d)",
-            params->getParameter<unsigned int>("firstEvent"),
-            params->getParameter<unsigned int>("secondEvent"));
+            dbxhistoparam.getParameter<unsigned int>("firstEvent"),
+            dbxhistoparam.getParameter<unsigned int>("secondEvent"));
 
     m_dbxhistos.push_back(_rhm.makeTH1F(hname,
                                         htitle,
-                                        params->getParameter<int>("nbins"),
-                                        params->getParameter<double>("min"),
-                                        params->getParameter<double>("max")));
+                                        dbxhistoparam.getParameter<int>("nbins"),
+                                        dbxhistoparam.getParameter<double>("min"),
+                                        dbxhistoparam.getParameter<double>("max")));
     LogDebug("DBXHistoPreBooking") << "Booked DBX histo named " << hname << " untitled " << htitle;
   }
 
@@ -189,9 +188,8 @@ void EventTimeDistribution::analyze(const edm::Event& iEvent, const edm::EventSe
   // improve the matchin between default and actual partitions
 
   (*_dbx)->Fill(he->deltaBX());
-  std::vector<std::pair<unsigned int, unsigned int> >::const_iterator indices = m_dbxindices.begin();
-  for (std::vector<TH1F**>::const_iterator dbxhist = m_dbxhistos.begin(); dbxhist != m_dbxhistos.end();
-       ++dbxhist, ++indices) {
+  auto indices = m_dbxindices.begin();
+  for (auto dbxhist = m_dbxhistos.begin(); dbxhist != m_dbxhistos.end(); ++dbxhist, ++indices) {
     (*(*dbxhist))->Fill(he->deltaBX(indices->first, indices->second));
   }
 
@@ -233,10 +231,10 @@ void EventTimeDistribution::beginRun(const edm::Run& iRun, const edm::EventSetup
   }
 
   LogDebug("NomberOfHistos") << m_dbxhistos.size();
-  for (std::vector<TH1F**>::const_iterator dbxhist = m_dbxhistos.begin(); dbxhist != m_dbxhistos.end(); ++dbxhist) {
-    LogDebug("HistoPointer") << *dbxhist;
-    if (*(*dbxhist)) {
-      (*(*dbxhist))->GetXaxis()->SetTitle("#DeltaBX");
+  for (auto m_dbxhisto : m_dbxhistos) {
+    LogDebug("HistoPointer") << m_dbxhisto;
+    if (*m_dbxhisto) {
+      (*m_dbxhisto)->GetXaxis()->SetTitle("#DeltaBX");
     }
   }
   LogDebug("LabelDone") << "all labels set";

@@ -31,10 +31,10 @@ static AlgebraicMatrix initMatrix() {
 const AlgebraicMatrix DTSLRecCluster::theProjectionMatrix = initMatrix();
 
 /* Constructor */
-DTSLRecCluster::DTSLRecCluster(const DTSuperLayerId id, const std::vector<DTRecHit1DPair>& pairs)
+DTSLRecCluster::DTSLRecCluster(const DTSuperLayerId& id, const std::vector<DTRecHit1DPair>& pairs)
     : theSlid(id), thePairs(pairs) {}
 
-DTSLRecCluster::DTSLRecCluster(const DTSuperLayerId id,
+DTSLRecCluster::DTSLRecCluster(const DTSuperLayerId& id,
                                const LocalPoint& pos,
                                const LocalError& err,
                                const std::vector<DTRecHit1DPair>& pairs)
@@ -46,8 +46,8 @@ DTSLRecCluster::DTSLRecCluster(const DTSuperLayerId id,
 vector<const TrackingRecHit*> DTSLRecCluster::recHits() const {
   std::vector<const TrackingRecHit*> pointersOfRecHits;
 
-  for (std::vector<DTRecHit1DPair>::const_iterator rechit = thePairs.begin(); rechit != thePairs.end(); rechit++)
-    pointersOfRecHits.push_back(&(*rechit));
+  for (const auto& thePair : thePairs)
+    pointersOfRecHits.push_back(&thePair);
 
   return pointersOfRecHits;
 }
@@ -55,8 +55,8 @@ vector<const TrackingRecHit*> DTSLRecCluster::recHits() const {
 vector<TrackingRecHit*> DTSLRecCluster::recHits() {
   std::vector<TrackingRecHit*> pointersOfRecHits;
 
-  for (std::vector<DTRecHit1DPair>::iterator rechit = thePairs.begin(); rechit != thePairs.end(); rechit++)
-    pointersOfRecHits.push_back(&(*rechit));
+  for (auto& thePair : thePairs)
+    pointersOfRecHits.push_back(&thePair);
 
   return pointersOfRecHits;
 }

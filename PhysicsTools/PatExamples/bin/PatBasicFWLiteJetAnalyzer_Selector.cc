@@ -398,11 +398,7 @@ int main(int argc, char* argv[]) {
       if (retCalo.test(caloSelector.caloDeltaPhi())) {
         vector<pat::Jet> const& allCaloJets = caloSelector.allCaloJets();
 
-        for (std::vector<pat::Jet>::const_iterator jetBegin = allCaloJets.begin(),
-                                                   jetEnd = jetBegin + 2,
-                                                   ijet = jetBegin;
-             ijet != jetEnd;
-             ++ijet) {
+        for (auto jetBegin = allCaloJets.begin(), jetEnd = jetBegin + 2, ijet = jetBegin; ijet != jetEnd; ++ijet) {
           const pat::Jet& jet = *ijet;
 
           double pt = jet.pt();
@@ -427,12 +423,10 @@ int main(int argc, char* argv[]) {
           }
           if (doTracks) {
             TLorentzVector p4_tracks(0, 0, 0, 0);
-            for (reco::TrackRefVector::const_iterator itrk = jetTracks.begin(), itrkEnd = jetTracks.end();
-                 itrk != itrkEnd;
-                 ++itrk) {
+            for (auto&& jetTrack : jetTracks) {
               TLorentzVector p4_trk;
               double M_PION = 0.140;
-              p4_trk.SetPtEtaPhiM((*itrk)->pt(), (*itrk)->eta(), (*itrk)->phi(), M_PION);
+              p4_trk.SetPtEtaPhiM((jetTrack)->pt(), (jetTrack)->eta(), (jetTrack)->phi(), M_PION);
               p4_tracks += p4_trk;
             }
             hists["hist_jetCHF"]->Fill(p4_tracks.Energy() / jet.energy());
@@ -483,9 +477,7 @@ int main(int argc, char* argv[]) {
     if (retPF.test(pfSelector.pfDeltaPhi())) {
       vector<pat::Jet> const& allPFJets = pfSelector.allPFJets();
 
-      for (std::vector<pat::Jet>::const_iterator jetBegin = allPFJets.begin(), jetEnd = jetBegin + 2, ijet = jetBegin;
-           ijet != jetEnd;
-           ++ijet) {
+      for (auto jetBegin = allPFJets.begin(), jetEnd = jetBegin + 2, ijet = jetBegin; ijet != jetEnd; ++ijet) {
         const pat::Jet& jet = *ijet;
 
         double pt = jet.pt();

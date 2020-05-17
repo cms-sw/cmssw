@@ -93,7 +93,7 @@ public:
      /param[in] depth of the track history
      /param[out] boolean that is true when history can be determined
   */
-  bool evaluate(TrackingParticleRef tpr) {
+  bool evaluate(const TrackingParticleRef &tpr) {
     resetTrails(tpr);
     return traceSimHistory(tpr, depth_);
   }
@@ -106,7 +106,7 @@ public:
      /param[in] depth of the track history
      /param[out] boolean that is true when history can be determined
   */
-  bool evaluate(TrackingVertexRef tvr) {
+  bool evaluate(const TrackingVertexRef &tvr) {
     resetTrails();
     return traceSimHistory(tvr, depth_);
   }
@@ -156,7 +156,7 @@ private:
     genVertexTrailHelper_.clear();
   }
 
-  void resetTrails(TrackingParticleRef tpr) {
+  void resetTrails(const TrackingParticleRef &tpr) {
     resetTrails();
     simParticleTrail_.push_back(tpr);
   }

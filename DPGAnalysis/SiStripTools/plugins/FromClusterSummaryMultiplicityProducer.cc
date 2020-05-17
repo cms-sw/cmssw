@@ -79,9 +79,9 @@ FromClusterSummaryMultiplicityProducer::FromClusterSummaryMultiplicityProducer(c
   m_subdetenums.reserve(wantedsubds.size());
   m_subdetsel.reserve(wantedsubds.size());
 
-  for (std::vector<edm::ParameterSet>::iterator ps = wantedsubds.begin(); ps != wantedsubds.end(); ++ps) {
-    m_subdetenums.push_back((ClusterSummary::CMSTracker)ps->getParameter<int>("subDetEnum"));
-    m_subdetsel.push_back(ps->getParameter<int>("subDetEnum"));
+  for (auto& wantedsubd : wantedsubds) {
+    m_subdetenums.push_back((ClusterSummary::CMSTracker)wantedsubd.getParameter<int>("subDetEnum"));
+    m_subdetsel.push_back(wantedsubd.getParameter<int>("subDetEnum"));
   }
   m_subdetvar = (ClusterSummary::VariablePlacement)iConfig.getParameter<int>("varEnum");
 }
@@ -124,11 +124,11 @@ void FromClusterSummaryMultiplicityProducer::produce(edm::Event& iEvent, const e
         (*mults)[m_subdetsel[iS]] = -1;
   }
 
-  for (unsigned int iS = 0; iS < m_subdetenums.size(); ++iS)
-    LogDebug("Multiplicity") << "GetModuleLocation result: " << m_subdetenums[iS] << " "
-                             << clustsumm->getModuleLocation(m_subdetenums[iS]);
+  for (auto& m_subdetenum : m_subdetenums)
+    LogDebug("Multiplicity") << "GetModuleLocation result: " << m_subdetenum << " "
+                             << clustsumm->getModuleLocation(m_subdetenum);
 
-  for (std::map<unsigned int, int>::const_iterator it = mults->begin(); it != mults->end(); ++it) {
+  for (auto it = mults->begin(); it != mults->end(); ++it) {
     LogDebug("Multiplicity") << " Found " << it->second << " digis/clusters in " << it->first;
   }
 

@@ -39,7 +39,7 @@ void BlockSolver::shrink(const CLHEP::HepMatrix& matrix,
                          CLHEP::HepVector& input,
                          const std::vector<int>& where) {
   int offsetRow = 0;
-  std::vector<int>::const_iterator whereRows = where.begin();
+  auto whereRows = where.begin();
   // loop over rows
   for (int row = 0; row < matrix.num_row(); ++row) {
     if (row == *whereRows) {
@@ -50,7 +50,7 @@ void BlockSolver::shrink(const CLHEP::HepMatrix& matrix,
     }
     input[row - offsetRow] = result[row];
     int offsetCol = 0;
-    std::vector<int>::const_iterator whereCols = where.begin();
+    auto whereCols = where.begin();
     // loop over columns
     for (int col = 0; col < matrix.num_col(); ++col) {
       if (col == *whereCols) {
@@ -67,7 +67,7 @@ void BlockSolver::shrink(const CLHEP::HepMatrix& matrix,
 // ------------------------------------------------------------
 
 void BlockSolver::pour(CLHEP::HepVector& result, const CLHEP::HepVector& output, const std::vector<int>& where) {
-  std::vector<int>::const_iterator whereCols = where.begin();
+  auto whereCols = where.begin();
   int readingIndex = 0;
   //PG loop over the output crystals
   for (int xtal = 0; xtal < result.num_row(); ++xtal) {

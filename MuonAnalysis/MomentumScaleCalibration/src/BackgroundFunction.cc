@@ -1,6 +1,6 @@
 #include "MuonAnalysis/MomentumScaleCalibration/interface/BackgroundFunction.h"
 
-void BackgroundFunction::readParameters(TString fileName) {
+void BackgroundFunction::readParameters(const TString& fileName) {
   iterationNum_ = 0;
   parArray_ = nullptr;
   // std::vector<double> parameterErrors;

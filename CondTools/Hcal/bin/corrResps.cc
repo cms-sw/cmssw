@@ -51,8 +51,7 @@ void corrResps::analyze(edm::Event const&, edm::EventSetup const& iSetup) {
 
   HcalRespCorrs respOut(&topo);
   std::vector<DetId> channels = respIn.getAllChannels();
-  for (unsigned int i = 0; i < channels.size(); i++) {
-    DetId id = channels[i];
+  for (auto id : channels) {
     float scale = 1.0;
     if (corrsIn.exists(id))
       scale = corrsIn.getValues(id)->getValue();

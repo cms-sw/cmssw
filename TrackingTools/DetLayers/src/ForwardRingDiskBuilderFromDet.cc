@@ -34,7 +34,7 @@ pair<SimpleDiskBounds*, float> ForwardRingDiskBuilderFromDet::computeBounds(cons
   float rmax(rmin);
   float zmin((**(dets.begin())).surface().position().z());
   float zmax(zmin);
-  for (vector<const GeomDet*>::const_iterator idet = dets.begin(); idet != dets.end(); idet++) {
+  for (auto det : dets) {
     /* ---- original implementation. Is it obsolete?
     vector<DetUnit*> detUnits = (**idet).detUnits();
     for (vector<DetUnit*>::const_iterator detu=detUnits.begin();
@@ -43,10 +43,10 @@ pair<SimpleDiskBounds*, float> ForwardRingDiskBuilderFromDet::computeBounds(cons
     dynamic_cast<const Plane&>((**detu).surface()));
     }
     ----- */
-    vector<GlobalPoint> corners = BoundingBox().corners((**idet).specificSurface());
-    for (vector<GlobalPoint>::const_iterator i = corners.begin(); i != corners.end(); i++) {
-      float r = i->perp();
-      float z = i->z();
+    vector<GlobalPoint> corners = BoundingBox().corners((*det).specificSurface());
+    for (const auto& corner : corners) {
+      float r = corner.perp();
+      float z = corner.z();
       rmin = min(rmin, r);
       rmax = max(rmax, r);
       zmin = min(zmin, z);
@@ -56,13 +56,13 @@ pair<SimpleDiskBounds*, float> ForwardRingDiskBuilderFromDet::computeBounds(cons
     // det +/- length/2, since the min (max) radius for typical fw
     // dets is reached there
 
-    float rdet = (**idet).position().perp();
-    float len = (**idet).surface().bounds().length();
-    float width = (**idet).surface().bounds().width();
+    float rdet = (*det).position().perp();
+    float len = (*det).surface().bounds().length();
+    float width = (*det).surface().bounds().width();
 
-    GlobalVector xAxis = (**idet).toGlobal(LocalVector(1, 0, 0));
-    GlobalVector yAxis = (**idet).toGlobal(LocalVector(0, 1, 0));
-    GlobalVector perpDir = GlobalVector((**idet).position() - GlobalPoint(0, 0, (**idet).position().z()));
+    GlobalVector xAxis = (*det).toGlobal(LocalVector(1, 0, 0));
+    GlobalVector yAxis = (*det).toGlobal(LocalVector(0, 1, 0));
+    GlobalVector perpDir = GlobalVector((*det).position() - GlobalPoint(0, 0, (*det).position().z()));
 
     double xAxisCos = xAxis.unit().dot(perpDir.unit());
     double yAxisCos = yAxis.unit().dot(perpDir.unit());

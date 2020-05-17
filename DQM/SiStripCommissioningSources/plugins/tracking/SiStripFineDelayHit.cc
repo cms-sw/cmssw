@@ -176,7 +176,7 @@ std::vector<std::pair<uint32_t, std::pair<double, double> > > SiStripFineDelayHi
   if (!cosmic_) {
     // use trajectories in event.
     // we have first to find the right trajectory for the considered track.
-    for (std::vector<Trajectory>::const_iterator traj = trajVec.begin(); traj < trajVec.end(); ++traj) {
+    for (auto traj = trajVec.begin(); traj < trajVec.end(); ++traj) {
       if (((traj->lastMeasurement().recHit()->geographicalId().rawId() ==
             (*(tk->recHitsEnd() - 1))->geographicalId().rawId()) &&
            (traj->lastMeasurement().recHit()->localPosition().x() == (*(tk->recHitsEnd() - 1))->localPosition().x())) ||
@@ -247,7 +247,7 @@ std::vector<std::pair<uint32_t, std::pair<double, double> > > SiStripFineDelayHi
 }
 
 bool SiStripFineDelayHit::rechit(reco::Track* tk, uint32_t det_id) {
-  for (trackingRecHit_iterator it = tk->recHitsBegin(); it != tk->recHitsEnd(); it++)
+  for (auto it = tk->recHitsBegin(); it != tk->recHitsEnd(); it++)
     if ((*it)->geographicalId().rawId() == det_id) {
       return (*it)->isValid();
       break;
@@ -267,7 +267,7 @@ std::pair<const SiStripCluster*, double> SiStripFineDelayHit::closestCluster(
   double hitStrip = -1;
   int nstrips = -1;
   // localize the crossing point of the track on the module
-  for (trackingRecHit_iterator it = tk->recHitsBegin(); it != tk->recHitsEnd(); it++) {
+  for (auto it = tk->recHitsBegin(); it != tk->recHitsEnd(); it++) {
     LogDebug("closestCluster") << "(*it)->geographicalId().rawId() vs det_id" << (*it)->geographicalId().rawId() << " "
                                << det_id;
     //handle the mono rechits
@@ -322,23 +322,23 @@ std::pair<const SiStripCluster*, double> SiStripFineDelayHit::closestCluster(
     return result;
   if (homeMadeClusters_) {
     // take the list of digis on the module
-    for (edm::DetSetVector<SiStripDigi>::const_iterator DSViter = hits.begin(); DSViter != hits.end(); DSViter++) {
-      if (DSViter->id == det_id) {
+    for (const auto& hit : hits) {
+      if (hit.id == det_id) {
         // loop from hitstrip-n to hitstrip+n (explorationWindow_) and select the highest strip
         int minStrip = int(round(hitStrip)) - explorationWindow_;
         minStrip = minStrip < 0 ? 0 : minStrip;
         int maxStrip = int(round(hitStrip)) + explorationWindow_ + 1;
         maxStrip = maxStrip >= nstrips ? nstrips - 1 : maxStrip;
-        edm::DetSet<SiStripDigi>::const_iterator rangeStart = DSViter->end();
-        edm::DetSet<SiStripDigi>::const_iterator rangeStop = DSViter->end();
-        for (edm::DetSet<SiStripDigi>::const_iterator digiIt = DSViter->begin(); digiIt != DSViter->end(); ++digiIt) {
-          if (digiIt->strip() >= minStrip && rangeStart == DSViter->end())
+        auto rangeStart = hit.end();
+        auto rangeStop = hit.end();
+        for (auto digiIt = hit.begin(); digiIt != hit.end(); ++digiIt) {
+          if (digiIt->strip() >= minStrip && rangeStart == hit.end())
             rangeStart = digiIt;
           if (digiIt->strip() <= maxStrip)
             rangeStop = digiIt;
         }
-        if (rangeStart != DSViter->end()) {
-          if (rangeStop != DSViter->end())
+        if (rangeStart != hit.end()) {
+          if (rangeStop != hit.end())
             ++rangeStop;
           // build a fake cluster
           LogDebug("closestCluster") << "build a fake cluster ";
@@ -430,7 +430,7 @@ void SiStripFineDelayHit::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     edm::ESHandle<TrackerTopology> tTopo;
     iSetup.get<TrackerTopologyRcd>().get(tTopo);
     // loop on tracks
-    for (reco::TrackCollection::const_iterator itrack = tracks->begin(); itrack < tracks->end(); itrack++) {
+    for (auto itrack = tracks->begin(); itrack < tracks->end(); itrack++) {
       // first check the track Pt
       if ((itrack->px() * itrack->px() + itrack->py() * itrack->py() + itrack->pz() * itrack->pz()) < minTrackP2_)
         continue;
@@ -458,9 +458,7 @@ void SiStripFineDelayHit::produce(edm::Event& iEvent, const edm::EventSetup& iSe
         intersections = detId(*tracker, tTopo.product(), &(*itrack), trajVec);
       }
       LogDebug("produce") << "  Found " << intersections.size() << " interesting intersections." << std::endl;
-      for (std::vector<std::pair<uint32_t, std::pair<double, double> > >::iterator it = intersections.begin();
-           it < intersections.end();
-           it++) {
+      for (auto it = intersections.begin(); it < intersections.end(); it++) {
         std::pair<const SiStripCluster*, double> candidateCluster =
             closestCluster(*tracker, &(*itrack), it->first, *clusterSet, *hitSet);
         if (candidateCluster.first) {
@@ -483,7 +481,7 @@ void SiStripFineDelayHit::produce(edm::Event& iEvent, const edm::EventSetup& iSe
           }
 
           // look for an existing detset
-          std::vector<edm::DetSet<SiStripRawDigi> >::iterator newdsit = output.begin();
+          auto newdsit = output.begin();
           for (; newdsit != output.end() && newdsit->detId() != connectionMap_[it->first]; ++newdsit) {
           }
           // if there is no detset yet, create it.
@@ -618,8 +616,7 @@ void SiStripFineDelayHit::beginRun(const edm::Run& run, const edm::EventSetup& i
   auto feds = cabling->fedIds();
   for (auto fedid = feds.begin(); fedid < feds.end(); ++fedid) {
     auto connections = cabling->fedConnections(*fedid);
-    for (std::vector<FedChannelConnection>::const_iterator conn = connections.begin(); conn < connections.end();
-         ++conn) {
+    for (auto conn = connections.begin(); conn < connections.end(); ++conn) {
       /*
        SiStripFedKey key(conn->fedId(),
                          SiStripFedKey::feUnit(conn->fedCh()),

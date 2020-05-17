@@ -66,8 +66,8 @@ void FWPhotonProxyBuilder::buildViewType(const reco::Photon& photon,
     boxset->UseSingleColor();
     boxset->SetPickable(true);
 
-    for (std::vector<std::pair<DetId, float> >::iterator id = detIds.begin(), ide = detIds.end(); id != ide; ++id) {
-      const float* corners = geom->getCorners(id->first.rawId());
+    for (auto& detId : detIds) {
+      const float* corners = geom->getCorners(detId.first.rawId());
 
       if (corners == nullptr) {
         fwLog(fwlog::kWarning) << "No corners available for supercluster constituent" << std::endl;

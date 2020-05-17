@@ -37,7 +37,7 @@ public:
     select_.newEvent(iEvent, iEs);
     // Loop over electrons
     unsigned int i = 0;
-    for (reco::GsfElectronCollection::const_iterator eleIt = electrons->begin(); eleIt != electrons->end(); ++eleIt) {
+    for (auto eleIt = electrons->begin(); eleIt != electrons->end(); ++eleIt) {
       edm::Ref<reco::GsfElectronCollection> electronRef(electrons, i);
       if (select_((*eleIt), iEvent, iEs) > threshold_)
         selected_.push_back(electronRef);

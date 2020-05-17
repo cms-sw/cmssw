@@ -19,8 +19,8 @@ class testPackedCandidate : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
 
   void testDefaultConstructor();
   void testCopyConstructor();
@@ -57,7 +57,7 @@ void testPackedCandidate::testCopyConstructor() {
   //  CPPUNIT_ASSERT(pc.p4() == lv);
   //  CPPUNIT_ASSERT(pc.vertex() == v);
 
-  pat::PackedCandidate copy_pc(pc);
+  const pat::PackedCandidate& copy_pc(pc);
 
   //CPPUNIT_ASSERT(copy_pc.polarP4() == plv);
   //CPPUNIT_ASSERT(copy_pc.p4() == lv);

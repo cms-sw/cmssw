@@ -121,9 +121,9 @@ void GlobalHitsHistogrammer::bookHistograms(DQMStore::IBooker &ibooker, edm::Run
   meMCRGP[0] = ibooker.book1D(hname, htitle, 100, 0., 5000.);
   sprintf(hname, "hMCRGP2");
   meMCRGP[1] = ibooker.book1D(hname, htitle, 100, 0., 500.);
-  for (Int_t i = 0; i < 2; ++i) {
-    meMCRGP[i]->setAxisTitle("Number of Raw Generated Particles", 1);
-    meMCRGP[i]->setAxisTitle("Count", 2);
+  for (auto &i : meMCRGP) {
+    i->setAxisTitle("Number of Raw Generated Particles", 1);
+    i->setAxisTitle("Count", 2);
   }
 
   sprintf(hname, "hMCG4Vtx1");
@@ -131,9 +131,9 @@ void GlobalHitsHistogrammer::bookHistograms(DQMStore::IBooker &ibooker, edm::Run
   meMCG4Vtx[0] = ibooker.book1D(hname, htitle, 100, 0., 50000.);
   sprintf(hname, "hMCG4Vtx2");
   meMCG4Vtx[1] = ibooker.book1D(hname, htitle, 100, -0.5, 99.5);
-  for (Int_t i = 0; i < 2; ++i) {
-    meMCG4Vtx[i]->setAxisTitle("Number of Vertices", 1);
-    meMCG4Vtx[i]->setAxisTitle("Count", 2);
+  for (auto &i : meMCG4Vtx) {
+    i->setAxisTitle("Number of Vertices", 1);
+    i->setAxisTitle("Count", 2);
   }
 
   sprintf(hname, "hMCG4Trk1");
@@ -141,9 +141,9 @@ void GlobalHitsHistogrammer::bookHistograms(DQMStore::IBooker &ibooker, edm::Run
   meMCG4Trk[0] = ibooker.book1D(hname, htitle, 150, 0., 15000.);
   sprintf(hname, "hMCG4Trk2");
   meMCG4Trk[1] = ibooker.book1D(hname, htitle, 150, -0.5, 99.5);
-  for (Int_t i = 0; i < 2; ++i) {
-    meMCG4Trk[i]->setAxisTitle("Number of Tracks", 1);
-    meMCG4Trk[i]->setAxisTitle("Count", 2);
+  for (auto &i : meMCG4Trk) {
+    i->setAxisTitle("Number of Tracks", 1);
+    i->setAxisTitle("Count", 2);
   }
 
   sprintf(hname, "hGeantVtxX1");
@@ -151,9 +151,9 @@ void GlobalHitsHistogrammer::bookHistograms(DQMStore::IBooker &ibooker, edm::Run
   meGeantVtxX[0] = ibooker.book1D(hname, htitle, 100, -8000000., 8000000.);
   sprintf(hname, "hGeantVtxX2");
   meGeantVtxX[1] = ibooker.book1D(hname, htitle, 100, -50., 50.);
-  for (Int_t i = 0; i < 2; ++i) {
-    meGeantVtxX[i]->setAxisTitle("x of Vertex (um)", 1);
-    meGeantVtxX[i]->setAxisTitle("Count", 2);
+  for (auto &i : meGeantVtxX) {
+    i->setAxisTitle("x of Vertex (um)", 1);
+    i->setAxisTitle("Count", 2);
   }
 
   sprintf(hname, "hGeantVtxY1");
@@ -161,9 +161,9 @@ void GlobalHitsHistogrammer::bookHistograms(DQMStore::IBooker &ibooker, edm::Run
   meGeantVtxY[0] = ibooker.book1D(hname, htitle, 100, -8000000, 8000000.);
   sprintf(hname, "hGeantVtxY2");
   meGeantVtxY[1] = ibooker.book1D(hname, htitle, 100, -50., 50.);
-  for (Int_t i = 0; i < 2; ++i) {
-    meGeantVtxY[i]->setAxisTitle("y of Vertex (um)", 1);
-    meGeantVtxY[i]->setAxisTitle("Count", 2);
+  for (auto &i : meGeantVtxY) {
+    i->setAxisTitle("y of Vertex (um)", 1);
+    i->setAxisTitle("Count", 2);
   }
 
   sprintf(hname, "hGeantVtxZ1");
@@ -171,9 +171,9 @@ void GlobalHitsHistogrammer::bookHistograms(DQMStore::IBooker &ibooker, edm::Run
   meGeantVtxZ[0] = ibooker.book1D(hname, htitle, 100, -11000., 11000.);
   sprintf(hname, "hGeantVtxZ2");
   meGeantVtxZ[1] = ibooker.book1D(hname, htitle, 100, -250., 250.);
-  for (Int_t i = 0; i < 2; ++i) {
-    meGeantVtxZ[i]->setAxisTitle("z of Vertex (mm)", 1);
-    meGeantVtxZ[i]->setAxisTitle("Count", 2);
+  for (auto &i : meGeantVtxZ) {
+    i->setAxisTitle("z of Vertex (mm)", 1);
+    i->setAxisTitle("Count", 2);
   }
 
   sprintf(hname, "hGeantTrkPt");
@@ -317,9 +317,9 @@ void GlobalHitsHistogrammer::bookHistograms(DQMStore::IBooker &ibooker, edm::Run
   meTrackerPx[0] = ibooker.book1D(hname, htitle, 100, 0., 10000.);
   sprintf(hname, "hTrackerPx2");
   meTrackerPx[1] = ibooker.book1D(hname, htitle, 100, -0.5, 99.5);
-  for (Int_t i = 0; i < 2; ++i) {
-    meTrackerPx[i]->setAxisTitle("Number of Pixel Hits", 1);
-    meTrackerPx[i]->setAxisTitle("Count", 2);
+  for (auto &i : meTrackerPx) {
+    i->setAxisTitle("Number of Pixel Hits", 1);
+    i->setAxisTitle("Count", 2);
   }
 
   sprintf(hname, "hTrackerPxPhi");
@@ -365,9 +365,9 @@ void GlobalHitsHistogrammer::bookHistograms(DQMStore::IBooker &ibooker, edm::Run
   meTrackerSi[0] = ibooker.book1D(hname, htitle, 100, 0., 10000.);
   sprintf(hname, "hTrackerSi2");
   meTrackerSi[1] = ibooker.book1D(hname, htitle, 100, -0.5, 99.5);
-  for (Int_t i = 0; i < 2; ++i) {
-    meTrackerSi[i]->setAxisTitle("Number of Silicon Hits", 1);
-    meTrackerSi[i]->setAxisTitle("Count", 2);
+  for (auto &i : meTrackerSi) {
+    i->setAxisTitle("Number of Silicon Hits", 1);
+    i->setAxisTitle("Count", 2);
   }
 
   sprintf(hname, "hTrackerSiPhi");
@@ -413,9 +413,9 @@ void GlobalHitsHistogrammer::bookHistograms(DQMStore::IBooker &ibooker, edm::Run
   meMuon[0] = ibooker.book1D(hname, htitle, 100, 0., 10000.);
   sprintf(hname, "hMuon2");
   meMuon[1] = ibooker.book1D(hname, htitle, 100, -0.5, 99.5);
-  for (Int_t i = 0; i < 2; ++i) {
-    meMuon[i]->setAxisTitle("Number of Muon Hits", 1);
-    meMuon[i]->setAxisTitle("Count", 2);
+  for (auto &i : meMuon) {
+    i->setAxisTitle("Number of Muon Hits", 1);
+    i->setAxisTitle("Count", 2);
   }
 
   sprintf(hname, "hMuonPhi");
@@ -435,9 +435,9 @@ void GlobalHitsHistogrammer::bookHistograms(DQMStore::IBooker &ibooker, edm::Run
   meMuonCscToF[0] = ibooker.book1D(hname, htitle, 100, 0., 250.);
   sprintf(hname, "hMuonCscToF2");
   meMuonCscToF[1] = ibooker.book1D(hname, htitle, 100, 0., 50.);
-  for (Int_t i = 0; i < 2; ++i) {
-    meMuonCscToF[i]->setAxisTitle("Time of Flight of Hits (ns)", 1);
-    meMuonCscToF[i]->setAxisTitle("Count", 2);
+  for (auto &i : meMuonCscToF) {
+    i->setAxisTitle("Time of Flight of Hits (ns)", 1);
+    i->setAxisTitle("Count", 2);
   }
 
   sprintf(hname, "hMuonCscZ");
@@ -451,9 +451,9 @@ void GlobalHitsHistogrammer::bookHistograms(DQMStore::IBooker &ibooker, edm::Run
   meMuonDtToF[0] = ibooker.book1D(hname, htitle, 100, 0., 250.);
   sprintf(hname, "hMuonDtToF2");
   meMuonDtToF[1] = ibooker.book1D(hname, htitle, 100, 0., 50.);
-  for (Int_t i = 0; i < 2; ++i) {
-    meMuonDtToF[i]->setAxisTitle("Time of Flight of Hits (ns)", 1);
-    meMuonDtToF[i]->setAxisTitle("Count", 2);
+  for (auto &i : meMuonDtToF) {
+    i->setAxisTitle("Time of Flight of Hits (ns)", 1);
+    i->setAxisTitle("Count", 2);
   }
 
   sprintf(hname, "hMuonDtR");
@@ -467,9 +467,9 @@ void GlobalHitsHistogrammer::bookHistograms(DQMStore::IBooker &ibooker, edm::Run
   meMuonRpcFToF[0] = ibooker.book1D(hname, htitle, 100, 0., 250.);
   sprintf(hname, "hMuonRpcFToF2_4305");
   meMuonRpcFToF[1] = ibooker.book1D(hname, htitle, 100, 0., 50.);
-  for (Int_t i = 0; i < 2; ++i) {
-    meMuonRpcFToF[i]->setAxisTitle("Time of Flight of Hits (ns)", 1);
-    meMuonRpcFToF[i]->setAxisTitle("Count", 2);
+  for (auto &i : meMuonRpcFToF) {
+    i->setAxisTitle("Time of Flight of Hits (ns)", 1);
+    i->setAxisTitle("Count", 2);
   }
 
   sprintf(hname, "hMuonRpcFZ");
@@ -483,9 +483,9 @@ void GlobalHitsHistogrammer::bookHistograms(DQMStore::IBooker &ibooker, edm::Run
   meMuonRpcBToF[0] = ibooker.book1D(hname, htitle, 100, 0., 250.);
   sprintf(hname, "hMuonRpcBToF2");
   meMuonRpcBToF[1] = ibooker.book1D(hname, htitle, 100, 0., 50.);
-  for (Int_t i = 0; i < 2; ++i) {
-    meMuonRpcBToF[i]->setAxisTitle("Time of Flight of Hits (ns)", 1);
-    meMuonRpcBToF[i]->setAxisTitle("Count", 2);
+  for (auto &i : meMuonRpcBToF) {
+    i->setAxisTitle("Time of Flight of Hits (ns)", 1);
+    i->setAxisTitle("Count", 2);
   }
 
   sprintf(hname, "hMuonRpcBR");
@@ -527,18 +527,18 @@ void GlobalHitsHistogrammer::analyze(const edm::Event &iEvent, const edm::EventS
     if (printProvenanceInfo && (verbosity >= 0)) {
       TString eventout("\nProvenance info:\n");
 
-      for (unsigned int i = 0; i < AllProv.size(); ++i) {
+      for (auto &i : AllProv) {
         eventout += "\n       ******************************";
         eventout += "\n       Module       : ";
-        eventout += AllProv[i]->moduleLabel();
+        eventout += i->moduleLabel();
         eventout += "\n       ProductID    : ";
-        eventout += AllProv[i]->productID().id();
+        eventout += i->productID().id();
         eventout += "\n       ClassName    : ";
-        eventout += AllProv[i]->className();
+        eventout += i->className();
         eventout += "\n       InstanceName : ";
-        eventout += AllProv[i]->productInstanceName();
+        eventout += i->productInstanceName();
         eventout += "\n       BranchName   : ";
-        eventout += AllProv[i]->branchName();
+        eventout += i->branchName();
       }
       eventout += "\n       ******************************\n";
       edm::LogInfo(MsgLoggerCat) << eventout << "\n";
@@ -581,132 +581,132 @@ void GlobalHitsHistogrammer::analyze(const edm::Event &iEvent, const edm::EventS
 
   // get G4Vertex info
   std::vector<PGlobalSimHit::Vtx> G4Vtx = srcGlobalHits->getG4Vtx();
-  for (unsigned int i = 0; i < G4Vtx.size(); ++i) {
+  for (auto &i : G4Vtx) {
     for (int j = 0; j < 2; ++j) {
-      meGeantVtxX[j]->Fill(G4Vtx[i].x);
-      meGeantVtxY[j]->Fill(G4Vtx[i].y);
-      meGeantVtxZ[j]->Fill(G4Vtx[i].z);
+      meGeantVtxX[j]->Fill(i.x);
+      meGeantVtxY[j]->Fill(i.y);
+      meGeantVtxZ[j]->Fill(i.z);
     }
   }
 
   // get G4Track info
   std::vector<PGlobalSimHit::Trk> G4Trk = srcGlobalHits->getG4Trk();
-  for (unsigned int i = 0; i < G4Trk.size(); ++i) {
-    meGeantTrkPt->Fill(G4Trk[i].pt);
-    meGeantTrkE->Fill(G4Trk[i].e);
+  for (auto &i : G4Trk) {
+    meGeantTrkPt->Fill(i.pt);
+    meGeantTrkE->Fill(i.e);
   }
 
   // get Ecal info
   std::vector<PGlobalSimHit::CalHit> ECalHits = srcGlobalHits->getECalHits();
-  for (unsigned int i = 0; i < ECalHits.size(); ++i) {
+  for (auto &ECalHit : ECalHits) {
     for (Int_t j = 0; j < 2; ++j) {
-      meCaloEcalE[j]->Fill(ECalHits[i].e);
-      meCaloEcalToF[j]->Fill(ECalHits[i].tof);
+      meCaloEcalE[j]->Fill(ECalHit.e);
+      meCaloEcalToF[j]->Fill(ECalHit.tof);
     }
-    meCaloEcalPhi->Fill(ECalHits[i].phi);
-    meCaloEcalEta->Fill(ECalHits[i].eta);
+    meCaloEcalPhi->Fill(ECalHit.phi);
+    meCaloEcalEta->Fill(ECalHit.eta);
   }
 
   // get PreShower info
   std::vector<PGlobalSimHit::CalHit> PreShHits = srcGlobalHits->getPreShHits();
-  for (unsigned int i = 0; i < PreShHits.size(); ++i) {
+  for (auto &PreShHit : PreShHits) {
     for (Int_t j = 0; j < 2; ++j) {
-      meCaloPreShE[j]->Fill(PreShHits[i].e);
-      meCaloPreShToF[j]->Fill(PreShHits[i].tof);
+      meCaloPreShE[j]->Fill(PreShHit.e);
+      meCaloPreShToF[j]->Fill(PreShHit.tof);
     }
-    meCaloPreShPhi->Fill(PreShHits[i].phi);
-    meCaloPreShEta->Fill(PreShHits[i].eta);
+    meCaloPreShPhi->Fill(PreShHit.phi);
+    meCaloPreShEta->Fill(PreShHit.eta);
   }
 
   // get Hcal info
   std::vector<PGlobalSimHit::CalHit> HCalHits = srcGlobalHits->getHCalHits();
-  for (unsigned int i = 0; i < HCalHits.size(); ++i) {
+  for (auto &HCalHit : HCalHits) {
     for (Int_t j = 0; j < 2; ++j) {
-      meCaloHcalE[j]->Fill(HCalHits[i].e);
-      meCaloHcalToF[j]->Fill(HCalHits[i].tof);
+      meCaloHcalE[j]->Fill(HCalHit.e);
+      meCaloHcalToF[j]->Fill(HCalHit.tof);
     }
-    meCaloHcalPhi->Fill(HCalHits[i].phi);
-    meCaloHcalEta->Fill(HCalHits[i].eta);
+    meCaloHcalPhi->Fill(HCalHit.phi);
+    meCaloHcalEta->Fill(HCalHit.eta);
   }
 
   // get Pixel Barrel info
   std::vector<PGlobalSimHit::BrlHit> PxlBrlHits = srcGlobalHits->getPxlBrlHits();
-  for (unsigned int i = 0; i < PxlBrlHits.size(); ++i) {
-    meTrackerPxPhi->Fill(PxlBrlHits[i].phi);
-    meTrackerPxEta->Fill(PxlBrlHits[i].eta);
-    meTrackerPxBToF->Fill(PxlBrlHits[i].tof);
-    meTrackerPxBR->Fill(PxlBrlHits[i].r);
+  for (auto &PxlBrlHit : PxlBrlHits) {
+    meTrackerPxPhi->Fill(PxlBrlHit.phi);
+    meTrackerPxEta->Fill(PxlBrlHit.eta);
+    meTrackerPxBToF->Fill(PxlBrlHit.tof);
+    meTrackerPxBR->Fill(PxlBrlHit.r);
   }
 
   // get Pixel Forward info
   std::vector<PGlobalSimHit::FwdHit> PxlFwdHits = srcGlobalHits->getPxlFwdHits();
-  for (unsigned int i = 0; i < PxlFwdHits.size(); ++i) {
-    meTrackerPxPhi->Fill(PxlFwdHits[i].phi);
-    meTrackerPxEta->Fill(PxlFwdHits[i].eta);
-    meTrackerPxFToF->Fill(PxlFwdHits[i].tof);
-    meTrackerPxFZ->Fill(PxlFwdHits[i].z);
+  for (auto &PxlFwdHit : PxlFwdHits) {
+    meTrackerPxPhi->Fill(PxlFwdHit.phi);
+    meTrackerPxEta->Fill(PxlFwdHit.eta);
+    meTrackerPxFToF->Fill(PxlFwdHit.tof);
+    meTrackerPxFZ->Fill(PxlFwdHit.z);
   }
 
   // get Strip Barrel info
   std::vector<PGlobalSimHit::BrlHit> SiBrlHits = srcGlobalHits->getSiBrlHits();
-  for (unsigned int i = 0; i < SiBrlHits.size(); ++i) {
-    meTrackerSiPhi->Fill(SiBrlHits[i].phi);
-    meTrackerSiEta->Fill(SiBrlHits[i].eta);
-    meTrackerSiBToF->Fill(SiBrlHits[i].tof);
-    meTrackerSiBR->Fill(SiBrlHits[i].r);
+  for (auto &SiBrlHit : SiBrlHits) {
+    meTrackerSiPhi->Fill(SiBrlHit.phi);
+    meTrackerSiEta->Fill(SiBrlHit.eta);
+    meTrackerSiBToF->Fill(SiBrlHit.tof);
+    meTrackerSiBR->Fill(SiBrlHit.r);
   }
 
   // get Strip Forward info
   std::vector<PGlobalSimHit::FwdHit> SiFwdHits = srcGlobalHits->getSiFwdHits();
-  for (unsigned int i = 0; i < SiFwdHits.size(); ++i) {
-    meTrackerSiPhi->Fill(SiFwdHits[i].phi);
-    meTrackerSiEta->Fill(SiFwdHits[i].eta);
-    meTrackerSiFToF->Fill(SiFwdHits[i].tof);
-    meTrackerSiFZ->Fill(SiFwdHits[i].z);
+  for (auto &SiFwdHit : SiFwdHits) {
+    meTrackerSiPhi->Fill(SiFwdHit.phi);
+    meTrackerSiEta->Fill(SiFwdHit.eta);
+    meTrackerSiFToF->Fill(SiFwdHit.tof);
+    meTrackerSiFZ->Fill(SiFwdHit.z);
   }
 
   // get Muon CSC info
   std::vector<PGlobalSimHit::FwdHit> MuonCscHits = srcGlobalHits->getMuonCscHits();
-  for (unsigned int i = 0; i < MuonCscHits.size(); ++i) {
-    meMuonPhi->Fill(MuonCscHits[i].phi);
-    meMuonEta->Fill(MuonCscHits[i].eta);
-    for (Int_t j = 0; j < 2; ++j) {
-      meMuonCscToF[j]->Fill(MuonCscHits[i].tof);
+  for (auto &MuonCscHit : MuonCscHits) {
+    meMuonPhi->Fill(MuonCscHit.phi);
+    meMuonEta->Fill(MuonCscHit.eta);
+    for (auto &j : meMuonCscToF) {
+      j->Fill(MuonCscHit.tof);
     }
-    meMuonCscZ->Fill(MuonCscHits[i].z);
+    meMuonCscZ->Fill(MuonCscHit.z);
   }
 
   // get Muon DT info
   std::vector<PGlobalSimHit::BrlHit> MuonDtHits = srcGlobalHits->getMuonDtHits();
-  for (unsigned int i = 0; i < MuonDtHits.size(); ++i) {
-    meMuonPhi->Fill(MuonDtHits[i].phi);
-    meMuonEta->Fill(MuonDtHits[i].eta);
-    for (Int_t j = 0; j < 2; ++j) {
-      meMuonDtToF[j]->Fill(MuonDtHits[i].tof);
+  for (auto &MuonDtHit : MuonDtHits) {
+    meMuonPhi->Fill(MuonDtHit.phi);
+    meMuonEta->Fill(MuonDtHit.eta);
+    for (auto &j : meMuonDtToF) {
+      j->Fill(MuonDtHit.tof);
     }
-    meMuonDtR->Fill(MuonDtHits[i].r);
+    meMuonDtR->Fill(MuonDtHit.r);
   }
 
   // get Muon RPC forward info
   std::vector<PGlobalSimHit::FwdHit> MuonRpcFwdHits = srcGlobalHits->getMuonRpcFwdHits();
-  for (unsigned int i = 0; i < MuonRpcFwdHits.size(); ++i) {
-    meMuonPhi->Fill(MuonRpcFwdHits[i].phi);
-    meMuonEta->Fill(MuonRpcFwdHits[i].eta);
-    for (Int_t j = 0; j < 2; ++j) {
-      meMuonRpcFToF[j]->Fill(MuonRpcFwdHits[i].tof);
+  for (auto &MuonRpcFwdHit : MuonRpcFwdHits) {
+    meMuonPhi->Fill(MuonRpcFwdHit.phi);
+    meMuonEta->Fill(MuonRpcFwdHit.eta);
+    for (auto &j : meMuonRpcFToF) {
+      j->Fill(MuonRpcFwdHit.tof);
     }
-    meMuonRpcFZ->Fill(MuonRpcFwdHits[i].z);
+    meMuonRpcFZ->Fill(MuonRpcFwdHit.z);
   }
 
   // get Muon RPC barrel info
   std::vector<PGlobalSimHit::BrlHit> MuonRpcBrlHits = srcGlobalHits->getMuonRpcBrlHits();
-  for (unsigned int i = 0; i < MuonRpcBrlHits.size(); ++i) {
-    meMuonPhi->Fill(MuonRpcBrlHits[i].phi);
-    meMuonEta->Fill(MuonRpcBrlHits[i].eta);
-    for (Int_t j = 0; j < 2; ++j) {
-      meMuonRpcBToF[j]->Fill(MuonRpcBrlHits[i].tof);
+  for (auto &MuonRpcBrlHit : MuonRpcBrlHits) {
+    meMuonPhi->Fill(MuonRpcBrlHit.phi);
+    meMuonEta->Fill(MuonRpcBrlHit.eta);
+    for (auto &j : meMuonRpcBToF) {
+      j->Fill(MuonRpcBrlHit.tof);
     }
-    meMuonRpcBR->Fill(MuonRpcBrlHits[i].r);
+    meMuonRpcBR->Fill(MuonRpcBrlHit.r);
   }
 
   return;

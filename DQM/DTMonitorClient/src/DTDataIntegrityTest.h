@@ -36,7 +36,7 @@ protected:
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
   /// Get the ME name
-  std::string getMEName(std::string histoType, int FEDId);
+  std::string getMEName(const std::string &histoType, int FEDId);
 
   /// DQM Client Diagnostic
   void dqmEndLuminosityBlock(DQMStore::IBooker &,

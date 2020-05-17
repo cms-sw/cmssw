@@ -44,7 +44,7 @@ namespace egammaTools {
       EBDetId crystal(crystals_vector[icry].first);
 
       auto cell = geom->getGeometry(crystal);
-      const TruncatedPyramid *cpyr = dynamic_cast<const TruncatedPyramid *>(cell.get());
+      const auto *cpyr = dynamic_cast<const TruncatedPyramid *>(cell.get());
       GlobalPoint center_pos = cpyr->getPosition(depth);
       double EtaCentr = center_pos.eta();
       double PhiCentr = TVector2::Phi_mpi_pi(center_pos.phi());
@@ -61,7 +61,7 @@ namespace egammaTools {
 
     // Get center cell position from shower depth
     auto cell = geom->getGeometry(crystalseed);
-    const TruncatedPyramid *cpyr = dynamic_cast<const TruncatedPyramid *>(cell.get());
+    const auto *cpyr = dynamic_cast<const TruncatedPyramid *>(cell.get());
 
     thetatilt = cpyr->getThetaAxis();
     phitilt = cpyr->getPhiAxis();
@@ -124,7 +124,7 @@ namespace egammaTools {
       EEDetId crystal(crystals_vector[icry].first);
 
       auto cell = geom->getGeometry(crystal);
-      const TruncatedPyramid *cpyr = dynamic_cast<const TruncatedPyramid *>(cell.get());
+      const auto *cpyr = dynamic_cast<const TruncatedPyramid *>(cell.get());
       GlobalPoint center_pos = cpyr->getPosition(depth);
       double EtaCentr = center_pos.eta();
       double PhiCentr = TVector2::Phi_mpi_pi(center_pos.phi());
@@ -141,7 +141,7 @@ namespace egammaTools {
 
     // Get center cell position from shower depth
     auto cell = geom->getGeometry(crystalseed);
-    const TruncatedPyramid *cpyr = dynamic_cast<const TruncatedPyramid *>(cell.get());
+    const auto *cpyr = dynamic_cast<const TruncatedPyramid *>(cell.get());
 
     thetatilt = cpyr->getThetaAxis();
     phitilt = cpyr->getPhiAxis();

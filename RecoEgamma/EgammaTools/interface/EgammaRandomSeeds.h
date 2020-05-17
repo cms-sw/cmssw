@@ -16,7 +16,7 @@
 
 namespace egamma {
 
-  uint32_t getRandomSeedFromSC(const edm::Event& iEvent, const reco::SuperClusterRef scRef);
+  uint32_t getRandomSeedFromSC(const edm::Event& iEvent, const reco::SuperClusterRef& scRef);
   template <typename T>
   uint32_t getRandomSeedFromObj(const edm::Event& iEvent, const T& obj, size_t nrObjs, size_t objNr) {
     std::seed_seq seeder = {int(iEvent.id().event()),

@@ -5,7 +5,7 @@
 
 using namespace reco;
 
-NamedCompositeCandidate::NamedCompositeCandidate(std::string name,
+NamedCompositeCandidate::NamedCompositeCandidate(const std::string& name,
                                                  const NamedCompositeCandidate::role_collection& roles,
                                                  const Candidate& c)
     : CompositeCandidate(c), name_(name), roles_(roles) {
@@ -40,7 +40,7 @@ void NamedCompositeCandidate::applyRoles() {
     std::string role = roles_[i];
     Candidate* c = CompositeCandidate::daughter(i);
 
-    NamedCompositeCandidate* c1 = dynamic_cast<NamedCompositeCandidate*>(c);
+    auto* c1 = dynamic_cast<NamedCompositeCandidate*>(c);
     if (c1 != nullptr) {
       c1->setName(role);
     }
@@ -84,7 +84,7 @@ const Candidate* NamedCompositeCandidate::daughter(const std::string& s) const {
 }
 
 void NamedCompositeCandidate::addDaughter(const Candidate& cand, const std::string& s) {
-  role_collection::iterator begin = roles_.begin(), end = roles_.end();
+  auto begin = roles_.begin(), end = roles_.end();
   bool isFound = (find(begin, end, s) != end);
   if (isFound) {
     throw cms::Exception("InvalidReference") << "NamedCompositeCandidate::addDaughter: Already have role with name "
@@ -93,7 +93,7 @@ void NamedCompositeCandidate::addDaughter(const Candidate& cand, const std::stri
 
   roles_.push_back(s);
   std::unique_ptr<Candidate> c(cand.clone());
-  NamedCompositeCandidate* c1 = dynamic_cast<NamedCompositeCandidate*>(&*c);
+  auto* c1 = dynamic_cast<NamedCompositeCandidate*>(&*c);
   if (c1 != nullptr) {
     c1->setName(s);
   }
@@ -101,7 +101,7 @@ void NamedCompositeCandidate::addDaughter(const Candidate& cand, const std::stri
 }
 
 void NamedCompositeCandidate::addDaughter(std::unique_ptr<Candidate> cand, const std::string& s) {
-  role_collection::iterator begin = roles_.begin(), end = roles_.end();
+  auto begin = roles_.begin(), end = roles_.end();
   bool isFound = (find(begin, end, s) != end);
   if (isFound) {
     throw cms::Exception("InvalidReference") << "NamedCompositeCandidate::addDaughter: Already have role with name "
@@ -109,7 +109,7 @@ void NamedCompositeCandidate::addDaughter(std::unique_ptr<Candidate> cand, const
   }
 
   roles_.push_back(s);
-  NamedCompositeCandidate* c1 = dynamic_cast<NamedCompositeCandidate*>(&*cand);
+  auto* c1 = dynamic_cast<NamedCompositeCandidate*>(&*cand);
   if (c1 != nullptr) {
     c1->setName(s);
   }

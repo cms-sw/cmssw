@@ -55,12 +55,12 @@ void RPCMonitorLinkSynchro::bookHistograms(DQMStore::IBooker& ibooker,
   me_notComplete[0] = ibooker.book2D("notComplete790", "FED790: not All Paths hit", 36, -0.5, 35.5, 18, -0.5, 17.5);
   me_notComplete[1] = ibooker.book2D("notComplete791", "FED791: not All Paths hit", 36, -0.5, 35.5, 18, -0.5, 17.5);
   me_notComplete[2] = ibooker.book2D("notComplete792", "FED792: not All Paths hit", 36, -0.5, 35.5, 18, -0.5, 17.5);
-  for (unsigned int i = 0; i < 3; ++i) {
-    me_notComplete[i]->getTH2F()->GetXaxis()->SetNdivisions(512);
-    me_notComplete[i]->getTH2F()->GetYaxis()->SetNdivisions(505);
-    me_notComplete[i]->setAxisTitle("rmb");
-    me_notComplete[i]->getTH2F()->SetYTitle("link");
-    me_notComplete[i]->getTH2F()->SetStats(false);
+  for (auto& i : me_notComplete) {
+    i->getTH2F()->GetXaxis()->SetNdivisions(512);
+    i->getTH2F()->GetYaxis()->SetNdivisions(505);
+    i->setAxisTitle("rmb");
+    i->getTH2F()->SetYTitle("link");
+    i->getTH2F()->SetStats(false);
   }
   me_topOccup = ibooker.book2D("topOccup", "Top10 LinkBoard occupancy", 8, -0.5, 7.5, 10, 0., 10.);
   me_topSpread = ibooker.book2D("topSpread", "Top10 LinkBoard delay spread", 8, -0.5, 7.5, 10, 0., 10.);
@@ -77,7 +77,7 @@ void RPCMonitorLinkSynchro::analyze(const edm::Event& ev, const edm::EventSetup&
   const RPCRawSynchro::ProdItem& vItem = select(*synchroCounts.product(), ev, es);
   theSynchroStat.add(vItem, problems);
 
-  for (std::vector<LinkBoardElectronicIndex>::const_iterator it = problems.begin(); it != problems.end(); ++it) {
-    me_notComplete[it->dccId - 790]->Fill(it->dccInputChannelNum, it->tbLinkInputNum);
+  for (auto problem : problems) {
+    me_notComplete[problem.dccId - 790]->Fill(problem.dccInputChannelNum, problem.tbLinkInputNum);
   }
 }

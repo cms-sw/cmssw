@@ -69,7 +69,7 @@ struct SummationSpecification {
   }
 
 private:
-  GeometryInterface::Column parse_columns(std::string name, GeometryInterface&);
+  GeometryInterface::Column parse_columns(const std::string& name, GeometryInterface&);
 };
 
 #endif

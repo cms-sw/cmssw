@@ -284,8 +284,8 @@ void L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
   deRecord->get_status(deMatch);
   if (verbose()) {
     std::cout << "[L1TDEMON] verbose sys match?: ";
-    for (int i = 0; i < DEnsys; i++)
-      std::cout << deMatch[i] << " ";
+    for (bool i : deMatch)
+      std::cout << i << " ";
     std::cout << std::endl;
   }
 
@@ -294,8 +294,8 @@ void L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
     isComp[i] = deRecord->get_isComp(i);
   if (verbose()) {
     std::cout << "[L1TDEMON] verbose dosys?: ";
-    for (int i = 0; i < DEnsys; i++)
-      std::cout << isComp[i];
+    for (bool i : isComp)
+      std::cout << i;
     std::cout << std::endl;
   }
 
@@ -306,11 +306,11 @@ void L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
   if (verbose()) {
     std::cout << "[L1TDEMON] ncands d: ";
-    for (int i = 0; i < DEnsys; i++)
-      std::cout << DEncand[i][0] << " ";
+    for (auto& i : DEncand)
+      std::cout << i[0] << " ";
     std::cout << "\n[L1TDEMON] ncands e: ";
-    for (int i = 0; i < DEnsys; i++)
-      std::cout << DEncand[i][1] << " ";
+    for (auto& i : DEncand)
+      std::cout << i[1] << " ";
     std::cout << std::endl;
   }
 
@@ -322,9 +322,9 @@ void L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
   // global counters
   int hasSys[DEnsys] = {0};
-  for (L1DEDigiCollection::const_iterator it = deColl.begin(); it != deColl.end(); it++)
-    if (!it->empty())
-      hasSys[it->sid()]++;
+  for (const auto& it : deColl)
+    if (!it.empty())
+      hasSys[it.sid()]++;
   for (int i = 0; i < DEnsys; i++) {
     if (!hasSys[i])
       continue;
@@ -335,8 +335,8 @@ void L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
   if (verbose()) {
     std::cout << "[L1TDEMON] digis: \n";
-    for (L1DEDigiCollection::const_iterator it = deColl.begin(); it != deColl.end(); it++)
-      std::cout << "\t" << *it << std::endl;
+    for (const auto& it : deColl)
+      std::cout << "\t" << it << std::endl;
   }
 
   /// --- Fill histograms(me) ---
@@ -373,26 +373,26 @@ void L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
   // container for subsystem's leading candidate
   const int ncorr = 3;
   float LeadCandVal[DEnsys][ncorr] = {{(float)nullVal}};
-  for (int i = 0; i < DEnsys; i++)
+  for (auto& i : LeadCandVal)
     for (int j = 0; j < ncorr; j++)
-      LeadCandVal[i][j] = nullVal;
+      i[j] = nullVal;
 
   // d|e candidate loop
-  for (L1DEDigiCollection::const_iterator it = deColl.begin(); it != deColl.end(); it++) {
-    int sid = it->sid();
-    int cid = it->cid();
+  for (const auto& it : deColl) {
+    int sid = it.sid();
+    int cid = it.cid();
 
-    if (it->empty())
+    if (it.empty())
       continue;
     assert(isComp[sid]);
 
-    int type = it->type();
-    double phiv = it->x1();
-    double etav = it->x2();
-    double x3v = it->x3();
+    int type = it.type();
+    double phiv = it.x1();
+    double etav = it.x2();
+    double x3v = it.x3();
 
     float rankarr[2];
-    it->rank(rankarr);
+    it.rank(rankarr);
     float rnkv = rankarr[0];
 
     double wei = 1.;
@@ -455,7 +455,7 @@ void L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
         x3[sid]->Fill(x3v, wei);
 
     unsigned int word[2];
-    it->data(word);
+    it.data(word);
     std::bitset<32> dbits(word[0]);
     std::bitset<32> ebits(word[1]);
     unsigned int dexor = ((word[0]) ^ (word[1]));

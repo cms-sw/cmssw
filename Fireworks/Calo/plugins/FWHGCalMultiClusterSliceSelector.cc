@@ -22,7 +22,7 @@ void FWHGCalMultiClusterSliceSelector::getItemEntryEtaPhi(int itemIdx, float &et
   m_item->get(towers);
   assert(nullptr != towers);
 
-  std::vector<reco::HGCalMultiCluster>::const_iterator tower = towers->begin();
+  auto tower = towers->begin();
   std::advance(tower, itemIdx);
 
   eta = tower->eta();

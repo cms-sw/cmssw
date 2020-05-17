@@ -8,9 +8,11 @@
 
 #include <iostream>
 #include <fstream>
+#include <utility>
+
 #include "CalibFormats/SiPixelObjects/interface/PixelConfigBase.h"
 
 using namespace pos;
 
 PixelConfigBase::PixelConfigBase(std::string description, std::string creator, std::string date)
-    : description_(description), creator_(creator), date_(date) {}
+    : description_(std::move(description)), creator_(std::move(creator)), date_(std::move(date)) {}

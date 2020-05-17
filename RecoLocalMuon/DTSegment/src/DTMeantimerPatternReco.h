@@ -86,7 +86,7 @@ private:
   DTSegmentCand* fitWithT0(DTSegmentCand* seg, const bool fitdebug);
 
   // check if two hist can be considered in one segment (come from different layers, not too far away etc.)
-  bool geometryFilter(const DTWireId first, const DTWireId second) const;
+  bool geometryFilter(const DTWireId& first, const DTWireId& second) const;
 
   bool checkDoubleCandidates(std::vector<DTSegmentCand*>& segs, DTSegmentCand* seg);
 

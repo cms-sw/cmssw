@@ -75,12 +75,18 @@ void CSCValHists::fillSegmentTree(float x, float y, float gx, float gy, int en, 
   segTree->Fill();
 }
 
-void CSCValHists::insertPlot(TH1* thePlot, std::string name, std::string folder) {
+void CSCValHists::insertPlot(TH1* thePlot, const std::string& name, const std::string& folder) {
   theMap[name] = std::pair<TH1*, string>(thePlot, folder);
 }
 
-void CSCValHists::fillCalibHist(
-    float x, std::string name, std::string title, int bins, float xmin, float xmax, int bin, std::string folder) {
+void CSCValHists::fillCalibHist(float x,
+                                const std::string& name,
+                                const std::string& title,
+                                int bins,
+                                float xmin,
+                                float xmax,
+                                int bin,
+                                const std::string& folder) {
   std::map<std::string, std::pair<TH1*, string> >::iterator it;
   it = theMap.find(name);
   if (it == theMap.end()) {
@@ -90,8 +96,13 @@ void CSCValHists::fillCalibHist(
   theMap[name].first->SetBinContent(bin, x);
 }
 
-void CSCValHists::fill1DHist(
-    float x, std::string name, std::string title, int bins, float xmin, float xmax, std::string folder) {
+void CSCValHists::fill1DHist(float x,
+                             const std::string& name,
+                             const std::string& title,
+                             int bins,
+                             float xmin,
+                             float xmax,
+                             const std::string& folder) {
   std::map<std::string, std::pair<TH1*, string> >::iterator it;
   it = theMap.find(name);
   if (it == theMap.end()) {
@@ -103,15 +114,15 @@ void CSCValHists::fill1DHist(
 
 void CSCValHists::fill2DHist(float x,
                              float y,
-                             std::string name,
-                             std::string title,
+                             const std::string& name,
+                             const std::string& title,
                              int binsx,
                              float xmin,
                              float xmax,
                              int binsy,
                              float ymin,
                              float ymax,
-                             std::string folder) {
+                             const std::string& folder) {
   std::map<std::string, std::pair<TH1*, string> >::iterator it;
   it = theMap.find(name);
   if (it == theMap.end()) {
@@ -122,8 +133,14 @@ void CSCValHists::fill2DHist(float x,
   theMap[name].first->Fill(x, y);
 }
 
-void CSCValHists::fill1DHistByType(
-    float x, std::string name, std::string title, CSCDetId id, int bins, float xmin, float xmax, std::string folder) {
+void CSCValHists::fill1DHistByType(float x,
+                                   std::string name,
+                                   std::string title,
+                                   CSCDetId id,
+                                   int bins,
+                                   float xmin,
+                                   float xmax,
+                                   const std::string& folder) {
   std::string endcap;
   if (id.endcap() == 1)
     endcap = "+";
@@ -156,7 +173,7 @@ void CSCValHists::fill2DHistByType(float x,
                                    int binsy,
                                    float ymin,
                                    float ymax,
-                                   std::string folder) {
+                                   const std::string& folder) {
   std::string endcap;
   if (id.endcap() == 1)
     endcap = "+";
@@ -180,7 +197,7 @@ void CSCValHists::fill2DHistByType(float x,
 }
 
 void CSCValHists::fill1DHistByCrate(
-    float x, string name, string title, CSCDetId id, int bins, float xmin, float xmax, string folder) {
+    float x, string name, string title, CSCDetId id, int bins, float xmin, float xmax, const string& folder) {
   int crate = crate_lookup(id);
 
   map<string, pair<TH1*, string> >::iterator it;
@@ -209,7 +226,7 @@ void CSCValHists::fill2DHistByCrate(float x,
                                     int binsy,
                                     float ymin,
                                     float ymax,
-                                    string folder) {
+                                    const string& folder) {
   int crate = crate_lookup(id);
 
   map<string, pair<TH1*, string> >::iterator it;
@@ -229,7 +246,7 @@ void CSCValHists::fill2DHistByCrate(float x,
 }
 
 void CSCValHists::fill1DHistByStation(
-    float x, string name, string title, CSCDetId id, int bins, float xmin, float xmax, string folder) {
+    float x, string name, string title, CSCDetId id, int bins, float xmin, float xmax, const string& folder) {
   string endcap;
   if (id.endcap() == 1)
     endcap = "+";
@@ -262,7 +279,7 @@ void CSCValHists::fill2DHistByStation(float x,
                                       int binsy,
                                       float ymin,
                                       float ymax,
-                                      std::string folder) {
+                                      const std::string& folder) {
   std::string endcap;
   if (id.endcap() == 1)
     endcap = "+";
@@ -285,8 +302,14 @@ void CSCValHists::fill2DHistByStation(float x,
   theMap[name].first->Fill(x, y);
 }
 
-void CSCValHists::fill1DHistByChamber(
-    float x, std::string name, std::string title, CSCDetId id, int bins, float xmin, float xmax, std::string folder) {
+void CSCValHists::fill1DHistByChamber(float x,
+                                      std::string name,
+                                      std::string title,
+                                      CSCDetId id,
+                                      int bins,
+                                      float xmin,
+                                      float xmax,
+                                      const std::string& folder) {
   std::string endcap;
   if (id.endcap() == 1)
     endcap = "+";
@@ -319,7 +342,7 @@ void CSCValHists::fill2DHistByChamber(float x,
                                       int binsy,
                                       float ymin,
                                       float ymax,
-                                      std::string folder) {
+                                      const std::string& folder) {
   std::string endcap;
   if (id.endcap() == 1)
     endcap = "+";
@@ -342,7 +365,8 @@ void CSCValHists::fill2DHistByChamber(float x,
   theMap[name].first->Fill(x, y);
 }
 
-void CSCValHists::fill2DHistByEvent(int run, int event, float z, string name, string title, CSCDetId id, string folder) {
+void CSCValHists::fill2DHistByEvent(
+    int run, int event, float z, string name, string title, CSCDetId id, const string& folder) {
   string endcap;
   if (id.endcap() == 1)
     endcap = "+";
@@ -376,7 +400,7 @@ void CSCValHists::fill2DHistByEvent(int run, int event, float z, string name, st
   dynamic_cast<TH2F*>(theMap[name].first)->Fill(x, y, z);
 }
 
-void CSCValHists::fill2DHist(float z, string name, string title, CSCDetId id, string folder) {
+void CSCValHists::fill2DHist(float z, const string& name, const string& title, CSCDetId id, const string& folder) {
   map<string, pair<TH1*, string> >::iterator it;
   it = theMap.find(name);
   if (it == theMap.end()) {
@@ -399,7 +423,7 @@ void CSCValHists::fill2DHist(float z, string name, string title, CSCDetId id, st
 }
 
 void CSCValHists::fill1DHistByLayer(
-    float x, string name, string title, CSCDetId id, int bins, float xmin, float xmax, string folder) {
+    float x, string name, string title, CSCDetId id, int bins, float xmin, float xmax, const string& folder) {
   std::string endcap;
   if (id.endcap() == 1)
     endcap = "+";
@@ -433,7 +457,7 @@ void CSCValHists::fill2DHistByLayer(float x,
                                     int binsy,
                                     float ymin,
                                     float ymax,
-                                    std::string folder) {
+                                    const std::string& folder) {
   std::string endcap;
   if (id.endcap() == 1)
     endcap = "+";
@@ -460,14 +484,14 @@ void CSCValHists::fill2DHistByLayer(float x,
 
 void CSCValHists::fillProfile(float x,
                               float y,
-                              std::string name,
-                              std::string title,
+                              const std::string& name,
+                              const std::string& title,
                               int binsx,
                               float xmin,
                               float xmax,
                               float ymin,
                               float ymax,
-                              std::string folder) {
+                              const std::string& folder) {
   std::map<std::string, std::pair<TH1*, string> >::iterator it;
   it = theMap.find(name);
   if (it == theMap.end()) {
@@ -488,7 +512,7 @@ void CSCValHists::fillProfileByType(float x,
                                     float xmax,
                                     float ymin,
                                     float ymax,
-                                    std::string folder) {
+                                    const std::string& folder) {
   std::map<std::string, std::pair<TH1*, string> >::iterator it;
   std::string endcap;
   if (id.endcap() == 1)
@@ -522,7 +546,7 @@ void CSCValHists::fillProfileByChamber(float x,
                                        float xmax,
                                        float ymin,
                                        float ymax,
-                                       std::string folder) {
+                                       const std::string& folder) {
   std::map<std::string, std::pair<TH1*, string> >::iterator it;
   std::string endcap;
   if (id.endcap() == 1)
@@ -549,8 +573,8 @@ void CSCValHists::fillProfileByChamber(float x,
 void CSCValHists::fill2DProfile(float x,
                                 float y,
                                 float z,
-                                std::string name,
-                                std::string title,
+                                const std::string& name,
+                                const std::string& title,
                                 int binsx,
                                 float xmin,
                                 float xmax,
@@ -559,7 +583,7 @@ void CSCValHists::fill2DProfile(float x,
                                 float ymax,
                                 float zmin,
                                 float zmax,
-                                std::string folder) {
+                                const std::string& folder) {
   std::map<std::string, std::pair<TH1*, string> >::iterator it;
 
   it = theMap.find(name);

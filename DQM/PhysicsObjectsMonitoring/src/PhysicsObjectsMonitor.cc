@@ -98,7 +98,7 @@ void PhysicsObjectsMonitor::analyze(const Event &event, const EventSetup &eventS
     int nCSChits = 0;
     int nRPChits = 0;
 
-    for (trackingRecHit_iterator it = track.recHitsBegin(); it != track.recHitsEnd(); it++) {
+    for (auto it = track.recHitsBegin(); it != track.recHitsEnd(); it++) {
       if ((*it)->isValid()) {
         edm::LogInfo("PhysicsObjectsMonitor") << "Analyzer:  Aha this looks like a Rechit!" << std::endl;
         if ((*it)->geographicalId().subdetId() == MuonSubdetId::DT) {

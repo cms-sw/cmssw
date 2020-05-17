@@ -43,70 +43,70 @@ void BasicHepMCValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &
   ///Booking the ME's
   ///multiplicity
   // quarks
-  particles.push_back(ParticleMonitor("u", 1, i));
-  particles.push_back(ParticleMonitor("ubar", -1, i));
-  particles.push_back(ParticleMonitor("d", 2, i));
-  particles.push_back(ParticleMonitor("dbar", -2, i));
-  particles.push_back(ParticleMonitor("s", 3, i));
-  particles.push_back(ParticleMonitor("sbar", -3, i));
-  particles.push_back(ParticleMonitor("c", 4, i));
-  particles.push_back(ParticleMonitor("cbar", -4, i));
-  particles.push_back(ParticleMonitor("b", 5, i));
-  particles.push_back(ParticleMonitor("bbar", -5, i));
-  particles.push_back(ParticleMonitor("t", 6, i));
-  particles.push_back(ParticleMonitor("tbar", -6, i));
+  particles.emplace_back("u", 1, i);
+  particles.emplace_back("ubar", -1, i);
+  particles.emplace_back("d", 2, i);
+  particles.emplace_back("dbar", -2, i);
+  particles.emplace_back("s", 3, i);
+  particles.emplace_back("sbar", -3, i);
+  particles.emplace_back("c", 4, i);
+  particles.emplace_back("cbar", -4, i);
+  particles.emplace_back("b", 5, i);
+  particles.emplace_back("bbar", -5, i);
+  particles.emplace_back("t", 6, i);
+  particles.emplace_back("tbar", -6, i);
 
   //leptons
-  particles.push_back(ParticleMonitor("eminus", 11, i));
-  particles.push_back(ParticleMonitor("eplus", -11, i));
-  particles.push_back(ParticleMonitor("nue", 12, i));
-  particles.push_back(ParticleMonitor("nuebar", -12, i));
-  particles.push_back(ParticleMonitor("muminus", 13, i));
-  particles.push_back(ParticleMonitor("muplus", -13, i));
-  particles.push_back(ParticleMonitor("numu", 14, i));
-  particles.push_back(ParticleMonitor("numubar", -14, i));
-  particles.push_back(ParticleMonitor("tauminus", 15, i));
-  particles.push_back(ParticleMonitor("tauplus", -15, i));
-  particles.push_back(ParticleMonitor("nutau", 16, i));
-  particles.push_back(ParticleMonitor("nutaubar", -16, i));
+  particles.emplace_back("eminus", 11, i);
+  particles.emplace_back("eplus", -11, i);
+  particles.emplace_back("nue", 12, i);
+  particles.emplace_back("nuebar", -12, i);
+  particles.emplace_back("muminus", 13, i);
+  particles.emplace_back("muplus", -13, i);
+  particles.emplace_back("numu", 14, i);
+  particles.emplace_back("numubar", -14, i);
+  particles.emplace_back("tauminus", 15, i);
+  particles.emplace_back("tauplus", -15, i);
+  particles.emplace_back("nutau", 16, i);
+  particles.emplace_back("nutaubar", -16, i);
 
   //bosons
-  particles.push_back(ParticleMonitor("Wplus", 24, i));
-  particles.push_back(ParticleMonitor("Wminus", -24, i));
-  particles.push_back(ParticleMonitor("Z", 23, i));
-  particles.push_back(ParticleMonitor("gamma", 22, i));
-  particles.push_back(ParticleMonitor("gluon", 21, i));
+  particles.emplace_back("Wplus", 24, i);
+  particles.emplace_back("Wminus", -24, i);
+  particles.emplace_back("Z", 23, i);
+  particles.emplace_back("gamma", 22, i);
+  particles.emplace_back("gluon", 21, i);
 
   //mesons
-  particles.push_back(ParticleMonitor("piplus", 211, i, true));    //log
-  particles.push_back(ParticleMonitor("piminus", -211, i, true));  //log
-  particles.push_back(ParticleMonitor("pizero", 111, i, true));    //log
-  particles.push_back(ParticleMonitor("Kplus", 321, i));
-  particles.push_back(ParticleMonitor("Kminus", -321, i));
-  particles.push_back(ParticleMonitor("Klzero", 130, i));
-  particles.push_back(ParticleMonitor("Kszero", 310, i));
+  particles.emplace_back("piplus", 211, i, true);    //log
+  particles.emplace_back("piminus", -211, i, true);  //log
+  particles.emplace_back("pizero", 111, i, true);    //log
+  particles.emplace_back("Kplus", 321, i);
+  particles.emplace_back("Kminus", -321, i);
+  particles.emplace_back("Klzero", 130, i);
+  particles.emplace_back("Kszero", 310, i);
 
   //baryons
-  particles.push_back(ParticleMonitor("p", 2212, i, true));      //log
-  particles.push_back(ParticleMonitor("pbar", -2212, i, true));  //log
-  particles.push_back(ParticleMonitor("n", 2112, i, true));      //log
-  particles.push_back(ParticleMonitor("nbar", -2112, i, true));  //log
-  particles.push_back(ParticleMonitor("lambda0", 3122, i));
-  particles.push_back(ParticleMonitor("lambda0bar", -3122, i));
+  particles.emplace_back("p", 2212, i, true);      //log
+  particles.emplace_back("pbar", -2212, i, true);  //log
+  particles.emplace_back("n", 2112, i, true);      //log
+  particles.emplace_back("nbar", -2112, i, true);  //log
+  particles.emplace_back("lambda0", 3122, i);
+  particles.emplace_back("lambda0bar", -3122, i);
 
   //D mesons
-  particles.push_back(ParticleMonitor("Dplus", 411, i));
-  particles.push_back(ParticleMonitor("Dminus", -411, i));
-  particles.push_back(ParticleMonitor("Dzero", 421, i));
-  particles.push_back(ParticleMonitor("Dzerobar", -421, i));
+  particles.emplace_back("Dplus", 411, i);
+  particles.emplace_back("Dminus", -411, i);
+  particles.emplace_back("Dzero", 421, i);
+  particles.emplace_back("Dzerobar", -421, i);
 
   //B mesons
-  particles.push_back(ParticleMonitor("Bplus", 521, i));
-  particles.push_back(ParticleMonitor("Bminus", -521, i));
-  particles.push_back(ParticleMonitor("Bzero", 511, i));
-  particles.push_back(ParticleMonitor("Bzerobar", -511, i));
-  particles.push_back(ParticleMonitor("Bszero", 531, i));
-  particles.push_back(ParticleMonitor("Bszerobar", -531, i));
+  particles.emplace_back("Bplus", 521, i);
+  particles.emplace_back("Bminus", -521, i);
+  particles.emplace_back("Bzero", 511, i);
+  particles.emplace_back("Bzerobar", -511, i);
+  particles.emplace_back("Bszero", 531, i);
+  particles.emplace_back("Bszerobar", -531, i);
 
   //
   otherPtclNumber = dqm.book1dHisto(
@@ -379,11 +379,10 @@ void BasicHepMCValidation::analyze(const edm::Event &iEvent, const edm::EventSet
       vrtxRadius->Fill(vrtx->point3d().perp(), weight);
     }
     ///loop on vertex particles
-    HepMC::GenVertex::particles_out_const_iterator vrtxPtclBegin = vrtx->particles_out_const_begin();
-    HepMC::GenVertex::particles_out_const_iterator vrtxPtclEnd = vrtx->particles_out_const_end();
+    auto vrtxPtclBegin = vrtx->particles_out_const_begin();
+    auto vrtxPtclEnd = vrtx->particles_out_const_end();
     outVrtxStablePtclNum = 0;
-    for (HepMC::GenVertex::particles_out_const_iterator vrtxPtclIt = vrtxPtclBegin; vrtxPtclIt != vrtxPtclEnd;
-         ++vrtxPtclIt) {
+    for (auto vrtxPtclIt = vrtxPtclBegin; vrtxPtclIt != vrtxPtclEnd; ++vrtxPtclIt) {
       HepMC::GenParticle const *vrtxPtcl = *vrtxPtclIt;
       if (vrtxPtcl->status() == 1) {
         ++outVrtxStablePtclNum;
@@ -459,8 +458,8 @@ void BasicHepMCValidation::analyze(const edm::Event &iEvent, const edm::EventSet
     }
 
     bool indentified = false;
-    for (unsigned int i = 0; i < particles.size(); i++) {
-      if (particles.at(i).Fill(ptcl, weight)) {
+    for (auto &particle : particles) {
+      if (particle.Fill(ptcl, weight)) {
         indentified = true;
         break;
       }
@@ -489,8 +488,8 @@ void BasicHepMCValidation::analyze(const edm::Event &iEvent, const edm::EventSet
   unknownPDTNumber->Fill(log10(unknownPDTNum + 0.1), weight);
   //
   partonNumber->Fill(partonNum, weight);
-  for (unsigned int i = 0; i < particles.size(); i++) {
-    particles.at(i).FillCount(weight);
+  for (auto &particle : particles) {
+    particle.FillCount(weight);
   };
 
 }  //analyze

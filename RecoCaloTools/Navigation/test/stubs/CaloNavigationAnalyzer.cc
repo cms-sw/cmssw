@@ -28,9 +28,9 @@
 class CaloNavigationAnalyzer : public edm::EDAnalyzer {
 public:
   explicit CaloNavigationAnalyzer(const edm::ParameterSet&);
-  ~CaloNavigationAnalyzer();
+  ~CaloNavigationAnalyzer() override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   int pass_;

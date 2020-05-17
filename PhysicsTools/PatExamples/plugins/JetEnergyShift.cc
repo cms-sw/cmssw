@@ -87,16 +87,16 @@ void JetEnergyShift::produce(edm::Event& event, const edm::EventSetup& setup) {
   double dPy = 0.;
   double dSumEt = 0.;
 
-  for (std::vector<pat::Jet>::const_iterator jet = jets->begin(); jet != jets->end(); ++jet) {
-    pat::Jet scaledJet = *jet;
+  for (const auto& jet : *jets) {
+    pat::Jet scaledJet = jet;
     scaledJet.scaleEnergy(scaleFactor_);
     pJets->push_back(scaledJet);
     // consider jet scale shift only if the raw jet pt and emf
     // is above the thresholds given in the module definition
-    if (jet->correctedJet("raw").pt() > jetPTThresholdForMET_ && jet->emEnergyFraction() < jetEMLimitForMET_) {
-      dPx += scaledJet.px() - jet->px();
-      dPy += scaledJet.py() - jet->py();
-      dSumEt += scaledJet.et() - jet->et();
+    if (jet.correctedJet("raw").pt() > jetPTThresholdForMET_ && jet.emEnergyFraction() < jetEMLimitForMET_) {
+      dPx += scaledJet.px() - jet.px();
+      dPy += scaledJet.py() - jet.py();
+      dSumEt += scaledJet.et() - jet.et();
     }
   }
 

@@ -356,10 +356,10 @@ LEDTask::LEDTask(edm::ParameterSet const& ps) : DQTask(ps) {
   }
 
   std::vector<HcalGenericDetId> dids = _emap->allPrecisionId();
-  for (std::vector<HcalGenericDetId>::const_iterator it = dids.begin(); it != dids.end(); ++it) {
-    if (!it->isHcalDetId())
+  for (auto it : dids) {
+    if (!it.isHcalDetId())
       continue;
-    HcalDetId did = HcalDetId(it->rawId());
+    HcalDetId did = HcalDetId(it.rawId());
     HcalElectronicsId eid(_ehashmap.lookup(did));
     int n = _xEntries.get(did);
     double msig = _xSignalSum.get(did) / n;
@@ -511,8 +511,8 @@ LEDTask::LEDTask(edm::ParameterSet const& ps) : DQTask(ps) {
       }
     }
   }
-  for (HODigiCollection::const_iterator it = c_ho->begin(); it != c_ho->end(); ++it) {
-    const HODataFrame digi = (const HODataFrame)(*it);
+  for (const auto& it : *c_ho) {
+    const HODataFrame digi = (const HODataFrame)it;
     HcalDetId did = digi.id();
     HcalElectronicsId eid = digi.elecId();
     //double sumQ = hcaldqm::utilities::sumQ<HODataFrame>(digi, 8.5, 0, digi.size()-1);
@@ -570,7 +570,7 @@ LEDTask::LEDTask(edm::ParameterSet const& ps) : DQTask(ps) {
       }
       continue;
     }
-    HcalElectronicsId eid = HcalElectronicsId(_ehashmap.lookup(did));
+    auto eid = HcalElectronicsId(_ehashmap.lookup(did));
     //double sumQ = hcaldqm::utilities::sumQ_v10<QIE10DataFrame>(digi, 2.5, 0, digi.samples()-1);
     CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<QIE10DataFrame>(_dbService, did, digi);
     double sumQ = hcaldqm::utilities::sumQDB<QIE10DataFrame>(_dbService, digi_fC, did, digi, 0, digi.samples() - 1);

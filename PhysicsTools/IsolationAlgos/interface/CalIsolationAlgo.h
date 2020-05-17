@@ -51,7 +51,7 @@ double CalIsolationAlgo<T1, C2>::operator()(const T1 &cand, const C2 &elements) 
     SrcAtCal.propagate(Vertex, Cand, cand.charge(), bField_);
 
   double etSum = 0;
-  for (typename C2::const_iterator elem = elements.begin(); elem != elements.end(); ++elem) {
+  for (auto elem = elements.begin(); elem != elements.end(); ++elem) {
     double dR = deltaR(elem->eta(), elem->phi(), (double)Cand.eta(), (double)Cand.phi());
     if (dR < dRMax_ && dR > dRMin_) {
       etSum += elem->et();

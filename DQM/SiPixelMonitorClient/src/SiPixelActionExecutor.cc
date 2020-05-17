@@ -272,12 +272,12 @@ void SiPixelActionExecutor::GetBladeSubdirs(DQMStore::IBooker &iBooker,
   blade_subdirs.clear();
   vector<string> panels = iGetter.getSubdirs();
   vector<string> modules;
-  for (vector<string>::const_iterator it = panels.begin(); it != panels.end(); it++) {
-    iGetter.cd(*it);
-    iBooker.cd(*it);
+  for (const auto &panel : panels) {
+    iGetter.cd(panel);
+    iBooker.cd(panel);
     modules = iGetter.getSubdirs();
-    for (vector<string>::const_iterator m_it = modules.begin(); m_it != modules.end(); m_it++) {
-      blade_subdirs.push_back(*m_it);
+    for (const auto &module : modules) {
+      blade_subdirs.push_back(module);
     }
   }
 }
@@ -286,7 +286,7 @@ void SiPixelActionExecutor::GetBladeSubdirs(DQMStore::IBooker &iBooker,
 
 void SiPixelActionExecutor::fillSummary(DQMStore::IBooker &iBooker,
                                         DQMStore::IGetter &iGetter,
-                                        string dir_name,
+                                        const string &dir_name,
                                         vector<string> &me_names,
                                         bool isbarrel,
                                         bool isUpgrade) {
@@ -309,82 +309,83 @@ void SiPixelActionExecutor::fillSummary(DQMStore::IBooker &iBooker,
     prefix = "SUMOFF";
   if (currDir.find(dir_name) != string::npos) {
     vector<MonitorElement *> sum_mes;
-    for (vector<string>::const_iterator iv = me_names.begin(); iv != me_names.end(); iv++) {
+    for (const auto &me_name : me_names) {
       if (source_type_ == 5 || source_type_ == 6) {
-        if ((*iv) == "errorType" || (*iv) == "NErrors" || (*iv) == "fullType" || (*iv) == "chanNmbr" ||
-            (*iv) == "TBMType" || (*iv) == "EvtNbr" || (*iv) == "evtSize" || (*iv) == "linkId" || (*iv) == "ROCId" ||
-            (*iv) == "DCOLId" || (*iv) == "PXId" || (*iv) == "ROCNmbr" || (*iv) == "TBMMessage" ||
-            (*iv) == "Type36Hitmap")
+        if (me_name == "errorType" || me_name == "NErrors" || me_name == "fullType" || me_name == "chanNmbr" ||
+            me_name == "TBMType" || me_name == "EvtNbr" || me_name == "evtSize" || me_name == "linkId" ||
+            me_name == "ROCId" || me_name == "DCOLId" || me_name == "PXId" || me_name == "ROCNmbr" ||
+            me_name == "TBMMessage" || me_name == "Type36Hitmap")
           prefix = "SUMRAW";
-        else if ((*iv) == "ndigis" || (*iv) == "adc")
+        else if (me_name == "ndigis" || me_name == "adc")
           prefix = "SUMDIG";
-        else if ((*iv) == "nclusters" || (*iv) == "x" || (*iv) == "y" || (*iv) == "charge" || (*iv) == "size" ||
-                 (*iv) == "sizeX" || (*iv) == "sizeY" || (*iv) == "minrow" || (*iv) == "maxrow" || (*iv) == "mincol" ||
-                 (*iv) == "maxcol")
+        else if (me_name == "nclusters" || me_name == "x" || me_name == "y" || me_name == "charge" ||
+                 me_name == "size" || me_name == "sizeX" || me_name == "sizeY" || me_name == "minrow" ||
+                 me_name == "maxrow" || me_name == "mincol" || me_name == "maxcol")
           prefix = "SUMCLU";
         if (currDir.find("Track") != string::npos)
           prefix = "SUMTRK";
-        else if ((*iv) == "residualX" || (*iv) == "residualY")
+        else if (me_name == "residualX" || me_name == "residualY")
           prefix = "SUMTRK";
-        else if ((*iv) == "ClustX" || (*iv) == "ClustY" || (*iv) == "nRecHits" || (*iv) == "ErrorX" ||
-                 (*iv) == "ErrorY")
+        else if (me_name == "ClustX" || me_name == "ClustY" || me_name == "nRecHits" || me_name == "ErrorX" ||
+                 me_name == "ErrorY")
           prefix = "SUMHIT";
-        else if ((*iv) == "Gain1d" || (*iv) == "GainChi2NDF1d" || (*iv) == "GainChi2Prob1d" || (*iv) == "Pedestal1d" ||
-                 (*iv) == "GainNPoints1d" || (*iv) == "GainHighPoint1d" || (*iv) == "GainLowPoint1d" ||
-                 (*iv) == "GainEndPoint1d" || (*iv) == "GainFitResult2d" || (*iv) == "GainDynamicRange2d" ||
-                 (*iv) == "GainSaturate2d" || (*iv) == "ScurveChi2ProbSummary" || (*iv) == "ScurveFitResultSummary" ||
-                 (*iv) == "ScurveSigmasSummary" || (*iv) == "ScurveThresholdSummary" || (*iv) == "pixelAliveSummary" ||
-                 (*iv) == "SiPixelErrorsCalibDigis")
+        else if (me_name == "Gain1d" || me_name == "GainChi2NDF1d" || me_name == "GainChi2Prob1d" ||
+                 me_name == "Pedestal1d" || me_name == "GainNPoints1d" || me_name == "GainHighPoint1d" ||
+                 me_name == "GainLowPoint1d" || me_name == "GainEndPoint1d" || me_name == "GainFitResult2d" ||
+                 me_name == "GainDynamicRange2d" || me_name == "GainSaturate2d" || me_name == "ScurveChi2ProbSummary" ||
+                 me_name == "ScurveFitResultSummary" || me_name == "ScurveSigmasSummary" ||
+                 me_name == "ScurveThresholdSummary" || me_name == "pixelAliveSummary" ||
+                 me_name == "SiPixelErrorsCalibDigis")
           prefix = "SUMCAL";
       }
       MonitorElement *temp;
       string tag;
-      if ((*iv).find("residual") != string::npos) {  // track residuals
-        tag = prefix + "_" + (*iv) + "_mean_" + currDir.substr(currDir.find(dir_name));
+      if (me_name.find("residual") != string::npos) {  // track residuals
+        tag = prefix + "_" + me_name + "_mean_" + currDir.substr(currDir.find(dir_name));
         temp = getSummaryME(iBooker, iGetter, tag, isUpgrade);
         sum_mes.push_back(temp);
-        tag = prefix + "_" + (*iv) + "_RMS_" + currDir.substr(currDir.find(dir_name));
+        tag = prefix + "_" + me_name + "_RMS_" + currDir.substr(currDir.find(dir_name));
         temp = getSummaryME(iBooker, iGetter, tag, isUpgrade);
         sum_mes.push_back(temp);
       } else if (prefix == "SUMCAL") {  // calibrations
-        if ((*iv) == "Gain1d" || (*iv) == "GainChi2NDF1d" || (*iv) == "GainChi2Prob1d" || (*iv) == "GainNPoints1d" ||
-            (*iv) == "GainHighPoint1d" || (*iv) == "GainLowPoint1d" || (*iv) == "GainEndPoint1d" ||
-            (*iv) == "GainDynamicRange2d" || (*iv) == "GainSaturate2d" || (*iv) == "Pedestal1d" ||
-            (*iv) == "ScurveChi2ProbSummary" || (*iv) == "ScurveFitResultSummary" || (*iv) == "ScurveSigmasSummary" ||
-            (*iv) == "ScurveThresholdSummary") {
-          tag = prefix + "_" + (*iv) + "_mean_" + currDir.substr(currDir.find(dir_name));
+        if (me_name == "Gain1d" || me_name == "GainChi2NDF1d" || me_name == "GainChi2Prob1d" ||
+            me_name == "GainNPoints1d" || me_name == "GainHighPoint1d" || me_name == "GainLowPoint1d" ||
+            me_name == "GainEndPoint1d" || me_name == "GainDynamicRange2d" || me_name == "GainSaturate2d" ||
+            me_name == "Pedestal1d" || me_name == "ScurveChi2ProbSummary" || me_name == "ScurveFitResultSummary" ||
+            me_name == "ScurveSigmasSummary" || me_name == "ScurveThresholdSummary") {
+          tag = prefix + "_" + me_name + "_mean_" + currDir.substr(currDir.find(dir_name));
           temp = getSummaryME(iBooker, iGetter, tag, isUpgrade);
           sum_mes.push_back(temp);
-          tag = prefix + "_" + (*iv) + "_RMS_" + currDir.substr(currDir.find(dir_name));
+          tag = prefix + "_" + me_name + "_RMS_" + currDir.substr(currDir.find(dir_name));
           temp = getSummaryME(iBooker, iGetter, tag, isUpgrade);
           sum_mes.push_back(temp);
-        } else if ((*iv) == "SiPixelErrorsCalibDigis") {
-          tag = prefix + "_" + (*iv) + "_NCalibErrors_" + currDir.substr(currDir.find(dir_name));
+        } else if (me_name == "SiPixelErrorsCalibDigis") {
+          tag = prefix + "_" + me_name + "_NCalibErrors_" + currDir.substr(currDir.find(dir_name));
           temp = getSummaryME(iBooker, iGetter, tag, isUpgrade);
           sum_mes.push_back(temp);
-        } else if ((*iv) == "GainFitResult2d") {
-          tag = prefix + "_" + (*iv) + "_NNegativeFits_" + currDir.substr(currDir.find(dir_name));
+        } else if (me_name == "GainFitResult2d") {
+          tag = prefix + "_" + me_name + "_NNegativeFits_" + currDir.substr(currDir.find(dir_name));
           temp = getSummaryME(iBooker, iGetter, tag, isUpgrade);
           sum_mes.push_back(temp);
-        } else if ((*iv) == "pixelAliveSummary") {
-          tag = prefix + "_" + (*iv) + "_FracOfPerfectPix_" + currDir.substr(currDir.find(dir_name));
+        } else if (me_name == "pixelAliveSummary") {
+          tag = prefix + "_" + me_name + "_FracOfPerfectPix_" + currDir.substr(currDir.find(dir_name));
           temp = getSummaryME(iBooker, iGetter, tag, isUpgrade);
           sum_mes.push_back(temp);
-          tag = prefix + "_" + (*iv) + "_mean_" + currDir.substr(currDir.find(dir_name));
+          tag = prefix + "_" + me_name + "_mean_" + currDir.substr(currDir.find(dir_name));
           temp = getSummaryME(iBooker, iGetter, tag, isUpgrade);
           sum_mes.push_back(temp);
         }
       } else {
-        tag = prefix + "_" + (*iv) + "_" + currDir.substr(currDir.find(dir_name));
+        tag = prefix + "_" + me_name + "_" + currDir.substr(currDir.find(dir_name));
         temp = getSummaryME(iBooker, iGetter, tag, isUpgrade);
         sum_mes.push_back(temp);
-        if ((*iv) == "ndigis") {
-          tag = prefix + "_" + (*iv) + "FREQ_" + currDir.substr(currDir.find(dir_name));
+        if (me_name == "ndigis") {
+          tag = prefix + "_" + me_name + "FREQ_" + currDir.substr(currDir.find(dir_name));
           temp = getSummaryME(iBooker, iGetter, tag, isUpgrade);
           sum_mes.push_back(temp);
         }
-        if (prefix == "SUMDIG" && (*iv) == "adc") {
-          tag = "ALLMODS_" + (*iv) + "COMB_" + currDir.substr(currDir.find(dir_name));
+        if (prefix == "SUMDIG" && me_name == "adc") {
+          tag = "ALLMODS_" + me_name + "COMB_" + currDir.substr(currDir.find(dir_name));
           temp = nullptr;
           string fullpathname = iBooker.pwd() + "/" + tag;
           temp = iGetter.get(fullpathname);
@@ -395,8 +396,8 @@ void SiPixelActionExecutor::fillSummary(DQMStore::IBooker &iBooker,
           }
           sum_mes.push_back(temp);
         }
-        if (prefix == "SUMCLU" && (*iv) == "charge") {
-          tag = "ALLMODS_" + (*iv) + "COMB_" + currDir.substr(currDir.find(dir_name));
+        if (prefix == "SUMCLU" && me_name == "charge") {
+          tag = "ALLMODS_" + me_name + "COMB_" + currDir.substr(currDir.find(dir_name));
           temp = nullptr;
           string fullpathname = iBooker.pwd() + "/" + tag;
           temp = iGetter.get(fullpathname);
@@ -421,22 +422,22 @@ void SiPixelActionExecutor::fillSummary(DQMStore::IBooker &iBooker,
       GetBladeSubdirs(iBooker, iGetter, subdirs);
 
     int ndet = 0;
-    for (vector<string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) {
-      if (prefix != "SUMOFF" && (*it).find("Module_") == string::npos)
+    for (const auto &subdir : subdirs) {
+      if (prefix != "SUMOFF" && subdir.find("Module_") == string::npos)
         continue;
-      if (prefix == "SUMOFF" && (*it).find(isbarrel ? "Layer_" : "Disk_") == string::npos)
+      if (prefix == "SUMOFF" && subdir.find(isbarrel ? "Layer_" : "Disk_") == string::npos)
         continue;
-      iBooker.cd(*it);
-      iGetter.cd(*it);
+      iBooker.cd(subdir);
+      iGetter.cd(subdir);
       ndet++;
 
       vector<string> contents = iGetter.getMEs();
 
-      for (vector<MonitorElement *>::const_iterator isum = sum_mes.begin(); isum != sum_mes.end(); isum++) {
-        for (vector<string>::const_iterator im = contents.begin(); im != contents.end(); im++) {
-          string sname = ((*isum)->getName());
+      for (auto sum_me : sum_mes) {
+        for (const auto &content : contents) {
+          string sname = (sum_me->getName());
           string tname = " ";
-          tname = sname.substr(7, (sname.find("_", 7) - 6));
+          tname = sname.substr(7, (sname.find('_', 7) - 6));
           if (sname.find("ALLMODS_adcCOMB_") != string::npos)
             tname = "adc_";
           if (sname.find("ALLMODS_chargeCOMB_") != string::npos)
@@ -469,8 +470,8 @@ void SiPixelActionExecutor::fillSummary(DQMStore::IBooker &iBooker,
             tname = "sizeY_OnTrack_";
           if (tname.find("FREQ") != string::npos)
             tname = "ndigis_";
-          if (((*im)).find(tname) == 0) {
-            string fullpathname = iBooker.pwd() + "/" + (*im);
+          if ((content).find(tname) == 0) {
+            string fullpathname = iBooker.pwd() + "/" + content;
             MonitorElement *me = iGetter.get(fullpathname);
 
             if (me) {
@@ -486,7 +487,7 @@ void SiPixelActionExecutor::fillSummary(DQMStore::IBooker &iBooker,
               // fill summary histos:
               if (sname.find("_RMS_") != string::npos && sname.find("GainDynamicRange2d") == string::npos &&
                   sname.find("GainSaturate2d") == string::npos) {
-                (*isum)->Fill(ndet, me->getRMS());
+                sum_me->Fill(ndet, me->getRMS());
               } else if (sname.find("GainDynamicRange2d") != string::npos ||
                          sname.find("GainSaturate2d") != string::npos) {
                 float SumOfEntries = 0.;
@@ -502,16 +503,16 @@ void SiPixelActionExecutor::fillSummary(DQMStore::IBooker &iBooker,
                 float MeanInZ = SumOfEntries / float(SumOfPixels);
                 float RMSInZ = sqrt(SumOfSquaredEntries / float(SumOfPixels));
                 if (sname.find("_mean_") != string::npos)
-                  (*isum)->Fill(ndet, MeanInZ);
+                  sum_me->Fill(ndet, MeanInZ);
                 if (sname.find("_RMS_") != string::npos)
-                  (*isum)->Fill(ndet, RMSInZ);
+                  sum_me->Fill(ndet, RMSInZ);
               } else if (sname.find("_FracOfPerfectPix_") != string::npos) {
                 float nlast = me->getBinContent(me->getNbinsX());
                 float nall = (me->getTH1F())->Integral(1, 11);
-                (*isum)->Fill(ndet, nlast / nall);
+                sum_me->Fill(ndet, nlast / nall);
               } else if (sname.find("_NCalibErrors_") != string::npos || sname.find("FREQ_") != string::npos) {
                 float nall = me->getEntries();
-                (*isum)->Fill(ndet, nall);
+                sum_me->Fill(ndet, nall);
               } else if (sname.find("GainFitResult2d") != string::npos) {
                 int NegFitPixels = 0;
                 for (int cols = 1; cols != me->getNbinsX() + 1; cols++)
@@ -519,11 +520,11 @@ void SiPixelActionExecutor::fillSummary(DQMStore::IBooker &iBooker,
                     if (me->getBinContent(cols, rows) < 0.)
                       NegFitPixels++;
                   }
-                (*isum)->Fill(ndet, float(NegFitPixels));
+                sum_me->Fill(ndet, float(NegFitPixels));
               } else if (sname.find("ALLMODS_adcCOMB_") != string::npos ||
                          (sname.find("ALLMODS_chargeCOMB_") != string::npos &&
                           me->getName().find("Track_") == string::npos)) {
-                (*isum)->getTH1F()->Add(me->getTH1F());
+                sum_me->getTH1F()->Add(me->getTH1F());
               } else if (sname.find("_NErrors_") != string::npos) {
                 string path1 = fullpathname;
                 path1 = path1.replace(path1.find("NErrors"), 7, "errorType");
@@ -544,7 +545,7 @@ void SiPixelActionExecutor::fillSummary(DQMStore::IBooker &iBooker,
                   }
                 }
                 if (notReset)
-                  (*isum)->Fill(ndet, me1->getEntries());
+                  sum_me->Fill(ndet, me1->getEntries());
               } else if ((sname.find("_charge_") != string::npos && sname.find("Track_") == string::npos &&
                           me->getName().find("Track_") == string::npos) ||
                          (sname.find("_charge_") != string::npos && sname.find("_OnTrack_") != string::npos &&
@@ -563,31 +564,31 @@ void SiPixelActionExecutor::fillSummary(DQMStore::IBooker &iBooker,
                           me->getName().find("_OnTrack_") != string::npos) ||
                          (sname.find("_size") != string::npos && sname.find("_OffTrack_") != string::npos &&
                           me->getName().find("_OffTrack_") != string::npos)) {
-                (*isum)->Fill(ndet, me->getMean());
+                sum_me->Fill(ndet, me->getMean());
               } else if (sname.find("_charge_") == string::npos && sname.find("_nclusters_") == string::npos &&
                          sname.find("_size") == string::npos) {
-                (*isum)->Fill(ndet, me->getMean());
+                sum_me->Fill(ndet, me->getMean());
               }
 
               // set titles:
               if (prefix == "SUMOFF") {
-                (*isum)->setAxisTitle(isbarrel ? "Ladders" : "Blades", 1);
+                sum_me->setAxisTitle(isbarrel ? "Ladders" : "Blades", 1);
               } else if (sname.find("ALLMODS_adcCOMB_") != string::npos) {
-                (*isum)->setAxisTitle("Digi charge [ADC]", 1);
+                sum_me->setAxisTitle("Digi charge [ADC]", 1);
               } else if (sname.find("ALLMODS_chargeCOMB_") != string::npos) {
-                (*isum)->setAxisTitle("Cluster charge [kilo electrons]", 1);
+                sum_me->setAxisTitle("Cluster charge [kilo electrons]", 1);
               } else {
-                (*isum)->setAxisTitle("Modules", 1);
+                sum_me->setAxisTitle("Modules", 1);
               }
               string title = " ";
               if (sname.find("_RMS_") != string::npos) {
-                title = "RMS of " + sname.substr(7, (sname.find("_", 7) - 7)) + " per module";
+                title = "RMS of " + sname.substr(7, (sname.find('_', 7) - 7)) + " per module";
               } else if (sname.find("_FracOfPerfectPix_") != string::npos) {
-                title = "FracOfPerfectPix " + sname.substr(7, (sname.find("_", 7) - 7)) + " per module";
+                title = "FracOfPerfectPix " + sname.substr(7, (sname.find('_', 7) - 7)) + " per module";
               } else if (sname.find("_NCalibErrors_") != string::npos) {
-                title = "Number of CalibErrors " + sname.substr(7, (sname.find("_", 7) - 7)) + " per module";
+                title = "Number of CalibErrors " + sname.substr(7, (sname.find('_', 7) - 7)) + " per module";
               } else if (sname.find("_NNegativeFits_") != string::npos) {
-                title = "Number of pixels with neg. fit result " + sname.substr(7, (sname.find("_", 7) - 7)) +
+                title = "Number of pixels with neg. fit result " + sname.substr(7, (sname.find('_', 7) - 7)) +
                         " per module";
               } else if (sname.find("FREQ_") != string::npos) {
                 title = "NEvents with digis per module";
@@ -605,11 +606,11 @@ void SiPixelActionExecutor::fillSummary(DQMStore::IBooker &iBooker,
               } else {
                 if (prefix == "SUMOFF")
                   title =
-                      "Mean " + sname.substr(7, (sname.find("_", 7) - 7)) + (isbarrel ? " per Ladder" : " per Blade");
+                      "Mean " + sname.substr(7, (sname.find('_', 7) - 7)) + (isbarrel ? " per Ladder" : " per Blade");
                 else
-                  title = "Mean " + sname.substr(7, (sname.find("_", 7) - 7)) + " per Module";
+                  title = "Mean " + sname.substr(7, (sname.find('_', 7) - 7)) + " per Module";
               }
-              (*isum)->setAxisTitle(title, 2);
+              sum_me->setAxisTitle(title, 2);
             }
             break;
           }
@@ -626,7 +627,7 @@ void SiPixelActionExecutor::fillSummary(DQMStore::IBooker &iBooker,
     vector<string> subdirs = iGetter.getSubdirs();
     // printing cout << "#\t" << iBooker.pwd() << endl;
     if (isbarrel) {
-      for (vector<string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) {
+      for (const auto &subdir : subdirs) {
         //				 cout << "##\t" << iBooker.pwd() << "\t"
         //<<
         //(*it) << endl;
@@ -635,9 +636,9 @@ void SiPixelActionExecutor::fillSummary(DQMStore::IBooker &iBooker,
           iBooker.goUp();
           iGetter.setCurrentFolder(iBooker.pwd());
         }
-        iBooker.cd(*it);
-        iGetter.cd(*it);
-        if ((*it).find("Endcap") != string::npos || (*it).find("AdditionalPixelErrors") != string::npos)
+        iBooker.cd(subdir);
+        iGetter.cd(subdir);
+        if (subdir.find("Endcap") != string::npos || subdir.find("AdditionalPixelErrors") != string::npos)
           continue;
         fillSummary(iBooker, iGetter, dir_name, me_names, true,
                     isUpgrade);  // Barrel
@@ -655,15 +656,15 @@ void SiPixelActionExecutor::fillSummary(DQMStore::IBooker &iBooker,
 
     } else  // Endcap
     {
-      for (vector<string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) {
+      for (const auto &subdir : subdirs) {
         if ((iBooker.pwd()).find("Barrel") != string::npos ||
             (iBooker.pwd()).find("AdditionalPixelErrors") != string::npos) {
           iBooker.goUp();
           iGetter.setCurrentFolder(iBooker.pwd());
         }
-        iBooker.cd(*it);
-        iGetter.cd(*it);
-        if ((*it).find("Barrel") != string::npos || (*it).find("AdditionalPixelErrors") != string::npos)
+        iBooker.cd(subdir);
+        iGetter.cd(subdir);
+        if (subdir.find("Barrel") != string::npos || subdir.find("AdditionalPixelErrors") != string::npos)
           continue;
         fillSummary(iBooker, iGetter, dir_name, me_names, false,
                     isUpgrade);  // Endcap
@@ -686,7 +687,7 @@ void SiPixelActionExecutor::fillSummary(DQMStore::IBooker &iBooker,
 //=============================================================================================================
 void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore::IBooker &iBooker,
                                                 DQMStore::IGetter &iGetter,
-                                                string dir_name,
+                                                const string &dir_name,
                                                 vector<string> &me_names) {
   // printing cout<<"entering
   // SiPixelActionExecutor::fillFEDErrorSummary..."<<endl;
@@ -699,50 +700,51 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore::IBooker &iBooker,
 
   if (currDir.find(dir_name) != string::npos) {
     vector<MonitorElement *> sum_mes;
-    for (vector<string>::const_iterator iv = me_names.begin(); iv != me_names.end(); iv++) {
+    for (const auto &me_name : me_names) {
       bool isBooked = false;
       vector<string> contents = iGetter.getMEs();
-      for (vector<string>::const_iterator im = contents.begin(); im != contents.end(); im++)
-        if ((*im).find(*iv) != string::npos)
+      for (const auto &content : contents)
+        if (content.find(me_name) != string::npos)
           isBooked = true;
       if (source_type_ == 5 || source_type_ == 6) {
-        if ((*iv) == "errorType" || (*iv) == "NErrors" || (*iv) == "fullType" || (*iv) == "chanNmbr" ||
-            (*iv) == "TBMType" || (*iv) == "EvtNbr" || (*iv) == "evtSize" || (*iv) == "linkId" || (*iv) == "ROCId" ||
-            (*iv) == "DCOLId" || (*iv) == "PXId" || (*iv) == "ROCNmbr" || (*iv) == "TBMMessage" ||
-            (*iv) == "Type36Hitmap" || (*iv) == "FedChLErr" || (*iv) == "FedChNErr" || (*iv) == "FedETypeNErr")
+        if (me_name == "errorType" || me_name == "NErrors" || me_name == "fullType" || me_name == "chanNmbr" ||
+            me_name == "TBMType" || me_name == "EvtNbr" || me_name == "evtSize" || me_name == "linkId" ||
+            me_name == "ROCId" || me_name == "DCOLId" || me_name == "PXId" || me_name == "ROCNmbr" ||
+            me_name == "TBMMessage" || me_name == "Type36Hitmap" || me_name == "FedChLErr" || me_name == "FedChNErr" ||
+            me_name == "FedETypeNErr")
           prefix = "SUMRAW";
       }
-      if ((*iv) == "errorType" || (*iv) == "NErrors" || (*iv) == "fullType" || (*iv) == "chanNmbr" ||
-          (*iv) == "TBMType" || (*iv) == "EvtNbr" || (*iv) == "evtSize" || (*iv) == "linkId" || (*iv) == "ROCId" ||
-          (*iv) == "DCOLId" || (*iv) == "PXId" || (*iv) == "ROCNmbr" || (*iv) == "TBMMessage" ||
-          (*iv) == "Type36Hitmap") {
-        string tag = prefix + "_" + (*iv) + "_FEDErrors";
+      if (me_name == "errorType" || me_name == "NErrors" || me_name == "fullType" || me_name == "chanNmbr" ||
+          me_name == "TBMType" || me_name == "EvtNbr" || me_name == "evtSize" || me_name == "linkId" ||
+          me_name == "ROCId" || me_name == "DCOLId" || me_name == "PXId" || me_name == "ROCNmbr" ||
+          me_name == "TBMMessage" || me_name == "Type36Hitmap") {
+        string tag = prefix + "_" + me_name + "_FEDErrors";
         MonitorElement *temp = getFEDSummaryME(iBooker, iGetter, tag);
         sum_mes.push_back(temp);
-      } else if ((*iv) == "FedChLErr" || (*iv) == "FedChNErr" || (*iv) == "FedETypeNErr") {
-        string tag = prefix + "_" + (*iv);
+      } else if (me_name == "FedChLErr" || me_name == "FedChNErr" || me_name == "FedETypeNErr") {
+        string tag = prefix + "_" + me_name;
         MonitorElement *temp;
-        if ((*iv) == "FedChLErr") {
+        if (me_name == "FedChLErr") {
           if (!isBooked)
             temp = iBooker.book2D("FedChLErr", "Type of last error", 40, -0.5, 39.5, 37, 0., 37.);
           else {
-            string fullpathname = iBooker.pwd() + "/" + (*iv);
+            string fullpathname = iBooker.pwd() + "/" + me_name;
             temp = iGetter.get(fullpathname);
             temp->Reset();
           }
         }  // If I don't reset this one, then I instead start adding error
         // codes..
-        if ((*iv) == "FedChNErr") {
+        if (me_name == "FedChNErr") {
           if (!isBooked)
             temp = iBooker.book2D("FedChNErr", "Total number of errors", 40, -0.5, 39.5, 37, 0., 37.);
           else {
-            string fullpathname = iBooker.pwd() + "/" + (*iv);
+            string fullpathname = iBooker.pwd() + "/" + me_name;
             temp = iGetter.get(fullpathname);
             temp->Reset();
           }
         }  // If I don't reset this one, then I instead start adding error
         // codes..
-        if ((*iv) == "FedETypeNErr") {
+        if (me_name == "FedETypeNErr") {
           if (!isBooked) {
             temp = iBooker.book2D("FedETypeNErr", "Number of each error type", 40, -0.5, 39.5, 21, 0., 21.);
             temp->setBinLabel(1, "ROC of 25", 2);
@@ -767,7 +769,7 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore::IBooker &iBooker,
             temp->setBinLabel(20, "Readout order", 2);
             temp->setBinLabel(21, "CRC error", 2);
           } else {
-            string fullpathname = iBooker.pwd() + "/" + (*iv);
+            string fullpathname = iBooker.pwd() + "/" + me_name;
             temp = iGetter.get(fullpathname);
             temp->Reset();
           }  // If I don't reset this one, then I instead start adding error
@@ -783,42 +785,42 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore::IBooker &iBooker,
     }
     vector<string> subdirs = iGetter.getSubdirs();
     int ndet = 0;
-    for (vector<string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) {
-      if ((*it).find("FED_") == string::npos)
+    for (const auto &subdir : subdirs) {
+      if (subdir.find("FED_") == string::npos)
         continue;
-      iBooker.cd(*it);
-      iGetter.cd(*it);
-      string fedid = (*it).substr((*it).find("_") + 1);
+      iBooker.cd(subdir);
+      iGetter.cd(subdir);
+      string fedid = subdir.substr(subdir.find("_") + 1);
       std::istringstream isst;
       isst.str(fedid);
       isst >> ndet;
       ndet++;
       vector<string> contents = iGetter.getMEs();
 
-      for (vector<MonitorElement *>::const_iterator isum = sum_mes.begin(); isum != sum_mes.end(); isum++) {
-        for (vector<string>::const_iterator im = contents.begin(); im != contents.end(); im++) {
-          if (((*im).find("FedChNErr") != std::string::npos &&
-               (*isum)->getName().find("FedChNErr") != std::string::npos) ||
-              ((*im).find("FedChLErr") != std::string::npos &&
-               (*isum)->getName().find("FedChLErr") != std::string::npos) ||
-              ((*im).find("FedETypeNErr") != std::string::npos &&
-               (*isum)->getName().find("FedETypeNErr") != std::string::npos)) {
-            string fullpathname = iBooker.pwd() + "/" + (*im);
+      for (auto sum_me : sum_mes) {
+        for (const auto &content : contents) {
+          if ((content.find("FedChNErr") != std::string::npos &&
+               sum_me->getName().find("FedChNErr") != std::string::npos) ||
+              (content.find("FedChLErr") != std::string::npos &&
+               sum_me->getName().find("FedChLErr") != std::string::npos) ||
+              (content.find("FedETypeNErr") != std::string::npos &&
+               sum_me->getName().find("FedETypeNErr") != std::string::npos)) {
+            string fullpathname = iBooker.pwd() + "/" + content;
             MonitorElement *me = iGetter.get(fullpathname);
             if (me) {
               for (int i = 0; i != 37; i++) {
-                if ((*im).find("FedETypeNErr") != std::string::npos && i < 21)
-                  (*isum)->Fill(ndet - 1, i, me->getBinContent(i + 1));
+                if (content.find("FedETypeNErr") != std::string::npos && i < 21)
+                  sum_me->Fill(ndet - 1, i, me->getBinContent(i + 1));
                 else
-                  (*isum)->Fill(ndet - 1, i, me->getBinContent(i + 1));
+                  sum_me->Fill(ndet - 1, i, me->getBinContent(i + 1));
               }
             }
           }
-          string sname = ((*isum)->getName());
+          string sname = (sum_me->getName());
           string tname = " ";
-          tname = sname.substr(7, (sname.find("_", 7) - 6));
-          if (((*im)).find(tname) == 0) {
-            string fullpathname = iBooker.pwd() + "/" + (*im);
+          tname = sname.substr(7, (sname.find('_', 7) - 6));
+          if ((content).find(tname) == 0) {
+            string fullpathname = iBooker.pwd() + "/" + content;
             MonitorElement *me = iGetter.get(fullpathname);
 
             if (me) {
@@ -843,14 +845,14 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore::IBooker &iBooker,
                     }
                   }
                   if (notReset)
-                    (*isum)->setBinContent(ndet, (*isum)->getBinContent(ndet) + me1->getEntries());
+                    sum_me->setBinContent(ndet, sum_me->getBinContent(ndet) + me1->getEntries());
                 } else
-                  (*isum)->setBinContent(ndet, (*isum)->getBinContent(ndet) + me->getEntries());
+                  sum_me->setBinContent(ndet, sum_me->getBinContent(ndet) + me->getEntries());
               }
-              (*isum)->setAxisTitle("FED #", 1);
+              sum_me->setAxisTitle("FED #", 1);
               string title = " ";
-              title = sname.substr(7, (sname.find("_", 7) - 7)) + " per FED";
-              (*isum)->setAxisTitle(title, 2);
+              title = sname.substr(7, (sname.find('_', 7) - 7)) + " per FED";
+              sum_me->setAxisTitle(title, 2);
             }
             break;
           }
@@ -861,11 +863,11 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore::IBooker &iBooker,
     }
   } else {
     vector<string> subdirs = iGetter.getSubdirs();
-    for (vector<string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) {
-      if ((*it).find("Endcap") != string::npos || (*it).find("Barrel") != string::npos)
+    for (const auto &subdir : subdirs) {
+      if (subdir.find("Endcap") != string::npos || subdir.find("Barrel") != string::npos)
         continue;
-      iBooker.cd(*it);
-      iGetter.cd(*it);
+      iBooker.cd(subdir);
+      iGetter.cd(subdir);
       fillFEDErrorSummary(iBooker, iGetter, dir_name, me_names);
       iBooker.goUp();
       iGetter.setCurrentFolder(iBooker.pwd());
@@ -885,7 +887,7 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore::IBooker &iBoo
   vector<MonitorElement *> gsum_mes;
   string currDir = iBooker.pwd();
   string path_name = iBooker.pwd();
-  string dir_name = path_name.substr(path_name.find_last_of("/") + 1);
+  string dir_name = path_name.substr(path_name.find_last_of('/') + 1);
   if ((dir_name.find("DQMData") == 0) || (dir_name.find("Pixel") == 0) ||
       (dir_name.find("AdditionalPixelErrors") == 0) || (dir_name.find("Endcap") == 0) ||
       (dir_name.find("HalfCylinder") == 0) || (dir_name.find("Disk") == 0) || (dir_name.find("Blade") == 0) ||
@@ -899,10 +901,10 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore::IBooker &iBoo
   int nbin_subdir = 0;
   int cnt = 0;
   bool first_subdir = true;
-  for (vector<string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) {
+  for (const auto &subdir : subdirs) {
     cnt++;
-    iBooker.cd(*it);
-    iGetter.cd(*it);
+    iBooker.cd(subdir);
+    iGetter.cd(subdir);
     vector<string> contents = iGetter.getMEs();
 
     iBooker.goUp();
@@ -924,63 +926,58 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore::IBooker &iBoo
     else if (source_type_ == 20)
       prefix = "SUMOFF";
 
-    for (vector<string>::const_iterator im = contents.begin(); im != contents.end(); im++) {
-      for (vector<string>::const_iterator iv = me_names.begin(); iv != me_names.end(); iv++) {
-        string var = "_" + (*iv) + "_";
-        if ((*im).find(var) != string::npos) {
+    for (const auto &content : contents) {
+      for (const auto &iv : me_names) {
+        string var = "_" + iv + "_";
+        if (content.find(var) != string::npos) {
           if ((var == "_charge_" || var == "_nclusters_" || var == "_size_" || var == "_sizeX_" || var == "_sizeY_") &&
-              (*im).find("Track_") != string::npos)
+              content.find("Track_") != string::npos)
             continue;
-          string full_path = (*it) + "/" + (*im);
+          string full_path = subdir + "/" + content;
           MonitorElement *me = iGetter.get(full_path);
           if (!me)
             continue;
           if (source_type_ == 5 || source_type_ == 6) {
-            if ((*iv) == "errorType" || (*iv) == "NErrors" || (*iv) == "fullType" || (*iv) == "chanNmbr" ||
-                (*iv) == "TBMType" || (*iv) == "EvtNbr" || (*iv) == "evtSize" || (*iv) == "linkId" ||
-                (*iv) == "ROCId" || (*iv) == "DCOLId" || (*iv) == "PXId" || (*iv) == "ROCNmbr" ||
-                (*iv) == "TBMMessage" || (*iv) == "Type36Hitmap")
+            if (iv == "errorType" || iv == "NErrors" || iv == "fullType" || iv == "chanNmbr" || iv == "TBMType" ||
+                iv == "EvtNbr" || iv == "evtSize" || iv == "linkId" || iv == "ROCId" || iv == "DCOLId" ||
+                iv == "PXId" || iv == "ROCNmbr" || iv == "TBMMessage" || iv == "Type36Hitmap")
               prefix = "SUMRAW";
-            else if ((*iv) == "ndigis" || (*iv) == "adc" || (*iv) == "ndigisFREQ" || (*iv) == "adcCOMB")
+            else if (iv == "ndigis" || iv == "adc" || iv == "ndigisFREQ" || iv == "adcCOMB")
               prefix = "SUMDIG";
-            else if ((*iv) == "nclusters" || (*iv) == "x" || (*iv) == "y" || (*iv) == "charge" ||
-                     (*iv) == "chargeCOMB" || (*iv) == "size" || (*iv) == "sizeX" || (*iv) == "sizeY" ||
-                     (*iv) == "minrow" || (*iv) == "maxrow" || (*iv) == "mincol" || (*iv) == "maxcol")
+            else if (iv == "nclusters" || iv == "x" || iv == "y" || iv == "charge" || iv == "chargeCOMB" ||
+                     iv == "size" || iv == "sizeX" || iv == "sizeY" || iv == "minrow" || iv == "maxrow" ||
+                     iv == "mincol" || iv == "maxcol")
               prefix = "SUMCLU";
             if (currDir.find("Track") != string::npos)
               prefix = "SUMTRK";
-            else if ((*iv) == "residualX_mean" || (*iv) == "residualY_mean" || (*iv) == "residualX_RMS" ||
-                     (*iv) == "residualY_RMS")
+            else if (iv == "residualX_mean" || iv == "residualY_mean" || iv == "residualX_RMS" || iv == "residualY_RMS")
               prefix = "SUMTRK";
-            else if ((*iv) == "ClustX" || (*iv) == "ClustY" || (*iv) == "nRecHits" || (*iv) == "ErrorX" ||
-                     (*iv) == "ErrorY")
+            else if (iv == "ClustX" || iv == "ClustY" || iv == "nRecHits" || iv == "ErrorX" || iv == "ErrorY")
               prefix = "SUMHIT";
-            else if ((*iv) == "Gain1d_mean" || (*iv) == "GainChi2NDF1d_mean" || (*iv) == "GainChi2Prob1d_mean" ||
-                     (*iv) == "Pedestal1d_mean" || (*iv) == "ScurveChi2ProbSummary_mean" ||
-                     (*iv) == "ScurveFitResultSummary_mean" || (*iv) == "ScurveSigmasSummary_mean" ||
-                     (*iv) == "ScurveThresholdSummary_mean" || (*iv) == "Gain1d_RMS" || (*iv) == "GainChi2NDF1d_RMS" ||
-                     (*iv) == "GainChi2Prob1d_RMS" || (*iv) == "Pedestal1d_RMS" || (*iv) == "GainNPoints1d_mean" ||
-                     (*iv) == "GainNPoints1d_RMS" || (*iv) == "GainHighPoint1d_mean" ||
-                     (*iv) == "GainHighPoint1d_RMS" || (*iv) == "GainLowPoint1d_mean" ||
-                     (*iv) == "GainLowPoint1d_RMS" || (*iv) == "GainEndPoint1d_mean" || (*iv) == "GainEndPoint1d_RMS" ||
-                     (*iv) == "GainFitResult2d_mean" || (*iv) == "GainFitResult2d_RMS" ||
-                     (*iv) == "GainDynamicRange2d_mean" || (*iv) == "GainDynamicRange2d_RMS" ||
-                     (*iv) == "GainSaturate2d_mean" || (*iv) == "GainSaturate2d_RMS" ||
-                     (*iv) == "ScurveChi2ProbSummary_RMS" || (*iv) == "ScurveFitResultSummary_RMS" ||
-                     (*iv) == "ScurveSigmasSummary_RMS" || (*iv) == "ScurveThresholdSummary_RMS" ||
-                     (*iv) == "pixelAliveSummary_mean" || (*iv) == "pixelAliveSummary_FracOfPerfectPix" ||
-                     (*iv) == "SiPixelErrorsCalibDigis_NCalibErrors")
+            else if (iv == "Gain1d_mean" || iv == "GainChi2NDF1d_mean" || iv == "GainChi2Prob1d_mean" ||
+                     iv == "Pedestal1d_mean" || iv == "ScurveChi2ProbSummary_mean" ||
+                     iv == "ScurveFitResultSummary_mean" || iv == "ScurveSigmasSummary_mean" ||
+                     iv == "ScurveThresholdSummary_mean" || iv == "Gain1d_RMS" || iv == "GainChi2NDF1d_RMS" ||
+                     iv == "GainChi2Prob1d_RMS" || iv == "Pedestal1d_RMS" || iv == "GainNPoints1d_mean" ||
+                     iv == "GainNPoints1d_RMS" || iv == "GainHighPoint1d_mean" || iv == "GainHighPoint1d_RMS" ||
+                     iv == "GainLowPoint1d_mean" || iv == "GainLowPoint1d_RMS" || iv == "GainEndPoint1d_mean" ||
+                     iv == "GainEndPoint1d_RMS" || iv == "GainFitResult2d_mean" || iv == "GainFitResult2d_RMS" ||
+                     iv == "GainDynamicRange2d_mean" || iv == "GainDynamicRange2d_RMS" || iv == "GainSaturate2d_mean" ||
+                     iv == "GainSaturate2d_RMS" || iv == "ScurveChi2ProbSummary_RMS" ||
+                     iv == "ScurveFitResultSummary_RMS" || iv == "ScurveSigmasSummary_RMS" ||
+                     iv == "ScurveThresholdSummary_RMS" || iv == "pixelAliveSummary_mean" ||
+                     iv == "pixelAliveSummary_FracOfPerfectPix" || iv == "SiPixelErrorsCalibDigis_NCalibErrors")
               prefix = "SUMCAL";
           }  // end source_type if
 
           if (first_subdir && !isUpgrade) {
             nbin = me->getTH1F()->GetNbinsX();
-            string me_name = prefix + "_" + (*iv) + "_" + dir_name;
-            if ((*iv) == "adcCOMB" || (*iv) == "chargeCOMB")
-              me_name = "ALLMODS_" + (*iv) + "_" + dir_name;
+            string me_name = prefix + "_" + iv + "_" + dir_name;
+            if (iv == "adcCOMB" || iv == "chargeCOMB")
+              me_name = "ALLMODS_" + iv + "_" + dir_name;
             else if (prefix == "SUMOFF" && dir_name == "Barrel")
               nbin = 192;
-            else if ((*iv) == "adcCOMB")
+            else if (iv == "adcCOMB")
               nbin = 256;
             else if (dir_name == "Barrel")
               nbin = 768;
@@ -994,12 +991,12 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore::IBooker &iBoo
             getGrandSummaryME(iBooker, iGetter, nbin, me_name, gsum_mes);
           } else if (first_subdir && isUpgrade) {
             nbin = me->getTH1F()->GetNbinsX();
-            string me_name = prefix + "_" + (*iv) + "_" + dir_name;
-            if ((*iv) == "adcCOMB" || (*iv) == "chargeCOMB")
-              me_name = "ALLMODS_" + (*iv) + "_" + dir_name;
+            string me_name = prefix + "_" + iv + "_" + dir_name;
+            if (iv == "adcCOMB" || iv == "chargeCOMB")
+              me_name = "ALLMODS_" + iv + "_" + dir_name;
             else if (prefix == "SUMOFF" && dir_name == "Barrel")
               nbin = 296;
-            else if ((*iv) == "adcCOMB")
+            else if (iv == "adcCOMB")
               nbin = 256;
             else if (dir_name == "Barrel")
               nbin = 1184;
@@ -1013,51 +1010,51 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore::IBooker &iBoo
             getGrandSummaryME(iBooker, iGetter, nbin, me_name, gsum_mes);
           }
 
-          for (vector<MonitorElement *>::const_iterator igm = gsum_mes.begin(); igm != gsum_mes.end(); igm++) {
-            if ((*igm)->getName().find(var) != string::npos) {
+          for (auto gsum_me : gsum_mes) {
+            if (gsum_me->getName().find(var) != string::npos) {
               if (prefix == "SUMOFF")
-                (*igm)->setAxisTitle("Ladders", 1);
-              else if ((*igm)->getName().find("adcCOMB_") != string::npos)
-                (*igm)->setAxisTitle("Digi charge [ADC]", 1);
-              else if ((*igm)->getName().find("chargeCOMB_") != string::npos)
-                (*igm)->setAxisTitle("Cluster charge [kilo electrons]", 1);
+                gsum_me->setAxisTitle("Ladders", 1);
+              else if (gsum_me->getName().find("adcCOMB_") != string::npos)
+                gsum_me->setAxisTitle("Digi charge [ADC]", 1);
+              else if (gsum_me->getName().find("chargeCOMB_") != string::npos)
+                gsum_me->setAxisTitle("Cluster charge [kilo electrons]", 1);
               else
-                (*igm)->setAxisTitle("Modules", 1);
+                gsum_me->setAxisTitle("Modules", 1);
 
               // Setting title
 
               string title = "";
-              if ((*igm)->getName().find("NErrors_") != string::npos && prefix == "SUMOFF")
+              if (gsum_me->getName().find("NErrors_") != string::npos && prefix == "SUMOFF")
                 title = "Total number of errors per Ladder";
-              else if ((*igm)->getName().find("NErrors_") != string::npos && prefix == "SUMRAW")
+              else if (gsum_me->getName().find("NErrors_") != string::npos && prefix == "SUMRAW")
                 title = "Total number of errors per Module";
               else if (prefix == "SUMOFF")
-                title = "mean " + (*iv) + " per Ladder";
-              else if ((*igm)->getName().find("FREQ_") != string::npos && prefix != "SUMOFF")
+                title = "mean " + iv + " per Ladder";
+              else if (gsum_me->getName().find("FREQ_") != string::npos && prefix != "SUMOFF")
                 title = "NEvents with digis per Module";
-              else if ((*igm)->getName().find("FREQ_") != string::npos && prefix == "SUMOFF")
+              else if (gsum_me->getName().find("FREQ_") != string::npos && prefix == "SUMOFF")
                 title = "NEvents with digis per Ladder/Blade";
-              else if ((*igm)->getName().find("adcCOMB_") != string::npos)
+              else if (gsum_me->getName().find("adcCOMB_") != string::npos)
                 title = "NDigis";
-              else if ((*igm)->getName().find("chargeCOMB_") != string::npos)
+              else if (gsum_me->getName().find("chargeCOMB_") != string::npos)
                 title = "NClusters";
               else
-                title = "mean " + (*iv) + " per Module";
-              (*igm)->setAxisTitle(title, 2);
+                title = "mean " + iv + " per Module";
+              gsum_me->setAxisTitle(title, 2);
 
               // Setting binning
               if (!isUpgrade) {
-                if ((*igm)->getName().find("ALLMODS_adcCOMB_") != string::npos) {
+                if (gsum_me->getName().find("ALLMODS_adcCOMB_") != string::npos) {
                   nbin_subdir = 128;
-                } else if ((*igm)->getName().find("ALLMODS_chargeCOMB_") != string::npos) {
+                } else if (gsum_me->getName().find("ALLMODS_chargeCOMB_") != string::npos) {
                   nbin_subdir = 100;
-                } else if ((*igm)->getName().find("Ladder") != string::npos) {
+                } else if (gsum_me->getName().find("Ladder") != string::npos) {
                   nbin_i = 0;
                   nbin_subdir = 4;
-                } else if ((*igm)->getName().find("Layer") != string::npos) {
+                } else if (gsum_me->getName().find("Layer") != string::npos) {
                   nbin_i = (cnt - 1) * 4;
                   nbin_subdir = 4;
-                } else if ((*igm)->getName().find("Shell") != string::npos) {
+                } else if (gsum_me->getName().find("Shell") != string::npos) {
                   if (prefix != "SUMOFF") {
                     if (iDir == 0) {
                       nbin_i = 0;
@@ -1081,7 +1078,7 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore::IBooker &iBoo
                       nbin_subdir = 22;
                     }
                   }
-                } else if ((*igm)->getName().find("Barrel") != string::npos) {
+                } else if (gsum_me->getName().find("Barrel") != string::npos) {
                   if (prefix != "SUMOFF") {
                     if (iDir == 0) {
                       nbin_i = 0;
@@ -1113,17 +1110,17 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore::IBooker &iBoo
                   }
                 }
               } else if (isUpgrade) {
-                if ((*igm)->getName().find("ALLMODS_adcCOMB_") != string::npos) {
+                if (gsum_me->getName().find("ALLMODS_adcCOMB_") != string::npos) {
                   nbin_subdir = 128;
-                } else if ((*igm)->getName().find("ALLMODS_chargeCOMB_") != string::npos) {
+                } else if (gsum_me->getName().find("ALLMODS_chargeCOMB_") != string::npos) {
                   nbin_subdir = 100;
-                } else if ((*igm)->getName().find("Ladder") != string::npos) {
+                } else if (gsum_me->getName().find("Ladder") != string::npos) {
                   nbin_i = 0;
                   nbin_subdir = 4;
-                } else if ((*igm)->getName().find("Layer") != string::npos) {
+                } else if (gsum_me->getName().find("Layer") != string::npos) {
                   nbin_i = (cnt - 1) * 4;
                   nbin_subdir = 4;
-                } else if ((*igm)->getName().find("Shell") != string::npos) {
+                } else if (gsum_me->getName().find("Shell") != string::npos) {
                   if (prefix != "SUMOFF") {
                     if (iDir == 0) {
                       nbin_i = 0;
@@ -1159,7 +1156,7 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore::IBooker &iBoo
                       nbin_subdir = 32;
                     }
                   }
-                } else if ((*igm)->getName().find("Barrel") != string::npos) {
+                } else if (gsum_me->getName().find("Barrel") != string::npos) {
                   if (prefix != "SUMOFF") {
                     if (iDir == 0) {
                       nbin_i = 0;
@@ -1202,47 +1199,47 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore::IBooker &iBoo
                 }
               }
 
-              if ((*igm)->getName().find("ndigisFREQ") == string::npos) {
-                if (((*igm)->getName().find("adcCOMB") != string::npos &&
+              if (gsum_me->getName().find("ndigisFREQ") == string::npos) {
+                if ((gsum_me->getName().find("adcCOMB") != string::npos &&
                      me->getName().find("adcCOMB") != string::npos) ||
-                    ((*igm)->getName().find("chargeCOMB") != string::npos &&
+                    (gsum_me->getName().find("chargeCOMB") != string::npos &&
                      me->getName().find("chargeCOMB") != string::npos)) {
-                  (*igm)->getTH1F()->Add(me->getTH1F());
-                } else if (((*igm)->getName().find("charge_") != string::npos &&
-                            (*igm)->getName().find("Track_") == string::npos &&
+                  gsum_me->getTH1F()->Add(me->getTH1F());
+                } else if ((gsum_me->getName().find("charge_") != string::npos &&
+                            gsum_me->getName().find("Track_") == string::npos &&
                             me->getName().find("charge_") != string::npos &&
                             me->getName().find("Track_") == string::npos) ||
-                           ((*igm)->getName().find("nclusters_") != string::npos &&
-                            (*igm)->getName().find("Track_") == string::npos &&
+                           (gsum_me->getName().find("nclusters_") != string::npos &&
+                            gsum_me->getName().find("Track_") == string::npos &&
                             me->getName().find("nclusters_") != string::npos &&
                             me->getName().find("Track_") == string::npos) ||
-                           ((*igm)->getName().find("size_") != string::npos &&
-                            (*igm)->getName().find("Track_") == string::npos &&
+                           (gsum_me->getName().find("size_") != string::npos &&
+                            gsum_me->getName().find("Track_") == string::npos &&
                             me->getName().find("size_") != string::npos &&
                             me->getName().find("Track_") == string::npos) ||
-                           ((*igm)->getName().find("charge_OffTrack_") != string::npos &&
+                           (gsum_me->getName().find("charge_OffTrack_") != string::npos &&
                             me->getName().find("charge_OffTrack_") != string::npos) ||
-                           ((*igm)->getName().find("nclusters_OffTrack_") != string::npos &&
+                           (gsum_me->getName().find("nclusters_OffTrack_") != string::npos &&
                             me->getName().find("nclusters_OffTrack_") != string::npos) ||
-                           ((*igm)->getName().find("size_OffTrack_") != string::npos &&
+                           (gsum_me->getName().find("size_OffTrack_") != string::npos &&
                             me->getName().find("size_OffTrack_") != string::npos) ||
-                           ((*igm)->getName().find("charge_OnTrack_") != string::npos &&
+                           (gsum_me->getName().find("charge_OnTrack_") != string::npos &&
                             me->getName().find("charge_OnTrack_") != string::npos) ||
-                           ((*igm)->getName().find("nclusters_OnTrack_") != string::npos &&
+                           (gsum_me->getName().find("nclusters_OnTrack_") != string::npos &&
                             me->getName().find("nclusters_OnTrack_") != string::npos) ||
-                           ((*igm)->getName().find("size_OnTrack_") != string::npos &&
+                           (gsum_me->getName().find("size_OnTrack_") != string::npos &&
                             me->getName().find("size_OnTrack_") != string::npos) ||
-                           ((*igm)->getName().find("charge_") == string::npos &&
-                            (*igm)->getName().find("nclusters_") == string::npos &&
-                            (*igm)->getName().find("size_") == string::npos)) {
+                           (gsum_me->getName().find("charge_") == string::npos &&
+                            gsum_me->getName().find("nclusters_") == string::npos &&
+                            gsum_me->getName().find("size_") == string::npos)) {
                   for (int k = 1; k < nbin_subdir + 1; k++)
                     if (me->getBinContent(k) > 0)
-                      (*igm)->setBinContent(k + nbin_i, me->getBinContent(k));
+                      gsum_me->setBinContent(k + nbin_i, me->getBinContent(k));
                 }
               } else if (me->getName().find("ndigisFREQ") != string::npos) {
                 for (int k = 1; k < nbin_subdir + 1; k++)
                   if (me->getBinContent(k) > 0)
-                    (*igm)->setBinContent(k + nbin_i, me->getBinContent(k));
+                    gsum_me->setBinContent(k + nbin_i, me->getBinContent(k));
               }
             }  // end var in igm (gsum_mes)
           }    // end igm loop
@@ -1267,7 +1264,7 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore::IBooker &iBoo
   vector<MonitorElement *> gsum_mes;
   string currDir = iBooker.pwd();
   string path_name = iBooker.pwd();
-  string dir_name = path_name.substr(path_name.find_last_of("/") + 1);
+  string dir_name = path_name.substr(path_name.find_last_of('/') + 1);
   if ((dir_name.find("DQMData") == 0) || (dir_name.find("Pixel") == 0) ||
       (dir_name.find("AdditionalPixelErrors") == 0) || (dir_name.find("Barrel") == 0) ||
       (dir_name.find("Shell") == 0) || (dir_name.find("Layer") == 0) || (dir_name.find("Ladder") == 0))
@@ -1279,10 +1276,10 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore::IBooker &iBoo
   int nbin_subdir = 0;
   int cnt = 0;
   bool first_subdir = true;
-  for (vector<string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) {
+  for (const auto &subdir : subdirs) {
     cnt++;
-    iBooker.cd(*it);
-    iGetter.cd(*it);
+    iBooker.cd(subdir);
+    iGetter.cd(subdir);
     vector<string> contents = iGetter.getMEs();
     iBooker.goUp();
     iGetter.setCurrentFolder(iBooker.pwd());
@@ -1303,60 +1300,55 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore::IBooker &iBoo
     else if (source_type_ == 20)
       prefix = "SUMOFF";
 
-    for (vector<string>::const_iterator im = contents.begin(); im != contents.end(); im++) {
-      for (vector<string>::const_iterator iv = me_names.begin(); iv != me_names.end(); iv++) {
-        string var = "_" + (*iv) + "_";
-        if ((*im).find(var) != string::npos) {
+    for (const auto &content : contents) {
+      for (const auto &iv : me_names) {
+        string var = "_" + iv + "_";
+        if (content.find(var) != string::npos) {
           if ((var == "_charge_" || var == "_nclusters_" || var == "_size_" || var == "_sizeX_" || var == "_sizeY_") &&
-              (*im).find("Track_") != string::npos)
+              content.find("Track_") != string::npos)
             continue;
-          string full_path = (*it) + "/" + (*im);
+          string full_path = subdir + "/" + content;
           MonitorElement *me = iGetter.get(full_path);
           if (!me)
             continue;
           if (source_type_ == 5 || source_type_ == 6) {
-            if ((*iv) == "errorType" || (*iv) == "NErrors" || (*iv) == "fullType" || (*iv) == "chanNmbr" ||
-                (*iv) == "TBMType" || (*iv) == "EvtNbr" || (*iv) == "evtSize" || (*iv) == "linkId" ||
-                (*iv) == "ROCId" || (*iv) == "DCOLId" || (*iv) == "PXId" || (*iv) == "ROCNmbr" ||
-                (*iv) == "TBMMessage" || (*iv) == "Type36Hitmap")
+            if (iv == "errorType" || iv == "NErrors" || iv == "fullType" || iv == "chanNmbr" || iv == "TBMType" ||
+                iv == "EvtNbr" || iv == "evtSize" || iv == "linkId" || iv == "ROCId" || iv == "DCOLId" ||
+                iv == "PXId" || iv == "ROCNmbr" || iv == "TBMMessage" || iv == "Type36Hitmap")
               prefix = "SUMRAW";
-            else if ((*iv) == "ndigis" || (*iv) == "adc" || (*iv) == "ndigisFREQ" || (*iv) == "adcCOMB")
+            else if (iv == "ndigis" || iv == "adc" || iv == "ndigisFREQ" || iv == "adcCOMB")
               prefix = "SUMDIG";
-            else if ((*iv) == "nclusters" || (*iv) == "x" || (*iv) == "y" || (*iv) == "charge" ||
-                     (*iv) == "chargeCOMB" || (*iv) == "size" || (*iv) == "sizeX" || (*iv) == "sizeY" ||
-                     (*iv) == "minrow" || (*iv) == "maxrow" || (*iv) == "mincol" || (*iv) == "maxcol")
+            else if (iv == "nclusters" || iv == "x" || iv == "y" || iv == "charge" || iv == "chargeCOMB" ||
+                     iv == "size" || iv == "sizeX" || iv == "sizeY" || iv == "minrow" || iv == "maxrow" ||
+                     iv == "mincol" || iv == "maxcol")
               prefix = "SUMCLU";
             if (currDir.find("Track") != string::npos)
               prefix = "SUMTRK";
-            else if ((*iv) == "residualX_mean" || (*iv) == "residualY_mean" || (*iv) == "residualX_RMS" ||
-                     (*iv) == "residualY_RMS")
+            else if (iv == "residualX_mean" || iv == "residualY_mean" || iv == "residualX_RMS" || iv == "residualY_RMS")
               prefix = "SUMTRK";
-            else if ((*iv) == "ClustX" || (*iv) == "ClustY" || (*iv) == "nRecHits" || (*iv) == "ErrorX" ||
-                     (*iv) == "ErrorY")
+            else if (iv == "ClustX" || iv == "ClustY" || iv == "nRecHits" || iv == "ErrorX" || iv == "ErrorY")
               prefix = "SUMHIT";
-            else if ((*iv) == "Gain1d_mean" || (*iv) == "GainChi2NDF1d_mean" || (*iv) == "GainChi2Prob1d_mean" ||
-                     (*iv) == "Pedestal1d_mean" || (*iv) == "ScurveChi2ProbSummary_mean" ||
-                     (*iv) == "ScurveFitResultSummary_mean" || (*iv) == "ScurveSigmasSummary_mean" ||
-                     (*iv) == "ScurveThresholdSummary_mean" || (*iv) == "Gain1d_RMS" || (*iv) == "GainChi2NDF1d_RMS" ||
-                     (*iv) == "GainChi2Prob1d_RMS" || (*iv) == "Pedestal1d_RMS" || (*iv) == "GainNPoints1d_mean" ||
-                     (*iv) == "GainNPoints1d_RMS" || (*iv) == "GainHighPoint1d_mean" ||
-                     (*iv) == "GainHighPoint1d_RMS" || (*iv) == "GainLowPoint1d_mean" ||
-                     (*iv) == "GainLowPoint1d_RMS" || (*iv) == "GainEndPoint1d_mean" || (*iv) == "GainEndPoint1d_RMS" ||
-                     (*iv) == "GainFitResult2d_mean" || (*iv) == "GainFitResult2d_RMS" ||
-                     (*iv) == "GainDynamicRange2d_mean" || (*iv) == "GainDynamicRange2d_RMS" ||
-                     (*iv) == "GainSaturate2d_mean" || (*iv) == "GainSaturate2d_RMS" ||
-                     (*iv) == "ScurveChi2ProbSummary_RMS" || (*iv) == "ScurveFitResultSummary_RMS" ||
-                     (*iv) == "ScurveSigmasSummary_RMS" || (*iv) == "ScurveThresholdSummary_RMS" ||
-                     (*iv) == "pixelAliveSummary_mean" || (*iv) == "pixelAliveSummary_FracOfPerfectPix" ||
-                     (*iv) == "SiPixelErrorsCalibDigis_NCalibErrors")
+            else if (iv == "Gain1d_mean" || iv == "GainChi2NDF1d_mean" || iv == "GainChi2Prob1d_mean" ||
+                     iv == "Pedestal1d_mean" || iv == "ScurveChi2ProbSummary_mean" ||
+                     iv == "ScurveFitResultSummary_mean" || iv == "ScurveSigmasSummary_mean" ||
+                     iv == "ScurveThresholdSummary_mean" || iv == "Gain1d_RMS" || iv == "GainChi2NDF1d_RMS" ||
+                     iv == "GainChi2Prob1d_RMS" || iv == "Pedestal1d_RMS" || iv == "GainNPoints1d_mean" ||
+                     iv == "GainNPoints1d_RMS" || iv == "GainHighPoint1d_mean" || iv == "GainHighPoint1d_RMS" ||
+                     iv == "GainLowPoint1d_mean" || iv == "GainLowPoint1d_RMS" || iv == "GainEndPoint1d_mean" ||
+                     iv == "GainEndPoint1d_RMS" || iv == "GainFitResult2d_mean" || iv == "GainFitResult2d_RMS" ||
+                     iv == "GainDynamicRange2d_mean" || iv == "GainDynamicRange2d_RMS" || iv == "GainSaturate2d_mean" ||
+                     iv == "GainSaturate2d_RMS" || iv == "ScurveChi2ProbSummary_RMS" ||
+                     iv == "ScurveFitResultSummary_RMS" || iv == "ScurveSigmasSummary_RMS" ||
+                     iv == "ScurveThresholdSummary_RMS" || iv == "pixelAliveSummary_mean" ||
+                     iv == "pixelAliveSummary_FracOfPerfectPix" || iv == "SiPixelErrorsCalibDigis_NCalibErrors")
               prefix = "SUMCAL";
           }
 
           if (first_subdir && !isUpgrade) {
             nbin = me->getTH1F()->GetNbinsX();
-            string me_name = prefix + "_" + (*iv) + "_" + dir_name;
-            if ((*iv) == "adcCOMB" || (*iv) == "chargeCOMB")
-              me_name = "ALLMODS_" + (*iv) + "_" + dir_name;
+            string me_name = prefix + "_" + iv + "_" + dir_name;
+            if (iv == "adcCOMB" || iv == "chargeCOMB")
+              me_name = "ALLMODS_" + iv + "_" + dir_name;
             else if (prefix == "SUMOFF" && dir_name == "Endcap")
               nbin = 96;
             else if (dir_name == "Endcap")
@@ -1374,9 +1366,9 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore::IBooker &iBoo
             getGrandSummaryME(iBooker, iGetter, nbin, me_name, gsum_mes);
           } else if (first_subdir && isUpgrade) {
             nbin = me->getTH1F()->GetNbinsX();
-            string me_name = prefix + "_" + (*iv) + "_" + dir_name;
-            if ((*iv) == "adcCOMB" || (*iv) == "chargeCOMB")
-              me_name = "ALLMODS_" + (*iv) + "_" + dir_name;
+            string me_name = prefix + "_" + iv + "_" + dir_name;
+            if (iv == "adcCOMB" || iv == "chargeCOMB")
+              me_name = "ALLMODS_" + iv + "_" + dir_name;
             else if (prefix == "SUMOFF" && dir_name == "Endcap")
               nbin = 336;
             else if (dir_name == "Endcap")
@@ -1394,172 +1386,172 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore::IBooker &iBoo
             getGrandSummaryME(iBooker, iGetter, nbin, me_name, gsum_mes);
           }
 
-          for (vector<MonitorElement *>::const_iterator igm = gsum_mes.begin(); igm != gsum_mes.end(); igm++) {
-            if ((*igm)->getName().find(var) != string::npos) {
+          for (auto gsum_me : gsum_mes) {
+            if (gsum_me->getName().find(var) != string::npos) {
               if (prefix == "SUMOFF")
-                (*igm)->setAxisTitle("Blades", 1);
-              else if ((*igm)->getName().find("adcCOMB_") != string::npos)
-                (*igm)->setAxisTitle("Digi charge [ADC]", 1);
-              else if ((*igm)->getName().find("chargeCOMB_") != string::npos)
-                (*igm)->setAxisTitle("Cluster charge [kilo electrons]", 1);
+                gsum_me->setAxisTitle("Blades", 1);
+              else if (gsum_me->getName().find("adcCOMB_") != string::npos)
+                gsum_me->setAxisTitle("Digi charge [ADC]", 1);
+              else if (gsum_me->getName().find("chargeCOMB_") != string::npos)
+                gsum_me->setAxisTitle("Cluster charge [kilo electrons]", 1);
               else
-                (*igm)->setAxisTitle("Modules", 1);
+                gsum_me->setAxisTitle("Modules", 1);
               string title = "";
-              if ((*igm)->getName().find("NErrors_") != string::npos && prefix == "SUMOFF")
+              if (gsum_me->getName().find("NErrors_") != string::npos && prefix == "SUMOFF")
                 title = "Total number of errors per Blade";
-              else if ((*igm)->getName().find("NErrors_") != string::npos && prefix == "SUMRAW")
+              else if (gsum_me->getName().find("NErrors_") != string::npos && prefix == "SUMRAW")
                 title = "Total number of errors per Module";
               else if (prefix == "SUMOFF")
-                title = "mean " + (*iv) + " per Blade";
-              else if ((*igm)->getName().find("FREQ_") != string::npos)
+                title = "mean " + iv + " per Blade";
+              else if (gsum_me->getName().find("FREQ_") != string::npos)
                 title = "NEvents with digis per Module";
-              else if ((*igm)->getName().find("adcCOMB_") != string::npos)
+              else if (gsum_me->getName().find("adcCOMB_") != string::npos)
                 title = "NDigis";
-              else if ((*igm)->getName().find("chargeCOMB_") != string::npos)
+              else if (gsum_me->getName().find("chargeCOMB_") != string::npos)
                 title = "NClusters";
               else
-                title = "mean " + (*iv) + " per Module";
-              (*igm)->setAxisTitle(title, 2);
+                title = "mean " + iv + " per Module";
+              gsum_me->setAxisTitle(title, 2);
               nbin_i = 0;
               if (!isUpgrade) {
-                if ((*igm)->getName().find("ALLMODS_adcCOMB_") != string::npos) {
+                if (gsum_me->getName().find("ALLMODS_adcCOMB_") != string::npos) {
                   nbin_subdir = 128;
-                } else if ((*igm)->getName().find("ALLMODS_chargeCOMB_") != string::npos) {
+                } else if (gsum_me->getName().find("ALLMODS_chargeCOMB_") != string::npos) {
                   nbin_subdir = 100;
-                } else if ((*igm)->getName().find("Panel_") != string::npos) {
+                } else if (gsum_me->getName().find("Panel_") != string::npos) {
                   nbin_subdir = 7;
-                } else if ((*igm)->getName().find("Blade") != string::npos) {
-                  if ((*im).find("_1") != string::npos)
+                } else if (gsum_me->getName().find("Blade") != string::npos) {
+                  if (content.find("_1") != string::npos)
                     nbin_subdir = 4;
-                  if ((*im).find("_2") != string::npos) {
+                  if (content.find("_2") != string::npos) {
                     nbin_i = 4;
                     nbin_subdir = 3;
                   }
-                } else if ((*igm)->getName().find("Disk") != string::npos) {
+                } else if (gsum_me->getName().find("Disk") != string::npos) {
                   nbin_i = ((cnt - 1) % 12) * 7;
                   nbin_subdir = 7;
-                } else if ((*igm)->getName().find("HalfCylinder") != string::npos) {
+                } else if (gsum_me->getName().find("HalfCylinder") != string::npos) {
                   if (prefix != "SUMOFF") {
                     nbin_subdir = 84;
-                    if ((*im).find("_2") != string::npos)
+                    if (content.find("_2") != string::npos)
                       nbin_i = 84;
                   } else {
                     nbin_subdir = 12;
-                    if ((*im).find("_2") != string::npos)
+                    if (content.find("_2") != string::npos)
                       nbin_i = 12;
                   }
-                } else if ((*igm)->getName().find("Endcap") != string::npos) {
+                } else if (gsum_me->getName().find("Endcap") != string::npos) {
                   if (prefix != "SUMOFF") {
                     nbin_subdir = 168;
-                    if ((*im).find("_mO") != string::npos)
+                    if (content.find("_mO") != string::npos)
                       nbin_i = 168;
-                    if ((*im).find("_pI") != string::npos)
+                    if (content.find("_pI") != string::npos)
                       nbin_i = 336;
-                    if ((*im).find("_pO") != string::npos)
+                    if (content.find("_pO") != string::npos)
                       nbin_i = 504;
                   } else {
                     nbin_subdir = 24;
-                    if ((*im).find("_mO") != string::npos)
+                    if (content.find("_mO") != string::npos)
                       nbin_i = 24;
-                    if ((*im).find("_pI") != string::npos)
+                    if (content.find("_pI") != string::npos)
                       nbin_i = 48;
-                    if ((*im).find("_pO") != string::npos)
+                    if (content.find("_pO") != string::npos)
                       nbin_i = 72;
                   }
                 }
               } else if (isUpgrade) {
-                if ((*igm)->getName().find("ALLMODS_adcCOMB_") != string::npos) {
+                if (gsum_me->getName().find("ALLMODS_adcCOMB_") != string::npos) {
                   nbin_subdir = 128;
-                } else if ((*igm)->getName().find("ALLMODS_chargeCOMB_") != string::npos) {
+                } else if (gsum_me->getName().find("ALLMODS_chargeCOMB_") != string::npos) {
                   nbin_subdir = 100;
-                } else if ((*igm)->getName().find("Panel_") != string::npos) {
+                } else if (gsum_me->getName().find("Panel_") != string::npos) {
                   nbin_subdir = 2;
-                } else if ((*igm)->getName().find("Blade") != string::npos) {
-                  if ((*im).find("_1") != string::npos)
+                } else if (gsum_me->getName().find("Blade") != string::npos) {
+                  if (content.find("_1") != string::npos)
                     nbin_subdir = 1;
-                  if ((*im).find("_2") != string::npos) {
+                  if (content.find("_2") != string::npos) {
                     nbin_i = 1;
                     nbin_subdir = 1;
                   }
-                } else if ((*igm)->getName().find("Disk") != string::npos) {
+                } else if (gsum_me->getName().find("Disk") != string::npos) {
                   nbin_i = ((cnt - 1) % 28) * 2;
                   nbin_subdir = 2;
-                } else if ((*igm)->getName().find("HalfCylinder") != string::npos) {
+                } else if (gsum_me->getName().find("HalfCylinder") != string::npos) {
                   if (prefix != "SUMOFF") {
                     nbin_subdir = 56;
-                    if ((*im).find("_2") != string::npos)
+                    if (content.find("_2") != string::npos)
                       nbin_i = 56;
-                    if ((*im).find("_3") != string::npos)
+                    if (content.find("_3") != string::npos)
                       nbin_i = 112;
                   } else {
                     nbin_subdir = 28;
-                    if ((*im).find("_2") != string::npos)
+                    if (content.find("_2") != string::npos)
                       nbin_i = 28;
-                    if ((*im).find("_3") != string::npos)
+                    if (content.find("_3") != string::npos)
                       nbin_i = 56;
                   }
-                } else if ((*igm)->getName().find("Endcap") != string::npos) {
+                } else if (gsum_me->getName().find("Endcap") != string::npos) {
                   if (prefix != "SUMOFF") {
                     nbin_subdir = 168;
-                    if ((*im).find("_mO") != string::npos)
+                    if (content.find("_mO") != string::npos)
                       nbin_i = 168;
-                    if ((*im).find("_pI") != string::npos)
+                    if (content.find("_pI") != string::npos)
                       nbin_i = 336;
-                    if ((*im).find("_pO") != string::npos)
+                    if (content.find("_pO") != string::npos)
                       nbin_i = 504;
                   } else {
                     nbin_subdir = 84;
-                    if ((*im).find("_mO") != string::npos)
+                    if (content.find("_mO") != string::npos)
                       nbin_i = 84;
-                    if ((*im).find("_pI") != string::npos)
+                    if (content.find("_pI") != string::npos)
                       nbin_i = 168;
-                    if ((*im).find("_pO") != string::npos)
+                    if (content.find("_pO") != string::npos)
                       nbin_i = 252;
                   }
                 }
               }
 
-              if ((*igm)->getName().find("ndigisFREQ") == string::npos) {
-                if (((*igm)->getName().find("adcCOMB") != string::npos &&
+              if (gsum_me->getName().find("ndigisFREQ") == string::npos) {
+                if ((gsum_me->getName().find("adcCOMB") != string::npos &&
                      me->getName().find("adcCOMB") != string::npos) ||
-                    ((*igm)->getName().find("chargeCOMB") != string::npos &&
+                    (gsum_me->getName().find("chargeCOMB") != string::npos &&
                      me->getName().find("chargeCOMB") != string::npos)) {
-                  (*igm)->getTH1F()->Add(me->getTH1F());
-                } else if (((*igm)->getName().find("charge_") != string::npos &&
-                            (*igm)->getName().find("Track_") == string::npos &&
+                  gsum_me->getTH1F()->Add(me->getTH1F());
+                } else if ((gsum_me->getName().find("charge_") != string::npos &&
+                            gsum_me->getName().find("Track_") == string::npos &&
                             me->getName().find("charge_") != string::npos &&
                             me->getName().find("Track_") == string::npos) ||
-                           ((*igm)->getName().find("nclusters_") != string::npos &&
-                            (*igm)->getName().find("Track_") == string::npos &&
+                           (gsum_me->getName().find("nclusters_") != string::npos &&
+                            gsum_me->getName().find("Track_") == string::npos &&
                             me->getName().find("nclusters_") != string::npos &&
                             me->getName().find("Track_") == string::npos) ||
-                           ((*igm)->getName().find("size_") != string::npos &&
-                            (*igm)->getName().find("Track_") == string::npos &&
+                           (gsum_me->getName().find("size_") != string::npos &&
+                            gsum_me->getName().find("Track_") == string::npos &&
                             me->getName().find("size_") != string::npos &&
                             me->getName().find("Track_") == string::npos) ||
-                           ((*igm)->getName().find("charge_OffTrack_") != string::npos &&
+                           (gsum_me->getName().find("charge_OffTrack_") != string::npos &&
                             me->getName().find("charge_OffTrack_") != string::npos) ||
-                           ((*igm)->getName().find("nclusters_OffTrack_") != string::npos &&
+                           (gsum_me->getName().find("nclusters_OffTrack_") != string::npos &&
                             me->getName().find("nclusters_OffTrack_") != string::npos) ||
-                           ((*igm)->getName().find("size_OffTrack_") != string::npos &&
+                           (gsum_me->getName().find("size_OffTrack_") != string::npos &&
                             me->getName().find("size_OffTrack_") != string::npos) ||
-                           ((*igm)->getName().find("charge_OnTrack_") != string::npos &&
+                           (gsum_me->getName().find("charge_OnTrack_") != string::npos &&
                             me->getName().find("charge_OnTrack_") != string::npos) ||
-                           ((*igm)->getName().find("nclusters_OnTrack_") != string::npos &&
+                           (gsum_me->getName().find("nclusters_OnTrack_") != string::npos &&
                             me->getName().find("nclusters_OnTrack_") != string::npos) ||
-                           ((*igm)->getName().find("size_OnTrack_") != string::npos &&
+                           (gsum_me->getName().find("size_OnTrack_") != string::npos &&
                             me->getName().find("size_OnTrack_") != string::npos) ||
-                           ((*igm)->getName().find("charge_") == string::npos &&
-                            (*igm)->getName().find("nclusters_") == string::npos &&
-                            (*igm)->getName().find("size_") == string::npos)) {
+                           (gsum_me->getName().find("charge_") == string::npos &&
+                            gsum_me->getName().find("nclusters_") == string::npos &&
+                            gsum_me->getName().find("size_") == string::npos)) {
                   for (int k = 1; k < nbin_subdir + 1; k++)
                     if (me->getBinContent(k) > 0)
-                      (*igm)->setBinContent(k + nbin_i, me->getBinContent(k));
+                      gsum_me->setBinContent(k + nbin_i, me->getBinContent(k));
                 }
               } else if (me->getName().find("ndigisFREQ") != string::npos) {
                 for (int k = 1; k < nbin_subdir + 1; k++)
                   if (me->getBinContent(k) > 0)
-                    (*igm)->setBinContent(k + nbin_i, me->getBinContent(k));
+                    gsum_me->setBinContent(k + nbin_i, me->getBinContent(k));
               }
               //	       }// for
             }
@@ -1585,9 +1577,9 @@ void SiPixelActionExecutor::getGrandSummaryME(
     return;  // If one doesn't find pixel
   vector<string> contents = iGetter.getMEs();
 
-  for (vector<string>::const_iterator it = contents.begin(); it != contents.end(); it++) {
+  for (const auto &content : contents) {
     // printing cout<<"in grand summary me: "<<me_name<<","<<(*it)<<endl;
-    if ((*it).find(me_name) == 0) {
+    if (content.find(me_name) == 0) {
       string fullpathname = iBooker.pwd() + "/" + me_name;
       MonitorElement *me = iGetter.get(fullpathname);
 
@@ -1618,7 +1610,7 @@ void SiPixelActionExecutor::getGrandSummaryME(
 //
 SiPixelActionExecutor::MonitorElement *SiPixelActionExecutor::getSummaryME(DQMStore::IBooker &iBooker,
                                                                            DQMStore::IGetter &iGetter,
-                                                                           string me_name,
+                                                                           const string &me_name,
                                                                            bool isUpgrade) {
   // printing cout<<"Entering SiPixelActionExecutor::getSummaryME for:
   // "<<me_name<<endl;
@@ -1627,9 +1619,9 @@ SiPixelActionExecutor::MonitorElement *SiPixelActionExecutor::getSummaryME(DQMSt
     return me;
   vector<string> contents = iGetter.getMEs();
 
-  for (vector<string>::const_iterator it = contents.begin(); it != contents.end(); it++) {
-    if ((*it).find(me_name) == 0) {
-      string fullpathname = iBooker.pwd() + "/" + (*it);
+  for (const auto &content : contents) {
+    if (content.find(me_name) == 0) {
+      string fullpathname = iBooker.pwd() + "/" + content;
       me = iGetter.get(fullpathname);
       if (me) {
         me->Reset();
@@ -1679,16 +1671,16 @@ SiPixelActionExecutor::MonitorElement *SiPixelActionExecutor::getSummaryME(DQMSt
 //=============================================================================================================
 SiPixelActionExecutor::MonitorElement *SiPixelActionExecutor::getFEDSummaryME(DQMStore::IBooker &iBooker,
                                                                               DQMStore::IGetter &iGetter,
-                                                                              string me_name) {
+                                                                              const string &me_name) {
   // printing cout<<"Entering SiPixelActionExecutor::getFEDSummaryME..."<<endl;
   MonitorElement *me = nullptr;
   if ((iBooker.pwd()).find("Pixel") == string::npos)
     return me;
   vector<string> contents = iGetter.getMEs();
 
-  for (vector<string>::const_iterator it = contents.begin(); it != contents.end(); it++) {
-    if ((*it).find(me_name) == 0) {
-      string fullpathname = iBooker.pwd() + "/" + (*it);
+  for (const auto &content : contents) {
+    if (content.find(me_name) == 0) {
+      string fullpathname = iBooker.pwd() + "/" + content;
 
       me = iGetter.get(fullpathname);
 
@@ -1713,26 +1705,26 @@ void SiPixelActionExecutor::bookOccupancyPlots(DQMStore::IBooker &iBooker,
   if (Tier0Flag_)
     return;
   vector<string> subdirs = iGetter.getSubdirs();
-  for (vector<string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) {
-    if (isbarrel && (*it).find("Barrel") == string::npos)
+  for (const auto &subdir : subdirs) {
+    if (isbarrel && subdir.find("Barrel") == string::npos)
       continue;
-    if (!isbarrel && (*it).find("Endcap") == string::npos)
+    if (!isbarrel && subdir.find("Endcap") == string::npos)
       continue;
 
-    if ((*it).find("Module_") != string::npos)
+    if (subdir.find("Module_") != string::npos)
       continue;
-    if ((*it).find("Panel_") != string::npos)
+    if (subdir.find("Panel_") != string::npos)
       continue;
-    if ((*it).find("Ladder_") != string::npos)
+    if (subdir.find("Ladder_") != string::npos)
       continue;
-    if ((*it).find("Blade_") != string::npos)
+    if (subdir.find("Blade_") != string::npos)
       continue;
-    if ((*it).find("Layer_") != string::npos)
+    if (subdir.find("Layer_") != string::npos)
       continue;
-    if ((*it).find("Disk_") != string::npos)
+    if (subdir.find("Disk_") != string::npos)
       continue;
-    iBooker.cd(*it);
-    iGetter.cd(*it);
+    iBooker.cd(subdir);
+    iGetter.cd(subdir);
     bookOccupancyPlots(iBooker, iGetter, hiRes, isbarrel);
     if (!hiRes) {
       // occupancyprinting cout<<"booking low res barrel occ plot now!"<<endl;
@@ -1805,20 +1797,20 @@ void SiPixelActionExecutor::fillOccupancy(DQMStore::IBooker &iBooker, DQMStore::
   if (Tier0Flag_)
     return;
   string currDir = iBooker.pwd();
-  string dname = currDir.substr(currDir.find_last_of("/") + 1);
+  string dname = currDir.substr(currDir.find_last_of('/') + 1);
 
   if (dname.find("Layer_") != string::npos || dname.find("Disk_") != string::npos) {
     vector<string> meVec = iGetter.getMEs();
-    for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
-      string full_path = currDir + "/" + (*it);
+    for (const auto &it : meVec) {
+      string full_path = currDir + "/" + it;
       if (full_path.find("hitmap_siPixelDigis") != string::npos) {  // If we have the hitmap ME
         MonitorElement *me = iGetter.get(full_path);
         if (!me)
           continue;
         string path = full_path;
-        while (path.find_last_of("/") != 5)  // Stop before Pixel/
+        while (path.find_last_of('/') != 5)  // Stop before Pixel/
         {
-          path = path.substr(0, path.find_last_of("/"));
+          path = path.substr(0, path.find_last_of('/'));
           //							cout << "\t" <<
           // path
           //<< endl;
@@ -1837,11 +1829,11 @@ void SiPixelActionExecutor::fillOccupancy(DQMStore::IBooker &iBooker, DQMStore::
     }
   } else {
     vector<string> subdirs = iGetter.getSubdirs();
-    for (vector<string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) {
-      iGetter.cd(*it);
-      iBooker.cd(*it);
-      if (*it != "Pixel" &&
-          ((isbarrel && (*it).find("Barrel") == string::npos) || (!isbarrel && (*it).find("Endcap") == string::npos)))
+    for (const auto &subdir : subdirs) {
+      iGetter.cd(subdir);
+      iBooker.cd(subdir);
+      if (subdir != "Pixel" &&
+          ((isbarrel && subdir.find("Barrel") == string::npos) || (!isbarrel && subdir.find("Endcap") == string::npos)))
         continue;
       fillOccupancy(iBooker, iGetter, isbarrel);
       iBooker.goUp();
@@ -2065,15 +2057,15 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore::IBooker &iBooker,
                                            bool isUpgrade) {
   // cout<<"entering SiPixelActionExecutor::fillEfficiency..."<<std::endl;
   string currDir = iBooker.pwd();
-  string dname = currDir.substr(currDir.find_last_of("/") + 1);
+  string dname = currDir.substr(currDir.find_last_of('/') + 1);
   // cout<<"currDir= "<<currDir<< " , dname= "<<dname<<std::endl;
 
   if (Tier0Flag_) {  // Offline
     if (isbarrel && dname.find("Ladder_") != string::npos) {
       if (!isUpgrade) {
         vector<string> meVec = iGetter.getMEs();
-        for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
-          string full_path = currDir + "/" + (*it);
+        for (const auto &it : meVec) {
+          string full_path = currDir + "/" + it;
 
           if (full_path.find("missingMod_") != string::npos) {  // If we have missing hits ME
 
@@ -2128,8 +2120,8 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore::IBooker &iBooker,
       }  // endifNOTUpgradeInBPix
       else if (isUpgrade) {
         vector<string> meVec = iGetter.getMEs();
-        for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
-          string full_path = currDir + "/" + (*it);
+        for (const auto &it : meVec) {
+          string full_path = currDir + "/" + it;
           if (full_path.find("missing_") != string::npos) {  // If we have missing hits ME
             MonitorElement *me = iGetter.get(full_path);
             if (!me)
@@ -2176,8 +2168,8 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore::IBooker &iBooker,
       }  // endifUpgradeInBPix
     } else if (!isbarrel && dname.find("Blade_") != string::npos && !isUpgrade) {
       vector<string> meVec = iGetter.getMEs();
-      for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
-        string full_path = currDir + "/" + (*it);
+      for (const auto &it : meVec) {
+        string full_path = currDir + "/" + it;
         if (full_path.find("missing_") != string::npos) {  // If we have missing hits ME
           MonitorElement *missing = iGetter.get(full_path);
           if (!missing)
@@ -2228,8 +2220,8 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore::IBooker &iBooker,
       }
     } else if (!isbarrel && dname.find("Blade_") != string::npos && isUpgrade) {
       vector<string> meVec = iGetter.getMEs();
-      for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
-        string full_path = currDir + "/" + (*it);
+      for (const auto &it : meVec) {
+        string full_path = currDir + "/" + it;
         if (full_path.find("missing_") != string::npos) {  // If we have missing hits ME
           MonitorElement *me = iGetter.get(full_path);
           if (!me)
@@ -2315,11 +2307,11 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore::IBooker &iBooker,
       }
     } else {
       vector<string> subdirs = iGetter.getSubdirs();
-      for (vector<string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) {
-        iBooker.cd(*it);
-        iGetter.cd(*it);
-        if (*it != "Pixel" &&
-            ((isbarrel && (*it).find("Barrel") == string::npos) || (!isbarrel && (*it).find("Endcap") == string::npos)))
+      for (const auto &subdir : subdirs) {
+        iBooker.cd(subdir);
+        iGetter.cd(subdir);
+        if (subdir != "Pixel" && ((isbarrel && subdir.find("Barrel") == string::npos) ||
+                                  (!isbarrel && subdir.find("Endcap") == string::npos)))
           continue;
         fillEfficiency(iBooker, iGetter, isbarrel, isUpgrade);
         iBooker.goUp();
@@ -2329,8 +2321,8 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore::IBooker &iBooker,
   } else {  // Online
     if (dname.find("Module_") != string::npos) {
       vector<string> meVec = iGetter.getMEs();
-      for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
-        string full_path = currDir + "/" + (*it);
+      for (const auto &it : meVec) {
+        string full_path = currDir + "/" + it;
         if (full_path.find("missing_") != string::npos) {  // If we have missing hits ME
           MonitorElement *me = iGetter.get(full_path);
           if (!me)
@@ -2643,11 +2635,11 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore::IBooker &iBooker,
     } else {
       // cout<<"finding subdirs now"<<std::endl;
       vector<string> subdirs = iGetter.getSubdirs();
-      for (vector<string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) {
-        iBooker.cd(*it);
-        iGetter.cd(*it);
-        if (*it != "Pixel" &&
-            ((isbarrel && (*it).find("Barrel") == string::npos) || (!isbarrel && (*it).find("Endcap") == string::npos)))
+      for (const auto &subdir : subdirs) {
+        iBooker.cd(subdir);
+        iGetter.cd(subdir);
+        if (subdir != "Pixel" && ((isbarrel && subdir.find("Barrel") == string::npos) ||
+                                  (!isbarrel && subdir.find("Endcap") == string::npos)))
           continue;
         fillEfficiency(iBooker, iGetter, isbarrel, isUpgrade);
         iBooker.goUp();

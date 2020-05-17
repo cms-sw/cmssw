@@ -16,11 +16,11 @@
 class perfSiStripFecKey : public edm::EDAnalyzer {
 public:
   perfSiStripFecKey(const edm::ParameterSet&);
-  ~perfSiStripFecKey();
+  ~perfSiStripFecKey() override;
 
-  void beginJob();
-  void analyze(const edm::Event&, const edm::EventSetup&);
-  void endJob() { ; }
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override { ; }
 
 private:
   class Value {

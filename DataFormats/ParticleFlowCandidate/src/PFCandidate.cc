@@ -304,9 +304,9 @@ ostream& reco::operator<<(ostream& out, const PFCandidate& c) {
   out << ", blocks/iele: ";
 
   PFCandidate::ElementsInBlocks eleInBlocks = c.elementsInBlocks();
-  for (unsigned i = 0; i < eleInBlocks.size(); i++) {
-    PFBlockRef blockRef = eleInBlocks[i].first;
-    unsigned indexInBlock = eleInBlocks[i].second;
+  for (auto& eleInBlock : eleInBlocks) {
+    PFBlockRef blockRef = eleInBlock.first;
+    unsigned indexInBlock = eleInBlock.second;
 
     out << "(" << blockRef.key() << "|" << indexInBlock << "), ";
   }
@@ -480,9 +480,9 @@ void PFCandidate::setDisplacedVertexRef(const reco::PFDisplacedVertexRef& iRef, 
 
 reco::PFDisplacedVertexRef PFCandidate::displacedVertexRef(Flags type) const {
   if (type == T_TO_DISP) {
-    GETREF(reco::PFDisplacedVertex, kRefDisplacedVertexDauMask, kRefDisplacedVertexDauBit);
+    GETREF(auto, kRefDisplacedVertexDauMask, kRefDisplacedVertexDauBit);
   } else if (type == T_FROM_DISP) {
-    GETREF(reco::PFDisplacedVertex, kRefDisplacedVertexMotMask, kRefDisplacedVertexMotBit);
+    GETREF(auto, kRefDisplacedVertexMotMask, kRefDisplacedVertexMotBit);
   }
   return reco::PFDisplacedVertexRef();
 }
@@ -508,18 +508,14 @@ void PFCandidate::setConversionRef(reco::ConversionRef const& iRef) {
       kRefConversionMask, kRefConversionBit, iRef.isNonnull(), iRef.refCore(), iRef.key(), iRef.productGetter());
 }
 
-reco::ConversionRef PFCandidate::conversionRef() const {
-  GETREF(reco::Conversion, kRefConversionMask, kRefConversionBit);
-}
+reco::ConversionRef PFCandidate::conversionRef() const { GETREF(auto, kRefConversionMask, kRefConversionBit); }
 
 //////////////
 void PFCandidate::setV0Ref(reco::VertexCompositeCandidateRef const& iRef) {
   storeRefInfo(kRefV0Mask, kRefV0Bit, iRef.isNonnull(), iRef.refCore(), iRef.key(), iRef.productGetter());
 }
 
-reco::VertexCompositeCandidateRef PFCandidate::v0Ref() const {
-  GETREF(reco::VertexCompositeCandidate, kRefV0Mask, kRefV0Bit);
-}
+reco::VertexCompositeCandidateRef PFCandidate::v0Ref() const { GETREF(auto, kRefV0Mask, kRefV0Bit); }
 
 //////////////
 void PFCandidate::setGsfElectronRef(reco::GsfElectronRef const& iRef) {
@@ -527,9 +523,7 @@ void PFCandidate::setGsfElectronRef(reco::GsfElectronRef const& iRef) {
       kRefGsfElectronMask, kRefGsfElectronBit, iRef.isNonnull(), iRef.refCore(), iRef.key(), iRef.productGetter());
 }
 
-reco::GsfElectronRef PFCandidate::gsfElectronRef() const {
-  GETREF(reco::GsfElectron, kRefGsfElectronMask, kRefGsfElectronBit);
-}
+reco::GsfElectronRef PFCandidate::gsfElectronRef() const { GETREF(auto, kRefGsfElectronMask, kRefGsfElectronBit); }
 
 //////////////
 void PFCandidate::setPFElectronExtraRef(reco::PFCandidateElectronExtraRef const& iRef) {
@@ -542,22 +536,20 @@ void PFCandidate::setPFElectronExtraRef(reco::PFCandidateElectronExtraRef const&
 }
 
 reco::PFCandidateElectronExtraRef PFCandidate::electronExtraRef() const {
-  GETREF(reco::PFCandidateElectronExtra, kRefPFElectronExtraMask, kRefPFElectronExtraBit);
+  GETREF(auto, kRefPFElectronExtraMask, kRefPFElectronExtraBit);
 }
 
 reco::PhotonRef PFCandidate::photonRef() const { GETREF(reco::Photon, kRefPhotonMask, kRefPhotonBit); }
 
 reco::PFCandidatePhotonExtraRef PFCandidate::photonExtraRef() const {
-  GETREF(reco::PFCandidatePhotonExtra, kRefPFPhotonExtraMask, kRefPFPhotonExtraBit);
+  GETREF(auto, kRefPFPhotonExtraMask, kRefPFPhotonExtraBit);
 }
 
 reco::PFCandidateEGammaExtraRef PFCandidate::egammaExtraRef() const {
-  GETREF(reco::PFCandidateEGammaExtra, kRefPFEGammaExtraMask, kRefPFEGammaExtraBit);
+  GETREF(auto, kRefPFEGammaExtraMask, kRefPFEGammaExtraBit);
 }
 
-reco::SuperClusterRef PFCandidate::superClusterRef() const {
-  GETREF(reco::SuperCluster, kRefSuperClusterMask, kRefSuperClusterBit);
-}
+reco::SuperClusterRef PFCandidate::superClusterRef() const { GETREF(auto, kRefSuperClusterMask, kRefSuperClusterBit); }
 
 void PFCandidate::setPhotonRef(const reco::PhotonRef& iRef) {
   if (particleId() != gamma && particleId() != e) {

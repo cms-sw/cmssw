@@ -31,8 +31,8 @@ public:
   void testMergeDouble();
   void testMergeTString();
   void testMergeT();
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
 };
 
 ///registration of the test so that the runner can find it
@@ -45,9 +45,8 @@ bool areEquivalent(const MEtoEDM<T>& iLHS, const MEtoEDM<T>& iRHS) {
     return false;
   }
   typedef typename MEtoEDM<T>::MEtoEdmObjectVector Vec;
-  typename Vec::const_iterator itRHS = iRHS.getMEtoEdmObject().begin();
-  for (typename Vec::const_iterator itLHS = iLHS.getMEtoEdmObject().begin(), itLHSEnd = iLHS.getMEtoEdmObject().end();
-       itLHS != itLHSEnd;
+  auto itRHS = iRHS.getMEtoEdmObject().begin();
+  for (auto itLHS = iLHS.getMEtoEdmObject().begin(), itLHSEnd = iLHS.getMEtoEdmObject().end(); itLHS != itLHSEnd;
        ++itLHS, ++itRHS) {
     if (itLHS->name != itRHS->name || itLHS->tags != itRHS->tags || itLHS->object != itRHS->object) {
       std::cout << "areEquivalent failure: elements '" << (itLHS->name) << "' " << (itLHS->object) << " and '"

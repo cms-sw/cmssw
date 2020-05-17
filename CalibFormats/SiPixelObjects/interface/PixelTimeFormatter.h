@@ -20,6 +20,7 @@
 #include <ctime>
 #include <sys/time.h>
 #include <cstdlib>
+#include <utility>
 
 #define USE_TIMER_ 0
 
@@ -30,7 +31,7 @@ namespace pos {
     PixelTimeFormatter(std::string source) {
       if (!USE_TIMER_)
         return;
-      origin_ = source;
+      origin_ = std::move(source);
       std::cout << "[PixelTimeFormatter::PixelTimeFormatter()]\t\t    Time counter started for " << origin_
                 << std::endl;
       startTime_ = getImSecTime();

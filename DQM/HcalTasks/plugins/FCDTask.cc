@@ -37,7 +37,7 @@ FCDTask::FCDTask(edm::ParameterSet const& ps) {
     if (it_gid.genericSubdet() != HcalGenericDetId::HcalGenZDC) {
       continue;
     }
-    HcalElectronicsId eid = HcalElectronicsId(_ehashmap.lookup(it_gid));
+    auto eid = HcalElectronicsId(_ehashmap.lookup(it_gid));
     for (auto& it_channel : _channels) {
       if ((eid.crateId() == it_channel.crate) && (eid.slot() == it_channel.slot) &&
           (eid.fiberIndex() == it_channel.fiber) && (eid.fiberChanId() == it_channel.fiberChannel)) {
@@ -78,7 +78,7 @@ FCDTask::FCDTask(edm::ParameterSet const& ps) {
   for (auto it = digis->begin(); it != digis->end(); it++) {
     const QIE10DataFrame digi = static_cast<const QIE10DataFrame>(*it);
     HcalGenericDetId const& gdid = digi.detid();
-    HcalElectronicsId eid = HcalElectronicsId(_ehashmap.lookup(gdid));
+    auto eid = HcalElectronicsId(_ehashmap.lookup(gdid));
     if (std::find(_fcd_eids.begin(), _fcd_eids.end(), eid) == _fcd_eids.end()) {
       continue;
     }

@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "Validation/Geometry/interface/MaterialBudgetHGCalHistos.h"
 #include "Validation/Geometry/interface/MaterialBudgetData.h"
 
@@ -24,8 +26,8 @@ MaterialBudgetHGCalHistos::MaterialBudgetHGCalHistos(std::shared_ptr<MaterialBud
                                                      double RMin,
                                                      double RMax,
                                                      int nRbin)
-    : MaterialBudgetFormat(data),
-      hmgr(mgr),
+    : MaterialBudgetFormat(std::move(data)),
+      hmgr(std::move(mgr)),
       zMin_(minZ),
       zMax_(maxZ),
       nzbin_(nintZ),

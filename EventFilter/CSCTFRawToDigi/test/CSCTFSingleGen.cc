@@ -20,7 +20,7 @@
 #include "CondFormats/CSCObjects/interface/CSCTriggerMappingFromFile.h"
 #include <sstream>
 
-CSCTFSingleGen::CSCTFSingleGen(const edm::ParameterSet& pset) : edm::EDProducer(), mapping(0) {
+CSCTFSingleGen::CSCTFSingleGen(const edm::ParameterSet& pset) : edm::EDProducer(), mapping(nullptr) {
   LogDebug("CSCTFSingleGen|ctor") << "Started ...";
 
   // Edges of the time window, which LCTs are put into (unlike tracks, which are always centred around 0):
@@ -44,7 +44,7 @@ CSCTFSingleGen::CSCTFSingleGen(const edm::ParameterSet& pset) : edm::EDProducer(
   } else {
     LogDebug("CSCTFSingleGen|ctor") << "Generating default hw<->geometry mapping";
     class M : public CSCTriggerSimpleMapping {
-      void fill(void) {}
+      void fill(void) override {}
     };
     mapping = new M();
     for (int endcap = 1; endcap <= 2; endcap++)

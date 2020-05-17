@@ -290,8 +290,8 @@ void TriggerMatcherToHLTDebug::produce(Event &event, const EventSetup &eventSetu
           const edm::RefVector<L2MuonTrajectorySeedCollection> &seeds =
               (*seedMapHandle)[iL2Muon->track()->seedRef().castTo<edm::Ref<L2MuonTrajectorySeedCollection> >()];
           //	  bool isTriggered = false;
-          for (size_t jjj = 0; jjj < seeds.size(); jjj++) {
-            if (seeds[jjj]->l1Particle() != l1FromSeed)
+          for (const auto &seed : seeds) {
+            if (seed->l1Particle() != l1FromSeed)
               continue;
           }
 
@@ -344,8 +344,7 @@ void TriggerMatcherToHLTDebug::produce(Event &event, const EventSetup &eventSetu
             if (!L3TkTracks.isValid())
               continue;
             for (tktrackL3 = L3TkTracks->begin(); tktrackL3 != L3TkTracks->end(); ++tktrackL3) {
-              edm::Ref<L3MuonTrajectorySeedCollection> l3seedRef =
-                  tktrackL3->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >();
+              auto l3seedRef = tktrackL3->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >();
               TrackRef staTrack2 = l3seedRef->l2Track();
 
               if (staTrack2 != L2FilteredRef)
@@ -359,8 +358,7 @@ void TriggerMatcherToHLTDebug::produce(Event &event, const EventSetup &eventSetu
               if (!L3Muons.isValid())
                 continue;
               for (iL3Muon = L3Muons->begin(); iL3Muon != L3Muons->end(); ++iL3Muon) {
-                edm::Ref<L3MuonTrajectorySeedCollection> l3seedRef2 =
-                    iL3Muon->track()->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >();
+                auto l3seedRef2 = iL3Muon->track()->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >();
                 TrackRef staTrack3 = l3seedRef2->l2Track();
 
                 if (staTrack3 != L2FilteredRef)

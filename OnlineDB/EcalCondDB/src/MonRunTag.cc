@@ -18,7 +18,7 @@ MonRunTag::~MonRunTag() {}
 
 string MonRunTag::getGeneralTag() const { return m_genTag; }
 
-void MonRunTag::setGeneralTag(string genTag) {
+void MonRunTag::setGeneralTag(const string& genTag) {
   if (genTag != m_genTag) {
     m_ID = 0;
     m_genTag = genTag;

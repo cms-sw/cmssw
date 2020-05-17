@@ -39,8 +39,8 @@ void go() {
   Hist h;
   Hist4 h4;
   for (int it = 0; it < 5; ++it) {
-    for (long long j = 0; j < N; j++)
-      v[j] = rgen(eng);
+    for (auto& j : v)
+      j = rgen(eng);
     if (it == 2)
       for (long long j = N / 2; j < N / 2 + N / 4; j++)
         v[j] = 4;
@@ -103,20 +103,20 @@ void go() {
     }
   }
 
-  for (long long j = 0; j < N; j++) {
-    auto b0 = h.bin(v[j]);
+  for (auto& j : v) {
+    auto b0 = h.bin(j);
     int w = 0;
     int tot = 0;
     auto ftest = [&](int k) {
       assert(k >= 0 && k < N);
       tot++;
     };
-    forEachInBins(h, v[j], w, ftest);
+    forEachInBins(h, j, w, ftest);
     int rtot = h.end(b0) - h.begin(b0);
     assert(tot == rtot);
     w = 1;
     tot = 0;
-    forEachInBins(h, v[j], w, ftest);
+    forEachInBins(h, j, w, ftest);
     int bp = b0 + 1;
     int bm = b0 - 1;
     if (bp < int(h.nbins()))
@@ -126,7 +126,7 @@ void go() {
     assert(tot == rtot);
     w = 2;
     tot = 0;
-    forEachInBins(h, v[j], w, ftest);
+    forEachInBins(h, j, w, ftest);
     bp++;
     bm--;
     if (bp < int(h.nbins()))

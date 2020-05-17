@@ -339,12 +339,12 @@ void SiPixelDigiValid::analyze(const edm::Event &e, const edm::EventSetup &c) {
   edm::Handle<edm::DetSetVector<PixelDigi>> pixelDigis;
   e.getByToken(edmDetSetVector_PixelDigi_Token_, pixelDigis);
 
-  edm::DetSetVector<PixelDigi>::const_iterator DSViter = pixelDigis->begin();
+  auto DSViter = pixelDigis->begin();
   for (; DSViter != pixelDigis->end(); DSViter++) {
     unsigned int id = DSViter->id;
     DetId detId(id);
-    edm::DetSet<PixelDigi>::const_iterator begin = DSViter->data.begin();
-    edm::DetSet<PixelDigi>::const_iterator end = DSViter->data.end();
+    auto begin = DSViter->data.begin();
+    auto end = DSViter->data.end();
     edm::DetSet<PixelDigi>::const_iterator iter;
 
     if (detId.subdetId() == PixelSubdetector::PixelBarrel) {

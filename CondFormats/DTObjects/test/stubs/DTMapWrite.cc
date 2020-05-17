@@ -43,7 +43,7 @@ namespace edmtest {
       return;
     }
 
-    DTReadOutMapping* ro_map = new DTReadOutMapping("cmssw_ROB", "cmssw_ROS");
+    auto* ro_map = new DTReadOutMapping("cmssw_ROB", "cmssw_ROS");
     int status = 0;
     std::ifstream ifile("testMap.txt");
     int ddu;

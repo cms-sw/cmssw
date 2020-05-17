@@ -54,8 +54,8 @@ namespace reco {
       int ngoodtracks = v.size();
       double SumJet = 0.;
 
-      for (std::vector<double>::const_iterator q = v.begin(); q != v.end(); q++) {
-        SumJet += (*q > minTrackProb) ? log(*q) : log(minTrackProb);
+      for (double q : v) {
+        SumJet += (q > minTrackProb) ? log(q) : log(minTrackProb);
       }
 
       double ProbJet;

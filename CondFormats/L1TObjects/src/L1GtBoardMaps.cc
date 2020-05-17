@@ -43,8 +43,8 @@ void L1GtBoardMaps::print(std::ostream& myCout) const {
 
   myCout << "  Size: " << m_gtBoardMaps.size() << " boards in L1 GT." << std::endl;
 
-  for (std::vector<L1GtBoard>::const_iterator cIt = m_gtBoardMaps.begin(); cIt != m_gtBoardMaps.end(); ++cIt) {
-    cIt->print(myCout);
+  for (const auto& m_gtBoardMap : m_gtBoardMaps) {
+    m_gtBoardMap.print(myCout);
     myCout << std::endl;
   }
 
@@ -60,10 +60,10 @@ void L1GtBoardMaps::printGtDaqRecordMap(std::ostream& myCout) const {
   uint16_t boardId = 0;
   std::string boardName;
 
-  for (std::vector<L1GtBoard>::const_iterator cIt = m_gtBoardMaps.begin(); cIt != m_gtBoardMaps.end(); ++cIt) {
-    posRec = cIt->gtPositionDaqRecord();
-    boardId = cIt->gtBoardId();
-    boardName = cIt->gtBoardName();
+  for (const auto& m_gtBoardMap : m_gtBoardMaps) {
+    posRec = m_gtBoardMap.gtPositionDaqRecord();
+    boardId = m_gtBoardMap.gtBoardId();
+    boardName = m_gtBoardMap.gtBoardName();
 
     if (posRec >= 0) {
       myCout << "  " << boardName << "  " << std::hex << boardId << std::dec << " at position " << posRec << std::endl;
@@ -87,10 +87,10 @@ void L1GtBoardMaps::printGtEvmRecordMap(std::ostream& myCout) const {
   uint16_t boardId = 0;
   std::string boardName;
 
-  for (std::vector<L1GtBoard>::const_iterator cIt = m_gtBoardMaps.begin(); cIt != m_gtBoardMaps.end(); ++cIt) {
-    posRec = cIt->gtPositionEvmRecord();
-    boardId = cIt->gtBoardId();
-    boardName = cIt->gtBoardName();
+  for (const auto& m_gtBoardMap : m_gtBoardMaps) {
+    posRec = m_gtBoardMap.gtPositionEvmRecord();
+    boardId = m_gtBoardMap.gtBoardId();
+    boardName = m_gtBoardMap.gtBoardName();
 
     if (posRec >= 0) {
       myCout << "  " << boardName << "  " << std::hex << boardId << std::dec << " at position " << posRec << std::endl;
@@ -114,10 +114,10 @@ void L1GtBoardMaps::printGtDaqActiveBoardsMap(std::ostream& myCout) const {
   uint16_t boardId = 0;
   std::string boardName;
 
-  for (std::vector<L1GtBoard>::const_iterator cIt = m_gtBoardMaps.begin(); cIt != m_gtBoardMaps.end(); ++cIt) {
-    posRec = cIt->gtBitDaqActiveBoards();
-    boardId = cIt->gtBoardId();
-    boardName = cIt->gtBoardName();
+  for (const auto& m_gtBoardMap : m_gtBoardMaps) {
+    posRec = m_gtBoardMap.gtBitDaqActiveBoards();
+    boardId = m_gtBoardMap.gtBoardId();
+    boardName = m_gtBoardMap.gtBoardName();
 
     if (posRec >= 0) {
       myCout << "  " << boardName << "  " << std::hex << boardId << std::dec << " at bit " << posRec << std::endl;
@@ -141,10 +141,10 @@ void L1GtBoardMaps::printGtEvmActiveBoardsMap(std::ostream& myCout) const {
   uint16_t boardId = 0;
   std::string boardName;
 
-  for (std::vector<L1GtBoard>::const_iterator cIt = m_gtBoardMaps.begin(); cIt != m_gtBoardMaps.end(); ++cIt) {
-    posRec = cIt->gtBitEvmActiveBoards();
-    boardId = cIt->gtBoardId();
-    boardName = cIt->gtBoardName();
+  for (const auto& m_gtBoardMap : m_gtBoardMaps) {
+    posRec = m_gtBoardMap.gtBitEvmActiveBoards();
+    boardId = m_gtBoardMap.gtBoardId();
+    boardName = m_gtBoardMap.gtBoardName();
 
     if (posRec >= 0) {
       myCout << "  " << boardName << "  " << std::hex << boardId << std::dec << " at bit " << posRec << std::endl;
@@ -168,10 +168,10 @@ void L1GtBoardMaps::printGtBoardSlotMap(std::ostream& myCout) const {
   uint16_t boardId = 0;
   std::string boardName;
 
-  for (std::vector<L1GtBoard>::const_iterator cIt = m_gtBoardMaps.begin(); cIt != m_gtBoardMaps.end(); ++cIt) {
-    posRec = cIt->gtBoardSlot();
-    boardId = cIt->gtBoardId();
-    boardName = cIt->gtBoardName();
+  for (const auto& m_gtBoardMap : m_gtBoardMaps) {
+    posRec = m_gtBoardMap.gtBoardSlot();
+    boardId = m_gtBoardMap.gtBoardId();
+    boardName = m_gtBoardMap.gtBoardName();
 
     if (posRec >= 0) {
       myCout << "  " << boardName << "  " << std::hex << boardId << std::dec << " in slot " << posRec << std::endl;
@@ -195,10 +195,10 @@ void L1GtBoardMaps::printGtBoardHexNameMap(std::ostream& myCout) const {
   uint16_t boardId = 0;
   std::string boardName;
 
-  for (std::vector<L1GtBoard>::const_iterator cIt = m_gtBoardMaps.begin(); cIt != m_gtBoardMaps.end(); ++cIt) {
-    posRec = cIt->gtBoardHexName();
-    boardId = cIt->gtBoardId();
-    boardName = cIt->gtBoardName();
+  for (const auto& m_gtBoardMap : m_gtBoardMaps) {
+    posRec = m_gtBoardMap.gtBoardHexName();
+    boardId = m_gtBoardMap.gtBoardId();
+    boardName = m_gtBoardMap.gtBoardName();
 
     if (posRec >= 0) {
       myCout << "  " << boardName << "  " << std::hex << boardId << std::dec << " has HexName " << std::hex << posRec
@@ -221,65 +221,64 @@ void L1GtBoardMaps::printGtQuadToPsbMap(std::ostream& myCout) const {
   int nrBoards = 0;
   int nrCable = 0;
 
-  for (std::vector<L1GtBoard>::const_iterator cIt = m_gtBoardMaps.begin(); cIt != m_gtBoardMaps.end(); ++cIt) {
-    if (cIt->gtBoardType() == PSB) {
-      myCout << "\n  PSB_" << cIt->gtBoardIndex() << "\n      ";
+  for (const auto& m_gtBoardMap : m_gtBoardMaps) {
+    if (m_gtBoardMap.gtBoardType() == PSB) {
+      myCout << "\n  PSB_" << m_gtBoardMap.gtBoardIndex() << "\n      ";
 
       nrBoards++;
 
-      std::vector<L1GtPsbQuad> quadInPsb = cIt->gtQuadInPsb();
+      std::vector<L1GtPsbQuad> quadInPsb = m_gtBoardMap.gtQuadInPsb();
       std::string objType;
 
-      for (std::vector<L1GtPsbQuad>::const_iterator cItQuad = quadInPsb.begin(); cItQuad != quadInPsb.end();
-           ++cItQuad) {
+      for (auto cItQuad : quadInPsb) {
         nrCable++;
 
-        if (*cItQuad == TechTr) {
+        if (cItQuad == TechTr) {
           objType = "TechTr";
-        } else if (*cItQuad == IsoEGQ) {
+        } else if (cItQuad == IsoEGQ) {
           objType = "IsoEGQ";
-        } else if (*cItQuad == NoIsoEGQ) {
+        } else if (cItQuad == NoIsoEGQ) {
           objType = "NoIsoEGQ";
-        } else if (*cItQuad == CenJetQ) {
+        } else if (cItQuad == CenJetQ) {
           objType = "CenJetQ";
-        } else if (*cItQuad == ForJetQ) {
+        } else if (cItQuad == ForJetQ) {
           objType = "ForJetQ";
-        } else if (*cItQuad == TauJetQ) {
+        } else if (cItQuad == TauJetQ) {
           objType = "TauJetQ";
-        } else if (*cItQuad == ESumsQ) {
+        } else if (cItQuad == ESumsQ) {
           objType = "ESumsQ";
-        } else if (*cItQuad == JetCountsQ) {
+        } else if (cItQuad == JetCountsQ) {
           objType = "JetCountsQ";
-        } else if (*cItQuad == MQB1) {
+        } else if (cItQuad == MQB1) {
           objType = "MQB1";
-        } else if (*cItQuad == MQB2) {
+        } else if (cItQuad == MQB2) {
           objType = "MQB2";
-        } else if (*cItQuad == MQF3) {
+        } else if (cItQuad == MQF3) {
           objType = "MQF3";
-        } else if (*cItQuad == MQF4) {
+        } else if (cItQuad == MQF4) {
           objType = "MQF4";
-        } else if (*cItQuad == MQB5) {
+        } else if (cItQuad == MQB5) {
           objType = "MQB5";
-        } else if (*cItQuad == MQB6) {
+        } else if (cItQuad == MQB6) {
           objType = "MQB6";
-        } else if (*cItQuad == MQF7) {
+        } else if (cItQuad == MQF7) {
           objType = "MQF7";
-        } else if (*cItQuad == MQF8) {
+        } else if (cItQuad == MQF8) {
           objType = "MQF8";
-        } else if (*cItQuad == MQB9) {
+        } else if (cItQuad == MQB9) {
           objType = "MQB9";
-        } else if (*cItQuad == MQB10) {
+        } else if (cItQuad == MQB10) {
           objType = "MQB10";
-        } else if (*cItQuad == MQF11) {
+        } else if (cItQuad == MQF11) {
           objType = "MQF11";
-        } else if (*cItQuad == MQF12) {
+        } else if (cItQuad == MQF12) {
           objType = "MQF12";
-        } else if (*cItQuad == Free) {
+        } else if (cItQuad == Free) {
           objType = "Free";
-        } else if (*cItQuad == HfQ) {
+        } else if (cItQuad == HfQ) {
           objType = "HfQ";
         } else {
-          myCout << "\n\nError: no such member " << (*cItQuad) << " in enum L1GtPsbQuad\n\n" << std::endl;
+          myCout << "\n\nError: no such member " << cItQuad << " in enum L1GtPsbQuad\n\n" << std::endl;
           objType = "ERROR";
         }
 

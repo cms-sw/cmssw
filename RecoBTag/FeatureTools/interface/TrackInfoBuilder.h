@@ -15,7 +15,7 @@ namespace btagbtvdeep {
 
     void buildTrackInfo(const reco::Candidate* candidate,
                         const math::XYZVector& jetDir,
-                        GlobalVector refjetdirection,
+                        const GlobalVector& refjetdirection,
                         const reco::Vertex& pv);
     const float getTrackDeltaR() const { return trackDeltaR_; }
     const float getTrackEta() const { return trackEta_; }

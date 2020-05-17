@@ -182,9 +182,9 @@ private:
                                                 const BoundPlane& plane);
   void createMEs(DQMStore::IBooker& ibooker, const edm::EventSetup& es);
   void createTotalMEs(DQMStore::IBooker& ibooker);
-  void createLayerMEs(DQMStore::IBooker& ibooker, std::string label);
-  void createSubDetMEs(DQMStore::IBooker& ibooker, std::string label);
-  void createStereoAndMatchedMEs(DQMStore::IBooker& ibooker, std::string label);
+  void createLayerMEs(DQMStore::IBooker& ibooker, const std::string& label);
+  void createSubDetMEs(DQMStore::IBooker& ibooker, const std::string& label);
+  void createStereoAndMatchedMEs(DQMStore::IBooker& ibooker, const std::string& label);
 
   MonitorElement* bookME1D(DQMStore::IBooker& ibooker,
                            const char* ParameterSetLabel,
@@ -220,8 +220,8 @@ private:
   //  std::vector<RecHitProperties> rechitmatched;
   RecHitProperties rechitpro;
 
-  void rechitanalysis(SiStripRecHit2D const rechit, const StripTopology& topol, TrackerHitAssociator& associate);
-  void rechitanalysis_matched(SiStripMatchedRecHit2D const rechit,
+  void rechitanalysis(SiStripRecHit2D const& rechit, const StripTopology& topol, TrackerHitAssociator& associate);
+  void rechitanalysis_matched(SiStripMatchedRecHit2D const& rechit,
                               const GluedGeomDet* gluedDet,
                               TrackerHitAssociator& associate);
 

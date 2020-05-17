@@ -30,7 +30,7 @@ ClusterSummaryProducer::ClusterSummaryProducer(const edm::ParameterSet& iConfig)
   std::vector<edm::ParameterSet> wantedusersubdets_ps =
       iConfig.getParameter<std::vector<edm::ParameterSet> >("wantedUserSubDets");
   for (const auto& iS : wantedusersubdets_ps) {
-    ClusterSummary::CMSTracker subdet = (ClusterSummary::CMSTracker)iS.getParameter<unsigned int>("detSelection");
+    auto subdet = (ClusterSummary::CMSTracker)iS.getParameter<unsigned int>("detSelection");
     std::string detname = iS.getParameter<std::string>("detLabel");
     std::vector<std::string> selection = iS.getParameter<std::vector<std::string> >("selection");
 
@@ -79,9 +79,8 @@ void ClusterSummaryProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
     edmNew::DetSetVector<SiStripCluster>::const_iterator itClusters = stripClusters->begin();
     for (; itClusters != stripClusters->end(); ++itClusters) {
       getSelections(itClusters->id());
-      for (edmNew::DetSet<SiStripCluster>::const_iterator cluster = itClusters->begin(); cluster != itClusters->end();
-           ++cluster) {
-        const ClusterVariables Summaryinfo(*cluster);
+      for (const auto& cluster : *itClusters) {
+        const ClusterVariables Summaryinfo(cluster);
         fillSelections(Summaryinfo.clusterSize(), Summaryinfo.charge());
       }
     }
@@ -96,9 +95,8 @@ void ClusterSummaryProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
     edmNew::DetSetVector<SiPixelCluster>::const_iterator itClusters = pixelClusters->begin();
     for (; itClusters != pixelClusters->end(); ++itClusters) {
       getSelections(itClusters->id());
-      for (edmNew::DetSet<SiPixelCluster>::const_iterator cluster = itClusters->begin(); cluster != itClusters->end();
-           ++cluster) {
-        fillSelections(cluster->size(), float(cluster->charge()) / 1000.);
+      for (const auto& cluster : *itClusters) {
+        fillSelections(cluster.size(), float(cluster.charge()) / 1000.);
       }
     }
   }

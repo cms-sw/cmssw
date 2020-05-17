@@ -160,7 +160,7 @@ public:
   /** Iterates over all known fields and extracts the fields of the record
       in source to the object in dest. */
   virtual void extractRecord(const AttributeList& source, TOutput& dest) {
-    for (typename FieldVector::const_iterator it = fields_.begin(); it != fields_.end(); ++it) {
+    for (auto it = fields_.begin(); it != fields_.end(); ++it) {
       (*it)->extractValue(source, dest);
     }
   }
@@ -168,7 +168,7 @@ public:
   /** Returns a list of database column names for the added fields. */
   virtual std::vector<std::string> getColumnList() {
     std::vector<std::string> colList;
-    for (typename FieldVector::const_iterator it = fields_.begin(); it != fields_.end(); ++it) {
+    for (auto it = fields_.begin(); it != fields_.end(); ++it) {
       colList.push_back((*it)->getColumnName());
     }
 
@@ -177,7 +177,7 @@ public:
 
   /** Destructor: Wipe out all the field handlers. */
   virtual ~RecordHelper() {
-    for (typename FieldVector::iterator it = fields_.begin(); it < fields_.end(); ++it) {
+    for (auto it = fields_.begin(); it < fields_.end(); ++it) {
       delete *it;
     }
   }

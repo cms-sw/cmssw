@@ -41,12 +41,12 @@ public:
   /// configurable parameters
   explicit CSCGainsStudy(const edm::ParameterSet& p);
 
-  ~CSCGainsStudy();
+  ~CSCGainsStudy() override;
 
   // Operations
 
   /// Perform the real analysis
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
 
   /// Compute average Gain for all CSC chambers
   float getStripGainAvg();

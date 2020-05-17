@@ -62,11 +62,11 @@ void HLTTauMCProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::Eve
   // It is not guaranteed that primary bosons are stored in event history.
   // Is it really needed when check if taus from the boson is removed?
   // Kept for backward compatibility
-  for (GenParticleCollection::const_iterator p = genParticles->begin(); p != genParticles->end(); ++p) {
+  for (const auto &p : *genParticles) {
     // Check the PDG ID
     bool pdg_ok = false;
-    for (size_t pi = 0; pi < m_PDG_.size(); ++pi) {
-      if (abs((*p).pdgId()) == m_PDG_[pi] && ((*p).isHardProcess() || (*p).status() == 3)) {
+    for (int pi : m_PDG_) {
+      if (abs(p.pdgId()) == pi && (p.isHardProcess() || p.status() == 3)) {
         pdg_ok = true;
         // cout<<" Bsoson particles: "<< (*p).pdgId()<< " " <<(*p).status() << "
         // "<< pdg_ok<<endl;
@@ -76,16 +76,16 @@ void HLTTauMCProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::Eve
 
     // Check if the boson is one of interest and if there is a valid vertex
     if (pdg_ok) {
-      product_Mothers->push_back((*p).pdgId());
+      product_Mothers->push_back(p.pdgId());
 
-      TLorentzVector Boson((*p).px(), (*p).py(), (*p).pz(), (*p).energy());
+      TLorentzVector Boson(p.px(), p.py(), p.pz(), p.energy());
     }
   }  // End of search for the bosons
 
   // Look for taus
   GenParticleRefVector allTaus;
   unsigned index = 0;
-  for (GenParticleCollection::const_iterator p = genParticles->begin(); p != genParticles->end(); ++p, ++index) {
+  for (auto p = genParticles->begin(); p != genParticles->end(); ++p, ++index) {
     const GenParticle &genP = *p;
     // accept only isPromptDecayed() particles
     if (!genP.isPromptDecayed())
@@ -102,10 +102,10 @@ void HLTTauMCProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::Eve
   }
 
   // Find stable tau decay products and build visible taus
-  for (GenParticleRefVector::const_iterator t = allTaus.begin(); t != allTaus.end(); ++t) {
+  for (auto &&allTau : allTaus) {
     // look for all stable (status=1) decay products
     GenParticleRefVector decayProducts;
-    getGenDecayProducts(*t, decayProducts, 1);
+    getGenDecayProducts(allTau, decayProducts, 1);
 
     // build visible taus and recognize decay mode
     if (!decayProducts.empty()) {
@@ -121,8 +121,8 @@ void HLTTauMCProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::Eve
       int numNeutrinos = 0;
       int numOtherParticles = 0;
 
-      for (GenParticleRefVector::const_iterator pit = decayProducts.begin(); pit != decayProducts.end(); ++pit) {
-        int pdg_id = abs((*pit)->pdgId());
+      for (auto &&decayProduct : decayProducts) {
+        int pdg_id = abs((decayProduct)->pdgId());
         if (pdg_id == 11)
           numElectrons++;
         else if (pdg_id == 13)
@@ -134,7 +134,8 @@ void HLTTauMCProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::Eve
         else if (pdg_id == 12 || pdg_id == 14 || pdg_id == 16) {
           numNeutrinos++;
           if (pdg_id == 16) {
-            Neutrino.SetPxPyPzE((*pit)->px(), (*pit)->py(), (*pit)->pz(), (*pit)->energy());
+            Neutrino.SetPxPyPzE(
+                (decayProduct)->px(), (decayProduct)->py(), (decayProduct)->pz(), (decayProduct)->energy());
           }
         } else if (pdg_id == 22)
           numPhotons++;
@@ -143,7 +144,8 @@ void HLTTauMCProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::Eve
         }
 
         if (pdg_id != 12 && pdg_id != 14 && pdg_id != 16) {
-          TauDecayProduct.SetPxPyPzE((*pit)->px(), (*pit)->py(), (*pit)->pz(), (*pit)->energy());
+          TauDecayProduct.SetPxPyPzE(
+              (decayProduct)->px(), (decayProduct)->py(), (decayProduct)->pz(), (decayProduct)->energy());
           Visible_Taus += TauDecayProduct;
         }
         //		  cout<< "This has to be the same: " << (*pit)->pdgId()
@@ -265,10 +267,11 @@ void HLTTauMCProducer::getGenDecayProducts(const GenParticleRef &mother,
                                            int pdgId) const {
   const GenParticleRefVector &daughterRefs = mother->daughterRefVector();
 
-  for (GenParticleRefVector::const_iterator d = daughterRefs.begin(); d != daughterRefs.end(); ++d) {
-    if ((status == 0 || (*d)->status() == status) && (pdgId == 0 || std::abs((*d)->pdgId()) == pdgId)) {
-      products.push_back(*d);
+  for (auto &&daughterRef : daughterRefs) {
+    if ((status == 0 || (daughterRef)->status() == status) &&
+        (pdgId == 0 || std::abs((daughterRef)->pdgId()) == pdgId)) {
+      products.push_back(daughterRef);
     } else
-      getGenDecayProducts(*d, products, status, pdgId);
+      getGenDecayProducts(daughterRef, products, status, pdgId);
   }
 }

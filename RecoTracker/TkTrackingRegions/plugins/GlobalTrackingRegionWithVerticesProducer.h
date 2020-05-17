@@ -110,12 +110,12 @@ public:
       if (doScaling)
         ev.getByToken(token_pc, pixelClusterDSV);
 
-      for (reco::VertexCollection::const_iterator iV = vertexCollection->begin(); iV != vertexCollection->end(); iV++) {
-        if (!iV->isValid())
+      for (const auto& iV : *vertexCollection) {
+        if (!iV.isValid())
           continue;
-        if (iV->isFake() && !(theUseFakeVertices && theUseFixedError))
+        if (iV.isFake() && !(theUseFakeVertices && theUseFixedError))
           continue;
-        GlobalPoint theOrigin_ = GlobalPoint(iV->x(), iV->y(), iV->z());
+        GlobalPoint theOrigin_ = GlobalPoint(iV.x(), iV.y(), iV.z());
 
         //scaling origin radius, half length, min pt for high-occupancy HI events to keep timing reasonable
         if (doScaling) {
@@ -157,7 +157,7 @@ public:
         }  //end of region scaling code, pp behavior below
 
         else {
-          double theOriginHalfLength_ = (theUseFixedError ? theFixedError : (iV->zError()) * theSigmaZVertex);
+          double theOriginHalfLength_ = (theUseFixedError ? theFixedError : (iV.zError()) * theSigmaZVertex);
           result.push_back(std::make_unique<GlobalTrackingRegion>(
               thePtMin, theOrigin_, theOriginRadius, theOriginHalfLength_, thePrecise, theUseMS));
           if (theMaxNVertices >= 0 && result.size() >= static_cast<unsigned>(theMaxNVertices))

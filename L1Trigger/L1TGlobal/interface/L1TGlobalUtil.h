@@ -4,6 +4,8 @@
 #define L1TGlobal_L1TGlobalUtil_h
 
 // system include files
+#include <memory>
+
 #include <vector>
 
 #include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
@@ -102,7 +104,7 @@ namespace l1t {
     // It is provided only until prescales and masks are available as CondFormats...
     // Most users should simply ignore this method and use the default ctor only!
     // Will look for prescale csv file in L1Trigger/L1TGlobal/data/Luminosity/startup/<filename>
-    void OverridePrescalesAndMasks(std::string filename, unsigned int psColumn = 1);
+    void OverridePrescalesAndMasks(const std::string& filename, unsigned int psColumn = 1);
 
     /// initialize the class (mainly reserve)
     void retrieveL1(const edm::Event& iEvent, const edm::EventSetup& evSetup);  // using helper
@@ -248,7 +250,7 @@ namespace l1t {
                                T& module,
                                UseEventSetupIn useEventSetupIn)
       : L1TGlobalUtil() {
-    m_l1tGlobalUtilHelper.reset(new L1TGlobalUtilHelper(pset, iC, module));
+    m_l1tGlobalUtilHelper = std::make_unique<L1TGlobalUtilHelper>(pset, iC, module);
     m_readPrescalesFromFile = m_l1tGlobalUtilHelper->readPrescalesFromFile();
     eventSetupConsumes(iC, useEventSetupIn);
   }
@@ -270,7 +272,8 @@ namespace l1t {
                                edm::InputTag const& l1tExtBlkInputTag,
                                UseEventSetupIn useEventSetupIn)
       : L1TGlobalUtil() {
-    m_l1tGlobalUtilHelper.reset(new L1TGlobalUtilHelper(pset, iC, module, l1tAlgBlkInputTag, l1tExtBlkInputTag));
+    m_l1tGlobalUtilHelper =
+        std::make_unique<L1TGlobalUtilHelper>(pset, iC, module, l1tAlgBlkInputTag, l1tExtBlkInputTag);
     m_readPrescalesFromFile = m_l1tGlobalUtilHelper->readPrescalesFromFile();
     eventSetupConsumes(iC, useEventSetupIn);
   }

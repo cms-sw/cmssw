@@ -125,8 +125,7 @@ CalibrationTrackSelector::Tracks CalibrationTrackSelector::basicCuts(const Track
                                                                      const edm::Event &evt) const {
   Tracks result;
 
-  for (Tracks::const_iterator it = tracks.begin(); it != tracks.end(); ++it) {
-    const reco::Track *trackp = *it;
+  for (auto trackp : tracks) {
     float pt = trackp->pt();
     float eta = trackp->eta();
     float phi = trackp->phi();
@@ -251,21 +250,21 @@ bool CalibrationTrackSelector::isHit2D(const TrackingRecHit &hit) const {
 bool CalibrationTrackSelector::isOkCharge(const TrackingRecHit *therechit) const {
   float charge1 = 0;
   float charge2 = 0;
-  const SiStripMatchedRecHit2D *matchedhit = dynamic_cast<const SiStripMatchedRecHit2D *>(therechit);
+  const auto *matchedhit = dynamic_cast<const SiStripMatchedRecHit2D *>(therechit);
   const SiStripRecHit2D *hit = dynamic_cast<const SiStripRecHit2D *>(therechit);
-  const ProjectedSiStripRecHit2D *unmatchedhit = dynamic_cast<const ProjectedSiStripRecHit2D *>(therechit);
+  const auto *unmatchedhit = dynamic_cast<const ProjectedSiStripRecHit2D *>(therechit);
 
   if (matchedhit) {
     const SiStripCluster &monocluster = matchedhit->monoCluster();
     const std::vector<uint16_t> amplitudesmono(monocluster.amplitudes().begin(), monocluster.amplitudes().end());
-    for (size_t ia = 0; ia < amplitudesmono.size(); ++ia) {
-      charge1 += amplitudesmono[ia];
+    for (unsigned short ia : amplitudesmono) {
+      charge1 += ia;
     }
 
     const SiStripCluster &stereocluster = matchedhit->stereoCluster();
     const std::vector<uint16_t> amplitudesstereo(stereocluster.amplitudes().begin(), stereocluster.amplitudes().end());
-    for (size_t ia = 0; ia < amplitudesstereo.size(); ++ia) {
-      charge2 += amplitudesstereo[ia];
+    for (unsigned short ia : amplitudesstereo) {
+      charge2 += ia;
     }
     // std::cout << "charge1 = " << charge1 << "\n";
     // std::cout << "charge2 = " << charge2 << "\n";
@@ -274,8 +273,8 @@ bool CalibrationTrackSelector::isOkCharge(const TrackingRecHit *therechit) const
   } else if (hit) {
     const SiStripCluster *cluster = &*(hit->cluster());
     const std::vector<uint16_t> amplitudes(cluster->amplitudes().begin(), cluster->amplitudes().end());
-    for (size_t ia = 0; ia < amplitudes.size(); ++ia) {
-      charge1 += amplitudes[ia];
+    for (unsigned short amplitude : amplitudes) {
+      charge1 += amplitude;
     }
     // std::cout << "charge1 = " << charge1 << "\n";
     if (charge1 < minHitChargeStrip_)
@@ -284,8 +283,8 @@ bool CalibrationTrackSelector::isOkCharge(const TrackingRecHit *therechit) const
     const SiStripRecHit2D &orighit = unmatchedhit->originalHit();
     const SiStripCluster *origcluster = &*(orighit.cluster());
     const std::vector<uint16_t> amplitudes(origcluster->amplitudes().begin(), origcluster->amplitudes().end());
-    for (size_t ia = 0; ia < amplitudes.size(); ++ia) {
-      charge1 += amplitudes[ia];
+    for (unsigned short amplitude : amplitudes) {
+      charge1 += amplitude;
     }
     // std::cout << "charge1 = " << charge1 << "\n";
     if (charge1 < minHitChargeStrip_)
@@ -349,9 +348,9 @@ CalibrationTrackSelector::Tracks CalibrationTrackSelector::theNHighestPtTracks(c
 
   // copy theTrackMult highest pt tracks to result vector
   int n = 0;
-  for (Tracks::const_iterator it = sortedTracks.begin(); it != sortedTracks.end(); ++it) {
+  for (auto sortedTrack : sortedTracks) {
     if (n < nHighestPt_) {
-      result.push_back(*it);
+      result.push_back(sortedTrack);
       n++;
     }
   }

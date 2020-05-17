@@ -219,7 +219,7 @@ int DTTtrig::set(int wheelId,
     data.tTrms = tTrms;
     data.kFact = kFact;
     ientry = dataList.size();
-    dataList.push_back(std::pair<DTTtrigId, DTTtrigData>(key, data));
+    dataList.emplace_back(key, data);
     dBuf->insert(chanKey.begin(), chanKey.end(), ientry);
     return 0;
   }

@@ -281,8 +281,8 @@ void GctRawToDigi::doVerboseOutput(const GctBlockHeaderCollection& bHdrs,
                                    const GctUnpackCollections* const colls) const {
   std::ostringstream os;
   os << "Found " << bHdrs.size() << " GCT block headers" << endl;
-  for (unsigned i = 0, size = bHdrs.size(); i < size; ++i) {
-    os << "GCT Raw Data Block : " << formatTranslator_->getBlockDescription(bHdrs[i]) << " : " << bHdrs[i] << endl;
+  for (const auto& bHdr : bHdrs) {
+    os << "GCT Raw Data Block : " << formatTranslator_->getBlockDescription(bHdr) << " : " << bHdr << endl;
   }
   os << *colls << endl;
   edm::LogVerbatim("GCT") << os.str();

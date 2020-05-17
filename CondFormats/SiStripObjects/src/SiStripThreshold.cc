@@ -8,15 +8,14 @@
 bool SiStripThreshold::put(const uint32_t& DetId, const InputVector& _vect) {
   InputVector vect = _vect;
   // put in SiStripThreshold::v_threshold of DetId
-  Registry::iterator p =
-      std::lower_bound(indexes.begin(), indexes.end(), DetId, SiStripThreshold::StrictWeakOrdering());
+  auto p = std::lower_bound(indexes.begin(), indexes.end(), DetId, SiStripThreshold::StrictWeakOrdering());
   if (p != indexes.end() && p->detid == DetId) {
     edm::LogError("SiStripThreshold") << "[" << __PRETTY_FUNCTION__ << "] SiStripThreshold for DetID " << DetId
                                       << " is already stored. Skippig this put" << std::endl;
     return false;
   }
 
-  SiStripThreshold::Container::iterator new_end = compact(vect);
+  auto new_end = compact(vect);
 
   size_t sd = new_end - vect.begin();
   DetRegistry detregistry;
@@ -38,7 +37,7 @@ SiStripThreshold::Container::iterator SiStripThreshold::compact(Container& input
 const SiStripThreshold::Range SiStripThreshold::getRange(const uint32_t& DetId) const {
   // get SiStripThreshold Range of DetId
 
-  RegistryIterator p = std::lower_bound(indexes.begin(), indexes.end(), DetId, SiStripThreshold::StrictWeakOrdering());
+  auto p = std::lower_bound(indexes.begin(), indexes.end(), DetId, SiStripThreshold::StrictWeakOrdering());
   if (p == indexes.end() || p->detid != DetId)
     return SiStripThreshold::Range(v_threshold.end(), v_threshold.end());
   else
@@ -47,9 +46,9 @@ const SiStripThreshold::Range SiStripThreshold::getRange(const uint32_t& DetId) 
 
 void SiStripThreshold::getDetIds(std::vector<uint32_t>& DetIds_) const {
   // returns vector of DetIds in map
-  SiStripThreshold::RegistryIterator begin = indexes.begin();
-  SiStripThreshold::RegistryIterator end = indexes.end();
-  for (SiStripThreshold::RegistryIterator p = begin; p != end; ++p) {
+  auto begin = indexes.begin();
+  auto end = indexes.end();
+  for (auto p = begin; p != end; ++p) {
     DetIds_.push_back(p->detid);
   }
 }
@@ -70,7 +69,7 @@ void SiStripThreshold::setData(
 SiStripThreshold::Data SiStripThreshold::getData(const uint16_t& strip, const Range& range) const {
   uint16_t estrip =
       (strip & sistrip::FirstThStripMask_) << sistrip::FirstThStripShift_ | (63 & sistrip::HighThStripMask_);
-  ContainerIterator p = std::upper_bound(range.first, range.second, estrip, SiStripThreshold::dataStrictWeakOrdering());
+  auto p = std::upper_bound(range.first, range.second, estrip, SiStripThreshold::dataStrictWeakOrdering());
   if (p != range.first) {
     return *(--p);
   } else {
@@ -103,7 +102,7 @@ void SiStripThreshold::allThresholds(std::vector<float>& lowThs,
 }
 
 void SiStripThreshold::printDebug(std::stringstream& ss, const TrackerTopology* /*trackerTopo*/) const {
-  RegistryIterator rit = getRegistryVectorBegin(), erit = getRegistryVectorEnd();
+  auto rit = getRegistryVectorBegin(), erit = getRegistryVectorEnd();
   ContainerIterator it, eit;
   for (; rit != erit; ++rit) {
     it = getDataVectorBegin() + rit->ibegin;
@@ -117,7 +116,7 @@ void SiStripThreshold::printDebug(std::stringstream& ss, const TrackerTopology* 
 }
 
 void SiStripThreshold::printSummary(std::stringstream& ss, const TrackerTopology* /*trackerTopo*/) const {
-  RegistryIterator rit = getRegistryVectorBegin(), erit = getRegistryVectorEnd();
+  auto rit = getRegistryVectorBegin(), erit = getRegistryVectorEnd();
   ContainerIterator it, eit, itp;
   float meanLth, meanHth, meanCth;  //mean value
   float rmsLth, rmsHth, rmsCth;     //rms value

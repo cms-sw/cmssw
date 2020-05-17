@@ -18,12 +18,12 @@
 class SiPixelBadFEDChannelSimulationSanityChecker : public edm::one::EDAnalyzer<> {
 public:
   explicit SiPixelBadFEDChannelSimulationSanityChecker(edm::ParameterSet const& p);
-  ~SiPixelBadFEDChannelSimulationSanityChecker();
+  ~SiPixelBadFEDChannelSimulationSanityChecker() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   // ----------member data ---------------------------
   const bool printdebug_;
@@ -73,15 +73,15 @@ void SiPixelBadFEDChannelSimulationSanityChecker::analyze(const edm::Event& e, c
   context.get<SiPixelStatusScenarioProbabilityRcd>().get(scenarioProbabilityHandle);
   const SiPixelQualityProbabilities* myProbabilities = scenarioProbabilityHandle.product();
 
-  SiPixelFEDChannelContainer::SiPixelBadFEDChannelsScenarioMap m_qualities = quality_map->getScenarioMap();
+  const SiPixelFEDChannelContainer::SiPixelBadFEDChannelsScenarioMap& m_qualities = quality_map->getScenarioMap();
   SiPixelQualityProbabilities::probabilityMap m_probabilities = myProbabilities->getProbability_Map();
 
   std::vector<std::string> allScenarios = quality_map->getScenarioList();
   std::vector<std::string> allScenariosInProb;
 
-  for (auto it = m_probabilities.begin(); it != m_probabilities.end(); ++it) {
+  for (auto& m_probabilitie : m_probabilities) {
     //int PUbin = it->first;
-    for (const auto& entry : it->second) {
+    for (const auto& entry : m_probabilitie.second) {
       auto scenario = entry.first;
       auto probability = entry.second;
       if (probability != 0) {
@@ -107,17 +107,17 @@ void SiPixelBadFEDChannelSimulationSanityChecker::analyze(const edm::Event& e, c
                  return (std::find(allScenarios.begin(), allScenarios.end(), arg) == allScenarios.end());
                });
 
-  if (notFound.size() != 0) {
+  if (!notFound.empty()) {
     for (const auto& entry : notFound) {
       edm::LogWarning("SiPixelBadFEDChannelSimulationSanityChecker")
           << "Pretty worrying! the scenario: " << entry << "  is not found in the map!!" << std::endl;
 
       if (printdebug_) {
         edm::LogVerbatim("SiPixelBadFEDChannelSimulationSanityChecker") << " This scenario is found in: " << std::endl;
-        for (auto it = m_probabilities.begin(); it != m_probabilities.end(); ++it) {
-          int PUbin = it->first;
+        for (auto& m_probabilitie : m_probabilities) {
+          int PUbin = m_probabilitie.first;
 
-          for (const auto& pair : it->second) {
+          for (const auto& pair : m_probabilitie.second) {
             if (pair.first == entry) {
               edm::LogVerbatim("SiPixelBadFEDChannelSimulationSanityChecker")
                   << " - PU bin " << PUbin << " with probability: " << pair.second << std::endl;

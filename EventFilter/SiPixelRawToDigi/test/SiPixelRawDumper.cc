@@ -513,17 +513,17 @@ public:
   //consumes<FEDRawDataCollection>(theConfig.getUntrackedParameter<std::string>("InputLabel","source"));}
 
   /// dtor
-  virtual ~SiPixelRawDumper() {}
+  ~SiPixelRawDumper() override {}
 
-  void beginJob();
+  void beginJob() override;
 
   //void beginRun( const edm::EventSetup& ) {}
 
   // end of job
-  void endJob();
+  void endJob() override;
 
   /// get data, convert to digis attach againe to Event
-  virtual void analyze(const edm::Event &, const edm::EventSetup &);
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
 
 private:
   edm::ParameterSet theConfig;
@@ -635,8 +635,8 @@ void SiPixelRawDumper::endJob() {
 
   cout << " Size for ech FED per event in units of hit pixels:" << endl;
 
-  for (int i = 0; i < 40; ++i)
-    cout << sumFedPixels[i] << " ";
+  for (float sumFedPixel : sumFedPixels)
+    cout << sumFedPixel << " ";
   cout << endl;
 
   cout << " Total number of errors " << countTotErrors << " print threshold " << int(countEvents * printThreshold)
@@ -711,8 +711,8 @@ void SiPixelRawDumper::beginJob() {
       decodeErrorsDouble[i][j] = 0;
     }
   }
-  for (int i = 0; i < 20; ++i)
-    errorType[i] = 0;
+  for (int &i : errorType)
+    i = 0;
 
   edm::Service<TFileService> fs;
 
@@ -1078,8 +1078,8 @@ void SiPixelRawDumper::analyze(const edm::Event &ev, const edm::EventSetup &es) 
     if (rawData.size() == 0)
       continue;  // skip if not data for this fed
 
-    for (int i = 0; i < 36; ++i)
-      fedchannelsize[i] = 0;
+    for (int &i : fedchannelsize)
+      i = 0;
 
     int nWords = rawData.size() / sizeof(Word64);
     //cout<<" size "<<nWords<<endl;

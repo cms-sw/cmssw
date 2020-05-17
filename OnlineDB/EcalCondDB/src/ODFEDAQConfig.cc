@@ -93,27 +93,27 @@ void ODFEDAQConfig::setParameters(const std::map<string, string>& my_keys_map) {
   // parses the result of the XML parser that is a map of
   // string string with variable name variable value
 
-  for (std::map<std::string, std::string>::const_iterator ci = my_keys_map.begin(); ci != my_keys_map.end(); ci++) {
-    if (ci->first == "VERSION")
-      setVersion(atoi(ci->second.c_str()));
-    if (ci->first == "PED_ID")
-      setPedestalId(atoi(ci->second.c_str()));
-    if (ci->first == "DEL_ID")
-      setDelayId(atoi(ci->second.c_str()));
-    if (ci->first == "WEI_ID")
-      setWeightId(atoi(ci->second.c_str()));
+  for (const auto& ci : my_keys_map) {
+    if (ci.first == "VERSION")
+      setVersion(atoi(ci.second.c_str()));
+    if (ci.first == "PED_ID")
+      setPedestalId(atoi(ci.second.c_str()));
+    if (ci.first == "DEL_ID")
+      setDelayId(atoi(ci.second.c_str()));
+    if (ci.first == "WEI_ID")
+      setWeightId(atoi(ci.second.c_str()));
 
-    if (ci->first == "BXT_ID")
-      setBadXtId(atoi(ci->second.c_str()));
-    if (ci->first == "BTT_ID")
-      setBadTTId(atoi(ci->second.c_str()));
-    if (ci->first == "TRIG_BXT_ID")
-      setTriggerBadXtId(atoi(ci->second.c_str()));
-    if (ci->first == "TRIG_BTT_ID")
-      setTriggerBadTTId(atoi(ci->second.c_str()));
+    if (ci.first == "BXT_ID")
+      setBadXtId(atoi(ci.second.c_str()));
+    if (ci.first == "BTT_ID")
+      setBadTTId(atoi(ci.second.c_str()));
+    if (ci.first == "TRIG_BXT_ID")
+      setTriggerBadXtId(atoi(ci.second.c_str()));
+    if (ci.first == "TRIG_BTT_ID")
+      setTriggerBadTTId(atoi(ci.second.c_str()));
 
-    if (ci->first == "COMMENT" || ci->first == "USER_COMMENT")
-      setComment(ci->second);
+    if (ci.first == "COMMENT" || ci.first == "USER_COMMENT")
+      setComment(ci.second);
   }
 }
 

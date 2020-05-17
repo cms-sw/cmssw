@@ -14,12 +14,12 @@
 class SiPixelQualityProbabilitiesTestReader : public edm::one::EDAnalyzer<> {
 public:
   explicit SiPixelQualityProbabilitiesTestReader(edm::ParameterSet const& p);
-  ~SiPixelQualityProbabilitiesTestReader();
+  ~SiPixelQualityProbabilitiesTestReader() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   // ----------member data ---------------------------
   const bool printdebug_;
@@ -69,8 +69,8 @@ void SiPixelQualityProbabilitiesTestReader::analyze(const edm::Event& e, const e
     myProbabilities->printAll();
   }
 
-  FILE* pFile = NULL;
-  if (formatedOutput_ != "")
+  FILE* pFile = nullptr;
+  if (!formatedOutput_.empty())
     pFile = fopen(formatedOutput_.c_str(), "w");
   if (pFile) {
     fprintf(pFile, "SiPixelQualityProbabilities::printAll() \n");
@@ -80,12 +80,12 @@ void SiPixelQualityProbabilitiesTestReader::analyze(const edm::Event& e, const e
 
     SiPixelQualityProbabilities::probabilityMap m_probabilities = myProbabilities->getProbability_Map();
 
-    for (auto it = m_probabilities.begin(); it != m_probabilities.end(); ++it) {
+    for (auto& m_probabilitie : m_probabilities) {
       fprintf(pFile,
               " ======================================================================================================="
               "============ \n");
-      fprintf(pFile, "PU bin : %i \n ", (it->first));
-      for (const auto& entry : it->second) {
+      fprintf(pFile, "PU bin : %i \n ", (m_probabilitie.first));
+      for (const auto& entry : m_probabilitie.second) {
         fprintf(pFile, "Quality snapshot %s, probability %f \n", (entry.first).c_str(), entry.second);
       }
     }

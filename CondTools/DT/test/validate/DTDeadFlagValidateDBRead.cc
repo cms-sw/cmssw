@@ -5,7 +5,7 @@ Toy EDAnalyzer for testing purposes only.
 
 ----------------------------------------------------------------------*/
 
-#include <math.h>
+#include <cmath>
 #include <stdexcept>
 #include <string>
 #include <iostream>
@@ -61,8 +61,8 @@ void DTDeadFlagValidateDBRead::analyze(const edm::Event& e, const edm::EventSetu
   bool ckdiscCat;
 
   int status;
-  DTDeadFlag::const_iterator iter = df->begin();
-  DTDeadFlag::const_iterator iend = df->end();
+  auto iter = df->begin();
+  auto iend = df->end();
   while (iter != iend) {
     const DTDeadFlagId& dfId = iter->first;
     const DTDeadFlagData& dfData = iter->second;

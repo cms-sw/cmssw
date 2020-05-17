@@ -58,7 +58,7 @@ namespace {
     for (int i = 0; i < ga.nodes(); ++i)
       for (int j = 0; j < gb.nodes(); ++j)
         for (int k = 0; k < gc.nodes(); ++k) {
-          data.push_back(Grid3D::BVector(10 * ga.node(i), 10 * gb.node(j), 10 * gc.node(k)));
+          data.emplace_back(10 * ga.node(i), 10 * gb.node(j), 10 * gc.node(k));
         }
 
     return new Grid3D(ga, gb, gc, data);

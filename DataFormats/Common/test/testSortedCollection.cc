@@ -84,8 +84,8 @@ class testSortedCollection : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
 
   void constructTest();
   void insertTest();
@@ -102,7 +102,7 @@ typedef edm::SortedCollection<Value, StrictWeakOrdering<Value> > scoll_type;
 
 void testSortedCollection::constructTest() {
   scoll_type c1;
-  CPPUNIT_ASSERT(c1.size() == 0);
+  CPPUNIT_ASSERT(c1.empty());
 
   scoll_type c2(20);
   CPPUNIT_ASSERT(c2.size() == 20);
@@ -111,7 +111,7 @@ void testSortedCollection::constructTest() {
   scoll_type c3(values);
   CPPUNIT_ASSERT(c3.size() == values.size());
 
-  scoll_type c4(c3);
+  const scoll_type& c4(c3);
   CPPUNIT_ASSERT(c4.size() == c3.size());
   CPPUNIT_ASSERT(c3 == c4);
 }
@@ -150,7 +150,7 @@ void testSortedCollection::accessTest() {
   CPPUNIT_ASSERT(c.size() == vec.size());
 
   {
-    scoll_type::iterator i = c.find(DetId(100));  // does not exist!
+    auto i = c.find(DetId(100));  // does not exist!
     CPPUNIT_ASSERT(i == c.end());
   }
 
@@ -160,14 +160,14 @@ void testSortedCollection::accessTest() {
   }
 
   {
-    std::vector<Value>::const_iterator i = vec.begin();
-    std::vector<Value>::const_iterator e = vec.end();
+    auto i = vec.begin();
+    auto e = vec.end();
     std::cerr << "There are " << vec.size() << " searches to do...\n";
     while (i != e) {
       DetId id = i->id();
       std::cerr << "Looking for id: " << id << "...   ";
       //scoll_type::iterator loc = c.find(i->id());
-      scoll_type::iterator loc = c.find(id);
+      auto loc = c.find(id);
       if (loc == c.end())
         std::cerr << "Failed to find this id!\n";
       else

@@ -34,9 +34,9 @@ class testWriteMVAComputerCondDB : public edm::EDAnalyzer {
 public:
   explicit testWriteMVAComputerCondDB(const edm::ParameterSet& params);
 
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
-  virtual void endJob();
+  void endJob() override;
 
 private:
   std::string record;
@@ -58,7 +58,7 @@ void testWriteMVAComputerCondDB::endJob() {
   // *                                                                         *
   // ***************************************************************************
 
-  MVAComputerContainer* container = new MVAComputerContainer();
+  auto* container = new MVAComputerContainer();
   MVAComputer* computer = &container->add("test");
 
   // vars

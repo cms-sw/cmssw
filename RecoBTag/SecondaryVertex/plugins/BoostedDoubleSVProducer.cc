@@ -131,7 +131,7 @@ BoostedDoubleSVProducer::BoostedDoubleSVProducer(const edm::ParameterSet& iConfi
       trackPairV0Filter(iConfig.getParameter<edm::ParameterSet>("trackPairV0Filter")),
       trackSelector(iConfig.getParameter<edm::ParameterSet>("trackSelection")) {
   edm::InputTag srcWeights = iConfig.getParameter<edm::InputTag>("weights");
-  if (srcWeights.label() != "")
+  if (!srcWeights.label().empty())
     weightsToken_ = consumes<edm::ValueMap<float>>(srcWeights);
   produces<std::vector<reco::BoostedDoubleSVTagInfo>>();
 }
@@ -162,9 +162,7 @@ void BoostedDoubleSVProducer::produce(edm::Event& iEvent, const edm::EventSetup&
   auto tagInfos = std::make_unique<std::vector<reco::BoostedDoubleSVTagInfo>>();
 
   // loop over TagInfos
-  for (std::vector<reco::CandSecondaryVertexTagInfo>::const_iterator iterTI = svTagInfos->begin();
-       iterTI != svTagInfos->end();
-       ++iterTI) {
+  for (auto iterTI = svTagInfos->begin(); iterTI != svTagInfos->end(); ++iterTI) {
     // get TagInfos
     const reco::CandIPTagInfo& ipTagInfo = *(iterTI->trackIPTagInfoRef().get());
     const reco::CandSecondaryVertexTagInfo& svTagInfo = *(iterTI);
@@ -550,11 +548,11 @@ void BoostedDoubleSVProducer::produce(edm::Event& iEvent, const edm::EventSetup&
     reco::Candidate::LorentzVector SV_p4_0, SV_p4_1;
     double vtxMass = 0.;
 
-    for (std::map<double, size_t>::iterator iVtx = VTXmap.begin(); iVtx != VTXmap.end(); ++iVtx) {
+    for (auto& iVtx : VTXmap) {
       ++cont;
-      const reco::VertexCompositePtrCandidate& vertex = svTagInfo.secondaryVertex(iVtx->second);
+      const reco::VertexCompositePtrCandidate& vertex = svTagInfo.secondaryVertex(iVtx.second);
       if (cont == 1) {
-        flightDir_0 = svTagInfo.flightDirection(iVtx->second);
+        flightDir_0 = svTagInfo.flightDirection(iVtx.second);
         SV_p4_0 = vertex.p4();
         vtxMass = SV_p4_0.mass();
 
@@ -562,7 +560,7 @@ void BoostedDoubleSVProducer::produce(edm::Event& iEvent, const edm::EventSetup&
           z_ratio = reco::deltaR(currentAxes[1], currentAxes[0]) * SV_p4_0.pt() / vtxMass;
       }
       if (cont == 2) {
-        flightDir_1 = svTagInfo.flightDirection(iVtx->second);
+        flightDir_1 = svTagInfo.flightDirection(iVtx.second);
         SV_p4_1 = vertex.p4();
         vtxMass = (SV_p4_1 + SV_p4_0).mass();
 
@@ -676,10 +674,9 @@ void BoostedDoubleSVProducer::calcNsubjettiness(const reco::JetBaseRef& jet,
                     << "BoostedDoubleSVProducer: No weights (e.g. PUPPI) given for weighted jet collection"
                     << std::endl;
               }
-              fjParticles.push_back(
-                  fastjet::PseudoJet(constit->px() * w, constit->py() * w, constit->pz() * w, constit->energy() * w));
+              fjParticles.emplace_back(constit->px() * w, constit->py() * w, constit->pz() * w, constit->energy() * w);
             } else
-              fjParticles.push_back(fastjet::PseudoJet(constit->px(), constit->py(), constit->pz(), constit->energy()));
+              fjParticles.emplace_back(constit->px(), constit->py(), constit->pz(), constit->energy());
           } else
             edm::LogWarning("MissingJetConstituent")
                 << "Jet constituent required for N-subjettiness computation is missing!";
@@ -700,10 +697,9 @@ void BoostedDoubleSVProducer::calcNsubjettiness(const reco::JetBaseRef& jet,
             throw cms::Exception("MissingConstituentWeight")
                 << "BoostedDoubleSVProducer: No weights (e.g. PUPPI) given for weighted jet collection" << std::endl;
           }
-          fjParticles.push_back(
-              fastjet::PseudoJet(daughter->px() * w, daughter->py() * w, daughter->pz() * w, daughter->energy() * w));
+          fjParticles.emplace_back(daughter->px() * w, daughter->py() * w, daughter->pz() * w, daughter->energy() * w);
         } else
-          fjParticles.push_back(fastjet::PseudoJet(daughter->px(), daughter->py(), daughter->pz(), daughter->energy()));
+          fjParticles.emplace_back(daughter->px(), daughter->py(), daughter->pz(), daughter->energy());
       }
     } else
       edm::LogWarning("MissingJetConstituent") << "Jet constituent required for N-subjettiness computation is missing!";
@@ -730,7 +726,7 @@ void BoostedDoubleSVProducer::setTracksPVBase(const reco::TrackRef& trackRef,
 
   const reco::Vertex& vtx = *(vertexRef);
   // loop over tracks in vertices
-  for (IT it = vtx.tracks_begin(); it != vtx.tracks_end(); ++it) {
+  for (auto it = vtx.tracks_begin(); it != vtx.tracks_end(); ++it) {
     const reco::TrackBaseRef& baseRef = *it;
     // one of the tracks in the vertex is the same as the track considered in the function
     if (baseRef == trackBaseRef) {
@@ -745,7 +741,7 @@ void BoostedDoubleSVProducer::setTracksPV(const reco::CandidatePtr& trackRef,
                                           float& PVweight) const {
   PVweight = 0.;
 
-  const pat::PackedCandidate* pcand = dynamic_cast<const pat::PackedCandidate*>(trackRef.get());
+  const auto* pcand = dynamic_cast<const pat::PackedCandidate*>(trackRef.get());
 
   if (pcand)  // MiniAOD case
   {
@@ -753,7 +749,7 @@ void BoostedDoubleSVProducer::setTracksPV(const reco::CandidatePtr& trackRef,
       PVweight = 1.;
     }
   } else {
-    const reco::PFCandidate* pfcand = dynamic_cast<const reco::PFCandidate*>(trackRef.get());
+    const auto* pfcand = dynamic_cast<const reco::PFCandidate*>(trackRef.get());
 
     setTracksPVBase(pfcand->trackRef(), vertexRef, PVweight);
   }
@@ -765,8 +761,8 @@ void BoostedDoubleSVProducer::etaRelToTauAxis(const reco::VertexCompositePtrCand
   math::XYZVector direction(tauAxis.px(), tauAxis.py(), tauAxis.pz());
   const std::vector<reco::CandidatePtr>& tracks = vertex.daughterPtrVector();
 
-  for (std::vector<reco::CandidatePtr>::const_iterator track = tracks.begin(); track != tracks.end(); ++track)
-    tau_trackEtaRel.push_back(std::abs(reco::btau::etaRel(direction.Unit(), (*track)->momentum())));
+  for (const auto& track : tracks)
+    tau_trackEtaRel.push_back(std::abs(reco::btau::etaRel(direction.Unit(), track->momentum())));
 }
 
 // ------------ method called once each stream before processing any runs, lumis or events  ------------

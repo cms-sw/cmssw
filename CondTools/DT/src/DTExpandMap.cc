@@ -94,10 +94,10 @@ void DTExpandMap::expandSteering(std::ifstream& file) {
   int def;
   int wha;
   int sea;
-  std::vector<DTMapEntry>::const_iterator iter = entryList.begin();
-  std::vector<DTMapEntry>::const_iterator iend = entryList.end();
-  std::vector<DTMapEntry>::const_iterator iros = entryList.end();
-  std::vector<DTMapEntry>::const_iterator irob = entryList.end();
+  auto iter = entryList.begin();
+  auto iend = entryList.end();
+  auto iros = entryList.end();
+  auto irob = entryList.end();
   while (iter != iend) {
     const DTMapEntry& rosEntry(*iter++);
     if (rosEntry.k1 > 0x3fffffff)

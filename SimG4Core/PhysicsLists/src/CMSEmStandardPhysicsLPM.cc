@@ -190,9 +190,9 @@ void CMSEmStandardPhysicsLPM::ConstructProcess() {
     } else if (particleName == "e-") {
       G4eIonisation* eioni = new G4eIonisation();
 
-      G4eMultipleScattering* msc = new G4eMultipleScattering;
+      auto* msc = new G4eMultipleScattering;
       G4UrbanMscModel* msc1 = new G4UrbanMscModel();
-      G4WentzelVIModel* msc2 = new G4WentzelVIModel();
+      auto* msc2 = new G4WentzelVIModel();
       G4UrbanMscModel* msc3 = new G4UrbanMscModel();
       msc1->SetHighEnergyLimit(highEnergyLimit);
       msc2->SetLowEnergyLimit(highEnergyLimit);
@@ -207,8 +207,8 @@ void CMSEmStandardPhysicsLPM::ConstructProcess() {
         msc->AddEmModel(-1, msc3, bRegion);
       }
 
-      G4eCoulombScatteringModel* ssm = new G4eCoulombScatteringModel();
-      G4CoulombScattering* ss = new G4CoulombScattering();
+      auto* ssm = new G4eCoulombScatteringModel();
+      auto* ss = new G4CoulombScattering();
       ss->SetEmModel(ssm);
       ss->SetMinKinEnergy(highEnergyLimit);
       ssm->SetLowEnergyLimit(highEnergyLimit);
@@ -222,9 +222,9 @@ void CMSEmStandardPhysicsLPM::ConstructProcess() {
     } else if (particleName == "e+") {
       G4eIonisation* eioni = new G4eIonisation();
 
-      G4eMultipleScattering* msc = new G4eMultipleScattering;
+      auto* msc = new G4eMultipleScattering;
       G4UrbanMscModel* msc1 = new G4UrbanMscModel();
-      G4WentzelVIModel* msc2 = new G4WentzelVIModel();
+      auto* msc2 = new G4WentzelVIModel();
       G4UrbanMscModel* msc3 = new G4UrbanMscModel();
       msc1->SetHighEnergyLimit(highEnergyLimit);
       msc2->SetLowEnergyLimit(highEnergyLimit);
@@ -239,8 +239,8 @@ void CMSEmStandardPhysicsLPM::ConstructProcess() {
         msc->AddEmModel(-1, msc3, bRegion);
       }
 
-      G4eCoulombScatteringModel* ssm = new G4eCoulombScatteringModel();
-      G4CoulombScattering* ss = new G4CoulombScattering();
+      auto* ssm = new G4eCoulombScatteringModel();
+      auto* ss = new G4CoulombScattering();
       ss->SetEmModel(ssm);
       ss->SetMinKinEnergy(highEnergyLimit);
       ssm->SetLowEnergyLimit(highEnergyLimit);

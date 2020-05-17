@@ -18,7 +18,7 @@
 class MakePtLUT : public edm::EDAnalyzer {
 public:
   explicit MakePtLUT(const edm::ParameterSet&);
-  virtual ~MakePtLUT();
+  ~MakePtLUT() override;
 
 private:
   //virtual void beginJob();
@@ -27,7 +27,7 @@ private:
   //virtual void beginRun(const edm::Run&, const edm::EventSetup&);
   //virtual void endRun(const edm::Run&, const edm::EventSetup&);
 
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
   void makeLUT();
 

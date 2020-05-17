@@ -406,9 +406,8 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, edm::EventSetup const& i
 
       if (!isotk->empty()) {
         int ntrin(0), ntrout(0);
-        for (reco::HcalIsolatedTrackCandidateCollection::const_iterator itr = isotk->begin(); itr != isotk->end();
-             ++itr) {
-          if (itr->p() > pTrackLow_ && itr->p() < pTrackHigh_)
+        for (const auto& itr : *isotk) {
+          if (itr.p() > pTrackLow_ && itr.p() < pTrackHigh_)
             ntrin++;
           else
             ntrout++;
@@ -422,25 +421,20 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, edm::EventSetup const& i
             selectEvent = true;
         }
         if (selectEvent) {
-          for (reco::HcalIsolatedTrackCandidateCollection::const_iterator itr = isotk->begin(); itr != isotk->end();
-               ++itr)
-            outputHcalIsoTrackColl->push_back(*itr);
+          for (const auto& itr : *isotk)
+            outputHcalIsoTrackColl->push_back(itr);
 
-          for (reco::VertexCollection::const_iterator vtx = recVtxs->begin(); vtx != recVtxs->end(); ++vtx)
-            outputVColl->push_back(*vtx);
+          for (const auto& vtx : *recVtxs)
+            outputVColl->push_back(vtx);
 
-          for (edm::SortedCollection<EcalRecHit>::const_iterator ehit = barrelRecHitsHandle->begin();
-               ehit != barrelRecHitsHandle->end();
-               ++ehit)
-            outputEBColl->push_back(*ehit);
+          for (const auto& ehit : *barrelRecHitsHandle)
+            outputEBColl->push_back(ehit);
 
-          for (edm::SortedCollection<EcalRecHit>::const_iterator ehit = endcapRecHitsHandle->begin();
-               ehit != endcapRecHitsHandle->end();
-               ++ehit)
-            outputEEColl->push_back(*ehit);
+          for (const auto& ehit : *endcapRecHitsHandle)
+            outputEEColl->push_back(ehit);
 
-          for (std::vector<HBHERecHit>::const_iterator hhit = hbhe->begin(); hhit != hbhe->end(); ++hhit)
-            outputHBHEColl->push_back(*hhit);
+          for (const auto& hhit : *hbhe)
+            outputHBHEColl->push_back(hhit);
           ++nGood_;
         }
       }
@@ -493,14 +487,14 @@ reco::HcalIsolatedTrackCandidateCollection* AlCaIsoTracksProducer::select(
     double ptL1,
     double etaL1,
     double phiL1) {
-  reco::HcalIsolatedTrackCandidateCollection* trackCollection = new reco::HcalIsolatedTrackCandidateCollection;
+  auto* trackCollection = new reco::HcalIsolatedTrackCandidateCollection;
   bool ok(false);
 
   // Find a good HLT trigger
   for (unsigned int iHLT = 0; iHLT < triggerResults->size(); iHLT++) {
     int hlt = triggerResults->accept(iHLT);
-    for (unsigned int i = 0; i < trigNames_.size(); ++i) {
-      if (triggerNames_[iHLT].find(trigNames_[i]) != std::string::npos) {
+    for (const auto& trigName : trigNames_) {
+      if (triggerNames_[iHLT].find(trigName) != std::string::npos) {
         if (hlt > 0) {
           ok = true;
         }
@@ -563,8 +557,7 @@ reco::HcalIsolatedTrackCandidateCollection* AlCaIsoTracksProducer::select(
         newCandidate.SetEtaPhiHcal(
             (trkDetItr->pointHCAL).eta(), (trkDetItr->pointHCAL).phi(), detId.ieta(), detId.iphi());
         int indx(0);
-        for (reco::TrackCollection::const_iterator trkItr1 = trkCollection->begin(); trkItr1 != trkCollection->end();
-             ++trkItr1, ++indx) {
+        for (auto trkItr1 = trkCollection->begin(); trkItr1 != trkCollection->end(); ++trkItr1, ++indx) {
           const reco::Track* pTrack1 = &(*trkItr1);
           if (pTrack1 == pTrack) {
             reco::TrackRef tRef = reco::TrackRef(trkCollection, indx);
@@ -583,11 +576,11 @@ void AlCaIsoTracksProducer::setPtEtaPhi(std::vector<edm::Ref<l1extra::L1JetParti
                                         double& ptL1,
                                         double& etaL1,
                                         double& phiL1) {
-  for (unsigned int p = 0; p < objref.size(); p++) {
-    if (objref[p]->pt() > ptL1) {
-      ptL1 = objref[p]->pt();
-      phiL1 = objref[p]->phi();
-      etaL1 = objref[p]->eta();
+  for (auto& p : objref) {
+    if (p->pt() > ptL1) {
+      ptL1 = p->pt();
+      phiL1 = p->phi();
+      etaL1 = p->eta();
     }
   }
 }

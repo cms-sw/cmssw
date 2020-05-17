@@ -26,13 +26,13 @@ using namespace std;
 bool debug = false;
 int numlumis = -1;
 
-int     nlumis     ( string filename ); //get number of run lumisections
-string  runnum_str ( string filename ); //read the run number, return in string
-int     getplot    ( string filename , string iDir , string strplot , TH1F& plot ); //read given plot
+int nlumis(const string& filename);         //get number of run lumisections
+string runnum_str(const string& filename);  //read the run number, return in string
+int getplot(const string& filename, const string& iDir, const string& strplot, TH1F& plot);  //read given plot
 void    Cleaning   ( vector<int> & );
 string  ListOut    ( vector<int> & );
 void    vector_AND ( vector<int> & , vector<int> );
-void    lsbs_cert( string filename ); 
+void lsbs_cert(const string& filename);
 
 int main(int argc , char *argv[]) {
 
@@ -49,8 +49,7 @@ int main(int argc , char *argv[]) {
 
 }
 
-void    lsbs_cert( string filename ) 
-{
+void lsbs_cert(const string& filename) {
   void check_offset ( string filename , string iDir , string plot , float limit_min , float limit_max , vector <int>& );
   void check_sigma  ( string filename , string iDir , string plot , float limit_err , vector <int>& );
   bool check_isgood ( vector<int> & , int ls ); //check if this LS is good
@@ -243,9 +242,9 @@ void    lsbs_cert( string filename )
 void check_offset ( string filename , string iDir , string plot , float limit_min , float limit_max , vector <int>& badLS ) 
 {  
   TH1F checkPlot;
-  if ( getplot ( filename , iDir , plot , checkPlot ) < 0 ) return;
+  if (getplot(std::move(filename), std::move(iDir), std::move(plot), checkPlot) < 0)
+    return;
 
-  
   //look at each LS, save the bad one
   for ( int i = 1; i <= checkPlot.GetNbinsX() ; i++ )
     {
@@ -261,7 +260,8 @@ void check_offset ( string filename , string iDir , string plot , float limit_mi
 void check_sigma ( string filename , string iDir , string plot , float limit_err , vector <int>& badLS ) 
 {  
   TH1F checkPlot;
-  if ( getplot ( filename , iDir , plot , checkPlot ) < 0 ) return;
+  if (getplot(std::move(filename), std::move(iDir), std::move(plot), checkPlot) < 0)
+    return;
 
   //look at each LS
   for ( int i = 1; i <= checkPlot.GetNbinsX() ; i++ )
@@ -278,15 +278,14 @@ void check_sigma ( string filename , string iDir , string plot , float limit_err
 bool check_isgood ( vector<int> & ls_badlist, int ls ) 
 {
   //check if this LS is found in the BAD list
-  for ( unsigned int i = 0; i < ls_badlist.size() ; i++ )
-    {
-      if ( ls == ls_badlist[i] ) return false;
-    }
+  for (int i : ls_badlist) {
+    if (ls == i)
+      return false;
+  }
   return true;
 }
 
-int nlumis( string filename )
-{
+int nlumis(const string& filename) {
   if ( numlumis > -1 ) 
     return numlumis;
 
@@ -309,8 +308,8 @@ int nlumis( string filename )
         {
           string sflag = eiKey->GetName();
           string tempname = sflag.substr(sflag.find("i=")+2);
-          size_t pos1 = tempname.find("<");
-          size_t pos2 = sflag.find_first_of(">");
+          size_t pos1 = tempname.find('<');
+          size_t pos2 = sflag.find_first_of('>');
           string detvalue = tempname.substr(0,pos1);
           string numlumisec = sflag.substr(1,pos2-1);
           if ( numlumisec == (string)"iLumiSection" )
@@ -324,13 +323,9 @@ int nlumis( string filename )
   return numlumis;
 }
 
-string runnum_str( string filename )
-{
-  return filename.substr(filename.find("_R000")+5, 6);  
-}
+string runnum_str(const string& filename) { return filename.substr(filename.find("_R000") + 5, 6); }
 
-int getplot( string filename , string iDir , string strplot , TH1F& plot )
-{
+int getplot(const string& filename, const string& iDir, const string& strplot, TH1F& plot) {
   string run = runnum_str( filename );
   if (debug) std::cout << filename.c_str() << endl;
   
@@ -358,7 +353,7 @@ int getplot( string filename , string iDir , string strplot , TH1F& plot )
   thisplot = nullptr;
   delete thisplot;
   
-  return 0;  
+  return 0;
 }
 
 void Cleaning( vector<int> &LSlist)
@@ -415,12 +410,11 @@ void vector_AND ( vector<int> & bad_def, vector<int> bad_sc)
 
   int def_size = bad_def.size();
   for ( int i = 0; i < def_size; i++ )
-    for ( unsigned int j = 0; j < bad_sc.size(); j++ )
-      if ( bad_def[ i ] == bad_sc[ j ] )
-	{
-	  temp.push_back( bad_def[ i ] );
-	  break;
-	}
-  
+    for (int j : bad_sc)
+      if (bad_def[i] == j) {
+        temp.push_back(bad_def[i]);
+        break;
+      }
+
   bad_def = temp;
 }

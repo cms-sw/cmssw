@@ -21,10 +21,10 @@
 class TGraphWriter : public edm::EDAnalyzer {
 public:
   TGraphWriter(const edm::ParameterSet&);
-  ~TGraphWriter();
+  ~TGraphWriter() override;
 
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   std::string moduleLabel_;
 

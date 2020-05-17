@@ -1,5 +1,7 @@
 #ifndef PhysicsTools_Utilities_Polynomial_h
 #define PhysicsTools_Utilities_Polynomial_h
+#include <utility>
+
 #include "PhysicsTools/Utilities/interface/Parameter.h"
 
 namespace funct {
@@ -35,7 +37,7 @@ namespace funct {
     Polynomial(const std::shared_ptr<double> *c) : c0_(*c) {}
     Polynomial(const Parameter *c) : c0_(c->ptr()) {}
     Polynomial(const double *c) : c0_(new double(*c)) {}
-    Polynomial(std::shared_ptr<double> c0) : c0_(c0) {}
+    Polynomial(std::shared_ptr<double> c0) : c0_(std::move(c0)) {}
     Polynomial(const Parameter &c0) : c0_(c0.ptr()) {}
     Polynomial(double c0) : c0_(new double(c0)) {}
     double operator()(double x) const { return *c0_; }
@@ -51,7 +53,7 @@ namespace funct {
     Polynomial(const std::shared_ptr<double> *c) : c0_(*c), poly_(c + 1) {}
     Polynomial(const Parameter *c) : c0_(c->ptr()), poly_(c + 1) {}
     Polynomial(const double *c) : c0_(new double(*c)), poly_(c + 1) {}
-    Polynomial(std::shared_ptr<double> c0, std::shared_ptr<double> c1) : c0_(c0), poly_(c1) {}
+    Polynomial(std::shared_ptr<double> c0, std::shared_ptr<double> c1) : c0_(std::move(c0)), poly_(std::move(c1)) {}
     Polynomial(const Parameter &c0, const Parameter &c1) : c0_(c0.ptr()), poly_(c1.ptr()) {}
     Polynomial(double c0, double c1) : c0_(new double(c0)), poly_(c1) {}
     double operator()(double x) const { return *c0_ + x * poly_(x); }
@@ -68,7 +70,7 @@ namespace funct {
     Polynomial(const Parameter *c) : c0_(c->ptr()), poly_(c + 1) {}
     Polynomial(const double *c) : c0_(new double(*c)), poly_(c + 1) {}
     Polynomial(std::shared_ptr<double> c0, std::shared_ptr<double> c1, std::shared_ptr<double> c2)
-        : c0_(c0), poly_(c1, c2) {}
+        : c0_(std::move(c0)), poly_(std::move(c1), std::move(c2)) {}
     Polynomial(const Parameter &c0, const Parameter &c1, const Parameter &c2) : c0_(c0.ptr()), poly_(c1, c2) {}
     Polynomial(double c0, double c1, double c2) : c0_(new double(c0)), poly_(c1, c2) {}
     double operator()(double x) const { return *c0_ + x * poly_(x); }

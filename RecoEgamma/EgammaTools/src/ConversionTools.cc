@@ -41,9 +41,8 @@ bool ConversionTools::isGoodConversion(const Conversion &conv,
     return false;
 
   //loop through daughters to check nhitsbeforevtx
-  for (std::vector<uint8_t>::const_iterator it = conv.nHitsBeforeVtx().begin(); it != conv.nHitsBeforeVtx().end();
-       ++it) {
-    if ((*it) > nHitsBeforeVtxMax)
+  for (unsigned char it : conv.nHitsBeforeVtx()) {
+    if (it > nHitsBeforeVtxMax)
       return false;
   }
 
@@ -60,20 +59,19 @@ bool ConversionTools::matchesConversion(const reco::GsfElectron &ele,
   //closest ctf track ref
 
   const std::vector<edm::RefToBase<reco::Track> > &convTracks = conv.tracks();
-  for (std::vector<edm::RefToBase<reco::Track> >::const_iterator it = convTracks.begin(); it != convTracks.end();
-       ++it) {
-    if (ele.reco::GsfElectron::gsfTrack().isNonnull() && ele.reco::GsfElectron::gsfTrack().id() == it->id() &&
-        ele.reco::GsfElectron::gsfTrack().key() == it->key())
+  for (const auto &convTrack : convTracks) {
+    if (ele.reco::GsfElectron::gsfTrack().isNonnull() && ele.reco::GsfElectron::gsfTrack().id() == convTrack.id() &&
+        ele.reco::GsfElectron::gsfTrack().key() == convTrack.key())
       return true;
     else if (allowCkfMatch && ele.reco::GsfElectron::closestCtfTrackRef().isNonnull() &&
-             ele.reco::GsfElectron::closestCtfTrackRef().id() == it->id() &&
-             ele.reco::GsfElectron::closestCtfTrackRef().key() == it->key())
+             ele.reco::GsfElectron::closestCtfTrackRef().id() == convTrack.id() &&
+             ele.reco::GsfElectron::closestCtfTrackRef().key() == convTrack.key())
       return true;
     if (allowAmbiguousGsfMatch) {
       for (reco::GsfTrackRefVector::const_iterator tk = ele.ambiguousGsfTracksBegin();
            tk != ele.ambiguousGsfTracksEnd();
            ++tk) {
-        if (tk->isNonnull() && tk->id() == it->id() && tk->key() == it->key())
+        if (tk->isNonnull() && tk->id() == convTrack.id() && tk->key() == convTrack.key())
           return true;
       }
     }
@@ -137,9 +135,8 @@ bool ConversionTools::matchesConversion(const edm::RefToBase<reco::Track> &trk, 
     return false;
 
   const std::vector<edm::RefToBase<reco::Track> > &convTracks = conv.tracks();
-  for (std::vector<edm::RefToBase<reco::Track> >::const_iterator it = convTracks.begin(); it != convTracks.end();
-       ++it) {
-    if (trk.id() == it->id() && trk.key() == it->key())
+  for (const auto &convTrack : convTracks) {
+    if (trk.id() == convTrack.id() && trk.key() == convTrack.key())
       return true;
   }
 
@@ -154,9 +151,8 @@ bool ConversionTools::matchesConversion(const reco::TrackRef &trk, const reco::C
     return false;
 
   const std::vector<edm::RefToBase<reco::Track> > &convTracks = conv.tracks();
-  for (std::vector<edm::RefToBase<reco::Track> >::const_iterator it = convTracks.begin(); it != convTracks.end();
-       ++it) {
-    if (trk.id() == it->id() && trk.key() == it->key())
+  for (const auto &convTrack : convTracks) {
+    if (trk.id() == convTrack.id() && trk.key() == convTrack.key())
       return true;
   }
 
@@ -171,9 +167,8 @@ bool ConversionTools::matchesConversion(const reco::GsfTrackRef &trk, const reco
     return false;
 
   const std::vector<edm::RefToBase<reco::Track> > &convTracks = conv.tracks();
-  for (std::vector<edm::RefToBase<reco::Track> >::const_iterator it = convTracks.begin(); it != convTracks.end();
-       ++it) {
-    if (trk.id() == it->id() && trk.key() == it->key())
+  for (const auto &convTrack : convTracks) {
+    if (trk.id() == convTrack.id() && trk.key() == convTrack.key())
       return true;
   }
 

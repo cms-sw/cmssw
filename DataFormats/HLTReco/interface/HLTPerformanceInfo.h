@@ -59,7 +59,7 @@ public:
     edm::HLTPathStatus status_;
 
   public:
-    Path(const std::string n = "unknown") : name_(n), moduleView_(), status_() {}
+    Path(const std::string &n = "unknown") : name_(n), moduleView_(), status_() {}
     std::string name() const { return name_; }
     void setStatus(const edm::HLTPathStatus &result) { status_ = result; }
 
@@ -91,21 +91,21 @@ public:
   // by name
   void addModuleToPath(const char *mod, const char *path) {
     // first make sure module exists
-    Modules::iterator m = findModule(mod);
+    auto m = findModule(mod);
     if (m == endModules()) {
       // new module - create it and stick it on the end
       Module newMod(mod, 0, 0);  // time (wall and cpu) = 0 since it wasn't run
       modules_.push_back(newMod);
     }
 
-    for (size_t i = 0; i < paths_.size(); ++i) {
-      if (!(paths_[i] == path))
+    for (auto &i : paths_) {
+      if (!(i == path))
         continue;
       // we found the path, add module to the end
       for (size_t j = 0; j < modules_.size(); ++j) {
         if (!(modules_[j] == mod))
           continue;
-        paths_[i].addModuleRef(j);
+        i.addModuleRef(j);
         break;
       }
       break;
@@ -122,8 +122,8 @@ public:
     paths_.clear();
   }
   void clearModules() {
-    for (size_t i = 0; i < modules_.size(); ++i) {
-      modules_[i].clear();
+    for (auto &module : modules_) {
+      module.clear();
     }
   }
 

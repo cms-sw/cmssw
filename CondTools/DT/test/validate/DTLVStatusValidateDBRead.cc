@@ -5,7 +5,7 @@ Toy EDAnalyzer for testing purposes only.
 
 ----------------------------------------------------------------------*/
 
-#include <math.h>
+#include <cmath>
 #include <stdexcept>
 #include <string>
 #include <iostream>
@@ -57,8 +57,8 @@ void DTLVStatusValidateDBRead::analyze(const edm::Event& e, const edm::EventSetu
   int ckflagCMC;
   int ckflagDMC;
 
-  DTLVStatus::const_iterator iter = lv->begin();
-  DTLVStatus::const_iterator iend = lv->end();
+  auto iter = lv->begin();
+  auto iend = lv->end();
   while (iter != iend) {
     const DTLVStatusId& lvId = iter->first;
     const DTLVStatusData& lvData = iter->second;

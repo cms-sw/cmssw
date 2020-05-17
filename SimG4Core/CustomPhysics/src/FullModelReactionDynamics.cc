@@ -234,7 +234,7 @@ G4bool FullModelReactionDynamics::GenerateXandPt(
     //        here I use  NewlyAdded = true  instead
     //
     for (i = 0; i < nuclearExcitationCount; ++i) {
-      G4ReactionProduct *pVec = new G4ReactionProduct();
+      auto *pVec = new G4ReactionProduct();
       if (G4UniformRand() < nucsup[momentumBin]) {
         if (G4UniformRand() > 1.0 - atomicNumber / atomicWeight)
           pVec->SetDefinition(aProton);
@@ -1410,7 +1410,7 @@ G4bool FullModelReactionDynamics::TwoCluster(
     //        here we use  NewlyAdded = true  instead
     //
     for (i = 0; i < nuclearExcitationCount; ++i) {
-      G4ReactionProduct *pVec = new G4ReactionProduct();
+      auto *pVec = new G4ReactionProduct();
       if (G4UniformRand() < nucsup[momentumBin])  // add proton or neutron
       {
         if (G4UniformRand() > 1.0 - atomicNumber / atomicWeight)
@@ -2897,7 +2897,7 @@ void FullModelReactionDynamics::AddBlackTrackParticles(const G4double epnb,  // 
     G4double ekin = epnb / local_npnb;
 
     for (i = 0; i < local_npnb; ++i) {
-      G4ReactionProduct *p1 = new G4ReactionProduct();
+      auto *p1 = new G4ReactionProduct();
       if (backwardKinetic > epnb) {
         delete p1;
         break;
@@ -2954,7 +2954,7 @@ void FullModelReactionDynamics::AddBlackTrackParticles(const G4double epnb,  // 
     G4double ekin = edta / local_ndta;
 
     for (i = 0; i < local_ndta; ++i) {
-      G4ReactionProduct *p2 = new G4ReactionProduct();
+      auto *p2 = new G4ReactionProduct();
       if (backwardKinetic > edta) {
         delete p2;
         break;
@@ -3150,7 +3150,7 @@ void FullModelReactionDynamics::ProduceStrangeParticlePairs(G4FastVector<G4React
       return;
     if (vecLen == 1)  // add a new secondary
     {
-      G4ReactionProduct *p1 = new G4ReactionProduct;
+      auto *p1 = new G4ReactionProduct;
       if (G4UniformRand() < 0.5) {
         vec[0]->SetDefinition(aNeutron);
         p1->SetDefinition(anAntiNeutron);
@@ -3212,7 +3212,7 @@ void FullModelReactionDynamics::ProduceStrangeParticlePairs(G4FastVector<G4React
     }
     if (vecLen == 1)  // add a secondary
     {
-      G4ReactionProduct *p1 = new G4ReactionProduct;
+      auto *p1 = new G4ReactionProduct;
       switch (ipakkb2[i]) {
         case 11:
           p1->SetDefinition(aKaonZS);
@@ -3488,7 +3488,7 @@ void FullModelReactionDynamics::NuclearReaction(G4FastVector<G4ReactionProduct, 
   if ((index >= 6) || (G4UniformRand() < std::min(0.5, ke * 10.0)))
     nt = 3;
 
-  G4ReactionProduct **v = new G4ReactionProduct *[3];
+  auto **v = new G4ReactionProduct *[3];
   v[0] = new G4ReactionProduct;
   v[1] = new G4ReactionProduct;
   v[2] = new G4ReactionProduct;

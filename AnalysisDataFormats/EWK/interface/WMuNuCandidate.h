@@ -17,7 +17,7 @@ namespace reco {
   class WMuNuCandidate : public reco::CompositeCandidate {
   public:
     WMuNuCandidate();
-    WMuNuCandidate(edm::Ptr<reco::Muon>, edm::Ptr<reco::MET>);
+    WMuNuCandidate(const edm::Ptr<reco::Muon>&, const edm::Ptr<reco::MET>&);
     ~WMuNuCandidate() override;
 
     //WARNING: W Candidates combine the information from a Muon with the (px,py) information of the MET as the Neutrino

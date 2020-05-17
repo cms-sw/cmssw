@@ -4,12 +4,14 @@
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 #include "SimPPS/RPDigiProducer/plugins/RPDisplacementGenerator.h"
 #include <map>
+#include <utility>
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 DeadChannelsManager::DeadChannelsManager() { analysisMaskPresent = false; }
 
 DeadChannelsManager::DeadChannelsManager(edm::ESHandle<TotemAnalysisMask> _analysisMask) {
-  analysisMask = _analysisMask;
+  analysisMask = std::move(_analysisMask);
   analysisMaskPresent = true;
 }
 
@@ -22,8 +24,7 @@ bool DeadChannelsManager::isChannelDead(RPDetId detectorId, unsigned short strip
   TotemSymbID totemSymbolicId;
   totemSymbolicId.symbolicID = symbolicId;
   if (analysisMaskPresent) {
-    std::map<TotemSymbID, TotemVFATAnalysisMask>::const_iterator vfatIter =
-        analysisMask->analysisMask.find(totemSymbolicId);
+    auto vfatIter = analysisMask->analysisMask.find(totemSymbolicId);
     if (vfatIter != analysisMask->analysisMask.end()) {
       TotemVFATAnalysisMask vfatMask = vfatIter->second;
       //if channel is dead return true

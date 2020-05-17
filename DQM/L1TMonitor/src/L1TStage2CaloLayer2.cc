@@ -176,7 +176,7 @@ void L1TStage2CaloLayer2::analyze(const edm::Event& e, const edm::EventSetup& c)
   e.getByToken(stage2CaloLayer2JetToken_, Jet);
 
   for (int itBX = Jet->getFirstBX(); itBX <= Jet->getLastBX(); ++itBX) {
-    for (l1t::JetBxCollection::const_iterator itJet = Jet->begin(itBX); itJet != Jet->end(itBX); ++itJet) {
+    for (auto itJet = Jet->begin(itBX); itJet != Jet->end(itBX); ++itJet) {
       const bool forward = (itJet->hwEta() > 68 || itJet->hwEta() < (-68));
       if (forward) {
         stage2CaloLayer2ForJetBxOcc_->Fill(itBX, itJet->hwPt());
@@ -213,7 +213,7 @@ void L1TStage2CaloLayer2::analyze(const edm::Event& e, const edm::EventSetup& c)
   e.getByToken(stage2CaloLayer2EGammaToken_, EGamma);
 
   for (int itBX = EGamma->getFirstBX(); itBX <= EGamma->getLastBX(); ++itBX) {
-    for (l1t::EGammaBxCollection::const_iterator itEG = EGamma->begin(itBX); itEG != EGamma->end(itBX); ++itEG) {
+    for (auto itEG = EGamma->begin(itBX); itEG != EGamma->end(itBX); ++itEG) {
       bool iso = itEG->hwIso();
       if (iso) {
         stage2CaloLayer2IsoEGBxOcc_->Fill(itBX, itEG->hwPt());
@@ -251,7 +251,7 @@ void L1TStage2CaloLayer2::analyze(const edm::Event& e, const edm::EventSetup& c)
   edm::Handle<l1t::TauBxCollection> Tau;
   e.getByToken(stage2CaloLayer2TauToken_, Tau);
   for (int itBX = Tau->getFirstBX(); itBX <= Tau->getLastBX(); ++itBX) {
-    for (l1t::TauBxCollection::const_iterator itTau = Tau->begin(itBX); itTau != Tau->end(itBX); ++itTau) {
+    for (auto itTau = Tau->begin(itBX); itTau != Tau->end(itBX); ++itTau) {
       bool iso = itTau->hwIso();
       if (iso) {
         stage2CaloLayer2IsoTauBxOcc_->Fill(itBX, itTau->hwPt());
@@ -289,7 +289,7 @@ void L1TStage2CaloLayer2::analyze(const edm::Event& e, const edm::EventSetup& c)
   edm::Handle<l1t::EtSumBxCollection> EtSum;
   e.getByToken(stage2CaloLayer2EtSumToken_, EtSum);
   for (int itBX = EtSum->getFirstBX(); itBX <= EtSum->getLastBX(); ++itBX) {
-    for (l1t::EtSumBxCollection::const_iterator itEtSum = EtSum->begin(itBX); itEtSum != EtSum->end(itBX); ++itEtSum) {
+    for (auto itEtSum = EtSum->begin(itBX); itEtSum != EtSum->end(itBX); ++itEtSum) {
       stage2CaloLayer2EtSumBxOcc_->Fill(itBX, itEtSum->hwPt());
 
       if (itBX == 0) {

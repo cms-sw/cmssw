@@ -10,7 +10,7 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 //
 void PedsOnlySummaryFactory::extract(Iterator iter) {
-  PedsOnlyAnalysis* anal = dynamic_cast<PedsOnlyAnalysis*>(iter->second);
+  auto* anal = dynamic_cast<PedsOnlyAnalysis*>(iter->second);
   if (!anal) {
     return;
   }
@@ -84,14 +84,14 @@ void PedsOnlySummaryFactory::extract(Iterator iter) {
         SummaryPlotFactoryBase::level_, SummaryPlotFactoryBase::gran_, iter->first, value[1][0]);
 
   } else {
-    for (uint16_t istr = 0; istr < value[0].size(); istr++) {
+    for (float istr : value[0]) {
       SummaryPlotFactoryBase::generator_->fillMap(
-          SummaryPlotFactoryBase::level_, SummaryPlotFactoryBase::gran_, iter->first, value[0][istr]);
+          SummaryPlotFactoryBase::level_, SummaryPlotFactoryBase::gran_, iter->first, istr);
     }
 
-    for (uint16_t istr = 0; istr < value[1].size(); istr++) {
+    for (float istr : value[1]) {
       SummaryPlotFactoryBase::generator_->fillMap(
-          SummaryPlotFactoryBase::level_, SummaryPlotFactoryBase::gran_, iter->first, value[1][istr]);
+          SummaryPlotFactoryBase::level_, SummaryPlotFactoryBase::gran_, iter->first, istr);
     }
   }
 }

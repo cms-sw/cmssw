@@ -171,7 +171,7 @@ QIE10Task::QIE10Task(edm::ParameterSet const& ps) : DQTask(ps) {
   for (uint32_t i = 0; i < cqie10->size(); i++) {
     QIE10DataFrame frame = static_cast<QIE10DataFrame>((*cqie10)[i]);
     HcalDetId did = frame.detid();
-    HcalElectronicsId eid = HcalElectronicsId(_ehashmap.lookup(did));
+    auto eid = HcalElectronicsId(_ehashmap.lookup(did));
     if (did.subdet() != HcalForward) {
       continue;
     }

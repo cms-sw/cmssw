@@ -14,9 +14,9 @@
 class PFSuperClusterReader : public edm::EDAnalyzer {
 public:
   explicit PFSuperClusterReader(const edm::ParameterSet&);
-  ~PFSuperClusterReader();
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& c);
+  ~PFSuperClusterReader() override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& c) override;
 
 private:
   edm::InputTag inputTagGSFTracks_;

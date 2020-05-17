@@ -52,7 +52,7 @@ namespace pat {
                             const reco::VertexRefProd& pvSlimmedColl,
                             const reco::Vertex& pvOrig,
                             const TrkStatus trkStatus,
-                            edm::Handle<reco::MuonCollection> muons) const;
+                            const edm::Handle<reco::MuonCollection>& muons) const;
 
   private:
     const edm::EDGetTokenT<reco::PFCandidateCollection> cands_;
@@ -234,7 +234,7 @@ void pat::PATLostTracks::addPackedCandidate(std::vector<pat::PackedCandidate>& c
                                             const reco::VertexRefProd& pvSlimmedColl,
                                             const reco::Vertex& pvOrig,
                                             const pat::PATLostTracks::TrkStatus trkStatus,
-                                            edm::Handle<reco::MuonCollection> muons) const {
+                                            const edm::Handle<reco::MuonCollection>& muons) const {
   const float mass = 0.13957018;
 
   int id = 211 * trk->charge();

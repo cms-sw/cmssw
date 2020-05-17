@@ -87,9 +87,7 @@ void DTNoiseTask::analyze(const edm::Event& e, const edm::EventSetup& c) {
   // LOOP OVER ALL THE DIGIS OF THE EVENT
   DTDigiCollection::DigiRangeIterator dtLayerId_It;
   for (dtLayerId_It = dtdigis->begin(); dtLayerId_It != dtdigis->end(); ++dtLayerId_It) {
-    for (DTDigiCollection::const_iterator digiIt = ((*dtLayerId_It).second).first;
-         digiIt != ((*dtLayerId_It).second).second;
-         ++digiIt) {
+    for (auto digiIt = ((*dtLayerId_It).second).first; digiIt != ((*dtLayerId_It).second).second; ++digiIt) {
       //Check the TDC trigger width
       int tdcTime = (*digiIt).countsTDC();
       double upperLimit = tTrigStMap[(*dtLayerId_It).first.superlayerId().chamberId()] - safeMargin;
@@ -129,7 +127,7 @@ void DTNoiseTask::analyze(const edm::Event& e, const edm::EventSetup& c) {
   }
 }
 
-void DTNoiseTask::bookHistos(DQMStore::IBooker& ibooker, DTChamberId chId) {
+void DTNoiseTask::bookHistos(DQMStore::IBooker& ibooker, const DTChamberId& chId) {
   // set the folder
   stringstream wheel;
   wheel << chId.wheel();
@@ -159,11 +157,10 @@ void DTNoiseTask::bookHistos(DQMStore::IBooker& ibooker, DTChamberId chId) {
   const vector<const DTSuperLayer*>& superlayers = dtchamber->superLayers();
 
   // Loop over layers and find the max # of wires
-  for (vector<const DTSuperLayer*>::const_iterator sl = superlayers.begin(); sl != superlayers.end();
-       ++sl) {  // loop over SLs
-    vector<const DTLayer*> layers = (*sl)->layers();
-    for (vector<const DTLayer*>::const_iterator lay = layers.begin(); lay != layers.end(); ++lay) {  // loop over layers
-      int nWires = (*lay)->specificTopology().channels();
+  for (auto superlayer : superlayers) {  // loop over SLs
+    vector<const DTLayer*> layers = superlayer->layers();
+    for (auto layer : layers) {  // loop over layers
+      int nWires = layer->specificTopology().channels();
       if (nWires > nWires_max)
         nWires_max = nWires;
     }
@@ -186,7 +183,7 @@ void DTNoiseTask::bookHistos(DQMStore::IBooker& ibooker, DTChamberId chId) {
   noiseHistos[chId]->setBinLabel(12, "SL3-L4", 2);
 }
 
-void DTNoiseTask::bookHistos(DQMStore::IBooker& ibooker, DTSuperLayerId slId) {
+void DTNoiseTask::bookHistos(DQMStore::IBooker& ibooker, const DTSuperLayerId& slId) {
   // set the folder
   stringstream wheel;
   wheel << slId.chamberId().wheel();
@@ -228,14 +225,14 @@ void DTNoiseTask::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& run
   nEventMonitor = ibooker.bookFloat("nProcessedEventsNoise");
 
   // Loop over all the chambers
-  vector<const DTChamber*>::const_iterator ch_it = dtGeom->chambers().begin();
-  vector<const DTChamber*>::const_iterator ch_end = dtGeom->chambers().end();
+  auto ch_it = dtGeom->chambers().begin();
+  auto ch_end = dtGeom->chambers().end();
   for (; ch_it != ch_end; ++ch_it) {
     DTChamberId chId = (*ch_it)->id();
     // histo booking
     bookHistos(ibooker, chId);
-    vector<const DTSuperLayer*>::const_iterator sl_it = (*ch_it)->superLayers().begin();
-    vector<const DTSuperLayer*>::const_iterator sl_end = (*ch_it)->superLayers().end();
+    auto sl_it = (*ch_it)->superLayers().begin();
+    auto sl_end = (*ch_it)->superLayers().end();
     // Loop over the SLs
     for (; sl_it != sl_end; ++sl_it) {
       DTSuperLayerId slId = (*sl_it)->id();
@@ -256,9 +253,7 @@ void DTNoiseTask::endLuminosityBlock(const LuminosityBlock& lumiSeg, const Event
   LogVerbatim("DTNoiseTask") << "[DTNoiseTask]: End LS, update rates in all histos" << endl;
 
   // update the rate of all histos (usefull for histos with few entries: they are not updated very often
-  for (map<DTChamberId, MonitorElement*>::const_iterator meAndChamber = noiseHistos.begin();
-       meAndChamber != noiseHistos.end();
-       ++meAndChamber) {
+  for (auto meAndChamber = noiseHistos.begin(); meAndChamber != noiseHistos.end(); ++meAndChamber) {
     DTChamberId chId = (*meAndChamber).first;
     TH2F* noise_root = (*meAndChamber).second->getTH2F();
     double upperLimit = tTrigStMap[chId] - safeMargin;

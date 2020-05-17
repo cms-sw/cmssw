@@ -18,7 +18,7 @@ void GetMEAN(TH1F* histo, double& peak, double& error, double& sigma);
 void CalculateResponse(bool UseRatioForResponse, double x, double ex, double y, double ey, double& r, double& e);
 void CalculateCorrection(bool UseRatioForResponse, double x, double ex, double y, double ey, double& c, double& e);
 void Invert(TF1* f, double Min, double Max, double y, double& x);
-bool HistoExists(std::vector<std::string> LIST, std::string hname);
+bool HistoExists(std::vector<std::string> LIST, const std::string& hname);
 int getBin(double x, std::vector<double> boundaries);
 
 class CommandLine {
@@ -73,7 +73,7 @@ private:
 template <class T>
 T CommandLine::getValue(const std::string& name) {
   T result = T();
-  OptionMap_t::iterator it = _options.find(name);
+  auto it = _options.find(name);
   if (it != _options.end()) {
     it->second.second = true;
     _ordered_options.push_back(name);
@@ -89,7 +89,7 @@ T CommandLine::getValue(const std::string& name) {
 //______________________________________________________________________________
 template <class T>
 T CommandLine::getValue(const std::string& name, T default_value) {
-  OptionMap_t::const_iterator it = _options.find(name);
+  auto it = _options.find(name);
   if (it != _options.end())
     return getValue<T>(name);
   std::string default_as_string;
@@ -104,7 +104,7 @@ T CommandLine::getValue(const std::string& name, T default_value) {
 //______________________________________________________________________________
 template <>
 bool CommandLine::getValue<bool>(const std::string& name) {
-  OptionMap_t::iterator it = _options.find(name);
+  auto it = _options.find(name);
   if (it != _options.end()) {
     it->second.second = true;
     _ordered_options.push_back(name);
@@ -126,7 +126,7 @@ bool CommandLine::getValue<bool>(const std::string& name) {
 //______________________________________________________________________________
 template <>
 bool CommandLine::getValue(const std::string& name, bool default_value) {
-  OptionMap_t::const_iterator it = _options.find(name);
+  auto it = _options.find(name);
   if (it != _options.end())
     return getValue<bool>(name);
   _options[name] = (default_value) ? std::make_pair("true", true) : std::make_pair("false", true);
@@ -138,7 +138,7 @@ bool CommandLine::getValue(const std::string& name, bool default_value) {
 template <class T>
 std::vector<T> CommandLine::getVector(const std::string& name) {
   std::vector<T> result;
-  OptionMap_t::iterator it = _options.find(name);
+  auto it = _options.find(name);
   if (it != _options.end()) {
     it->second.second = true;
     _ordered_options.push_back(name);
@@ -146,7 +146,7 @@ std::vector<T> CommandLine::getVector(const std::string& name) {
     std::string::size_type pos;
     if (!tmp.empty()) {
       do {
-        pos = tmp.find(",");
+        pos = tmp.find(',');
         std::stringstream ss;
         ss << tmp.substr(0, pos);
         tmp.erase(0, pos + 1);
@@ -164,7 +164,7 @@ std::vector<T> CommandLine::getVector(const std::string& name) {
 //______________________________________________________________________________
 template <class T>
 std::vector<T> CommandLine::getVector(const std::string& name, const std::string& default_as_string) {
-  OptionMap_t::iterator it = _options.find(name);
+  auto it = _options.find(name);
   if (it == _options.end())
     _options[name] = std::make_pair(default_as_string, false);
   return getVector<T>(name);
@@ -189,7 +189,7 @@ bool CommandLine::parse(int argc, char** argv) {
 
   for (int i = 1; i < argc; i++) {
     std::string opt = argv[i];
-    if (0 != opt.find("-")) {
+    if (0 != opt.find('-')) {
       if (i == 1) {
         bool success = parse_file(opt);
         if (!success)
@@ -210,7 +210,7 @@ bool CommandLine::parse(int argc, char** argv) {
     i++;
     if (i < argc - 1) {
       next = argv[i + 1];
-      while (next.find("-") != 0) {
+      while (next.find('-') != 0) {
         _options[opt].first += "," + next;
         i++;
         next = (i < argc - 1) ? argv[i + 1] : "-";
@@ -235,8 +235,8 @@ bool CommandLine::check() {
     result = false;
     std::cout << "\nCommandLine WARNING: " << _unknowns.size()
               << " the followingparameters *must* be provided:" << std::endl;
-    for (StrVec_t::const_iterator it = _unknowns.begin(); it != _unknowns.end(); ++it)
-      std::cout << (*it) << std::endl;
+    for (const auto& _unknown : _unknowns)
+      std::cout << _unknown << std::endl;
     std::cout << std::endl;
   }
   return result;
@@ -246,15 +246,15 @@ void CommandLine::print() {
   std::cout << "------------------------------------------------------------" << std::endl;
   std::cout << _exe << " options:" << std::endl;
   std::cout << "------------------------------------------------------------" << std::endl;
-  for (StrVec_t::const_iterator itvec = _ordered_options.begin(); itvec != _ordered_options.end(); ++itvec) {
-    OptionMap_t::const_iterator it = _options.find(*itvec);
+  for (const auto& _ordered_option : _ordered_options) {
+    auto it = _options.find(_ordered_option);
     assert(it != _options.end());
     if (it->second.first.find(",") < std::string::npos) {
       std::string tmp = it->second.first;
       std::string::size_type length = tmp.length();
       std::string::size_type pos;
       do {
-        pos = tmp.find(",");
+        pos = tmp.find(',');
         if (tmp.length() == length) {
           std::cout << std::setiosflags(std::ios::left) << std::setw(22) << it->first
                     << std::resetiosflags(std::ios::left) << std::setw(3) << "=" << std::setiosflags(std::ios::right)
@@ -308,8 +308,8 @@ bool CommandLine::parse_file(const std::string& file_name) {
       last_token = "";
       value = "";
     } else if (!last_token.empty()) {
-      if (last_token.find("\"") == 0) {
-        if (last_token.rfind("\"") == last_token.length() - 1) {
+      if (last_token.find('\"') == 0) {
+        if (last_token.rfind('\"') == last_token.length() - 1) {
           last_token = last_token.substr(1, last_token.length() - 2);
           value += (!value.empty()) ? "," + last_token : last_token;
           last_token = token;
@@ -324,7 +324,7 @@ bool CommandLine::parse_file(const std::string& file_name) {
     ss >> token;
   }
   if (!last_token.empty()) {
-    if (last_token.find("\"") == 0 && last_token.rfind("\"") == last_token.length() - 1)
+    if (last_token.find('\"') == 0 && last_token.rfind('\"') == last_token.length() - 1)
       last_token = last_token.substr(1, last_token.length() - 2);
     value += (!value.empty()) ? "," + last_token : last_token;
   }
@@ -437,7 +437,7 @@ void CalculateCorrection(bool UseRatioForResponse, double x, double ex, double y
   }
 }
 ///////////////////////////////////////////////////////////////////////
-bool HistoExists(std::vector<std::string> LIST, std::string hname) {
+bool HistoExists(std::vector<std::string> LIST, const std::string& hname) {
   unsigned int i, N;
   bool found(false);
   N = LIST.size();

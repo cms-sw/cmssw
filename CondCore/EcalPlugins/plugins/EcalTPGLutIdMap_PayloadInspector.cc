@@ -51,7 +51,7 @@ namespace {
 
         double row = NbRows - 0.5;
         int columnBase = 0;
-        for (EcalTPGLutIdMap::EcalTPGLutMapItr it = map.begin(); it != map.end(); it++) {
+        for (auto it = map.begin(); it != map.end(); it++) {
           EcalTPGLut ecaltpgLut = it->second;
           uint32_t mapKey = it->first;
 

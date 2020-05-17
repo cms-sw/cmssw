@@ -36,7 +36,7 @@ std::vector<EBDetId> CalibrationCluster::get5x5Id(EBDetId const& maxHitId) {
 
     try {
       //         Xtals5x5.push_back(EBDetId(maxHitId.ieta()+column-2,maxHitId.iphi()+row-2,EBDetId::ETAPHIMODE));
-      Xtals5x5.push_back(EBDetId(curr_eta, curr_phi, EBDetId::ETAPHIMODE));
+      Xtals5x5.emplace_back(curr_eta, curr_phi, EBDetId::ETAPHIMODE);
     } catch (...) {
       std::cout << "Cannot construct 5x5 matrix around EBDetId " << maxHitId << std::endl;
     }
@@ -55,7 +55,7 @@ std::vector<EBDetId> CalibrationCluster::get3x3Id(EBDetId const& maxHitId) {
     unsigned int column = icry % 3;
 
     try {
-      Xtals3x3.push_back(EBDetId(maxHitId.ieta() + column - 1, maxHitId.iphi() + row - 1, EBDetId::ETAPHIMODE));
+      Xtals3x3.emplace_back(maxHitId.ieta() + column - 1, maxHitId.iphi() + row - 1, EBDetId::ETAPHIMODE);
     } catch (...) {
       std::cout << "Cannot construct 3x3 matrix around EBDetId " << maxHitId << std::endl;
     }
@@ -104,7 +104,7 @@ std::vector<float> CalibrationCluster::getEnergyVector(const EBRecHitCollection*
   nXtalsOut = 0;
   for (it = XstalsNxN.begin(); it != XstalsNxN.end(); ++it) {
     if (ReducedMap.find(*it) != ReducedMap.end()) {
-      CalibMap::iterator it2 = ReducedMap.find(*it);
+      auto it2 = ReducedMap.find(*it);
 
       int icry = it2->second;
 

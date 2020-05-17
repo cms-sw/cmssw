@@ -31,7 +31,7 @@ void FWTrackTrackingRecHitProxyBuilder::build(const reco::Track& iData,
                                               const FWViewContext*) {
   const FWGeometry* geom = item()->getGeom();
 
-  for (trackingRecHit_iterator it = iData.recHitsBegin(), itEnd = iData.recHitsEnd(); it != itEnd; ++it) {
+  for (auto it = iData.recHitsBegin(), itEnd = iData.recHitsEnd(); it != itEnd; ++it) {
     TEvePointSet* pointSet = new TEvePointSet;
     setupAddElement(pointSet, &oItemHolder);
 

@@ -159,7 +159,7 @@ public:
 #else
   static bool pushfile(int filenum,
                        std::vector<SiPixelTemplateStore2D>& pixelTemp,
-                       std::string dir = "CalibTracker/SiPixelESProducers/data/");
+                       const std::string& dir = "CalibTracker/SiPixelESProducers/data/");
 
   // Load from the DB (the default in CMSSW):
   static bool pushfile(const SiPixel2DTemplateDBObject& dbobject, std::vector<SiPixelTemplateStore2D>& pixelTemp);
@@ -271,7 +271,7 @@ public:
   }  //!< return the size of the template store (the number of stored IDs
 
 private:
-  bool checkIllegalIndex(const std::string whichMethod, int indMax, int i) {
+  bool checkIllegalIndex(const std::string& whichMethod, int indMax, int i) {
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
     if (i < 0 || i > indMax) {
       throw cms::Exception("DataCorrupt")

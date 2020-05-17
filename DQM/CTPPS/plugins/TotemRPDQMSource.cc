@@ -300,21 +300,21 @@ void TotemRPDQMSource::analyze(edm::Event const &event, edm::EventSetup const &e
   // Plane Plots
 
   // digi profile cumulative
-  for (DetSetVector<TotemRPDigi>::const_iterator it = digi->begin(); it != digi->end(); ++it) {
-    TotemRPDetId detId(it->detId());
+  for (const auto &it : *digi) {
+    TotemRPDetId detId(it.detId());
 
     auto plIt = planePlots.find(detId);
     if (plIt == planePlots.end())
       continue;
     auto &plots = plIt->second;
 
-    for (DetSet<TotemRPDigi>::const_iterator dit = it->begin(); dit != it->end(); ++dit)
+    for (auto dit = it.begin(); dit != it.end(); ++dit)
       plots.digi_profile_cumulative->Fill(dit->stripNumber());
   }
 
   // cluster plots
-  for (DetSetVector<TotemRPCluster>::const_iterator it = digCluster->begin(); it != digCluster->end(); it++) {
-    TotemRPDetId detId(it->detId());
+  for (const auto &it : *digCluster) {
+    TotemRPDetId detId(it.detId());
 
     auto plIt = planePlots.find(detId);
     if (plIt == planePlots.end())
@@ -322,9 +322,9 @@ void TotemRPDQMSource::analyze(edm::Event const &event, edm::EventSetup const &e
     auto &plots = plIt->second;
 
     // hit multiplicity
-    plots.hit_multiplicity->Fill(it->size());
+    plots.hit_multiplicity->Fill(it.size());
 
-    for (DetSet<TotemRPCluster>::const_iterator dit = it->begin(); dit != it->end(); ++dit) {
+    for (auto dit = it.begin(); dit != it.end(); ++dit) {
       // profile cumulative
       plots.cluster_profile_cumulative->Fill(dit->centerStripPosition());
 
@@ -423,19 +423,19 @@ void TotemRPDQMSource::analyze(edm::Event const &event, edm::EventSetup const &e
   }
 
   // plane activity histogram
-  for (std::map<unsigned int, PotPlots>::iterator it = potPlots.begin(); it != potPlots.end(); it++) {
-    it->second.activity->Fill(planes[it->first].size());
-    it->second.activity_u->Fill(planes_u[it->first].size());
-    it->second.activity_v->Fill(planes_v[it->first].size());
+  for (auto &potPlot : potPlots) {
+    potPlot.second.activity->Fill(planes[potPlot.first].size());
+    potPlot.second.activity_u->Fill(planes_u[potPlot.first].size());
+    potPlot.second.activity_v->Fill(planes_v[potPlot.first].size());
 
-    if (planes[it->first].size() >= 6) {
-      it->second.activity_per_bx->Fill(event.bunchCrossing());
-      it->second.activity_per_bx_short->Fill(event.bunchCrossing());
+    if (planes[potPlot.first].size() >= 6) {
+      potPlot.second.activity_per_bx->Fill(event.bunchCrossing());
+      potPlot.second.activity_per_bx_short->Fill(event.bunchCrossing());
     }
   }
 
-  for (DetSetVector<TotemRPCluster>::const_iterator it = digCluster->begin(); it != digCluster->end(); it++) {
-    TotemRPDetId detId(it->detId());
+  for (const auto &it : *digCluster) {
+    TotemRPDetId detId(it.detId());
     unsigned int planeNum = detId.plane();
     CTPPSDetId rpId = detId.rpId();
 
@@ -444,7 +444,7 @@ void TotemRPDQMSource::analyze(edm::Event const &event, edm::EventSetup const &e
       continue;
     auto &plots = plIt->second;
 
-    for (DetSet<TotemRPCluster>::const_iterator dit = it->begin(); dit != it->end(); ++dit)
+    for (auto dit = it.begin(); dit != it.end(); ++dit)
       plots.hit_plane_hist->Fill(planeNum, dit->centerStripPosition());
   }
 

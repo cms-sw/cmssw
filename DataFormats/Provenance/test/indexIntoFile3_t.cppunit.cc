@@ -40,7 +40,7 @@ public:
 
   Skipped skipped_;
 
-  void setUp() {
+  void setUp() override {
     // Make some fake processHistoryID's to work with
     nullPHID = ProcessHistoryID();
 
@@ -64,7 +64,7 @@ public:
     fakePHID3 = ph3.id();
   }
 
-  void tearDown() {}
+  void tearDown() override {}
 
   void testIterEndWithEvent();
   void testOverlappingLumis();
@@ -321,7 +321,7 @@ void TestIndexIntoFile3::testIterEndWithEvent() {
 
   edm::IndexIntoFile::IndexIntoFileItr iter4(
       &indexIntoFile, IndexIntoFile::numericalOrder, IndexIntoFile::kEvent, 0, 3, 1, 3, 4);
-  edm::IndexIntoFile::IndexIntoFileItr iter2(iter4);
+  const edm::IndexIntoFile::IndexIntoFileItr& iter2(iter4);
 
   CPPUNIT_ASSERT(iter2 == iter4);
   CPPUNIT_ASSERT(iter2.indexIntoFile() == &indexIntoFile);

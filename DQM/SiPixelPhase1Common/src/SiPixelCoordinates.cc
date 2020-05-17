@@ -319,7 +319,7 @@ std::pair<int, int> SiPixelCoordinates::pixel_(const SiPixelCluster* cluster) {
 }
 std::pair<int, int> SiPixelCoordinates::pixel_(const SiPixelRecHit* rechit) {
   // Convert RecHit local position to local pixel using Topology
-  const PixelGeomDetUnit* detUnit = static_cast<const PixelGeomDetUnit*>(rechit->detUnit());
+  const auto* detUnit = static_cast<const PixelGeomDetUnit*>(rechit->detUnit());
   const PixelTopology* topo = static_cast<const PixelTopology*>(&detUnit->specificTopology());
   std::pair<float, float> pixel = topo->pixel(rechit->localPosition());
   // We could leave it like this, but it's better to constrain pixel to be on the module
@@ -335,7 +335,7 @@ float SiPixelCoordinates::xcoord_on_module_(const DetId& detid, const std::pair<
   // no special treatment needed here for phase 0 1x8, 1x5 and 1x2 modules either
   // because we do not want to scale coordinates (only shift if needed)
   if (phase_ == 2) {
-    const PixelGeomDetUnit* detUnit = static_cast<const PixelGeomDetUnit*>(tGeom_->idToDetUnit(detid));
+    const auto* detUnit = static_cast<const PixelGeomDetUnit*>(tGeom_->idToDetUnit(detid));
     const PixelTopology* topo = static_cast<const PixelTopology*>(&detUnit->specificTopology());
     nrows = topo->nrows();
   }
@@ -347,7 +347,7 @@ float SiPixelCoordinates::ycoord_on_module_(const DetId& detid, const std::pair<
   int ncols = 416;
   // Leave it hard-coded for phase 0/1, read from geometry for phase 2
   if (phase_ == 2) {
-    const PixelGeomDetUnit* detUnit = static_cast<const PixelGeomDetUnit*>(tGeom_->idToDetUnit(detid));
+    const auto* detUnit = static_cast<const PixelGeomDetUnit*>(tGeom_->idToDetUnit(detid));
     const PixelTopology* topo = static_cast<const PixelTopology*>(&detUnit->specificTopology());
     ncols = topo->ncolumns();
   } else if (phase_ == 0 && isFPix_(detid)) {
@@ -376,7 +376,7 @@ int SiPixelCoordinates::channel(const DetId& detid, const std::pair<int, int>& p
   int rowsperroc = 80, colsperroc = 52;
   if (phase_ == 2) {
     // Can get roc info from Geometry for Phase 2, this will need to be specified when it's final
-    const PixelGeomDetUnit* detUnit = static_cast<const PixelGeomDetUnit*>(tGeom_->idToDetUnit(detid));
+    const auto* detUnit = static_cast<const PixelGeomDetUnit*>(tGeom_->idToDetUnit(detid));
     const PixelTopology* topo = static_cast<const PixelTopology*>(&detUnit->specificTopology());
     rowsperroc = topo->rowsperroc();
     colsperroc = topo->colsperroc();
@@ -447,7 +447,7 @@ int SiPixelCoordinates::roc(const DetId& detid, const std::pair<int, int>& pixel
   int rowsperroc = 80, colsperroc = 52;
   if (phase_ == 2) {
     // Can get roc info from Geometry for Phase 2, this will need to be specified when it's final
-    const PixelGeomDetUnit* detUnit = static_cast<const PixelGeomDetUnit*>(tGeom_->idToDetUnit(detid));
+    const auto* detUnit = static_cast<const PixelGeomDetUnit*>(tGeom_->idToDetUnit(detid));
     const PixelTopology* topo = static_cast<const PixelTopology*>(&detUnit->specificTopology());
     rowsperroc = topo->rowsperroc();
     colsperroc = topo->colsperroc();

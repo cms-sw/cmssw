@@ -66,7 +66,7 @@ namespace gs {
     read_pod(is, &len);
     unsigned compressionCode;
     read_pod(is, &compressionCode);
-    CStringStream::CompressionMode m = static_cast<CStringStream::CompressionMode>(compressionCode);
+    auto m = static_cast<CStringStream::CompressionMode>(compressionCode);
     CStringStream cs(m, -1, 1024U, 1048576U);
     cs.readCompressed(is, compressionCode, len);
     if (!is.good())
@@ -82,7 +82,7 @@ namespace gs {
     read_pod(is, &len);
     unsigned compressionCode;
     read_pod(is, &compressionCode);
-    CStringStream::CompressionMode m = static_cast<CStringStream::CompressionMode>(compressionCode);
+    auto m = static_cast<CStringStream::CompressionMode>(compressionCode);
     CStringStream cs(m, -1, 1024U, 1048576U);
     cs.readCompressed(is, compressionCode, len);
     if (!is.good())

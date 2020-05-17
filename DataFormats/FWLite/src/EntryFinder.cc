@@ -63,7 +63,7 @@ namespace fwlite {
         ret = i.entry();
       }
     } else {
-      edm::FileIndex::const_iterator i = fileIndex_.findEventPosition(run, lumi, event);
+      auto i = fileIndex_.findEventPosition(run, lumi, event);
       if (fileIndex_.end() != i) {
         ret = i->entry_;
       }
@@ -80,7 +80,7 @@ namespace fwlite {
         ret = i.entry();
       }
     } else {
-      edm::FileIndex::const_iterator i = fileIndex_.findLumiPosition(run, lumi);
+      auto i = fileIndex_.findLumiPosition(run, lumi);
       if (fileIndex_.end() != i) {
         ret = i->entry_;
       }
@@ -96,7 +96,7 @@ namespace fwlite {
         ret = i.entry();
       }
     } else {
-      edm::FileIndex::const_iterator i = fileIndex_.findRunPosition(run);
+      auto i = fileIndex_.findRunPosition(run);
       if (fileIndex_.end() != i) {
         ret = i->entry_;
       }

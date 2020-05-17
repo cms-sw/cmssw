@@ -46,7 +46,7 @@ public:
   const MeasurementEstimator* getEstimator() const { return theEstimator; }
   const Propagator* getPropagator() const { return thePropagator; }
 
-  void Debug(const std::vector<TrajectoryMeasurement> TM) const;
+  void Debug(const std::vector<TrajectoryMeasurement>& TM) const;
 
 private:
   //TransientTrackingRecHit::ConstRecHitContainer buildMultiRecHits(const std::vector<TrajectoryMeasurementGroup>& measgroup) const;

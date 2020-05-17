@@ -26,7 +26,7 @@ L1ValidatorHists::L1ValidatorHists() {
 }
 L1ValidatorHists::~L1ValidatorHists() {}
 
-void L1ValidatorHists::Book(DQMStore::IBooker &iBooker, std::string dirname) {
+void L1ValidatorHists::Book(DQMStore::IBooker &iBooker, const std::string &dirname) {
   NEvents = 0;
 
   float ptbins[14] = {0, 5, 10, 15, 20, 25, 30, 35, 40, 50, 60, 80, 120, 160};

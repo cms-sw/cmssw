@@ -15,12 +15,12 @@
 class SiStripTrivialDigiSource : public edm::EDProducer {
 public:
   SiStripTrivialDigiSource(const edm::ParameterSet&);
-  ~SiStripTrivialDigiSource();
+  ~SiStripTrivialDigiSource() override;
 
-  virtual void beginJob() { ; }
-  virtual void endJob() { ; }
+  void beginJob() override { ; }
+  void endJob() override { ; }
 
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
   float meanOcc_;

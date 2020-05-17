@@ -46,7 +46,7 @@ void go() {
   Rotation r3 = r2 * r1.transposed();
   SRotation sr3(r3);
 
-  GlobalPoint pos2(f2.position());
+  const GlobalPoint& pos2(f2.position());
   LocalPoint lp3 = f1.toLocal(pos2);
   Frame f3(GlobalPoint(lp3.basicVector()), r3);
   cout << "f3.position() " << f3.position() << endl;

@@ -8,7 +8,7 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include <iostream>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 #include <iomanip>
 
 // -----------------------------------------------------------------------------
@@ -29,15 +29,15 @@ void testSiStripGainBuilderFromDb::beginRun(const edm::Run& run, const edm::Even
   std::stringstream ss;
   ss << "[testSiStripGainBuilderFromDb::" << __func__ << "]"
      << " Values: " << std::endl;
-  std::vector<uint32_t>::const_iterator ii = ids.begin();
-  std::vector<uint32_t>::const_iterator jj = ids.end();
+  auto ii = ids.begin();
+  auto jj = ids.end();
   for (; ii != jj; ++ii) {
     SiStripApvGain::Range range = gain->getRange(*ii);
     if (range.first == range.second) {
       continue;
     }
-    std::vector<float>::const_iterator iii = range.first;
-    std::vector<float>::const_iterator jjj = range.second;
+    auto iii = range.first;
+    auto jjj = range.second;
     uint16_t temp = 0;
     ss << " DetId: " << *ii << " Gain: ";
     for (; iii != jjj; ++iii) {
@@ -61,8 +61,8 @@ void testSiStripGainBuilderFromDb::beginRun(const edm::Run& run, const edm::Even
       << " Ndets             : " << ndets << std::endl
       << " Napvs (total)     : " << napvs << std::endl
       << " Npavs (breakdown) : ";
-  std::map<uint16_t, uint16_t>::const_iterator iiii = apvs.begin();
-  std::map<uint16_t, uint16_t>::const_iterator jjjj = apvs.end();
+  auto iiii = apvs.begin();
+  auto jjjj = apvs.end();
   for (; iiii != jjjj; ++iiii) {
     sss << iiii->first << "/" << iiii->second << " ";
   }

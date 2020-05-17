@@ -244,7 +244,7 @@ namespace ecaldqm {
   }
 
   uint32_t StatusManager::getStatus(uint32_t _key) const {
-    std::map<uint32_t, uint32_t>::const_iterator itr(status_.find(_key));
+    auto itr(status_.find(_key));
     if (itr == status_.end())
       return 0;
     return itr->second;

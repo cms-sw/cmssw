@@ -106,7 +106,7 @@ public:
 protected:
   // Comparison function must be implemented
   inline bool isEqual(const AbsOOTPileupCorrection& otherBase) const override {
-    const OOTPileupCorrData& r = static_cast<const OOTPileupCorrData&>(otherBase);
+    const auto& r = static_cast<const OOTPileupCorrData&>(otherBase);
     return corrs_ == r.corrs_ && iEtaLimits_ == r.iEtaLimits_ && chargeLimit_ == r.chargeLimit_ &&
            requireFirstTS_ == r.requireFirstTS_ && requireNTS_ == r.requireNTS_ && readjustTiming_ == r.readjustTiming_;
   }

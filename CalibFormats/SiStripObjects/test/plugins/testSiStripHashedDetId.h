@@ -13,11 +13,11 @@
 class testSiStripHashedDetId : public edm::EDAnalyzer {
 public:
   testSiStripHashedDetId(const edm::ParameterSet &);
-  ~testSiStripHashedDetId();
+  ~testSiStripHashedDetId() override;
 
   void initialize(edm::EventSetup const &);
-  void analyze(const edm::Event &, const edm::EventSetup &);
-  void endJob() { ; }
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void endJob() override { ; }
 };
 
 #endif  // CalibFormats_SiStripObjects_test_SiStripHashedDetId_H

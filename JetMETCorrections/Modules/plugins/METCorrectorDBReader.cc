@@ -69,28 +69,27 @@ void METCorrectorDBReader::analyze(const edm::Event& iEvent, const edm::EventSet
   // save level to keys for each METParameter in METParameter collection
   MEtXYcorParaColl->validKeys(keys);
   //MEtXYcorParaColl->validSections( sections );
-  for (std::vector<MEtXYcorrectParametersCollection::key_type>::const_iterator ikey = keys.begin(); ikey != keys.end();
-       ++ikey) {
-    std::string sectionName = MEtXYcorParaColl->findLabel(*ikey);
-    edm::LogInfo("METCorrectorDBReader") << "Processing key = " << *ikey << "object label: " << sectionName;
-    MEtXYcorrectParameters const& MEtXYcorParams = (*MEtXYcorParaColl)[*ikey];
+  for (int key : keys) {
+    std::string sectionName = MEtXYcorParaColl->findLabel(key);
+    edm::LogInfo("METCorrectorDBReader") << "Processing key = " << key << "object label: " << sectionName;
+    MEtXYcorrectParameters const& MEtXYcorParams = (*MEtXYcorParaColl)[key];
 
     if (mCreateTextFile) {
       std::string outFileName(mGlobalTag + "_Shift");
       std::string shiftType("MC");
 
-      if (MEtXYcorParaColl->isShiftMC(*ikey)) {
+      if (MEtXYcorParaColl->isShiftMC(key)) {
         shiftType = "MC";
-      } else if (MEtXYcorParaColl->isShiftDY(*ikey)) {
+      } else if (MEtXYcorParaColl->isShiftDY(key)) {
         shiftType = "DY";
-      } else if (MEtXYcorParaColl->isShiftTTJets(*ikey)) {
+      } else if (MEtXYcorParaColl->isShiftTTJets(key)) {
         shiftType = "TTJets";
-      } else if (MEtXYcorParaColl->isShiftWJets(*ikey)) {
+      } else if (MEtXYcorParaColl->isShiftWJets(key)) {
         shiftType = "WTJets";
-      } else if (MEtXYcorParaColl->isShiftData(*ikey)) {
+      } else if (MEtXYcorParaColl->isShiftData(key)) {
         shiftType = "Data";
       } else {
-        throw cms::Exception("InvalidKey") << "************** Can't interpret the stored key: " << *ikey << std::endl;
+        throw cms::Exception("InvalidKey") << "************** Can't interpret the stored key: " << key << std::endl;
       }
       outFileName += shiftType + "_" + mPayloadName + ".txt";
       edm::LogInfo("METCorrectorDBReader") << "outFileName: " << outFileName;
@@ -98,7 +97,7 @@ void METCorrectorDBReader::analyze(const edm::Event& iEvent, const edm::EventSet
     }
 
     if (mPrintScreen) {
-      edm::LogInfo("METCorrectorDBReader") << "Level: " << MEtXYcorParaColl->levelName(*ikey);
+      edm::LogInfo("METCorrectorDBReader") << "Level: " << MEtXYcorParaColl->levelName(key);
       MEtXYcorParams.printScreen(sectionName);
     }
   }

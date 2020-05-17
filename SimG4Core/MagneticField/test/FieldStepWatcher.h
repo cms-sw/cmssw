@@ -38,7 +38,7 @@ private:
   void update(const EndOfEvent *) override;
   void update(const G4Step *) override;
   void findTouch(G4VPhysicalVolume *, int);
-  int findName(std::string);
+  int findName(const std::string &);
 
 private:
   int level;

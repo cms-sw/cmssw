@@ -137,7 +137,7 @@ void FWGUISubviewArea::destroy() { goingToBeDestroyed_(this); }
 void FWGUISubviewArea::undock() {
   TEveWindow* ew = m_frame->GetEveWindow();
   ew->UndockWindow();
-  TEveCompositeFrameInMainFrame* emf = dynamic_cast<TEveCompositeFrameInMainFrame*>(ew->GetEveFrame());
+  auto* emf = dynamic_cast<TEveCompositeFrameInMainFrame*>(ew->GetEveFrame());
   if (emf) {
     const TGMainFrame* mf = dynamic_cast<const TGMainFrame*>(emf->GetParent());
     if (mf)
@@ -275,9 +275,9 @@ void FWGUISubviewArea::setInfoButton(bool downp) { m_infoButton->SetState(downp 
 FWGUISubviewArea* FWGUISubviewArea::getToolBarFromWindow(TEveWindow* w) {
   // horizontal frame
   TGFrameElement* el = (TGFrameElement*)w->GetEveFrame()->GetList()->First();
-  TGCompositeFrame* hf = (TGCompositeFrame*)el->fFrame;
+  auto* hf = (TGCompositeFrame*)el->fFrame;
   // subview last in the horizontal frame
   el = (TGFrameElement*)hf->GetList()->Last();
-  FWGUISubviewArea* ar = dynamic_cast<FWGUISubviewArea*>(el->fFrame);
+  auto* ar = dynamic_cast<FWGUISubviewArea*>(el->fFrame);
   return ar;
 }

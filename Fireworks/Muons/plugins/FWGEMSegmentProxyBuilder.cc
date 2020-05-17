@@ -43,7 +43,7 @@ void FWGEMSegmentProxyBuilder::buildViewType(const GEMSegment& iData,
     return;
   }
 
-  TEveStraightLineSet* segmentSet = new TEveStraightLineSet();
+  auto* segmentSet = new TEveStraightLineSet();
   // FIXME: This should be set elsewhere.
   segmentSet->SetLineWidth(3);
   segmentSet->SetMarkerColor(item()->defaultDisplayProperties().color());

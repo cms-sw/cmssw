@@ -27,6 +27,8 @@
 
 #include <iostream>
 #include <fstream>
+#include <memory>
+
 #include <sstream>
 #include <string>
 
@@ -169,7 +171,7 @@ void HcalDigiToRawuHTR::produce(edm::StreamID id, edm::Event& iEvent, const edm:
   // loop over each digi and allocate memory for each
   if (hfDigiCollection.isValid()) {
     const HFDigiCollection& qie8hfdc = *(hfDigiCollection);
-    for (HFDigiCollection::const_iterator qiedf = qie8hfdc.begin(); qiedf != qie8hfdc.end(); qiedf++) {
+    for (auto qiedf = qie8hfdc.begin(); qiedf != qie8hfdc.end(); qiedf++) {
       DetId detid = qiedf->id();
 
       HcalElectronicsId eid(readoutMap->lookup(detid));
@@ -190,7 +192,7 @@ void HcalDigiToRawuHTR::produce(edm::StreamID id, edm::Event& iEvent, const edm:
   // loop over each digi and allocate memory for each
   if (hbheDigiCollection.isValid()) {
     const HBHEDigiCollection& qie8hbhedc = *(hbheDigiCollection);
-    for (HBHEDigiCollection::const_iterator qiedf = qie8hbhedc.begin(); qiedf != qie8hbhedc.end(); qiedf++) {
+    for (auto qiedf = qie8hbhedc.begin(); qiedf != qie8hbhedc.end(); qiedf++) {
       DetId detid = qiedf->id();
 
       HcalElectronicsId eid(readoutMap->lookup(detid));
@@ -211,7 +213,7 @@ void HcalDigiToRawuHTR::produce(edm::StreamID id, edm::Event& iEvent, const edm:
   // loop over each digi and allocate memory for each
   if (tpDigiCollection.isValid()) {
     const HcalTrigPrimDigiCollection& qietpdc = *(tpDigiCollection);
-    for (HcalTrigPrimDigiCollection::const_iterator qiedf = qietpdc.begin(); qiedf != qietpdc.end(); qiedf++) {
+    for (auto qiedf = qietpdc.begin(); qiedf != qietpdc.end(); qiedf++) {
       DetId detid = qiedf->id();
       HcalElectronicsId eid(readoutMap->lookupTrigger(detid));
 
@@ -236,7 +238,7 @@ void HcalDigiToRawuHTR::produce(edm::StreamID id, edm::Event& iEvent, const edm:
   // -----------------------------------------------------
   // loop over each uHTR and format data
   int idxuhtr = -1;
-  for (UHTRpacker::UHTRMap::iterator uhtr = uhtrs.uhtrs.begin(); uhtr != uhtrs.uhtrs.end(); ++uhtr) {
+  for (auto uhtr = uhtrs.uhtrs.begin(); uhtr != uhtrs.uhtrs.end(); ++uhtr) {
     idxuhtr++;
 
     uint64_t crateId = (uhtr->first) & 0xFF;
@@ -246,8 +248,8 @@ void HcalDigiToRawuHTR::produce(edm::StreamID id, edm::Event& iEvent, const edm:
     int fedId = FEDNumbering::MINHCALuTCAFEDID + crateId;
     if (fedMap.find(fedId) == fedMap.end()) {
       /* QUESTION: where should the orbit number come from? */
-      fedMap[fedId] = std::unique_ptr<HCalFED>(
-          new HCalFED(fedId, iEvent.id().event(), iEvent.orbitNumber(), iEvent.bunchCrossing()));
+      fedMap[fedId] =
+          std::make_unique<HCalFED>(fedId, iEvent.id().event(), iEvent.orbitNumber(), iEvent.bunchCrossing());
     }
     fedMap[fedId]->addUHTR(uhtr->second, crateId, slotId);
   }  // end loop over uhtr containers
@@ -257,11 +259,11 @@ void HcalDigiToRawuHTR::produce(edm::StreamID id, edm::Event& iEvent, const edm:
            putting together the FEDRawDataCollection
      ------------------------------------------------------
      ------------------------------------------------------ */
-  for (map<int, unique_ptr<HCalFED> >::iterator fed = fedMap.begin(); fed != fedMap.end(); ++fed) {
-    int fedId = fed->first;
+  for (auto& fed : fedMap) {
+    int fedId = fed.first;
 
     auto& rawData = fed_buffers->FEDData(fedId);
-    fed->second->formatFEDdata(rawData);
+    fed.second->formatFEDdata(rawData);
 
     FEDHeader hcalFEDHeader(rawData.data());
     hcalFEDHeader.set(rawData.data(), 1, iEvent.id().event(), iEvent.bunchCrossing(), fedId);

@@ -79,7 +79,7 @@ DDTranslation calc(const DDGeoHistory& aHist) {
 
 void debugHistory(const DDGeoHistory& h) {
   static constexpr char const c = 'a';
-  DDGeoHistory::const_iterator it = h.begin();
+  auto it = h.begin();
   std::string fname("hdebug_");
   std::ofstream file((fname + c).c_str());
   std::vector<DDRotationMatrix> rmv;
@@ -171,8 +171,8 @@ struct NodeComp {
 using DDNodes = std::vector<DDExpandedNode>;
 
 void dump_nodes(DDNodes& nodes, int max = 100) {
-  DDNodes::iterator it = nodes.begin();
-  DDNodes::iterator ed = nodes.end();
+  auto it = nodes.begin();
+  auto ed = nodes.end();
 
   sort(it, ed, NodeComp());
   int nodeCount = 1;
@@ -326,7 +326,7 @@ void tutorial() {
   while (moreQueries) {
     std::vector<DDSpecificsFilter*> vecF;
     while (moreFilters) {
-      DDSpecificsFilter* f = new DDSpecificsFilter();
+      auto* f = new DDSpecificsFilter();
       std::string flog;
       std::string asString;
       std::cout << "filter LogOp = ";

@@ -35,25 +35,25 @@ PixelMaxVsf::PixelMaxVsf(std::vector<std::vector<std::string> > &tableMat) : Pix
   MAXVSF				    NOT NULL NUMBER(38)
   */
 
-  colNames.push_back("CONFIG_KEY");
-  colNames.push_back("KEY_TYPE");
-  colNames.push_back("KEY_ALIAS");
-  colNames.push_back("VERSION");
-  colNames.push_back("KIND_OF_COND");
-  colNames.push_back("ROC_NAME");
-  colNames.push_back("MAXVSF");
+  colNames.emplace_back("CONFIG_KEY");
+  colNames.emplace_back("KEY_TYPE");
+  colNames.emplace_back("KEY_ALIAS");
+  colNames.emplace_back("VERSION");
+  colNames.emplace_back("KIND_OF_COND");
+  colNames.emplace_back("ROC_NAME");
+  colNames.emplace_back("MAXVSF");
 
   for (unsigned int c = 0; c < tableMat[0].size(); c++) {
-    for (unsigned int n = 0; n < colNames.size(); n++) {
-      if (tableMat[0][c] == colNames[n]) {
-        colM[colNames[n]] = c;
+    for (const auto &colName : colNames) {
+      if (tableMat[0][c] == colName) {
+        colM[colName] = c;
         break;
       }
     }
   }  //end for
-  for (unsigned int n = 0; n < colNames.size(); n++) {
-    if (colM.find(colNames[n]) == colM.end()) {
-      std::cerr << __LINE__ << "]\t" << mthn << "Couldn't find in the database the column with name " << colNames[n]
+  for (const auto &colName : colNames) {
+    if (colM.find(colName) == colM.end()) {
+      std::cerr << __LINE__ << "]\t" << mthn << "Couldn't find in the database the column with name " << colName
                 << std::endl;
       assert(0);
     }
@@ -110,7 +110,7 @@ PixelMaxVsf::PixelMaxVsf(std::string filename) : PixelConfigBase("", "", "") {
 }
 
 bool PixelMaxVsf::getVsf(PixelROCName roc, unsigned int &Vsf) const {
-  std::map<PixelROCName, unsigned int>::const_iterator itr = rocs_.find(roc);
+  auto itr = rocs_.find(roc);
 
   if (itr == rocs_.end()) {
     return false;
@@ -135,7 +135,7 @@ void PixelMaxVsf::writeASCII(std::string dir) const {
     exit(1);
   }
 
-  std::map<PixelROCName, unsigned int>::const_iterator irocs = rocs_.begin();
+  auto irocs = rocs_.begin();
   for (; irocs != rocs_.end(); ++irocs) {
     out << (irocs->first).rocname() << " " << irocs->second << endl;
   }
@@ -190,7 +190,7 @@ void PixelMaxVsf::writeXMLHeader(pos::PixelConfigKey key,
 void PixelMaxVsf::writeXML(std::ofstream *outstream, std::ofstream *out1stream, std::ofstream *out2stream) const {
   std::string mthn = "[PixelMaxVsf::writeXML()]\t\t\t    ";
 
-  std::map<PixelROCName, unsigned int>::const_iterator irocs = rocs_.begin();
+  auto irocs = rocs_.begin();
   for (; irocs != rocs_.end(); ++irocs) {
     *outstream << "  <DATA>" << std::endl;
     *outstream << "   <ROC_NAME>" << (irocs->first).rocname() << "</ROC_NAME>" << std::endl;

@@ -20,9 +20,9 @@ class TransientTrackBuilderTest : public edm::EDAnalyzer {
 public:
   TransientTrackBuilderTest(const edm::ParameterSet& pset) { conf_ = pset; }
 
-  ~TransientTrackBuilderTest() {}
+  ~TransientTrackBuilderTest() override {}
 
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) {
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override {
     using namespace std;
 
     cout << " Asking for the TransientTrackBuilder with name TransientTrackBuilder\n";

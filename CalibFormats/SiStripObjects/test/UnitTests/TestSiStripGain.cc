@@ -19,7 +19,7 @@
 class TestSiStripGain : public CppUnit::TestFixture {
 public:
   TestSiStripGain() {}
-  void setUp() {
+  void setUp() override {
     detId = 436282904;
 
     apvGain1 = new SiStripApvGain;
@@ -39,7 +39,7 @@ public:
     fillApvGain(apvGain2, detId, theSiStripVector);
   }
 
-  void tearDown() {
+  void tearDown() override {
     delete apvGain1;
     delete apvGain2;
   }
@@ -104,7 +104,7 @@ public:
     std::vector<float> normVector;
     normVector.push_back(norm);
     std::vector<std::pair<std::string, std::string>> recordLabelPairVector;
-    recordLabelPairVector.push_back(std::make_pair(rcdName, labelName));
+    recordLabelPairVector.emplace_back(rcdName, labelName);
     checkTag(gain, normVector, 1, recordLabelPairVector);
   }
   void checkTag(const SiStripGain &gain,

@@ -104,21 +104,20 @@ OwnVector<DTRecSegment4D> DTRefitAndCombineReco4D::reconstruct() {
 
   // Now I want to build the concrete DTRecSegment4D.
   if (!resultPhi.empty()) {
-    for (vector<DTChamberRecSegment2D>::const_iterator phi = resultPhi.begin(); phi != resultPhi.end(); ++phi) {
+    for (const auto& phi : resultPhi) {
       if (hasZed) {
         // Create all the 4D-segment combining the Z view with the Phi one
         // loop over the Z segments
-        for (vector<DTSLRecSegment2D>::const_iterator zed = theSegments2DTheta.begin(); zed != theSegments2DTheta.end();
-             ++zed) {
+        for (const auto& zed : theSegments2DTheta) {
           //>> Important!!
-          DTSuperLayerId ZedSegSLId(zed->geographicalId().rawId());
+          DTSuperLayerId ZedSegSLId(zed.geographicalId().rawId());
 
           const LocalPoint posZInCh =
-              theChamber->toLocal(theChamber->superLayer(ZedSegSLId)->toGlobal(zed->localPosition()));
+              theChamber->toLocal(theChamber->superLayer(ZedSegSLId)->toGlobal(zed.localPosition()));
           const LocalVector dirZInCh =
-              theChamber->toLocal(theChamber->superLayer(ZedSegSLId)->toGlobal(zed->localDirection()));
+              theChamber->toLocal(theChamber->superLayer(ZedSegSLId)->toGlobal(zed.localDirection()));
 
-          DTRecSegment4D* newSeg = new DTRecSegment4D(*phi, *zed, posZInCh, dirZInCh);
+          DTRecSegment4D* newSeg = new DTRecSegment4D(phi, zed, posZInCh, dirZInCh);
           //<<
 
           /// 4d segment: I have the pos along the wire => further update!
@@ -129,7 +128,7 @@ OwnVector<DTRecSegment4D> DTRefitAndCombineReco4D::reconstruct() {
         }
       } else {
         // Only phi
-        DTRecSegment4D* newSeg = new DTRecSegment4D(*phi);
+        DTRecSegment4D* newSeg = new DTRecSegment4D(phi);
         if (debug)
           cout << "Created a 4D segment using only the 2D Phi segment" << endl;
         result.push_back(newSeg);
@@ -138,17 +137,16 @@ OwnVector<DTRecSegment4D> DTRefitAndCombineReco4D::reconstruct() {
   } else {
     // DTRecSegment4D from zed projection only (unlikely, not so useful, but...)
     if (hasZed) {
-      for (vector<DTSLRecSegment2D>::const_iterator zed = theSegments2DTheta.begin(); zed != theSegments2DTheta.end();
-           ++zed) {
+      for (const auto& zed : theSegments2DTheta) {
         // Important!!
-        DTSuperLayerId ZedSegSLId(zed->geographicalId().rawId());
+        DTSuperLayerId ZedSegSLId(zed.geographicalId().rawId());
 
         const LocalPoint posZInCh =
-            theChamber->toLocal(theChamber->superLayer(ZedSegSLId)->toGlobal(zed->localPosition()));
+            theChamber->toLocal(theChamber->superLayer(ZedSegSLId)->toGlobal(zed.localPosition()));
         const LocalVector dirZInCh =
-            theChamber->toLocal(theChamber->superLayer(ZedSegSLId)->toGlobal(zed->localDirection()));
+            theChamber->toLocal(theChamber->superLayer(ZedSegSLId)->toGlobal(zed.localDirection()));
 
-        DTRecSegment4D* newSeg = new DTRecSegment4D(*zed, posZInCh, dirZInCh);
+        DTRecSegment4D* newSeg = new DTRecSegment4D(zed, posZInCh, dirZInCh);
         //<<
 
         if (debug)
@@ -165,23 +163,19 @@ vector<DTChamberRecSegment2D> DTRefitAndCombineReco4D::refitSuperSegments() {
   vector<DTChamberRecSegment2D> result;
 
   //double-loop over all the DTSLRecSegment2D in order to make all the possible pairs
-  for (vector<DTSLRecSegment2D>::const_iterator segment2DPhi1 = theSegments2DPhi1.begin();
-       segment2DPhi1 != theSegments2DPhi1.end();
-       ++segment2DPhi1) {
-    for (vector<DTSLRecSegment2D>::const_iterator segment2DPhi2 = theSegments2DPhi2.begin();
-         segment2DPhi2 != theSegments2DPhi2.end();
-         ++segment2DPhi2) {
+  for (const auto& segment2DPhi1 : theSegments2DPhi1) {
+    for (const auto& segment2DPhi2 : theSegments2DPhi2) {
       // check the id
-      if (segment2DPhi1->chamberId() != segment2DPhi2->chamberId())
+      if (segment2DPhi1.chamberId() != segment2DPhi2.chamberId())
         throw cms::Exception("refitSuperSegments") << "he phi segments have different chamber id" << std::endl;
 
       // create a super phi starting from 2 phi
-      vector<DTRecHit1D> recHitsSeg2DPhi1 = segment2DPhi1->specificRecHits();
-      vector<DTRecHit1D> recHitsSeg2DPhi2 = segment2DPhi2->specificRecHits();
+      vector<DTRecHit1D> recHitsSeg2DPhi1 = segment2DPhi1.specificRecHits();
+      vector<DTRecHit1D> recHitsSeg2DPhi2 = segment2DPhi2.specificRecHits();
       // copy the recHitsSeg2DPhi2 in the recHitsSeg2DPhi1 container
       copy(recHitsSeg2DPhi2.begin(), recHitsSeg2DPhi2.end(), back_inserter(recHitsSeg2DPhi1));
 
-      const DTChamberId chId = segment2DPhi1->chamberId();
+      const DTChamberId chId = segment2DPhi1.chamberId();
 
       // create the super phi
       DTChamberRecSegment2D superPhi(chId, recHitsSeg2DPhi1);

@@ -1,4 +1,6 @@
 #define CATCH_CONFIG_MAIN
+#include <memory>
+
 #include "catch.hpp"
 
 #include "FWCore/ParameterSetReader/interface/ParameterSetReader.h"
@@ -22,7 +24,7 @@ process.CUDAService = cms.Service('CUDAService')
     std::unique_ptr<edm::ParameterSet> params;
     edm::makeParameterSets(config, params);
     edm::ServiceToken tempToken(edm::ServiceRegistry::createServicesFromConfig(std::move(params)));
-    operate_.reset(new edm::ServiceRegistry::Operate(tempToken));
+    operate_ = std::make_unique<edm::ServiceRegistry::Operate>(tempToken);
   }
 
 private:

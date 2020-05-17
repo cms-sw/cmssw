@@ -187,7 +187,7 @@ void SiStripHistoPlotter::fillNamedImageBuffer(TCanvas* c1, const std::string& n
 // -- Check if the image exists
 //
 bool SiStripHistoPlotter::hasNamedImage(const std::string& name) {
-  std::map<std::string, std::string>::const_iterator cPos = namedPictureBuffer_.find(name);
+  auto cPos = namedPictureBuffer_.find(name);
   if (cPos == namedPictureBuffer_.end()) {
     return false;
   } else
@@ -289,8 +289,8 @@ void SiStripHistoPlotter::createCondDBPlots(DQMStore* dqm_store) {
   if (!hasNamedImage(name))
     createDummyImage(name);
 
-  for (std::vector<PlotParameter>::iterator it = condDBPlotList_.begin(); it != condDBPlotList_.end(); it++) {
-    makeCondDBPlots(dqm_store, (*it));
+  for (auto& it : condDBPlotList_) {
+    makeCondDBPlots(dqm_store, it);
   }
   condDBPlotList_.clear();
 }
@@ -307,13 +307,12 @@ void SiStripHistoPlotter::makeCondDBPlots(DQMStore* dqm_store, const PlotParamet
   std::string tag;
   std::vector<MonitorElement*> all_mes = dqm_store->getContents(par.Path);
 
-  for (std::vector<std::string>::const_iterator ih = htypes.begin(); ih != htypes.end(); ih++) {
-    std::string type = (*ih);
+  for (const auto& htype : htypes) {
+    std::string type = htype;
     if (type.empty())
       continue;
     std::string tag = par.Path + "/";
-    for (std::vector<MonitorElement*>::const_iterator it = all_mes.begin(); it != all_mes.end(); it++) {
-      MonitorElement* me = (*it);
+    for (auto me : all_mes) {
       if (!me)
         continue;
       std::string hname = me->getName();

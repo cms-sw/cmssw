@@ -107,7 +107,7 @@ void DaqScopeModeHistosUsingDb::update(SiStripConfigDb::FedDescriptionsRange fed
           conn.fecCrate(), conn.fecSlot(), conn.fecRing(), conn.ccuAddr(), conn.ccuChan(), conn.lldChannel());
 
       // Locate appropriate analysis object
-      Analyses::const_iterator iter = data(allowSelectiveUpload_).find(fec_key.key());
+      auto iter = data(allowSelectiveUpload_).find(fec_key.key());
 
       if (iter != data(allowSelectiveUpload_).end()) {
         // Check if analysis is valid
@@ -122,7 +122,7 @@ void DaqScopeModeHistosUsingDb::update(SiStripConfigDb::FedDescriptionsRange fed
           continue;
         }
 
-        DaqScopeModeAnalysis* anal = dynamic_cast<DaqScopeModeAnalysis*>(iter->second);
+        auto* anal = dynamic_cast<DaqScopeModeAnalysis*>(iter->second);
         if (!anal) {
           edm::LogError(mlDqmClient_) << "[DaqScopeModeHistosUsingDb::" << __func__ << "]"
                                       << " NULL pointer to analysis object!";
@@ -263,7 +263,7 @@ void DaqScopeModeHistosUsingDb::update(SiStripConfigDb::FedDescriptionsRange fed
 
 // -----------------------------------------------------------------------------
 void DaqScopeModeHistosUsingDb::create(SiStripConfigDb::AnalysisDescriptionsV& desc, Analysis analysis) {
-  DaqScopeModeAnalysis* anal = dynamic_cast<DaqScopeModeAnalysis*>(analysis->second);
+  auto* anal = dynamic_cast<DaqScopeModeAnalysis*>(analysis->second);
   if (!anal) {
     return;
   }
@@ -306,8 +306,8 @@ void DaqScopeModeHistosUsingDb::create(SiStripConfigDb::AnalysisDescriptionsV& d
     // Add comments
     typedef std::vector<std::string> Strings;
     Strings errors = anal->getErrorCodes();
-    Strings::const_iterator istr = errors.begin();
-    Strings::const_iterator jstr = errors.end();
+    auto istr = errors.begin();
+    auto jstr = errors.end();
     for (; istr != jstr; ++istr) {
       peds_tmp->addComments(*istr);
     }

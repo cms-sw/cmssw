@@ -31,7 +31,7 @@
 
 PrintMaterialBudgetInfo::PrintMaterialBudgetInfo(const edm::ParameterSet& p) {
   name = p.getUntrackedParameter<std::string>("Name", "*");
-  nchar = name.find("*");
+  nchar = name.find('*');
   name.assign(name, 0, nchar);
   std::cout << "PrintMaterialBudget selected volume " << name << std::endl;
   volumeFound = false;
@@ -63,7 +63,7 @@ void PrintMaterialBudgetInfo::update(const BeginOfRun* run) {
   if (elementNames.empty() && elementTotalWeight.empty() && elementWeightFraction.empty()) {
     for (unsigned int iElement = 0; iElement < G4Element::GetNumberOfElements();
          iElement++) {  // first element in table is 0
-      elementNames.push_back("rr");
+      elementNames.emplace_back("rr");
       elementTotalWeight.push_back(0);
       elementWeightFraction.push_back(0);
     }
@@ -243,8 +243,8 @@ void PrintMaterialBudgetInfo::dumpElementMassFraction(std::ostream& elementOut) 
   // calculate mass fraction
   double totalWeight = 0.0;
   double totalFraction = 0.0;
-  for (unsigned int iElement = 0; iElement < (unsigned int)elementTotalWeight.size(); iElement++) {
-    totalWeight += elementTotalWeight[iElement];
+  for (double iElement : elementTotalWeight) {
+    totalWeight += iElement;
   }
   // calculate element mass fractions
   for (unsigned int iElement = 0; iElement < (unsigned int)elementTotalWeight.size(); iElement++) {
@@ -274,7 +274,7 @@ void PrintMaterialBudgetInfo::dumpElementMassFraction(std::ostream& elementOut) 
              << totalFraction << std::endl;
 }
 
-std::string PrintMaterialBudgetInfo::stringLaTeXUnderscore(std::string stringname) {
+std::string PrintMaterialBudgetInfo::stringLaTeXUnderscore(const std::string& stringname) {
   // To replace '\' with '\_' to compile LaTeX output
   std::string stringoutput;
 
@@ -289,7 +289,7 @@ std::string PrintMaterialBudgetInfo::stringLaTeXUnderscore(std::string stringnam
   return stringoutput;
 }
 
-std::string PrintMaterialBudgetInfo::stringLaTeXSuperscript(std::string stringname) {
+std::string PrintMaterialBudgetInfo::stringLaTeXSuperscript(const std::string& stringname) {
   // To replace 'm3' with 'm$^3$' to compile LaTeX output
   std::string stringoutput = stringname.substr(0, 1);
 

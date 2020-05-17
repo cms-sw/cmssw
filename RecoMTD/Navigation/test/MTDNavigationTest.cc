@@ -24,9 +24,9 @@
 class MTDNavigationTest : public edm::EDAnalyzer {
 public:
   explicit MTDNavigationTest(const edm::ParameterSet&);
-  ~MTDNavigationTest();
+  ~MTDNavigationTest() override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
 };
@@ -54,7 +54,7 @@ void MTDNavigationTest::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   if (testMuon) {
     MTDNavigationSchool school(mm);
-    MTDNavigationPrinter* printer = new MTDNavigationPrinter(mm, school);
+    auto* printer = new MTDNavigationPrinter(mm, school);
     delete printer;
   }
   /*

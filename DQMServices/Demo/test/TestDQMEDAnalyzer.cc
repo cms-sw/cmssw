@@ -8,7 +8,7 @@
 template <typename BOOKERLIKE, typename ME, bool DOLUMI = false>
 class BookerFiller {
 public:
-  BookerFiller(std::string folder, int howmany) {
+  BookerFiller(const std::string& folder, int howmany) {
     this->howmany = howmany;
     this->folder = folder;
   }

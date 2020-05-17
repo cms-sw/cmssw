@@ -9,7 +9,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <sstream>
-#include <string.h>
+#include <cstring>
 #include <vector>
 
 #include <boost/filesystem.hpp>

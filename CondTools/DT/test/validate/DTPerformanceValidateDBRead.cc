@@ -5,7 +5,7 @@ Toy EDAnalyzer for testing purposes only.
 
 ----------------------------------------------------------------------*/
 
-#include <math.h>
+#include <cmath>
 #include <stdexcept>
 #include <string>
 #include <iostream>
@@ -64,8 +64,8 @@ void DTPerformanceValidateDBRead::analyze(const edm::Event& e, const edm::EventS
   float ckmeanResolution;
   float ckmeanEfficiency;
 
-  DTPerformance::const_iterator iter = mP->begin();
-  DTPerformance::const_iterator iend = mP->end();
+  auto iter = mP->begin();
+  auto iend = mP->end();
   while (iter != iend) {
     const DTPerformanceId& mpId = iter->first;
     const DTPerformanceData& mpData = iter->second;

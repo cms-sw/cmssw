@@ -5,7 +5,7 @@ Toy EDAnalyzer for testing purposes only.
 
 ----------------------------------------------------------------------*/
 
-#include <math.h>
+#include <cmath>
 #include <stdexcept>
 #include <string>
 #include <iostream>
@@ -68,8 +68,8 @@ void DTROMapValidateDBRead::analyze(const edm::Event& e, const edm::EventSetup& 
   int cktdc;
   int ckcha;
   int status;
-  DTReadOutMapping::const_iterator iter = ro->begin();
-  DTReadOutMapping::const_iterator iend = ro->end();
+  auto iter = ro->begin();
+  auto iend = ro->end();
   while (iter != iend) {
     const DTReadOutGeometryLink& link = *iter;
     status = ro->readOutToGeometry(

@@ -65,10 +65,10 @@ TrapezoidalCartesianMFGrid::TrapezoidalCartesianMFGrid(binary_ifstream& inFile, 
     if (convertToLocal) {
       // Preserve double precision!
       Vector3DBase<double, LocalTag> lB = frame().toLocal(Vector3DBase<double, GlobalTag>(Bx, By, Bz));
-      fieldValues.push_back(BVector(lB.x(), lB.y(), lB.z()));
+      fieldValues.emplace_back(lB.x(), lB.y(), lB.z());
 
     } else {
-      fieldValues.push_back(BVector(Bx, By, Bz));
+      fieldValues.emplace_back(Bx, By, Bz);
     }
   }
   // check completeness

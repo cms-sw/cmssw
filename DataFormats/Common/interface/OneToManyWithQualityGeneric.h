@@ -82,7 +82,7 @@ namespace edm {
     /// return values collection
     static val_type val(const ref_type &ref, const map_assoc &iv) {
       val_type v;
-      for (typename map_assoc::const_iterator idx = iv.begin(), idxEnd = iv.end(); idx != idxEnd; ++idx)
+      for (auto idx = iv.begin(), idxEnd = iv.end(); idx != idxEnd; ++idx)
         v.push_back(std::make_pair(ValRef(ref.val, idx->first), idx->second));
       return v;
     }
@@ -95,7 +95,7 @@ namespace edm {
     // order of the quality.
     static void sort(map_type &m) {
       //      using namespace boost::lambda;
-      for (typename map_type::iterator i = m.begin(), iEnd = m.end(); i != iEnd; ++i) {
+      for (auto i = m.begin(), iEnd = m.end(); i != iEnd; ++i) {
         using std::placeholders::_1;
         using std::placeholders::_2;
         map_assoc &v = i->second;

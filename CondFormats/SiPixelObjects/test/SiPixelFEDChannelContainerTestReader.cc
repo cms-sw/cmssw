@@ -16,12 +16,12 @@
 class SiPixelFEDChannelContainerTestReader : public edm::one::EDAnalyzer<> {
 public:
   explicit SiPixelFEDChannelContainerTestReader(edm::ParameterSet const& p);
-  ~SiPixelFEDChannelContainerTestReader();
+  ~SiPixelFEDChannelContainerTestReader() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   // ----------member data ---------------------------
   const bool printdebug_;
@@ -70,8 +70,8 @@ void SiPixelFEDChannelContainerTestReader::analyze(const edm::Event& e, const ed
     quality_map->printAll();
   }
 
-  FILE* pFile = NULL;
-  if (formatedOutput_ != "")
+  FILE* pFile = nullptr;
+  if (!formatedOutput_.empty())
     pFile = fopen(formatedOutput_.c_str(), "w");
   if (pFile) {
     fprintf(pFile, "SiPixelFEDChannelContainer::printAll() \n");
@@ -81,12 +81,12 @@ void SiPixelFEDChannelContainerTestReader::analyze(const edm::Event& e, const ed
 
     SiPixelFEDChannelContainer::SiPixelBadFEDChannelsScenarioMap m_qualities = quality_map->getScenarioMap();
 
-    for (auto it = m_qualities.begin(); it != m_qualities.end(); ++it) {
+    for (auto& m_qualitie : m_qualities) {
       fprintf(pFile,
               " ======================================================================================================="
               "============ \n");
-      fprintf(pFile, "run : %s \n ", (it->first).c_str());
-      for (const auto& thePixelFEDChannel : it->second) {
+      fprintf(pFile, "run : %s \n ", (m_qualitie.first).c_str());
+      for (const auto& thePixelFEDChannel : m_qualitie.second) {
         DetId detId = thePixelFEDChannel.first;
         fprintf(pFile, "DetId : %i \n", detId.rawId());
         for (const auto& entry : thePixelFEDChannel.second) {

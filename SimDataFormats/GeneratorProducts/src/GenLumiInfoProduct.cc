@@ -79,26 +79,26 @@ GenLumiInfoProduct::~GenLumiInfoProduct() {}
 bool GenLumiInfoProduct::mergeProduct(GenLumiInfoProduct const& other) {
   std::map<int, ProcessInfo> processes;
 
-  for (unsigned int i = 0; i < getProcessInfos().size(); i++) {
-    int id = getProcessInfos()[i].process();
+  for (const auto& i : getProcessInfos()) {
+    int id = i.process();
     ProcessInfo& x = processes[id];
-    x = getProcessInfos()[i];
+    x = i;
   }
 
   // the two GenLuminInfoProducts may not have the same number
   // of processes
-  for (unsigned int i = 0; i < other.getProcessInfos().size(); i++) {
-    int id = other.getProcessInfos()[i].process();
+  for (const auto& i : other.getProcessInfos()) {
+    int id = i.process();
     ProcessInfo& x = processes[id];
     if (x.lheXSec().value() > 0)
-      x.addOthers(other.getProcessInfos()[i]);
+      x.addOthers(i);
     else
-      x = other.getProcessInfos()[i];
+      x = i;
   }
 
   internalProcesses_.resize(processes.size());
   unsigned int i = 0;
-  for (std::map<int, ProcessInfo>::const_iterator iter = processes.begin(); iter != processes.end(); ++iter, i++)
+  for (auto iter = processes.begin(); iter != processes.end(); ++iter, i++)
     internalProcesses_[i] = iter->second;
   return true;
 }

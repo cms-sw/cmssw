@@ -83,8 +83,8 @@ int main(int argc, char* argv[]) {
 
     std::vector<string> vnames;
     DDVectorGetter::beginWith("Subdetector", vnames);
-    for (std::vector<string>::const_iterator sit = vnames.begin(); sit != vnames.end(); ++sit) {
-      std::cout << sit->c_str() << std::endl;
+    for (const auto& vname : vnames) {
+      std::cout << vname.c_str() << std::endl;
     }
 
     return 0;

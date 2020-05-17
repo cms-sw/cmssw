@@ -44,7 +44,7 @@ private:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 
   // Extra Methods
-  std::vector<std::string> moduleLabels(std::string);
+  std::vector<std::string> moduleLabels(const std::string &);
   std::vector<std::string> stepLabels(const std::vector<std::string> &);
 
   // Input from Configuration File
@@ -81,9 +81,9 @@ HLTMuonValidator::HLTMuonValidator(const ParameterSet &pset)
   myTokens_ = HLTMuonPlotter::getTokens(pset_, consumesCollector());
 }
 
-vector<string> HLTMuonValidator::moduleLabels(string path) {
+vector<string> HLTMuonValidator::moduleLabels(const string &path) {
   vector<string> modules = hltConfig_.moduleLabels(path);
-  vector<string>::iterator iter = modules.begin();
+  auto iter = modules.begin();
 
   while (iter != modules.end())
     if (iter->find("Filtered") == string::npos)
@@ -96,30 +96,30 @@ vector<string> HLTMuonValidator::moduleLabels(string path) {
 
 vector<string> HLTMuonValidator::stepLabels(const vector<string> &modules) {
   vector<string> steps(1, "All");
-  for (size_t i = 0; i < modules.size(); i++) {
-    if ((modules[i].find("IsoFiltered") != string::npos)) {
-      if (modules[i].find("L3") != string::npos)
-        steps.push_back("L3TkIso");
+  for (const auto &module : modules) {
+    if ((module.find("IsoFiltered") != string::npos)) {
+      if (module.find("L3") != string::npos)
+        steps.emplace_back("L3TkIso");
       else
-        steps.push_back("L2Iso");
-    } else if ((modules[i].find("pfecalIsoRhoFiltered") != string::npos)) {
-      if (modules[i].find("L3") != string::npos)
-        steps.push_back("L3EcalIso");
-      else if (modules[i].find("TkFiltered") != string::npos)
-        steps.push_back("TkEcalIso");
-    } else if ((modules[i].find("pfhcalIsoRhoFiltered") != string::npos)) {
-      if (modules[i].find("L3") != string::npos)
-        steps.push_back("L3HcalIso");
-      else if (modules[i].find("TkFiltered") != string::npos)
-        steps.push_back("TkHcalIso");
-    } else if (modules[i].find("TkFiltered") != string::npos) {
-      steps.push_back("Tk");
-    } else if (modules[i].find("L3") != string::npos)
-      steps.push_back("L3");
-    else if (modules[i].find("L2") != string::npos)
-      steps.push_back("L2");
-    else if (modules[i].find("L1") != string::npos)
-      steps.push_back("L1");
+        steps.emplace_back("L2Iso");
+    } else if ((module.find("pfecalIsoRhoFiltered") != string::npos)) {
+      if (module.find("L3") != string::npos)
+        steps.emplace_back("L3EcalIso");
+      else if (module.find("TkFiltered") != string::npos)
+        steps.emplace_back("TkEcalIso");
+    } else if ((module.find("pfhcalIsoRhoFiltered") != string::npos)) {
+      if (module.find("L3") != string::npos)
+        steps.emplace_back("L3HcalIso");
+      else if (module.find("TkFiltered") != string::npos)
+        steps.emplace_back("TkHcalIso");
+    } else if (module.find("TkFiltered") != string::npos) {
+      steps.emplace_back("Tk");
+    } else if (module.find("L3") != string::npos)
+      steps.emplace_back("L3");
+    else if (module.find("L2") != string::npos)
+      steps.emplace_back("L2");
+    else if (module.find("L1") != string::npos)
+      steps.emplace_back("L1");
     else
       return vector<string>();
   }
@@ -139,11 +139,11 @@ void HLTMuonValidator::dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &
 
   // Get the set of trigger paths we want to make plots for
   set<string> hltPaths;
-  for (size_t i = 0; i < hltPathsToCheck_.size(); i++) {
-    TPRegexp pattern(hltPathsToCheck_[i]);
-    for (size_t j = 0; j < hltConfig_.triggerNames().size(); j++)
-      if (TString(hltConfig_.triggerNames()[j]).Contains(pattern))
-        hltPaths.insert(hltConfig_.triggerNames()[j]);
+  for (const auto &i : hltPathsToCheck_) {
+    TPRegexp pattern(i);
+    for (const auto &j : hltConfig_.triggerNames())
+      if (TString(j).Contains(pattern))
+        hltPaths.insert(j);
   }
 
   // Initialize the analyzers

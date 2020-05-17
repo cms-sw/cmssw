@@ -27,7 +27,7 @@ SingleGaussianState1D MultiGaussianStateCombiner1D::combine(const VSC& theCompon
   //   double weight;
   double measCovar1(0.);
   double measCovar2(0.);
-  for (VSC::const_iterator mixtureIter1 = theComponents.begin(); mixtureIter1 != theComponents.end(); mixtureIter1++) {
+  for (auto mixtureIter1 = theComponents.begin(); mixtureIter1 != theComponents.end(); mixtureIter1++) {
     double weight = mixtureIter1->weight();
     weightSum += weight;
 
@@ -35,7 +35,7 @@ SingleGaussianState1D MultiGaussianStateCombiner1D::combine(const VSC& theCompon
     meanMean += weight * mean1;
     measCovar1 += weight * mixtureIter1->variance();
 
-    for (VSC::const_iterator mixtureIter2 = mixtureIter1 + 1; mixtureIter2 != theComponents.end(); mixtureIter2++) {
+    for (auto mixtureIter2 = mixtureIter1 + 1; mixtureIter2 != theComponents.end(); mixtureIter2++) {
       double posDiff = mean1 - mixtureIter2->mean();
       //       SingleState::Matrix s(1,1); //stupid trick to make CLHEP work decently
       //       measCovar2 +=weight * (*mixtureIter2).weight() *

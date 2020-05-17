@@ -66,7 +66,7 @@ namespace reco {
     TrackRef muonTrack(const MuonTrackType&) const;
 
     TrackRef muonTrackFromMap(const MuonTrackType& type) const {
-      MuonTrackRefMap::const_iterator iter = refittedTrackMap_.find(type);
+      auto iter = refittedTrackMap_.find(type);
       if (iter != refittedTrackMap_.end())
         return iter->second;
       else
@@ -419,13 +419,10 @@ namespace reco {
 
     float t0(int n = 0) {
       int i = 0;
-      for (std::vector<MuonChamberMatch>::const_iterator chamber = muMatches_.begin(); chamber != muMatches_.end();
-           ++chamber)
-        for (std::vector<reco::MuonSegmentMatch>::const_iterator segment = chamber->segmentMatches.begin();
-             segment != chamber->segmentMatches.end();
-             ++segment) {
+      for (const auto& muMatche : muMatches_)
+        for (const auto& segmentMatche : muMatche.segmentMatches) {
           if (i == n)
-            return segment->t0;
+            return segmentMatche.t0;
           ++i;
         }
       return 0;

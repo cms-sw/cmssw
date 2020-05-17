@@ -36,7 +36,7 @@ void CalibrationScanAlgorithm::extract(const std::vector<TH1*>& histos) {
     return;
   }
 
-  CommissioningAnalysis* tmp = const_cast<CommissioningAnalysis*>(anal());
+  auto* tmp = const_cast<CommissioningAnalysis*>(anal());
   cal_ = dynamic_cast<CalibrationScanAnalysis*>(tmp);
   if (!cal_) {
     edm::LogWarning(mlCommissioning_) << "[CalibrationScanAlgorithm::" << __func__ << "]"
@@ -50,7 +50,7 @@ void CalibrationScanAlgorithm::extract(const std::vector<TH1*>& histos) {
   }
 
   // Extract histograms
-  std::vector<TH1*>::const_iterator ihis = histos.begin();
+  auto ihis = histos.begin();
   unsigned int cnt = 0;
   for (; ihis != histos.end(); ihis++, cnt++) {
     // Check for NULL pointer
@@ -567,20 +567,20 @@ void CalibrationScanAlgorithm::fillTunedObservables(const int& apvid) {
   int distance_apv = 10000;
 
   // find close by ISHA
-  for (size_t i = 0; i < scanned_isha_.size(); i++) {
-    if (fabs(scanned_isha_.at(i) - cal_->bestISHA().at(apvid)) < distance_apv) {
-      distance_apv = fabs(scanned_isha_.at(i) - cal_->bestISHA().at(apvid));
-      cal_->tunedISHA_.at(apvid) = scanned_isha_.at(i);
+  for (int i : scanned_isha_) {
+    if (fabs(i - cal_->bestISHA().at(apvid)) < distance_apv) {
+      distance_apv = fabs(i - cal_->bestISHA().at(apvid));
+      cal_->tunedISHA_.at(apvid) = i;
     }
   }
 
   distance_apv = 10000;
 
   // find close by VFS
-  for (size_t i = 0; i < scanned_vfs_.size(); i++) {
-    if (fabs(scanned_vfs_.at(i) - cal_->bestVFS().at(apvid)) < distance_apv) {
-      distance_apv = fabs(scanned_vfs_.at(i) - cal_->bestVFS().at(apvid));
-      cal_->tunedVFS_.at(apvid) = scanned_vfs_.at(i);
+  for (int scanned_vf : scanned_vfs_) {
+    if (fabs(scanned_vf - cal_->bestVFS().at(apvid)) < distance_apv) {
+      distance_apv = fabs(scanned_vf - cal_->bestVFS().at(apvid));
+      cal_->tunedVFS_.at(apvid) = scanned_vf;
     }
   }
 

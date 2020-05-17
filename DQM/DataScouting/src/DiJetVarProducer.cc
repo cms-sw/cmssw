@@ -73,8 +73,8 @@ void DiJetVarProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
     // Find two leading jets
     TLorentzVector jet1, jet2;
 
-    reco::CaloJetCollection::const_iterator j1 = calojets_handle->begin();
-    reco::CaloJetCollection::const_iterator j2 = j1;
+    auto j1 = calojets_handle->begin();
+    auto j2 = j1;
     ++j2;
 
     jet1.SetPtEtaPhiM(j1->pt(), j1->eta(), j1->phi(), j1->mass());
@@ -85,9 +85,9 @@ void DiJetVarProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
     // jet2.Phi() << endl;
 
     // Create wide jets (radiation recovery algorithm)
-    for (reco::CaloJetCollection::const_iterator it = calojets_handle->begin(); it != calojets_handle->end(); ++it) {
+    for (const auto &it : *calojets_handle) {
       TLorentzVector currentJet;
-      currentJet.SetPtEtaPhiM(it->pt(), it->eta(), it->phi(), it->mass());
+      currentJet.SetPtEtaPhiM(it.pt(), it.eta(), it.phi(), it.mass());
 
       double DeltaR1 = currentJet.DeltaR(jet1);
       double DeltaR2 = currentJet.DeltaR(jet2);

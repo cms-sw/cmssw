@@ -71,8 +71,8 @@ namespace sistrip {
     std::sort(registry_.begin(), registry_.end());
     std::vector<edm::DetSet<T> > sorted_and_merged;
     sorted_and_merged.reserve(registry_.size());
-    typename Registry::const_iterator iReg = registry_.begin();
-    const typename Registry::const_iterator endReg = registry_.end();
+    auto iReg = registry_.begin();
+    const auto endReg = registry_.end();
     while (iReg != endReg) {
       sorted_and_merged.push_back(edm::DetSet<T>(iReg->key));
       std::vector<T>& detSetData = sorted_and_merged.back().data;

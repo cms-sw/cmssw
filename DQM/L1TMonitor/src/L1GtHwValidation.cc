@@ -89,27 +89,25 @@ L1GtHwValidation::L1GtHwValidation(const edm::ParameterSet& paramSet)
       //
       m_nrEvJob(0),
       m_nrEvRun(0) {
-  for (std::vector<edm::ParameterSet>::const_iterator itExclud = m_excludeCondCategTypeObject.begin();
-       itExclud != m_excludeCondCategTypeObject.end();
-       ++itExclud) {
-    if (!(itExclud->getParameter<std::string>("ExcludedCondCategory")).empty()) {
+  for (const auto& itExclud : m_excludeCondCategTypeObject) {
+    if (!(itExclud.getParameter<std::string>("ExcludedCondCategory")).empty()) {
       m_excludedCondCategory.push_back(
-          l1GtConditionCategoryStringToEnum(itExclud->getParameter<std::string>("ExcludedCondCategory")));
+          l1GtConditionCategoryStringToEnum(itExclud.getParameter<std::string>("ExcludedCondCategory")));
 
     } else {
       m_excludedCondCategory.push_back(CondNull);
     }
 
-    if (!(itExclud->getParameter<std::string>("ExcludedCondType")).empty()) {
+    if (!(itExclud.getParameter<std::string>("ExcludedCondType")).empty()) {
       m_excludedCondType.push_back(
-          l1GtConditionTypeStringToEnum(itExclud->getParameter<std::string>("ExcludedCondType")));
+          l1GtConditionTypeStringToEnum(itExclud.getParameter<std::string>("ExcludedCondType")));
 
     } else {
       m_excludedCondType.push_back(TypeNull);
     }
 
-    if (!(itExclud->getParameter<std::string>("ExcludedL1GtObject")).empty()) {
-      m_excludedL1GtObject.push_back(l1GtObjectStringToEnum(itExclud->getParameter<std::string>("ExcludedL1GtObject")));
+    if (!(itExclud.getParameter<std::string>("ExcludedL1GtObject")).empty()) {
+      m_excludedL1GtObject.push_back(l1GtObjectStringToEnum(itExclud.getParameter<std::string>("ExcludedL1GtObject")));
 
     } else {
       m_excludedL1GtObject.push_back(ObjNull);
@@ -671,15 +669,15 @@ void L1GtHwValidation::bookHistograms(DQMStore::IBooker& ibooker,
 
   const AlgorithmMap& algorithmMap = m_l1GtMenu->gtAlgorithmMap();
 
-  for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
-    const int algBitNumber = (itAlgo->second).algoBitNumber();
+  for (const auto& itAlgo : algorithmMap) {
+    const int algBitNumber = (itAlgo.second).algoBitNumber();
 
     std::stringstream ss;
     std::string algBitString;
     ss << std::uppercase << algBitNumber;
     ss >> algBitString;
 
-    const std::string& aName = algBitString + " " + itAlgo->first;
+    const std::string& aName = algBitString + " " + itAlgo.first;
     const char* algName = aName.c_str();
 
     for (int iRec = 0; iRec < NumberOfGtRecords; ++iRec) {
@@ -738,9 +736,8 @@ void L1GtHwValidation::bookHistograms(DQMStore::IBooker& ibooker,
     }
 
     //
-    for (std::vector<int>::const_iterator itAlgo = m_excludedAlgoList.begin(); itAlgo != m_excludedAlgoList.end();
-         ++itAlgo) {
-      if (algBitNumber == *itAlgo) {
+    for (int itAlgo : m_excludedAlgoList) {
+      if (algBitNumber == itAlgo) {
         m_excludedAlgorithmsAgreement->setBinLabel(algBitNumber + 1, algName, 1);
       }
     }
@@ -2087,9 +2084,8 @@ bool L1GtHwValidation::matchCondL1GtObject(const std::vector<L1GtObject>& condOb
     matchValue = true;
 
   } else {
-    for (std::vector<L1GtObject>::const_iterator itCondObj = condObjects.begin(); itCondObj != condObjects.end();
-         ++itCondObj) {
-      if ((*itCondObj) == excludedObject) {
+    for (auto condObject : condObjects) {
+      if (condObject == excludedObject) {
         matchValue = true;
       }
     }
@@ -2101,14 +2097,14 @@ bool L1GtHwValidation::matchCondL1GtObject(const std::vector<L1GtObject>& condOb
 void L1GtHwValidation::excludedAlgoList() {
   const AlgorithmMap& algorithmMap = m_l1GtMenu->gtAlgorithmMap();
 
-  for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
-    const std::string& algName = itAlgo->first;
-    const int algBitNumber = (itAlgo->second).algoBitNumber();
-    const int chipNr = (itAlgo->second).algoChipNumber();
+  for (const auto& itAlgo : algorithmMap) {
+    const std::string& algName = itAlgo.first;
+    const int algBitNumber = (itAlgo.second).algoBitNumber();
+    const int chipNr = (itAlgo.second).algoChipNumber();
 
     const ConditionMap& conditionMap = (m_l1GtMenu->gtConditionMap()).at(chipNr);
 
-    const std::vector<L1GtLogicParser::TokenRPN>& aRpnVector = (itAlgo->second).algoRpnVector();
+    const std::vector<L1GtLogicParser::TokenRPN>& aRpnVector = (itAlgo.second).algoRpnVector();
     size_t aRpnVectorSize = aRpnVector.size();
 
     bool algWithExcludedCondition = false;
@@ -2121,7 +2117,7 @@ void L1GtHwValidation::excludedAlgoList() {
       if (!cndName.empty()) {
         bool foundCond = false;
 
-        CItCond itCond = conditionMap.find(cndName);
+        auto itCond = conditionMap.find(cndName);
         if (itCond != conditionMap.end()) {
           const L1GtConditionCategory& cCateg = (itCond->second)->condCategory();
           const L1GtConditionType& cType = (itCond->second)->condType();
@@ -2130,19 +2126,17 @@ void L1GtHwValidation::excludedAlgoList() {
           // condition index in the m_excludedCondCategory, m_excludedCondType, m_excludedL1GtObject vectors
           int iCond = -1;
 
-          for (std::vector<L1GtConditionCategory>::const_iterator itCateg = m_excludedCondCategory.begin();
-               itCateg != m_excludedCondCategory.end();
-               ++itCateg) {
+          for (auto itCateg : m_excludedCondCategory) {
             iCond++;
 
-            bool matchCondCategoryValue = matchCondCategory(cCateg, (*itCateg));
+            bool matchCondCategoryValue = matchCondCategory(cCateg, itCateg);
             bool matchCondTypeValue = matchCondType(cType, m_excludedCondType.at(iCond));
             bool matchCondL1GtObjectValue = matchCondL1GtObject(objType, m_excludedL1GtObject.at(iCond));
 
             LogTrace("L1GtHwValidation") << "\n  "
                                          << "Algorithm: " << algName << " Condition: " << cndName << "\n  "
                                          << "Category:  " << l1GtConditionCategoryEnumToString(cCateg)
-                                         << "; excluded: " << l1GtConditionCategoryEnumToString((*itCateg)) << "\n  "
+                                         << "; excluded: " << l1GtConditionCategoryEnumToString(itCateg) << "\n  "
                                          << "Type:      " << l1GtConditionTypeEnumToString(cType) << "; excluded: "
                                          << l1GtConditionTypeEnumToString(m_excludedCondType.at(iCond)) << "\n  "
                                          << "Object excluded: "
@@ -2191,10 +2185,8 @@ void L1GtHwValidation::excludedAlgoList() {
     }
 
     // add algorithm triggers from ExcludeAlgoTrigByName
-    for (std::vector<std::string>::const_iterator itExcl = m_excludeAlgoTrigByName.begin();
-         itExcl != m_excludeAlgoTrigByName.end();
-         ++itExcl) {
-      if ((*itExcl) == algName) {
+    for (const auto& itExcl : m_excludeAlgoTrigByName) {
+      if (itExcl == algName) {
         m_excludedAlgoList.push_back(algBitNumber);
 
         LogTrace("L1GtHwValidation") << "\n Algorithm " << algName << " (bit number " << algBitNumber
@@ -2204,10 +2196,8 @@ void L1GtHwValidation::excludedAlgoList() {
     }
 
     // add algorithm triggers from ExcludeAlgoTrigByBit
-    for (std::vector<int>::const_iterator itExcl = m_excludeAlgoTrigByBit.begin();
-         itExcl != m_excludeAlgoTrigByBit.end();
-         ++itExcl) {
-      if ((*itExcl) == algBitNumber) {
+    for (int itExcl : m_excludeAlgoTrigByBit) {
+      if (itExcl == algBitNumber) {
         m_excludedAlgoList.push_back(algBitNumber);
 
         LogTrace("L1GtHwValidation") << "\n Algorithm " << algName << " (bit number " << algBitNumber
@@ -2219,9 +2209,8 @@ void L1GtHwValidation::excludedAlgoList() {
 }
 
 bool L1GtHwValidation::excludedAlgo(const int& iBit) const {
-  for (std::vector<int>::const_iterator itAlgo = m_excludedAlgoList.begin(); itAlgo != m_excludedAlgoList.end();
-       ++itAlgo) {
-    if (iBit == *itAlgo) {
+  for (int itAlgo : m_excludedAlgoList) {
+    if (iBit == itAlgo) {
       return true;
     }
   }

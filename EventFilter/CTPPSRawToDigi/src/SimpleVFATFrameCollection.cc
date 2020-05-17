@@ -18,16 +18,16 @@ const VFATFrame* SimpleVFATFrameCollection::GetFrameByID(unsigned int ID) const 
   // first convert ID to 12bit form
   ID = ID & 0xFFF;
 
-  for (MapType::const_iterator it = data.begin(); it != data.end(); ++it)
-    if (it->second.getChipID() == ID)
-      if (it->second.checkFootprint() && it->second.checkCRC())
-        return &(it->second);
+  for (const auto& it : data)
+    if (it.second.getChipID() == ID)
+      if (it.second.checkFootprint() && it.second.checkCRC())
+        return &(it.second);
 
   return nullptr;
 }
 
 const VFATFrame* SimpleVFATFrameCollection::GetFrameByIndex(TotemFramePosition index) const {
-  MapType::const_iterator it = data.find(index);
+  auto it = data.find(index);
   if (it != data.end())
     return &(it->second);
   else
@@ -35,7 +35,7 @@ const VFATFrame* SimpleVFATFrameCollection::GetFrameByIndex(TotemFramePosition i
 }
 
 VFATFrameCollection::value_type SimpleVFATFrameCollection::BeginIterator() const {
-  MapType::const_iterator it = data.begin();
+  auto it = data.begin();
   return (it == data.end()) ? value_type(TotemFramePosition(), nullptr) : value_type(it->first, &it->second);
 }
 
@@ -43,7 +43,7 @@ VFATFrameCollection::value_type SimpleVFATFrameCollection::NextIterator(const va
   if (!value.second)
     return value;
 
-  MapType::const_iterator it = data.find(value.first);
+  auto it = data.find(value.first);
   it++;
 
   return (it == data.end()) ? value_type(TotemFramePosition(), nullptr) : value_type(it->first, &it->second);

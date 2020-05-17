@@ -17,7 +17,7 @@
 #include <vector>
 #include <iomanip>
 #include <set>
-#include <stdio.h>
+#include <cstdio>
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -118,7 +118,7 @@ void RPCRecHitReader::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
 
   if (sector != 10) {
     GlobalPoint cntr10, cntr11;
-    for (RPCGeometry::DetContainer::const_iterator it = rpcGeo->dets().begin(); it < rpcGeo->dets().end(); it++) {
+    for (auto it = rpcGeo->dets().begin(); it < rpcGeo->dets().end(); it++) {
       RPCRoll const* ir = dynamic_cast<const RPCRoll*>(*it);
       RPCDetId id = ir->id();
 
@@ -245,7 +245,7 @@ void RPCRecHitReader::analyze(const edm::Event& event, const edm::EventSetup& ev
     }
   }
 
-  if (_mapTrig.size() == 0)
+  if (_mapTrig.empty())
     return;
 
   char folder[128];
@@ -261,7 +261,7 @@ void RPCRecHitReader::analyze(const edm::Event& event, const edm::EventSetup& ev
 
   if (_mapTrig.size() > 4) {
     _trigger++;
-    if (effX.size() > 0)
+    if (!effX.empty())
       _efficiencyBAD++;
 
     //-----------------------------------------------------
@@ -281,7 +281,7 @@ void RPCRecHitReader::analyze(const edm::Event& event, const edm::EventSetup& ev
 
       histoExpectedOcc->Fill(expStrip);
 
-      if (effX.size() > 0) {
+      if (!effX.empty()) {
         _efficiencyGOOD++;
 
         unsigned int k = 0;
@@ -332,7 +332,7 @@ void RPCRecHitReader::analyze(const edm::Event& event, const edm::EventSetup& ev
   }
 }
 
-unsigned int RPCRecHitReader::layerRecHit(RPCRecHit rechit) {
+unsigned int RPCRecHitReader::layerRecHit(const RPCRecHit& rechit) {
   unsigned int layer = 0;
   RPCDetId id = (RPCDetId)(rechit).rpcId();
 

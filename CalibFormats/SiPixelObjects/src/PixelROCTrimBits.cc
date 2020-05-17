@@ -17,7 +17,7 @@ using namespace pos;
 
 PixelROCTrimBits::PixelROCTrimBits() {}
 //This part has been modified from the orignal
-void PixelROCTrimBits::setROCTrimBits(PixelROCName rocid, std::string bits) {
+void PixelROCTrimBits::setROCTrimBits(PixelROCName rocid, const std::string& bits) {
   rocid_ = rocid;
   char cpt[2080];
   bits.copy(cpt, 2080);
@@ -120,8 +120,8 @@ void PixelROCTrimBits::writeBinary(std::ofstream& out) const {
   //std::cout << "PixelROCTrimBits::writeBinary:"<<rocid_.rocname().size()
   // << " " <<rocid_.rocname()<<std::endl;
 
-  for (unsigned int i = 0; i < 2080; i++) {
-    out << bits_[i];
+  for (unsigned char bit : bits_) {
+    out << bit;
   }
 }
 

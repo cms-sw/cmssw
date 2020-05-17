@@ -285,23 +285,23 @@ void GlobalRecHitsHistogrammer::analyze(const edm::Event& iEvent, const edm::Eve
     if (printProvenanceInfo && (verbosity >= 0)) {
       TString eventout("\nProvenance info:\n");
 
-      for (unsigned int i = 0; i < AllProv.size(); ++i) {
+      for (auto& i : AllProv) {
         eventout += "\n       ******************************";
         eventout += "\n       Module       : ";
         //eventout += (AllProv[i]->product).moduleLabel();
-        eventout += AllProv[i]->moduleLabel();
+        eventout += i->moduleLabel();
         eventout += "\n       ProductID    : ";
         //eventout += (AllProv[i]->product).productID_.id_;
-        eventout += AllProv[i]->productID().id();
+        eventout += i->productID().id();
         eventout += "\n       ClassName    : ";
         //eventout += (AllProv[i]->product).fullClassName_;
-        eventout += AllProv[i]->className();
+        eventout += i->className();
         eventout += "\n       InstanceName : ";
         //eventout += (AllProv[i]->product).productInstanceName_;
-        eventout += AllProv[i]->productInstanceName();
+        eventout += i->productInstanceName();
         eventout += "\n       BranchName   : ";
         //eventout += (AllProv[i]->product).branchName_;
-        eventout += AllProv[i]->branchName();
+        eventout += i->branchName();
       }
       eventout += "\n       ******************************\n";
       edm::LogInfo(MsgLoggerCat) << eventout << "\n";
@@ -363,250 +363,250 @@ void GlobalRecHitsHistogrammer::analyze(const edm::Event& iEvent, const edm::Eve
   // get Ecal info
   std::vector<PGlobalRecHit::ECalRecHit> EECalRecHits = srcGlobalRecHits->getEECalRecHits();
   mehEcaln[0]->Fill((float)nEECalRecHits);
-  for (unsigned int i = 0; i < EECalRecHits.size(); ++i) {
-    mehEcalRes[0]->Fill(EECalRecHits[i].RE - EECalRecHits[i].SHE);
+  for (auto& EECalRecHit : EECalRecHits) {
+    mehEcalRes[0]->Fill(EECalRecHit.RE - EECalRecHit.SHE);
   }
 
   std::vector<PGlobalRecHit::ECalRecHit> EBCalRecHits = srcGlobalRecHits->getEBCalRecHits();
   mehEcaln[1]->Fill((float)nEBCalRecHits);
-  for (unsigned int i = 0; i < EBCalRecHits.size(); ++i) {
-    mehEcalRes[1]->Fill(EBCalRecHits[i].RE - EBCalRecHits[i].SHE);
+  for (auto& EBCalRecHit : EBCalRecHits) {
+    mehEcalRes[1]->Fill(EBCalRecHit.RE - EBCalRecHit.SHE);
   }
 
   std::vector<PGlobalRecHit::ECalRecHit> ESCalRecHits = srcGlobalRecHits->getESCalRecHits();
   mehEcaln[2]->Fill((float)nESCalRecHits);
-  for (unsigned int i = 0; i < ESCalRecHits.size(); ++i) {
-    mehEcalRes[2]->Fill(ESCalRecHits[i].RE - ESCalRecHits[i].SHE);
+  for (auto& ESCalRecHit : ESCalRecHits) {
+    mehEcalRes[2]->Fill(ESCalRecHit.RE - ESCalRecHit.SHE);
   }
 
   // Get HCal info
   std::vector<PGlobalRecHit::HCalRecHit> HBCalRecHits = srcGlobalRecHits->getHBCalRecHits();
   mehHcaln[0]->Fill((float)nHBCalRecHits);
-  for (unsigned int i = 0; i < HBCalRecHits.size(); ++i) {
-    mehHcalRes[0]->Fill(HBCalRecHits[i].REC - HBCalRecHits[i].SHE);
+  for (auto& HBCalRecHit : HBCalRecHits) {
+    mehHcalRes[0]->Fill(HBCalRecHit.REC - HBCalRecHit.SHE);
   }
 
   std::vector<PGlobalRecHit::HCalRecHit> HECalRecHits = srcGlobalRecHits->getHECalRecHits();
   mehHcaln[1]->Fill((float)nHECalRecHits);
-  for (unsigned int i = 0; i < HECalRecHits.size(); ++i) {
-    mehHcalRes[1]->Fill(HECalRecHits[i].REC - HECalRecHits[i].SHE);
+  for (auto& HECalRecHit : HECalRecHits) {
+    mehHcalRes[1]->Fill(HECalRecHit.REC - HECalRecHit.SHE);
   }
 
   std::vector<PGlobalRecHit::HCalRecHit> HOCalRecHits = srcGlobalRecHits->getHOCalRecHits();
   mehHcaln[2]->Fill((float)nHOCalRecHits);
-  for (unsigned int i = 0; i < HOCalRecHits.size(); ++i) {
-    mehHcalRes[2]->Fill(HOCalRecHits[i].REC - HOCalRecHits[i].SHE);
+  for (auto& HOCalRecHit : HOCalRecHits) {
+    mehHcalRes[2]->Fill(HOCalRecHit.REC - HOCalRecHit.SHE);
   }
 
   std::vector<PGlobalRecHit::HCalRecHit> HFCalRecHits = srcGlobalRecHits->getHFCalRecHits();
   mehHcaln[3]->Fill((float)nHFCalRecHits);
-  for (unsigned int i = 0; i < HFCalRecHits.size(); ++i) {
-    mehHcalRes[3]->Fill(HFCalRecHits[i].REC - HFCalRecHits[i].SHE);
+  for (auto& HFCalRecHit : HFCalRecHits) {
+    mehHcalRes[3]->Fill(HFCalRecHit.REC - HFCalRecHit.SHE);
   }
 
   // get SiStrip info
   std::vector<PGlobalRecHit::SiStripRecHit> TIBL1RecHits = srcGlobalRecHits->getTIBL1RecHits();
   mehSiStripn[0]->Fill((float)nTIBL1RecHits);
-  for (unsigned int i = 0; i < TIBL1RecHits.size(); ++i) {
-    mehSiStripResX[0]->Fill(TIBL1RecHits[i].RX - TIBL1RecHits[i].SX);
-    mehSiStripResY[0]->Fill(TIBL1RecHits[i].RY - TIBL1RecHits[i].SY);
+  for (auto& TIBL1RecHit : TIBL1RecHits) {
+    mehSiStripResX[0]->Fill(TIBL1RecHit.RX - TIBL1RecHit.SX);
+    mehSiStripResY[0]->Fill(TIBL1RecHit.RY - TIBL1RecHit.SY);
   }
 
   std::vector<PGlobalRecHit::SiStripRecHit> TIBL2RecHits = srcGlobalRecHits->getTIBL2RecHits();
   mehSiStripn[1]->Fill((float)nTIBL2RecHits);
-  for (unsigned int i = 0; i < TIBL2RecHits.size(); ++i) {
-    mehSiStripResX[1]->Fill(TIBL2RecHits[i].RX - TIBL2RecHits[i].SX);
-    mehSiStripResY[1]->Fill(TIBL2RecHits[i].RY - TIBL2RecHits[i].SY);
+  for (auto& TIBL2RecHit : TIBL2RecHits) {
+    mehSiStripResX[1]->Fill(TIBL2RecHit.RX - TIBL2RecHit.SX);
+    mehSiStripResY[1]->Fill(TIBL2RecHit.RY - TIBL2RecHit.SY);
   }
 
   std::vector<PGlobalRecHit::SiStripRecHit> TIBL3RecHits = srcGlobalRecHits->getTIBL3RecHits();
   mehSiStripn[2]->Fill((float)nTIBL3RecHits);
-  for (unsigned int i = 0; i < TIBL3RecHits.size(); ++i) {
-    mehSiStripResX[2]->Fill(TIBL3RecHits[i].RX - TIBL3RecHits[i].SX);
-    mehSiStripResY[2]->Fill(TIBL3RecHits[i].RY - TIBL3RecHits[i].SY);
+  for (auto& TIBL3RecHit : TIBL3RecHits) {
+    mehSiStripResX[2]->Fill(TIBL3RecHit.RX - TIBL3RecHit.SX);
+    mehSiStripResY[2]->Fill(TIBL3RecHit.RY - TIBL3RecHit.SY);
   }
 
   std::vector<PGlobalRecHit::SiStripRecHit> TIBL4RecHits = srcGlobalRecHits->getTIBL4RecHits();
   mehSiStripn[3]->Fill((float)nTIBL4RecHits);
-  for (unsigned int i = 0; i < TIBL4RecHits.size(); ++i) {
-    mehSiStripResX[3]->Fill(TIBL4RecHits[i].RX - TIBL4RecHits[i].SX);
-    mehSiStripResY[3]->Fill(TIBL4RecHits[i].RY - TIBL4RecHits[i].SY);
+  for (auto& TIBL4RecHit : TIBL4RecHits) {
+    mehSiStripResX[3]->Fill(TIBL4RecHit.RX - TIBL4RecHit.SX);
+    mehSiStripResY[3]->Fill(TIBL4RecHit.RY - TIBL4RecHit.SY);
   }
 
   std::vector<PGlobalRecHit::SiStripRecHit> TOBL1RecHits = srcGlobalRecHits->getTOBL1RecHits();
   mehSiStripn[4]->Fill((float)nTOBL1RecHits);
-  for (unsigned int i = 0; i < TOBL1RecHits.size(); ++i) {
-    mehSiStripResX[4]->Fill(TOBL1RecHits[i].RX - TOBL1RecHits[i].SX);
-    mehSiStripResY[4]->Fill(TOBL1RecHits[i].RY - TOBL1RecHits[i].SY);
+  for (auto& TOBL1RecHit : TOBL1RecHits) {
+    mehSiStripResX[4]->Fill(TOBL1RecHit.RX - TOBL1RecHit.SX);
+    mehSiStripResY[4]->Fill(TOBL1RecHit.RY - TOBL1RecHit.SY);
   }
 
   std::vector<PGlobalRecHit::SiStripRecHit> TOBL2RecHits = srcGlobalRecHits->getTOBL2RecHits();
   mehSiStripn[5]->Fill((float)nTOBL2RecHits);
-  for (unsigned int i = 0; i < TOBL2RecHits.size(); ++i) {
-    mehSiStripResX[5]->Fill(TOBL2RecHits[i].RX - TOBL2RecHits[i].SX);
-    mehSiStripResY[5]->Fill(TOBL2RecHits[i].RY - TOBL2RecHits[i].SY);
+  for (auto& TOBL2RecHit : TOBL2RecHits) {
+    mehSiStripResX[5]->Fill(TOBL2RecHit.RX - TOBL2RecHit.SX);
+    mehSiStripResY[5]->Fill(TOBL2RecHit.RY - TOBL2RecHit.SY);
   }
 
   std::vector<PGlobalRecHit::SiStripRecHit> TOBL3RecHits = srcGlobalRecHits->getTOBL3RecHits();
   mehSiStripn[6]->Fill((float)nTOBL3RecHits);
-  for (unsigned int i = 0; i < TOBL3RecHits.size(); ++i) {
-    mehSiStripResX[6]->Fill(TOBL3RecHits[i].RX - TOBL3RecHits[i].SX);
-    mehSiStripResY[6]->Fill(TOBL3RecHits[i].RY - TOBL3RecHits[i].SY);
+  for (auto& TOBL3RecHit : TOBL3RecHits) {
+    mehSiStripResX[6]->Fill(TOBL3RecHit.RX - TOBL3RecHit.SX);
+    mehSiStripResY[6]->Fill(TOBL3RecHit.RY - TOBL3RecHit.SY);
   }
 
   std::vector<PGlobalRecHit::SiStripRecHit> TOBL4RecHits = srcGlobalRecHits->getTOBL4RecHits();
   mehSiStripn[7]->Fill((float)nTOBL4RecHits);
-  for (unsigned int i = 0; i < TOBL4RecHits.size(); ++i) {
-    mehSiStripResX[7]->Fill(TOBL4RecHits[i].RX - TOBL4RecHits[i].SX);
-    mehSiStripResY[7]->Fill(TOBL4RecHits[i].RY - TOBL4RecHits[i].SY);
+  for (auto& TOBL4RecHit : TOBL4RecHits) {
+    mehSiStripResX[7]->Fill(TOBL4RecHit.RX - TOBL4RecHit.SX);
+    mehSiStripResY[7]->Fill(TOBL4RecHit.RY - TOBL4RecHit.SY);
   }
 
   std::vector<PGlobalRecHit::SiStripRecHit> TIDW1RecHits = srcGlobalRecHits->getTIDW1RecHits();
   mehSiStripn[8]->Fill((float)nTIDW1RecHits);
-  for (unsigned int i = 0; i < TIDW1RecHits.size(); ++i) {
-    mehSiStripResX[8]->Fill(TIDW1RecHits[i].RX - TIDW1RecHits[i].SX);
-    mehSiStripResY[8]->Fill(TIDW1RecHits[i].RY - TIDW1RecHits[i].SY);
+  for (auto& TIDW1RecHit : TIDW1RecHits) {
+    mehSiStripResX[8]->Fill(TIDW1RecHit.RX - TIDW1RecHit.SX);
+    mehSiStripResY[8]->Fill(TIDW1RecHit.RY - TIDW1RecHit.SY);
   }
 
   std::vector<PGlobalRecHit::SiStripRecHit> TIDW2RecHits = srcGlobalRecHits->getTIDW2RecHits();
   mehSiStripn[9]->Fill((float)nTIDW2RecHits);
-  for (unsigned int i = 0; i < TIDW2RecHits.size(); ++i) {
-    mehSiStripResX[9]->Fill(TIDW2RecHits[i].RX - TIDW2RecHits[i].SX);
-    mehSiStripResY[9]->Fill(TIDW2RecHits[i].RY - TIDW2RecHits[i].SY);
+  for (auto& TIDW2RecHit : TIDW2RecHits) {
+    mehSiStripResX[9]->Fill(TIDW2RecHit.RX - TIDW2RecHit.SX);
+    mehSiStripResY[9]->Fill(TIDW2RecHit.RY - TIDW2RecHit.SY);
   }
 
   std::vector<PGlobalRecHit::SiStripRecHit> TIDW3RecHits = srcGlobalRecHits->getTIDW3RecHits();
   mehSiStripn[10]->Fill((float)nTIDW3RecHits);
-  for (unsigned int i = 0; i < TIDW3RecHits.size(); ++i) {
-    mehSiStripResX[10]->Fill(TIDW3RecHits[i].RX - TIDW3RecHits[i].SX);
-    mehSiStripResY[10]->Fill(TIDW3RecHits[i].RY - TIDW3RecHits[i].SY);
+  for (auto& TIDW3RecHit : TIDW3RecHits) {
+    mehSiStripResX[10]->Fill(TIDW3RecHit.RX - TIDW3RecHit.SX);
+    mehSiStripResY[10]->Fill(TIDW3RecHit.RY - TIDW3RecHit.SY);
   }
 
   std::vector<PGlobalRecHit::SiStripRecHit> TECW1RecHits = srcGlobalRecHits->getTECW1RecHits();
   mehSiStripn[11]->Fill((float)nTECW1RecHits);
-  for (unsigned int i = 0; i < TECW1RecHits.size(); ++i) {
-    mehSiStripResX[11]->Fill(TECW1RecHits[i].RX - TECW1RecHits[i].SX);
-    mehSiStripResY[11]->Fill(TECW1RecHits[i].RY - TECW1RecHits[i].SY);
+  for (auto& TECW1RecHit : TECW1RecHits) {
+    mehSiStripResX[11]->Fill(TECW1RecHit.RX - TECW1RecHit.SX);
+    mehSiStripResY[11]->Fill(TECW1RecHit.RY - TECW1RecHit.SY);
   }
 
   std::vector<PGlobalRecHit::SiStripRecHit> TECW2RecHits = srcGlobalRecHits->getTECW2RecHits();
   mehSiStripn[12]->Fill((float)nTECW2RecHits);
-  for (unsigned int i = 0; i < TECW2RecHits.size(); ++i) {
-    mehSiStripResX[12]->Fill(TECW2RecHits[i].RX - TECW2RecHits[i].SX);
-    mehSiStripResY[12]->Fill(TECW2RecHits[i].RY - TECW2RecHits[i].SY);
+  for (auto& TECW2RecHit : TECW2RecHits) {
+    mehSiStripResX[12]->Fill(TECW2RecHit.RX - TECW2RecHit.SX);
+    mehSiStripResY[12]->Fill(TECW2RecHit.RY - TECW2RecHit.SY);
   }
 
   std::vector<PGlobalRecHit::SiStripRecHit> TECW3RecHits = srcGlobalRecHits->getTECW3RecHits();
   mehSiStripn[13]->Fill((float)nTECW3RecHits);
-  for (unsigned int i = 0; i < TECW3RecHits.size(); ++i) {
-    mehSiStripResX[13]->Fill(TECW3RecHits[i].RX - TECW3RecHits[i].SX);
-    mehSiStripResY[13]->Fill(TECW3RecHits[i].RY - TECW3RecHits[i].SY);
+  for (auto& TECW3RecHit : TECW3RecHits) {
+    mehSiStripResX[13]->Fill(TECW3RecHit.RX - TECW3RecHit.SX);
+    mehSiStripResY[13]->Fill(TECW3RecHit.RY - TECW3RecHit.SY);
   }
 
   std::vector<PGlobalRecHit::SiStripRecHit> TECW4RecHits = srcGlobalRecHits->getTECW4RecHits();
   mehSiStripn[14]->Fill((float)nTECW4RecHits);
-  for (unsigned int i = 0; i < TECW4RecHits.size(); ++i) {
-    mehSiStripResX[14]->Fill(TECW4RecHits[i].RX - TECW4RecHits[i].SX);
-    mehSiStripResY[14]->Fill(TECW4RecHits[i].RY - TECW4RecHits[i].SY);
+  for (auto& TECW4RecHit : TECW4RecHits) {
+    mehSiStripResX[14]->Fill(TECW4RecHit.RX - TECW4RecHit.SX);
+    mehSiStripResY[14]->Fill(TECW4RecHit.RY - TECW4RecHit.SY);
   }
 
   std::vector<PGlobalRecHit::SiStripRecHit> TECW5RecHits = srcGlobalRecHits->getTECW5RecHits();
   mehSiStripn[15]->Fill((float)nTECW5RecHits);
-  for (unsigned int i = 0; i < TECW5RecHits.size(); ++i) {
-    mehSiStripResX[15]->Fill(TECW5RecHits[i].RX - TECW5RecHits[i].SX);
-    mehSiStripResY[15]->Fill(TECW5RecHits[i].RY - TECW5RecHits[i].SY);
+  for (auto& TECW5RecHit : TECW5RecHits) {
+    mehSiStripResX[15]->Fill(TECW5RecHit.RX - TECW5RecHit.SX);
+    mehSiStripResY[15]->Fill(TECW5RecHit.RY - TECW5RecHit.SY);
   }
 
   std::vector<PGlobalRecHit::SiStripRecHit> TECW6RecHits = srcGlobalRecHits->getTECW6RecHits();
   mehSiStripn[16]->Fill((float)nTECW6RecHits);
-  for (unsigned int i = 0; i < TECW6RecHits.size(); ++i) {
-    mehSiStripResX[16]->Fill(TECW6RecHits[i].RX - TECW6RecHits[i].SX);
-    mehSiStripResY[16]->Fill(TECW6RecHits[i].RY - TECW6RecHits[i].SY);
+  for (auto& TECW6RecHit : TECW6RecHits) {
+    mehSiStripResX[16]->Fill(TECW6RecHit.RX - TECW6RecHit.SX);
+    mehSiStripResY[16]->Fill(TECW6RecHit.RY - TECW6RecHit.SY);
   }
 
   std::vector<PGlobalRecHit::SiStripRecHit> TECW7RecHits = srcGlobalRecHits->getTECW7RecHits();
   mehSiStripn[17]->Fill((float)nTECW7RecHits);
-  for (unsigned int i = 0; i < TECW7RecHits.size(); ++i) {
-    mehSiStripResX[17]->Fill(TECW7RecHits[i].RX - TECW7RecHits[i].SX);
-    mehSiStripResY[17]->Fill(TECW7RecHits[i].RY - TECW7RecHits[i].SY);
+  for (auto& TECW7RecHit : TECW7RecHits) {
+    mehSiStripResX[17]->Fill(TECW7RecHit.RX - TECW7RecHit.SX);
+    mehSiStripResY[17]->Fill(TECW7RecHit.RY - TECW7RecHit.SY);
   }
 
   std::vector<PGlobalRecHit::SiStripRecHit> TECW8RecHits = srcGlobalRecHits->getTECW8RecHits();
   mehSiStripn[18]->Fill((float)nTECW8RecHits);
-  for (unsigned int i = 0; i < TECW8RecHits.size(); ++i) {
-    mehSiStripResX[18]->Fill(TECW8RecHits[i].RX - TECW8RecHits[i].SX);
-    mehSiStripResY[18]->Fill(TECW8RecHits[i].RY - TECW8RecHits[i].SY);
+  for (auto& TECW8RecHit : TECW8RecHits) {
+    mehSiStripResX[18]->Fill(TECW8RecHit.RX - TECW8RecHit.SX);
+    mehSiStripResY[18]->Fill(TECW8RecHit.RY - TECW8RecHit.SY);
   }
 
   // get SiPixel info
   std::vector<PGlobalRecHit::SiPixelRecHit> BRL1RecHits = srcGlobalRecHits->getBRL1RecHits();
   mehSiPixeln[0]->Fill((float)nBRL1RecHits);
-  for (unsigned int i = 0; i < BRL1RecHits.size(); ++i) {
-    mehSiPixelResX[0]->Fill(BRL1RecHits[i].RX - BRL1RecHits[i].SX);
-    mehSiPixelResY[0]->Fill(BRL1RecHits[i].RY - BRL1RecHits[i].SY);
+  for (auto& BRL1RecHit : BRL1RecHits) {
+    mehSiPixelResX[0]->Fill(BRL1RecHit.RX - BRL1RecHit.SX);
+    mehSiPixelResY[0]->Fill(BRL1RecHit.RY - BRL1RecHit.SY);
   }
 
   std::vector<PGlobalRecHit::SiPixelRecHit> BRL2RecHits = srcGlobalRecHits->getBRL2RecHits();
   mehSiPixeln[1]->Fill((float)nBRL2RecHits);
-  for (unsigned int i = 0; i < BRL2RecHits.size(); ++i) {
-    mehSiPixelResX[1]->Fill(BRL2RecHits[i].RX - BRL2RecHits[i].SX);
-    mehSiPixelResY[1]->Fill(BRL2RecHits[i].RY - BRL2RecHits[i].SY);
+  for (auto& BRL2RecHit : BRL2RecHits) {
+    mehSiPixelResX[1]->Fill(BRL2RecHit.RX - BRL2RecHit.SX);
+    mehSiPixelResY[1]->Fill(BRL2RecHit.RY - BRL2RecHit.SY);
   }
 
   std::vector<PGlobalRecHit::SiPixelRecHit> BRL3RecHits = srcGlobalRecHits->getBRL3RecHits();
   mehSiPixeln[2]->Fill((float)nBRL3RecHits);
-  for (unsigned int i = 0; i < BRL3RecHits.size(); ++i) {
-    mehSiPixelResX[2]->Fill(BRL3RecHits[i].RX - BRL3RecHits[i].SX);
-    mehSiPixelResY[2]->Fill(BRL3RecHits[i].RY - BRL3RecHits[i].SY);
+  for (auto& BRL3RecHit : BRL3RecHits) {
+    mehSiPixelResX[2]->Fill(BRL3RecHit.RX - BRL3RecHit.SX);
+    mehSiPixelResY[2]->Fill(BRL3RecHit.RY - BRL3RecHit.SY);
   }
 
   std::vector<PGlobalRecHit::SiPixelRecHit> FWD1pRecHits = srcGlobalRecHits->getFWD1pRecHits();
   mehSiPixeln[3]->Fill((float)nFWD1pRecHits);
-  for (unsigned int i = 0; i < FWD1pRecHits.size(); ++i) {
-    mehSiPixelResX[3]->Fill(FWD1pRecHits[i].RX - FWD1pRecHits[i].SX);
-    mehSiPixelResY[3]->Fill(FWD1pRecHits[i].RY - FWD1pRecHits[i].SY);
+  for (auto& FWD1pRecHit : FWD1pRecHits) {
+    mehSiPixelResX[3]->Fill(FWD1pRecHit.RX - FWD1pRecHit.SX);
+    mehSiPixelResY[3]->Fill(FWD1pRecHit.RY - FWD1pRecHit.SY);
   }
 
   std::vector<PGlobalRecHit::SiPixelRecHit> FWD1nRecHits = srcGlobalRecHits->getFWD1nRecHits();
   mehSiPixeln[4]->Fill((float)nFWD1nRecHits);
-  for (unsigned int i = 0; i < FWD1nRecHits.size(); ++i) {
-    mehSiPixelResX[4]->Fill(FWD1nRecHits[i].RX - FWD1nRecHits[i].SX);
-    mehSiPixelResY[4]->Fill(FWD1nRecHits[i].RY - FWD1nRecHits[i].SY);
+  for (auto& FWD1nRecHit : FWD1nRecHits) {
+    mehSiPixelResX[4]->Fill(FWD1nRecHit.RX - FWD1nRecHit.SX);
+    mehSiPixelResY[4]->Fill(FWD1nRecHit.RY - FWD1nRecHit.SY);
   }
 
   std::vector<PGlobalRecHit::SiPixelRecHit> FWD2pRecHits = srcGlobalRecHits->getFWD2pRecHits();
   mehSiPixeln[5]->Fill((float)nFWD2pRecHits);
-  for (unsigned int i = 0; i < FWD2pRecHits.size(); ++i) {
-    mehSiPixelResX[5]->Fill(FWD2pRecHits[i].RX - FWD2pRecHits[i].SX);
-    mehSiPixelResY[5]->Fill(FWD2pRecHits[i].RY - FWD2pRecHits[i].SY);
+  for (auto& FWD2pRecHit : FWD2pRecHits) {
+    mehSiPixelResX[5]->Fill(FWD2pRecHit.RX - FWD2pRecHit.SX);
+    mehSiPixelResY[5]->Fill(FWD2pRecHit.RY - FWD2pRecHit.SY);
   }
 
   std::vector<PGlobalRecHit::SiPixelRecHit> FWD2nRecHits = srcGlobalRecHits->getFWD2nRecHits();
   mehSiPixeln[6]->Fill((float)nFWD2nRecHits);
-  for (unsigned int i = 0; i < FWD2nRecHits.size(); ++i) {
-    mehSiPixelResX[6]->Fill(FWD2nRecHits[i].RX - FWD2nRecHits[i].SX);
-    mehSiPixelResY[6]->Fill(FWD2nRecHits[i].RY - FWD2nRecHits[i].SY);
+  for (auto& FWD2nRecHit : FWD2nRecHits) {
+    mehSiPixelResX[6]->Fill(FWD2nRecHit.RX - FWD2nRecHit.SX);
+    mehSiPixelResY[6]->Fill(FWD2nRecHit.RY - FWD2nRecHit.SY);
   }
 
   // get DtMuon info
   std::vector<PGlobalRecHit::DTRecHit> DTRecHits = srcGlobalRecHits->getDTRecHits();
   mehDtMuonn->Fill((float)nDTRecHits);
-  for (unsigned int i = 0; i < DTRecHits.size(); ++i) {
-    mehDtMuonRes->Fill(DTRecHits[i].RHD - DTRecHits[i].SHD);
+  for (auto& DTRecHit : DTRecHits) {
+    mehDtMuonRes->Fill(DTRecHit.RHD - DTRecHit.SHD);
   }
 
   // get CSC info
   std::vector<PGlobalRecHit::CSCRecHit> CSCRecHits = srcGlobalRecHits->getCSCRecHits();
   mehCSCn->Fill((float)nCSCRecHits);
-  for (unsigned int i = 0; i < CSCRecHits.size(); ++i) {
-    mehCSCResRDPhi->Fill(CSCRecHits[i].RHPERP * (CSCRecHits[i].RHPHI - CSCRecHits[i].SHPHI));
+  for (auto& CSCRecHit : CSCRecHits) {
+    mehCSCResRDPhi->Fill(CSCRecHit.RHPERP * (CSCRecHit.RHPHI - CSCRecHit.SHPHI));
   }
 
   // get RPC info
   std::vector<PGlobalRecHit::RPCRecHit> RPCRecHits = srcGlobalRecHits->getRPCRecHits();
   mehRPCn->Fill((float)nRPCRecHits);
-  for (unsigned int i = 0; i < RPCRecHits.size(); ++i) {
-    mehRPCResX->Fill(RPCRecHits[i].RHX - RPCRecHits[i].SHX);
+  for (auto& RPCRecHit : RPCRecHits) {
+    mehRPCResX->Fill(RPCRecHit.RHX - RPCRecHit.SHX);
   }
 
   if (verbosity > 0)

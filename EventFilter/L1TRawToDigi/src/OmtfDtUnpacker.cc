@@ -24,15 +24,15 @@ namespace omtf {
       sector = 0;
     int station = data.station() + 1;
     LogTrace("") << "DT_AMC#  " << amc << " RAW_SECTOR: " << data.sector() << " DT_SECTOR: " << sector << std::endl;
-    phi_Container.push_back(L1MuDTChambPhDigi(bx,
-                                              whNum,
-                                              sector,
-                                              station,
-                                              data.phi(),
-                                              data.phiB(),
-                                              data.quality(),
-                                              data.fiber(),      // utag/Ts2Tag
-                                              data.bcnt_st()));  //ucnt/BxCnt
+    phi_Container.emplace_back(bx,
+                               whNum,
+                               sector,
+                               station,
+                               data.phi(),
+                               data.phiB(),
+                               data.quality(),
+                               data.fiber(),     // utag/Ts2Tag
+                               data.bcnt_st());  //ucnt/BxCnt
     int pos[7];
     int posQual[7];
     for (unsigned int i = 0; i < 7; i++) {
@@ -42,7 +42,7 @@ namespace omtf {
     if (data.eta())
       LogTrace("") << "HERE DATA DT ETA";
     if (data.eta())
-      the_Container.push_back(L1MuDTChambThDigi(bx, whNum, sector, station, pos, posQual));
+      the_Container.emplace_back(bx, whNum, sector, station, pos, posQual);
   }
 
 }  // namespace omtf

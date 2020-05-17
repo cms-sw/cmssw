@@ -529,7 +529,7 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
     // always include single particle with no mother
     const Candidate* mother = (*genParticles)[i].mother(0);
     matchingMotherID = false;
-    for (unsigned int ii = 0; ii < matchingMotherIDs_.size(); ii++) {
+    for (int ii : matchingMotherIDs_) {
       /*                // DEBUG LINES - KEEP IT !
                 std::cout << "Matching : matchingMotherID[" << ii << "] : "<< matchingMotherIDs_[ii]  << ", evt ID = " << iEvent.id() << ", mother : "  << mother ; 
                 if (mother != 0) { 
@@ -543,7 +543,7 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
 
       if (mother == nullptr) {
         matchingMotherID = true;
-      } else if (mother->pdgId() == matchingMotherIDs_[ii]) {
+      } else if (mother->pdgId() == ii) {
         if (mother->numberOfDaughters() <= 2) {
           matchingMotherID = true;
           //std::cout << "evt ID = " << iEvent.id() ;                                                                               // debug lines

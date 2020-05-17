@@ -67,7 +67,7 @@ void pat::DuplicatedElectronCleaner::produce(edm::StreamID, edm::Event& iEvent, 
   //auto result = std::make_unique<PtrVector<reco::GsfElectron>>();
   std::unique_ptr<std::vector<size_t>> duplicates = duplicateRemover_.duplicatesToRemove(*electrons);
 
-  std::vector<size_t>::const_iterator itdup = duplicates->begin(), enddup = duplicates->end();
+  auto itdup = duplicates->begin(), enddup = duplicates->end();
   for (size_t i = 0, n = electrons->size(); i < n; ++i) {
     while ((itdup != enddup) && (*itdup < i)) {
       ++itdup;

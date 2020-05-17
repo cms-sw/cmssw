@@ -107,7 +107,7 @@ public:
   //
   bool put(const uint32_t& detID, InputVector& input, std::vector<std::string>& userContent);
   bool put(sistripsummary::TrackerRegion region, InputVector& input, std::vector<std::string>& userContent);
-  void setObj(const uint32_t& detID, std::string elementName, float value);
+  void setObj(const uint32_t& detID, const std::string& elementName, float value);
 
   // RETRIEVE SUMMARY OBJECTS...
   //
@@ -151,7 +151,7 @@ public:
 
 protected:
   // RETURNS POSITION OF ELEMENTNAME IN userDBContent_
-  const short getPosition(std::string elementName) const;
+  const short getPosition(const std::string& elementName) const;
 
   COND_SERIALIZABLE;
 };

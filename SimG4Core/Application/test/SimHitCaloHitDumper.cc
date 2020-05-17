@@ -360,13 +360,11 @@ void SimHitCaloHitDumper::analyze(const edm::Event& iEvent, const edm::EventSetu
   //     std::cout << (*isim) << " Track Id = " << isim->trackId() << std::endl;
   //   }
   int nhit = 0;
-  for (std::vector<std::pair<int, std::string> >::iterator icoll = theTrackerComposition.begin();
-       icoll != theTrackerComposition.end();
-       ++icoll) {
+  for (auto& icoll : theTrackerComposition) {
     std::cout << "\n" << std::endl;
-    std::cout << (*icoll).second << " hits in the event = " << (*icoll).first << std::endl;
+    std::cout << icoll.second << " hits in the event = " << icoll.first << std::endl;
     std::cout << "\n" << std::endl;
-    for (int ihit = 0; ihit < (*icoll).first; ++ihit) {
+    for (int ihit = 0; ihit < icoll.first; ++ihit) {
       std::cout << theTrackerHits[nhit] << " Track Id = " << theTrackerHits[nhit].trackId() << std::endl;
       nhit++;
     }
@@ -379,13 +377,11 @@ void SimHitCaloHitDumper::analyze(const edm::Event& iEvent, const edm::EventSetu
   //     std::cout << (*isim) << " Track Id = " << isim->trackId() << std::endl;
   //   }
   nhit = 0;
-  for (std::vector<std::pair<int, std::string> >::iterator icoll = theMuonComposition.begin();
-       icoll != theMuonComposition.end();
-       ++icoll) {
+  for (auto& icoll : theMuonComposition) {
     std::cout << "\n" << std::endl;
-    std::cout << (*icoll).second << " hits in the event = " << (*icoll).first << std::endl;
+    std::cout << icoll.second << " hits in the event = " << icoll.first << std::endl;
     std::cout << "\n" << std::endl;
-    for (int ihit = 0; ihit < (*icoll).first; ++ihit) {
+    for (int ihit = 0; ihit < icoll.first; ++ihit) {
       std::cout << theMuonHits[nhit] << " Track Id = " << theMuonHits[nhit].trackId() << std::endl;
       nhit++;
     }
@@ -398,13 +394,11 @@ void SimHitCaloHitDumper::analyze(const edm::Event& iEvent, const edm::EventSetu
   //     std::cout << (*isim) << " Track Id = " << isim->trackId() << std::endl;
   //   }
   nhit = 0;
-  for (std::vector<std::pair<int, std::string> >::iterator icoll = theMTDComposition.begin();
-       icoll != theMTDComposition.end();
-       ++icoll) {
+  for (auto& icoll : theMTDComposition) {
     std::cout << "\n" << std::endl;
-    std::cout << (*icoll).second << " hits in the event = " << (*icoll).first << std::endl;
+    std::cout << icoll.second << " hits in the event = " << icoll.first << std::endl;
     std::cout << "\n" << std::endl;
-    for (int ihit = 0; ihit < (*icoll).first; ++ihit) {
+    for (int ihit = 0; ihit < icoll.first; ++ihit) {
       std::cout << theMTDHits[nhit] << " Track Id = " << theMTDHits[nhit].trackId() << std::endl;
       nhit++;
     }
@@ -417,13 +411,11 @@ void SimHitCaloHitDumper::analyze(const edm::Event& iEvent, const edm::EventSetu
   //     std::cout << (*isim) << std::endl;
   //   }
   nhit = 0;
-  for (std::vector<std::pair<int, std::string> >::iterator icoll = theCaloComposition.begin();
-       icoll != theCaloComposition.end();
-       ++icoll) {
+  for (auto& icoll : theCaloComposition) {
     std::cout << "\n" << std::endl;
-    std::cout << (*icoll).second << " hits in the event = " << (*icoll).first << std::endl;
+    std::cout << icoll.second << " hits in the event = " << icoll.first << std::endl;
     std::cout << "\n" << std::endl;
-    for (int ihit = 0; ihit < (*icoll).first; ++ihit) {
+    for (int ihit = 0; ihit < icoll.first; ++ihit) {
       std::cout << theCaloHits[nhit] << std::endl;
       nhit++;
     }

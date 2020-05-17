@@ -1357,18 +1357,18 @@ void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
   std::map<const reco::Track*, TrackingParticleRef> myAss;
   std::map<const reco::Track*, TrackingParticleRef>::const_iterator itAss;
 
-  for (std::vector<PhotonMCTruth>::const_iterator mcPho = mcPhotons.begin(); mcPho != mcPhotons.end(); mcPho++) {
-    mcConvPt_ = (*mcPho).fourMomentum().et();
-    float mcPhi = (*mcPho).fourMomentum().phi();
+  for (const auto& mcPhoton : mcPhotons) {
+    mcConvPt_ = mcPhoton.fourMomentum().et();
+    float mcPhi = mcPhoton.fourMomentum().phi();
     mcPhi_ = phiNormalization(mcPhi);
-    mcEta_ = (*mcPho).fourMomentum().pseudoRapidity();
-    mcEta_ = etaTransformation(mcEta_, (*mcPho).primaryVertex().z());
-    mcConvR_ = (*mcPho).vertex().perp();
-    mcConvX_ = (*mcPho).vertex().x();
-    mcConvY_ = (*mcPho).vertex().y();
-    mcConvZ_ = (*mcPho).vertex().z();
-    mcConvEta_ = (*mcPho).vertex().eta();
-    mcConvPhi_ = (*mcPho).vertex().phi();
+    mcEta_ = mcPhoton.fourMomentum().pseudoRapidity();
+    mcEta_ = etaTransformation(mcEta_, mcPhoton.primaryVertex().z());
+    mcConvR_ = mcPhoton.vertex().perp();
+    mcConvX_ = mcPhoton.vertex().x();
+    mcConvY_ = mcPhoton.vertex().y();
+    mcConvZ_ = mcPhoton.vertex().z();
+    mcConvEta_ = mcPhoton.vertex().eta();
+    mcConvPhi_ = mcPhoton.vertex().phi();
 
     if (fabs(mcEta_) > END_HI)
       continue;
@@ -1386,27 +1386,27 @@ void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
     bool goodSimConversion = false;
     bool visibleConversion = false;
     bool visibleConversionsWithTwoSimTracks = false;
-    if ((*mcPho).isAConversion() == 1) {
+    if (mcPhoton.isAConversion() == 1) {
       nSimConv_[0]++;
       h_AllSimConv_[0]->Fill(mcEta_);
       h_AllSimConv_[1]->Fill(mcPhi_);
       h_AllSimConv_[2]->Fill(mcConvR_);
       h_AllSimConv_[3]->Fill(mcConvZ_);
-      h_AllSimConv_[4]->Fill((*mcPho).fourMomentum().et());
+      h_AllSimConv_[4]->Fill(mcPhoton.fourMomentum().et());
 
       if (mcConvR_ < 15)
         h_SimConvEtaPix_[0]->Fill(mcEta_);
 
       if ((fabs(mcEta_) <= BARL && mcConvR_ < 85) ||
-          (fabs(mcEta_) > BARL && fabs(mcEta_) <= END_HI && fabs((*mcPho).vertex().z()) < 210))
+          (fabs(mcEta_) > BARL && fabs(mcEta_) <= END_HI && fabs(mcPhoton.vertex().z()) < 210))
         visibleConversion = true;
 
       theConvTP_.clear();
       //      std::cout << " TkConvValidator TrackingParticles   TrackingParticleCollection size "<<  trackingParticles.size() <<  "\n";
       //duplicated TP collections for two associations
-      for (const TrackingParticleRef tp : tpForEfficiency) {
-        if (fabs(tp->vx() - (*mcPho).vertex().x()) < 0.0001 && fabs(tp->vy() - (*mcPho).vertex().y()) < 0.0001 &&
-            fabs(tp->vz() - (*mcPho).vertex().z()) < 0.0001) {
+      for (const TrackingParticleRef& tp : tpForEfficiency) {
+        if (fabs(tp->vx() - mcPhoton.vertex().x()) < 0.0001 && fabs(tp->vy() - mcPhoton.vertex().y()) < 0.0001 &&
+            fabs(tp->vz() - mcPhoton.vertex().z()) < 0.0001) {
           theConvTP_.push_back(tp);
         }
       }
@@ -1424,13 +1424,12 @@ void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
         h_VisSimConv_[1]->Fill(mcPhi_);
         h_VisSimConv_[2]->Fill(mcConvR_);
         h_VisSimConv_[3]->Fill(mcConvZ_);
-        h_VisSimConv_[4]->Fill((*mcPho).fourMomentum().et());
+        h_VisSimConv_[4]->Fill(mcPhoton.fourMomentum().et());
       }
 
-      for (edm::RefVector<TrackingParticleCollection>::iterator iTrk = theConvTP_.begin(); iTrk != theConvTP_.end();
-           ++iTrk) {
-        h_simTkPt_->Fill((*iTrk)->pt());
-        h_simTkEta_->Fill((*iTrk)->eta());
+      for (auto&& iTrk : theConvTP_) {
+        h_simTkPt_->Fill((iTrk)->pt());
+        h_simTkEta_->Fill((iTrk)->eta());
       }
 
     }  ////////////// End of info from sim conversions //////////////////////////////////////////////////
@@ -1455,8 +1454,8 @@ void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
     float chi2Prob = 0.;
     //////////////////Measure reco efficiencies
     // cout << " size of conversions " << convHandle->size() << endl;
-    for (reco::ConversionCollection::const_iterator conv = convHandle->begin(); conv != convHandle->end(); ++conv) {
-      const reco::Conversion aConv = (*conv);
+    for (const auto& conv : *convHandle) {
+      const reco::Conversion aConv = conv;
       if (arbitratedMerged_ && !aConv.quality(reco::Conversion::arbitratedMerged))
         continue;
       if (generalTracksOnly_ && !aConv.quality(reco::Conversion::generalTracksOnly))
@@ -1554,7 +1553,7 @@ void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
         h_SimRecConvTwoMTracks_[1]->Fill(mcPhi_);
         h_SimRecConvTwoMTracks_[2]->Fill(mcConvR_);
         h_SimRecConvTwoMTracks_[3]->Fill(mcConvZ_);
-        h_SimRecConvTwoMTracks_[4]->Fill((*mcPho).fourMomentum().et());
+        h_SimRecConvTwoMTracks_[4]->Fill(mcPhoton.fourMomentum().et());
       }
 
       // break;
@@ -1565,21 +1564,21 @@ void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
       h_SimConvTwoMTracks_[1]->Fill(mcPhi_);
       h_SimConvTwoMTracks_[2]->Fill(mcConvR_);
       h_SimConvTwoMTracks_[3]->Fill(mcConvZ_);
-      h_SimConvTwoMTracks_[4]->Fill((*mcPho).fourMomentum().et());
+      h_SimConvTwoMTracks_[4]->Fill(mcPhoton.fourMomentum().et());
 
       if (chi2Prob > 0) {
         h_SimConvTwoMTracksAndVtxPGT0_[0]->Fill(mcEta_);
         h_SimConvTwoMTracksAndVtxPGT0_[1]->Fill(mcPhi_);
         h_SimConvTwoMTracksAndVtxPGT0_[2]->Fill(mcConvR_);
         h_SimConvTwoMTracksAndVtxPGT0_[3]->Fill(mcConvZ_);
-        h_SimConvTwoMTracksAndVtxPGT0_[4]->Fill((*mcPho).fourMomentum().et());
+        h_SimConvTwoMTracksAndVtxPGT0_[4]->Fill(mcPhoton.fourMomentum().et());
       }
       if (chi2Prob > 0.0005) {
         h_SimConvTwoMTracksAndVtxPGT0005_[0]->Fill(mcEta_);
         h_SimConvTwoMTracksAndVtxPGT0005_[1]->Fill(mcPhi_);
         h_SimConvTwoMTracksAndVtxPGT0005_[2]->Fill(mcConvR_);
         h_SimConvTwoMTracksAndVtxPGT0005_[3]->Fill(mcConvZ_);
-        h_SimConvTwoMTracksAndVtxPGT0005_[4]->Fill((*mcPho).fourMomentum().et());
+        h_SimConvTwoMTracksAndVtxPGT0005_[4]->Fill(mcPhoton.fourMomentum().et());
       }
     }
 
@@ -1587,8 +1586,8 @@ void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
 
   // ########################### RECO to SIM ############################## //
 
-  for (reco::ConversionCollection::const_iterator conv = convHandle->begin(); conv != convHandle->end(); ++conv) {
-    const reco::Conversion aConv = (*conv);
+  for (const auto& conv : *convHandle) {
+    const reco::Conversion aConv = conv;
     if (arbitratedMerged_ && !aConv.quality(reco::Conversion::arbitratedMerged))
       continue;
     if (generalTracksOnly_ && !aConv.quality(reco::Conversion::generalTracksOnly))
@@ -1665,8 +1664,7 @@ void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
     double Mindeltaphi = 999999;
     bool matchConvSC = false;
     reco::PhotonCollection::const_iterator iMatchingSC;
-    for (reco::PhotonCollection::const_iterator iPho = photonCollection.begin(); iPho != photonCollection.end();
-         iPho++) {
+    for (auto iPho = photonCollection.begin(); iPho != photonCollection.end(); iPho++) {
       reco::Photon aPho = reco::Photon(*iPho);
       const double deltaphi = reco::deltaPhi(aConv.refittedPairMomentum().phi(), aPho.superCluster()->position().phi());
       double ConvEta = etaTransformation(aConv.refittedPairMomentum().eta(), aConv.zOfPrimaryVertexFromTracks());
@@ -1851,19 +1849,19 @@ void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
     float mcConvPt_ = -99999999.0;
     //    float mcPhi= 0; // unused
     float simPV_Z = 0;
-    for (std::vector<PhotonMCTruth>::const_iterator mcPho = mcPhotons.begin(); mcPho != mcPhotons.end(); mcPho++) {
-      mcConvPt_ = (*mcPho).fourMomentum().et();
-      float mcPhi = (*mcPho).fourMomentum().phi();
-      simPV_Z = (*mcPho).primaryVertex().z();
+    for (const auto& mcPhoton : mcPhotons) {
+      mcConvPt_ = mcPhoton.fourMomentum().et();
+      float mcPhi = mcPhoton.fourMomentum().phi();
+      simPV_Z = mcPhoton.primaryVertex().z();
       mcPhi_ = phiNormalization(mcPhi);
-      mcEta_ = (*mcPho).fourMomentum().pseudoRapidity();
-      mcEta_ = etaTransformation(mcEta_, (*mcPho).primaryVertex().z());
-      mcConvR_ = (*mcPho).vertex().perp();
-      mcConvX_ = (*mcPho).vertex().x();
-      mcConvY_ = (*mcPho).vertex().y();
-      mcConvZ_ = (*mcPho).vertex().z();
-      mcConvEta_ = (*mcPho).vertex().eta();
-      mcConvPhi_ = (*mcPho).vertex().phi();
+      mcEta_ = mcPhoton.fourMomentum().pseudoRapidity();
+      mcEta_ = etaTransformation(mcEta_, mcPhoton.primaryVertex().z());
+      mcConvR_ = mcPhoton.vertex().perp();
+      mcConvX_ = mcPhoton.vertex().x();
+      mcConvY_ = mcPhoton.vertex().y();
+      mcConvZ_ = mcPhoton.vertex().z();
+      mcConvEta_ = mcPhoton.vertex().eta();
+      mcConvPhi_ = mcPhoton.vertex().phi();
       if (fabs(mcEta_) > END_HI)
         continue;
       if (mcConvPt_ < minPhoPtForPurity)
@@ -1875,16 +1873,16 @@ void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
       if (mcConvR_ > maxPhoRForEffic)
         continue;
 
-      if ((*mcPho).isAConversion() != 1)
+      if (mcPhoton.isAConversion() != 1)
         continue;
       if (!((fabs(mcEta_) <= BARL && mcConvR_ < 85) ||
-            (fabs(mcEta_) > BARL && fabs(mcEta_) <= END_HI && fabs((*mcPho).vertex().z()) < 210)))
+            (fabs(mcEta_) > BARL && fabs(mcEta_) <= END_HI && fabs(mcPhoton.vertex().z()) < 210)))
         continue;
 
       theConvTP_.clear();
-      for (const TrackingParticleRef tp : tpForFakeRate) {
-        if (fabs(tp->vx() - (*mcPho).vertex().x()) < 0.0001 && fabs(tp->vy() - (*mcPho).vertex().y()) < 0.0001 &&
-            fabs(tp->vz() - (*mcPho).vertex().z()) < 0.0001) {
+      for (const TrackingParticleRef& tp : tpForFakeRate) {
+        if (fabs(tp->vx() - mcPhoton.vertex().x()) < 0.0001 && fabs(tp->vy() - mcPhoton.vertex().y()) < 0.0001 &&
+            fabs(tp->vz() - mcPhoton.vertex().z()) < 0.0001) {
           theConvTP_.push_back(tp);
         }
       }
@@ -1940,19 +1938,19 @@ void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
       reco::RecoToSimCollection p1incl = theTrackAssociator->associateRecoToSim(tc1, theConvTP_);
       reco::RecoToSimCollection p2incl = theTrackAssociator->associateRecoToSim(tc2, theConvTP_);
 
-      for (std::vector<PhotonMCTruth>::const_iterator mcPho = mcPhotons.begin(); mcPho != mcPhotons.end(); mcPho++) {
-        mcConvPt_ = (*mcPho).fourMomentum().et();
-        float mcPhi = (*mcPho).fourMomentum().phi();
-        simPV_Z = (*mcPho).primaryVertex().z();
+      for (const auto& mcPhoton : mcPhotons) {
+        mcConvPt_ = mcPhoton.fourMomentum().et();
+        float mcPhi = mcPhoton.fourMomentum().phi();
+        simPV_Z = mcPhoton.primaryVertex().z();
         mcPhi_ = phiNormalization(mcPhi);
-        mcEta_ = (*mcPho).fourMomentum().pseudoRapidity();
-        mcEta_ = etaTransformation(mcEta_, (*mcPho).primaryVertex().z());
-        mcConvR_ = (*mcPho).vertex().perp();
-        mcConvX_ = (*mcPho).vertex().x();
-        mcConvY_ = (*mcPho).vertex().y();
-        mcConvZ_ = (*mcPho).vertex().z();
-        mcConvEta_ = (*mcPho).vertex().eta();
-        mcConvPhi_ = (*mcPho).vertex().phi();
+        mcEta_ = mcPhoton.fourMomentum().pseudoRapidity();
+        mcEta_ = etaTransformation(mcEta_, mcPhoton.primaryVertex().z());
+        mcConvR_ = mcPhoton.vertex().perp();
+        mcConvX_ = mcPhoton.vertex().x();
+        mcConvY_ = mcPhoton.vertex().y();
+        mcConvZ_ = mcPhoton.vertex().z();
+        mcConvEta_ = mcPhoton.vertex().eta();
+        mcConvPhi_ = mcPhoton.vertex().phi();
         if (fabs(mcEta_) > END_HI)
           continue;
         if (mcConvPt_ < minPhoPtForPurity)
@@ -1964,16 +1962,16 @@ void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
         if (mcConvR_ > maxPhoRForEffic)
           continue;
 
-        if ((*mcPho).isAConversion() != 1)
+        if (mcPhoton.isAConversion() != 1)
           continue;
         if (!((fabs(mcEta_) <= BARL && mcConvR_ < 85) ||
-              (fabs(mcEta_) > BARL && fabs(mcEta_) <= END_HI && fabs((*mcPho).vertex().z()) < 210)))
+              (fabs(mcEta_) > BARL && fabs(mcEta_) <= END_HI && fabs(mcPhoton.vertex().z()) < 210)))
           continue;
 
         theConvTP_.clear();
-        for (TrackingParticleRef tp : tpForFakeRate) {
-          if (fabs(tp->vx() - (*mcPho).vertex().x()) < 0.0001 && fabs(tp->vy() - (*mcPho).vertex().y()) < 0.0001 &&
-              fabs(tp->vz() - (*mcPho).vertex().z()) < 0.0001) {
+        for (const TrackingParticleRef& tp : tpForFakeRate) {
+          if (fabs(tp->vx() - mcPhoton.vertex().x()) < 0.0001 && fabs(tp->vy() - mcPhoton.vertex().y()) < 0.0001 &&
+              fabs(tp->vz() - mcPhoton.vertex().z()) < 0.0001) {
             theConvTP_.push_back(tp);
           }
         }

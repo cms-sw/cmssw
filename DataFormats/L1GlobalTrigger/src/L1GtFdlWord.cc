@@ -230,9 +230,7 @@ void L1GtFdlWord::printGtTechnicalTriggerWord(std::ostream& myCout) const {
   int sizeW64 = 64;  // 64 bits words
   int iBit = 0;
 
-  for (std::vector<bool>::const_reverse_iterator ritBit = m_gtTechnicalTriggerWord.rbegin();
-       ritBit != m_gtTechnicalTriggerWord.rend();
-       ++ritBit) {
+  for (auto ritBit = m_gtTechnicalTriggerWord.rbegin(); ritBit != m_gtTechnicalTriggerWord.rend(); ++ritBit) {
     myCout << (*ritBit ? '1' : '0');
 
     if ((((iBit + 1) % 16) == (sizeW64 % 16)) && (iBit != 63)) {
@@ -264,10 +262,8 @@ void L1GtFdlWord::setGtTechnicalTriggerWordWord64(cms_uint64_t& word64, const in
     int iBit = 0;
     cms_uint64_t iDecision = 0ULL;
 
-    for (std::vector<bool>::const_iterator itBit = m_gtTechnicalTriggerWord.begin();
-         itBit != m_gtTechnicalTriggerWord.end();
-         ++itBit) {
-      iDecision = static_cast<cms_uint64_t>(*itBit);  //(*itBit ? 1 : 0);
+    for (std::_Bit_const_iterator::const_reference itBit : m_gtTechnicalTriggerWord) {
+      iDecision = static_cast<cms_uint64_t>(itBit);  //(*itBit ? 1 : 0);
       wordTT = wordTT | (iDecision << iBit);
 
       iBit++;
@@ -296,8 +292,7 @@ void L1GtFdlWord::printGtDecisionWord(std::ostream& myCout) const {
   std::vector<std::string> decWord;
   decWord.reserve(nrDecWord);
 
-  for (std::vector<bool>::const_reverse_iterator ritBit = m_gtDecisionWord.rbegin(); ritBit != m_gtDecisionWord.rend();
-       ++ritBit) {
+  for (auto ritBit = m_gtDecisionWord.rbegin(); ritBit != m_gtDecisionWord.rend(); ++ritBit) {
     stream64 << (*ritBit ? '1' : '0');
 
     if ((((iBit + 1) % 16) == (sizeW64 % 16))) {
@@ -317,7 +312,7 @@ void L1GtFdlWord::printGtDecisionWord(std::ostream& myCout) const {
 
   int iWord = 0;
 
-  for (std::vector<std::string>::reverse_iterator ritWord = decWord.rbegin(); ritWord != decWord.rend(); ++ritWord) {
+  for (auto ritWord = decWord.rbegin(); ritWord != decWord.rend(); ++ritWord) {
     myCout << std::endl;
     myCout << "  DecisionWord (bitset style): bits " << iWord * sizeW64 + sizeW64 - 1 << " : " << iWord * sizeW64
            << "\n  ";
@@ -366,8 +361,8 @@ void L1GtFdlWord::setGtDecisionWordAWord64(cms_uint64_t& word64, const int iWord
     int iBit = 0;
     cms_uint64_t iDecision = 0ULL;
 
-    for (std::vector<bool>::const_iterator itBit = m_gtDecisionWord.begin(); itBit != m_gtDecisionWord.end(); ++itBit) {
-      iDecision = static_cast<cms_uint64_t>(*itBit);  //(*itBit ? 1 : 0);
+    for (std::_Bit_const_iterator::const_reference itBit : m_gtDecisionWord) {
+      iDecision = static_cast<cms_uint64_t>(itBit);  //(*itBit ? 1 : 0);
       wordA = wordA | (iDecision << iBit);
 
       iBit++;
@@ -393,10 +388,10 @@ void L1GtFdlWord::setGtDecisionWordBWord64(cms_uint64_t& word64, const int iWord
     int iBit = 0;
     cms_uint64_t iDecision = 0ULL;
 
-    for (std::vector<bool>::const_iterator itBit = m_gtDecisionWord.begin(); itBit != m_gtDecisionWord.end(); ++itBit) {
+    for (std::_Bit_const_iterator::const_reference itBit : m_gtDecisionWord) {
       if (iBit >= word64Size) {
         // skip first word64Size bits, they go in wordA
-        iDecision = static_cast<cms_uint64_t>(*itBit);  //(*itBit ? 1 : 0);
+        iDecision = static_cast<cms_uint64_t>(itBit);  //(*itBit ? 1 : 0);
         wordB = wordB | (iDecision << (iBit - word64Size));
       }
 
@@ -416,9 +411,7 @@ void L1GtFdlWord::printGtDecisionWordExtended(std::ostream& myCout) const {
   int sizeW64 = 64;  // 64 bits words
   int iBit = 0;
 
-  for (std::vector<bool>::const_reverse_iterator ritBit = m_gtDecisionWordExtended.rbegin();
-       ritBit != m_gtDecisionWordExtended.rend();
-       ++ritBit) {
+  for (auto ritBit = m_gtDecisionWordExtended.rbegin(); ritBit != m_gtDecisionWordExtended.rend(); ++ritBit) {
     myCout << (*ritBit ? '1' : '0');
 
     if ((((iBit + 1) % 16) == (sizeW64 % 16)) && (iBit != 63)) {
@@ -451,10 +444,8 @@ void L1GtFdlWord::setGtDecisionWordExtendedWord64(cms_uint64_t& word64, const in
     int iBit = 0;
     cms_uint64_t iDecision = 0ULL;
 
-    for (std::vector<bool>::const_iterator itBit = m_gtDecisionWordExtended.begin();
-         itBit != m_gtDecisionWordExtended.end();
-         ++itBit) {
-      iDecision = static_cast<cms_uint64_t>(*itBit);  //(*itBit ? 1 : 0);
+    for (std::_Bit_const_iterator::const_reference itBit : m_gtDecisionWordExtended) {
+      iDecision = static_cast<cms_uint64_t>(itBit);  //(*itBit ? 1 : 0);
       wordE = wordE | (iDecision << iBit);
 
       iBit++;

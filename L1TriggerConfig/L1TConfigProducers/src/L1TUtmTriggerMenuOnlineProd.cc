@@ -41,7 +41,7 @@ std::unique_ptr<const L1TUtmTriggerMenu> L1TUtmTriggerMenuOnlineProd::newObject(
   }
 
   std::vector<std::string> queryColumns;
-  queryColumns.push_back("CONF");
+  queryColumns.emplace_back("CONF");
 
   l1t::OMDSReader::QueryResults queryResult = m_omdsReader.basicQuery(
       queryColumns, stage2Schema, "UGT_L1_MENU", "UGT_L1_MENU.ID", m_omdsReader.singleAttribute(objectKey));
@@ -56,7 +56,7 @@ std::unique_ptr<const L1TUtmTriggerMenu> L1TUtmTriggerMenuOnlineProd::newObject(
 
   std::istringstream iss(l1Menu);
 
-  const L1TUtmTriggerMenu* cmenu = reinterpret_cast<const L1TUtmTriggerMenu*>(tmeventsetup::getTriggerMenu(iss));
+  const auto* cmenu = reinterpret_cast<const L1TUtmTriggerMenu*>(tmeventsetup::getTriggerMenu(iss));
   return std::unique_ptr<const L1TUtmTriggerMenu>(cmenu);
 }
 

@@ -321,52 +321,52 @@ void TrackCount::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   if (m_dump)
     edm::LogInfo("TrackDump") << " isHP algo pt eta phi chi2N chi2 ndof nlay npxl n3dl nlost ";
 
-  for (reco::TrackCollection::const_iterator it = tracks->begin(); it != tracks->end(); it++) {
+  for (const auto& it : *tracks) {
     if (m_dump) {
-      edm::LogVerbatim("TrackDump") << it->quality(quality) << " " << it->algo() << " " << it->pt() << " " << it->eta()
-                                    << " " << it->phi() << " " << it->normalizedChi2() << " " << it->chi2() << " "
-                                    << it->ndof() << " " << it->hitPattern().trackerLayersWithMeasurement() << " "
-                                    << it->hitPattern().pixelLayersWithMeasurement() << " "
-                                    << it->hitPattern().numberOfValidStripLayersWithMonoAndStereo() << " "
-                                    << it->hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS)
+      edm::LogVerbatim("TrackDump") << it.quality(quality) << " " << it.algo() << " " << it.pt() << " " << it.eta()
+                                    << " " << it.phi() << " " << it.normalizedChi2() << " " << it.chi2() << " "
+                                    << it.ndof() << " " << it.hitPattern().trackerLayersWithMeasurement() << " "
+                                    << it.hitPattern().pixelLayersWithMeasurement() << " "
+                                    << it.hitPattern().numberOfValidStripLayersWithMonoAndStereo() << " "
+                                    << it.hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS)
                                     << " ";
     }
 
-    m_hnlosthits->Fill(it->hitPattern().numberOfLostTrackerHits(reco::HitPattern::TRACK_HITS));
+    m_hnlosthits->Fill(it.hitPattern().numberOfLostTrackerHits(reco::HitPattern::TRACK_HITS));
 
-    m_hnrhits->Fill(it->hitPattern().numberOfValidTrackerHits());
-    m_hnpixelrhits->Fill(it->hitPattern().numberOfValidPixelHits());
-    m_hnstriprhits->Fill(it->hitPattern().numberOfValidStripHits());
-    m_hnhitphieta->Fill(it->eta(), it->phi(), it->hitPattern().numberOfValidTrackerHits());
+    m_hnrhits->Fill(it.hitPattern().numberOfValidTrackerHits());
+    m_hnpixelrhits->Fill(it.hitPattern().numberOfValidPixelHits());
+    m_hnstriprhits->Fill(it.hitPattern().numberOfValidStripHits());
+    m_hnhitphieta->Fill(it.eta(), it.phi(), it.hitPattern().numberOfValidTrackerHits());
 
-    m_hnlostlayers->Fill(it->hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS));
+    m_hnlostlayers->Fill(it.hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS));
 
-    m_hnlayers->Fill(it->hitPattern().trackerLayersWithMeasurement());
-    m_hnpixellayers->Fill(it->hitPattern().pixelLayersWithMeasurement());
-    m_hnstriplayers->Fill(it->hitPattern().stripLayersWithMeasurement());
-    m_hnlayerphieta->Fill(it->eta(), it->phi(), it->hitPattern().trackerLayersWithMeasurement());
+    m_hnlayers->Fill(it.hitPattern().trackerLayersWithMeasurement());
+    m_hnpixellayers->Fill(it.hitPattern().pixelLayersWithMeasurement());
+    m_hnstriplayers->Fill(it.hitPattern().stripLayersWithMeasurement());
+    m_hnlayerphieta->Fill(it.eta(), it.phi(), it.hitPattern().trackerLayersWithMeasurement());
 
-    m_halgo->Fill(it->algo());
+    m_halgo->Fill(it.algo());
 
-    m_hphi->Fill(it->phi());
-    m_heta->Fill(it->eta());
-    m_hphieta->Fill(it->eta(), it->phi());
+    m_hphi->Fill(it.phi());
+    m_heta->Fill(it.eta());
+    m_hphieta->Fill(it.eta(), it.phi());
 
-    double pt = it->pt();
+    double pt = it.pt();
     m_hpt->Fill(pt);
-    m_chisq->Fill(it->chi2());
-    m_chisqnorm->Fill(it->normalizedChi2());
-    m_ndof->Fill(it->ndof());
+    m_chisq->Fill(it.chi2());
+    m_chisqnorm->Fill(it.normalizedChi2());
+    m_ndof->Fill(it.ndof());
     if (m_2dhistos) {
-      m_chisqvseta->Fill(it->eta(), it->chi2());
-      m_chisqnormvseta->Fill(it->eta(), it->normalizedChi2());
-      m_ndofvseta->Fill(it->eta(), it->ndof());
+      m_chisqvseta->Fill(it.eta(), it.chi2());
+      m_chisqnormvseta->Fill(it.eta(), it.normalizedChi2());
+      m_ndofvseta->Fill(it.eta(), it.ndof());
     }
-    m_hptphieta->Fill(it->eta(), it->phi(), pt);
+    m_hptphieta->Fill(it.eta(), it.phi(), pt);
     sumptsq += pt * pt;
-    if (it->p())
-      m_hcos->Fill(it->pz() / it->p());
-    if (it->quality(quality))
+    if (it.p())
+      m_hcos->Fill(it.pz() / it.p());
+    if (it.quality(quality))
       nhptrk++;
   }
 

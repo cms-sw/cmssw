@@ -70,10 +70,10 @@ StdHitNtuplizer::StdHitNtuplizer(edm::ParameterSet const& conf)
       rphiRecHits_(conf.getParameter<edm::InputTag>("rphiRecHits")),
       stereoRecHits_(conf.getParameter<edm::InputTag>("stereoRecHits")),
       matchedRecHits_(conf.getParameter<edm::InputTag>("matchedRecHits")),
-      tfile_(0),
-      pixeltree_(0),
-      striptree_(0),
-      pixeltree2_(0) {}
+      tfile_(nullptr),
+      pixeltree_(nullptr),
+      striptree_(nullptr),
+      pixeltree2_(nullptr) {}
 
 StdHitNtuplizer::~StdHitNtuplizer() {}
 
@@ -169,12 +169,12 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es) {
         matched = associate.associateHit(*iterRecHit);
         if (!matched.empty()) {
           float closest = 9999.9;
-          std::vector<PSimHit>::const_iterator closestit = matched.begin();
+          auto closestit = matched.begin();
           LocalPoint lp = iterRecHit->localPosition();
           float rechit_x = lp.x();
           float rechit_y = lp.y();
           //loop over simhits and find closest
-          for (std::vector<PSimHit>::const_iterator m = matched.begin(); m < matched.end(); m++) {
+          for (auto m = matched.begin(); m < matched.end(); m++) {
             float sim_x1 = (*m).entryPoint().x();
             float sim_x2 = (*m).exitPoint().x();
             float sim_xpos = 0.5 * (sim_x1 + sim_x2);
@@ -297,7 +297,7 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es) {
     ++rT;
     RefToBase<reco::Track> track(trackCollection, i);
     //      std::cout << " num of hits for track " << rT << " = " << track->recHitsSize() << std::endl;
-    for (trackingRecHit_iterator ih = track->recHitsBegin(); ih != track->recHitsEnd(); ++ih) {
+    for (auto ih = track->recHitsBegin(); ih != track->recHitsEnd(); ++ih) {
       TrackingRecHit* hit = (*ih)->clone();
       const DetId& detId = hit->geographicalId();
       const GeomDet* geomDet(theGeometry->idToDet(detId));
@@ -389,7 +389,7 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es) {
   //std::cout << " Step A: Standard Strip RPHI RecHits found " << rechitsrphi.product()->dataSize() << std::endl;
   //std::cout << " Step A: Standard Strip Stereo RecHits found " << rechitsstereo.product()->dataSize() << std::endl;
   //std::cout << " Step A: Standard Strip Matched RecHits found " << rechitsmatched.product()->dataSize() << std::endl;
-  if (rechitsrphi->size() > 0) {
+  if (!rechitsrphi->empty()) {
     //Loop over all rechits in RPHI collection (can also loop only over DetId)
     //    SiStripRecHit2DCollectionOld::const_iterator theRecHitRangeIteratorBegin = rechitsrphi->begin();
     //    SiStripRecHit2DCollectionOld::const_iterator theRecHitRangeIteratorEnd   = rechitsrphi->end();

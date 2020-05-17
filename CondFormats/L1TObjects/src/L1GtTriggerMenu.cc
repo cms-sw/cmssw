@@ -114,9 +114,8 @@ L1GtTriggerMenu::L1GtTriggerMenu(const L1GtTriggerMenu& rhs) {
 // destructor
 L1GtTriggerMenu::~L1GtTriggerMenu() {
   // loop over condition maps (one map per condition chip)
-  for (std::vector<ConditionMap>::iterator itCondOnChip = m_conditionMap.begin(); itCondOnChip != m_conditionMap.end();
-       itCondOnChip++) {
-    itCondOnChip->clear();
+  for (auto& itCondOnChip : m_conditionMap) {
+    itCondOnChip.clear();
   }
 
   m_algorithmMap.clear();
@@ -166,9 +165,8 @@ void L1GtTriggerMenu::setGtConditionMap(const std::vector<ConditionMap>& condMap
 // build the condition maps
 void L1GtTriggerMenu::buildGtConditionMap() {
   // clear the conditions from the maps, if any
-  for (std::vector<ConditionMap>::iterator itCondOnChip = m_conditionMap.begin(); itCondOnChip != m_conditionMap.end();
-       itCondOnChip++) {
-    itCondOnChip->clear();
+  for (auto& itCondOnChip : m_conditionMap) {
+    itCondOnChip.clear();
   }
 
   // always check that the size of the condition map is greater than the size
@@ -184,13 +182,10 @@ void L1GtTriggerMenu::buildGtConditionMap() {
 
   int chipNr = -1;
 
-  for (std::vector<std::vector<L1GtMuonTemplate> >::iterator itCondOnChip = m_vecMuonTemplate.begin();
-       itCondOnChip != m_vecMuonTemplate.end();
-       itCondOnChip++) {
+  for (auto& itCondOnChip : m_vecMuonTemplate) {
     chipNr++;
 
-    for (std::vector<L1GtMuonTemplate>::iterator itCond = itCondOnChip->begin(); itCond != itCondOnChip->end();
-         itCond++) {
+    for (auto itCond = itCondOnChip.begin(); itCond != itCondOnChip.end(); itCond++) {
       (m_conditionMap.at(chipNr))[itCond->condName()] = &(*itCond);
     }
   }
@@ -203,13 +198,10 @@ void L1GtTriggerMenu::buildGtConditionMap() {
   }
 
   chipNr = -1;
-  for (std::vector<std::vector<L1GtCaloTemplate> >::iterator itCondOnChip = m_vecCaloTemplate.begin();
-       itCondOnChip != m_vecCaloTemplate.end();
-       itCondOnChip++) {
+  for (auto& itCondOnChip : m_vecCaloTemplate) {
     chipNr++;
 
-    for (std::vector<L1GtCaloTemplate>::iterator itCond = itCondOnChip->begin(); itCond != itCondOnChip->end();
-         itCond++) {
+    for (auto itCond = itCondOnChip.begin(); itCond != itCondOnChip.end(); itCond++) {
       (m_conditionMap.at(chipNr))[itCond->condName()] = &(*itCond);
     }
   }
@@ -222,13 +214,10 @@ void L1GtTriggerMenu::buildGtConditionMap() {
   }
 
   chipNr = -1;
-  for (std::vector<std::vector<L1GtEnergySumTemplate> >::iterator itCondOnChip = m_vecEnergySumTemplate.begin();
-       itCondOnChip != m_vecEnergySumTemplate.end();
-       itCondOnChip++) {
+  for (auto& itCondOnChip : m_vecEnergySumTemplate) {
     chipNr++;
 
-    for (std::vector<L1GtEnergySumTemplate>::iterator itCond = itCondOnChip->begin(); itCond != itCondOnChip->end();
-         itCond++) {
+    for (auto itCond = itCondOnChip.begin(); itCond != itCondOnChip.end(); itCond++) {
       (m_conditionMap.at(chipNr))[itCond->condName()] = &(*itCond);
     }
   }
@@ -241,13 +230,10 @@ void L1GtTriggerMenu::buildGtConditionMap() {
   }
 
   chipNr = -1;
-  for (std::vector<std::vector<L1GtJetCountsTemplate> >::iterator itCondOnChip = m_vecJetCountsTemplate.begin();
-       itCondOnChip != m_vecJetCountsTemplate.end();
-       itCondOnChip++) {
+  for (auto& itCondOnChip : m_vecJetCountsTemplate) {
     chipNr++;
 
-    for (std::vector<L1GtJetCountsTemplate>::iterator itCond = itCondOnChip->begin(); itCond != itCondOnChip->end();
-         itCond++) {
+    for (auto itCond = itCondOnChip.begin(); itCond != itCondOnChip.end(); itCond++) {
       (m_conditionMap.at(chipNr))[itCond->condName()] = &(*itCond);
     }
   }
@@ -260,13 +246,10 @@ void L1GtTriggerMenu::buildGtConditionMap() {
   }
 
   chipNr = -1;
-  for (std::vector<std::vector<L1GtCastorTemplate> >::iterator itCondOnChip = m_vecCastorTemplate.begin();
-       itCondOnChip != m_vecCastorTemplate.end();
-       itCondOnChip++) {
+  for (auto& itCondOnChip : m_vecCastorTemplate) {
     chipNr++;
 
-    for (std::vector<L1GtCastorTemplate>::iterator itCond = itCondOnChip->begin(); itCond != itCondOnChip->end();
-         itCond++) {
+    for (auto itCond = itCondOnChip.begin(); itCond != itCondOnChip.end(); itCond++) {
       (m_conditionMap.at(chipNr))[itCond->condName()] = &(*itCond);
     }
   }
@@ -279,13 +262,10 @@ void L1GtTriggerMenu::buildGtConditionMap() {
   }
 
   chipNr = -1;
-  for (std::vector<std::vector<L1GtHfBitCountsTemplate> >::iterator itCondOnChip = m_vecHfBitCountsTemplate.begin();
-       itCondOnChip != m_vecHfBitCountsTemplate.end();
-       itCondOnChip++) {
+  for (auto& itCondOnChip : m_vecHfBitCountsTemplate) {
     chipNr++;
 
-    for (std::vector<L1GtHfBitCountsTemplate>::iterator itCond = itCondOnChip->begin(); itCond != itCondOnChip->end();
-         itCond++) {
+    for (auto itCond = itCondOnChip.begin(); itCond != itCondOnChip.end(); itCond++) {
       (m_conditionMap.at(chipNr))[itCond->condName()] = &(*itCond);
     }
   }
@@ -298,13 +278,10 @@ void L1GtTriggerMenu::buildGtConditionMap() {
   }
 
   chipNr = -1;
-  for (std::vector<std::vector<L1GtHfRingEtSumsTemplate> >::iterator itCondOnChip = m_vecHfRingEtSumsTemplate.begin();
-       itCondOnChip != m_vecHfRingEtSumsTemplate.end();
-       itCondOnChip++) {
+  for (auto& itCondOnChip : m_vecHfRingEtSumsTemplate) {
     chipNr++;
 
-    for (std::vector<L1GtHfRingEtSumsTemplate>::iterator itCond = itCondOnChip->begin(); itCond != itCondOnChip->end();
-         itCond++) {
+    for (auto itCond = itCondOnChip.begin(); itCond != itCondOnChip.end(); itCond++) {
       (m_conditionMap.at(chipNr))[itCond->condName()] = &(*itCond);
     }
   }
@@ -317,13 +294,10 @@ void L1GtTriggerMenu::buildGtConditionMap() {
   }
 
   chipNr = -1;
-  for (std::vector<std::vector<L1GtBptxTemplate> >::iterator itCondOnChip = m_vecBptxTemplate.begin();
-       itCondOnChip != m_vecBptxTemplate.end();
-       itCondOnChip++) {
+  for (auto& itCondOnChip : m_vecBptxTemplate) {
     chipNr++;
 
-    for (std::vector<L1GtBptxTemplate>::iterator itCond = itCondOnChip->begin(); itCond != itCondOnChip->end();
-         itCond++) {
+    for (auto itCond = itCondOnChip.begin(); itCond != itCondOnChip.end(); itCond++) {
       (m_conditionMap.at(chipNr))[itCond->condName()] = &(*itCond);
     }
   }
@@ -336,13 +310,10 @@ void L1GtTriggerMenu::buildGtConditionMap() {
   }
 
   chipNr = -1;
-  for (std::vector<std::vector<L1GtExternalTemplate> >::iterator itCondOnChip = m_vecExternalTemplate.begin();
-       itCondOnChip != m_vecExternalTemplate.end();
-       itCondOnChip++) {
+  for (auto& itCondOnChip : m_vecExternalTemplate) {
     chipNr++;
 
-    for (std::vector<L1GtExternalTemplate>::iterator itCond = itCondOnChip->begin(); itCond != itCondOnChip->end();
-         itCond++) {
+    for (auto itCond = itCondOnChip.begin(); itCond != itCondOnChip.end(); itCond++) {
       (m_conditionMap.at(chipNr))[itCond->condName()] = &(*itCond);
     }
   }
@@ -355,13 +326,10 @@ void L1GtTriggerMenu::buildGtConditionMap() {
   }
 
   chipNr = -1;
-  for (std::vector<std::vector<L1GtCorrelationTemplate> >::iterator itCondOnChip = m_vecCorrelationTemplate.begin();
-       itCondOnChip != m_vecCorrelationTemplate.end();
-       itCondOnChip++) {
+  for (auto& itCondOnChip : m_vecCorrelationTemplate) {
     chipNr++;
 
-    for (std::vector<L1GtCorrelationTemplate>::iterator itCond = itCondOnChip->begin(); itCond != itCondOnChip->end();
-         itCond++) {
+    for (auto itCond = itCondOnChip.begin(); itCond != itCondOnChip.end(); itCond++) {
       (m_conditionMap.at(chipNr))[itCond->condName()] = &(*itCond);
     }
   }
@@ -457,9 +425,9 @@ void L1GtTriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
   std::map<int, const L1GtAlgorithm*> algoBitToAlgo;
   typedef std::map<int, const L1GtAlgorithm*>::const_iterator CItBit;
 
-  for (CItAlgo itAlgo = m_algorithmMap.begin(); itAlgo != m_algorithmMap.end(); itAlgo++) {
-    int bitNumber = (itAlgo->second).algoBitNumber();
-    algoBitToAlgo[bitNumber] = &(itAlgo->second);
+  for (const auto& itAlgo : m_algorithmMap) {
+    int bitNumber = (itAlgo.second).algoBitNumber();
+    algoBitToAlgo[bitNumber] = &(itAlgo.second);
   }
 
   size_t nrDefinedAlgo = algoBitToAlgo.size();
@@ -467,9 +435,9 @@ void L1GtTriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
   // idem for technical trigger map - only name and bit number are relevant for them
   std::map<int, const L1GtAlgorithm*> ttBitToTt;
 
-  for (CItAlgo itAlgo = m_technicalTriggerMap.begin(); itAlgo != m_technicalTriggerMap.end(); itAlgo++) {
-    int bitNumber = (itAlgo->second).algoBitNumber();
-    ttBitToTt[bitNumber] = &(itAlgo->second);
+  for (const auto& itAlgo : m_technicalTriggerMap) {
+    int bitNumber = (itAlgo.second).algoBitNumber();
+    ttBitToTt[bitNumber] = &(itAlgo.second);
   }
 
   size_t nrDefinedTechTrig = ttBitToTt.size();
@@ -490,7 +458,7 @@ void L1GtTriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
              << "Bit Number " << std::right << std::setw(35) << "Algorithm Name"
              << "  " << std::right << std::setw(35) << "Algorithm Alias" << std::endl;
 
-      for (CItBit itBit = algoBitToAlgo.begin(); itBit != algoBitToAlgo.end(); itBit++) {
+      for (auto itBit = algoBitToAlgo.begin(); itBit != algoBitToAlgo.end(); itBit++) {
         int bitNumber = itBit->first;
         std::string aName = (itBit->second)->algoName();
         std::string aAlias = (itBit->second)->algoAlias();
@@ -507,7 +475,7 @@ void L1GtTriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
                << " Technical trigger name " << std::endl;
       }
 
-      for (CItBit itBit = ttBitToTt.begin(); itBit != ttBitToTt.end(); itBit++) {
+      for (auto itBit = ttBitToTt.begin(); itBit != ttBitToTt.end(); itBit++) {
         int bitNumber = itBit->first;
         std::string aName = (itBit->second)->algoName();
         std::string aAlias = (itBit->second)->algoAlias();
@@ -533,7 +501,7 @@ void L1GtTriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
              << "\n  Logical Expression \n"
              << std::endl;
 
-      for (CItBit itBit = algoBitToAlgo.begin(); itBit != algoBitToAlgo.end(); itBit++) {
+      for (auto itBit = algoBitToAlgo.begin(); itBit != algoBitToAlgo.end(); itBit++) {
         int bitNumber = itBit->first;
         std::string aName = (itBit->second)->algoName();
         std::string aAlias = (itBit->second)->algoAlias();
@@ -552,7 +520,7 @@ void L1GtTriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
                << " Technical trigger name " << std::endl;
       }
 
-      for (CItBit itBit = ttBitToTt.begin(); itBit != ttBitToTt.end(); itBit++) {
+      for (auto itBit = ttBitToTt.begin(); itBit != ttBitToTt.end(); itBit++) {
         int bitNumber = itBit->first;
         std::string aName = (itBit->second)->algoName();
 
@@ -572,7 +540,7 @@ void L1GtTriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
              << "\n\n"
              << std::endl;
 
-      for (CItBit itBit = algoBitToAlgo.begin(); itBit != algoBitToAlgo.end(); itBit++) {
+      for (auto itBit = algoBitToAlgo.begin(); itBit != algoBitToAlgo.end(); itBit++) {
         (itBit->second)->print(myCout);
       }
 
@@ -581,18 +549,16 @@ void L1GtTriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
       int chipNr = -1;
       int totalNrConditions = 0;
 
-      for (std::vector<ConditionMap>::const_iterator itCondOnChip = m_conditionMap.begin();
-           itCondOnChip != m_conditionMap.end();
-           itCondOnChip++) {
+      for (const auto& itCondOnChip : m_conditionMap) {
         chipNr++;
 
-        int condMapSize = itCondOnChip->size();
+        int condMapSize = itCondOnChip.size();
         totalNrConditions += condMapSize;
 
         myCout << "\nTotal number of conditions on condition chip " << chipNr << ": " << condMapSize << " conditions.\n"
                << std::endl;
 
-        for (CItCond itCond = itCondOnChip->begin(); itCond != itCondOnChip->end(); itCond++) {
+        for (auto itCond = itCondOnChip.begin(); itCond != itCondOnChip.end(); itCond++) {
           (itCond->second)->print(myCout);
         }
       }
@@ -607,7 +573,7 @@ void L1GtTriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
                << " Technical trigger name " << std::endl;
       }
 
-      for (CItBit itBit = ttBitToTt.begin(); itBit != ttBitToTt.end(); itBit++) {
+      for (auto itBit = ttBitToTt.begin(); itBit != ttBitToTt.end(); itBit++) {
         int bitNumber = itBit->first;
         std::string aName = (itBit->second)->algoName();
 
@@ -629,7 +595,7 @@ void L1GtTriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
 const bool L1GtTriggerMenu::gtAlgorithmResult(const std::string& algName, const std::vector<bool>& decWord) const {
   bool algResult = false;
 
-  CItAlgo itAlgo = m_algorithmMap.find(algName);
+  auto itAlgo = m_algorithmMap.find(algName);
   if (itAlgo != m_algorithmMap.end()) {
     int bitNumber = (itAlgo->second).algoBitNumber();
     algResult = decWord.at(bitNumber);

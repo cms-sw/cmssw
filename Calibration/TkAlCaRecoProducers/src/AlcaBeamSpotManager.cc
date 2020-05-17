@@ -61,13 +61,13 @@ void AlcaBeamSpotManager::readLumi(const LuminosityBlock &iLumi) {
 //--------------------------------------------------------------------------------------------------
 void AlcaBeamSpotManager::createWeightedPayloads(void) {
   vector<bsMap_iterator> listToErase;
-  for (bsMap_iterator it = beamSpotMap_.begin(); it != beamSpotMap_.end(); it++) {
+  for (auto it = beamSpotMap_.begin(); it != beamSpotMap_.end(); it++) {
     if (it->second.second.type() != BeamSpot::Tracker || it->second.second.sigmaZ() < sigmaZCut_) {
       listToErase.push_back(it);
     }
   }
-  for (vector<bsMap_iterator>::iterator it = listToErase.begin(); it != listToErase.end(); it++) {
-    beamSpotMap_.erase(*it);
+  for (auto &it : listToErase) {
+    beamSpotMap_.erase(it);
   }
   if (beamSpotMap_.size() <= 1) {
     return;
@@ -79,11 +79,11 @@ void AlcaBeamSpotManager::createWeightedPayloads(void) {
   }
   if (beamSpotOutputBase_ == "lumibased") {
     //    bsMap_iterator referenceBS = beamSpotMap_.begin();
-    bsMap_iterator firstBS = beamSpotMap_.begin();
+    auto firstBS = beamSpotMap_.begin();
     //    bsMap_iterator lastBS      = beamSpotMap_.begin();
-    bsMap_iterator currentBS = beamSpotMap_.begin();
-    bsMap_iterator nextBS = ++beamSpotMap_.begin();
-    bsMap_iterator nextNextBS = ++(++(beamSpotMap_.begin()));
+    auto currentBS = beamSpotMap_.begin();
+    auto nextBS = ++beamSpotMap_.begin();
+    auto nextNextBS = ++(++(beamSpotMap_.begin()));
 
     reco::BeamSpot currentBSObj;
     reco::BeamSpot nextBSObj;

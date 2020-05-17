@@ -4,11 +4,9 @@ L1Analysis::L1AnalysisL1Upgrade::L1AnalysisL1Upgrade() {}
 
 L1Analysis::L1AnalysisL1Upgrade::~L1AnalysisL1Upgrade() {}
 
-void L1Analysis::L1AnalysisL1Upgrade::SetEm(const edm::Handle<l1t::EGammaBxCollection> em, unsigned maxL1Upgrade) {
+void L1Analysis::L1AnalysisL1Upgrade::SetEm(const edm::Handle<l1t::EGammaBxCollection>& em, unsigned maxL1Upgrade) {
   for (int ibx = em->getFirstBX(); ibx <= em->getLastBX(); ++ibx) {
-    for (l1t::EGammaBxCollection::const_iterator it = em->begin(ibx);
-         it != em->end(ibx) && l1upgrade_.nEGs < maxL1Upgrade;
-         it++) {
+    for (auto it = em->begin(ibx); it != em->end(ibx) && l1upgrade_.nEGs < maxL1Upgrade; it++) {
       if (it->pt() > 0) {
         l1upgrade_.egEt.push_back(it->pt());
         l1upgrade_.egEta.push_back(it->eta());
@@ -33,11 +31,9 @@ void L1Analysis::L1AnalysisL1Upgrade::SetEm(const edm::Handle<l1t::EGammaBxColle
   }
 }
 
-void L1Analysis::L1AnalysisL1Upgrade::SetTau(const edm::Handle<l1t::TauBxCollection> tau, unsigned maxL1Upgrade) {
+void L1Analysis::L1AnalysisL1Upgrade::SetTau(const edm::Handle<l1t::TauBxCollection>& tau, unsigned maxL1Upgrade) {
   for (int ibx = tau->getFirstBX(); ibx <= tau->getLastBX(); ++ibx) {
-    for (l1t::TauBxCollection::const_iterator it = tau->begin(ibx);
-         it != tau->end(ibx) && l1upgrade_.nTaus < maxL1Upgrade;
-         it++) {
+    for (auto it = tau->begin(ibx); it != tau->end(ibx) && l1upgrade_.nTaus < maxL1Upgrade; it++) {
       if (it->pt() > 0) {
         l1upgrade_.tauEt.push_back(it->et());
         l1upgrade_.tauEta.push_back(it->eta());
@@ -61,11 +57,9 @@ void L1Analysis::L1AnalysisL1Upgrade::SetTau(const edm::Handle<l1t::TauBxCollect
   }
 }
 
-void L1Analysis::L1AnalysisL1Upgrade::SetJet(const edm::Handle<l1t::JetBxCollection> jet, unsigned maxL1Upgrade) {
+void L1Analysis::L1AnalysisL1Upgrade::SetJet(const edm::Handle<l1t::JetBxCollection>& jet, unsigned maxL1Upgrade) {
   for (int ibx = jet->getFirstBX(); ibx <= jet->getLastBX(); ++ibx) {
-    for (l1t::JetBxCollection::const_iterator it = jet->begin(ibx);
-         it != jet->end(ibx) && l1upgrade_.nJets < maxL1Upgrade;
-         it++) {
+    for (auto it = jet->begin(ibx); it != jet->end(ibx) && l1upgrade_.nJets < maxL1Upgrade; it++) {
       if (it->pt() > 0) {
         l1upgrade_.jetEt.push_back(it->et());
         l1upgrade_.jetEta.push_back(it->eta());
@@ -89,11 +83,9 @@ void L1Analysis::L1AnalysisL1Upgrade::SetJet(const edm::Handle<l1t::JetBxCollect
   }
 }
 
-void L1Analysis::L1AnalysisL1Upgrade::SetMuon(const edm::Handle<l1t::MuonBxCollection> muon, unsigned maxL1Upgrade) {
+void L1Analysis::L1AnalysisL1Upgrade::SetMuon(const edm::Handle<l1t::MuonBxCollection>& muon, unsigned maxL1Upgrade) {
   for (int ibx = muon->getFirstBX(); ibx <= muon->getLastBX(); ++ibx) {
-    for (l1t::MuonBxCollection::const_iterator it = muon->begin(ibx);
-         it != muon->end(ibx) && l1upgrade_.nMuons < maxL1Upgrade;
-         it++) {
+    for (auto it = muon->begin(ibx); it != muon->end(ibx) && l1upgrade_.nMuons < maxL1Upgrade; it++) {
       if (it->pt() > 0) {
         l1upgrade_.muonEt.push_back(it->et());
         l1upgrade_.muonEta.push_back(it->eta());
@@ -118,11 +110,9 @@ void L1Analysis::L1AnalysisL1Upgrade::SetMuon(const edm::Handle<l1t::MuonBxColle
   }
 }
 
-void L1Analysis::L1AnalysisL1Upgrade::SetSum(const edm::Handle<l1t::EtSumBxCollection> sums, unsigned maxL1Upgrade) {
+void L1Analysis::L1AnalysisL1Upgrade::SetSum(const edm::Handle<l1t::EtSumBxCollection>& sums, unsigned maxL1Upgrade) {
   for (int ibx = sums->getFirstBX(); ibx <= sums->getLastBX(); ++ibx) {
-    for (l1t::EtSumBxCollection::const_iterator it = sums->begin(ibx);
-         it != sums->end(ibx) && l1upgrade_.nSums < maxL1Upgrade;
-         it++) {
+    for (auto it = sums->begin(ibx); it != sums->end(ibx) && l1upgrade_.nSums < maxL1Upgrade; it++) {
       int type = static_cast<int>(it->getType());
       l1upgrade_.sumType.push_back(type);
       l1upgrade_.sumEt.push_back(it->et());

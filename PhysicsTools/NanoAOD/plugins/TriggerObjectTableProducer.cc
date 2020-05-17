@@ -157,14 +157,14 @@ void TriggerObjectTableProducer::produce(edm::Event &iEvent, const edm::EventSet
 
   std::vector<pair<pat::TriggerObjectStandAlone, int>> l1Objects;
 
-  for (l1t::EGammaBxCollection::const_iterator it = l1EG->begin(0); it != l1EG->end(0); it++) {
+  for (auto it = l1EG->begin(0); it != l1EG->end(0); it++) {
     pat::TriggerObjectStandAlone l1obj(it->p4());
     l1obj.setCollection("L1EG");
     l1obj.addTriggerObjectType(trigger::TriggerL1EG);
     l1Objects.emplace_back(l1obj, it->hwIso());
   }
 
-  for (l1t::EtSumBxCollection::const_iterator it = l1Sum->begin(0); it != l1Sum->end(0); it++) {
+  for (auto it = l1Sum->begin(0); it != l1Sum->end(0); it++) {
     pat::TriggerObjectStandAlone l1obj(it->p4());
 
     switch (it->getType()) {
@@ -215,14 +215,14 @@ void TriggerObjectTableProducer::produce(edm::Event &iEvent, const edm::EventSet
     l1Objects.emplace_back(l1obj, it->hwIso());
   }
 
-  for (l1t::JetBxCollection::const_iterator it = l1Jet->begin(0); it != l1Jet->end(0); it++) {
+  for (auto it = l1Jet->begin(0); it != l1Jet->end(0); it++) {
     pat::TriggerObjectStandAlone l1obj(it->p4());
     l1obj.setCollection("L1Jet");
     l1obj.addTriggerObjectType(trigger::TriggerL1Jet);
     l1Objects.emplace_back(l1obj, it->hwIso());
   }
 
-  for (l1t::MuonBxCollection::const_iterator it = l1Muon->begin(0); it != l1Muon->end(0); it++) {
+  for (auto it = l1Muon->begin(0); it != l1Muon->end(0); it++) {
     pat::TriggerObjectStandAlone l1obj(it->p4());
     l1obj.setCollection("L1Mu");
     l1obj.addTriggerObjectType(trigger::TriggerL1Mu);
@@ -230,7 +230,7 @@ void TriggerObjectTableProducer::produce(edm::Event &iEvent, const edm::EventSet
     l1Objects.emplace_back(l1obj, it->hwIso());
   }
 
-  for (l1t::TauBxCollection::const_iterator it = l1Tau->begin(0); it != l1Tau->end(0); it++) {
+  for (auto it = l1Tau->begin(0); it != l1Tau->end(0); it++) {
     pat::TriggerObjectStandAlone l1obj(it->p4());
     l1obj.setCollection("L1Tau");
     l1obj.addTriggerObjectType(trigger::TriggerL1Tau);

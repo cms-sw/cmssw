@@ -17,7 +17,7 @@ void SiStripRing::addDevices(const FedChannelConnection &conn) {
     iccu++;
   }
   if (iccu == ccus().end()) {
-    ccus_.push_back(SiStripCcu(conn));
+    ccus_.emplace_back(conn);
   } else {
     iccu->addDevices(conn);
   }

@@ -220,10 +220,10 @@ namespace cmsutil {
   }
   template <typename K, typename V, typename Hasher, typename Equals, typename Alloc>
   SimpleAllocHashMultiMap<K, V, Hasher, Equals, Alloc>::~SimpleAllocHashMultiMap() {
-    for (typename std::list<KeyItem *>::iterator it = keyRows_.begin(), last = keyRows_.end(); it != last; ++it) {
+    for (auto it = keyRows_.begin(), last = keyRows_.end(); it != last; ++it) {
       keyAlloc_.deallocate(*it, keyRowSize_);
     }
-    for (typename std::list<ValueItem *>::iterator it = valueRows_.begin(), last = valueRows_.end(); it != last; ++it) {
+    for (auto it = valueRows_.begin(), last = valueRows_.end(); it != last; ++it) {
       valueAlloc_.deallocate(*it, valueRowSize_);
     }
     ptrAlloc_.deallocate(buckets_, bucketCapacity_);
@@ -233,7 +233,7 @@ namespace cmsutil {
   void SimpleAllocHashMultiMap<K, V, Hasher, Equals, Alloc>::freeRows() {
     if (keyRows_.size() > maxRows_) {
       //std::cerr << "Freeing key rows, current size is " << keyRows_.size() << std::endl;
-      typename std::list<KeyItem *>::iterator it = keyRows_.begin(), last = keyRows_.end();
+      auto it = keyRows_.begin(), last = keyRows_.end();
       for (std::advance(it, maxRows_); it != last; ++it) {
         keyAlloc_.deallocate(*it, keyRowSize_);
       }
@@ -241,7 +241,7 @@ namespace cmsutil {
     }
     if (valueRows_.size() > maxRows_) {
       //std::cerr << "Freeing value rows, current size is " << valueRows_.size() << std::endl;
-      typename std::list<ValueItem *>::iterator it = valueRows_.begin(), last = valueRows_.end();
+      auto it = valueRows_.begin(), last = valueRows_.end();
       for (std::advance(it, maxRows_); it != last; ++it) {
         valueAlloc_.deallocate(*it, valueRowSize_);
       }
@@ -342,7 +342,7 @@ namespace cmsutil {
     iterator end() { return data_.end(); }
 
     V &operator[](const K &k) {
-      for (typename std::vector<value_type>::iterator it = data_.begin(), ed = data_.end(); it != ed; ++it) {
+      for (auto it = data_.begin(), ed = data_.end(); it != ed; ++it) {
         if (it->first == k)
           return it->second;
       }

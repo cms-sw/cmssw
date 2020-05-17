@@ -23,10 +23,10 @@ JetCorrectorParameters::Definitions::Definitions(const std::vector<std::string>&
                                                  const std::vector<std::string>& fParVar,
                                                  const std::string& fFormula,
                                                  bool fIsResponse) {
-  for (unsigned i = 0; i < fBinVar.size(); i++)
-    mBinVar.push_back(fBinVar[i]);
-  for (unsigned i = 0; i < fParVar.size(); i++)
-    mParVar.push_back(fParVar[i]);
+  for (const auto& i : fBinVar)
+    mBinVar.push_back(i);
+  for (const auto& i : fParVar)
+    mParVar.push_back(i);
   mFormula = fFormula;
   mIsResponse = fIsResponse;
   mLevel = "";
@@ -144,7 +144,7 @@ JetCorrectorParameters::JetCorrectorParameters(const std::string& fFile, const s
   if (currentDefinitions.empty())
     handleError("JetCorrectorParameters", "No definitions found!!!");
   if (mRecords.empty() && currentSection.empty())
-    mRecords.push_back(Record());
+    mRecords.emplace_back();
   if (mRecords.empty() && !currentSection.empty()) {
     std::stringstream sserr;
     sserr << "the requested section " << fSection << " doesn't exist!";
@@ -423,7 +423,7 @@ std::string JetCorrectorParametersCollection::findL7Parton(key_type k) {
     return l7Partons_[k / 1000 - 1];
 }
 
-void JetCorrectorParametersCollection::getSections(std::string inputFile, std::vector<std::string>& outputs) {
+void JetCorrectorParametersCollection::getSections(const std::string& inputFile, std::vector<std::string>& outputs) {
   outputs.clear();
   std::ifstream input(inputFile.c_str());
   while (!input.eof()) {
@@ -489,25 +489,20 @@ JetCorrectorParameters const& JetCorrectorParametersCollection::operator[](key_t
 // that are aware of all three collections.
 void JetCorrectorParametersCollection::validKeys(std::vector<key_type>& keys) const {
   keys.clear();
-  for (collection_type::const_iterator ibegin = corrections_.begin(), iend = corrections_.end(), i = ibegin; i != iend;
-       ++i) {
+  for (auto ibegin = corrections_.begin(), iend = corrections_.end(), i = ibegin; i != iend; ++i) {
     keys.push_back(i->first);
   }
-  for (collection_type::const_iterator ibegin = correctionsL5_.begin(), iend = correctionsL5_.end(), i = ibegin;
-       i != iend;
-       ++i) {
+  for (auto ibegin = correctionsL5_.begin(), iend = correctionsL5_.end(), i = ibegin; i != iend; ++i) {
     keys.push_back(i->first);
   }
-  for (collection_type::const_iterator ibegin = correctionsL7_.begin(), iend = correctionsL7_.end(), i = ibegin;
-       i != iend;
-       ++i) {
+  for (auto ibegin = correctionsL7_.begin(), iend = correctionsL7_.end(), i = ibegin; i != iend; ++i) {
     keys.push_back(i->first);
   }
 }
 
 // Find the L5 bin for hashing
 JetCorrectorParametersCollection::key_type JetCorrectorParametersCollection::getL5Bin(std::string const& flav) {
-  std::vector<std::string>::const_iterator found = find(l5Flavors_.begin(), l5Flavors_.end(), flav);
+  auto found = find(l5Flavors_.begin(), l5Flavors_.end(), flav);
   if (found != l5Flavors_.end()) {
     return (found - l5Flavors_.begin() + 1) * 100;
   } else
@@ -515,7 +510,7 @@ JetCorrectorParametersCollection::key_type JetCorrectorParametersCollection::get
 }
 // Find the L7 bin for hashing
 JetCorrectorParametersCollection::key_type JetCorrectorParametersCollection::getL7Bin(std::string const& flav) {
-  std::vector<std::string>::const_iterator found = find(l7Partons_.begin(), l7Partons_.end(), flav);
+  auto found = find(l7Partons_.begin(), l7Partons_.end(), flav);
   if (found != l7Partons_.end()) {
     return (found - l7Partons_.begin() + 1) * 1000;
   } else
@@ -530,19 +525,19 @@ bool JetCorrectorParametersCollection::isL7(key_type k) { return k == L7Parton |
 // Find the key corresponding to each label
 JetCorrectorParametersCollection::key_type JetCorrectorParametersCollection::findKey(std::string const& label) const {
   // First check L5 corrections
-  std::vector<std::string>::const_iterator found1 = find(l5Flavors_.begin(), l5Flavors_.end(), label);
+  auto found1 = find(l5Flavors_.begin(), l5Flavors_.end(), label);
   if (found1 != l5Flavors_.end()) {
     return getL5Bin(label);
   }
 
   // Next check L7 corrections
-  std::vector<std::string>::const_iterator found2 = find(l7Partons_.begin(), l7Partons_.end(), label);
+  auto found2 = find(l7Partons_.begin(), l7Partons_.end(), label);
   if (found2 != l7Partons_.end()) {
     return getL7Bin(label);
   }
 
   // Finally check the default corrections
-  std::vector<std::string>::const_iterator found3 = find(labels_.begin(), labels_.end(), label);
+  auto found3 = find(labels_.begin(), labels_.end(), label);
   if (found3 != labels_.end()) {
     return static_cast<key_type>(found3 - labels_.begin());
   }

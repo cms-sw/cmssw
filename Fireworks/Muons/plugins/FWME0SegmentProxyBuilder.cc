@@ -36,7 +36,7 @@ void FWME0SegmentProxyBuilder::build(const ME0Segment& iData,
     return;
   }
 
-  TEveStraightLineSet* segmentSet = new TEveStraightLineSet();
+  auto* segmentSet = new TEveStraightLineSet();
   // FIXME: This should be set elsewhere.
   segmentSet->SetLineWidth(5);
   setupAddElement(segmentSet, &oItemHolder);
@@ -84,9 +84,9 @@ void FWME0SegmentProxyBuilder::build(const ME0Segment& iData,
       pointSet->SetMarkerColor(1);
       setupAddElement(pointSet, &oItemHolder);
       auto recHits = iData.specificRecHits();
-      for (auto rh = recHits.begin(); rh != recHits.end(); rh++) {
-        auto me0id = rh->me0Id();
-        LocalPoint hpos = rh->localPosition();
+      for (auto& recHit : recHits) {
+        auto me0id = recHit.me0Id();
+        LocalPoint hpos = recHit.localPosition();
         float hitLocalPos[3] = {hpos.x(), hpos.y(), hpos.z()};
         float hitGlobalPoint[3];
         geom->localToGlobal(me0id, hitLocalPos, hitGlobalPoint);

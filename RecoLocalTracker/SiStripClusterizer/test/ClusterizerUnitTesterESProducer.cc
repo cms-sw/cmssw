@@ -28,9 +28,9 @@ void ClusterizerUnitTesterESProducer::extractNoiseGainQuality(const edm::Paramet
                                                               SiStripNoises* noises) {
   uint32_t detId = 0;
   VPSet groups = conf.getParameter<VPSet>("ClusterizerTestGroups");
-  for (iter_t group = groups.begin(); group < groups.end(); group++) {
+  for (auto group = groups.begin(); group < groups.end(); group++) {
     VPSet tests = group->getParameter<VPSet>("Tests");
-    for (iter_t test = tests.begin(); test < tests.end(); test++)
+    for (auto test = tests.begin(); test < tests.end(); test++)
       extractNoiseGainQualityForDetId(detId++, test->getParameter<VPSet>("Digis"), quality, apvGain, noises);
   }
 }
@@ -40,18 +40,18 @@ void ClusterizerUnitTesterESProducer::extractNoiseGainQualityForDetId(
   std::vector<std::pair<uint16_t, float> > detNoises;
   std::vector<std::pair<uint16_t, float> > detGains;
   std::vector<unsigned> detBadStrips;
-  for (iter_t digi = digiset.begin(); digi < digiset.end(); digi++) {
+  for (auto digi = digiset.begin(); digi < digiset.end(); digi++) {
     uint16_t strip = digi->getParameter<unsigned>("Strip");
     if (digi->getParameter<unsigned>("ADC") != 0) {
-      detNoises.push_back(std::make_pair(strip, digi->getParameter<double>("Noise")));
-      detGains.push_back(std::make_pair(strip, digi->getParameter<double>("Gain")));
+      detNoises.emplace_back(strip, digi->getParameter<double>("Noise"));
+      detGains.emplace_back(strip, digi->getParameter<double>("Gain"));
     }
     if (!digi->getParameter<bool>("Quality"))
       detBadStrips.push_back(quality->encode(strip, 1));
   }
   setNoises(detId, detNoises, noises);
   setGains(detId, detGains, apvGain);
-  if (detBadStrips.size())
+  if (!detBadStrips.empty())
     quality->add(detId, std::make_pair(detBadStrips.begin(), detBadStrips.end()));
 }
 
@@ -60,8 +60,7 @@ void ClusterizerUnitTesterESProducer::setNoises(uint32_t detId,
                                                 SiStripNoises* noises) {
   std::sort(digiNoises.begin(), digiNoises.end());
   std::vector<float> detnoise;
-  for (std::vector<std::pair<uint16_t, float> >::const_iterator digi = digiNoises.begin(); digi < digiNoises.end();
-       ++digi) {
+  for (auto digi = digiNoises.begin(); digi < digiNoises.end(); ++digi) {
     detnoise.resize(digi->first, 1);  //pad with default noise 1
     detnoise.push_back(digi->second);
   }
@@ -70,8 +69,8 @@ void ClusterizerUnitTesterESProducer::setNoises(uint32_t detId,
   detnoise.resize(768, 1.0);
 
   SiStripNoises::InputVector theSiStripVector;
-  for (uint16_t strip = 0; strip < detnoise.size(); strip++) {
-    noises->setData(detnoise.at(strip), theSiStripVector);
+  for (float strip : detnoise) {
+    noises->setData(strip, theSiStripVector);
   }
   noises->put(detId, theSiStripVector);
 }
@@ -81,8 +80,7 @@ void ClusterizerUnitTesterESProducer::setGains(uint32_t detId,
                                                SiStripApvGain* apvGain) {
   std::sort(digiGains.begin(), digiGains.end());
   std::vector<float> detApvGains;
-  for (std::vector<std::pair<uint16_t, float> >::const_iterator digi = digiGains.begin(); digi < digiGains.end();
-       ++digi) {
+  for (auto digi = digiGains.begin(); digi < digiGains.end(); ++digi) {
     if (detApvGains.size() <= digi->first / 128) {
       detApvGains.push_back(digi->second);
     } else if (detApvGains.at(digi->first / 128) != digi->second) {

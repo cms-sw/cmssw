@@ -30,15 +30,15 @@ void RunInfo::printAllValues() const {
   std::cout << "maximum current " << m_max_current << std::endl;
   std::cout << "run time in microseconds " << m_run_intervall_micros << std::endl;
   std::cout << "ids of fed in run: " << std::endl;
-  for (size_t i = 0; i < m_fed_in.size(); i++) {
-    std::cout << "---> " << m_fed_in[i] << std::endl;
+  for (int i : m_fed_in) {
+    std::cout << "---> " << i << std::endl;
   }
   std::cout << "B current in run: " << std::endl;
-  for (size_t i = 0; i < m_current.size(); i++) {
-    std::cout << "---> " << m_current[i] << std::endl;
+  for (float i : m_current) {
+    std::cout << "---> " << i << std::endl;
   }
   std::cout << "correspondent time (from run start) in microseconds for B currents in run: " << std::endl;
-  for (size_t i = 0; i < m_times_of_currents.size(); i++) {
-    std::cout << "---> " << m_times_of_currents[i] << std::endl;
+  for (float m_times_of_current : m_times_of_currents) {
+    std::cout << "---> " << m_times_of_current << std::endl;
   }
 }

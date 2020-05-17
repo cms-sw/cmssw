@@ -11,6 +11,8 @@
 //
 
 // system include files
+#include <memory>
+
 #include <sstream>
 #include <boost/bind.hpp>
 #include <boost/program_options.hpp>
@@ -561,8 +563,8 @@ void CmsShowMain::appendData() {
 
 void CmsShowMain::openDataViaURL() {
   if (m_searchFiles.get() == nullptr) {
-    m_searchFiles = std::unique_ptr<CmsShowSearchFiles>(
-        new CmsShowSearchFiles("", "Open Remote Data Files", guiManager()->getMainFrame(), 500, 400));
+    m_searchFiles =
+        std::make_unique<CmsShowSearchFiles>("", "Open Remote Data Files", guiManager()->getMainFrame(), 500, 400);
     m_searchFiles->CenterOnParent(kTRUE, TGTransientFrame::kBottomRight);
   }
   std::string chosenFile = m_searchFiles->chooseFileFromURL();
@@ -667,8 +669,7 @@ void CmsShowMain::setupDataHandling() {
   // init data from  CmsShowNavigator configuration, can do this with signals since there were not connected yet
   guiManager()->setFilterButtonIcon(m_navigator->getFilterState());
 
-  for (unsigned int ii = 0; ii < m_inputFiles.size(); ++ii) {
-    const std::string& fname = m_inputFiles[ii];
+  for (const auto& fname : m_inputFiles) {
     if (fname.empty())
       continue;
     guiManager()->updateStatus("loading data file ...");
@@ -713,7 +714,7 @@ void CmsShowMain::setLoadedAnyInputFileAfterStartup() {
 }
 
 void CmsShowMain::setupSocket(unsigned int iSocket) {
-  m_monitor = std::unique_ptr<TMonitor>(new TMonitor);
+  m_monitor = std::make_unique<TMonitor>();
   TServerSocket* server = new TServerSocket(iSocket, kTRUE);
   if (server->GetErrorCode()) {
     fwLog(fwlog::kError) << "CmsShowMain::setupSocket, can't create socket on port " << iSocket << "." << std::endl;
@@ -832,7 +833,7 @@ void CmsShowMain::postFiltering(bool doDraw) {
 
 void CmsShowMain::setLiveMode() {
   m_live = true;
-  m_liveTimer.reset(new SignalTimer());
+  m_liveTimer = std::make_unique<SignalTimer>();
   m_liveTimer->timeout_.connect(boost::bind(&CmsShowMain::checkLiveMode, this));
 
   Window_t rootw, childw;

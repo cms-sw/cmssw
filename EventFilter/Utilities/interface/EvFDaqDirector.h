@@ -106,7 +106,7 @@ namespace evf {
     std::string getRunOpenDirPath() const { return run_dir_ + "/open"; }
     bool outputAdler32Recheck() const { return outputAdler32Recheck_; }
     void removeFile(unsigned int ls, unsigned int index);
-    void removeFile(std::string);
+    void removeFile(const std::string&);
 
     FileStatus updateFuLock(unsigned int& ls, std::string& nextFile, uint32_t& fsize, uint64_t& lockWaitTime);
     void tryInitializeFuLockFile();

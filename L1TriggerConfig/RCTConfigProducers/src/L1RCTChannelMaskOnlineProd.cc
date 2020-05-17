@@ -63,78 +63,78 @@ std::unique_ptr<L1RCTChannelMask> L1RCTChannelMaskOnlineProd::newObject(const st
   std::string rctSchema = "CMS_RCT";
 
   std::vector<std::string> dc_maskStrings;
-  dc_maskStrings.push_back("HCAL_MASK_CR00_EVEN");
-  dc_maskStrings.push_back("HCAL_MASK_CR00_ODD");
-  dc_maskStrings.push_back("HCAL_MASK_CR01_EVEN");
-  dc_maskStrings.push_back("HCAL_MASK_CR01_ODD");
-  dc_maskStrings.push_back("HCAL_MASK_CR02_EVEN");
-  dc_maskStrings.push_back("HCAL_MASK_CR02_ODD");
-  dc_maskStrings.push_back("HCAL_MASK_CR03_EVEN");
-  dc_maskStrings.push_back("HCAL_MASK_CR03_ODD");
-  dc_maskStrings.push_back("HCAL_MASK_CR04_EVEN");
-  dc_maskStrings.push_back("HCAL_MASK_CR04_ODD");
-  dc_maskStrings.push_back("HCAL_MASK_CR05_EVEN");
-  dc_maskStrings.push_back("HCAL_MASK_CR05_ODD");
-  dc_maskStrings.push_back("HCAL_MASK_CR06_EVEN");
-  dc_maskStrings.push_back("HCAL_MASK_CR06_ODD");
-  dc_maskStrings.push_back("HCAL_MASK_CR07_EVEN");
-  dc_maskStrings.push_back("HCAL_MASK_CR07_ODD");
-  dc_maskStrings.push_back("HCAL_MASK_CR08_EVEN");
-  dc_maskStrings.push_back("HCAL_MASK_CR08_ODD");
-  dc_maskStrings.push_back("HCAL_MASK_CR09_EVEN");
-  dc_maskStrings.push_back("HCAL_MASK_CR09_ODD");
-  dc_maskStrings.push_back("HCAL_MASK_CR10_EVEN");
-  dc_maskStrings.push_back("HCAL_MASK_CR10_ODD");
-  dc_maskStrings.push_back("HCAL_MASK_CR11_EVEN");
-  dc_maskStrings.push_back("HCAL_MASK_CR11_ODD");
-  dc_maskStrings.push_back("HCAL_MASK_CR12_EVEN");
-  dc_maskStrings.push_back("HCAL_MASK_CR12_ODD");
-  dc_maskStrings.push_back("HCAL_MASK_CR13_EVEN");
-  dc_maskStrings.push_back("HCAL_MASK_CR13_ODD");
-  dc_maskStrings.push_back("HCAL_MASK_CR14_EVEN");
-  dc_maskStrings.push_back("HCAL_MASK_CR14_ODD");
-  dc_maskStrings.push_back("HCAL_MASK_CR15_EVEN");
-  dc_maskStrings.push_back("HCAL_MASK_CR15_ODD");
-  dc_maskStrings.push_back("HCAL_MASK_CR16_EVEN");
-  dc_maskStrings.push_back("HCAL_MASK_CR16_ODD");
-  dc_maskStrings.push_back("HCAL_MASK_CR17_EVEN");
-  dc_maskStrings.push_back("HCAL_MASK_CR17_ODD");
-  dc_maskStrings.push_back("ECAL_MASK_CR00_EVEN");
-  dc_maskStrings.push_back("ECAL_MASK_CR00_ODD");
-  dc_maskStrings.push_back("ECAL_MASK_CR01_EVEN");
-  dc_maskStrings.push_back("ECAL_MASK_CR01_ODD");
-  dc_maskStrings.push_back("ECAL_MASK_CR02_EVEN");
-  dc_maskStrings.push_back("ECAL_MASK_CR02_ODD");
-  dc_maskStrings.push_back("ECAL_MASK_CR03_EVEN");
-  dc_maskStrings.push_back("ECAL_MASK_CR03_ODD");
-  dc_maskStrings.push_back("ECAL_MASK_CR04_EVEN");
-  dc_maskStrings.push_back("ECAL_MASK_CR04_ODD");
-  dc_maskStrings.push_back("ECAL_MASK_CR05_EVEN");
-  dc_maskStrings.push_back("ECAL_MASK_CR05_ODD");
-  dc_maskStrings.push_back("ECAL_MASK_CR06_EVEN");
-  dc_maskStrings.push_back("ECAL_MASK_CR06_ODD");
-  dc_maskStrings.push_back("ECAL_MASK_CR07_EVEN");
-  dc_maskStrings.push_back("ECAL_MASK_CR07_ODD");
-  dc_maskStrings.push_back("ECAL_MASK_CR08_EVEN");
-  dc_maskStrings.push_back("ECAL_MASK_CR08_ODD");
-  dc_maskStrings.push_back("ECAL_MASK_CR09_EVEN");
-  dc_maskStrings.push_back("ECAL_MASK_CR09_ODD");
-  dc_maskStrings.push_back("ECAL_MASK_CR10_EVEN");
-  dc_maskStrings.push_back("ECAL_MASK_CR10_ODD");
-  dc_maskStrings.push_back("ECAL_MASK_CR11_EVEN");
-  dc_maskStrings.push_back("ECAL_MASK_CR11_ODD");
-  dc_maskStrings.push_back("ECAL_MASK_CR12_EVEN");
-  dc_maskStrings.push_back("ECAL_MASK_CR12_ODD");
-  dc_maskStrings.push_back("ECAL_MASK_CR13_EVEN");
-  dc_maskStrings.push_back("ECAL_MASK_CR13_ODD");
-  dc_maskStrings.push_back("ECAL_MASK_CR14_EVEN");
-  dc_maskStrings.push_back("ECAL_MASK_CR14_ODD");
-  dc_maskStrings.push_back("ECAL_MASK_CR15_EVEN");
-  dc_maskStrings.push_back("ECAL_MASK_CR15_ODD");
-  dc_maskStrings.push_back("ECAL_MASK_CR16_EVEN");
-  dc_maskStrings.push_back("ECAL_MASK_CR16_ODD");
-  dc_maskStrings.push_back("ECAL_MASK_CR17_EVEN");
-  dc_maskStrings.push_back("ECAL_MASK_CR17_ODD");
+  dc_maskStrings.emplace_back("HCAL_MASK_CR00_EVEN");
+  dc_maskStrings.emplace_back("HCAL_MASK_CR00_ODD");
+  dc_maskStrings.emplace_back("HCAL_MASK_CR01_EVEN");
+  dc_maskStrings.emplace_back("HCAL_MASK_CR01_ODD");
+  dc_maskStrings.emplace_back("HCAL_MASK_CR02_EVEN");
+  dc_maskStrings.emplace_back("HCAL_MASK_CR02_ODD");
+  dc_maskStrings.emplace_back("HCAL_MASK_CR03_EVEN");
+  dc_maskStrings.emplace_back("HCAL_MASK_CR03_ODD");
+  dc_maskStrings.emplace_back("HCAL_MASK_CR04_EVEN");
+  dc_maskStrings.emplace_back("HCAL_MASK_CR04_ODD");
+  dc_maskStrings.emplace_back("HCAL_MASK_CR05_EVEN");
+  dc_maskStrings.emplace_back("HCAL_MASK_CR05_ODD");
+  dc_maskStrings.emplace_back("HCAL_MASK_CR06_EVEN");
+  dc_maskStrings.emplace_back("HCAL_MASK_CR06_ODD");
+  dc_maskStrings.emplace_back("HCAL_MASK_CR07_EVEN");
+  dc_maskStrings.emplace_back("HCAL_MASK_CR07_ODD");
+  dc_maskStrings.emplace_back("HCAL_MASK_CR08_EVEN");
+  dc_maskStrings.emplace_back("HCAL_MASK_CR08_ODD");
+  dc_maskStrings.emplace_back("HCAL_MASK_CR09_EVEN");
+  dc_maskStrings.emplace_back("HCAL_MASK_CR09_ODD");
+  dc_maskStrings.emplace_back("HCAL_MASK_CR10_EVEN");
+  dc_maskStrings.emplace_back("HCAL_MASK_CR10_ODD");
+  dc_maskStrings.emplace_back("HCAL_MASK_CR11_EVEN");
+  dc_maskStrings.emplace_back("HCAL_MASK_CR11_ODD");
+  dc_maskStrings.emplace_back("HCAL_MASK_CR12_EVEN");
+  dc_maskStrings.emplace_back("HCAL_MASK_CR12_ODD");
+  dc_maskStrings.emplace_back("HCAL_MASK_CR13_EVEN");
+  dc_maskStrings.emplace_back("HCAL_MASK_CR13_ODD");
+  dc_maskStrings.emplace_back("HCAL_MASK_CR14_EVEN");
+  dc_maskStrings.emplace_back("HCAL_MASK_CR14_ODD");
+  dc_maskStrings.emplace_back("HCAL_MASK_CR15_EVEN");
+  dc_maskStrings.emplace_back("HCAL_MASK_CR15_ODD");
+  dc_maskStrings.emplace_back("HCAL_MASK_CR16_EVEN");
+  dc_maskStrings.emplace_back("HCAL_MASK_CR16_ODD");
+  dc_maskStrings.emplace_back("HCAL_MASK_CR17_EVEN");
+  dc_maskStrings.emplace_back("HCAL_MASK_CR17_ODD");
+  dc_maskStrings.emplace_back("ECAL_MASK_CR00_EVEN");
+  dc_maskStrings.emplace_back("ECAL_MASK_CR00_ODD");
+  dc_maskStrings.emplace_back("ECAL_MASK_CR01_EVEN");
+  dc_maskStrings.emplace_back("ECAL_MASK_CR01_ODD");
+  dc_maskStrings.emplace_back("ECAL_MASK_CR02_EVEN");
+  dc_maskStrings.emplace_back("ECAL_MASK_CR02_ODD");
+  dc_maskStrings.emplace_back("ECAL_MASK_CR03_EVEN");
+  dc_maskStrings.emplace_back("ECAL_MASK_CR03_ODD");
+  dc_maskStrings.emplace_back("ECAL_MASK_CR04_EVEN");
+  dc_maskStrings.emplace_back("ECAL_MASK_CR04_ODD");
+  dc_maskStrings.emplace_back("ECAL_MASK_CR05_EVEN");
+  dc_maskStrings.emplace_back("ECAL_MASK_CR05_ODD");
+  dc_maskStrings.emplace_back("ECAL_MASK_CR06_EVEN");
+  dc_maskStrings.emplace_back("ECAL_MASK_CR06_ODD");
+  dc_maskStrings.emplace_back("ECAL_MASK_CR07_EVEN");
+  dc_maskStrings.emplace_back("ECAL_MASK_CR07_ODD");
+  dc_maskStrings.emplace_back("ECAL_MASK_CR08_EVEN");
+  dc_maskStrings.emplace_back("ECAL_MASK_CR08_ODD");
+  dc_maskStrings.emplace_back("ECAL_MASK_CR09_EVEN");
+  dc_maskStrings.emplace_back("ECAL_MASK_CR09_ODD");
+  dc_maskStrings.emplace_back("ECAL_MASK_CR10_EVEN");
+  dc_maskStrings.emplace_back("ECAL_MASK_CR10_ODD");
+  dc_maskStrings.emplace_back("ECAL_MASK_CR11_EVEN");
+  dc_maskStrings.emplace_back("ECAL_MASK_CR11_ODD");
+  dc_maskStrings.emplace_back("ECAL_MASK_CR12_EVEN");
+  dc_maskStrings.emplace_back("ECAL_MASK_CR12_ODD");
+  dc_maskStrings.emplace_back("ECAL_MASK_CR13_EVEN");
+  dc_maskStrings.emplace_back("ECAL_MASK_CR13_ODD");
+  dc_maskStrings.emplace_back("ECAL_MASK_CR14_EVEN");
+  dc_maskStrings.emplace_back("ECAL_MASK_CR14_ODD");
+  dc_maskStrings.emplace_back("ECAL_MASK_CR15_EVEN");
+  dc_maskStrings.emplace_back("ECAL_MASK_CR15_ODD");
+  dc_maskStrings.emplace_back("ECAL_MASK_CR16_EVEN");
+  dc_maskStrings.emplace_back("ECAL_MASK_CR16_ODD");
+  dc_maskStrings.emplace_back("ECAL_MASK_CR17_EVEN");
+  dc_maskStrings.emplace_back("ECAL_MASK_CR17_ODD");
 
   l1t::OMDSReader::QueryResults dcMaskResults =
       m_omdsReader.basicQuery(dc_maskStrings,
@@ -155,7 +155,7 @@ std::unique_ptr<L1RCTChannelMask> L1RCTChannelMaskOnlineProd::newObject(const st
     return std::unique_ptr<L1RCTChannelMask>();
   }
 
-  L1RCTChannelMask* m = new L1RCTChannelMask;
+  auto* m = new L1RCTChannelMask;
 
   long long hcal_temp = 0LL;
   int ecal_temp = 0;
@@ -178,34 +178,34 @@ std::unique_ptr<L1RCTChannelMask> L1RCTChannelMaskOnlineProd::newObject(const st
   // FIND dummy cards from TSC key in crate conf
 
   std::vector<std::string> cardMaskStrings;
-  cardMaskStrings.push_back("RC0");
-  cardMaskStrings.push_back("RC1");
-  cardMaskStrings.push_back("RC2");
-  cardMaskStrings.push_back("RC3");
-  cardMaskStrings.push_back("RC4");
-  cardMaskStrings.push_back("RC5");
-  cardMaskStrings.push_back("RC6");
-  cardMaskStrings.push_back("JSC");
+  cardMaskStrings.emplace_back("RC0");
+  cardMaskStrings.emplace_back("RC1");
+  cardMaskStrings.emplace_back("RC2");
+  cardMaskStrings.emplace_back("RC3");
+  cardMaskStrings.emplace_back("RC4");
+  cardMaskStrings.emplace_back("RC5");
+  cardMaskStrings.emplace_back("RC6");
+  cardMaskStrings.emplace_back("JSC");
 
   std::vector<std::string> crateIDStrings;
-  crateIDStrings.push_back("RCT_CRATE_0");
-  crateIDStrings.push_back("RCT_CRATE_1");
-  crateIDStrings.push_back("RCT_CRATE_2");
-  crateIDStrings.push_back("RCT_CRATE_3");
-  crateIDStrings.push_back("RCT_CRATE_4");
-  crateIDStrings.push_back("RCT_CRATE_5");
-  crateIDStrings.push_back("RCT_CRATE_6");
-  crateIDStrings.push_back("RCT_CRATE_7");
-  crateIDStrings.push_back("RCT_CRATE_8");
-  crateIDStrings.push_back("RCT_CRATE_9");
-  crateIDStrings.push_back("RCT_CRATE_10");
-  crateIDStrings.push_back("RCT_CRATE_11");
-  crateIDStrings.push_back("RCT_CRATE_12");
-  crateIDStrings.push_back("RCT_CRATE_13");
-  crateIDStrings.push_back("RCT_CRATE_14");
-  crateIDStrings.push_back("RCT_CRATE_15");
-  crateIDStrings.push_back("RCT_CRATE_16");
-  crateIDStrings.push_back("RCT_CRATE_17");
+  crateIDStrings.emplace_back("RCT_CRATE_0");
+  crateIDStrings.emplace_back("RCT_CRATE_1");
+  crateIDStrings.emplace_back("RCT_CRATE_2");
+  crateIDStrings.emplace_back("RCT_CRATE_3");
+  crateIDStrings.emplace_back("RCT_CRATE_4");
+  crateIDStrings.emplace_back("RCT_CRATE_5");
+  crateIDStrings.emplace_back("RCT_CRATE_6");
+  crateIDStrings.emplace_back("RCT_CRATE_7");
+  crateIDStrings.emplace_back("RCT_CRATE_8");
+  crateIDStrings.emplace_back("RCT_CRATE_9");
+  crateIDStrings.emplace_back("RCT_CRATE_10");
+  crateIDStrings.emplace_back("RCT_CRATE_11");
+  crateIDStrings.emplace_back("RCT_CRATE_12");
+  crateIDStrings.emplace_back("RCT_CRATE_13");
+  crateIDStrings.emplace_back("RCT_CRATE_14");
+  crateIDStrings.emplace_back("RCT_CRATE_15");
+  crateIDStrings.emplace_back("RCT_CRATE_16");
+  crateIDStrings.emplace_back("RCT_CRATE_17");
 
   l1t::OMDSReader::QueryResults crate_conf = m_omdsReader.basicQuery("CRATE_CONF",
                                                                      rctSchema,
@@ -214,18 +214,18 @@ std::unique_ptr<L1RCTChannelMask> L1RCTChannelMaskOnlineProd::newObject(const st
                                                                      m_omdsReader.singleAttribute(objectKey));
 
   int crateNum = 0;
-  for (std::vector<std::string>::iterator crate = crateIDStrings.begin(); crate != crateIDStrings.end(); ++crate) {
+  for (auto& crateIDString : crateIDStrings) {
     //       std::cout << "crate conf " << *crate <<std::endl;
     l1t::OMDSReader::QueryResults cardConfResults = m_omdsReader.basicQuery(
         cardMaskStrings,
         rctSchema,
         "CRATE_CONF_DUMMY",
         "CRATE_CONF_DUMMY.CRATE_CONF",
-        m_omdsReader.basicQuery(*crate, rctSchema, "RCT_CRATE_CONF", "RCT_CRATE_CONF.RCT_KEY", crate_conf));
+        m_omdsReader.basicQuery(crateIDString, rctSchema, "RCT_CRATE_CONF", "RCT_CRATE_CONF.RCT_KEY", crate_conf));
     bool extantCard[8];
     int cardNum = 0;
-    for (std::vector<std::string>::iterator card = cardMaskStrings.begin(); card != cardMaskStrings.end(); ++card) {
-      cardConfResults.fillVariable(*card, extantCard[cardNum]);
+    for (auto& cardMaskString : cardMaskStrings) {
+      cardConfResults.fillVariable(cardMaskString, extantCard[cardNum]);
 
       if (!extantCard[cardNum]) {
         switch (cardNum) {

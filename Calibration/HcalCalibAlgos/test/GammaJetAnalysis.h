@@ -129,10 +129,10 @@ private:
 class GammaJetAnalysis : public edm::EDAnalyzer {
 public:
   explicit GammaJetAnalysis(const edm::ParameterSet&);
-  ~GammaJetAnalysis();
+  ~GammaJetAnalysis() override;
 
   float pfEcalIso(const reco::Photon* localPho1,
-                  edm::Handle<reco::PFCandidateCollection> pfHandle,
+                  const edm::Handle<reco::PFCandidateCollection>& pfHandle,
                   float dRmax,
                   float dRVetoBarrel,
                   float dRVetoEndcap,
@@ -143,14 +143,14 @@ public:
                   reco::PFCandidate::ParticleType pfToUse);
 
   float pfHcalIso(const reco::Photon* localPho,
-                  edm::Handle<reco::PFCandidateCollection> pfHandle,
+                  const edm::Handle<reco::PFCandidateCollection>& pfHandle,
                   float dRmax,
                   float dRveto,
                   reco::PFCandidate::ParticleType pfToUse);
 
   std::vector<float> pfTkIsoWithVertex(const reco::Photon* localPho1,
-                                       edm::Handle<reco::PFCandidateCollection> pfHandle,
-                                       edm::Handle<reco::VertexCollection> vtxHandle,
+                                       const edm::Handle<reco::PFCandidateCollection>& pfHandle,
+                                       const edm::Handle<reco::VertexCollection>& vtxHandle,
                                        float dRmax,
                                        float dRvetoBarrel,
                                        float dRvetoEndcap,
@@ -160,10 +160,10 @@ public:
                                        reco::PFCandidate::ParticleType pfToUse);
 
 private:
-  virtual void beginJob();  //(const edm::EventSetup&);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
-  void beginRun(const edm::Run&, const edm::EventSetup&);
+  void beginJob() override;  //(const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
   // parameters
   int debug_;  // print debug statements

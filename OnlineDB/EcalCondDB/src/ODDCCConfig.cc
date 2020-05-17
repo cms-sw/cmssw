@@ -95,19 +95,19 @@ void ODDCCConfig::setParameters(const std::map<string, string> &my_keys_map) {
   // parses the result of the XML parser that is a map of
   // string string with variable name variable value
 
-  for (std::map<std::string, std::string>::const_iterator ci = my_keys_map.begin(); ci != my_keys_map.end(); ci++) {
-    if (ci->first == "DCC_CONFIGURATION_ID")
-      setConfigTag(ci->second);
-    if (ci->first == "TESTPATTERN_FILE_URL")
-      setTestPatternFileUrl(ci->second);
-    if (ci->first == "N_TESTPATTERNS_TO_LOAD")
-      setNTestPatternsToLoad(atoi(ci->second.c_str()));
-    if (ci->first == "SM_HALF")
-      setSMHalf(atoi(ci->second.c_str()));
-    if (ci->first == "WEIGHTSMODE")
-      setDCCWeightsMode(ci->second);
-    if (ci->first == "DCC_CONFIGURATION_URL") {
-      std::string fname = ci->second;
+  for (const auto &ci : my_keys_map) {
+    if (ci.first == "DCC_CONFIGURATION_ID")
+      setConfigTag(ci.second);
+    if (ci.first == "TESTPATTERN_FILE_URL")
+      setTestPatternFileUrl(ci.second);
+    if (ci.first == "N_TESTPATTERNS_TO_LOAD")
+      setNTestPatternsToLoad(atoi(ci.second.c_str()));
+    if (ci.first == "SM_HALF")
+      setSMHalf(atoi(ci.second.c_str()));
+    if (ci.first == "WEIGHTSMODE")
+      setDCCWeightsMode(ci.second);
+    if (ci.first == "DCC_CONFIGURATION_URL") {
+      std::string fname = ci.second;
       setDCCConfigurationUrl(fname);
 
       // here we must open the file and read the DCC Clob

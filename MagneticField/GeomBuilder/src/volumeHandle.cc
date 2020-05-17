@@ -39,8 +39,8 @@ MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool 
   volName.erase(0, volName.rfind('_') + 1);
   volumeno = boost::lexical_cast<unsigned short>(volName);
 
-  for (int i = 0; i < 6; ++i) {
-    isAssigned[i] = false;
+  for (bool &i : isAssigned) {
+    i = false;
   }
 
   if (debug) {
@@ -228,7 +228,7 @@ std::vector<VolumeSide> MagGeoBuilderFromDDD::volumeHandle::sides() const {
       continue;
 
     ReferenceCountingPointer<Surface> s = const_cast<Surface *>(surfaces[i].get());
-    result.push_back(VolumeSide(s, GlobalFace(i), surfaces[i]->side(center_, 0.3)));
+    result.emplace_back(s, GlobalFace(i), surfaces[i]->side(center_, 0.3));
   }
   return result;
 }

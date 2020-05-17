@@ -70,8 +70,8 @@ Generator::Generator(const ParameterSet &p)
       } else {
         ss << " Filtering out PDG ID = ";
       }
-      for (unsigned int ii = 0; ii < pdgFilter.size(); ++ii) {
-        ss << pdgFilter[ii] << "  ";
+      for (int ii : pdgFilter) {
+        ss << ii << "  ";
       }
       edm::LogVerbatim("SimG4CoreGenerator") << ss.str();
     }
@@ -354,7 +354,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent *evt_orig, G4Event *g4evt) {
         }
       }
       if (toBeAdded) {
-        G4PrimaryParticle *g4prim = new G4PrimaryParticle(pdg, px * GeV, py * GeV, pz * GeV);
+        auto *g4prim = new G4PrimaryParticle(pdg, px * GeV, py * GeV, pz * GeV);
 
         if (g4prim->GetG4code() != nullptr) {
           g4prim->SetMass(g4prim->GetG4code()->GetPDGMass());
@@ -433,8 +433,7 @@ void Generator::particleAssignDaughters(G4PrimaryParticle *g4p, HepMC::GenPartic
         (*vpdec)->momentum().px(), (*vpdec)->momentum().py(), (*vpdec)->momentum().pz(), (*vpdec)->momentum().e());
 
     // children should only be taken into account once
-    G4PrimaryParticle *g4daught =
-        new G4PrimaryParticle((*vpdec)->pdg_id(), pdec.x() * GeV, pdec.y() * GeV, pdec.z() * GeV);
+    auto *g4daught = new G4PrimaryParticle((*vpdec)->pdg_id(), pdec.x() * GeV, pdec.y() * GeV, pdec.z() * GeV);
 
     if (g4daught->GetG4code() != nullptr) {
       g4daught->SetMass(g4daught->GetG4code()->GetPDGMass());
@@ -533,7 +532,7 @@ void Generator::nonBeamEvent2G4(const HepMC::GenEvent *evt, G4Event *g4evt) {
     // storing only particle with status == 1
     if (g_status == 1) {
       int g_id = gp->pdg_id();
-      G4PrimaryParticle *g4p =
+      auto *g4p =
           new G4PrimaryParticle(g_id, gp->momentum().px() * GeV, gp->momentum().py() * GeV, gp->momentum().pz() * GeV);
       if (g4p->GetG4code() != nullptr) {
         g4p->SetMass(g4p->GetG4code()->GetPDGMass());

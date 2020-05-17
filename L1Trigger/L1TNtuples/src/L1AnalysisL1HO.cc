@@ -4,11 +4,11 @@ L1Analysis::L1AnalysisL1HO::L1AnalysisL1HO() {}
 L1Analysis::L1AnalysisL1HO::~L1AnalysisL1HO() {}
 
 void L1Analysis::L1AnalysisL1HO::SetHO(const edm::SortedCollection<HODataFrame>& hoDataFrame) {
-  for (edm::SortedCollection<HODataFrame>::const_iterator it = hoDataFrame.begin(); it != hoDataFrame.end(); ++it) {
-    HcalDetId hcalDetId = it->id();
+  for (const auto& it : hoDataFrame) {
+    HcalDetId hcalDetId = it.id();
 
-    for (int i = 0; i < it->size(); ++i) {
-      HcalQIESample hcalQIESample = it->sample(i);
+    for (int i = 0; i < it.size(); ++i) {
+      HcalQIESample hcalQIESample = it.sample(i);
       l1ho_.hcalDetIdIEta.push_back(hcalDetId.ieta());
       l1ho_.hcalDetIdIPhi.push_back(hcalDetId.iphi());
       l1ho_.hcalQIESample.push_back(i);

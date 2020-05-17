@@ -94,7 +94,7 @@ namespace gem {
     uint16_t crc() const { return GEBchamberTrailer{ct_}.crc16; }
 
     //!Adds VFAT data to the vector
-    void addVFAT(VFATdata v) { vfatd_.push_back(v); }
+    void addVFAT(const VFATdata& v) { vfatd_.push_back(v); }
     //!Returns the vector of FVAT data
     const std::vector<VFATdata>* vFATs() const { return &vfatd_; }
 

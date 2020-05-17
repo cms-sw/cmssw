@@ -430,15 +430,14 @@ namespace {
       passcuts_hit = true;
 
       //Fiducial Cut, only calculate the efficiency of the central pixels
-      for (uint p = 0; p < expTrajMeasurements.size(); p++) {
-        TrajectoryMeasurement pxb1TM(expTrajMeasurements[p]);
+      for (auto pxb1TM : expTrajMeasurements) {
         const auto& pxb1Hit = pxb1TM.recHit();
         int detidHit = pxb1Hit->geographicalId();
         if (detidHit == 0)
           continue;
 
         const SiPixelRecHit* pixhit = dynamic_cast<const SiPixelRecHit*>(pxb1Hit->hit());
-        const PixelGeomDetUnit* geomdetunit = dynamic_cast<const PixelGeomDetUnit*>(tracker->idToDet(detidHit));
+        const auto* geomdetunit = dynamic_cast<const PixelGeomDetUnit*>(tracker->idToDet(detidHit));
         const PixelTopology& topol = geomdetunit->specificTopology();
 
         LocalPoint lp;
@@ -471,7 +470,7 @@ namespace {
               continue;
             if (pxb1Hit->geographicalId().rawId() != detAndState.first->geographicalId().rawId())
               continue;
-            const PixelGeomDetUnit* pixdet = (const PixelGeomDetUnit*)tkgeom->idToDetUnit(detId);
+            const auto* pixdet = (const PixelGeomDetUnit*)tkgeom->idToDetUnit(detId);
             edmNew::DetSet<SiPixelCluster>::const_iterator itCluster = iter_cl->begin();
             if (passcuts_hit) {
               for (; itCluster != iter_cl->end(); ++itCluster) {
@@ -518,13 +517,13 @@ namespace {
           bool found_det = false;
 
           if (passcuts && passcuts_hit) {
-            for (unsigned int i_eff = 0; i_eff < eff_pxb1_vector.size(); i_eff++) {
+            for (auto& i_eff : eff_pxb1_vector) {
               //in case found hit in the same det, take only the valid hit
-              if (eff_pxb1_vector[i_eff].first == detid) {
+              if (i_eff.first == detid) {
                 found_det = true;
-                if (eff_pxb1_vector[i_eff].second[0] == false && valid == true) {
-                  eff_pxb1_vector[i_eff].second[0] = valid;
-                  eff_pxb1_vector[i_eff].second[1] = missing;
+                if (i_eff.second[0] == false && valid == true) {
+                  i_eff.second[0] = valid;
+                  i_eff.second[1] = missing;
                 }
               }
             }
@@ -540,20 +539,19 @@ namespace {
 
       //propagation B: filling inactive hits
 
-      for (uint p = 0; p < expTrajMeasurements.size(); p++) {
-        TrajectoryMeasurement pxb1TM(expTrajMeasurements[p]);
+      for (auto pxb1TM : expTrajMeasurements) {
         const auto& pxb1Hit = pxb1TM.recHit();
         bool inactive = (pxb1Hit->getType() == TrackingRecHit::inactive);
         int detid = pxb1Hit->geographicalId();
         bool found_det = false;
 
         if (passcuts && passcuts_hit) {
-          for (unsigned int i_eff = 0; i_eff < eff_pxb1_vector.size(); i_eff++) {
+          for (auto& i_eff : eff_pxb1_vector) {
             //in case found hit in the same det, take only the valid hit
-            if (eff_pxb1_vector[i_eff].first == detid) {
+            if (i_eff.first == detid) {
               found_det = true;
-              if (eff_pxb1_vector[i_eff].second[0] == false && valid == true) {
-                eff_pxb1_vector[i_eff].second[2] = inactive;
+              if (i_eff.second[0] == false && valid == true) {
+                i_eff.second[2] = inactive;
               }
             }
           }

@@ -111,7 +111,7 @@ float MuonMvaEstimator::computeMva(const pat::Muon& muon,
     var[kJetBTagCSV] = tagI.second;
     var[kJetNDauCharged] = 0;
     for (auto jet : tagI.first->getJetConstituentsQuick()) {
-      const reco::PFCandidate* pfcand = dynamic_cast<const reco::PFCandidate*>(jet);
+      const auto* pfcand = dynamic_cast<const reco::PFCandidate*>(jet);
       if (pfcand == nullptr)
         throw cms::Exception("ConfigurationError") << "Cannot get jet constituents";
       if (pfcand->charge() == 0)

@@ -18,9 +18,9 @@ namespace edmtest {
   public:
     explicit DTCompactMapDump(edm::ParameterSet const& p);
     explicit DTCompactMapDump(int i);
-    virtual ~DTCompactMapDump();
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-    virtual void endJob();
+    ~DTCompactMapDump() override;
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+    void endJob() override;
 
   private:
     std::string fileName;

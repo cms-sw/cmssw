@@ -106,8 +106,8 @@ void CommissioningHistosUsingDb::uploadAnalyses() {
   }
 
   db_->clearAnalysisDescriptions();
-  SiStripDbParams::SiStripPartitions::const_iterator ip = db_->dbParams().partitions().begin();
-  SiStripDbParams::SiStripPartitions::const_iterator jp = db_->dbParams().partitions().end();
+  auto ip = db_->dbParams().partitions().begin();
+  auto jp = db_->dbParams().partitions().end();
   for (; ip != jp; ++ip) {
     edm::LogVerbatim(mlDqmClient_) << "[CommissioningHistosUsingDb::" << __func__ << "]"
                                    << " Starting from partition " << ip->first << " with versions:\n"
@@ -149,13 +149,13 @@ void CommissioningHistosUsingDb::uploadAnalyses() {
     }
 
     if (uploadConf_) {
-      SiStripDbParams::SiStripPartitions::const_iterator ip = db_->dbParams().partitions().begin();
-      SiStripDbParams::SiStripPartitions::const_iterator jp = db_->dbParams().partitions().end();
+      auto ip = db_->dbParams().partitions().begin();
+      auto jp = db_->dbParams().partitions().end();
       for (; ip != jp; ++ip) {
         DeviceFactory* df = db_->deviceFactory();
         tkStateVector states = df->getCurrentStates();
-        tkStateVector::const_iterator istate = states.begin();
-        tkStateVector::const_iterator jstate = states.end();
+        auto istate = states.begin();
+        auto jstate = states.end();
         while (istate != jstate) {
           if (*istate && ip->first == (*istate)->getPartitionName()) {
             break;
@@ -189,8 +189,8 @@ void CommissioningHistosUsingDb::addDcuDetIds() {
     return;
   }
 
-  Analyses::iterator ianal = data().begin();
-  Analyses::iterator janal = data().end();
+  auto ianal = data().begin();
+  auto janal = data().end();
   for (; ianal != janal; ++ianal) {
     CommissioningAnalysis* anal = ianal->second;
 
@@ -245,8 +245,8 @@ void CommissioningHistosUsingDb::createAnalyses(SiStripConfigDb::AnalysisDescrip
 
   desc.clear();
 
-  Analyses::iterator ianal = data().begin();
-  Analyses::iterator janal = data().end();
+  auto ianal = data().begin();
+  auto janal = data().end();
   for (; ianal != janal; ++ianal) {
     // create analysis description
     create(desc, ianal);
@@ -264,8 +264,8 @@ void CommissioningHistosUsingDb::buildDetInfo() {
     return;
   }
 
-  SiStripDbParams::SiStripPartitions::const_iterator ii = db_->dbParams().partitions().begin();
-  SiStripDbParams::SiStripPartitions::const_iterator jj = db_->dbParams().partitions().end();
+  auto ii = db_->dbParams().partitions().begin();
+  auto jj = db_->dbParams().partitions().end();
   for (; ii != jj; ++ii) {
     // Retrieve DCUs and DetIds for given partition
     std::string pp = ii->second.partitionName();
@@ -273,8 +273,8 @@ void CommissioningHistosUsingDb::buildDetInfo() {
     SiStripConfigDb::DcuDetIdsRange dets = db()->getDcuDetIds(pp);
 
     // Iterate through DCUs
-    SiStripConfigDb::DeviceDescriptionsV::const_iterator idcu = dcus.begin();
-    SiStripConfigDb::DeviceDescriptionsV::const_iterator jdcu = dcus.end();
+    auto idcu = dcus.begin();
+    auto jdcu = dcus.end();
     for (; idcu != jdcu; ++idcu) {
       // Extract DCU-FEH description
       dcuDescription* dcu = dynamic_cast<dcuDescription*>(*idcu);
@@ -292,7 +292,7 @@ void CommissioningHistosUsingDb::buildDetInfo() {
         continue;  // fake dcu (0xfafafa)
 
       // Find TkDcuInfo object corresponding to given DCU description
-      SiStripConfigDb::DcuDetIdsV::const_iterator idet = dets.end();
+      auto idet = dets.end();
       idet = SiStripConfigDb::findDcuDetId(dets.begin(), dets.end(), dcu->getDcuHardId());
       if (idet == dets.begin()) {
         continue;
@@ -327,12 +327,12 @@ void CommissioningHistosUsingDb::buildDetInfo() {
     ss << "[CommissioningHistosUsingDb::" << __func__ << "]"
        << " List of modules for " << detInfo_.size()
        << " partitions, with their DCUids, DetIds, and nApvPairs: " << std::endl;
-    std::map<std::string, DetInfos>::const_iterator ii = detInfo_.begin();
-    std::map<std::string, DetInfos>::const_iterator jj = detInfo_.end();
+    auto ii = detInfo_.begin();
+    auto jj = detInfo_.end();
     for (; ii != jj; ++ii) {
       ss << " Partition \"" << ii->first << "\" has " << ii->second.size() << " modules:" << std::endl;
-      DetInfos::const_iterator iii = ii->second.begin();
-      DetInfos::const_iterator jjj = ii->second.end();
+      auto iii = ii->second.begin();
+      auto jjj = ii->second.end();
       for (; iii != jjj; ++iii) {
         SiStripFecKey key = iii->first;
         ss << "  module= " << key.fecCrate() << "/" << key.fecSlot() << "/" << key.fecRing() << "/" << key.ccuAddr()
@@ -353,10 +353,10 @@ std::pair<std::string, CommissioningHistosUsingDb::DetInfo> CommissioningHistosU
   if (tmp.isInvalid()) {
     return std::make_pair("", DetInfo());
   }
-  std::map<std::string, DetInfos>::const_iterator ii = detInfo_.begin();
-  std::map<std::string, DetInfos>::const_iterator jj = detInfo_.end();
+  auto ii = detInfo_.begin();
+  auto jj = detInfo_.end();
   for (; ii != jj; ++ii) {
-    DetInfos::const_iterator iii = ii->second.find(tmp.key());
+    auto iii = ii->second.find(tmp.key());
     if (iii != ii->second.end()) {
       return std::make_pair(ii->first, iii->second);
     }

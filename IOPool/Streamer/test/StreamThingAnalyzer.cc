@@ -41,7 +41,7 @@ namespace edmtest_thing {
     typedef std::vector<edm::Handle<WriteThis> > ProdList;
     ProdList prod;
     getterUsingLabel_.fillHandles(e, prod);
-    ProdList::iterator i(prod.begin()), end(prod.end());
+    auto i(prod.begin()), end(prod.end());
     for (; i != end; ++i)
       total_ = accumulate((*i)->data_.begin(), (*i)->data_.end(), total_);
       //std::cout << tot << std::endl;

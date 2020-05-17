@@ -155,7 +155,7 @@ void GenericParticle::fillInFrom(const reco::Candidate &cand) {
   setPdgId(cand.pdgId());
   setStatus(cand.status());
   // then RECO part, if available
-  const reco::RecoCandidate *rc = dynamic_cast<const reco::RecoCandidate *>(&cand);
+  const auto *rc = dynamic_cast<const reco::RecoCandidate *>(&cand);
   if (rc != nullptr) {
     setTrack(rc->track());
     setGsfTrack(rc->gsfTrack());
@@ -175,7 +175,7 @@ void GenericParticle::fillInFrom(const reco::Candidate &cand) {
 }
 
 bool GenericParticle::overlap(const reco::Candidate &cand) const {
-  const reco::RecoCandidate *rc = dynamic_cast<const reco::RecoCandidate *>(&cand);
+  const auto *rc = dynamic_cast<const reco::RecoCandidate *>(&cand);
   if (rc != nullptr) {
     if (rc->track().isNonnull() && (track() == rc->track()))
       return true;

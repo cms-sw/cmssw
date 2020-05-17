@@ -111,8 +111,8 @@ template <>
 std::vector<int> TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi> >::findRows() const {
   std::vector<int> temp;
   temp.reserve(theHits.size());
-  for (unsigned int i = 0; i < theHits.size(); i++) {
-    temp.push_back(theHits[i]->row());
+  for (const auto& theHit : theHits) {
+    temp.push_back(theHit->row());
   }
   return temp;
 }
@@ -121,8 +121,8 @@ template <>
 std::vector<int> TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi> >::findCols() const {
   std::vector<int> temp;
   temp.reserve(theHits.size());
-  for (unsigned int i = 0; i < theHits.size(); i++) {
-    temp.push_back(theHits[i]->column());
+  for (const auto& theHit : theHits) {
+    temp.push_back(theHit->column());
   }
   return temp;
 }

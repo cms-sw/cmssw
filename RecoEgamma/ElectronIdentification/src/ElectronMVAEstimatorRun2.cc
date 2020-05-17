@@ -79,7 +79,7 @@ void ElectronMVAEstimatorRun2::init(const std::vector<std::string>& weightFileNa
 float ElectronMVAEstimatorRun2::mvaValue(const reco::Candidate* candidate,
                                          const std::vector<float>& auxVariables,
                                          int& iCategory) const {
-  const reco::GsfElectron* electron = dynamic_cast<const reco::GsfElectron*>(candidate);
+  const auto* electron = dynamic_cast<const reco::GsfElectron*>(candidate);
 
   if (electron == nullptr) {
     throw cms::Exception("MVA failure: ")
@@ -93,6 +93,8 @@ float ElectronMVAEstimatorRun2::mvaValue(const reco::Candidate* candidate,
     return -999;
 
   std::vector<float> vars;
+
+  vars.reserve(nVariables_[iCategory]);
 
   for (int i = 0; i < nVariables_[iCategory]; ++i) {
     vars.push_back(mvaVarMngr_.getValue(variables_[iCategory][i], *electron, auxVariables));
@@ -115,7 +117,7 @@ float ElectronMVAEstimatorRun2::mvaValue(const reco::Candidate* candidate,
 }
 
 int ElectronMVAEstimatorRun2::findCategory(const reco::Candidate* candidate) const {
-  const reco::GsfElectron* electron = dynamic_cast<reco::GsfElectron const*>(candidate);
+  const auto* electron = dynamic_cast<reco::GsfElectron const*>(candidate);
 
   if (electron == nullptr) {
     throw cms::Exception("MVA failure: ")

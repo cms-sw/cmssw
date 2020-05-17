@@ -72,7 +72,7 @@ void CSCSharesInputTest::analyze(const edm::Event &myEvent, const edm::EventSetu
 
       // Kill us quickly if this is not a CSCRecHit.  Also allows us to use the CSCRecHit version of sharesInput, which we like.
       const CSCRecHit2D *myHit = dynamic_cast<const CSCRecHit2D *>(jHit);
-      if (myHit == 0) {
+      if (myHit == nullptr) {
         ++counts_["NotMatchedRecHits"];
         ++perEventData[9];
         ++perMuonData[7];
@@ -82,45 +82,45 @@ void CSCSharesInputTest::analyze(const edm::Event &myEvent, const edm::EventSetu
 
       bool matched = false;
 
-      for (CSCRecHit2DCollection::const_iterator iHit = recHits->begin(); iHit != recHits->end(); ++iHit) {
+      for (const auto &iHit : *recHits) {
         // for now, this throws with DT TrackingRecHits
         try {
-          if (myHit->sharesInput(&(*iHit), CSCRecHit2D::all)) {
+          if (myHit->sharesInput(&iHit, CSCRecHit2D::all)) {
             ++counts_["AllMatchedRecHits"];
             ++perEventData[3];
             ++perMuonData[1];
             perRecHitData[0] = 1;
             matched = true;
           }
-          if (myHit->sharesInput(&(*iHit), CSCRecHit2D::some)) {
+          if (myHit->sharesInput(&iHit, CSCRecHit2D::some)) {
             ++counts_["SomeMatchedRecHits"];
             ++perEventData[4];
             ++perMuonData[2];
             perRecHitData[1] = 1;
             matched = true;
           }
-          if (myHit->sharesInput(&(*iHit), CSCRecHit2D::allWires)) {
+          if (myHit->sharesInput(&iHit, CSCRecHit2D::allWires)) {
             ++counts_["AllWiresMatchedRecHits"];
             ++perEventData[5];
             ++perMuonData[3];
             perRecHitData[2] = 1;
             matched = true;
           }
-          if (myHit->sharesInput(&(*iHit), CSCRecHit2D::someWires)) {
+          if (myHit->sharesInput(&iHit, CSCRecHit2D::someWires)) {
             ++counts_["SomeWiresMatchedRecHits"];
             ++perEventData[6];
             ++perMuonData[4];
             perRecHitData[3] = 1;
             matched = true;
           }
-          if (myHit->sharesInput(&(*iHit), CSCRecHit2D::allStrips)) {
+          if (myHit->sharesInput(&iHit, CSCRecHit2D::allStrips)) {
             ++counts_["AllStripsMatchedRecHits"];
             ++perEventData[7];
             ++perMuonData[5];
             perRecHitData[4] = 1;
             matched = true;
           }
-          if (myHit->sharesInput(&(*iHit), CSCRecHit2D::someStrips)) {
+          if (myHit->sharesInput(&iHit, CSCRecHit2D::someStrips)) {
             ++counts_["SomeStripsMatchedRecHits"];
             ++perEventData[8];
             ++perMuonData[6];
@@ -152,8 +152,8 @@ void CSCSharesInputTest::analyze(const edm::Event &myEvent, const edm::EventSetu
 
 void CSCSharesInputTest::endJob() {
   std::cout << std::endl << "End of job statistics" << std::endl;
-  for (std::map<std::string, uint64_t>::iterator iCount = counts_.begin(); iCount != counts_.end(); iCount++) {
-    std::cout << iCount->first << ": " << iCount->second << std::endl;
+  for (auto &count : counts_) {
+    std::cout << count.first << ": " << count.second << std::endl;
   }
   std::cout << std::endl;
 }

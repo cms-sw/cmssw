@@ -27,7 +27,7 @@ void filterCells3x3(std::vector<TCell>& selectCells, Int_t iEta, UInt_t iPhi);
 void filterCells5x5(std::vector<TCell>& selectCells, Int_t iEta, UInt_t iPhi);
 
 void filterCellsInCone(std::vector<TCell>& selectCells,
-                       const GlobalPoint hitPositionHcal,
+                       const GlobalPoint& hitPositionHcal,
                        Float_t maxConeDist,
                        const CaloGeometry* theCaloGeometry);
 

@@ -9,12 +9,11 @@ L1Analysis::L1AnalysisRecoJet::~L1AnalysisRecoJet() {}
 
 void L1Analysis::L1AnalysisRecoJet::SetCaloJet(const edm::Event& event,
                                                const edm::EventSetup& setup,
-                                               edm::Handle<reco::CaloJetCollection> caloJets,
+                                               const edm::Handle<reco::CaloJetCollection>& caloJets,
                                                unsigned maxJet) {
   recoJet_.nJets = 0;
 
-  for (reco::CaloJetCollection::const_iterator it = caloJets->begin(); it != caloJets->end() && recoJet_.nJets < maxJet;
-       ++it) {
+  for (auto it = caloJets->begin(); it != caloJets->end() && recoJet_.nJets < maxJet; ++it) {
     recoJet_.et.push_back(it->et());
     // recoJet_.etCorr.push_back(it->et());// * scale);
     // recoJet_.corrFactor.push_back(1.);//scale);

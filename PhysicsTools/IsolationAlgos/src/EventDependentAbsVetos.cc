@@ -5,8 +5,8 @@
 #include "DataFormats/Math/interface/deltaR.h"
 
 bool reco::isodeposit::OtherCandidatesDeltaRVeto::veto(double eta, double phi, float value) const {
-  for (std::vector<Direction>::const_iterator it = items_.begin(), ed = items_.end(); it != ed; ++it) {
-    if (::deltaR2(it->eta(), it->phi(), eta, phi) < deltaR2_)
+  for (auto item : items_) {
+    if (::deltaR2(item.eta(), item.phi(), eta, phi) < deltaR2_)
       return true;
   }
   return false;
@@ -17,13 +17,13 @@ void reco::isodeposit::OtherCandidatesDeltaRVeto::setEvent(const edm::Event &iEv
   edm::Handle<edm::View<reco::Candidate> > candidates;
   iEvent.getByToken(src_, candidates);
   for (edm::View<reco::Candidate>::const_iterator it = candidates->begin(), ed = candidates->end(); it != ed; ++it) {
-    items_.push_back(Direction(it->eta(), it->phi()));
+    items_.emplace_back(it->eta(), it->phi());
   }
 }
 
 bool reco::isodeposit::OtherCandVeto::veto(double eta, double phi, float value) const {
-  for (std::vector<Direction>::const_iterator it = items_.begin(), ed = items_.end(); it != ed; ++it) {
-    veto_->centerOn(it->eta(), it->phi());
+  for (auto item : items_) {
+    veto_->centerOn(item.eta(), item.phi());
     if (veto_->veto(eta, phi, value))
       return true;
   }
@@ -35,13 +35,13 @@ void reco::isodeposit::OtherCandVeto::setEvent(const edm::Event &iEvent, const e
   edm::Handle<edm::View<reco::Candidate> > candidates;
   iEvent.getByToken(src_, candidates);
   for (edm::View<reco::Candidate>::const_iterator it = candidates->begin(), ed = candidates->end(); it != ed; ++it) {
-    items_.push_back(Direction(it->eta(), it->phi()));
+    items_.emplace_back(it->eta(), it->phi());
   }
 }
 
 bool reco::isodeposit::OtherJetConstituentsDeltaRVeto::veto(double eta, double phi, float value) const {
-  for (std::vector<Direction>::const_iterator it = items_.begin(), ed = items_.end(); it != ed; ++it) {
-    if (::deltaR2(it->eta(), it->phi(), eta, phi) < dR2constituent_)
+  for (auto item : items_) {
+    if (::deltaR2(item.eta(), item.phi(), eta, phi) < dR2constituent_)
       return true;
   }
   return false;
@@ -75,11 +75,9 @@ void reco::isodeposit::OtherJetConstituentsDeltaRVeto::initialize() {
   if (matchedJet.isNonnull()) {
     edm::RefVector<reco::PFCandidateCollection> pfCandsMappedToJet = (*jetToPFCandMap)[matchedJet];
     int idx = 0;
-    for (edm::RefVector<reco::PFCandidateCollection>::const_iterator pfCand = pfCandsMappedToJet.begin();
-         pfCand != pfCandsMappedToJet.end();
-         ++pfCand) {
+    for (auto &&pfCand : pfCandsMappedToJet) {
       //std::cout << "pfCand #" << idx << ": Pt = " << (*pfCand)->pt() << ", eta = " << (*pfCand)->eta() << ", phi = " << (*pfCand)->phi() << std::endl;
-      items_.push_back(Direction((*pfCand)->eta(), (*pfCand)->phi()));
+      items_.emplace_back((pfCand)->eta(), (pfCand)->phi());
       ++idx;
     }
   }

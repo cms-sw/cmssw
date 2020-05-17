@@ -19,216 +19,216 @@ std::vector<SeedLayerPairs::LayerPair> CosmicLayerPairs::operator()() {
     //      result.push_back( SeedLayerPairs::LayerPair(&TIBLayerWithHits[1], &TIBLayerWithHits[0]));
     //      result.push_back( SeedLayerPairs::LayerPair(&TIBLayerWithHits[2], &TIBLayerWithHits[0]));
 
-    result.push_back(SeedLayerPairs::LayerPair(&TOBLayerWithHits[3], &TOBLayerWithHits[5]));
-    result.push_back(SeedLayerPairs::LayerPair(&TOBLayerWithHits[4], &TOBLayerWithHits[5]));
-    result.push_back(SeedLayerPairs::LayerPair(&TOBLayerWithHits[3], &TOBLayerWithHits[4]));
+    result.emplace_back(&TOBLayerWithHits[3], &TOBLayerWithHits[5]);
+    result.emplace_back(&TOBLayerWithHits[4], &TOBLayerWithHits[5]);
+    result.emplace_back(&TOBLayerWithHits[3], &TOBLayerWithHits[4]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[7], &TECPlusLayerWithHits[8]));
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[6], &TECPlusLayerWithHits[8]));
+    result.emplace_back(&TECPlusLayerWithHits[7], &TECPlusLayerWithHits[8]);
+    result.emplace_back(&TECPlusLayerWithHits[6], &TECPlusLayerWithHits[8]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[6], &TECPlusLayerWithHits[7]));
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[5], &TECPlusLayerWithHits[7]));
+    result.emplace_back(&TECPlusLayerWithHits[6], &TECPlusLayerWithHits[7]);
+    result.emplace_back(&TECPlusLayerWithHits[5], &TECPlusLayerWithHits[7]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[5], &TECPlusLayerWithHits[6]));
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[4], &TECPlusLayerWithHits[6]));
+    result.emplace_back(&TECPlusLayerWithHits[5], &TECPlusLayerWithHits[6]);
+    result.emplace_back(&TECPlusLayerWithHits[4], &TECPlusLayerWithHits[6]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[4], &TECPlusLayerWithHits[5]));
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[3], &TECPlusLayerWithHits[5]));
+    result.emplace_back(&TECPlusLayerWithHits[4], &TECPlusLayerWithHits[5]);
+    result.emplace_back(&TECPlusLayerWithHits[3], &TECPlusLayerWithHits[5]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[3], &TECPlusLayerWithHits[4]));
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[2], &TECPlusLayerWithHits[4]));
+    result.emplace_back(&TECPlusLayerWithHits[3], &TECPlusLayerWithHits[4]);
+    result.emplace_back(&TECPlusLayerWithHits[2], &TECPlusLayerWithHits[4]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[2], &TECPlusLayerWithHits[3]));
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[1], &TECPlusLayerWithHits[3]));
+    result.emplace_back(&TECPlusLayerWithHits[2], &TECPlusLayerWithHits[3]);
+    result.emplace_back(&TECPlusLayerWithHits[1], &TECPlusLayerWithHits[3]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[1], &TECPlusLayerWithHits[2]));
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[0], &TECPlusLayerWithHits[2]));
+    result.emplace_back(&TECPlusLayerWithHits[1], &TECPlusLayerWithHits[2]);
+    result.emplace_back(&TECPlusLayerWithHits[0], &TECPlusLayerWithHits[2]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[0], &TECPlusLayerWithHits[1]));
+    result.emplace_back(&TECPlusLayerWithHits[0], &TECPlusLayerWithHits[1]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[7], &TECMinusLayerWithHits[8]));
-    result.push_back(SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[6], &TECMinusLayerWithHits[8]));
+    result.emplace_back(&TECMinusLayerWithHits[7], &TECMinusLayerWithHits[8]);
+    result.emplace_back(&TECMinusLayerWithHits[6], &TECMinusLayerWithHits[8]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[6], &TECMinusLayerWithHits[7]));
-    result.push_back(SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[5], &TECMinusLayerWithHits[7]));
+    result.emplace_back(&TECMinusLayerWithHits[6], &TECMinusLayerWithHits[7]);
+    result.emplace_back(&TECMinusLayerWithHits[5], &TECMinusLayerWithHits[7]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[5], &TECMinusLayerWithHits[6]));
-    result.push_back(SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[4], &TECMinusLayerWithHits[6]));
+    result.emplace_back(&TECMinusLayerWithHits[5], &TECMinusLayerWithHits[6]);
+    result.emplace_back(&TECMinusLayerWithHits[4], &TECMinusLayerWithHits[6]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[4], &TECMinusLayerWithHits[5]));
-    result.push_back(SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[3], &TECMinusLayerWithHits[5]));
+    result.emplace_back(&TECMinusLayerWithHits[4], &TECMinusLayerWithHits[5]);
+    result.emplace_back(&TECMinusLayerWithHits[3], &TECMinusLayerWithHits[5]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[3], &TECMinusLayerWithHits[4]));
-    result.push_back(SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[2], &TECMinusLayerWithHits[4]));
+    result.emplace_back(&TECMinusLayerWithHits[3], &TECMinusLayerWithHits[4]);
+    result.emplace_back(&TECMinusLayerWithHits[2], &TECMinusLayerWithHits[4]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[2], &TECMinusLayerWithHits[3]));
-    result.push_back(SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[1], &TECMinusLayerWithHits[3]));
+    result.emplace_back(&TECMinusLayerWithHits[2], &TECMinusLayerWithHits[3]);
+    result.emplace_back(&TECMinusLayerWithHits[1], &TECMinusLayerWithHits[3]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[1], &TECMinusLayerWithHits[2]));
-    result.push_back(SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[0], &TECMinusLayerWithHits[2]));
+    result.emplace_back(&TECMinusLayerWithHits[1], &TECMinusLayerWithHits[2]);
+    result.emplace_back(&TECMinusLayerWithHits[0], &TECMinusLayerWithHits[2]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[0], &TECMinusLayerWithHits[1]));
+    result.emplace_back(&TECMinusLayerWithHits[0], &TECMinusLayerWithHits[1]);
 
   } else if (_geometry == "TECPAIRS_TOBTRIPLETS") {
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[7], &TECPlusLayerWithHits[8]));
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[6], &TECPlusLayerWithHits[8]));
+    result.emplace_back(&TECPlusLayerWithHits[7], &TECPlusLayerWithHits[8]);
+    result.emplace_back(&TECPlusLayerWithHits[6], &TECPlusLayerWithHits[8]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[6], &TECPlusLayerWithHits[7]));
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[5], &TECPlusLayerWithHits[7]));
+    result.emplace_back(&TECPlusLayerWithHits[6], &TECPlusLayerWithHits[7]);
+    result.emplace_back(&TECPlusLayerWithHits[5], &TECPlusLayerWithHits[7]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[5], &TECPlusLayerWithHits[6]));
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[4], &TECPlusLayerWithHits[6]));
+    result.emplace_back(&TECPlusLayerWithHits[5], &TECPlusLayerWithHits[6]);
+    result.emplace_back(&TECPlusLayerWithHits[4], &TECPlusLayerWithHits[6]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[4], &TECPlusLayerWithHits[5]));
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[3], &TECPlusLayerWithHits[5]));
+    result.emplace_back(&TECPlusLayerWithHits[4], &TECPlusLayerWithHits[5]);
+    result.emplace_back(&TECPlusLayerWithHits[3], &TECPlusLayerWithHits[5]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[3], &TECPlusLayerWithHits[4]));
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[2], &TECPlusLayerWithHits[4]));
+    result.emplace_back(&TECPlusLayerWithHits[3], &TECPlusLayerWithHits[4]);
+    result.emplace_back(&TECPlusLayerWithHits[2], &TECPlusLayerWithHits[4]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[2], &TECPlusLayerWithHits[3]));
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[1], &TECPlusLayerWithHits[3]));
+    result.emplace_back(&TECPlusLayerWithHits[2], &TECPlusLayerWithHits[3]);
+    result.emplace_back(&TECPlusLayerWithHits[1], &TECPlusLayerWithHits[3]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[1], &TECPlusLayerWithHits[2]));
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[0], &TECPlusLayerWithHits[2]));
+    result.emplace_back(&TECPlusLayerWithHits[1], &TECPlusLayerWithHits[2]);
+    result.emplace_back(&TECPlusLayerWithHits[0], &TECPlusLayerWithHits[2]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[0], &TECPlusLayerWithHits[1]));
+    result.emplace_back(&TECPlusLayerWithHits[0], &TECPlusLayerWithHits[1]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[7], &TECMinusLayerWithHits[8]));
-    result.push_back(SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[6], &TECMinusLayerWithHits[8]));
+    result.emplace_back(&TECMinusLayerWithHits[7], &TECMinusLayerWithHits[8]);
+    result.emplace_back(&TECMinusLayerWithHits[6], &TECMinusLayerWithHits[8]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[6], &TECMinusLayerWithHits[7]));
-    result.push_back(SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[5], &TECMinusLayerWithHits[7]));
+    result.emplace_back(&TECMinusLayerWithHits[6], &TECMinusLayerWithHits[7]);
+    result.emplace_back(&TECMinusLayerWithHits[5], &TECMinusLayerWithHits[7]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[5], &TECMinusLayerWithHits[6]));
-    result.push_back(SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[4], &TECMinusLayerWithHits[6]));
+    result.emplace_back(&TECMinusLayerWithHits[5], &TECMinusLayerWithHits[6]);
+    result.emplace_back(&TECMinusLayerWithHits[4], &TECMinusLayerWithHits[6]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[4], &TECMinusLayerWithHits[5]));
-    result.push_back(SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[3], &TECMinusLayerWithHits[5]));
+    result.emplace_back(&TECMinusLayerWithHits[4], &TECMinusLayerWithHits[5]);
+    result.emplace_back(&TECMinusLayerWithHits[3], &TECMinusLayerWithHits[5]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[3], &TECMinusLayerWithHits[4]));
-    result.push_back(SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[2], &TECMinusLayerWithHits[4]));
+    result.emplace_back(&TECMinusLayerWithHits[3], &TECMinusLayerWithHits[4]);
+    result.emplace_back(&TECMinusLayerWithHits[2], &TECMinusLayerWithHits[4]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[2], &TECMinusLayerWithHits[3]));
-    result.push_back(SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[1], &TECMinusLayerWithHits[3]));
+    result.emplace_back(&TECMinusLayerWithHits[2], &TECMinusLayerWithHits[3]);
+    result.emplace_back(&TECMinusLayerWithHits[1], &TECMinusLayerWithHits[3]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[1], &TECMinusLayerWithHits[2]));
-    result.push_back(SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[0], &TECMinusLayerWithHits[2]));
+    result.emplace_back(&TECMinusLayerWithHits[1], &TECMinusLayerWithHits[2]);
+    result.emplace_back(&TECMinusLayerWithHits[0], &TECMinusLayerWithHits[2]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECMinusLayerWithHits[0], &TECMinusLayerWithHits[1]));
+    result.emplace_back(&TECMinusLayerWithHits[0], &TECMinusLayerWithHits[1]);
 
   } else if (_geometry == "MTCC") {
-    result.push_back(SeedLayerPairs::LayerPair(&MTCCLayerWithHits[1], &MTCCLayerWithHits[0]));
-    result.push_back(SeedLayerPairs::LayerPair(&MTCCLayerWithHits[2], &MTCCLayerWithHits[3]));
+    result.emplace_back(&MTCCLayerWithHits[1], &MTCCLayerWithHits[0]);
+    result.emplace_back(&MTCCLayerWithHits[2], &MTCCLayerWithHits[3]);
     //IMPORTANT
     // The seed from overlaps must be at the end
-    result.push_back(SeedLayerPairs::LayerPair(&MTCCLayerWithHits[0], &MTCCLayerWithHits[0]));
-    result.push_back(SeedLayerPairs::LayerPair(&MTCCLayerWithHits[1], &MTCCLayerWithHits[1]));
+    result.emplace_back(&MTCCLayerWithHits[0], &MTCCLayerWithHits[0]);
+    result.emplace_back(&MTCCLayerWithHits[1], &MTCCLayerWithHits[1]);
   } else if (_geometry == "CRACK") {
     //TODO: clean all this. Now this is a random choice of layers
-    result.push_back(SeedLayerPairs::LayerPair(&CRACKLayerWithHits[1], &CRACKLayerWithHits[0]));
-    result.push_back(SeedLayerPairs::LayerPair(&CRACKLayerWithHits[2], &CRACKLayerWithHits[0]));
-    result.push_back(SeedLayerPairs::LayerPair(&CRACKLayerWithHits[2], &CRACKLayerWithHits[1]));
-    result.push_back(SeedLayerPairs::LayerPair(&CRACKLayerWithHits[3], &CRACKLayerWithHits[2]));
-    result.push_back(SeedLayerPairs::LayerPair(&CRACKLayerWithHits[5], &CRACKLayerWithHits[4]));
-    result.push_back(SeedLayerPairs::LayerPair(&CRACKLayerWithHits[6], &CRACKLayerWithHits[4]));
-    result.push_back(SeedLayerPairs::LayerPair(&CRACKLayerWithHits[6], &CRACKLayerWithHits[5]));
-    result.push_back(SeedLayerPairs::LayerPair(&CRACKLayerWithHits[7], &CRACKLayerWithHits[6]));
-    result.push_back(SeedLayerPairs::LayerPair(&CRACKLayerWithHits[8], &CRACKLayerWithHits[5]));
-    result.push_back(SeedLayerPairs::LayerPair(&CRACKLayerWithHits[9], &CRACKLayerWithHits[5]));
-    result.push_back(SeedLayerPairs::LayerPair(&CRACKLayerWithHits[10], &CRACKLayerWithHits[5]));
-    result.push_back(SeedLayerPairs::LayerPair(&CRACKLayerWithHits[11], &CRACKLayerWithHits[5]));
-    result.push_back(SeedLayerPairs::LayerPair(&CRACKLayerWithHits[12], &CRACKLayerWithHits[5]));
-    result.push_back(SeedLayerPairs::LayerPair(&CRACKLayerWithHits[13], &CRACKLayerWithHits[5]));
+    result.emplace_back(&CRACKLayerWithHits[1], &CRACKLayerWithHits[0]);
+    result.emplace_back(&CRACKLayerWithHits[2], &CRACKLayerWithHits[0]);
+    result.emplace_back(&CRACKLayerWithHits[2], &CRACKLayerWithHits[1]);
+    result.emplace_back(&CRACKLayerWithHits[3], &CRACKLayerWithHits[2]);
+    result.emplace_back(&CRACKLayerWithHits[5], &CRACKLayerWithHits[4]);
+    result.emplace_back(&CRACKLayerWithHits[6], &CRACKLayerWithHits[4]);
+    result.emplace_back(&CRACKLayerWithHits[6], &CRACKLayerWithHits[5]);
+    result.emplace_back(&CRACKLayerWithHits[7], &CRACKLayerWithHits[6]);
+    result.emplace_back(&CRACKLayerWithHits[8], &CRACKLayerWithHits[5]);
+    result.emplace_back(&CRACKLayerWithHits[9], &CRACKLayerWithHits[5]);
+    result.emplace_back(&CRACKLayerWithHits[10], &CRACKLayerWithHits[5]);
+    result.emplace_back(&CRACKLayerWithHits[11], &CRACKLayerWithHits[5]);
+    result.emplace_back(&CRACKLayerWithHits[12], &CRACKLayerWithHits[5]);
+    result.emplace_back(&CRACKLayerWithHits[13], &CRACKLayerWithHits[5]);
   } else if (_geometry == "TIBD+") {
-    result.push_back(SeedLayerPairs::LayerPair(&TIBLayerWithHits[1], &TIBLayerWithHits[0]));
-    result.push_back(SeedLayerPairs::LayerPair(&TIBLayerWithHits[2], &TIBLayerWithHits[3]));
-    result.push_back(SeedLayerPairs::LayerPair(&TIBLayerWithHits[0], &TIBLayerWithHits[0]));
-    result.push_back(SeedLayerPairs::LayerPair(&TIBLayerWithHits[1], &TIBLayerWithHits[1]));
+    result.emplace_back(&TIBLayerWithHits[1], &TIBLayerWithHits[0]);
+    result.emplace_back(&TIBLayerWithHits[2], &TIBLayerWithHits[3]);
+    result.emplace_back(&TIBLayerWithHits[0], &TIBLayerWithHits[0]);
+    result.emplace_back(&TIBLayerWithHits[1], &TIBLayerWithHits[1]);
   } else if (_geometry == "TOB") {
-    result.push_back(SeedLayerPairs::LayerPair(&TOBLayerWithHits[3], &TOBLayerWithHits[5]));
-    result.push_back(SeedLayerPairs::LayerPair(&TOBLayerWithHits[4], &TOBLayerWithHits[5]));
-    result.push_back(SeedLayerPairs::LayerPair(&TOBLayerWithHits[3], &TOBLayerWithHits[4]));
+    result.emplace_back(&TOBLayerWithHits[3], &TOBLayerWithHits[5]);
+    result.emplace_back(&TOBLayerWithHits[4], &TOBLayerWithHits[5]);
+    result.emplace_back(&TOBLayerWithHits[3], &TOBLayerWithHits[4]);
 
   } else if (_geometry == "TIBTOB") {
-    result.push_back(SeedLayerPairs::LayerPair(&TIBLayerWithHits[1], &TIBLayerWithHits[0]));
-    result.push_back(SeedLayerPairs::LayerPair(&TIBLayerWithHits[2], &TIBLayerWithHits[0]));
+    result.emplace_back(&TIBLayerWithHits[1], &TIBLayerWithHits[0]);
+    result.emplace_back(&TIBLayerWithHits[2], &TIBLayerWithHits[0]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TOBLayerWithHits[3], &TOBLayerWithHits[5]));
-    result.push_back(SeedLayerPairs::LayerPair(&TOBLayerWithHits[4], &TOBLayerWithHits[5]));
-    result.push_back(SeedLayerPairs::LayerPair(&TOBLayerWithHits[3], &TOBLayerWithHits[4]));
+    result.emplace_back(&TOBLayerWithHits[3], &TOBLayerWithHits[5]);
+    result.emplace_back(&TOBLayerWithHits[4], &TOBLayerWithHits[5]);
+    result.emplace_back(&TOBLayerWithHits[3], &TOBLayerWithHits[4]);
 
   } else if (_geometry == "TEC+") {
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[7], &TECPlusLayerWithHits[8]));
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[6], &TECPlusLayerWithHits[8]));
+    result.emplace_back(&TECPlusLayerWithHits[7], &TECPlusLayerWithHits[8]);
+    result.emplace_back(&TECPlusLayerWithHits[6], &TECPlusLayerWithHits[8]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[6], &TECPlusLayerWithHits[7]));
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[5], &TECPlusLayerWithHits[7]));
+    result.emplace_back(&TECPlusLayerWithHits[6], &TECPlusLayerWithHits[7]);
+    result.emplace_back(&TECPlusLayerWithHits[5], &TECPlusLayerWithHits[7]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[5], &TECPlusLayerWithHits[6]));
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[4], &TECPlusLayerWithHits[6]));
+    result.emplace_back(&TECPlusLayerWithHits[5], &TECPlusLayerWithHits[6]);
+    result.emplace_back(&TECPlusLayerWithHits[4], &TECPlusLayerWithHits[6]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[4], &TECPlusLayerWithHits[5]));
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[3], &TECPlusLayerWithHits[5]));
+    result.emplace_back(&TECPlusLayerWithHits[4], &TECPlusLayerWithHits[5]);
+    result.emplace_back(&TECPlusLayerWithHits[3], &TECPlusLayerWithHits[5]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[3], &TECPlusLayerWithHits[4]));
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[2], &TECPlusLayerWithHits[4]));
+    result.emplace_back(&TECPlusLayerWithHits[3], &TECPlusLayerWithHits[4]);
+    result.emplace_back(&TECPlusLayerWithHits[2], &TECPlusLayerWithHits[4]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[2], &TECPlusLayerWithHits[3]));
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[1], &TECPlusLayerWithHits[3]));
+    result.emplace_back(&TECPlusLayerWithHits[2], &TECPlusLayerWithHits[3]);
+    result.emplace_back(&TECPlusLayerWithHits[1], &TECPlusLayerWithHits[3]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[2], &TECPlusLayerWithHits[1]));
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[2], &TECPlusLayerWithHits[0]));
+    result.emplace_back(&TECPlusLayerWithHits[2], &TECPlusLayerWithHits[1]);
+    result.emplace_back(&TECPlusLayerWithHits[2], &TECPlusLayerWithHits[0]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[1], &TECPlusLayerWithHits[0]));
+    result.emplace_back(&TECPlusLayerWithHits[1], &TECPlusLayerWithHits[0]);
 
   } else if (_geometry == "CkfTIBD+") {
-    result.push_back(SeedLayerPairs::LayerPair(&TIBLayerWithHits[0], &TIBLayerWithHits[1]));
-    result.push_back(SeedLayerPairs::LayerPair(&TIBLayerWithHits[2], &TIBLayerWithHits[3]));
+    result.emplace_back(&TIBLayerWithHits[0], &TIBLayerWithHits[1]);
+    result.emplace_back(&TIBLayerWithHits[2], &TIBLayerWithHits[3]);
   } else if (_geometry == "CkfTIBTOB") {
-    result.push_back(SeedLayerPairs::LayerPair(&TIBLayerWithHits[0], &TIBLayerWithHits[1]));
-    result.push_back(SeedLayerPairs::LayerPair(&TIBLayerWithHits[0], &TIBLayerWithHits[2]));
+    result.emplace_back(&TIBLayerWithHits[0], &TIBLayerWithHits[1]);
+    result.emplace_back(&TIBLayerWithHits[0], &TIBLayerWithHits[2]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TOBLayerWithHits[3], &TOBLayerWithHits[5]));
-    result.push_back(SeedLayerPairs::LayerPair(&TOBLayerWithHits[4], &TOBLayerWithHits[5]));
-    result.push_back(SeedLayerPairs::LayerPair(&TOBLayerWithHits[3], &TOBLayerWithHits[4]));
+    result.emplace_back(&TOBLayerWithHits[3], &TOBLayerWithHits[5]);
+    result.emplace_back(&TOBLayerWithHits[4], &TOBLayerWithHits[5]);
+    result.emplace_back(&TOBLayerWithHits[3], &TOBLayerWithHits[4]);
   } else if (_geometry == "CkfTIF3") {
-    result.push_back(SeedLayerPairs::LayerPair(&TIBLayerWithHits[0], &TIBLayerWithHits[1]));
-    result.push_back(SeedLayerPairs::LayerPair(&TIBLayerWithHits[0], &TIBLayerWithHits[2]));
+    result.emplace_back(&TIBLayerWithHits[0], &TIBLayerWithHits[1]);
+    result.emplace_back(&TIBLayerWithHits[0], &TIBLayerWithHits[2]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TOBLayerWithHits[3], &TOBLayerWithHits[5]));
-    result.push_back(SeedLayerPairs::LayerPair(&TOBLayerWithHits[4], &TOBLayerWithHits[5]));
-    result.push_back(SeedLayerPairs::LayerPair(&TOBLayerWithHits[3], &TOBLayerWithHits[4]));
+    result.emplace_back(&TOBLayerWithHits[3], &TOBLayerWithHits[5]);
+    result.emplace_back(&TOBLayerWithHits[4], &TOBLayerWithHits[5]);
+    result.emplace_back(&TOBLayerWithHits[3], &TOBLayerWithHits[4]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[7], &TECPlusLayerWithHits[8]));
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[6], &TECPlusLayerWithHits[8]));
+    result.emplace_back(&TECPlusLayerWithHits[7], &TECPlusLayerWithHits[8]);
+    result.emplace_back(&TECPlusLayerWithHits[6], &TECPlusLayerWithHits[8]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[6], &TECPlusLayerWithHits[7]));
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[5], &TECPlusLayerWithHits[7]));
+    result.emplace_back(&TECPlusLayerWithHits[6], &TECPlusLayerWithHits[7]);
+    result.emplace_back(&TECPlusLayerWithHits[5], &TECPlusLayerWithHits[7]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[5], &TECPlusLayerWithHits[6]));
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[4], &TECPlusLayerWithHits[6]));
+    result.emplace_back(&TECPlusLayerWithHits[5], &TECPlusLayerWithHits[6]);
+    result.emplace_back(&TECPlusLayerWithHits[4], &TECPlusLayerWithHits[6]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[4], &TECPlusLayerWithHits[5]));
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[3], &TECPlusLayerWithHits[5]));
+    result.emplace_back(&TECPlusLayerWithHits[4], &TECPlusLayerWithHits[5]);
+    result.emplace_back(&TECPlusLayerWithHits[3], &TECPlusLayerWithHits[5]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[3], &TECPlusLayerWithHits[4]));
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[2], &TECPlusLayerWithHits[4]));
+    result.emplace_back(&TECPlusLayerWithHits[3], &TECPlusLayerWithHits[4]);
+    result.emplace_back(&TECPlusLayerWithHits[2], &TECPlusLayerWithHits[4]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[2], &TECPlusLayerWithHits[3]));
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[1], &TECPlusLayerWithHits[3]));
+    result.emplace_back(&TECPlusLayerWithHits[2], &TECPlusLayerWithHits[3]);
+    result.emplace_back(&TECPlusLayerWithHits[1], &TECPlusLayerWithHits[3]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[1], &TECPlusLayerWithHits[2]));
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[0], &TECPlusLayerWithHits[2]));
+    result.emplace_back(&TECPlusLayerWithHits[1], &TECPlusLayerWithHits[2]);
+    result.emplace_back(&TECPlusLayerWithHits[0], &TECPlusLayerWithHits[2]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TECPlusLayerWithHits[0], &TECPlusLayerWithHits[1]));
+    result.emplace_back(&TECPlusLayerWithHits[0], &TECPlusLayerWithHits[1]);
 
   } else if (_geometry == "CkfTOB") {
-    result.push_back(SeedLayerPairs::LayerPair(&TOBLayerWithHits[0], &TOBLayerWithHits[1]));
-    result.push_back(SeedLayerPairs::LayerPair(&TOBLayerWithHits[0], &TOBLayerWithHits[2]));
+    result.emplace_back(&TOBLayerWithHits[0], &TOBLayerWithHits[1]);
+    result.emplace_back(&TOBLayerWithHits[0], &TOBLayerWithHits[2]);
 
-    result.push_back(SeedLayerPairs::LayerPair(&TOBLayerWithHits[3], &TOBLayerWithHits[4]));
-    result.push_back(SeedLayerPairs::LayerPair(&TOBLayerWithHits[4], &TOBLayerWithHits[5]));
-    result.push_back(SeedLayerPairs::LayerPair(&TOBLayerWithHits[3], &TOBLayerWithHits[5]));
+    result.emplace_back(&TOBLayerWithHits[3], &TOBLayerWithHits[4]);
+    result.emplace_back(&TOBLayerWithHits[4], &TOBLayerWithHits[5]);
+    result.emplace_back(&TOBLayerWithHits[3], &TOBLayerWithHits[5]);
   } else {
     throw cms::Exception("CosmicLayerPairs") << "The geometry " << _geometry << " is not implemented ";
   }

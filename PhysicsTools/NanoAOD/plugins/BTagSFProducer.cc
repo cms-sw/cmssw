@@ -110,7 +110,7 @@ public:
         //calibs.push_back(calib);            //dummy, so that index of vectors still match
         readers.push_back(reader);  //dummy, so that index of vectors still match
         std::vector<std::string> branches;
-        branches.push_back("");
+        branches.emplace_back("");
         inBranchNames.push_back(branches);
 
         // report
@@ -198,7 +198,7 @@ void BTagSFProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
         bdisc = 0.;
 
         if (op == BTagEntry::OP_RESHAPING) {
-          for (string inBranch :
+          for (const string& inBranch :
                inBranchNames[iDisc]) {  //sum up the discriminator values if multiple, e.g. DeepCSV b+bb
             bdisc += jet.bDiscriminator(inBranch);
           }

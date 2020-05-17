@@ -65,7 +65,7 @@ using namespace std;
 class TkDetLayersAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   TkDetLayersAnalyzer(const edm::ParameterSet&);
-  ~TkDetLayersAnalyzer();
+  ~TkDetLayersAnalyzer() override;
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
@@ -147,8 +147,8 @@ void TkDetLayersAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
   {
     const TrackingGeometry::DetContainer& modules = pTrackerGeometry->detUnits();
     typedef TrackingGeometry::DetContainer::const_iterator Iter;
-    Iter b = modules.begin();
-    Iter e = modules.end();
+    auto b = modules.begin();
+    auto e = modules.end();
     Iter last;
     try {
       for (; b != e; ++b) {
@@ -181,7 +181,7 @@ void TkDetLayersAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
       WrapTrieCB<CylinderBuilderFromDet> w(cylbld);
       edm::iterateTrieLeaves(w, *tobl);
       std::unique_ptr<BoundCylinder> cyl(cylbld.build());
-      SimpleCylinderBounds const& cylb = static_cast<SimpleCylinderBounds const&>(cyl->bounds());
+      auto const& cylb = static_cast<SimpleCylinderBounds const&>(cyl->bounds());
       std::cout << "cyl " << tobl.label() << ": " << cylb.length() << ", " << cylb.width() << ", " << cylb.thickness()
                 << std::endl;
     }

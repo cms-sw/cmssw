@@ -12,7 +12,7 @@
 
 const EcalShowerContainmentCorrections::Coefficients EcalShowerContainmentCorrections::correctionCoefficients(
     const EBDetId& centerxtal) const {
-  GroupMap::const_iterator iter = groupmap_.find(centerxtal.rawId());
+  auto iter = groupmap_.find(centerxtal.rawId());
 
   if (iter != groupmap_.end()) {
     int group = iter->second;
@@ -62,7 +62,7 @@ const double EcalShowerContainmentCorrections::correctionXY(const EBDetId& xtal,
                                                             double position,
                                                             EcalShowerContainmentCorrections::Direction dir,
                                                             EcalShowerContainmentCorrections::Type type) const {
-  GroupMap::const_iterator iter = groupmap_.find(xtal);
+  auto iter = groupmap_.find(xtal);
   if (iter == groupmap_.end())
     return -1;
 

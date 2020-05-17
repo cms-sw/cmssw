@@ -1502,8 +1502,7 @@ void GsfElectronDataAnalyzer::analyze(const edm::Event &iEvent, const edm::Event
   histNum_->Fill((*gsfElectrons).size());
 
   // selected rec electrons
-  for (reco::GsfElectronCollection::const_iterator gsfIter = gsfElectrons->begin(); gsfIter != gsfElectrons->end();
-       gsfIter++) {
+  for (auto gsfIter = gsfElectrons->begin(); gsfIter != gsfElectrons->end(); gsfIter++) {
     // select electrons
     if (gsfIter->superCluster()->energy() / cosh(gsfIter->superCluster()->eta()) < minEt_)
       continue;
@@ -1817,8 +1816,7 @@ void GsfElectronDataAnalyzer::analyze(const edm::Event &iEvent, const edm::Event
 
     float enrj1 = gsfIter->superCluster()->energy();
     // mee
-    for (reco::GsfElectronCollection::const_iterator gsfIter2 = gsfIter + 1; gsfIter2 != gsfElectrons->end();
-         gsfIter2++) {
+    for (auto gsfIter2 = gsfIter + 1; gsfIter2 != gsfElectrons->end(); gsfIter2++) {
       math::XYZTLorentzVector p12 = (*gsfIter).p4() + (*gsfIter2).p4();
       float mee2 = p12.Dot(p12);
       float enrj2 = gsfIter2->superCluster()->energy();
@@ -1861,13 +1859,12 @@ void GsfElectronDataAnalyzer::analyze(const edm::Event &iEvent, const edm::Event
   // association matching object-reco electrons
   int matchingObjectNum = 0;
 
-  for (reco::SuperClusterCollection::const_iterator moIter = recoClusters->begin(); moIter != recoClusters->end();
-       moIter++) {
+  for (const auto &moIter : *recoClusters) {
     // number of matching objects
     matchingObjectNum++;
 
-    if (moIter->energy() / cosh(moIter->eta()) > maxPtMatchingObject_ ||
-        std::abs(moIter->eta()) > maxAbsEtaMatchingObject_)
+    if (moIter.energy() / cosh(moIter.eta()) > maxPtMatchingObject_ ||
+        std::abs(moIter.eta()) > maxAbsEtaMatchingObject_)
       continue;
 
     // suppress the endcaps
@@ -1875,12 +1872,12 @@ void GsfElectronDataAnalyzer::analyze(const edm::Event &iEvent, const edm::Event
     // select central z
     //if ( std::abs((*mcIter)->production_vertex()->position().z())>50.) continue;
 
-    h_matchingObjectEta->Fill(moIter->eta());
-    h_matchingObjectAbsEta->Fill(std::abs(moIter->eta()));
-    h_matchingObjectP->Fill(moIter->energy());
-    h_matchingObjectPt->Fill(moIter->energy() / cosh(moIter->eta()));
-    h_matchingObjectPhi->Fill(moIter->phi());
-    h_matchingObjectZ->Fill(moIter->z());
+    h_matchingObjectEta->Fill(moIter.eta());
+    h_matchingObjectAbsEta->Fill(std::abs(moIter.eta()));
+    h_matchingObjectP->Fill(moIter.energy());
+    h_matchingObjectPt->Fill(moIter.energy() / cosh(moIter.eta()));
+    h_matchingObjectPhi->Fill(moIter.phi());
+    h_matchingObjectZ->Fill(moIter.z());
 
     // looking for the best matching gsf electron
     bool okGsfFound = false;
@@ -1888,21 +1885,20 @@ void GsfElectronDataAnalyzer::analyze(const edm::Event &iEvent, const edm::Event
 
     // find matching electron
     reco::GsfElectron bestGsfElectron;
-    for (reco::GsfElectronCollection::const_iterator gsfIter = gsfElectrons->begin(); gsfIter != gsfElectrons->end();
-         gsfIter++) {
+    for (const auto &gsfIter : *gsfElectrons) {
       // matching with a cone in eta phi
       if (matchingCondition_ == "Cone") {
-        double dphi = gsfIter->phi() - moIter->phi();
+        double dphi = gsfIter.phi() - moIter.phi();
         if (std::abs(dphi) > CLHEP::pi)
           dphi = dphi < 0 ? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
-        double deltaR = sqrt(std::pow((moIter->eta() - gsfIter->eta()), 2) + std::pow(dphi, 2));
+        double deltaR = sqrt(std::pow((moIter.eta() - gsfIter.eta()), 2) + std::pow(dphi, 2));
         if (deltaR < deltaR_) {
           //if ( (genPc->pdg_id() == 11) && (gsfIter->charge() < 0.) || (genPc->pdg_id() == -11) &&
           //(gsfIter->charge() > 0.) ){
-          double tmpGsfRatio = gsfIter->p() / moIter->energy();
+          double tmpGsfRatio = gsfIter.p() / moIter.energy();
           if (std::abs(tmpGsfRatio - 1) < std::abs(gsfOkRatio - 1)) {
             gsfOkRatio = tmpGsfRatio;
-            bestGsfElectron = *gsfIter;
+            bestGsfElectron = gsfIter;
             okGsfFound = true;
           }
           //}
@@ -1913,45 +1909,45 @@ void GsfElectronDataAnalyzer::analyze(const edm::Event &iEvent, const edm::Event
     // analysis when the matching object is matched by a rec electron
     if (okGsfFound) {
       // generated distributions for matched electrons
-      h_ele_matchingObjectPt_matched->Fill(moIter->energy() / cosh(moIter->eta()));
-      h_ele_matchingObjectPhi_matched->Fill(moIter->phi());
-      h_ele_matchingObjectAbsEta_matched->Fill(std::abs(moIter->eta()));
-      h_ele_matchingObjectEta_matched->Fill(moIter->eta());
-      h_ele_matchingObjectZ_matched->Fill(moIter->z());
+      h_ele_matchingObjectPt_matched->Fill(moIter.energy() / cosh(moIter.eta()));
+      h_ele_matchingObjectPhi_matched->Fill(moIter.phi());
+      h_ele_matchingObjectAbsEta_matched->Fill(std::abs(moIter.eta()));
+      h_ele_matchingObjectEta_matched->Fill(moIter.eta());
+      h_ele_matchingObjectZ_matched->Fill(moIter.z());
 
       // comparison electron vs matching object
-      h_ele_EtaMnEtamatchingObject_matched->Fill(bestGsfElectron.eta() - moIter->eta());
-      h_ele_EtaMnEtamatchingObjectVsEta_matched->Fill(bestGsfElectron.eta(), bestGsfElectron.eta() - moIter->eta());
-      h_ele_EtaMnEtamatchingObjectVsPhi_matched->Fill(bestGsfElectron.phi(), bestGsfElectron.eta() - moIter->eta());
-      h_ele_EtaMnEtamatchingObjectVsPt_matched->Fill(bestGsfElectron.pt(), bestGsfElectron.eta() - moIter->eta());
-      h_ele_PhiMnPhimatchingObject_matched->Fill(bestGsfElectron.phi() - moIter->phi());
-      h_ele_PhiMnPhimatchingObject2_matched->Fill(bestGsfElectron.phi() - moIter->phi());
-      h_ele_PhiMnPhimatchingObjectVsEta_matched->Fill(bestGsfElectron.eta(), bestGsfElectron.phi() - moIter->phi());
-      h_ele_PhiMnPhimatchingObjectVsPhi_matched->Fill(bestGsfElectron.phi(), bestGsfElectron.phi() - moIter->phi());
-      h_ele_PhiMnPhimatchingObjectVsPt_matched->Fill(bestGsfElectron.pt(), bestGsfElectron.phi() - moIter->phi());
-      h_ele_PoPmatchingObject_matched->Fill(bestGsfElectron.p() / moIter->energy());
-      h_ele_PtoPtmatchingObject_matched->Fill(bestGsfElectron.pt() / moIter->energy() / cosh(moIter->eta()));
-      h_ele_PoPmatchingObjectVsEta_matched->Fill(bestGsfElectron.eta(), bestGsfElectron.p() / moIter->energy());
-      h_ele_PoPmatchingObjectVsPhi_matched->Fill(bestGsfElectron.phi(), bestGsfElectron.p() / moIter->energy());
-      h_ele_PoPmatchingObjectVsPt_matched->Fill(bestGsfElectron.py(), bestGsfElectron.p() / moIter->energy());
+      h_ele_EtaMnEtamatchingObject_matched->Fill(bestGsfElectron.eta() - moIter.eta());
+      h_ele_EtaMnEtamatchingObjectVsEta_matched->Fill(bestGsfElectron.eta(), bestGsfElectron.eta() - moIter.eta());
+      h_ele_EtaMnEtamatchingObjectVsPhi_matched->Fill(bestGsfElectron.phi(), bestGsfElectron.eta() - moIter.eta());
+      h_ele_EtaMnEtamatchingObjectVsPt_matched->Fill(bestGsfElectron.pt(), bestGsfElectron.eta() - moIter.eta());
+      h_ele_PhiMnPhimatchingObject_matched->Fill(bestGsfElectron.phi() - moIter.phi());
+      h_ele_PhiMnPhimatchingObject2_matched->Fill(bestGsfElectron.phi() - moIter.phi());
+      h_ele_PhiMnPhimatchingObjectVsEta_matched->Fill(bestGsfElectron.eta(), bestGsfElectron.phi() - moIter.phi());
+      h_ele_PhiMnPhimatchingObjectVsPhi_matched->Fill(bestGsfElectron.phi(), bestGsfElectron.phi() - moIter.phi());
+      h_ele_PhiMnPhimatchingObjectVsPt_matched->Fill(bestGsfElectron.pt(), bestGsfElectron.phi() - moIter.phi());
+      h_ele_PoPmatchingObject_matched->Fill(bestGsfElectron.p() / moIter.energy());
+      h_ele_PtoPtmatchingObject_matched->Fill(bestGsfElectron.pt() / moIter.energy() / cosh(moIter.eta()));
+      h_ele_PoPmatchingObjectVsEta_matched->Fill(bestGsfElectron.eta(), bestGsfElectron.p() / moIter.energy());
+      h_ele_PoPmatchingObjectVsPhi_matched->Fill(bestGsfElectron.phi(), bestGsfElectron.p() / moIter.energy());
+      h_ele_PoPmatchingObjectVsPt_matched->Fill(bestGsfElectron.py(), bestGsfElectron.p() / moIter.energy());
       if (bestGsfElectron.isEB())
-        h_ele_PoPmatchingObject_barrel_matched->Fill(bestGsfElectron.p() / moIter->energy());
+        h_ele_PoPmatchingObject_barrel_matched->Fill(bestGsfElectron.p() / moIter.energy());
       if (bestGsfElectron.isEE())
-        h_ele_PoPmatchingObject_endcaps_matched->Fill(bestGsfElectron.p() / moIter->energy());
+        h_ele_PoPmatchingObject_endcaps_matched->Fill(bestGsfElectron.p() / moIter.energy());
       if (bestGsfElectron.isEB())
-        h_ele_PtoPtmatchingObject_barrel_matched->Fill(bestGsfElectron.pt() / moIter->energy() / cosh(moIter->eta()));
+        h_ele_PtoPtmatchingObject_barrel_matched->Fill(bestGsfElectron.pt() / moIter.energy() / cosh(moIter.eta()));
       if (bestGsfElectron.isEE())
-        h_ele_PtoPtmatchingObject_endcaps_matched->Fill(bestGsfElectron.pt() / moIter->energy() / cosh(moIter->eta()));
+        h_ele_PtoPtmatchingObject_endcaps_matched->Fill(bestGsfElectron.pt() / moIter.energy() / cosh(moIter.eta()));
 
       reco::SuperClusterRef sclRef = bestGsfElectron.superCluster();
       if (bestGsfElectron.isEB())
-        histSclEoEmatchingObject_barrel_matched->Fill(sclRef->energy() / moIter->energy());
+        histSclEoEmatchingObject_barrel_matched->Fill(sclRef->energy() / moIter.energy());
       if (bestGsfElectron.isEE())
-        histSclEoEmatchingObject_endcaps_matched->Fill(sclRef->energy() / moIter->energy());
+        histSclEoEmatchingObject_endcaps_matched->Fill(sclRef->energy() / moIter.energy());
       if (bestGsfElectron.isEB())
-        histSclEoEmatchingObject_barrel_new_matched->Fill(sclRef->energy() / moIter->energy());
+        histSclEoEmatchingObject_barrel_new_matched->Fill(sclRef->energy() / moIter.energy());
       if (bestGsfElectron.isEE())
-        histSclEoEmatchingObject_endcaps_new_matched->Fill(sclRef->energy() / moIter->energy());
+        histSclEoEmatchingObject_endcaps_new_matched->Fill(sclRef->energy() / moIter.energy());
 
       // add here distributions for matched electrons as for all electrons
       //..

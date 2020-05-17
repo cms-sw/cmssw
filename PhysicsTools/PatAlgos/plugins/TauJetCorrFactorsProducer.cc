@@ -20,18 +20,17 @@ TauJetCorrFactorsProducer::TauJetCorrFactorsProducer(const edm::ParameterSet& cf
       levels_(cfg.getParameter<std::vector<std::string> >("levels")) {
   typedef std::vector<edm::ParameterSet> vParameterSet;
   vParameterSet parameters = cfg.getParameter<vParameterSet>("parameters");
-  for (vParameterSet::const_iterator param = parameters.begin(); param != parameters.end(); ++param) {
+  for (const auto& parameter : parameters) {
     payloadMappingType payloadMapping;
 
-    payloadMapping.payload_ = param->getParameter<std::string>("payload");
+    payloadMapping.payload_ = parameter.getParameter<std::string>("payload");
 
-    vstring decayModes_string = param->getParameter<vstring>("decayModes");
-    for (vstring::const_iterator decayMode = decayModes_string.begin(); decayMode != decayModes_string.end();
-         ++decayMode) {
-      if ((*decayMode) == "*") {
+    vstring decayModes_string = parameter.getParameter<vstring>("decayModes");
+    for (const auto& decayMode : decayModes_string) {
+      if (decayMode == "*") {
         defaultPayload_ = payloadMapping.payload_;
       } else {
-        payloadMapping.decayModes_.push_back(atoi(decayMode->data()));
+        payloadMapping.decayModes_.push_back(atoi(decayMode.data()));
       }
     }
 
@@ -45,8 +44,8 @@ TauJetCorrFactorsProducer::TauJetCorrFactorsProducer(const edm::ParameterSet& cf
 std::vector<JetCorrectorParameters> TauJetCorrFactorsProducer::params(
     const JetCorrectorParametersCollection& jecParameters, const std::vector<std::string>& levels) const {
   std::vector<JetCorrectorParameters> retVal;
-  for (std::vector<std::string>::const_iterator corrLevel = levels.begin(); corrLevel != levels.end(); ++corrLevel) {
-    const JetCorrectorParameters& jecParameter_level = jecParameters[*corrLevel];
+  for (const auto& level : levels) {
+    const JetCorrectorParameters& jecParameter_level = jecParameters[level];
     retVal.push_back(jecParameter_level);
   }
   return retVal;
@@ -76,7 +75,7 @@ void TauJetCorrFactorsProducer::produce(edm::Event& evt, const edm::EventSetup& 
     // the string corresponds to the label of the correction level, the float to the tau-jet energy correction factor.
     // The first correction level is predefined with label 'Uncorrected'. The correction factor is 1.
     std::vector<TauJetCorrFactors::CorrectionFactor> jec;
-    jec.push_back(std::make_pair(std::string("Uncorrected"), 1.0));
+    jec.emplace_back(std::string("Uncorrected"), 1.0);
 
     if (levels_.empty())
       throw cms::Exception("No JECFactors")
@@ -87,14 +86,11 @@ void TauJetCorrFactorsProducer::produce(edm::Event& evt, const edm::EventSetup& 
     std::string payload = defaultPayload_;
     if (dynamic_cast<const reco::PFTau*>(&(*tauJet))) {
       const reco::PFTau* pfTauJet = dynamic_cast<const reco::PFTau*>(&(*tauJet));
-      for (std::vector<payloadMappingType>::const_iterator payloadMapping = payloadMappings_.begin();
-           payloadMapping != payloadMappings_.end();
-           ++payloadMapping) {
-        for (vint::const_iterator decayMode = payloadMapping->decayModes_.begin();
-             decayMode != payloadMapping->decayModes_.end();
+      for (const auto& payloadMapping : payloadMappings_) {
+        for (auto decayMode = payloadMapping.decayModes_.begin(); decayMode != payloadMapping.decayModes_.end();
              ++decayMode) {
           if (pfTauJet->decayMode() == (*decayMode))
-            payload = payloadMapping->payload_;
+            payload = payloadMapping.payload_;
         }
       }
     }
@@ -122,7 +118,7 @@ void TauJetCorrFactorsProducer::produce(edm::Event& evt, const edm::EventSetup& 
       //   'Uncorrected' : 1 ;
       //   'L2Relative'  : x ;
       //   'L3Absolute'  : x ;
-      jec.push_back(std::make_pair(corrLevel.substr(0, corrLevel.find("_")), jecFactor));
+      jec.emplace_back(corrLevel.substr(0, corrLevel.find('_')), jecFactor);
     }
 
     // create the actual object with the scale factors we want the valuemap to refer to

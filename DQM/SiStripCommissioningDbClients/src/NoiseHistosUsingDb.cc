@@ -73,7 +73,7 @@ void NoiseHistosUsingDb::update(SiStripConfigDb::FedDescriptionsRange feds) {
           conn.fecCrate(), conn.fecSlot(), conn.fecRing(), conn.ccuAddr(), conn.ccuChan(), conn.lldChannel());
 
       // Locate appropriate analysis object
-      Analyses::const_iterator iter = data().find(fec_key.key());
+      auto iter = data().find(fec_key.key());
       if (iter != data().end()) {
         // Check if analysis is valid
         if (!iter->second->isValid()) {
@@ -165,8 +165,8 @@ void NoiseHistosUsingDb::create(SiStripConfigDb::AnalysisDescriptionsV& desc, An
     // Add comments
     typedef std::vector<std::string> Strings;
     Strings errors = anal->getErrorCodes();
-    Strings::const_iterator istr = errors.begin();
-    Strings::const_iterator jstr = errors.end();
+    auto istr = errors.begin();
+    auto jstr = errors.end();
     for (; istr != jstr; ++istr) {
       tmp->addComments(*istr);
     }

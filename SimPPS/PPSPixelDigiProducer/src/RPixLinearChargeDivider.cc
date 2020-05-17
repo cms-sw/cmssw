@@ -47,11 +47,10 @@ std::vector<RPixEnergyDepositUnit> RPixLinearChargeDivider::divide(const PSimHit
   if (verbosity_) {
     edm::LogInfo("RPixLinearChargeDivider") << det_id_ << " charge along the track:";
     double sum = 0;
-    for (unsigned int i = 0; i < the_energy_path_distribution_.size(); i++) {
+    for (auto& i : the_energy_path_distribution_) {
       edm::LogInfo("RPixLinearChargeDivider")
-          << the_energy_path_distribution_[i].Position().x() << " " << the_energy_path_distribution_[i].Position().y()
-          << " " << the_energy_path_distribution_[i].Position().z() << " " << the_energy_path_distribution_[i].Energy();
-      sum += the_energy_path_distribution_[i].Energy();
+          << i.Position().x() << " " << i.Position().y() << " " << i.Position().z() << " " << i.Energy();
+      sum += i.Energy();
     }
     edm::LogInfo("RPixLinearChargeDivider") << "energy dep. sum=" << sum;
   }

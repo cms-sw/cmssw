@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
   return -9;
 }
 
-int check_runcomplete(std::string filename) {
+int check_runcomplete(const std::string &filename) {
   int runflag = read_runflag(filename);
   if (runflag == 1) {
     printf("************************************\n");
@@ -69,7 +69,7 @@ int check_runcomplete(std::string filename) {
   return runflag;
 }
 
-int read_runflag(std::string filename) {
+int read_runflag(const std::string &filename) {
   std::string nrun = filename.substr(filename.find("_R000") + 5, 6);
 
   TFile *dqmfile = TFile::Open(filename.c_str(), "READ");
@@ -91,7 +91,7 @@ int read_runflag(std::string filename) {
       continue;
 
     if (svar.find("runIsComplete") != std::string::npos) {
-      std::string statusflag = svar.substr(svar.rfind("<") - 1, 1);
+      std::string statusflag = svar.substr(svar.rfind('<') - 1, 1);
       isruncomplete = atoi(statusflag.c_str());
     }
   }

@@ -17,13 +17,13 @@ bool GeneralNSurfaceDelimitedBounds::myInside(const Local3DPoint& lp, float tole
 
   // cout << "corresponding Global point " << gp << endl;
 
-  for (SurfaceContainer::const_iterator i = theLimits.begin(); i != theLimits.end(); i++) {
+  for (const auto& theLimit : theLimits) {
     // 	cout << "Local pos in boundary surface " <<  i->first->toLocal(gp)
     // 	     << " side " << i->first->side(gp, tolerance) << " should be "
     // 	     << i->second << endl;
 
-    SurfaceOrientation::Side side = i->first->side(gp, tolerance);
-    if (side != i->second && side != SurfaceOrientation::onSurface)
+    SurfaceOrientation::Side side = theLimit.first->side(gp, tolerance);
+    if (side != theLimit.second && side != SurfaceOrientation::onSurface)
       return false;
   }
   return true;

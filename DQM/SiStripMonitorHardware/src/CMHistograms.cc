@@ -5,8 +5,8 @@
 #include "DQM/SiStripMonitorHardware/interface/CMHistograms.hh"
 
 CMHistograms::CMHistograms() {
-  for (unsigned int i(0); i < 500; i++) {
-    doFed_[i] = false;
+  for (bool& i : doFed_) {
+    i = false;
   }
 }
 
@@ -31,9 +31,9 @@ void CMHistograms::initialise(const edm::ParameterSet& iConfig, std::ostringstre
 
   if (iConfig.exists("FedIdVec")) {
     std::vector<unsigned int> lIdVec = iConfig.getUntrackedParameter<std::vector<unsigned int> >("FedIdVec");
-    for (unsigned int i(0); i < lIdVec.size(); i++) {
-      if (lIdVec.at(i) < 500)
-        doFed_[lIdVec.at(i)] = true;
+    for (unsigned int i : lIdVec) {
+      if (i < 500)
+        doFed_[i] = true;
     }
   }
 }
@@ -42,9 +42,7 @@ void CMHistograms::fillHistograms(const std::vector<CMvalues>& aVec, float aTime
   float lMean = 0;
   float lPrevMean = 0;
 
-  for (unsigned iEle(0); iEle < aVec.size(); iEle++) {  //loop on elements
-
-    CMvalues lVal = aVec[iEle];
+  for (auto lVal : aVec) {  //loop on elements
 
     if (lVal.Medians.first >= 1024 || lVal.Medians.second >= 1024) {
       std::cout << "----- WARNING ! New max found: " << lVal.Medians.first << " " << lVal.Medians.second << " "

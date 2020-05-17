@@ -10,6 +10,8 @@
  * \version $Revision: 1.2 $
  *
  */
+#include <utility>
+
 #include "CommonTools/Utils/src/SelectorBase.h"
 #include "CommonTools/Utils/src/ExpressionBase.h"
 #include "CommonTools/Utils/src/ComparisonBase.h"
@@ -20,7 +22,7 @@ namespace reco {
       BinarySelector(std::shared_ptr<ExpressionBase> lhs,
                      std::shared_ptr<ComparisonBase> cmp,
                      std::shared_ptr<ExpressionBase> rhs)
-          : lhs_(lhs), cmp_(cmp), rhs_(rhs) {}
+          : lhs_(std::move(lhs)), cmp_(std::move(cmp)), rhs_(std::move(rhs)) {}
       bool operator()(const edm::ObjectWithDict& o) const override {
         return cmp_->compare(lhs_->value(o), rhs_->value(o));
       }

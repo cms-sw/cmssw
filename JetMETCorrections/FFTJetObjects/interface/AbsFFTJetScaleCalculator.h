@@ -12,7 +12,7 @@ public:
   typedef Jet jet_type;
   typedef Adjustable adjustable_type;
 
-  inline explicit AbsFFTJetScaleCalculator(std::shared_ptr<npstat::AbsMultivariateFunctor> f)
+  inline explicit AbsFFTJetScaleCalculator(const std::shared_ptr<npstat::AbsMultivariateFunctor>& f)
       : functor(f), buffer_(f->minDim()) {}
 
   inline virtual ~AbsFFTJetScaleCalculator() {}

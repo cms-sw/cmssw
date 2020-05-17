@@ -94,48 +94,31 @@ void pat::PATMETSlimmer::maybeReadShifts(const edm::ParameterSet &basePSet,
     const edm::InputTag &baseTag = basePSet.getParameter<edm::InputTag>(name);
 
     if (level == pat::MET::T1) {
-      shifts_.push_back(
-          OneMETShift(pat::MET::NoShift, level, baseTag, consumesCollector(), readFromMiniAOD, true, false, false));
-      shifts_.push_back(
-          OneMETShift(pat::MET::NoShift, level, baseTag, consumesCollector(), readFromMiniAOD, false, true));
-      shifts_.push_back(
-          OneMETShift(pat::MET::JetResUp, level, baseTag, consumesCollector(), readFromMiniAOD, false, true));
-      shifts_.push_back(
-          OneMETShift(pat::MET::JetResDown, level, baseTag, consumesCollector(), readFromMiniAOD, false, true));
-      shifts_.push_back(
-          OneMETShift(pat::MET::JetEnUp, level, baseTag, consumesCollector(), readFromMiniAOD, false, true));
-      shifts_.push_back(
-          OneMETShift(pat::MET::JetEnDown, level, baseTag, consumesCollector(), readFromMiniAOD, false, true));
-      shifts_.push_back(
-          OneMETShift(pat::MET::MuonEnUp, level, baseTag, consumesCollector(), readFromMiniAOD, false, true));
-      shifts_.push_back(
-          OneMETShift(pat::MET::MuonEnDown, level, baseTag, consumesCollector(), readFromMiniAOD, false, true));
-      shifts_.push_back(
-          OneMETShift(pat::MET::ElectronEnUp, level, baseTag, consumesCollector(), readFromMiniAOD, false, true));
-      shifts_.push_back(
-          OneMETShift(pat::MET::ElectronEnDown, level, baseTag, consumesCollector(), readFromMiniAOD, false, true));
-      shifts_.push_back(
-          OneMETShift(pat::MET::PhotonEnUp, level, baseTag, consumesCollector(), readFromMiniAOD, false, true));
-      shifts_.push_back(
-          OneMETShift(pat::MET::PhotonEnDown, level, baseTag, consumesCollector(), readFromMiniAOD, false, true));
-      shifts_.push_back(
-          OneMETShift(pat::MET::TauEnUp, level, baseTag, consumesCollector(), readFromMiniAOD, false, true));
-      shifts_.push_back(
-          OneMETShift(pat::MET::TauEnDown, level, baseTag, consumesCollector(), readFromMiniAOD, false, true));
-      shifts_.push_back(
-          OneMETShift(pat::MET::UnclusteredEnUp, level, baseTag, consumesCollector(), readFromMiniAOD, false, true));
-      shifts_.push_back(
-          OneMETShift(pat::MET::UnclusteredEnDown, level, baseTag, consumesCollector(), readFromMiniAOD, false, true));
+      shifts_.emplace_back(pat::MET::NoShift, level, baseTag, consumesCollector(), readFromMiniAOD, true, false, false);
+      shifts_.emplace_back(pat::MET::NoShift, level, baseTag, consumesCollector(), readFromMiniAOD, false, true);
+      shifts_.emplace_back(pat::MET::JetResUp, level, baseTag, consumesCollector(), readFromMiniAOD, false, true);
+      shifts_.emplace_back(pat::MET::JetResDown, level, baseTag, consumesCollector(), readFromMiniAOD, false, true);
+      shifts_.emplace_back(pat::MET::JetEnUp, level, baseTag, consumesCollector(), readFromMiniAOD, false, true);
+      shifts_.emplace_back(pat::MET::JetEnDown, level, baseTag, consumesCollector(), readFromMiniAOD, false, true);
+      shifts_.emplace_back(pat::MET::MuonEnUp, level, baseTag, consumesCollector(), readFromMiniAOD, false, true);
+      shifts_.emplace_back(pat::MET::MuonEnDown, level, baseTag, consumesCollector(), readFromMiniAOD, false, true);
+      shifts_.emplace_back(pat::MET::ElectronEnUp, level, baseTag, consumesCollector(), readFromMiniAOD, false, true);
+      shifts_.emplace_back(pat::MET::ElectronEnDown, level, baseTag, consumesCollector(), readFromMiniAOD, false, true);
+      shifts_.emplace_back(pat::MET::PhotonEnUp, level, baseTag, consumesCollector(), readFromMiniAOD, false, true);
+      shifts_.emplace_back(pat::MET::PhotonEnDown, level, baseTag, consumesCollector(), readFromMiniAOD, false, true);
+      shifts_.emplace_back(pat::MET::TauEnUp, level, baseTag, consumesCollector(), readFromMiniAOD, false, true);
+      shifts_.emplace_back(pat::MET::TauEnDown, level, baseTag, consumesCollector(), readFromMiniAOD, false, true);
+      shifts_.emplace_back(
+          pat::MET::UnclusteredEnUp, level, baseTag, consumesCollector(), readFromMiniAOD, false, true);
+      shifts_.emplace_back(
+          pat::MET::UnclusteredEnDown, level, baseTag, consumesCollector(), readFromMiniAOD, false, true);
     } else if (level == pat::MET::Smear) {
-      shifts_.push_back(
-          OneMETShift(pat::MET::NoShift, level, baseTag, consumesCollector(), readFromMiniAOD, true, false, true));
-      shifts_.push_back(
-          OneMETShift(pat::MET::JetResUp, level, baseTag, consumesCollector(), readFromMiniAOD, false, true, true));
-      shifts_.push_back(
-          OneMETShift(pat::MET::JetResDown, level, baseTag, consumesCollector(), readFromMiniAOD, false, true, true));
+      shifts_.emplace_back(pat::MET::NoShift, level, baseTag, consumesCollector(), readFromMiniAOD, true, false, true);
+      shifts_.emplace_back(pat::MET::JetResUp, level, baseTag, consumesCollector(), readFromMiniAOD, false, true, true);
+      shifts_.emplace_back(
+          pat::MET::JetResDown, level, baseTag, consumesCollector(), readFromMiniAOD, false, true, true);
     } else {
-      shifts_.push_back(
-          OneMETShift(pat::MET::NoShift, level, baseTag, consumesCollector(), readFromMiniAOD, true, false));
+      shifts_.emplace_back(pat::MET::NoShift, level, baseTag, consumesCollector(), readFromMiniAOD, true, false);
     }
   }
 }

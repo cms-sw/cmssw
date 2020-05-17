@@ -59,14 +59,14 @@ namespace reco {
       float LeadingTracknormalizedChi2 = 0;
       const reco::CandidatePtr& leadingCharged = tau.leadChargedHadrCand();
       if (leadingCharged.isNonnull()) {
-        const reco::PFCandidate* pfcand = dynamic_cast<const reco::PFCandidate*>(leadingCharged.get());
+        const auto* pfcand = dynamic_cast<const reco::PFCandidate*>(leadingCharged.get());
         if (pfcand != nullptr) {
           reco::TrackRef tref = pfcand->trackRef();
           if (tref.isNonnull()) {
             LeadingTracknormalizedChi2 = tref->normalizedChi2();
           }
         } else {
-          const pat::PackedCandidate* patcand = dynamic_cast<const pat::PackedCandidate*>(leadingCharged.get());
+          const auto* patcand = dynamic_cast<const pat::PackedCandidate*>(leadingCharged.get());
           if (patcand != nullptr && patcand->hasTrackDetails()) {
             LeadingTracknormalizedChi2 = patcand->pseudoTrack().normalizedChi2();
           }
@@ -79,7 +79,7 @@ namespace reco {
       float ecal_en_in_signal_pf_cands = 0;
       float hcal_en_in_signal_pf_cands = 0;
       for (const auto& signal_cand : tau.signalCands()) {
-        const reco::PFCandidate* signal_pfcand = dynamic_cast<const reco::PFCandidate*>(signal_cand.get());
+        const auto* signal_pfcand = dynamic_cast<const reco::PFCandidate*>(signal_cand.get());
         if (signal_pfcand != nullptr) {
           ecal_en_in_signal_pf_cands += signal_pfcand->ecalEnergy();
           hcal_en_in_signal_pf_cands += signal_pfcand->hcalEnergy();

@@ -242,7 +242,7 @@ int main(int argC, char* argV[]) {
       unsigned int i = 0;
       for (; i < allAtts.size(); ++i) {
         const AttList2& a = *(allAtts[i]);
-        AttList2::const_iterator it = a.begin();
+        auto it = a.begin();
         for (; it != a.end(); ++it) {
           cout << it->first.str() << '=' << it->second.str() << ' ';
         }

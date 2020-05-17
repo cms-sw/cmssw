@@ -22,15 +22,15 @@ namespace edm {
       corrupt = true;
 
     unsigned int sum = 0U;
-    for (std::vector<unsigned>::const_iterator i = seedLengths_.begin(), iEnd = seedLengths_.end(); i != iEnd; ++i) {
-      sum += *i;
+    for (unsigned int seedLength : seedLengths_) {
+      sum += seedLength;
     }
     if (sum != seedVectors_.size())
       corrupt = true;
 
     sum = 0U;
-    for (std::vector<unsigned>::const_iterator i = stateLengths_.begin(), iEnd = stateLengths_.end(); i != iEnd; ++i) {
-      sum += *i;
+    for (unsigned int stateLength : stateLengths_) {
+      sum += stateLength;
     }
     if (sum != stateVectors_.size())
       corrupt = true;
@@ -41,16 +41,15 @@ namespace edm {
 
     // Done with error checks.  Now do the work.
 
-    std::vector<unsigned>::const_iterator seedLength = seedLengths_.begin();
-    std::vector<unsigned>::const_iterator seedBegin = seedVectors_.begin();
-    std::vector<unsigned>::const_iterator seedEnd = seedVectors_.begin();
+    auto seedLength = seedLengths_.begin();
+    auto seedBegin = seedVectors_.begin();
+    auto seedEnd = seedVectors_.begin();
 
-    std::vector<unsigned>::const_iterator stateLength = stateLengths_.begin();
-    std::vector<unsigned>::const_iterator stateBegin = stateVectors_.begin();
-    std::vector<unsigned>::const_iterator stateEnd = stateVectors_.begin();
+    auto stateLength = stateLengths_.begin();
+    auto stateBegin = stateVectors_.begin();
+    auto stateEnd = stateVectors_.begin();
 
-    for (std::vector<std::string>::const_iterator label = moduleLabels_.begin(), labelEnd = moduleLabels_.end();
-         label != labelEnd;
+    for (auto label = moduleLabels_.begin(), labelEnd = moduleLabels_.end(); label != labelEnd;
          ++label, ++seedLength, ++stateLength) {
       seedBegin = seedEnd;
       seedEnd += *seedLength;
@@ -60,8 +59,7 @@ namespace edm {
 
       RandomEngineState randomEngineState;
       randomEngineState.setLabel(*label);
-      std::vector<RandomEngineState>::iterator state =
-          std::lower_bound(states.begin(), states.end(), randomEngineState);
+      auto state = std::lower_bound(states.begin(), states.end(), randomEngineState);
 
       if (state != states.end() && *label == state->getLabel()) {
         if (*seedLength != state->getSeed().size() || *stateLength != state->getState().size()) {
@@ -75,13 +73,13 @@ namespace edm {
 
         state->clearSeedVector();
         state->reserveSeedVector(*seedLength);
-        for (std::vector<unsigned int>::const_iterator i = seedBegin; i != seedEnd; ++i) {
+        for (auto i = seedBegin; i != seedEnd; ++i) {
           state->push_back_seedVector(*i);
         }
 
         state->clearStateVector();
         state->reserveStateVector(*stateLength);
-        for (std::vector<unsigned int>::const_iterator i = stateBegin; i != stateEnd; ++i) {
+        for (auto i = stateBegin; i != stateEnd; ++i) {
           state->push_back_stateVector(*i);
         }
       }
@@ -95,26 +93,26 @@ namespace edm {
     stateLengths_.resize(states.size());
     stateVectors_.clear();
 
-    std::vector<std::string>::iterator label = moduleLabels_.begin();
-    std::vector<unsigned>::iterator seedLength = seedLengths_.begin();
-    std::vector<unsigned>::iterator stateLength = stateLengths_.begin();
+    auto label = moduleLabels_.begin();
+    auto seedLength = seedLengths_.begin();
+    auto stateLength = stateLengths_.begin();
 
-    for (std::vector<RandomEngineState>::const_iterator state = states.begin(), iEnd = states.end(); state != iEnd;
+    for (auto state = states.begin(), iEnd = states.end(); state != iEnd;
          ++state, ++label, ++seedLength, ++stateLength) {
       *label = state->getLabel();
 
       std::vector<uint32_t> const& seedVector = state->getSeed();
       *seedLength = seedVector.size();
 
-      for (std::vector<uint32_t>::const_iterator j = seedVector.begin(), jEnd = seedVector.end(); j != jEnd; ++j) {
-        seedVectors_.push_back(*j);
+      for (unsigned int j : seedVector) {
+        seedVectors_.push_back(j);
       }
 
       std::vector<uint32_t> const& stateVector = state->getState();
       *stateLength = stateVector.size();
 
-      for (std::vector<uint32_t>::const_iterator j = stateVector.begin(), jEnd = stateVector.end(); j != jEnd; ++j) {
-        stateVectors_.push_back(*j);
+      for (unsigned int j : stateVector) {
+        stateVectors_.push_back(j);
       }
     }
   }

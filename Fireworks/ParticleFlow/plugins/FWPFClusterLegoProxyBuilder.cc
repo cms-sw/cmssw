@@ -8,7 +8,7 @@ void FWPFClusterLegoProxyBuilder::localModelChanges(const FWModelId &iId,
                                                     const FWViewContext *vc) {
   // Line set marker is not the same colour as line, fixed here
   if ((parent)->HasChildren()) {
-    for (TEveElement::List_i j = parent->BeginChildren(); j != parent->EndChildren(); j++) {
+    for (auto j = parent->BeginChildren(); j != parent->EndChildren(); j++) {
       FWLegoCandidate *cluster = dynamic_cast<FWLegoCandidate *>(*j);
       cluster->SetMarkerColor(FWProxyBuilderBase::item()->modelInfo(iId.index()).displayProperties().color());
       cluster->ElementChanged();
@@ -20,7 +20,7 @@ void FWPFClusterLegoProxyBuilder::localModelChanges(const FWModelId &iId,
 void FWPFClusterLegoProxyBuilder::scaleProduct(TEveElementList *parent,
                                                FWViewType::EType type,
                                                const FWViewContext *vc) {
-  for (TEveElement::List_i i = parent->BeginChildren(); i != parent->EndChildren(); ++i) {
+  for (auto i = parent->BeginChildren(); i != parent->EndChildren(); ++i) {
     if ((*i)->HasChildren()) {
       TEveElement *el = (*i)->FirstChild();  // there is only one child added in this proxy builder
       FWLegoCandidate *cluster = dynamic_cast<FWLegoCandidate *>(el);

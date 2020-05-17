@@ -34,10 +34,10 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps) : DQTask(ps) {
   _filter_C34.initialize(filter::fPreserver, hcaldqm::hashfunctions::fCrateSlot, vhashC34);
 
   std::vector<std::pair<int, int> > timingChannels;
-  timingChannels.push_back(std::pair<int, int>(28, 63));
-  timingChannels.push_back(std::pair<int, int>(28, 65));
-  timingChannels.push_back(std::pair<int, int>(20, 63));
-  timingChannels.push_back(std::pair<int, int>(20, 65));
+  timingChannels.emplace_back(28, 63);
+  timingChannels.emplace_back(28, 65);
+  timingChannels.emplace_back(20, 63);
+  timingChannels.emplace_back(20, 65);
   for (int iChan = 0; iChan < 4; ++iChan) {
     std::vector<uint32_t> vhashTimingChannel;
     for (int depth = 1; depth <= 7; ++depth) {
@@ -176,7 +176,7 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps) : DQTask(ps) {
       continue;
     }
 
-    HcalElectronicsId eid = HcalElectronicsId(_ehashmap.lookup(did));
+    auto eid = HcalElectronicsId(_ehashmap.lookup(did));
     if (!eid.rawId()) {
       continue;
     }

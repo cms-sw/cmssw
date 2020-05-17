@@ -138,7 +138,7 @@ namespace {
     DoNothing(const SeedingLayerSetsHits*) {}
     DoNothing(edm::RunningAverage*) {}
 
-    static void produces(edm::ProducesCollector){};
+    static void produces(const edm::ProducesCollector&){};
 
     void reserve(size_t) {}
 
@@ -202,7 +202,7 @@ namespace {
 
     auto beginRegion(const TrackingRegion* region, LayerHitMapCache*) {
       auto filler = intermediateHitDoublets_->beginRegion(region);
-      return std::make_tuple(&(filler.layerHitMapCache()), std::move(filler));
+      return std::make_tuple(&(filler.layerHitMapCache()), filler);
     }
 
     void fill(IntermediateHitDoublets::RegionFiller& filler,

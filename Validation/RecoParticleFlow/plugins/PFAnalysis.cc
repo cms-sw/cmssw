@@ -573,22 +573,20 @@ void PFAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
   edm::Handle<std::vector<reco::GenParticle>> genParticlesHandle;
   iEvent.getByToken(genParticles_, genParticlesHandle);
-  for (std::vector<reco::GenParticle>::const_iterator it_p = genParticlesHandle->begin();
-       it_p != genParticlesHandle->end();
-       ++it_p) {
-    gen_eta_.push_back(it_p->eta());
-    gen_phi_.push_back(it_p->phi());
-    gen_pt_.push_back(it_p->pt());
-    gen_px_.push_back(it_p->px());
-    gen_py_.push_back(it_p->py());
-    gen_pz_.push_back(it_p->pz());
-    gen_energy_.push_back(it_p->energy());
-    gen_charge_.push_back(it_p->charge());
-    gen_pdgid_.push_back(it_p->pdgId());
-    gen_status_.push_back(it_p->status());
-    std::vector<int> daughters(it_p->daughterRefVector().size(), 0);
-    for (unsigned j = 0; j < it_p->daughterRefVector().size(); ++j) {
-      daughters[j] = static_cast<int>(it_p->daughterRefVector().at(j).key());
+  for (const auto& it_p : *genParticlesHandle) {
+    gen_eta_.push_back(it_p.eta());
+    gen_phi_.push_back(it_p.phi());
+    gen_pt_.push_back(it_p.pt());
+    gen_px_.push_back(it_p.px());
+    gen_py_.push_back(it_p.py());
+    gen_pz_.push_back(it_p.pz());
+    gen_energy_.push_back(it_p.energy());
+    gen_charge_.push_back(it_p.charge());
+    gen_pdgid_.push_back(it_p.pdgId());
+    gen_status_.push_back(it_p.status());
+    std::vector<int> daughters(it_p.daughterRefVector().size(), 0);
+    for (unsigned j = 0; j < it_p.daughterRefVector().size(); ++j) {
+      daughters[j] = static_cast<int>(it_p.daughterRefVector().at(j).key());
     }
     gen_daughters_.push_back(daughters);
   }
@@ -629,7 +627,7 @@ void PFAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       const auto& tps = recotosim[trackref];
       for (const auto& tp : tps) {
         edm::Ref<std::vector<TrackingParticle>> tpr = tp.first;
-        trackingparticle_to_element.push_back(make_pair(tpr.key(), idx_in_all_elements));
+        trackingparticle_to_element.emplace_back(tpr.key(), idx_in_all_elements);
         //cout << "trackingparticle_to_element " << tpr.key() << " " << idx_in_all_elements << endl;
         //cout << "track.eta=" << trackref->eta() << " track.phi=" << trackref->phi() << endl;
         //cout << "elem.eta=" << all_elements[idx_in_all_elements].orig.trackRef()->eta();
@@ -874,7 +872,7 @@ void PFAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
         }
       }
       assert(ielem != -1);
-      element_to_candidate.push_back(make_pair(ielem, icandidate));
+      element_to_candidate.emplace_back(ielem, icandidate);
     }  //elements
 
     icandidate += 1;
@@ -961,7 +959,7 @@ pair<vector<ElementWithIndex>, vector<tuple<int, int, float>>> PFAnalysis::proce
            << endl;
       auto globalindex_i = ij.first + ret.size();
       auto globalindex_j = ij.second + ret.size();
-      distances.push_back(make_tuple(globalindex_i, globalindex_j, dist));
+      distances.emplace_back(globalindex_i, globalindex_j, dist);
     }
 
     for (const auto& elem : block.elements()) {
@@ -1087,7 +1085,7 @@ void PFAnalysis::associateClusterToSimCluster(const vector<ElementWithIndex>& al
         //get the energy of the simcluster hits that matches detids of the rechits
         double cmp = detid_compare(detids, simcluster_detids, rechits_energy_all, false);
         if (cmp > 0) {
-          simcluster_to_element.push_back(make_pair(isimcluster, ielement));
+          simcluster_to_element.emplace_back(isimcluster, ielement);
           simcluster_to_element_cmp.push_back((float)cmp);
         }
         isimcluster += 1;

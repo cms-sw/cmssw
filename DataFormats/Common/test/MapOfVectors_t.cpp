@@ -20,9 +20,9 @@ class TestMapOfVectors : public CppUnit::TestFixture {
 
 public:
   TestMapOfVectors();
-  ~TestMapOfVectors();
-  void setUp() {}
-  void tearDown() {}
+  ~TestMapOfVectors() override;
+  void setUp() override {}
+  void tearDown() override {}
 
   void default_ctor();
   void filling();
@@ -51,12 +51,12 @@ TestMapOfVectors::~TestMapOfVectors() {}
 
 void TestMapOfVectors::default_ctor() {
   MII m;
-  CPPUNIT_ASSERT(m.size() == 0);
   CPPUNIT_ASSERT(m.empty());
-  CPPUNIT_ASSERT(m.m_keys.size() == 0);
+  CPPUNIT_ASSERT(m.empty());
+  CPPUNIT_ASSERT(m.m_keys.empty());
   CPPUNIT_ASSERT(m.m_offsets.size() == 1);
   CPPUNIT_ASSERT(m.m_offsets[0] == 0);
-  CPPUNIT_ASSERT(m.m_data.size() == 0);
+  CPPUNIT_ASSERT(m.m_data.empty());
 }
 
 void TestMapOfVectors::filling() {
@@ -73,7 +73,7 @@ void TestMapOfVectors::filling() {
 void TestMapOfVectors::find() {
   MII m(om);
   CPPUNIT_ASSERT(m.find(-1) == m.emptyRange());
-  for (TheMap::const_iterator p = om.begin(); p != om.end(); ++p) {
+  for (auto p = om.begin(); p != om.end(); ++p) {
     MII::range r = m.find((*p).first);
     CPPUNIT_ASSERT(int(r.size()) == (*p).first);
     CPPUNIT_ASSERT(std::equal((*p).second.begin(), (*p).second.end(), r.begin()));
@@ -82,7 +82,7 @@ void TestMapOfVectors::find() {
 
 void TestMapOfVectors::iterator() {
   MII m(om);
-  TheMap::const_iterator op = om.begin();
+  auto op = om.begin();
   unsigned int lt = 0;
   for (MII::const_iterator p = m.begin(); p != m.end(); ++p) {
     CPPUNIT_ASSERT((*p).first == (*op).first);

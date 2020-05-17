@@ -287,7 +287,7 @@ void SiPixelClusterSource::analyze(const edm::Event &iEvent, const edm::EventSet
   // std::cout<<"nEventFpixClusters: "<<nEventFpixClusters<<" , nLumiSecs:
   // "<<nLumiSecs<<" , nBigEvents: "<<nBigEvents<<std::endl;
 
-  for (TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++) {
+  for (auto it = pDD->dets().begin(); it != pDD->dets().end(); it++) {
     DetId detId = (*it)->geographicalId();
 
     // fill barrel
@@ -322,11 +322,11 @@ void SiPixelClusterSource::buildStructure(const edm::EventSetup &iSetup) {
   LogVerbatim("PixelDQM") << " *** I have " << pDD->dets().size() << " detectors" << std::endl;
   LogVerbatim("PixelDQM") << " *** I have " << pDD->detTypes().size() << " types" << std::endl;
 
-  for (TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++) {
+  for (auto it = pDD->dets().begin(); it != pDD->dets().end(); it++) {
     if (dynamic_cast<PixelGeomDetUnit const *>((*it)) != nullptr) {
       DetId detId = (*it)->geographicalId();
       const GeomDetUnit *geoUnit = pDD->idToDetUnit(detId);
-      const PixelGeomDetUnit *pixDet = dynamic_cast<const PixelGeomDetUnit *>(geoUnit);
+      const auto *pixDet = dynamic_cast<const PixelGeomDetUnit *>(geoUnit);
       int nrows = (pixDet->specificTopology()).nrows();
       int ncols = (pixDet->specificTopology()).ncolumns();
 
@@ -340,7 +340,7 @@ void SiPixelClusterSource::buildStructure(const edm::EventSetup &iSetup) {
           int layer = PixelBarrelName(DetId(id), pTT, isUpgrade).layerName();
           if (layer > noOfLayers)
             noOfLayers = layer;
-          SiPixelClusterModule *theModule = new SiPixelClusterModule(id, ncols, nrows);
+          auto *theModule = new SiPixelClusterModule(id, ncols, nrows);
           thePixelStructure.insert(pair<uint32_t, SiPixelClusterModule *>(id, theModule));
         } else if (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
           LogDebug("PixelDQM") << " ---> Adding Endcap Module " << detId.rawId() << endl;
@@ -370,7 +370,7 @@ void SiPixelClusterSource::buildStructure(const edm::EventSetup &iSetup) {
           mask = false;
           if (isPIB && mask)
             continue;
-          SiPixelClusterModule *theModule = new SiPixelClusterModule(id, ncols, nrows);
+          auto *theModule = new SiPixelClusterModule(id, ncols, nrows);
           thePixelStructure.insert(pair<uint32_t, SiPixelClusterModule *>(id, theModule));
         }
       }
@@ -463,7 +463,7 @@ void SiPixelClusterSource::getrococcupancy(DetId detId,
                                            const edm::DetSetVector<PixelDigi> &diginp,
                                            const TrackerTopology *const tTopo,
                                            std::vector<MonitorElement *> const &meinput) {
-  edm::DetSetVector<PixelDigi>::const_iterator ipxsearch = diginp.find(detId);
+  auto ipxsearch = diginp.find(detId);
   if (ipxsearch != diginp.end()) {
     // Look at digis now
     edm::DetSet<PixelDigi>::const_iterator pxdi;
@@ -523,7 +523,7 @@ void SiPixelClusterSource::getrococcupancy(DetId detId,
 void SiPixelClusterSource::getrococcupancye(DetId detId,
                                             const edmNew::DetSetVector<SiPixelCluster> &clustColl,
                                             const TrackerTopology *const pTT,
-                                            edm::ESHandle<TrackerGeometry> pDD,
+                                            const edm::ESHandle<TrackerGeometry> &pDD,
                                             MonitorElement *meinput) {
   edmNew::DetSetVector<SiPixelCluster>::const_iterator ipxsearch = clustColl.find(detId);
   if (ipxsearch != clustColl.end()) {
@@ -531,7 +531,7 @@ void SiPixelClusterSource::getrococcupancye(DetId detId,
     edmNew::DetSet<SiPixelCluster>::const_iterator pxclust;
     for (pxclust = ipxsearch->begin(); pxclust != ipxsearch->end(); pxclust++) {
       const GeomDetUnit *geoUnit = pDD->idToDetUnit(detId);
-      const PixelGeomDetUnit *pixDet = dynamic_cast<const PixelGeomDetUnit *>(geoUnit);
+      const auto *pixDet = dynamic_cast<const PixelGeomDetUnit *>(geoUnit);
       const PixelTopology *topol = &(pixDet->specificTopology());
       LocalPoint clustlp = topol->localPosition(MeasurementPoint(pxclust->x(), pxclust->y()));
       GlobalPoint clustgp = geoUnit->surface().toGlobal(clustlp);

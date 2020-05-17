@@ -29,26 +29,29 @@ public:
   ///Destructor
   ~SiStripConfigWriter();
   ///Write XML file
-  bool init(std::string main);
-  void write(std::string fname);
-  void createElement(std::string tag);
-  void createElement(std::string tag, std::string name);
-  void createChildElement(std::string tag, std::string name);
-  void createChildElement(std::string tag, std::string name, std::string att_name, std::string att_val);
-  void createChildElement(std::string tag,
-                          std::string name,
-                          std::string att_name1,
-                          std::string att_val1,
-                          std::string att_name2,
-                          std::string att_val2);
-  void createChildElement(std::string tag,
-                          std::string name,
-                          std::string att_name1,
-                          std::string att_val1,
-                          std::string att_name2,
-                          std::string att_val2,
-                          std::string att_name3,
-                          std::string att_val3);
+  bool init(const std::string& main);
+  void write(const std::string& fname);
+  void createElement(const std::string& tag);
+  void createElement(const std::string& tag, const std::string& name);
+  void createChildElement(const std::string& tag, const std::string& name);
+  void createChildElement(const std::string& tag,
+                          const std::string& name,
+                          const std::string& att_name,
+                          const std::string& att_val);
+  void createChildElement(const std::string& tag,
+                          const std::string& name,
+                          const std::string& att_name1,
+                          const std::string& att_val1,
+                          const std::string& att_name2,
+                          const std::string& att_val2);
+  void createChildElement(const std::string& tag,
+                          const std::string& name,
+                          const std::string& att_name1,
+                          const std::string& att_val1,
+                          const std::string& att_name2,
+                          const std::string& att_val2,
+                          const std::string& att_name3,
+                          const std::string& att_val3);
 
 protected:
 private:

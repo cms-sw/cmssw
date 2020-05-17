@@ -21,9 +21,9 @@ class TestDictionaries : public CppUnit::TestFixture {
 
 public:
   TestDictionaries() {}
-  ~TestDictionaries() {}
-  void setUp() {}
-  void tearDown() {}
+  ~TestDictionaries() override {}
+  void setUp() override {}
+  void tearDown() override {}
 
   void enum_is_valid();
   void enum_by_name_is_valid();

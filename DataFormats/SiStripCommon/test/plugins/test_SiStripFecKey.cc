@@ -140,7 +140,7 @@ void testSiStripFecKey::beginJob() {
   if (temp.first != temp.second) {
     std::stringstream ss;
     ss << std::endl;
-    for (iter ii = temp.first; ii != temp.second; ++ii) {
+    for (auto ii = temp.first; ii != temp.second; ++ii) {
       SiStripFecKey(*ii).terse(ss);
       ss << std::endl;
     }

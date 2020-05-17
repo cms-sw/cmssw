@@ -14,8 +14,8 @@ typedef std::vector<int> Payload;
 class writeInt : public edm::EDAnalyzer {
 public:
   explicit writeInt(const edm::ParameterSet& iConfig);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) {}
-  virtual void endJob();
+  void analyze(const edm::Event&, const edm::EventSetup&) override {}
+  void endJob() override;
 
 private:
   std::string cont;

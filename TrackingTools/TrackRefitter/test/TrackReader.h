@@ -38,13 +38,13 @@ public:
   TrackReader(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~TrackReader();
+  ~TrackReader() override;
 
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
 
   // Operations
-  void beginJob();
-  void endJob();
+  void beginJob() override;
+  void endJob() override;
 
 protected:
   //  void printTrackRecHits(const reco::Track &, edm::ESHandle<GlobalTrackingGeometry>) const;

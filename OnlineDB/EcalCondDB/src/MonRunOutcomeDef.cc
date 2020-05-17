@@ -18,7 +18,7 @@ MonRunOutcomeDef::~MonRunOutcomeDef() {}
 
 string MonRunOutcomeDef::getShortDesc() const { return m_shortDesc; }
 
-void MonRunOutcomeDef::setShortDesc(string desc) {
+void MonRunOutcomeDef::setShortDesc(const string& desc) {
   if (desc != m_shortDesc) {
     m_ID = 0;
     m_shortDesc = desc;

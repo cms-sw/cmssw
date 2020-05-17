@@ -59,7 +59,7 @@ void FWTrajectorySeedProxyBuilder::build(const TrajectorySeed& iData,
 
   TEvePointSet* pointSet = new TEvePointSet;
   TEveLine* line = new TEveLine;
-  TEveStraightLineSet* lineSet = new TEveStraightLineSet;
+  auto* lineSet = new TEveStraightLineSet;
   TrajectorySeed::const_iterator hit = iData.recHits().first;
 
   for (; hit != iData.recHits().second; hit++) {

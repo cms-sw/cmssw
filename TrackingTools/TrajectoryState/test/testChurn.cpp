@@ -6,11 +6,11 @@ struct A {
   virtual ~A() {}
 };
 struct B : public A {
-  ~B() { std::cout << "D B " << this << std::endl; }
+  ~B() override { std::cout << "D B " << this << std::endl; }
   explicit B(int) { std::cout << "C B " << this << std::endl; }
 };
 struct C : public A {
-  ~C() { std::cout << "D c " << this << std::endl; }
+  ~C() override { std::cout << "D c " << this << std::endl; }
   explicit C(int, float) { std::cout << "C B " << this << std::endl; }
 };
 

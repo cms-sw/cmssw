@@ -84,7 +84,7 @@ public:
     std::cout << " You must override the virtual functions in DigiAccumulatorMixMod in\n"
               << "order to access PileupInformation.  Returning empty object." << std::endl;
 
-    PileupMixingContent* dummyPileupObject = new PileupMixingContent();
+    auto* dummyPileupObject = new PileupMixingContent();
 
     return dummyPileupObject;
   }

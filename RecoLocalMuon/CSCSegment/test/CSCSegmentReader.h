@@ -34,32 +34,32 @@ public:
   CSCSegmentReader(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~CSCSegmentReader();
+  ~CSCSegmentReader() override;
 
   // Operations
 
   /// Perform the real analysis
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
 
   /// Phi and theta resolution of the built segments
-  void resolution(const edm::Handle<edm::PSimHitContainer> sH,
-                  const edm::Handle<CSCRecHit2DCollection> rH,
-                  const edm::Handle<CSCSegmentCollection> seg,
+  void resolution(const edm::Handle<edm::PSimHitContainer>& sH,
+                  const edm::Handle<CSCRecHit2DCollection>& rH,
+                  const edm::Handle<CSCSegmentCollection>& seg,
                   const CSCGeometry* geom);
 
   /// Simulation info
-  void simInfo(const edm::Handle<edm::SimTrackContainer> simTracks);
+  void simInfo(const edm::Handle<edm::SimTrackContainer>& simTracks);
 
   /// Segment building info
-  void recInfo(const edm::Handle<edm::PSimHitContainer> sH,
-               const edm::Handle<CSCRecHit2DCollection> rH,
-               const edm::Handle<CSCSegmentCollection> seg,
+  void recInfo(const edm::Handle<edm::PSimHitContainer>& sH,
+               const edm::Handle<CSCRecHit2DCollection>& rH,
+               const edm::Handle<CSCSegmentCollection>& seg,
                const CSCGeometry* geom);
 
   /// Find best rec segment for set of muon sim hits
   int bestMatch(CSCDetId id0,
-                const edm::Handle<edm::PSimHitContainer> simHits,
-                const edm::Handle<CSCSegmentCollection> cscSegments,
+                const edm::Handle<edm::PSimHitContainer>& simHits,
+                const edm::Handle<CSCSegmentCollection>& cscSegments,
                 const CSCGeometry* geom);
 
 protected:

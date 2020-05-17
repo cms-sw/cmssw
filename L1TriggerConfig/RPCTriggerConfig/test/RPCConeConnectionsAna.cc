@@ -51,15 +51,15 @@
 class RPCConeConnectionsAna : public edm::EDAnalyzer {
 public:
   explicit RPCConeConnectionsAna(const edm::ParameterSet&);
-  ~RPCConeConnectionsAna();
+  ~RPCConeConnectionsAna() override;
 
 private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
   int getDCCNumber(int iTower, int iSec);
   int getDCC(int iSec);
-  void printSymetric(RPCDetId det, edm::ESHandle<RPCGeometry> rpcGeom);
+  void printSymetric(RPCDetId det, const edm::ESHandle<RPCGeometry>& rpcGeom);
   void printRoll(RPCRoll const* roll);
   int m_towerBeg;
   int m_towerEnd;
@@ -121,8 +121,8 @@ void RPCConeConnectionsAna::analyze(const edm::Event& iEvent, const edm::EventSe
   const RPCEMap* eMap = nmap.product();
   edm::ESHandle<RPCReadOutMapping> map = eMap->convert();
 
-  for (TrackingGeometry::DetContainer::const_iterator it = rpcGeom->dets().begin(); it != rpcGeom->dets().end(); ++it) {
-    if (dynamic_cast<const RPCRoll*>(*it) == 0)
+  for (auto it = rpcGeom->dets().begin(); it != rpcGeom->dets().end(); ++it) {
+    if (dynamic_cast<const RPCRoll*>(*it) == nullptr)
       continue;
 
     RPCRoll const* roll = dynamic_cast<RPCRoll const*>(*it);
@@ -142,7 +142,7 @@ void RPCConeConnectionsAna::analyze(const edm::Event& iEvent, const edm::EventSe
 
       //         L1RPCConeBuilder::TStripConVec::const_iterator it = itPair.first;
       //         for (; it!=itPair.second;++it){
-      L1RPCConeBuilder::TCompressedConVec::const_iterator itComp = compressedConnPair.first;
+      auto itComp = compressedConnPair.first;
       for (; itComp != compressedConnPair.second; ++itComp) {
         int logstrip = itComp->getLogStrip(strip, coneDef->getLPSizeVec());
         if (logstrip == -1)
@@ -214,7 +214,7 @@ void RPCConeConnectionsAna::analyze(const edm::Event& iEvent, const edm::EventSe
 
   }  // roll iteration
 
-  std::map<int, int>::iterator it = PACmap.begin();
+  auto it = PACmap.begin();
   for (; it != PACmap.end(); ++it) {
     if (it->second != 8) {
       //    std::cout << "PAC " << it->first << " refcon " << it->second << std::endl;
@@ -265,7 +265,7 @@ int RPCConeConnectionsAna::getDCC(int iSec) {
   return ret;
 }
 
-void RPCConeConnectionsAna::printSymetric(RPCDetId det, edm::ESHandle<RPCGeometry> rpcGeom) {
+void RPCConeConnectionsAna::printSymetric(RPCDetId det, const edm::ESHandle<RPCGeometry>& rpcGeom) {
   RPCDetId detSym;
 
   if (det.region() == 0) {  // bar
@@ -274,10 +274,10 @@ void RPCConeConnectionsAna::printSymetric(RPCDetId det, edm::ESHandle<RPCGeometr
     detSym = RPCDetId(-det.region(), det.ring(), det.station(), det.sector(), det.layer(), det.subsector(), det.roll());
   }
 
-  for (TrackingGeometry::DetContainer::const_iterator it = rpcGeom->dets().begin(); it != rpcGeom->dets().end(); ++it) {
-    if (dynamic_cast<const RPCRoll*>(*it) == 0)
+  for (auto it : rpcGeom->dets()) {
+    if (dynamic_cast<const RPCRoll*>(it) == nullptr)
       continue;
-    RPCRoll const* roll = dynamic_cast<RPCRoll const*>(*it);
+    RPCRoll const* roll = dynamic_cast<RPCRoll const*>(it);
 
     if (roll->id() != detSym)
       continue;

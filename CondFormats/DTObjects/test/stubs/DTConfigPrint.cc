@@ -47,8 +47,8 @@ namespace edmtest {
 
     // loop over chambers
     DTCCBConfig::ccb_config_map configKeys(conf->configKeyMap());
-    DTCCBConfig::ccb_config_iterator iter = configKeys.begin();
-    DTCCBConfig::ccb_config_iterator iend = configKeys.end();
+    auto iter = configKeys.begin();
+    auto iend = configKeys.end();
     while (iter != iend) {
       // get chamber id
       const DTCCBId& ccbId = iter->first;
@@ -56,8 +56,8 @@ namespace edmtest {
       std::cout << std::endl;
       // get brick identifiers list
       const std::vector<int>& ccbConf = iter->second;
-      std::vector<int>::const_iterator cfgIter = ccbConf.begin();
-      std::vector<int>::const_iterator cfgIend = ccbConf.end();
+      auto cfgIter = ccbConf.begin();
+      auto cfgIend = ccbConf.end();
 
       // loop over configuration bricks
       while (cfgIter != cfgIend) {

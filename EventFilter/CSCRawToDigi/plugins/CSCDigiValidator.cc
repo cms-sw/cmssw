@@ -110,7 +110,7 @@ bool CSCDigiValidator::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   CSCCLCTDigiCollection::DigiRangeIterator clct = _clct->begin(), sclct = _sclct->begin();
   CSCALCTDigiCollection::DigiRangeIterator alct = _alct->begin(), salct = _salct->begin();
   CSCCorrelatedLCTDigiCollection::DigiRangeIterator lct = _lct->begin(), slct = _slct->begin();
-  L1CSCTrackCollection::const_iterator trk = _trk->begin(), strk = _strk->begin();
+  auto trk = _trk->begin(), strk = _strk->begin();
 
   //per detID, create lists of various digi types
   matchingDetWireCollection wires;
@@ -123,18 +123,18 @@ bool CSCDigiValidator::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   //wires
   for (; wi != _wi->end(); ++wi) {
-    CSCWireDigiCollection::const_iterator b = (*wi).second.first, e = (*wi).second.second;
-    std::vector<CSCWireDigi>::iterator beg = wires[(*wi).first].first.end();
+    auto b = (*wi).second.first, e = (*wi).second.second;
+    auto beg = wires[(*wi).first].first.end();
     wires[(*wi).first].first.insert(beg, b, e);
   }
   for (; swi != _swi->end(); ++swi) {
-    CSCWireDigiCollection::const_iterator b = (*swi).second.first, e = (*swi).second.second;
+    auto b = (*swi).second.first, e = (*swi).second.second;
     //convert sim ring 4(ME1/a) to ring 1
     CSCDetId _id = (*swi).first;
     if ((*swi).first.ring() == 4)
       _id = CSCDetId((*swi).first.endcap(), (*swi).first.station(), 1, (*swi).first.chamber(), (*swi).first.layer());
 
-    std::vector<CSCWireDigi>::iterator beg = wires[_id].second.end();
+    auto beg = wires[_id].second.end();
 
     wires[_id].second.insert(beg, b, e);
     // automatically combine wire digis after each insertion
@@ -143,8 +143,8 @@ bool CSCDigiValidator::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   //strips
   for (; st != _st->end(); ++st) {
-    CSCStripDigiCollection::const_iterator b = (*st).second.first, e = (*st).second.second;
-    std::vector<CSCStripDigi>::iterator beg = strips[(*st).first].first.end();
+    auto b = (*st).second.first, e = (*st).second.second;
+    auto beg = strips[(*st).first].first.end();
 
     //need to remove strips with no active ADCs
     std::vector<CSCStripDigi> zs = zeroSupStripDigis(b, e);
@@ -152,14 +152,14 @@ bool CSCDigiValidator::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     strips[(*st).first].first.insert(beg, zs.begin(), zs.end());
   }
   for (; sst != _sst->end(); ++sst) {
-    CSCStripDigiCollection::const_iterator b = (*sst).second.first, e = (*sst).second.second;
+    auto b = (*sst).second.first, e = (*sst).second.second;
     // conversion of ring 4->1 not necessary here
     CSCDetId _id = (*sst).first;
     //if((*sst).first.ring() == 4)
     //	 _id = CSCDetId((*sst).first.endcap(),(*sst).first.station(),
     //		1, (*sst).first.chamber(),(*sst).first.layer());
 
-    std::vector<CSCStripDigi>::iterator beg = strips[_id].second.end();
+    auto beg = strips[_id].second.end();
 
     std::vector<CSCStripDigi> relab = relabelStripDigis(theMapping, (*sst).first, b, e);
 
@@ -169,20 +169,20 @@ bool CSCDigiValidator::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   //comparators
   for (; cmp != _cmp->end(); ++cmp) {
-    CSCComparatorDigiCollection::const_iterator b = (*cmp).second.first, e = (*cmp).second.second;
-    std::vector<CSCComparatorDigi>::iterator beg = comps[(*cmp).first].first.end();
+    auto b = (*cmp).second.first, e = (*cmp).second.second;
+    auto beg = comps[(*cmp).first].first.end();
 
     comps[(*cmp).first].first.insert(beg, b, e);
   }
   for (; scmp != _scmp->end(); ++scmp) {
-    CSCComparatorDigiCollection::const_iterator b = (*scmp).second.first, e = (*scmp).second.second;
+    auto b = (*scmp).second.first, e = (*scmp).second.second;
     // convert sim ring 4 (ME1/a) to ring 1
     CSCDetId _id = (*scmp).first;
     if ((*scmp).first.ring() == 4)
       _id =
           CSCDetId((*scmp).first.endcap(), (*scmp).first.station(), 1, (*scmp).first.chamber(), (*scmp).first.layer());
 
-    std::vector<CSCComparatorDigi>::iterator beg = comps[_id].second.begin();
+    auto beg = comps[_id].second.begin();
 
     if ((*scmp).first.ring() == 4)
       beg = comps[_id].second.end();
@@ -196,20 +196,20 @@ bool CSCDigiValidator::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   //CLCTs
   for (; clct != _clct->end(); ++clct) {
-    CSCCLCTDigiCollection::const_iterator b = (*clct).second.first, e = (*clct).second.second;
-    std::vector<CSCCLCTDigi>::iterator beg = clcts[(*clct).first].first.end();
+    auto b = (*clct).second.first, e = (*clct).second.second;
+    auto beg = clcts[(*clct).first].first.end();
 
     clcts[(*clct).first].first.insert(beg, b, e);
   }
   for (; sclct != _sclct->end(); ++sclct) {
-    CSCCLCTDigiCollection::const_iterator b = (*sclct).second.first, e = (*sclct).second.second;
+    auto b = (*sclct).second.first, e = (*sclct).second.second;
     // convert sim ring 4 (ME1/a) to ring 1
     CSCDetId _id = (*sclct).first;
     if ((*sclct).first.ring() == 4)
       _id = CSCDetId(
           (*sclct).first.endcap(), (*sclct).first.station(), 1, (*sclct).first.chamber(), (*sclct).first.layer());
 
-    std::vector<CSCCLCTDigi>::iterator beg = clcts[_id].second.begin();
+    auto beg = clcts[_id].second.begin();
 
     if ((*sclct).first.ring() == 4)
       beg = clcts[_id].second.end();
@@ -219,20 +219,20 @@ bool CSCDigiValidator::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   //ALCTs
   for (; alct != _alct->end(); ++alct) {
-    CSCALCTDigiCollection::const_iterator b = (*alct).second.first, e = (*alct).second.second;
-    std::vector<CSCALCTDigi>::iterator beg = alcts[(*alct).first].first.end();
+    auto b = (*alct).second.first, e = (*alct).second.second;
+    auto beg = alcts[(*alct).first].first.end();
 
     alcts[(*alct).first].first.insert(beg, b, e);
   }
   for (; salct != _salct->end(); ++salct) {
-    CSCALCTDigiCollection::const_iterator b = (*salct).second.first, e = (*salct).second.second;
+    auto b = (*salct).second.first, e = (*salct).second.second;
     // convert sim ring 4 (ME1/a) to ring 1
     CSCDetId _id = (*salct).first;
     if ((*salct).first.ring() == 4)
       _id = CSCDetId(
           (*salct).first.endcap(), (*salct).first.station(), 1, (*salct).first.chamber(), (*salct).first.layer());
 
-    std::vector<CSCALCTDigi>::iterator beg = alcts[_id].second.begin();
+    auto beg = alcts[_id].second.begin();
 
     if ((*salct).first.ring() == 4)
       beg = alcts[_id].second.end();
@@ -242,20 +242,20 @@ bool CSCDigiValidator::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // Correlated LCTs
   for (; lct != _lct->end(); ++lct) {
-    CSCCorrelatedLCTDigiCollection::const_iterator b = (*lct).second.first, e = (*lct).second.second;
-    std::vector<CSCCorrelatedLCTDigi>::iterator beg = lcts[(*lct).first].first.end();
+    auto b = (*lct).second.first, e = (*lct).second.second;
+    auto beg = lcts[(*lct).first].first.end();
 
     lcts[(*lct).first].first.insert(beg, b, e);
   }
   for (; slct != _slct->end(); ++slct) {
-    CSCCorrelatedLCTDigiCollection::const_iterator b = (*slct).second.first, e = (*slct).second.second;
+    auto b = (*slct).second.first, e = (*slct).second.second;
     // convert sim ring 4 (ME1/a) to ring 1
     CSCDetId _id = (*slct).first;
     if ((*slct).first.ring() == 4)
       _id =
           CSCDetId((*slct).first.endcap(), (*slct).first.station(), 1, (*slct).first.chamber(), (*slct).first.layer());
 
-    std::vector<CSCCorrelatedLCTDigi>::iterator beg = lcts[_id].second.begin();
+    auto beg = lcts[_id].second.begin();
 
     if ((*slct).first.ring() == 4)
       beg = lcts[_id].second.end();
@@ -287,11 +287,11 @@ bool CSCDigiValidator::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       std::vector<CSCWireDigi> a = w->second.second;
       std::vector<CSCWireDigi> b = w->second.first;
       std::cout << "SIM OUTPUT:" << std::endl;
-      for (std::vector<CSCWireDigi>::const_iterator i = a.begin(); i != a.end(); ++i)
-        i->print();
+      for (auto i : a)
+        i.print();
       std::cout << "UNPACKER OUTPUT:" << std::endl;
-      for (std::vector<CSCWireDigi>::const_iterator i = b.begin(); i != b.end(); ++i)
-        i->print();
+      for (auto i : b)
+        i.print();
     }
     int max = std::min(w->second.first.size(), w->second.second.size());
     std::vector<CSCWireDigi> cv = w->second.first;
@@ -323,11 +323,11 @@ bool CSCDigiValidator::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       std::vector<CSCStripDigi> a = s->second.second;
       std::vector<CSCStripDigi> b = s->second.first;
       std::cout << "SIM OUTPUT:" << std::endl;
-      for (std::vector<CSCStripDigi>::const_iterator i = a.begin(); i != a.end(); ++i)
-        i->print();
+      for (const auto& i : a)
+        i.print();
       std::cout << "UNPACKER OUTPUT:" << std::endl;
-      for (std::vector<CSCStripDigi>::const_iterator i = b.begin(); i != b.end(); ++i)
-        i->print();
+      for (const auto& i : b)
+        i.print();
     }
     int max = std::min(s->second.first.size(), s->second.second.size());
     std::vector<CSCStripDigi> cv = s->second.first;
@@ -426,11 +426,11 @@ bool CSCDigiValidator::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       std::vector<CSCComparatorDigi> a = c->second.second;
       std::vector<CSCComparatorDigi> b = c->second.first;
       std::cout << "SIM OUTPUT:" << std::endl;
-      for (std::vector<CSCComparatorDigi>::const_iterator i = a.begin(); i != a.end(); ++i)
-        i->print();
+      for (auto i : a)
+        i.print();
       std::cout << "UNPACKER OUTPUT:" << std::endl;
-      for (std::vector<CSCComparatorDigi>::const_iterator i = b.begin(); i != b.end(); ++i)
-        i->print();
+      for (auto i : b)
+        i.print();
     }
     int max = std::min(c->second.first.size(), c->second.second.size());
     std::vector<CSCComparatorDigi> cv = c->second.first;
@@ -461,11 +461,11 @@ bool CSCDigiValidator::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       std::vector<CSCCLCTDigi> a = cl->second.second;
       std::vector<CSCCLCTDigi> b = cl->second.first;
       std::cout << "SIM OUTPUT:" << std::endl;
-      for (std::vector<CSCCLCTDigi>::const_iterator i = a.begin(); i != a.end(); ++i)
-        i->print();
+      for (const auto& i : a)
+        i.print();
       std::cout << "UNPACKER OUTPUT:" << std::endl;
-      for (std::vector<CSCCLCTDigi>::const_iterator i = b.begin(); i != b.end(); ++i)
-        i->print();
+      for (const auto& i : b)
+        i.print();
     }
     int max = std::min(cl->second.first.size(), cl->second.second.size());
     std::vector<CSCCLCTDigi> cv = cl->second.first;
@@ -529,11 +529,11 @@ bool CSCDigiValidator::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       std::vector<CSCALCTDigi> a = al->second.second;
       std::vector<CSCALCTDigi> b = al->second.first;
       std::cout << "SIM OUTPUT:" << std::endl;
-      for (std::vector<CSCALCTDigi>::const_iterator i = a.begin(); i != a.end(); ++i)
-        i->print();
+      for (const auto& i : a)
+        i.print();
       std::cout << "UNPACKER OUTPUT:" << std::endl;
-      for (std::vector<CSCALCTDigi>::const_iterator i = b.begin(); i != b.end(); ++i)
-        i->print();
+      for (const auto& i : b)
+        i.print();
     }
     int max = std::min(al->second.first.size(), al->second.second.size());
     std::vector<CSCALCTDigi> cv = al->second.first;
@@ -581,11 +581,11 @@ bool CSCDigiValidator::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       std::vector<CSCCorrelatedLCTDigi> a = lc->second.second;
       std::vector<CSCCorrelatedLCTDigi> b = lc->second.first;
       std::cout << "SIM OUTPUT:" << std::endl;
-      for (std::vector<CSCCorrelatedLCTDigi>::const_iterator i = a.begin(); i != a.end(); ++i)
-        i->print();
+      for (const auto& i : a)
+        i.print();
       std::cout << "UNPACKER OUTPUT:" << std::endl;
-      for (std::vector<CSCCorrelatedLCTDigi>::const_iterator i = b.begin(); i != b.end(); ++i)
-        i->print();
+      for (const auto& i : b)
+        i.print();
     }
     int max = std::min(lc->second.first.size(), lc->second.second.size());
     std::vector<CSCCorrelatedLCTDigi> cv = lc->second.first;
@@ -665,11 +665,11 @@ bool CSCDigiValidator::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::vector<csc::L1Track> a = simtracks.get();
     std::vector<csc::L1Track> b = tracks.get();
     std::cout << "SIM OUTPUT:" << std::endl;
-    for (std::vector<csc::L1Track>::const_iterator i = a.begin(); i != a.end(); ++i)
-      i->print();
+    for (const auto& i : a)
+      i.print();
     std::cout << "UNPACKER OUTPUT:" << std::endl;
-    for (std::vector<csc::L1Track>::const_iterator i = b.begin(); i != b.end(); ++i)
-      i->print();
+    for (const auto& i : b)
+      i.print();
   }
 
   return _err;
@@ -685,20 +685,20 @@ std::vector<CSCWireDigi> CSCDigiValidator::sanitizeWireDigis(std::vector<CSCWire
   std::vector<CSCWireDigi> _r;  // the resulting vector of wire digis
   wire2digi _wr2digis;          // map of wires to a set of digis
 
-  for (std::vector<CSCWireDigi>::const_iterator i = b; i != e; ++i)
+  for (auto i = b; i != e; ++i)
     _wr2digis[i->getWireGroup()].push_back(*i);
 
-  for (wire2digi::const_iterator i = _wr2digis.begin(); i != _wr2digis.end(); ++i) {
+  for (auto i = _wr2digis.begin(); i != _wr2digis.end(); ++i) {
     int wire = i->first;
     unsigned tbin = 0x0;
 
-    for (std::vector<CSCWireDigi>::const_iterator d = i->second.begin(); d != i->second.end(); ++d) {
-      std::vector<int> binson = d->getTimeBinsOn();
-      for (std::vector<int>::const_iterator t = binson.begin(); t != binson.end(); ++t)
-        tbin |= 1 << (*t);
+    for (auto d : i->second) {
+      std::vector<int> binson = d.getTimeBinsOn();
+      for (int t : binson)
+        tbin |= 1 << t;
     }
 
-    _r.push_back(CSCWireDigi(wire, tbin));
+    _r.emplace_back(wire, tbin);
   }
 
   return _r;
@@ -714,15 +714,14 @@ std::vector<CSCStripDigi> CSCDigiValidator::relabelStripDigis(const CSCChamberMa
   //bool zplus = _id.endcap()==1;
   //bool me1b = _id.station()==1 && _id.ring()==1;
 
-  for (std::vector<CSCStripDigi>::const_iterator i = b; i != e; ++i) {
+  for (auto i = b; i != e; ++i) {
     int strip = i->getStrip();
 
     //if(me1a&&zplus) strip=17-strip;
     //if(me1b&&!zplus) strip=(65-strip-1)%(m->dmb(_id)*16) + 1;
     //if(me1a) strip+=64;
 
-    _r.push_back(
-        CSCStripDigi(strip, i->getADCCounts(), i->getADCOverflow(), i->getOverlappedSample(), i->getErrorstat()));
+    _r.emplace_back(strip, i->getADCCounts(), i->getADCOverflow(), i->getOverlappedSample(), i->getErrorstat());
   }
   return _r;
 }
@@ -737,7 +736,7 @@ std::vector<CSCComparatorDigi> CSCDigiValidator::relabelCompDigis(const CSCChamb
   //bool zplus = _id.endcap()==1;
   //bool me1b = _id.station()==1 && _id.ring()==1;
 
-  for (std::vector<CSCComparatorDigi>::const_iterator i = b; i != e; ++i) {
+  for (auto i = b; i != e; ++i) {
     int strip = i->getStrip();
 
     //    if(me1a&&zplus) strip=17-strip;
@@ -745,7 +744,7 @@ std::vector<CSCComparatorDigi> CSCDigiValidator::relabelCompDigis(const CSCChamb
     if (me1a)
       strip += 64;
 
-    _r.push_back(CSCComparatorDigi(strip, i->getComparator(), i->getTimeBinWord()));
+    _r.emplace_back(strip, i->getComparator(), i->getTimeBinWord());
   }
   return _r;
 }
@@ -762,11 +761,11 @@ std::vector<CSCStripDigi> CSCDigiValidator::zeroSupStripDigis(std::vector<CSCStr
   std::vector<CSCStripDigi> _r;  // zero-suppressed strip digis
   std::vector<int> counts;
 
-  for (std::vector<CSCStripDigi>::const_iterator i = b; i != e; ++i) {
+  for (auto i = b; i != e; ++i) {
     bool nonzero = false;
     counts = i->getADCCounts();
-    for (std::vector<int>::const_iterator a = counts.begin(); a != counts.end(); ++a)
-      if ((*a) != 0)
+    for (int count : counts)
+      if (count != 0)
         nonzero = true;
 
     if (nonzero)
@@ -781,7 +780,7 @@ std::vector<CSCComparatorDigi> CSCDigiValidator::zeroSupCompDigis(std::vector<CS
                                                                   std::vector<CSCComparatorDigi>::const_iterator e) {
   std::vector<CSCComparatorDigi> _r;
 
-  for (std::vector<CSCComparatorDigi>::const_iterator i = b; i != e; ++i) {
+  for (auto i = b; i != e; ++i) {
     bool present = false;
 
     if (i->getTimeBin() < 10)

@@ -373,10 +373,10 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     edm::LogInfo("IsoTrack") << "menuName " << menuName << std::endl;
 
   std::vector<int> algbits;
-  for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
-    std::string algName = itAlgo->first;
-    int algBitNumber = (itAlgo->second).algoBitNumber();
-    bool decision = m_l1GtUtils.decision(iEvent, itAlgo->first, iErrorCode);
+  for (const auto& itAlgo : algorithmMap) {
+    std::string algName = itAlgo.first;
+    int algBitNumber = (itAlgo.second).algoBitNumber();
+    bool decision = m_l1GtUtils.decision(iEvent, itAlgo.first, iErrorCode);
 
     bool l1ok(false);
     if (verbosity_ % 10 > 0)
@@ -521,8 +521,8 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                                     nRecHits,
                                     ids,
                                     *t_HitEnergies);
-          for (unsigned int k = 0; k < ids.size(); ++k) {
-            t_DetIds->push_back(ids[k].rawId());
+          for (auto& id : ids) {
+            t_DetIds->push_back(id.rawId());
           }
           t_hmaxNearP = spr::chargeIsolationCone(
               nTracks, trkCaloDirections, a_charIsoR_, nNearTRKs, ((verbosity_ / 100) % 10 > 2));
@@ -580,8 +580,8 @@ void IsoTrackCalib::beginJob() {
   h_Rechit_E = fs_->make<TH1F>("Rechit_E", "Rechit_E", 100, 0, 1000);
 
   double prange[5] = {20, 30, 40, 60, 100};
-  for (int k = 0; k < 5; ++k)
-    pbin.push_back(prange[k]);
+  for (double k : prange)
+    pbin.push_back(k);
   std::string type[6] = {"All", "Trigger OK", "Tree Selected", "Charge Isolation", "MIP Cut", "L1 Cut"};
   for (unsigned int k = 0; k < pbin.size(); ++k) {
     char name[20], namp[20], title[100];
@@ -657,9 +657,9 @@ void IsoTrackCalib::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup
 
   if (verbosity_ % 10 > 0)
     edm::LogInfo("IsoTrack") << "menuName " << menuName;
-  for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
-    std::string algName = itAlgo->first;
-    int algBitNumber = (itAlgo->second).algoBitNumber();
+  for (const auto& itAlgo : algorithmMap) {
+    std::string algName = itAlgo.first;
+    int algBitNumber = (itAlgo.second).algoBitNumber();
     l1AlgoMap_.insert(std::pair<std::pair<unsigned int, std::string>, int>(
         std::pair<unsigned int, std::string>(algBitNumber, algName), 0));
   }

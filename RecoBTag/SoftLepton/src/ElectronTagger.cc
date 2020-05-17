@@ -1,4 +1,6 @@
 #include <limits>
+#include <memory>
+
 #include <random>
 
 #include "CondFormats/DataRecord/interface/BTauGenericMVAJetTagComputerRcd.h"
@@ -25,9 +27,9 @@ ElectronTagger::ElectronTagger(const edm::ParameterSet& cfg, Tokens tokens)
                                                                : edm::FileInPath()),
       m_useGBRForest(cfg.existsAs<bool>("useGBRForest") ? cfg.getParameter<bool>("useGBRForest") : false),
       m_useAdaBoost(cfg.existsAs<bool>("useAdaBoost") ? cfg.getParameter<bool>("useAdaBoost") : false),
-      m_tokens{std::move(tokens)} {
+      m_tokens{tokens} {
   uses("seTagInfos");
-  mvaID.reset(new TMVAEvaluator());
+  mvaID = std::make_unique<TMVAEvaluator>();
 }
 
 void ElectronTagger::initialize(const JetTagComputerRecord& record) {
@@ -46,7 +48,7 @@ void ElectronTagger::initialize(const JetTagComputerRecord& record) {
 float ElectronTagger::discriminator(const TagInfoHelper& tagInfo) const {
   // default value, used if there are no leptons associated to this jet
   float bestTag = -std::numeric_limits<float>::infinity();
-  const reco::CandSoftLeptonTagInfo& info = tagInfo.get<reco::CandSoftLeptonTagInfo>();
+  const auto& info = tagInfo.get<reco::CandSoftLeptonTagInfo>();
 
   std::mt19937_64 random;
   std::uniform_real_distribution<float> dist(0.f, 1.f);

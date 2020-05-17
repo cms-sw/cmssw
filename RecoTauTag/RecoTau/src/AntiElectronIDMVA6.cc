@@ -82,8 +82,8 @@ AntiElectronIDMVA6::~AntiElectronIDMVA6() {
     delete mva_wGwGSF_EC_;
   }
 
-  for (std::vector<TFile*>::iterator it = inputFilesToDelete_.begin(); it != inputFilesToDelete_.end(); ++it) {
-    delete (*it);
+  for (auto& it : inputFilesToDelete_) {
+    delete it;
   }
 }
 
@@ -1320,8 +1320,8 @@ double AntiElectronIDMVA6::dCrackEta(double eta) {
 
   double retVal = 99.;
 
-  for (int iCrack = 0; iCrack < 5; ++iCrack) {
-    double d = minimum(eta - cracks[iCrack], eta + cracks[iCrack]);
+  for (double crack : cracks) {
+    double d = minimum(eta - crack, eta + crack);
     if (std::abs(d) < std::abs(retVal)) {
       retVal = d;
     }

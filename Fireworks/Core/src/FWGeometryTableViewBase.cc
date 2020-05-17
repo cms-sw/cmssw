@@ -57,13 +57,13 @@ Bool_t FWGeometryTableViewBase::FWViewCombo::HandleButton(Event_t* event) {
     TEveElementList* views = gEve->GetViewers();
     int idx = 0;
 
-    for (TEveElement::List_i it = views->BeginChildren(); it != views->EndChildren(); ++it) {
+    for (auto it = views->BeginChildren(); it != views->EndChildren(); ++it) {
       TEveViewer* v = ((TEveViewer*)(*it));
       if (strstr(v->GetElementName(), "3D")) {
         bool added = false;
         m_viewPopup->AddEntry(v->GetElementName(), idx);
 
-        for (TEveElement::List_i eit = v->BeginChildren(); eit != v->EndChildren(); ++eit) {
+        for (auto eit = v->BeginChildren(); eit != v->EndChildren(); ++eit) {
           TEveScene* s = ((TEveSceneInfo*)*eit)->GetScene();
           if (m_el && s->HasChildren() && s->FirstChild() == m_el) {
             added = true;
@@ -269,13 +269,11 @@ void FWGeometryTableViewBase::checkExpandLevel() {
   if (m_topNodeIdx.value() > 0)
     ae += getTableManager()->refEntries().at(m_topNodeIdx.value()).m_level;
 
-  for (FWGeometryTableManagerBase::Entries_i i = getTableManager()->refEntries().begin();
-       i != getTableManager()->refEntries().end();
-       ++i) {
-    if (i->m_level < ae)
-      i->setBit(FWGeometryTableManagerBase::kExpanded);
+  for (auto& i : getTableManager()->refEntries()) {
+    if (i.m_level < ae)
+      i.setBit(FWGeometryTableManagerBase::kExpanded);
     else
-      i->resetBit(FWGeometryTableManagerBase::kExpanded);
+      i.resetBit(FWGeometryTableManagerBase::kExpanded);
   }
 }
 
@@ -288,11 +286,11 @@ void FWGeometryTableViewBase::populate3DViewsFromConfig() {
     const FWConfiguration::KeyValues* keyVals = m_viewersConfig->keyValues();
 
     if (nullptr != keyVals) {
-      for (FWConfiguration::KeyValuesIt it = keyVals->begin(); it != keyVals->end(); ++it) {
-        TString sname = it->first;
+      for (const auto& keyVal : *keyVals) {
+        TString sname = keyVal.first;
         TEveViewer* v = dynamic_cast<TEveViewer*>(viewers->FindChild(sname.Data()));
         if (!v) {
-          fwLog(fwlog::kError) << "FWGeometryTableViewBase::populate3DViewsFromConfig no viewer found " << it->first
+          fwLog(fwlog::kError) << "FWGeometryTableViewBase::populate3DViewsFromConfig no viewer found " << keyVal.first
                                << std::endl;
           return;
         }
@@ -314,11 +312,11 @@ void FWGeometryTableViewBase::selectView(int idx) {
 
   m_viewBox->setElement(m_eveTopNode);
 
-  TEveElement::List_i it = gEve->GetViewers()->BeginChildren();
+  auto it = gEve->GetViewers()->BeginChildren();
   std::advance(it, idx);
   TEveViewer* v = (TEveViewer*)(*it);
 
-  for (TEveElement::List_i eit = v->BeginChildren(); eit != v->EndChildren(); ++eit) {
+  for (auto eit = v->BeginChildren(); eit != v->EndChildren(); ++eit) {
     if ((((TEveSceneInfo*)(*eit))->GetScene()) == m_eveScene) {
       v->RemoveElement(*eit);
       if (m_marker)
@@ -555,8 +553,8 @@ void FWGeometryTableViewBase::addTo(FWConfiguration& iTo) const {
   FWConfiguration viewers(1);
   FWConfiguration tempArea;
 
-  for (TEveElement::List_i k = gEve->GetViewers()->BeginChildren(); k != gEve->GetViewers()->EndChildren(); ++k) {
-    for (TEveElement::List_i eit = (*k)->BeginChildren(); eit != (*k)->EndChildren(); ++eit) {
+  for (auto k = gEve->GetViewers()->BeginChildren(); k != gEve->GetViewers()->EndChildren(); ++k) {
+    for (auto eit = (*k)->BeginChildren(); eit != (*k)->EndChildren(); ++eit) {
       TEveScene* s = ((TEveSceneInfo*)*eit)->GetScene();
       if (s->GetGLScene() == m_eveTopNode->m_scene) {
         viewers.addKeyValue((*k)->GetElementName(), tempArea);
@@ -593,10 +591,8 @@ void FWGeometryTableViewBase::setTopNodePathFromConfig(const FWConfiguration& iF
 
 void FWGeometryTableViewBase::reloadColors() {
   // printf("relaodColors \n");
-  for (FWGeometryTableManagerBase::Entries_i i = getTableManager()->refEntries().begin();
-       i != getTableManager()->refEntries().end();
-       ++i) {
-    i->m_color = i->m_node->GetVolume()->GetLineColor();
+  for (auto& i : getTableManager()->refEntries()) {
+    i.m_color = i.m_node->GetVolume()->GetLineColor();
   }
 
   refreshTable3D();

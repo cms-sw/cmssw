@@ -12,6 +12,7 @@
 
 // system include files
 #include <iostream>
+#include <utility>
 
 // user include files
 #include "DataFormats/FWLite/interface/Event.h"
@@ -113,7 +114,7 @@ namespace fwlite {
                     std::shared_ptr<BranchMapReader>(&branchMap_, NoDelete()),
                     std::make_shared<internal::ProductGetter>(this),
                     useCache,
-                    baFunc) {
+                    std::move(baFunc)) {
     if (nullptr == iFile) {
       throw cms::Exception("NoFile") << "The TFile pointer passed to the constructor was null";
     }

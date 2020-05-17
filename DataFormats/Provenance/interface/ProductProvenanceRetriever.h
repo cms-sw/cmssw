@@ -37,7 +37,7 @@ namespace edm {
     //The default operator== for ProductProvenance does not work for this case
     // Since (a<b)==false  and (a>b)==false does not mean a==b for the operators
     // defined for ProductProvenance
-    bool operator()(ProductProvenance const& iLHS, ProductProvenance const iRHS) const {
+    bool operator()(ProductProvenance const& iLHS, ProductProvenance const& iRHS) const {
       return iLHS.branchID().id() == iRHS.branchID().id();
     }
   };
@@ -69,7 +69,7 @@ namespace edm {
 
     void insertIntoSet(ProductProvenance provenanceProduct) const;
 
-    void mergeProvenanceRetrievers(std::shared_ptr<ProductProvenanceRetriever> other);
+    void mergeProvenanceRetrievers(const std::shared_ptr<ProductProvenanceRetriever>& other);
 
     void mergeParentProcessRetriever(ProductProvenanceRetriever const& provRetriever);
 

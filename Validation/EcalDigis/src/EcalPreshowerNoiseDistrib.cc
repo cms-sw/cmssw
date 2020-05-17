@@ -12,8 +12,8 @@ EcalPreshowerNoiseDistrib::EcalPreshowerNoiseDistrib(const edm::ParameterSet& ps
 
   // histos
   meESDigiMultiplicity_ = nullptr;
-  for (int ii = 0; ii < 3; ii++) {
-    meESDigiADC_[ii] = nullptr;
+  for (auto& ii : meESDigiADC_) {
+    ii = nullptr;
   }
 }
 

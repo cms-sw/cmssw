@@ -1,6 +1,8 @@
 
 #include <iostream>
 #include <string>
+#include <utility>
+
 #include <vector>
 #include <sstream>
 #include <cstdlib>
@@ -32,8 +34,8 @@ void EcalCondDBInterface::fillLogicId2DetIdMaps() {
   std::vector<EcalLogicID> crystals_EE =
       getEcalLogicIDSetOrdered("EE_crystal_number", -1, 1, 1, 100, 1, 100, "EE_crystal_number", 4);
   // fill the barrel map
-  std::vector<EcalLogicID>::const_iterator ieb = crystals_EB.begin();
-  std::vector<EcalLogicID>::const_iterator eeb = crystals_EB.end();
+  auto ieb = crystals_EB.begin();
+  auto eeb = crystals_EB.end();
   while (ieb != eeb) {
     int iEta = ieb->getID1();
     int iPhi = ieb->getID2();
@@ -44,8 +46,8 @@ void EcalCondDBInterface::fillLogicId2DetIdMaps() {
   }
 
   // fill the endcap map
-  std::vector<EcalLogicID>::const_iterator iee = crystals_EE.begin();
-  std::vector<EcalLogicID>::const_iterator eee = crystals_EE.end();
+  auto iee = crystals_EE.begin();
+  auto eee = crystals_EE.end();
 
   while (iee != eee) {
     int iSide = iee->getID1();
@@ -109,8 +111,8 @@ std::list<ODDelaysDat> EcalCondDBInterface::fetchFEDelaysForRun(RunIOV* iov) noe
   } catch (std::runtime_error& e) {
     throw e;
   }
-  std::map<EcalLogicID, RunFEConfigDat>::const_iterator i = fillMap.begin();
-  std::map<EcalLogicID, RunFEConfigDat>::const_iterator e = fillMap.end();
+  auto i = fillMap.begin();
+  auto e = fillMap.end();
   while (i != e) {
     ODFEDAQConfig feDaqConfig;
     ODFEDAQConfig temp;
@@ -121,8 +123,8 @@ std::list<ODDelaysDat> EcalCondDBInterface::fetchFEDelaysForRun(RunIOV* iov) noe
     ODDelaysDat temp2;
     temp2.setConnection(env, conn);
     temp2.fetchData(&delays, temp.getDelayId());
-    std::vector<ODDelaysDat>::const_iterator di = delays.begin();
-    std::vector<ODDelaysDat>::const_iterator de = delays.end();
+    auto di = delays.begin();
+    auto de = delays.end();
     while (di != de) {
       ret.push_back(*di++);
     }
@@ -131,7 +133,8 @@ std::list<ODDelaysDat> EcalCondDBInterface::fetchFEDelaysForRun(RunIOV* iov) noe
   return ret;
 }
 
-EcalLogicID EcalCondDBInterface::getEcalLogicID(string name, int id1, int id2, int id3, string mapsTo) noexcept(false) {
+EcalLogicID EcalCondDBInterface::getEcalLogicID(const string& name, int id1, int id2, int id3, string mapsTo) noexcept(
+    false) {
   if (mapsTo.empty()) {
     mapsTo = name;
   }
@@ -159,9 +162,9 @@ EcalLogicID EcalCondDBInterface::getEcalLogicID(string name, int id1, int id2, i
     int j = 1;  // parameter number counter
     stmt->setString(j, name);
     j++;
-    for (int i = 0; i < 3; i++) {
-      if (idarray[i] != EcalLogicID::NULLID) {
-        stmt->setInt(j, idarray[i]);
+    for (int i : idarray) {
+      if (i != EcalLogicID::NULLID) {
+        stmt->setInt(j, i);
         j++;
       }
     }
@@ -311,7 +314,7 @@ std::map<int, int> EcalCondDBInterface::getEcalLogicID2LmrMap() {
   return ret;
 }
 
-std::vector<EcalLogicID> EcalCondDBInterface::getEcalLogicIDMappedTo(int lmr_logic_id, std::string maps_to) {
+std::vector<EcalLogicID> EcalCondDBInterface::getEcalLogicIDMappedTo(int lmr_logic_id, const std::string& maps_to) {
   std::string name = "EB_crystal_angle";
   std::string sql =
       "SELECT LOGIC_ID, ID1, ID2, ID3 "
@@ -559,8 +562,8 @@ void EcalCondDBInterface::insertLmfDat(LMFDat* dat) noexcept(false) {
 
 void EcalCondDBInterface::insertLmfDat(std::list<LMFDat*> dat) noexcept(false) {
   try {
-    std::list<LMFDat*>::iterator i = dat.begin();
-    std::list<LMFDat*>::iterator e = dat.end();
+    auto i = dat.begin();
+    auto e = dat.end();
     while (i != e) {
       (*i)->setConnection(env, conn);
       (*i)->writeDB();
@@ -638,14 +641,14 @@ RunIOV EcalCondDBInterface::fetchRunIOV(RunTag* tag, run_t run) noexcept(false) 
 RunIOV EcalCondDBInterface::fetchRunIOV(std::string location, run_t run) noexcept(false) {
   RunIOV iov;
   iov.setConnection(env, conn);
-  iov.setByRun(location, run);
+  iov.setByRun(std::move(location), run);
   return iov;
 }
 
 RunIOV EcalCondDBInterface::fetchRunIOV(std::string location, const Tm& t) noexcept(false) {
   RunIOV iov;
   iov.setConnection(env, conn);
-  iov.setByTime(location, t);
+  iov.setByTime(std::move(location), t);
   return iov;
 }
 

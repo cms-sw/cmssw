@@ -36,9 +36,9 @@ private:
   friend class magneticfield::DD4hep_VolumeBasedMagneticFieldESProducerFromDB;
 
   // Get map configured from pset (deprecated)
-  std::unique_ptr<MagneticField> static get(std::string version, const edm::ParameterSet& parameters);
+  std::unique_ptr<MagneticField> static get(const std::string& version, const edm::ParameterSet& parameters);
 
   // Get map configured from type name and numerical parameters
-  std::unique_ptr<MagneticField> static get(std::string version, std::vector<double> parameters);
+  std::unique_ptr<MagneticField> static get(const std::string& version, std::vector<double> parameters);
 };
 #endif

@@ -97,8 +97,8 @@ void DDLTestDoc::dumpFileList(void) const {
   std::cout << "File List:" << std::endl;
   std::vector<std::string> vst = getFileList();
   std::cout << "  number of files=" << vst.size() << std::endl;
-  for (std::vector<std::string>::const_iterator it = vst.begin(); it != vst.end(); ++it)
-    std::cout << *it << std::endl;
+  for (const auto& it : vst)
+    std::cout << it << std::endl;
 }
 
 void DDLTestDoc::clear(void) {

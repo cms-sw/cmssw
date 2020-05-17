@@ -48,7 +48,7 @@
 class FakeCPEFiller final : public edm::one::EDFilter<> {
 public:
   explicit FakeCPEFiller(const edm::ParameterSet&);
-  ~FakeCPEFiller() = default;
+  ~FakeCPEFiller() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -107,19 +107,19 @@ bool FakeCPEFiller::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   for (unsigned int j = 0; j < trajH->size(); ++j) {
     const std::vector<TrajectoryMeasurement>& tms = (*trajH)[j].measurements();
 
-    for (unsigned int i = 0; i < tms.size(); ++i) {
-      TrajectoryStateOnSurface updatedState = tms[i].updatedState();
+    for (const auto& tm : tms) {
+      TrajectoryStateOnSurface updatedState = tm.updatedState();
 
       if (!updatedState.isValid())
         continue;
 
-      if (!tms[i].recHit()->isValid())
+      if (!tm.recHit()->isValid())
         continue;
 
-      auto const& thit = static_cast<BaseTrackerRecHit const&>(*tms[i].recHit());
+      auto const& thit = static_cast<BaseTrackerRecHit const&>(*tm.recHit());
       auto const& clus = thit.firstClusterRef();
 
-      auto const& simHits = HitAssoc.associateHit(*(tms[i].recHit()));
+      auto const& simHits = HitAssoc.associateHit(*(tm.recHit()));
 
       std::cout << "rechit " << thit.detUnit()->geographicalId().rawId() << ' ' << thit.localPosition() << ' '
                 << thit.localPositionError() << ' ' << simHits.size() << std::endl;

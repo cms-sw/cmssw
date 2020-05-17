@@ -39,9 +39,9 @@ FWViewGeometryList::FWViewGeometryList(const fireworks::Context& context, bool p
 FWViewGeometryList::~FWViewGeometryList() {
   m_transpConnection.disconnect();
   m_colorConnection.disconnect();
-  for (int i = 0; i < kFWGeomColorSize; ++i) {
-    if (m_colorComp[i])
-      m_colorComp[i]->Destroy();
+  for (auto& i : m_colorComp) {
+    if (i)
+      i->Destroy();
   }
 }
 
@@ -67,9 +67,9 @@ void FWViewGeometryList::updateTransparency(bool projectedType) {
   //  printf("%p transp [%d]\n", this, iTransp);
 
   if (projectedType == m_projected) {
-    for (int i = 0; i < kFWGeomColorSize; ++i) {
-      m_colorComp[i]->SetMainTransparency(m_context.colorManager()->geomTransparency(projectedType));
-      m_colorComp[i]->ElementChanged();
+    for (auto& i : m_colorComp) {
+      i->SetMainTransparency(m_context.colorManager()->geomTransparency(projectedType));
+      i->ElementChanged();
     }
   }
 }

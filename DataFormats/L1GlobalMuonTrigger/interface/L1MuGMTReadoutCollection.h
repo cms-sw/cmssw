@@ -44,8 +44,8 @@ public:
   virtual ~L1MuGMTReadoutCollection(){};
 
   void reset() {
-    for (unsigned int i = 0; i < m_Records.size(); i++)
-      m_Records[i].reset();
+    for (auto& m_Record : m_Records)
+      m_Record.reset();
   };
 
   // get record vector

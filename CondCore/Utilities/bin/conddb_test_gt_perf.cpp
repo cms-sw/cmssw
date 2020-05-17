@@ -36,7 +36,7 @@ namespace cond {
 
     UntypedPayloadProxy& operator=(const UntypedPayloadProxy& rhs);
 
-    void init(Session session);
+    void init(const Session& session);
 
     void load(const std::string& tag);
 
@@ -131,7 +131,7 @@ cond::UntypedPayloadProxy& cond::UntypedPayloadProxy::operator=(const cond::Unty
   return *this;
 }
 
-void cond::UntypedPayloadProxy::init(Session session) {
+void cond::UntypedPayloadProxy::init(const Session& session) {
   m_session = session;
   reset();
 }
@@ -480,9 +480,9 @@ int cond::TestGTPerf::execute() {
   std::vector<UntypedPayloadProxy*> proxies;
   std::map<std::string, size_t> requests;
   size_t nt = 0;
-  for (auto t : gt) {
+  for (const auto& t : gt) {
     nt++;
-    UntypedPayloadProxy* p = new UntypedPayloadProxy;
+    auto* p = new UntypedPayloadProxy;
     p->init(session);
     try {
       p->load(t.tagName());
@@ -637,7 +637,7 @@ int cond::TestGTPerf::execute() {
       std::cout << "*** Tag: " << p->tag() << " Requests processed:" << r->second << " Queries:" << p->numberOfQueries()
                 << std::endl;
       const std::vector<std::string>& hist = p->history();
-      for (auto e : p->history())
+      for (const auto& e : p->history())
         std::cout << "    " << e << std::endl;
     }
   }

@@ -24,8 +24,8 @@ namespace edmtest {
   public:
     explicit CSCGainsDBReadAnalyzer(edm::ParameterSet const& p) {}
     explicit CSCGainsDBReadAnalyzer(int i) {}
-    virtual ~CSCGainsDBReadAnalyzer() {}
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    ~CSCGainsDBReadAnalyzer() override {}
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   private:
   };

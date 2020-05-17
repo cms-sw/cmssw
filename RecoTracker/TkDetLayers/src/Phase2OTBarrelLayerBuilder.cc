@@ -17,11 +17,11 @@ Phase2OTBarrelLayer* Phase2OTBarrelLayerBuilder::build(const GeometricDet* aPhas
   vector<const GeometricDet*> theGeometricDetRods;
   vector<const GeometricDet*> theGeometricDetRings;
 
-  for (vector<const GeometricDet*>::const_iterator it = theGeometricDets.begin(); it != theGeometricDets.end(); it++) {
-    if ((*it)->type() == GeometricDet::ladder) {
-      theGeometricDetRods.push_back(*it);
-    } else if ((*it)->type() == GeometricDet::panel) {
-      theGeometricDetRings.push_back(*it);
+  for (auto theGeometricDet : theGeometricDets) {
+    if (theGeometricDet->type() == GeometricDet::ladder) {
+      theGeometricDetRods.push_back(theGeometricDet);
+    } else if (theGeometricDet->type() == GeometricDet::panel) {
+      theGeometricDetRings.push_back(theGeometricDet);
     } else {
       LogDebug("TkDetLayers") << "Phase2OTBarrelLayerBuilder with no Rods and no Rings! ";
     }
@@ -63,12 +63,11 @@ Phase2OTBarrelLayer* Phase2OTBarrelLayerBuilder::build(const GeometricDet* aPhas
   // properly calculate the meanR value to separate rod in inner/outer.
   double centralZ = 0.0;
 
-  for (vector<const GeometricDet*>::const_iterator it = theGeometricDetRings.begin(); it != theGeometricDetRings.end();
-       it++) {
-    if ((*it)->positionBounds().z() < centralZ)
-      theNegativeRings.push_back(myPhase2EndcapRingBuilder.build(*it, theGeomDetGeometry, true));
-    if ((*it)->positionBounds().z() > centralZ)
-      thePositiveRings.push_back(myPhase2EndcapRingBuilder.build(*it, theGeomDetGeometry, true));
+  for (auto theGeometricDetRing : theGeometricDetRings) {
+    if (theGeometricDetRing->positionBounds().z() < centralZ)
+      theNegativeRings.push_back(myPhase2EndcapRingBuilder.build(theGeometricDetRing, theGeomDetGeometry, true));
+    if (theGeometricDetRing->positionBounds().z() > centralZ)
+      thePositiveRings.push_back(myPhase2EndcapRingBuilder.build(theGeometricDetRing, theGeomDetGeometry, true));
   }
 
   return new Phase2OTtiltedBarrelLayer(theInnerRods, theOuterRods, theNegativeRings, thePositiveRings);

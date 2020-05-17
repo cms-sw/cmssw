@@ -4,8 +4,8 @@
 
 dd_scope_class DDScopeClassification::operator()(const DDGeoHistory& left, const DDGeoHistory& right) const {
   dd_scope_class result = subtree;
-  DDGeoHistory::const_iterator lit = left.begin();   // left-iterator
-  DDGeoHistory::const_iterator rit = right.begin();  // right-iterator
+  auto lit = left.begin();   // left-iterator
+  auto rit = right.begin();  // right-iterator
 
   while (lit != left.end() && rit != right.end()) {
     if (lit->siblingno() != rit->siblingno()) {
@@ -34,7 +34,7 @@ DDScope::~DDScope(void) {}
 
 bool DDScope::addScope(const DDGeoHistory& h) {
   bool result = false;
-  scope_type::iterator it = subtrees_.begin();
+  auto it = subtrees_.begin();
   scope_type buf;
   int supertreeCount = 0;
   bool diffBranch = false;
@@ -85,7 +85,7 @@ int DDScope::depth(void) const { return depth_; }
 const DDScope::scope_type& DDScope::scope(void) const { return subtrees_; }
 
 std::ostream& operator<<(std::ostream& os, const DDScope& scope) {
-  DDScope::scope_type::const_iterator it = scope.subtrees_.begin();
+  auto it = scope.subtrees_.begin();
   for (; it != scope.subtrees_.end(); ++it) {
     os << *it << std::endl;
   }

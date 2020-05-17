@@ -23,7 +23,7 @@ public:
   EGEnergyCorrector();
   ~EGEnergyCorrector();
 
-  void Initialize(const edm::EventSetup &iSetup, std::string regweights, bool weightsFromDB = false);
+  void Initialize(const edm::EventSetup &iSetup, const std::string &regweights, bool weightsFromDB = false);
   Bool_t IsInitialized() const { return fIsInitialized; }
 
   std::pair<double, double> CorrectedEnergyWithError(const reco::Photon &p,

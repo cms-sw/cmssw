@@ -9,8 +9,8 @@
 
 CSCChamber::~CSCChamber() {
   // Delete all layers
-  for (std::vector<const CSCLayer*>::const_iterator i = theComponents.begin(); i != theComponents.end(); ++i) {
-    delete (*i);
+  for (auto theComponent : theComponents) {
+    delete theComponent;
   }
 }
 

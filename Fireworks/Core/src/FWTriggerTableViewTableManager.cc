@@ -71,13 +71,11 @@ namespace {
               TMap& iOrdered,
               std::vector<int>& oRowToIndex) {
     unsigned int index = 0;
-    for (std::vector<std::string>::const_iterator it = iData.at(col).values.begin(), itEnd = iData.at(col).values.end();
-         it != itEnd;
-         ++it, ++index) {
+    for (auto it = iData.at(col).values.begin(), itEnd = iData.at(col).values.end(); it != itEnd; ++it, ++index) {
       iOrdered.insert(std::make_pair(*it, index));
     }
     unsigned int row = 0;
-    for (typename TMap::iterator it = iOrdered.begin(), itEnd = iOrdered.end(); it != itEnd; ++it, ++row) {
+    for (auto it = iOrdered.begin(), itEnd = iOrdered.end(); it != itEnd; ++it, ++row) {
       oRowToIndex[row] = it->second;
     }
   }

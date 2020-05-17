@@ -24,9 +24,9 @@ class TrackInfoAnalyzerExample : public edm::EDAnalyzer {
 public:
   TrackInfoAnalyzerExample(const edm::ParameterSet& pset);
 
-  ~TrackInfoAnalyzerExample() {}
+  ~TrackInfoAnalyzerExample() override {}
 
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) {
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override {
     using namespace reco;
 
     //get TrackInfoTrackAssociationCollection from the event

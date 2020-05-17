@@ -141,7 +141,7 @@ void LogMessageMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup&
       std::string s = (*errors)[i].module;
       size_t pos = s.find(':');
       std::string s_module = s.substr(pos + 1, s.size());
-      std::map<std::string, int>::const_iterator it = modulesMap.find(s_module);
+      auto it = modulesMap.find(s_module);
       if (it != modulesMap.end()) {
         //      std::cout << "LogMessageMonitor::analyze] it: " << " --> " << s_module << std::endl;
 
@@ -198,7 +198,7 @@ void LogMessageMonitor::bookHistograms(DQMStore::IBooker& ibooker,
 
   ibooker.setCurrentFolder(MEFolderName);
 
-  categories_vector_.push_back("others");
+  categories_vector_.emplace_back("others");
   size_t nModules = modules_vector_.size();
   size_t nCategories = categories_vector_.size();
 
@@ -229,7 +229,7 @@ void LogMessageMonitor::bookHistograms(DQMStore::IBooker& ibooker,
     double BXlumiMax = BXlumiParameters.getParameter<double>("BXlumiMax");
 
     size_t i = 0;
-    for (std::map<std::string, int>::const_iterator it = modulesMap.begin(); it != modulesMap.end(); ++it, i++) {
+    for (auto it = modulesMap.begin(); it != modulesMap.end(); ++it, i++) {
       ibooker.setCurrentFolder(MEFolderName + "/PUmonitoring/Errors");
 
       histname = "errorsVsBXlumi_" + it->first;

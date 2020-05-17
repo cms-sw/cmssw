@@ -113,15 +113,15 @@ void L1TRate::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const 
     getXSexFitsPython(m_parameters);
   }
 
-  for (CItAlgo algo = menu->gtAlgorithmMap().begin(); algo != menu->gtAlgorithmMap().end(); ++algo) {
-    m_algoBit[(algo->second).algoAlias()] = (algo->second).algoBitNumber();
+  for (const auto& algo : menu->gtAlgorithmMap()) {
+    m_algoBit[(algo.second).algoAlias()] = (algo.second).algoBitNumber();
   }
 
   double minInstantLuminosity = m_parameters.getParameter<double>("minInstantLuminosity");
   double maxInstantLuminosity = m_parameters.getParameter<double>("maxInstantLuminosity");
 
   // Initializing DQM Monitor Elements
-  for (map<string, string>::const_iterator i = m_selectedTriggers.begin(); i != m_selectedTriggers.end(); i++) {
+  for (auto i = m_selectedTriggers.begin(); i != m_selectedTriggers.end(); i++) {
     TString tCategory = (*i).first;
     TString tTrigger = (*i).second;
 
@@ -219,15 +219,15 @@ void L1TRate::endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup co
   int prescalesIndex = 0;
 
   // Reseting MonitorElements so we can refill them
-  for (map<string, string>::const_iterator i = m_selectedTriggers.begin(); i != m_selectedTriggers.end(); i++) {
+  for (auto i = m_selectedTriggers.begin(); i != m_selectedTriggers.end(); i++) {
     string tTrigger = (*i).second;
     m_xSecObservedToExpected[tTrigger]->getTH1()->Reset("ICE");
     m_xSecVsInstLumi[tTrigger]->getTH1()->Reset("ICE");
   }
 
-  for (map<int, map<TString, double> >::iterator i = m_lsRates.begin(); i != m_lsRates.end(); i++) {
-    unsigned int ls = (*i).first;
-    rates = &(*i).second;
+  for (auto& m_lsRate : m_lsRates) {
+    unsigned int ls = m_lsRate.first;
+    rates = &m_lsRate.second;
     isDefRate = true;
 
     if (m_lsLuminosity.find(ls) == m_lsLuminosity.end()) {
@@ -247,7 +247,7 @@ void L1TRate::endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup co
     if (isDefRate && isDefLumi && isDefPrescaleIndex) {
       const vector<int>& currentPrescaleFactors = (*m_listsPrescaleFactors).at(prescalesIndex);
 
-      for (map<string, string>::const_iterator i = m_selectedTriggers.begin(); i != m_selectedTriggers.end(); i++) {
+      for (auto i = m_selectedTriggers.begin(); i != m_selectedTriggers.end(); i++) {
         string tTrigger = (*i).second;
         TF1* tTestFunction = (TF1*)m_xSecVsInstLumi[tTrigger]->getTProfile()->GetListOfFunctions()->First();
 
@@ -300,7 +300,7 @@ void L1TRate::analyze(const Event& iEvent, const EventSetup& eventSetup) {
 
   // Getting the trigger trigger rates from GT and buffering it
   if (triggerScalers.isValid()) {
-    Level1TriggerScalersCollection::const_iterator itL1TScalers = triggerScalers->begin();
+    auto itL1TScalers = triggerScalers->begin();
     Level1TriggerRates trigRates(*itL1TScalers, EventRun);
 
     int gtLS = (*itL1TScalers).lumiSegmentNr() + m_lsShiftGTRates;
@@ -313,7 +313,7 @@ void L1TRate::analyze(const Event& iEvent, const EventSetup& eventSetup) {
       map<TString, double> bufferRate;
 
       // Buffer the rate informations for all selected bits
-      for (map<string, string>::const_iterator i = m_selectedTriggers.begin(); i != m_selectedTriggers.end(); i++) {
+      for (auto i = m_selectedTriggers.begin(); i != m_selectedTriggers.end(); i++) {
         string tTrigger = (*i).second;
 
         // If trigger name is defined we store the rate
@@ -330,7 +330,7 @@ void L1TRate::analyze(const Event& iEvent, const EventSetup& eventSetup) {
 
   // Getting from the SCAL the luminosity information and buffering it
   if (colLScal.isValid() && !colLScal->empty()) {
-    LumiScalersCollection::const_iterator itLScal = colLScal->begin();
+    auto itLScal = colLScal->begin();
     unsigned int scalLS = itLScal->sectionNumber();
 
     // If we haven't got the data from this SCAL LS yet get it
@@ -423,7 +423,7 @@ bool L1TRate::getXSexFitsOMDS(const edm::ParameterSet& ps) {
   double maxInstantLuminosity = m_parameters.getParameter<double>("maxInstantLuminosity");
 
   // Getting rate fit parameters for all input triggers
-  for (map<string, string>::const_iterator a = m_selectedTriggers.begin(); a != m_selectedTriggers.end(); a++) {
+  for (auto a = m_selectedTriggers.begin(); a != m_selectedTriggers.end(); a++) {
     string tTrigger = (*a).second;
 
     // If trigger name is defined we get the rate fit parameters
@@ -475,18 +475,18 @@ bool L1TRate::getXSexFitsPython(const edm::ParameterSet& ps) {
   double maxInstantLuminosity = m_parameters.getParameter<double>("maxInstantLuminosity");
 
   // Getting rate fit parameters for all input triggers
-  for (map<string, string>::const_iterator a = m_selectedTriggers.begin(); a != m_selectedTriggers.end(); a++) {
+  for (auto a = m_selectedTriggers.begin(); a != m_selectedTriggers.end(); a++) {
     string tTrigger = (*a).second;
 
     // If trigger name is defined we get the rate fit parameters
     if (tTrigger != "Undefined") {
       bool foundFit = false;
 
-      for (unsigned int b = 0; b < m_fitParameters.size(); b++) {
-        if (tTrigger == m_fitParameters[b].getParameter<string>("AlgoName")) {
-          TString tAlgoName = m_fitParameters[b].getParameter<string>("AlgoName");
-          TString tTemplateFunction = m_fitParameters[b].getParameter<string>("TemplateFunction");
-          vector<double> tParameters = m_fitParameters[b].getParameter<vector<double> >("Parameters");
+      for (auto& m_fitParameter : m_fitParameters) {
+        if (tTrigger == m_fitParameter.getParameter<string>("AlgoName")) {
+          TString tAlgoName = m_fitParameter.getParameter<string>("AlgoName");
+          TString tTemplateFunction = m_fitParameter.getParameter<string>("TemplateFunction");
+          vector<double> tParameters = m_fitParameter.getParameter<vector<double> >("Parameters");
 
           // Retriving and populating the m_templateFunctions array
           m_templateFunctions[tTrigger] =

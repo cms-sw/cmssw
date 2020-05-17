@@ -3,6 +3,7 @@
 
 #include <map>
 #include <stdexcept>
+#include <utility>
 
 #include "OnlineDB/EcalCondDB/interface/IDataItem.h"
 #include "OnlineDB/EcalCondDB/interface/MODRunIOV.h"
@@ -17,7 +18,7 @@ public:
   // User data methods
   inline std::string getTable() override { return "OD_DCC_OPERATION_DAT"; }
 
-  inline void setOperation(std::string x) { m_word = x; }
+  inline void setOperation(std::string x) { m_word = std::move(x); }
   inline std::string getOperation() const { return m_word; }
 
 private:

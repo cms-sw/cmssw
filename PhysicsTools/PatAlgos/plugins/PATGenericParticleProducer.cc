@@ -51,17 +51,17 @@ PATGenericParticleProducer::PATGenericParticleProducer(const edm::ParameterSet& 
   if (iConfig.exists("isoDeposits")) {
     edm::ParameterSet depconf = iConfig.getParameter<edm::ParameterSet>("isoDeposits");
     if (depconf.exists("tracker"))
-      isoDepositLabels_.push_back(std::make_pair(pat::TrackIso, depconf.getParameter<edm::InputTag>("tracker")));
+      isoDepositLabels_.emplace_back(pat::TrackIso, depconf.getParameter<edm::InputTag>("tracker"));
     if (depconf.exists("ecal"))
-      isoDepositLabels_.push_back(std::make_pair(pat::EcalIso, depconf.getParameter<edm::InputTag>("ecal")));
+      isoDepositLabels_.emplace_back(pat::EcalIso, depconf.getParameter<edm::InputTag>("ecal"));
     if (depconf.exists("hcal"))
-      isoDepositLabels_.push_back(std::make_pair(pat::HcalIso, depconf.getParameter<edm::InputTag>("hcal")));
+      isoDepositLabels_.emplace_back(pat::HcalIso, depconf.getParameter<edm::InputTag>("hcal"));
     if (depconf.exists("user")) {
       std::vector<edm::InputTag> userdeps = depconf.getParameter<std::vector<edm::InputTag> >("user");
-      std::vector<edm::InputTag>::const_iterator it = userdeps.begin(), ed = userdeps.end();
+      auto it = userdeps.begin(), ed = userdeps.end();
       int key = UserBaseIso;
       for (; it != ed; ++it, ++key) {
-        isoDepositLabels_.push_back(std::make_pair(IsolationKeys(key), *it));
+        isoDepositLabels_.emplace_back(IsolationKeys(key), *it);
       }
     }
   }
@@ -133,7 +133,7 @@ void PATGenericParticleProducer::produce(edm::Event& iEvent, const edm::EventSet
     iEvent.getByToken(qualitySrcToken_, qualities);
 
   // loop over cands
-  std::vector<GenericParticle>* PATGenericParticles = new std::vector<GenericParticle>();
+  auto* PATGenericParticles = new std::vector<GenericParticle>();
   for (edm::View<reco::Candidate>::const_iterator itGenericParticle = cands->begin(); itGenericParticle != cands->end();
        itGenericParticle++) {
     // construct the GenericParticle from the ref -> save ref to original object
@@ -164,10 +164,7 @@ void PATGenericParticleProducer::produce(edm::Event& iEvent, const edm::EventSet
       isolator_.fill(*cands, idx, isolatorTmpStorage_);
       typedef pat::helper::MultiIsolator::IsolationValuePairs IsolationValuePairs;
       // better to loop backwards, so the vector is resized less times
-      for (IsolationValuePairs::const_reverse_iterator it = isolatorTmpStorage_.rbegin(),
-                                                       ed = isolatorTmpStorage_.rend();
-           it != ed;
-           ++it) {
+      for (auto it = isolatorTmpStorage_.rbegin(), ed = isolatorTmpStorage_.rend(); it != ed; ++it) {
         aGenericParticle.setIsolation(it->first, it->second);
       }
     }
@@ -179,8 +176,8 @@ void PATGenericParticleProducer::produce(edm::Event& iEvent, const edm::EventSet
 
     // store the match to the generated final state muons
     if (addGenMatch_) {
-      for (size_t i = 0, n = genMatches.size(); i < n; ++i) {
-        reco::GenParticleRef genGenericParticle = (*genMatches[i])[candRef];
+      for (auto& genMatche : genMatches) {
+        reco::GenParticleRef genGenericParticle = (*genMatche)[candRef];
         aGenericParticle.addGenParticleRef(genGenericParticle);
       }
       if (embedGenMatch_)

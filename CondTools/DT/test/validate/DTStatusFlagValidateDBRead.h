@@ -15,9 +15,9 @@ class DTStatusFlagValidateDBRead : public edm::EDAnalyzer {
 public:
   explicit DTStatusFlagValidateDBRead(edm::ParameterSet const& p);
   explicit DTStatusFlagValidateDBRead(int i);
-  virtual ~DTStatusFlagValidateDBRead();
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-  virtual void endJob();
+  ~DTStatusFlagValidateDBRead() override;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void endJob() override;
 
 private:
   std::string dataFileName;

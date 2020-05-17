@@ -26,11 +26,11 @@ BoundCylinder* BarrelDetLayer::computeSurface() {
   float theRmax = theRmin;
   float theZmin = comps.front()->position().z();
   float theZmax = theZmin;
-  for (vector<const GeomDet*>::const_iterator deti = comps.begin(); deti != comps.end(); deti++) {
-    vector<GlobalPoint> corners = BoundingBox().corners(dynamic_cast<const Plane&>((*deti)->surface()));
-    for (vector<GlobalPoint>::const_iterator ic = corners.begin(); ic != corners.end(); ic++) {
-      float r = ic->perp();
-      float z = ic->z();
+  for (auto comp : comps) {
+    vector<GlobalPoint> corners = BoundingBox().corners(dynamic_cast<const Plane&>(comp->surface()));
+    for (const auto& corner : corners) {
+      float r = corner.perp();
+      float z = corner.z();
       theRmin = min(theRmin, r);
       theRmax = max(theRmax, r);
       theZmin = min(theZmin, z);
@@ -39,8 +39,8 @@ BoundCylinder* BarrelDetLayer::computeSurface() {
     // in addition to the corners we have to check the middle of the
     // det +/- thickness/2
     // , since the min  radius for some barrel dets is reached there
-    float rdet = (**deti).position().perp();
-    float thick = (**deti).surface().bounds().thickness();
+    float rdet = (*comp).position().perp();
+    float thick = (*comp).surface().bounds().thickness();
     theRmin = min(theRmin, rdet - thick / 2.F);
     theRmax = max(theRmax, rdet + thick / 2.F);
   }

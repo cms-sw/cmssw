@@ -45,7 +45,7 @@ std::vector<AlgoMuon> GhostBusterPreferRefDt::select(std::vector<AlgoMuon> muons
   // actual GhostBusting. Overwrite eta in case of no DT info.
   std::vector<AlgoMuonEtaFix> refHitCleanCandsFixedEta;
   for (const auto& muIN : muonsIN) {
-    refHitCleanCandsFixedEta.push_back(muIN);
+    refHitCleanCandsFixedEta.emplace_back(muIN);
     auto killIt = refHitCleanCandsFixedEta.end();
 
     //do not accept candidates with similar phi (any charge combination)

@@ -59,7 +59,7 @@ G4bool GFlashEMShowerModel::ModelTrigger(const G4FastTrack& fastTrack) {
 
   // This will be changed accordingly when the way
   // dealing with CaloRegion changes later.
-  const G4TouchableHistory* touch = static_cast<const G4TouchableHistory*>(fastTrack.GetPrimaryTrack()->GetTouchable());
+  const auto* touch = static_cast<const G4TouchableHistory*>(fastTrack.GetPrimaryTrack()->GetTouchable());
   const G4VPhysicalVolume* pCurrentVolume = touch->GetVolume();
   if (pCurrentVolume == nullptr) {
     return false;
@@ -119,8 +119,8 @@ void GFlashEMShowerModel::makeHits(const G4FastTrack& fastTrack) {
   theGflashNavigator->SetWorldVolume(
       G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume());
 
-  std::vector<GflashHit>::const_iterator spotIter = gflashHitList.begin();
-  std::vector<GflashHit>::const_iterator spotIterEnd = gflashHitList.end();
+  auto spotIter = gflashHitList.begin();
+  auto spotIterEnd = gflashHitList.end();
 
   for (; spotIter != spotIterEnd; spotIter++) {
     // Put touchable for each hit so that touchable history

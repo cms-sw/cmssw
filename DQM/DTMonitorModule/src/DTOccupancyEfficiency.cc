@@ -98,9 +98,7 @@ void DTOccupancyEfficiency::analyze(const edm::Event& event, const edm::EventSet
 
   DTDigiCollection::DigiRangeIterator dtLayerId_It;
   for (dtLayerId_It = dtdigis->begin(); dtLayerId_It != dtdigis->end(); ++dtLayerId_It) {  // Loop over layers
-    for (DTDigiCollection::const_iterator digiIt = ((*dtLayerId_It).second).first;
-         digiIt != ((*dtLayerId_It).second).second;
-         ++digiIt) {
+    for (auto digiIt = ((*dtLayerId_It).second).first; digiIt != ((*dtLayerId_It).second).second; ++digiIt) {
       numberOfDigis++;
       int wheelId = ((*dtLayerId_It).first).wheel();
       int stationId = ((*dtLayerId_It).first).station();
@@ -133,20 +131,19 @@ void DTOccupancyEfficiency::analyze(const edm::Event& event, const edm::EventSet
 
   // Number of RecHits per segment and t0 from Segment
   // Loop on all segments
-  for (DTRecSegment4DCollection::const_iterator segment = all4DSegments->begin(); segment != all4DSegments->end();
-       ++segment) {
-    unsigned int nHits = (segment->hasPhi() ? (segment->phiSegment())->recHits().size() : 0);
-    nHits += (segment->hasZed() ? (segment->zSegment())->recHits().size() : 0);
+  for (const auto& segment : *all4DSegments) {
+    unsigned int nHits = (segment.hasPhi() ? (segment.phiSegment())->recHits().size() : 0);
+    nHits += (segment.hasZed() ? (segment.zSegment())->recHits().size() : 0);
     recHitsPer4DSegment->Fill(nHits);
 
-    if (segment->hasPhi()) {
-      double segmentPhiT0 = segment->phiSegment()->t0();
-      if (segment->phiSegment()->ist0Valid())
+    if (segment.hasPhi()) {
+      double segmentPhiT0 = segment.phiSegment()->t0();
+      if (segment.phiSegment()->ist0Valid())
         t0From4DPhiSegment->Fill(segmentPhiT0);
     }
-    if (segment->hasZed()) {
-      double segmentZT0 = segment->zSegment()->t0();
-      if (segment->zSegment()->ist0Valid())
+    if (segment.hasZed()) {
+      double segmentZT0 = segment.zSegment()->t0();
+      if (segment.zSegment()->ist0Valid())
         t0From4DZSegment->Fill(segmentZT0);
     }
   }

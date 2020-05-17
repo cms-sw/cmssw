@@ -27,7 +27,7 @@ public:
   RefCountedKinematicTree buildTree(
       const std::vector<RefCountedKinematicParticle>& initialParticles,
       const std::vector<KinematicState>& finalStates,
-      const RefCountedKinematicVertex vtx,
+      const RefCountedKinematicVertex& vtx,
       const ROOT::Math::SMatrix<double, 3 + 7 * nTrk, 3 + 7 * nTrk, ROOT::Math::MatRepSym<double, 3 + 7 * nTrk> >& fCov)
       const;
 
@@ -57,7 +57,7 @@ template <int nTrk>
 RefCountedKinematicTree ConstrainedTreeBuilderT::buildTree(
     const std::vector<RefCountedKinematicParticle>& initialParticles,
     const std::vector<KinematicState>& finalStates,
-    const RefCountedKinematicVertex vertex,
+    const RefCountedKinematicVertex& vertex,
     const ROOT::Math::SMatrix<double, 3 + 7 * nTrk, 3 + 7 * nTrk, ROOT::Math::MatRepSym<double, 3 + 7 * nTrk> >&
         fullCov) const {
   if (!vertex->vertexIsValid()) {
@@ -68,7 +68,7 @@ RefCountedKinematicTree ConstrainedTreeBuilderT::buildTree(
   vtx(0) = vertex->position().x();
   vtx(1) = vertex->position().y();
   vtx(2) = vertex->position().z();
-  AlgebraicMatrix33 vertexCov = fullCov.template Sub<ROOT::Math::SMatrix<double, 3> >(0, 0);
+  auto vertexCov = fullCov.template Sub<ROOT::Math::SMatrix<double, 3> >(0, 0);
 
   // cout << fullCov<<endl;
   //  cout << "RecoVertex/ConstrainedTreeBuilder"<<vtx<<endl;
@@ -99,8 +99,8 @@ RefCountedKinematicTree ConstrainedTreeBuilderT::buildTree(
   AlgebraicSymMatrix77 nCovariance;
   // AlgebraicSymMatrix77 tmp;
 
-  std::vector<RefCountedKinematicParticle>::const_iterator i = initialParticles.begin();
-  std::vector<KinematicState>::const_iterator iStates = finalStates.begin();
+  auto i = initialParticles.begin();
+  auto iStates = finalStates.begin();
   std::vector<RefCountedKinematicParticle> rParticles;
   int n = 0;
   // assert(initialParticles.size()==nTrk);

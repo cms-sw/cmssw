@@ -50,7 +50,7 @@ FWProxyBuilderBase::Product::~Product() {
   // remove product from projected scene (RhoPhi or RhoZ)
   TEveProjectable* pable = dynamic_cast<TEveProjectable*>(m_elements);
   // don't have to check cast, because TEveElementList is TEveProjectable
-  for (TEveProjectable::ProjList_i i = pable->BeginProjecteds(); i != pable->EndProjecteds(); ++i) {
+  for (auto i = pable->BeginProjecteds(); i != pable->EndProjecteds(); ++i) {
     TEveElement* projected = (*i)->GetProjectedAsElement();
     (*projected->BeginParents())->RemoveElement(projected);
   }
@@ -99,9 +99,9 @@ void FWProxyBuilderBase::itemBeingDestroyed(const FWEventItem* iItem) {
 
   cleanLocal();
 
-  for (Product_it i = m_products.begin(); i != m_products.end(); i++) {
-    (*i)->m_scaleConnection.disconnect();
-    delete (*i);
+  for (auto& m_product : m_products) {
+    m_product->m_scaleConnection.disconnect();
+    delete m_product;
   }
 
   m_products.clear();
@@ -113,15 +113,15 @@ void FWProxyBuilderBase::build() {
       size_t itemSize = m_item->size();  //cashed
 
       clean();
-      for (Product_it i = m_products.begin(); i != m_products.end(); ++i) {
+      for (auto& m_product : m_products) {
         //printf("build() %s \n", m_item->name().c_str());
-        TEveElementList* elms = (*i)->m_elements;
+        TEveElementList* elms = m_product->m_elements;
         size_t oldSize = elms->NumChildren();
 
         if (haveSingleProduct()) {
-          build(m_item, elms, (*i)->m_viewContext);
+          build(m_item, elms, m_product->m_viewContext);
         } else {
-          buildViewType(m_item, elms, (*i)->m_viewType, (*i)->m_viewContext);
+          buildViewType(m_item, elms, m_product->m_viewType, m_product->m_viewContext);
         }
 
         // Project all children of current product.
@@ -130,20 +130,20 @@ void FWProxyBuilderBase::build() {
         TEveProjectable* pable = dynamic_cast<TEveProjectable*>(elms);
         if (pable->HasProjecteds()) {
           // loop projected holders
-          for (TEveProjectable::ProjList_i i = pable->BeginProjecteds(); i != pable->EndProjecteds(); ++i) {
+          for (auto i = pable->BeginProjecteds(); i != pable->EndProjecteds(); ++i) {
             TEveProjectionManager* pmgr = (*i)->GetManager();
             Float_t oldDepth = pmgr->GetCurrentDepth();
             pmgr->SetCurrentDepth(item()->layer());
             size_t cnt = 0;
 
             TEveElement* projectedAsElement = (*i)->GetProjectedAsElement();
-            TEveElement::List_i parentIt = projectedAsElement->BeginChildren();
-            for (TEveElement::List_i prodIt = elms->BeginChildren(); prodIt != elms->EndChildren(); ++prodIt, ++cnt) {
+            auto parentIt = projectedAsElement->BeginChildren();
+            for (auto prodIt = elms->BeginChildren(); prodIt != elms->EndChildren(); ++prodIt, ++cnt) {
               // reused projected holder
               if (cnt < oldSize) {
                 if ((*parentIt)->NumChildren()) {
                   // update projected (mislleading name)
-                  for (TEveElement::List_i pci = (*parentIt)->BeginChildren(); pci != (*parentIt)->EndChildren(); pci++)
+                  for (auto pci = (*parentIt)->BeginChildren(); pci != (*parentIt)->EndChildren(); pci++)
                     pmgr->ProjectChildrenRecurse(*parentIt);
                 } else {
                   // import projectable
@@ -163,7 +163,7 @@ void FWProxyBuilderBase::build() {
         }
 
         if (m_interactionList && itemSize > oldSize) {
-          TEveElement::List_i elIt = elms->BeginChildren();
+          auto elIt = elms->BeginChildren();
           for (size_t cnt = 0; cnt < itemSize; ++cnt, ++elIt) {
             if (cnt >= oldSize)
               m_interactionList->added(*elIt, cnt);
@@ -185,9 +185,9 @@ void FWProxyBuilderBase::modelChanges(const FWModelIds& iIds, Product* p) {
   assert(m_item && static_cast<int>(m_item->size()) <= elms->NumChildren() &&
          "can not use default modelChanges implementation");
 
-  TEveElement::List_i itElement = elms->BeginChildren();
+  auto itElement = elms->BeginChildren();
   int index = 0;
-  for (FWModelIds::const_iterator it = iIds.begin(), itEnd = iIds.end(); it != itEnd; ++it, ++itElement, ++index) {
+  for (auto it = iIds.begin(), itEnd = iIds.end(); it != itEnd; ++it, ++itElement, ++index) {
     assert(itElement != elms->EndChildren());
     while (index < it->index()) {
       ++itElement;
@@ -204,8 +204,8 @@ void FWProxyBuilderBase::modelChanges(const FWModelIds& iIds, Product* p) {
 
 void FWProxyBuilderBase::modelChanges(const FWModelIds& iIds) {
   if (m_haveWindow) {
-    for (Product_it i = m_products.begin(); i != m_products.end(); ++i) {
-      modelChanges(iIds, *i);
+    for (auto& m_product : m_products) {
+      modelChanges(iIds, m_product);
     }
     m_modelsChanged = false;
   } else {
@@ -241,9 +241,9 @@ TEveElementList* FWProxyBuilderBase::createProduct(const FWViewType::EType viewT
     if (haveSingleProduct()) {
       return m_products.back()->m_elements;
     } else {
-      for (Product_it i = m_products.begin(); i != m_products.end(); ++i) {
-        if (viewType == (*i)->m_viewType)
-          return (*i)->m_elements;
+      for (auto& m_product : m_products) {
+        if (viewType == m_product->m_viewType)
+          return m_product->m_elements;
       }
     }
   }
@@ -267,7 +267,7 @@ TEveElementList* FWProxyBuilderBase::createProduct(const FWViewType::EType viewT
 //______________________________________________________________________________
 
 void FWProxyBuilderBase::removePerViewProduct(FWViewType::EType type, const FWViewContext* vc) {
-  for (Product_it i = m_products.begin(); i != m_products.end(); ++i) {
+  for (auto i = m_products.begin(); i != m_products.end(); ++i) {
     if (havePerViewProduct(type) && (*i)->m_viewContext == vc) {
       if ((*i)->m_elements)
         (*i)->m_elements->DestroyElements();
@@ -303,9 +303,9 @@ void FWProxyBuilderBase::localModelChanges(const FWModelId&, TEveElement*, FWVie
 }
 
 void FWProxyBuilderBase::scaleChanged(const FWViewContext* vc) {
-  for (Product_it i = m_products.begin(); i != m_products.end(); ++i) {
-    if (havePerViewProduct((*i)->m_viewType) && (*i)->m_viewContext == vc) {
-      scaleProduct((*i)->m_elements, (*i)->m_viewType, (*i)->m_viewContext);
+  for (auto& m_product : m_products) {
+    if (havePerViewProduct(m_product->m_viewType) && m_product->m_viewContext == vc) {
+      scaleProduct(m_product->m_elements, m_product->m_viewType, m_product->m_viewContext);
     }
   }
   gEve->Redraw3D();
@@ -313,9 +313,9 @@ void FWProxyBuilderBase::scaleChanged(const FWViewContext* vc) {
 
 void FWProxyBuilderBase::clean() {
   // Cleans local common element list.
-  for (Product_it i = m_products.begin(); i != m_products.end(); ++i) {
-    if ((*i)->m_elements)
-      (*i)->m_elements->DestroyElements();
+  for (auto& m_product : m_products) {
+    if (m_product->m_elements)
+      m_product->m_elements->DestroyElements();
   }
 
   cleanLocal();
@@ -338,9 +338,9 @@ void FWProxyBuilderBase::buildViewType(const FWEventItem*, TEveElementList*, FWV
 
 void FWProxyBuilderBase::setProjectionLayer(float layer) {
   m_layer = layer;
-  for (Product_it pIt = m_products.begin(); pIt != m_products.end(); ++pIt) {
-    TEveProjectable* pable = static_cast<TEveProjectable*>((*pIt)->m_elements);
-    for (TEveProjectable::ProjList_i i = pable->BeginProjecteds(); i != pable->EndProjecteds(); ++i)
+  for (auto& m_product : m_products) {
+    TEveProjectable* pable = static_cast<TEveProjectable*>(m_product->m_elements);
+    for (auto i = pable->BeginProjecteds(); i != pable->EndProjecteds(); ++i)
       (*i)->SetDepth(m_layer);
   }
 }
@@ -400,8 +400,8 @@ void FWProxyBuilderBase::increaseComponentTransparency(unsigned int index,
   Char_t transp = TMath::Min(100, transpOffset + (100 - transpOffset) * transparency / 100);
   TEveElement::List_t matches;
   holder->FindChildren(matches, name.c_str());
-  for (TEveElement::List_i m = matches.begin(); m != matches.end(); ++m) {
-    (*m)->SetMainTransparency(transp);
+  for (auto& matche : matches) {
+    matche->SetMainTransparency(transp);
   }
 }
 

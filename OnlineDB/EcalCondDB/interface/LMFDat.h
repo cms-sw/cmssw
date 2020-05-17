@@ -90,8 +90,8 @@ public:
 
   std::list<int> getLogicIds() {
     std::list<int> l;
-    std::map<int, std::vector<float> >::const_iterator i = m_data.begin();
-    std::map<int, std::vector<float> >::const_iterator e = m_data.end();
+    auto i = m_data.begin();
+    auto e = m_data.end();
     while (i != e) {
       l.push_back(i->first);
       i++;
@@ -102,8 +102,8 @@ public:
   std::map<std::string, unsigned int> getKeys() { return m_keys; }
   std::list<std::string> getKeyList() {
     std::list<std::string> l;
-    std::map<std::string, unsigned int>::const_iterator i = m_keys.begin();
-    std::map<std::string, unsigned int>::const_iterator e = m_keys.end();
+    auto i = m_keys.begin();
+    auto e = m_keys.end();
     while (i != e) {
       l.push_back(i->first);
       i++;

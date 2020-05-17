@@ -30,7 +30,7 @@ void PFBlock::setLink(unsigned i1, unsigned i2, double Dist, LinkData& linkData,
       l.test |= (1 << test);
     } else  //delete if existing
     {
-      LinkData::iterator it = linkData.find(index);
+      auto it = linkData.find(index);
       if (it != linkData.end())
         linkData.erase(it);
     }
@@ -86,7 +86,7 @@ void PFBlock::associatedElements(unsigned i,
       continue;
 
     double c2 = -1;
-    LinkData::const_iterator it = linkData.find(index);
+    auto it = linkData.find(index);
     if (it != linkData.end() && (((1 << test) & it->second.test) != 0 || (test == LINKTEST_ALL)))
       c2 = it->second.distance;
 
@@ -125,7 +125,7 @@ double PFBlock::dist(unsigned ie1, unsigned ie2, const LinkData& linkData) const
   unsigned index = 0;
   if (!matrix2vector(ie1, ie2, index))
     return Dist;
-  LinkData::const_iterator it = linkData.find(index);
+  auto it = linkData.find(index);
   if (it != linkData.end())
     Dist = it->second.distance;
 

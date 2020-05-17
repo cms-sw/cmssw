@@ -16,8 +16,8 @@ namespace edmtest {
   public:
     explicit DTDeadPrint(edm::ParameterSet const& p);
     explicit DTDeadPrint(int i);
-    virtual ~DTDeadPrint();
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    ~DTDeadPrint() override;
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   private:
   };

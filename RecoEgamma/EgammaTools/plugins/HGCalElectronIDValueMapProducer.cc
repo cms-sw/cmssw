@@ -87,7 +87,7 @@ HGCalElectronIDValueMapProducer::HGCalElectronIDValueMapProducer(const edm::Para
     produces<edm::ValueMap<float>>(key);
   }
 
-  eIDHelper_.reset(new HGCalEgammaIDHelper(iConfig, consumesCollector()));
+  eIDHelper_ = std::make_unique<HGCalEgammaIDHelper>(iConfig, consumesCollector());
 }
 
 HGCalElectronIDValueMapProducer::~HGCalElectronIDValueMapProducer() {}

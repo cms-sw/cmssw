@@ -63,16 +63,16 @@ void MaterialBudgetHcalHistos::fillBeginJob(const DDCompactView& cpv) {
 
     std::string ecalRO[2] = {"EcalHitsEB", "EcalHitsEE"};
     attribute = "ReadOutName";
-    for (int k = 0; k < 2; k++) {
-      value = ecalRO[k];
+    for (const auto& k : ecalRO) {
+      value = k;
       DDSpecificsMatchesValueFilter filter3{DDValue(attribute, value, 0)};
       DDFilteredView fv3(cpv, filter3);
       std::vector<std::string> senstmp = getNames(fv3);
       edm::LogInfo("MaterialBudget") << "MaterialBudgetHcalHistos: Names to be"
                                      << " tested for " << attribute << " = " << value << " has " << senstmp.size()
                                      << " elements";
-      for (unsigned int i = 0; i < senstmp.size(); i++)
-        sensitiveEC.push_back(senstmp[i]);
+      for (const auto& i : senstmp)
+        sensitiveEC.push_back(i);
     }
     for (unsigned int i = 0; i < sensitiveEC.size(); i++)
       edm::LogInfo("MaterialBudget") << "MaterialBudgetHcalHistos:sensitiveEC[" << i << "] = " << sensitiveEC[i];
@@ -405,8 +405,8 @@ std::vector<std::string> MaterialBudgetHcalHistos::getNames(DDFilteredView& fv) 
     const DDLogicalPart& log = fv.logicalPart();
     std::string namx = log.name().name();
     bool ok = true;
-    for (unsigned int i = 0; i < tmp.size(); i++)
-      if (namx == tmp[i])
+    for (const auto& i : tmp)
+      if (namx == i)
         ok = false;
     if (ok)
       tmp.push_back(namx);
@@ -437,9 +437,9 @@ std::vector<double> MaterialBudgetHcalHistos::getDDDArray(const std::string& str
   }
 }
 
-bool MaterialBudgetHcalHistos::isSensitive(std::string name) {
-  std::vector<std::string>::const_iterator it = sensitives.begin();
-  std::vector<std::string>::const_iterator itEnd = sensitives.end();
+bool MaterialBudgetHcalHistos::isSensitive(const std::string& name) {
+  auto it = sensitives.begin();
+  auto itEnd = sensitives.end();
   for (; it != itEnd; ++it)
     if (name == *it)
       return true;
@@ -459,9 +459,9 @@ bool MaterialBudgetHcalHistos::isItHF(const G4VTouchable* touch) {
   return false;
 }
 
-bool MaterialBudgetHcalHistos::isItEC(std::string name) {
-  std::vector<std::string>::const_iterator it = sensitiveEC.begin();
-  std::vector<std::string>::const_iterator itEnd = sensitiveEC.end();
+bool MaterialBudgetHcalHistos::isItEC(const std::string& name) {
+  auto it = sensitiveEC.begin();
+  auto itEnd = sensitiveEC.end();
   for (; it != itEnd; ++it)
     if (name == *it)
       return true;

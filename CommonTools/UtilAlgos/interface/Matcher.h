@@ -98,7 +98,7 @@ namespace reco {
           if (select(cand, match)) {
             double dist = matchDistance(cand, match);
             if (dist < distMin_)
-              v.push_back(make_pair(m, dist));
+              v.emplace_back(m, dist);
           }
         }
         if (!v.empty()) {

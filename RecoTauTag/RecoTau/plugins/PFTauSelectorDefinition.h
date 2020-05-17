@@ -60,7 +60,7 @@ struct PFTauSelectorDefinition {
             << "unequal number of TauIDContainer raw value indices and cut values given to PFTauSelector.";
       }
       for (size_t i = 0; i < rawLabels.size(); i++) {
-        newCut.rawCuts.push_back(std::pair<int, double>(-99, rawCutValues[i]));
+        newCut.rawCuts.emplace_back(-99, rawCutValues[i]);
         newCut.rawLabels.push_back(rawLabels[i]);
       }
       newCut.wpLabels = pset.getParameter<std::vector<std::string>>("workingPoints");
@@ -70,7 +70,7 @@ struct PFTauSelectorDefinition {
 
     // Build a string cut if desired
     if (cfg.exists("cut")) {
-      cut_.reset(new StringCutObjectSelector<reco::PFTau>(cfg.getParameter<std::string>("cut")));
+      cut_ = std::make_unique<StringCutObjectSelector<reco::PFTau>>(cfg.getParameter<std::string>("cut"));
     }
   }
 

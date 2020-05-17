@@ -109,7 +109,7 @@ void Vx3DHLTAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup) {
       cout << "[Vx3DHLTAnalyzer]::\tIn this event there are " << Vx3DCollection->size() << " vertex cadidates" << endl;
     }
 
-    for (vector<Vertex>::const_iterator it3DVx = Vx3DCollection->begin(); it3DVx != Vx3DCollection->end(); it3DVx++) {
+    for (auto it3DVx = Vx3DCollection->begin(); it3DVx != Vx3DCollection->end(); it3DVx++) {
       if (internalDebug == true) {
         cout << "[Vx3DHLTAnalyzer]::\tVertex selections:" << endl;
         cout << "[Vx3DHLTAnalyzer]::\tEvent ID = " << iEvent.id() << endl;
@@ -186,8 +186,8 @@ unsigned int Vx3DHLTAnalyzer::HitCounter(const Event& iEvent) {
   unsigned int counter = 0;
 
   for (SiPixelRecHitCollection::const_iterator j = rechitspixel->begin(); j != rechitspixel->end(); j++)
-    for (edmNew::DetSet<SiPixelRecHit>::const_iterator h = j->begin(); h != j->end(); h++)
-      counter += h->cluster()->size();
+    for (const auto& h : *j)
+      counter += h.cluster()->size();
 
   return counter;
 }
@@ -218,19 +218,19 @@ double Vx3DHLTAnalyzer::Gauss3DFunc(const double* par) {
   //  par[8] = mean z
 
   counterVx = 0;
-  for (unsigned int i = 0; i < Vertices.size(); i++) {
-    if ((std::sqrt((Vertices[i].x - xPos) * (Vertices[i].x - xPos) + (Vertices[i].y - yPos) * (Vertices[i].y - yPos)) <=
+  for (auto& Vertice : Vertices) {
+    if ((std::sqrt((Vertice.x - xPos) * (Vertice.x - xPos) + (Vertice.y - yPos) * (Vertice.y - yPos)) <=
          maxTransRadius) &&
-        (std::fabs(Vertices[i].z - zPos) <= maxLongLength)) {
+        (std::fabs(Vertice.z - zPos) <= maxLongLength)) {
       if (considerVxCovariance == true) {
-        K[0][0] = std::fabs(par[0]) + VxErrCorr * VxErrCorr * std::fabs(Vertices[i].Covariance[0][0]);
-        K[1][1] = std::fabs(par[1]) + VxErrCorr * VxErrCorr * std::fabs(Vertices[i].Covariance[1][1]);
-        K[2][2] = std::fabs(par[2]) + VxErrCorr * VxErrCorr * std::fabs(Vertices[i].Covariance[2][2]);
-        K[0][1] = K[1][0] = par[3] + VxErrCorr * VxErrCorr * Vertices[i].Covariance[0][1];
+        K[0][0] = std::fabs(par[0]) + VxErrCorr * VxErrCorr * std::fabs(Vertice.Covariance[0][0]);
+        K[1][1] = std::fabs(par[1]) + VxErrCorr * VxErrCorr * std::fabs(Vertice.Covariance[1][1]);
+        K[2][2] = std::fabs(par[2]) + VxErrCorr * VxErrCorr * std::fabs(Vertice.Covariance[2][2]);
+        K[0][1] = K[1][0] = par[3] + VxErrCorr * VxErrCorr * Vertice.Covariance[0][1];
         K[1][2] = K[2][1] = par[4] * (std::fabs(par[2]) - std::fabs(par[1])) - par[5] * par[3] +
-                            VxErrCorr * VxErrCorr * Vertices[i].Covariance[1][2];
+                            VxErrCorr * VxErrCorr * Vertice.Covariance[1][2];
         K[0][2] = K[2][0] = par[5] * (std::fabs(par[2]) - std::fabs(par[0])) - par[4] * par[3] +
-                            VxErrCorr * VxErrCorr * Vertices[i].Covariance[0][2];
+                            VxErrCorr * VxErrCorr * Vertice.Covariance[0][2];
       } else {
         K[0][0] = std::fabs(par[0]);
         K[1][1] = std::fabs(par[1]);
@@ -251,12 +251,12 @@ double Vx3DHLTAnalyzer::Gauss3DFunc(const double* par) {
       M[0][2] = M[2][0] = (K[0][1] * K[1][2] - K[0][2] * K[1][1]) / det;
 
       sumlog += double(DIM) * std::log(2. * pi) + std::log(std::fabs(det)) +
-                (M[0][0] * (Vertices[i].x - par[6]) * (Vertices[i].x - par[6]) +
-                 M[1][1] * (Vertices[i].y - par[7]) * (Vertices[i].y - par[7]) +
-                 M[2][2] * (Vertices[i].z - par[8]) * (Vertices[i].z - par[8]) +
-                 2. * M[0][1] * (Vertices[i].x - par[6]) * (Vertices[i].y - par[7]) +
-                 2. * M[1][2] * (Vertices[i].y - par[7]) * (Vertices[i].z - par[8]) +
-                 2. * M[0][2] * (Vertices[i].x - par[6]) * (Vertices[i].z - par[8]));
+                (M[0][0] * (Vertice.x - par[6]) * (Vertice.x - par[6]) +
+                 M[1][1] * (Vertice.y - par[7]) * (Vertice.y - par[7]) +
+                 M[2][2] * (Vertice.z - par[8]) * (Vertice.z - par[8]) +
+                 2. * M[0][1] * (Vertice.x - par[6]) * (Vertice.y - par[7]) +
+                 2. * M[1][2] * (Vertice.y - par[7]) * (Vertice.z - par[8]) +
+                 2. * M[0][2] * (Vertice.x - par[6]) * (Vertice.z - par[8]));
 
       counterVx++;
     }
@@ -298,7 +298,7 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
 
     double edm;
 
-    vector<double>::const_iterator it = vals->begin();
+    auto it = vals->begin();
 
     ROOT::Math::Minimizer* Gauss3D = ROOT::Math::Factory::CreateMinimizer("Minuit2", "Migrad");
     Gauss3D->SetErrorDef(1.0);
@@ -668,7 +668,7 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
   return -1;
 }
 
-void Vx3DHLTAnalyzer::reset(string ResetType) {
+void Vx3DHLTAnalyzer::reset(const string& ResetType) {
   if ((debugMode == true) && (outputDebugFile.is_open() == true)) {
     outputDebugFile << "Runnumber " << runNumber << endl;
     outputDebugFile << "BeginTimeOfFit " << formatTime(beginTimeOfFit >> 32) << " " << (beginTimeOfFit >> 32) << endl;
@@ -790,7 +790,7 @@ void Vx3DHLTAnalyzer::writeToFile(vector<double>* vals,
   outputFile.open(fileName.c_str(), ios::out);
 
   if ((outputFile.is_open() == true) && (vals != nullptr) && (vals->size() == (nParams - 1) * 2)) {
-    vector<double>::const_iterator it = vals->begin();
+    auto it = vals->begin();
 
     outputFile << "Runnumber " << runNumber << endl;
     outputFile << "BeginTimeOfFit " << formatTime(beginTimeOfFit >> 32) << " " << (beginTimeOfFit >> 32) << endl;
@@ -850,7 +850,7 @@ void Vx3DHLTAnalyzer::writeToFile(vector<double>* vals,
 
   if ((debugMode == true) && (outputDebugFile.is_open() == true) && (vals != nullptr) &&
       (vals->size() == (nParams - 1) * 2)) {
-    vector<double>::const_iterator it = vals->begin();
+    auto it = vals->begin();
 
     outputDebugFile << "Runnumber " << runNumber << endl;
     outputDebugFile << "BeginTimeOfFit " << formatTime(beginTimeOfFit >> 32) << " " << (beginTimeOfFit >> 32) << endl;

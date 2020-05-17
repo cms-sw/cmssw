@@ -7,8 +7,8 @@ void merge(DDsvalues_type &target, DDsvalues_type const &sv, bool sortit /* =tru
     target = sv;
     return;
   }
-  DDsvalues_type::const_iterator sit = sv.begin();
-  DDsvalues_type::const_iterator sed = sv.end();
+  auto sit = sv.begin();
+  auto sed = sv.end();
   // fast merge
   if (target.back() < sv.front()) {
     target.insert(target.end(), sit, sed);
@@ -19,7 +19,7 @@ void merge(DDsvalues_type &target, DDsvalues_type const &sv, bool sortit /* =tru
     return;
   }
   {
-    DDsvalues_type::iterator it = std::lower_bound(target.begin(), target.end(), sv.front());
+    auto it = std::lower_bound(target.begin(), target.end(), sv.front());
     if (it == std::lower_bound(target.begin(), target.end(), sv.back())) {
       target.insert(it, sit, sed);
       return;
@@ -27,9 +27,9 @@ void merge(DDsvalues_type &target, DDsvalues_type const &sv, bool sortit /* =tru
   }
   // it nevers arrives here...
   target.reserve(target.size() + sv.size());
-  DDsvalues_type::const_iterator ted = target.end();
+  auto ted = target.end();
   for (; sit != sed; ++sit) {
-    DDsvalues_type::const_iterator it = find(target.begin(), ted, (*sit).first);
+    auto it = find(target.begin(), ted, (*sit).first);
     if (it != ted)
       const_cast<DDsvalues_Content_type &>(*it).second = (*sit).second;
     else
@@ -40,7 +40,7 @@ void merge(DDsvalues_type &target, DDsvalues_type const &sv, bool sortit /* =tru
 }
 
 std::ostream &operator<<(std::ostream &os, const DDsvalues_type &s) {
-  DDsvalues_type::const_iterator it = s.begin();
+  auto it = s.begin();
   for (; it != s.end(); ++it) {
     os << it->second;
     /*
@@ -78,7 +78,7 @@ std::ostream &operator<<(std::ostream &os, const std::vector<const DDsvalues_typ
 */
 bool DDfetch(const DDsvalues_type *p, DDValue &v) {
   bool result = false;
-  DDsvalues_type::const_iterator it = find(*p, v);
+  auto it = find(*p, v);
   if (it != p->end()) {
     result = true;
     v = it->second;

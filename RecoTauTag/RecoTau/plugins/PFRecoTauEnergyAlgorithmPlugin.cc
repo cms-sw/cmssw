@@ -145,12 +145,10 @@ namespace reco {
       double nonPFCandTracksSumP = 0.;
       double nonPFCandTracksSumPerr2 = 0.;
       const std::vector<PFRecoTauChargedHadron>& chargedHadrons = tau.signalTauChargedHadronCandidatesRestricted();
-      for (std::vector<PFRecoTauChargedHadron>::const_iterator chargedHadron = chargedHadrons.begin();
-           chargedHadron != chargedHadrons.end();
-           ++chargedHadron) {
-        if (chargedHadron->algoIs(PFRecoTauChargedHadron::kTrack)) {
+      for (const auto& chargedHadron : chargedHadrons) {
+        if (chargedHadron.algoIs(PFRecoTauChargedHadron::kTrack)) {
           ++numNonPFCandTracks;
-          const reco::Track* chargedHadronTrack = getTrackFromChargedHadron(*chargedHadron);
+          const reco::Track* chargedHadronTrack = getTrackFromChargedHadron(chargedHadron);
           if (chargedHadronTrack != nullptr) {
             nonPFCandTracksSumP += chargedHadronTrack->p();
             nonPFCandTracksSumPerr2 += getTrackPerr2(*chargedHadronTrack);
@@ -198,16 +196,12 @@ namespace reco {
         // and have been merged into ChargedHadrons
         std::vector<reco::CandidatePtr> mergedNeutrals;
         reco::Candidate::LorentzVector mergedNeutralsSumP4;
-        for (std::vector<PFRecoTauChargedHadron>::const_iterator chargedHadron = chargedHadrons.begin();
-             chargedHadron != chargedHadrons.end();
-             ++chargedHadron) {
-          if (chargedHadron->algoIs(PFRecoTauChargedHadron::kTrack)) {
-            const std::vector<reco::CandidatePtr>& neutralPFCands = chargedHadron->getNeutralPFCandidates();
-            for (std::vector<reco::CandidatePtr>::const_iterator neutralPFCand = neutralPFCands.begin();
-                 neutralPFCand != neutralPFCands.end();
-                 ++neutralPFCand) {
-              mergedNeutrals.push_back(*neutralPFCand);
-              mergedNeutralsSumP4 += (*neutralPFCand)->p4();
+        for (const auto& chargedHadron : chargedHadrons) {
+          if (chargedHadron.algoIs(PFRecoTauChargedHadron::kTrack)) {
+            const std::vector<reco::CandidatePtr>& neutralPFCands = chargedHadron.getNeutralPFCandidates();
+            for (const auto& neutralPFCand : neutralPFCands) {
+              mergedNeutrals.push_back(neutralPFCand);
+              mergedNeutralsSumP4 += neutralPFCand->p4();
             }
           }
         }
@@ -250,13 +244,11 @@ namespace reco {
         unsigned numChargedHadronNeutrals = 0;
         std::vector<reco::CandidatePtr> chargedHadronNeutrals;
         reco::Candidate::LorentzVector chargedHadronNeutralsSumP4;
-        for (std::vector<PFRecoTauChargedHadron>::const_iterator chargedHadron = chargedHadrons.begin();
-             chargedHadron != chargedHadrons.end();
-             ++chargedHadron) {
-          if (chargedHadron->algoIs(PFRecoTauChargedHadron::kPFNeutralHadron)) {
+        for (const auto& chargedHadron : chargedHadrons) {
+          if (chargedHadron.algoIs(PFRecoTauChargedHadron::kPFNeutralHadron)) {
             ++numChargedHadronNeutrals;
-            chargedHadronNeutrals.push_back(chargedHadron->getChargedPFCandidate());
-            chargedHadronNeutralsSumP4 += chargedHadron->getChargedPFCandidate()->p4();
+            chargedHadronNeutrals.push_back(chargedHadron.getChargedPFCandidate());
+            chargedHadronNeutralsSumP4 += chargedHadron.getChargedPFCandidate()->p4();
           }
         }
         if (verbosity_) {
@@ -307,12 +299,10 @@ namespace reco {
           double allTracksSumP = 0.;
           double allTracksSumPerr2 = 0.;
           const std::vector<PFRecoTauChargedHadron> chargedHadrons = tau.signalTauChargedHadronCandidatesRestricted();
-          for (std::vector<PFRecoTauChargedHadron>::const_iterator chargedHadron = chargedHadrons.begin();
-               chargedHadron != chargedHadrons.end();
-               ++chargedHadron) {
-            if (chargedHadron->algoIs(PFRecoTauChargedHadron::kChargedPFCandidate) ||
-                chargedHadron->algoIs(PFRecoTauChargedHadron::kTrack)) {
-              const reco::Track* chargedHadronTrack = getTrackFromChargedHadron(*chargedHadron);
+          for (const auto& chargedHadron : chargedHadrons) {
+            if (chargedHadron.algoIs(PFRecoTauChargedHadron::kChargedPFCandidate) ||
+                chargedHadron.algoIs(PFRecoTauChargedHadron::kTrack)) {
+              const reco::Track* chargedHadronTrack = getTrackFromChargedHadron(chargedHadron);
               if (chargedHadronTrack != nullptr) {
                 allTracksSumP += chargedHadronTrack->p();
                 allTracksSumPerr2 += getTrackPerr2(*chargedHadronTrack);
@@ -320,7 +310,7 @@ namespace reco {
                 edm::LogInfo("PFRecoTauEnergyAlgorithmPlugin::operator()")
                     << "PFRecoTauChargedHadron has no associated reco::Track !!";
                 if (verbosity_) {
-                  chargedHadron->print();
+                  chargedHadron.print();
                 }
               }
             }

@@ -112,12 +112,12 @@ FWEveView::FWEveView(TEveWindowSlot* iParent, FWViewType::EType type, unsigned i
   m_geoScene->GetGLScene()->SetSelectable(kFALSE);
   m_viewer->AddScene(m_geoScene);
 
-  FWGLEventHandler* eh = new FWGLEventHandler((TGWindow*)embeddedViewer->GetGLWidget(), (TObject*)embeddedViewer);
+  auto* eh = new FWGLEventHandler((TGWindow*)embeddedViewer->GetGLWidget(), (TObject*)embeddedViewer);
   embeddedViewer->SetEventHandler(eh);
   eh->setViewer(this);
   eh->openSelectedModelContextMenu_.connect(openSelectedModelContextMenu_);
   eh->SetDoInternalSelection(kFALSE);
-  FWViewContextMenuHandlerGL* ctxHand = new FWViewContextMenuHandlerGL(this);
+  auto* ctxHand = new FWViewContextMenuHandlerGL(this);
   // ctxHand->setPickCameraCenter(true);
   m_viewContextMenu.reset(ctxHand);
 
@@ -313,8 +313,8 @@ void FWEveView::setFrom(const FWConfiguration& iFrom) {
   // This is not "forward" compatible, but I don't think
   // we care.
   if (version() >= 2 && iFrom.version() >= 1) {
-    for (const_iterator it = begin(), itEnd = end(); it != itEnd; ++it) {
-      (*it)->setFrom(iFrom);
+    for (auto it : *this) {
+      it->setFrom(iFrom);
     }
   }
   if (iFrom.version() > 1) {

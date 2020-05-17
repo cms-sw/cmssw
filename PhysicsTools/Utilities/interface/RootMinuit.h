@@ -110,7 +110,7 @@ namespace fit {
       }
     }
     void setParameters() {
-      std::map<std::string, size_t>::const_iterator i = parIndices_.begin(), end = parIndices_.end();
+      auto i = parIndices_.begin(), end = parIndices_.end();
       double val, err;
       for (; i != end; ++i) {
         size_t index = i->second;
@@ -169,7 +169,7 @@ namespace fit {
       return minValue_;
     }
     void printParameters(std::ostream &cout = std::cout) {
-      std::map<std::string, size_t>::const_iterator i = parIndices_.begin(), end = parIndices_.end();
+      auto i = parIndices_.begin(), end = parIndices_.end();
       for (; i != end; ++i) {
         cout << i->first << " = " << *pars_[i->second] << " +/- " << getParameterError(i->first) << std::endl;
       }
@@ -196,7 +196,7 @@ namespace fit {
       f = RootMinuitFuncEvaluator<Function>::evaluate(f_);
     }
     size_t parameterIndex(const std::string &name) const {
-      typename std::map<std::string, size_t>::const_iterator p = parIndices_.find(name);
+      auto p = parIndices_.find(name);
       if (p == parIndices_.end())
         throw edm::Exception(edm::errors::Configuration) << "RootMinuit: can't find parameter " << name << "\n";
       return p->second;
@@ -219,7 +219,7 @@ namespace fit {
         throw edm::Exception(edm::errors::Configuration) << "RootMinuit: error in calling SET ERR\n";
 
       size_t i = 0;
-      typename parameterVector_t::const_iterator p = parMap_.begin(), end = parMap_.end();
+      auto p = parMap_.begin(), end = parMap_.end();
       for (; p != end; ++p, ++i) {
         const std::string &name = p->first;
         const parameter_t &par = p->second;
@@ -242,7 +242,7 @@ namespace fit {
   Function RootMinuit<Function>::f_;
 
   template <class Function>
-  std::vector<std::shared_ptr<double> > *RootMinuit<Function>::fPars_ = 0;
+  std::vector<std::shared_ptr<double> > *RootMinuit<Function>::fPars_ = nullptr;
 }  // namespace fit
 
 #endif

@@ -80,7 +80,7 @@ void RPixRoadFinder::findPattern() {
     }
   }
 
-  Road::iterator it_gh1 = temp_all_hits.begin();
+  auto it_gh1 = temp_all_hits.begin();
   Road::iterator it_gh2;
 
   patternVector_.clear();

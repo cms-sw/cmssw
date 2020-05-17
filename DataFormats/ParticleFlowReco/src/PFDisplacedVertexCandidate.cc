@@ -8,7 +8,7 @@ using namespace reco;
 
 PFDisplacedVertexCandidate::PFDisplacedVertexCandidate() {}
 
-void PFDisplacedVertexCandidate::addElement(const TrackBaseRef element) { elements_.push_back(element); }
+void PFDisplacedVertexCandidate::addElement(const TrackBaseRef& element) { elements_.push_back(element); }
 
 void PFDisplacedVertexCandidate::setLink(
     const unsigned i1, const unsigned i2, const float dist, const GlobalPoint& dcaPoint, const VertexLinkTest test) {
@@ -26,7 +26,7 @@ void PFDisplacedVertexCandidate::setLink(
       l.test_ |= (1 << test);
     } else  //delete if existing
     {
-      VertexLinkData::iterator it = vertexLinkData_.find(index);
+      auto it = vertexLinkData_.find(index);
       if (it != vertexLinkData_.end())
         vertexLinkData_.erase(it);
     }
@@ -59,7 +59,7 @@ void PFDisplacedVertexCandidate::associatedElements(const unsigned i,
       continue;
 
     float c2 = -1;
-    VertexLinkData::const_iterator it = vertexLinkData.find(index);
+    auto it = vertexLinkData.find(index);
     if (it != vertexLinkData.end() && (((1 << test) & it->second.test_) != 0 || (test == LINKTEST_ALL)))
       c2 = it->second.distance_;
 
@@ -129,7 +129,7 @@ const GlobalPoint PFDisplacedVertexCandidate::dcaPoint(unsigned ie1, unsigned ie
   unsigned index = 0;
   if (!matrix2vector(ie1, ie2, index))
     return dcaPoint;
-  VertexLinkData::const_iterator it = vertexLinkData_.find(index);
+  auto it = vertexLinkData_.find(index);
   if (it != vertexLinkData_.end())
     dcaPoint = it->second.dcaPoint_;
 
@@ -151,7 +151,7 @@ const float PFDisplacedVertexCandidate::dist(unsigned ie1, unsigned ie2) const {
   unsigned index = 0;
   if (!matrix2vector(ie1, ie2, index))
     return dist;
-  VertexLinkData::const_iterator it = vertexLinkData_.find(index);
+  auto it = vertexLinkData_.find(index);
   if (it != vertexLinkData_.end())
     dist = it->second.distance_;
 
@@ -199,18 +199,18 @@ void PFDisplacedVertexCandidate::Dump(ostream& out) const {
 
   // Build element label (string) : elid from type, layer and occurence number
   // use stringstream instead of sprintf to concatenate string and integer into string
-  for (unsigned ie = 0; ie < elements.size(); ie++) {
-    math::XYZPoint Pi(elements[ie].get()->innerPosition());
-    math::XYZPoint Po(elements[ie].get()->outerPosition());
+  for (const auto& element : elements) {
+    math::XYZPoint Pi(element.get()->innerPosition());
+    math::XYZPoint Po(element.get()->outerPosition());
 
     float innermost_radius = sqrt(Pi.x() * Pi.x() + Pi.y() * Pi.y() + Pi.z() * Pi.z());
     float outermost_radius = sqrt(Po.x() * Po.x() + Po.y() * Po.y() + Po.z() * Po.z());
     float innermost_rho = sqrt(Pi.x() * Pi.x() + Pi.y() * Pi.y());
     float outermost_rho = sqrt(Po.x() * Po.x() + Po.y() * Po.y());
 
-    double pt = elements[ie]->pt();
+    double pt = element->pt();
 
-    out << "ie = " << elements[ie].key() << " pt = " << pt << " innermost hit radius = " << innermost_radius
+    out << "ie = " << element.key() << " pt = " << pt << " innermost hit radius = " << innermost_radius
         << " rho = " << innermost_rho << " outermost hit radius = " << outermost_radius << " rho = " << outermost_rho
         << endl;
   }

@@ -8,7 +8,7 @@
 
 //
 MTDDigiProducer::MTDDigiProducer(edm::ParameterSet const& pset,
-                                 edm::ProducesCollector producesCollector,
+                                 const edm::ProducesCollector& producesCollector,
                                  edm::ConsumesCollector& iC)
     : DigiAccumulatorMixMod() {
   std::vector<std::string> psetNames;

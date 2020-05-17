@@ -65,8 +65,8 @@ namespace reco {
         return output.release();
 
       // Define the valid range of gammas to use
-      CandIter start_iter = pfGammaCands.begin();
-      CandIter end_iter = pfGammaCands.end();
+      auto start_iter = pfGammaCands.begin();
+      auto end_iter = pfGammaCands.end();
 
       // Only take the desired number of piZeros
       end_iter = takeNElements(start_iter, end_iter, maxInputGammas_);

@@ -44,8 +44,8 @@ namespace {
 
         double rr = 9.5, cc = 0.5;
         //x = *(m.**begin**()+7);
-        for (EcalWeightSet::EcalWeightMatrix::const_iterator it = mat.begin(); it != mat.end(); it++) {
-          align->Fill(cc, rr, *(it));
+        for (double it : mat) {
+          align->Fill(cc, rr, it);
 
           cc++;
           if (cc == 10.5) {

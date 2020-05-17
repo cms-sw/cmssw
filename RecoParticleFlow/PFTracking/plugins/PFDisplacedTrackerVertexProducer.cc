@@ -46,8 +46,8 @@ void PFDisplacedTrackerVertexProducer::produce(Event& iEvent, const EventSetup& 
     std::vector<reco::Track> refittedTracks = nuclColl[icoll].refittedTracks();
 
     // convert the secondary tracks
-    for (unsigned it = 0; it < refittedTracks.size(); it++) {
-      reco::TrackBaseRef trackBaseRef = nuclColl[icoll].originalTrack(refittedTracks[it]);
+    for (const auto& refittedTrack : refittedTracks) {
+      reco::TrackBaseRef trackBaseRef = nuclColl[icoll].originalTrack(refittedTrack);
 
       //      cout << "track base pt = " << trackBaseRef->pt() << endl;
 

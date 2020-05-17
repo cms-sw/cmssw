@@ -18,6 +18,7 @@
 
 // system include files
 #include <iostream>
+#include <utility>
 
 // user include files
 #include "DataFormats/FWLite/interface/LuminosityBlock.h"
@@ -87,12 +88,12 @@ namespace fwlite {
   }
 
   LuminosityBlock::LuminosityBlock(std::shared_ptr<BranchMapReader> branchMap, std::shared_ptr<RunFactory> runFactory)
-      : branchMap_(branchMap),
+      : branchMap_(std::move(branchMap)),
         pAux_(&aux_),
         pOldAux_(nullptr),
         fileVersion_(-1),
         dataHelper_(branchMap_->getLuminosityBlockTree(), std::make_shared<LumiHistoryGetter>(this), branchMap_),
-        runFactory_(runFactory) {
+        runFactory_(std::move(runFactory)) {
     if (nullptr == branchMap_->getLuminosityBlockTree()) {
       throw cms::Exception("NoLumiTree") << "The TFile contains no TTree named "
                                          << edm::poolNames::luminosityBlockTreeName();

@@ -53,17 +53,16 @@ namespace PhysicsTools {
     output = calib->output;
 
     std::vector<Variable::Flags> flags(nVars, Variable::FLAG_ALL);
-    const TrainMVAComputerCalibration *trainCalib = dynamic_cast<const TrainMVAComputerCalibration *>(calib);
+    const auto *trainCalib = dynamic_cast<const TrainMVAComputerCalibration *>(calib);
     if (trainCalib)
       trainCalib->initFlags(flags);
 
     VarProcessor::ConfigCtx config(flags);
     std::vector<Calibration::VarProcessor *> processors = calib->getProcessors();
 
-    for (std::vector<Calibration::VarProcessor *>::const_iterator iter = processors.begin(); iter != processors.end();
-         ++iter) {
-      std::string name = (*iter)->getInstanceName();
-      VarProcessor *processor = VarProcessor::create(name.c_str(), *iter, this);
+    for (auto iter : processors) {
+      std::string name = iter->getInstanceName();
+      VarProcessor *processor = VarProcessor::create(name.c_str(), iter, this);
       if (!processor)
         throw cms::Exception("UnknownProcessor") << name << " could not be instantiated." << std::endl;
 
@@ -76,10 +75,10 @@ namespace PhysicsTools {
                                                     "configuration"
                                                  << std::endl;
 
-      varProcessors.push_back(Processor(processor, nOutput));
+      varProcessors.emplace_back(processor, nOutput);
     }
 
-    for (VarProcessor::ConfigCtx::iterator iter = config.begin() + nVars; iter != config.end(); iter++) {
+    for (auto iter = config.begin() + nVars; iter != config.end(); iter++) {
       VarProcessor::Config *origin = &config[iter->origin];
       if (iter->origin >= nVars)
         iter->origin = origin->origin;
@@ -98,9 +97,7 @@ namespace PhysicsTools {
 
     std::set<InputVar> variables;
     unsigned int i = 0;
-    for (std::vector<Calibration::Variable>::const_iterator iter = calib->inputSet.begin();
-         iter != calib->inputSet.end();
-         ++iter, i++) {
+    for (auto iter = calib->inputSet.begin(); iter != calib->inputSet.end(); ++iter, i++) {
       InputVar var;
       var.var = Variable(iter->name, config[i].mask);
       var.index = i;
@@ -118,8 +115,8 @@ namespace PhysicsTools {
 
   MVAComputer::~MVAComputer() {}
 
-  int MVAComputer::getVariableId(AtomicId name) const {
-    std::vector<InputVar>::const_iterator pos = std::lower_bound(inputVariables.begin(), inputVariables.end(), name);
+  int MVAComputer::getVariableId(const AtomicId &name) const {
+    auto pos = std::lower_bound(inputVariables.begin(), inputVariables.end(), name);
 
     if (pos == inputVariables.end() || pos->var.getName() != name)
       return -1;
@@ -141,9 +138,9 @@ namespace PhysicsTools {
         std::cout << "\t\t" << *v++ << std::endl;
     }
 #endif
-    std::vector<Processor>::const_iterator iter = varProcessors.begin();
+    auto iter = varProcessors.begin();
     while (iter != varProcessors.end()) {
-      std::vector<Processor>::const_iterator loop = iter;
+      auto loop = iter;
       int *loopOutConf = outConf;
       int *loopStart = nullptr;
       double *loopOutput = output;
@@ -152,7 +149,7 @@ namespace PhysicsTools {
       VarProcessor::LoopStatus status = VarProcessor::kNext;
       unsigned int offset = 0;
       while (status != VarProcessor::kStop) {
-        std::vector<Processor>::const_iterator next = iter + 1;
+        auto next = iter + 1;
         unsigned int nextOutput = (next != varProcessors.end()) ? next->nOutput : 0;
 
 #ifdef DEBUG_EVAL

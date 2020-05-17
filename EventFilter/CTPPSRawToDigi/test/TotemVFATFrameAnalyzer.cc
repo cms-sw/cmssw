@@ -26,9 +26,9 @@
 class TotemVFATFrameAnalyzer : public edm::global::EDAnalyzer<> {
 public:
   explicit TotemVFATFrameAnalyzer(const edm::ParameterSet &);
-  ~TotemVFATFrameAnalyzer();
+  ~TotemVFATFrameAnalyzer() override;
 
-  virtual void analyze(edm::StreamID, const edm::Event &, const edm::EventSetup &) const override;
+  void analyze(edm::StreamID, const edm::Event &, const edm::EventSetup &) const override;
 
 private:
   std::vector<unsigned int> fedIds;

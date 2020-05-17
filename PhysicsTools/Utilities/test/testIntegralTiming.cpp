@@ -16,7 +16,7 @@ using namespace std;
 
 double getTime() {
   struct timeval t;
-  if (gettimeofday(&t, 0) < 0)
+  if (gettimeofday(&t, nullptr) < 0)
     abort();
   return (double)t.tv_sec + (double(t.tv_usec) * 1E-6);
 }

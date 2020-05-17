@@ -795,9 +795,9 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
     if (!initL1_) {
       initL1_ = true;
       edm::LogVerbatim("IsoTrack") << "menuName " << menuName;
-      for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
-        std::string algName = itAlgo->first;
-        int algBitNumber = (itAlgo->second).algoBitNumber();
+      for (const auto &itAlgo : algorithmMap) {
+        std::string algName = itAlgo.first;
+        int algBitNumber = (itAlgo.second).algoBitNumber();
         l1AlgoMap_.insert(std::pair<std::pair<unsigned int, std::string>, int>(
             std::pair<unsigned int, std::string>(algBitNumber, algName), 0));
       }
@@ -809,17 +809,17 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
     }
 
     std::vector<int> algbits;
-    for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
-      std::string algName = itAlgo->first;
-      int algBitNumber = (itAlgo->second).algoBitNumber();
-      bool decision = m_l1GtUtils->decision(iEvent, itAlgo->first, iErrorCode);
-      int preScale = m_l1GtUtils->prescaleFactor(iEvent, itAlgo->first, iErrorCode);
+    for (const auto &itAlgo : algorithmMap) {
+      std::string algName = itAlgo.first;
+      int algBitNumber = (itAlgo.second).algoBitNumber();
+      bool decision = m_l1GtUtils->decision(iEvent, itAlgo.first, iErrorCode);
+      int preScale = m_l1GtUtils->prescaleFactor(iEvent, itAlgo.first, iErrorCode);
 
       // save the algo names which fired
       if (decision) {
         l1AlgoMap_[std::pair<unsigned int, std::string>(algBitNumber, algName)] += 1;
         h_L1AlgoNames->Fill(algBitNumber);
-        t_L1AlgoNames->push_back(itAlgo->first);
+        t_L1AlgoNames->push_back(itAlgo.first);
         t_L1PreScale->push_back(preScale);
         t_L1Decision[algBitNumber] = 1;
         algbits.push_back(algBitNumber);
@@ -946,7 +946,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
       double vtxTrkSumPtHP = 0.0, vtxTrkSumPtHPWt = 0.0;
       int vtxTrkNHP = 0, vtxTrkNHPWt = 0;
 
-      reco::Vertex::trackRef_iterator vtxTrack = (*recVtxs)[ind].tracks_begin();
+      auto vtxTrack = (*recVtxs)[ind].tracks_begin();
 
       for (vtxTrack = (*recVtxs)[ind].tracks_begin(); vtxTrack != (*recVtxs)[ind].tracks_end(); vtxTrack++) {
         if ((*vtxTrack)->pt() < pvTracksPtMin_)
@@ -1018,10 +1018,10 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
   //  edm::Handle<reco::JetExtendedAssociation::Container> jetExtender;
   //  iEvent.getByLabel(JetExtender_,jetExtender);
 
-  for (unsigned int ijet = 0; ijet < (*jets).size(); ijet++) {
-    t_jetPt->push_back((*jets)[ijet].pt());
-    t_jetEta->push_back((*jets)[ijet].eta());
-    t_jetPhi->push_back((*jets)[ijet].phi());
+  for (const auto &ijet : (*jets)) {
+    t_jetPt->push_back(ijet.pt());
+    t_jetEta->push_back(ijet.eta());
+    t_jetPhi->push_back(ijet.phi());
     t_nTrksJetVtx->push_back(-1.0);
     t_nTrksJetCalo->push_back(-1.0);
   }
@@ -1091,7 +1091,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
   //associates tracker rechits/simhits to a track
   std::unique_ptr<TrackerHitAssociator> associate;
   if (doMC_)
-    associate.reset(new TrackerHitAssociator(iEvent, trackerHitAssociatorConfig_));
+    associate = std::make_unique<TrackerHitAssociator>(iEvent, trackerHitAssociatorConfig_);
 
   //===================================================================================
 
@@ -1129,7 +1129,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
     int pVtxTkId = -1;
     for (unsigned int ind = 0; ind < recVtxs->size(); ind++) {
       if (!((*recVtxs)[ind].isFake())) {
-        reco::Vertex::trackRef_iterator vtxTrack = (*recVtxs)[ind].tracks_begin();
+        auto vtxTrack = (*recVtxs)[ind].tracks_begin();
         for (vtxTrack = (*recVtxs)[ind].tracks_begin(); vtxTrack != (*recVtxs)[ind].tracks_end(); vtxTrack++) {
           const edm::RefToBase<reco::Track> pvtxTrack = (*vtxTrack);
           if (pTrack == pvtxTrack.get()) {
@@ -1209,8 +1209,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
       t_trackChiSqAll->push_back(chisq1);
     }
     if (doMC_) {
-      edm::SimTrackContainer::const_iterator matchedSimTrkAll =
-          spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, *associate, false);
+      auto matchedSimTrkAll = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, *associate, false);
       if (writeAllTracks_ && matchedSimTrkAll != SimTk->end())
         t_trackPdgIdAll->push_back(matchedSimTrkAll->type());
     }
@@ -1253,8 +1252,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
         // get the matching simTrack
         double simTrackP = -1;
         if (doMC_) {
-          edm::SimTrackContainer::const_iterator matchedSimTrk =
-              spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, *associate, false);
+          auto matchedSimTrk = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, *associate, false);
           if (matchedSimTrk != SimTk->end())
             simTrackP = matchedSimTrk->momentum().P();
         }
@@ -1817,8 +1815,8 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
                 spr::eHCALmatrixCell(theHBHETopology, ClosestCell, hbhe, 3, 3, false, false);
             double sumv = 0.0;
 
-            for (unsigned int iv = 0; iv < v7x7.size(); iv++) {
-              sumv += v7x7[iv].second;
+            for (auto &iv : v7x7) {
+              sumv += iv.second;
             }
             edm::LogVerbatim("IsoTrack") << "h7x7 " << h7x7 << " v7x7 " << sumv << " in " << v7x7.size();
             for (unsigned int iv = 0; iv < v7x7.size(); iv++) {
@@ -1851,7 +1849,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
 
         for (unsigned int ind = 0; ind < recVtxs->size(); ind++) {
           if (!((*recVtxs)[ind].isFake())) {
-            reco::Vertex::trackRef_iterator vtxTrack = (*recVtxs)[ind].tracks_begin();
+            auto vtxTrack = (*recVtxs)[ind].tracks_begin();
             if (deltaR(eta1, phi1, (*vtxTrack)->eta(), (*vtxTrack)->phi()) < 0.01)
               t_trackPVIdx->push_back(ind);
             else
@@ -2071,8 +2069,8 @@ void IsolatedTracksNxN::clearTreeVectors() {
   t_PVTracksSumPtHP->clear();
   t_PVTracksSumPtHPWt->clear();
 
-  for (int i = 0; i < 128; i++)
-    t_L1Decision[i] = 0;
+  for (int &i : t_L1Decision)
+    i = 0;
   t_L1AlgoNames->clear();
   t_L1PreScale->clear();
 
@@ -2377,8 +2375,8 @@ void IsolatedTracksNxN::bookHistograms() {
   tree_->Branch("t_PVTracksSumPtHPWt", "std::vector<double>", &t_PVTracksSumPtHPWt);
 
   //----- L1Trigger information
-  for (int i = 0; i < 128; i++)
-    t_L1Decision[i] = 0;
+  for (int &i : t_L1Decision)
+    i = 0;
   t_L1AlgoNames = new std::vector<std::string>();
   t_L1PreScale = new std::vector<int>();
   t_L1CenJetPt = new std::vector<double>();

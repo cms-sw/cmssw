@@ -116,7 +116,7 @@ void MatcherByPullsAlgorithm::matchMany(const reco::Track &tk,
       continue;
     std::pair<bool, double> m = match(tk, cands[i], invCov);
     if (m.first)
-      matchesToFill.push_back(std::make_pair(m.second, i));
+      matchesToFill.emplace_back(m.second, i);
   }
   std::sort(matchesToFill.begin(), matchesToFill.end());
 }
@@ -152,7 +152,7 @@ void MatcherByPullsAlgorithm::fillInvCov(const reco::Track &tk, AlgebraicSymMatr
     }
     invCov.Invert();
   } else {
-    AlgebraicSymMatrix33 momCov = tk.covariance().Sub<AlgebraicSymMatrix33>(0, 0);  // get 3x3 matrix
+    auto momCov = tk.covariance().Sub<AlgebraicSymMatrix33>(0, 0);  // get 3x3 matrix
     if (diagOnly_) {
       momCov(0, 1) = 0;
       momCov(0, 2) = 0;

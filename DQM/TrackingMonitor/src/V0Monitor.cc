@@ -79,26 +79,26 @@ V0Monitor::~V0Monitor() {
     delete genTriggerEventFlag_;
 }
 
-void V0Monitor::getHistoPSet(edm::ParameterSet pset, MEbinning& mebinning) {
+void V0Monitor::getHistoPSet(const edm::ParameterSet& pset, MEbinning& mebinning) {
   mebinning.nbins = pset.getParameter<int32_t>("nbins");
   mebinning.xmin = pset.getParameter<double>("xmin");
   mebinning.xmax = pset.getParameter<double>("xmax");
 }
 
 V0Monitor::MonitorElement* V0Monitor::bookHisto1D(DQMStore::IBooker& ibooker,
-                                                  std::string name,
-                                                  std::string title,
-                                                  std::string xaxis,
-                                                  std::string yaxis,
+                                                  const std::string& name,
+                                                  const std::string& title,
+                                                  const std::string& xaxis,
+                                                  const std::string& yaxis,
                                                   MEbinning binning) {
   std::string title_w_axes = title + ";" + xaxis + ";" + yaxis;
   return ibooker.book1D(name, title_w_axes, binning.nbins, binning.xmin, binning.xmax);
 }
 V0Monitor::MonitorElement* V0Monitor::bookHisto2D(DQMStore::IBooker& ibooker,
-                                                  std::string name,
-                                                  std::string title,
-                                                  std::string xaxis,
-                                                  std::string yaxis,
+                                                  const std::string& name,
+                                                  const std::string& title,
+                                                  const std::string& xaxis,
+                                                  const std::string& yaxis,
                                                   MEbinning xbinning,
                                                   MEbinning ybinning) {
   std::string title_w_axes = title + ";" + xaxis + ";" + yaxis;
@@ -106,10 +106,10 @@ V0Monitor::MonitorElement* V0Monitor::bookHisto2D(DQMStore::IBooker& ibooker,
       name, title_w_axes, xbinning.nbins, xbinning.xmin, xbinning.xmax, ybinning.nbins, ybinning.xmin, ybinning.xmax);
 }
 V0Monitor::MonitorElement* V0Monitor::bookProfile(DQMStore::IBooker& ibooker,
-                                                  std::string name,
-                                                  std::string title,
-                                                  std::string xaxis,
-                                                  std::string yaxis,
+                                                  const std::string& name,
+                                                  const std::string& title,
+                                                  const std::string& xaxis,
+                                                  const std::string& yaxis,
                                                   MEbinning xbinning,
                                                   MEbinning ybinning) {
   std::string title_w_axes = title + ";" + xaxis + ";" + yaxis;
@@ -240,7 +240,7 @@ void V0Monitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
     edm::Handle<LumiScalersCollection> lumiScalers;
     iEvent.getByToken(lumiscalersToken_, lumiScalers);
     if (lumiScalers.isValid() && !lumiScalers->empty()) {
-      LumiScalersCollection::const_iterator scalit = lumiScalers->begin();
+      auto scalit = lumiScalers->begin();
       lumi = scalit->instantLumi();
     }
   } else {
@@ -271,7 +271,7 @@ void V0Monitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
         || pv->ndof() < pvNDOF_ || pv->z() > 24.)
       pv = nullptr;
 
-    for (auto v : *pvHandle) {
+    for (const auto& v : *pvHandle) {
       if (v.isFake())
         continue;
       if (v.ndof() < pvNDOF_)
@@ -299,7 +299,7 @@ void V0Monitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
     return;
 
   reco::VertexCompositeCandidateCollection v0s = *v0Handle.product();
-  for (auto v0 : v0s) {
+  for (const auto& v0 : v0s) {
     float mass = v0.mass();
     float pt = v0.pt();
     float p = v0.p();

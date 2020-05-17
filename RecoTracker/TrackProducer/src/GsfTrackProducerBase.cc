@@ -164,7 +164,7 @@ void GsfTrackProducerBase::putInEvt(edm::Event& evt,
       math::XYZVector momentum;
       Measurement1D deltaP;
       // only measurements on "mono" detectors
-      for (Trajectory::DataContainer::const_iterator i = ibegin; i != iend; i += increment) {
+      for (auto i = ibegin; i != iend; i += increment) {
         if (i->recHit().get()) {
           DetId detId(i->recHit()->geographicalId());
           if (detId.det() == DetId::Tracker) {
@@ -178,7 +178,7 @@ void GsfTrackProducerBase::putInEvt(edm::Event& evt,
         }
         bool valid = computeModeAtTM(*i, position, momentum, deltaP);
         if (valid) {
-          tangents.push_back(reco::GsfTangent(position, momentum, deltaP));
+          tangents.emplace_back(position, momentum, deltaP);
         }
       }
     }
@@ -206,10 +206,10 @@ void GsfTrackProducerBase::putInEvt(edm::Event& evt,
 
   LogTrace("TrackingRegressionTest") << "========== TrackProducer Info ===================";
   LogTrace("TrackingRegressionTest") << "number of finalGsfTracks: " << selTracks->size();
-  for (reco::GsfTrackCollection::const_iterator it = selTracks->begin(); it != selTracks->end(); it++) {
-    LogTrace("TrackingRegressionTest") << "track's n valid and invalid hit, chi2, pt : " << it->found() << " , "
-                                       << it->lost() << " , " << it->normalizedChi2() << " , " << it->pt() << " , "
-                                       << it->eta();
+  for (const auto& it : *selTracks) {
+    LogTrace("TrackingRegressionTest") << "track's n valid and invalid hit, chi2, pt : " << it.found() << " , "
+                                       << it.lost() << " , " << it.normalizedChi2() << " , " << it.pt() << " , "
+                                       << it.eta();
   }
   LogTrace("TrackingRegressionTest") << "=================================================";
 
@@ -224,17 +224,18 @@ void GsfTrackProducerBase::putInEvt(edm::Event& evt,
     // Now Create traj<->tracks association map
     std::unique_ptr<TrajGsfTrackAssociationCollection> trajTrackMap(
         new TrajGsfTrackAssociationCollection(rTrajs, rTracks_));
-    for (std::map<unsigned int, unsigned int>::iterator i = tjTkMap.begin(); i != tjTkMap.end(); i++) {
-      edm::Ref<std::vector<Trajectory> > trajRef(rTrajs, (*i).first);
-      edm::Ref<reco::GsfTrackCollection> tkRef(rTracks_, (*i).second);
-      trajTrackMap->insert(edm::Ref<std::vector<Trajectory> >(rTrajs, (*i).first),
-                           edm::Ref<reco::GsfTrackCollection>(rTracks_, (*i).second));
+    for (auto& i : tjTkMap) {
+      edm::Ref<std::vector<Trajectory> > trajRef(rTrajs, i.first);
+      edm::Ref<reco::GsfTrackCollection> tkRef(rTracks_, i.second);
+      trajTrackMap->insert(edm::Ref<std::vector<Trajectory> >(rTrajs, i.first),
+                           edm::Ref<reco::GsfTrackCollection>(rTracks_, i.second));
     }
     evt.put(std::move(trajTrackMap));
   }
 }
 
-void GsfTrackProducerBase::fillStates(TrajectoryStateOnSurface tsos, std::vector<reco::GsfComponent5D>& states) const {
+void GsfTrackProducerBase::fillStates(const TrajectoryStateOnSurface& tsos,
+                                      std::vector<reco::GsfComponent5D>& states) const {
   reco::GsfComponent5D::ParameterVector pLocS;
   reco::GsfComponent5D::CovarianceMatrix cLocS;
   GetComponents comps(tsos);
@@ -245,7 +246,7 @@ void GsfTrackProducerBase::fillStates(TrajectoryStateOnSurface tsos, std::vector
 }
 
 void GsfTrackProducerBase::fillMode(reco::GsfTrack& track,
-                                    const TrajectoryStateOnSurface innertsos,
+                                    const TrajectoryStateOnSurface& innertsos,
                                     const Propagator& gsfProp,
                                     const TransverseImpactPointExtrapolator& tipExtrapolator,
                                     TrajectoryStateClosestToBeamLineBuilder& tscblBuilder,
@@ -313,7 +314,7 @@ void GsfTrackProducerBase::fillMode(reco::GsfTrack& track,
   track.setMode(fts.charge(), mom, cov);
 }
 
-void GsfTrackProducerBase::localParametersFromQpMode(const TrajectoryStateOnSurface tsos,
+void GsfTrackProducerBase::localParametersFromQpMode(const TrajectoryStateOnSurface& tsos,
                                                      AlgebraicVector5& parameters,
                                                      AlgebraicSymMatrix55& covariance) const {
   //

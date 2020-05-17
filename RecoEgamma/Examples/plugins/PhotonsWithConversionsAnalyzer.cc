@@ -178,41 +178,40 @@ void PhotonsWithConversionsAnalyzer::analyze(const edm::Event& e, const edm::Eve
   //UNUSED int iRadius=-1;
   //UNUSED int indPho=0;
 
-  for (std::vector<PhotonMCTruth>::const_iterator mcPho = mcPhotons.begin(); mcPho != mcPhotons.end(); mcPho++) {
-    float mcPhi = (*mcPho).fourMomentum().phi();
-    float mcEta = (*mcPho).fourMomentum().pseudoRapidity();
-    mcEta = etaTransformation(mcEta, (*mcPho).primaryVertex().z());
+  for (const auto& mcPhoton : mcPhotons) {
+    float mcPhi = mcPhoton.fourMomentum().phi();
+    float mcEta = mcPhoton.fourMomentum().pseudoRapidity();
+    mcEta = etaTransformation(mcEta, mcPhoton.primaryVertex().z());
 
-    if ((*mcPho).fourMomentum().et() < 20)
+    if (mcPhoton.fourMomentum().et() < 20)
       continue;
     //    if ( ! (  fabs(mcEta) <= BARL || ( fabs(mcEta) >= END_LO && fabs(mcEta) <=END_HI ) ) ) {
     //     continue;
     //} // all ecal fiducial region
 
-    h_MCphoE_->Fill((*mcPho).fourMomentum().e());
-    h_MCphoEta_->Fill((*mcPho).fourMomentum().eta());
-    h_MCphoPhi_->Fill((*mcPho).fourMomentum().phi());
+    h_MCphoE_->Fill(mcPhoton.fourMomentum().e());
+    h_MCphoEta_->Fill(mcPhoton.fourMomentum().eta());
+    h_MCphoPhi_->Fill(mcPhoton.fourMomentum().phi());
 
     // keep only visible conversions
-    if ((*mcPho).isAConversion() == 0)
+    if (mcPhoton.isAConversion() == 0)
       continue;
 
     nMCPho_++;
 
-    h_MCConvEta_->Fill(fabs((*mcPho).fourMomentum().pseudoRapidity()) - 0.001);
+    h_MCConvEta_->Fill(fabs(mcPhoton.fourMomentum().pseudoRapidity()) - 0.001);
 
     bool REJECTED;
 
     /// Loop over recontructed photons
     //std::cout   << " ConvertedPhotonAnalyzer  Starting loop over photon candidates " << "\n";
-    for (reco::PhotonCollection::const_iterator iPho = photonCollection.begin(); iPho != photonCollection.end();
-         iPho++) {
+    for (const auto& iPho : photonCollection) {
       REJECTED = false;
 
       //      std::cout  << " ConvertedPhotonAnalyzer Reco SC energy " << (*iPho).superCluster()->energy() <<  "\n";
 
-      float phiClu = (*iPho).superCluster()->phi();
-      float etaClu = (*iPho).superCluster()->eta();
+      float phiClu = iPho.superCluster()->phi();
+      float etaClu = iPho.superCluster()->eta();
       float deltaPhi = phiClu - mcPhi;
       float deltaEta = etaClu - mcEta;
 
@@ -237,34 +236,34 @@ void PhotonsWithConversionsAnalyzer::analyze(const edm::Event& e, const edm::Eve
 
       // std::cout << " ConvertedPhotonAnalyzer Photons isAconversion " << (*mcPho).isAConversion() << " mcMatchingPhoton energy " <<  (*mcPho).fourMomentum().e()  << " ConvertedPhotonAnalyzer conversion vertex R " <<  (*mcPho).vertex().perp() << " Z " <<  (*mcPho).vertex().z() <<  std::endl;
 
-      h_ErecoEMC_->Fill((*iPho).superCluster()->energy() / (*mcPho).fourMomentum().e());
-      h_deltaPhi_->Fill((*iPho).superCluster()->position().phi() - mcPhi);
-      h_deltaEta_->Fill((*iPho).superCluster()->position().eta() - mcEta);
+      h_ErecoEMC_->Fill(iPho.superCluster()->energy() / mcPhoton.fourMomentum().e());
+      h_deltaPhi_->Fill(iPho.superCluster()->position().phi() - mcPhi);
+      h_deltaEta_->Fill(iPho.superCluster()->position().eta() - mcEta);
 
-      h_scE_->Fill((*iPho).superCluster()->energy());
-      h_scEt_->Fill((*iPho).superCluster()->energy() / cosh((*iPho).superCluster()->position().eta()));
-      h_scEta_->Fill((*iPho).superCluster()->position().eta());
-      h_scPhi_->Fill((*iPho).superCluster()->position().phi());
+      h_scE_->Fill(iPho.superCluster()->energy());
+      h_scEt_->Fill(iPho.superCluster()->energy() / cosh(iPho.superCluster()->position().eta()));
+      h_scEta_->Fill(iPho.superCluster()->position().eta());
+      h_scPhi_->Fill(iPho.superCluster()->position().phi());
 
-      h_phoE_->Fill((*iPho).energy());
-      h_phoEta_->Fill((*iPho).eta());
-      h_phoPhi_->Fill((*iPho).phi());
+      h_phoE_->Fill(iPho.energy());
+      h_phoEta_->Fill(iPho.eta());
+      h_phoPhi_->Fill(iPho.phi());
 
-      if (!(*iPho).hasConversionTracks())
+      if (!iPho.hasConversionTracks())
         continue;
       //   std::cout << " This photons has " << (*iPho).conversions().size() << " conversions candidates " << std::endl;
-      reco::ConversionRefVector conversions = (*iPho).conversions();
+      reco::ConversionRefVector conversions = iPho.conversions();
       //std::vector<reco::ConversionRef> conversions = (*iPho).conversions();
 
-      for (unsigned int i = 0; i < conversions.size(); i++) {
+      for (const auto& conversion : conversions) {
         //std::cout << " Conversion candidate Energy " << (*iPho).energy() << " number of tracks " << conversions[i]->nTracks() << std::endl;
-        std::vector<edm::RefToBase<reco::Track> > tracks = conversions[i]->tracks();
+        std::vector<edm::RefToBase<reco::Track> > tracks = conversion->tracks();
 
-        for (unsigned int i = 0; i < tracks.size(); i++) {
+        for (auto& track : tracks) {
           //	  std::cout  << " ConvertedPhotonAnalyzer Reco Track charge " <<  tracks[i]->charge() << "  Num of RecHits " << tracks[i]->recHitsSize() << " inner momentum " <<  sqrt ( tracks[i]->innerMomentum().Mag2() )  <<  "\n";
 
-          h2_tk_nHitsVsR_->Fill((*mcPho).vertex().perp(), tracks[i]->recHitsSize());
-          h2_tk_inPtVsR_->Fill((*mcPho).vertex().perp(), sqrt(tracks[i]->innerMomentum().Mag2()));
+          h2_tk_nHitsVsR_->Fill(mcPhoton.vertex().perp(), track->recHitsSize());
+          h2_tk_inPtVsR_->Fill(mcPhoton.vertex().perp(), sqrt(track->innerMomentum().Mag2()));
         }
       }
 

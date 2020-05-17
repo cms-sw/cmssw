@@ -38,12 +38,12 @@ public:
   DTRecHitReader(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~DTRecHitReader();
+  ~DTRecHitReader() override;
 
   // Operations
 
   /// Perform the real analysis
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
 
 protected:
 private:

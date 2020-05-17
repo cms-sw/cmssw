@@ -92,10 +92,10 @@ void CSCRecoConditions::noiseMatrix(const CSCDetId& id, int geomStrip, std::vect
 
     // Test that elements make sense:
     bool isFlawed = false;
-    for (short int k = 0; k < 15; ++k) {
-      if (elem[k] < 0.001)
-        elem[k] = 0.001;  // fix if too small...
-      if (elem[k] > 50.)
+    for (float& k : elem) {
+      if (k < 0.001)
+        k = 0.001;  // fix if too small...
+      if (k > 50.)
         isFlawed = true;  // fail if too big...
     }
 
@@ -106,8 +106,8 @@ void CSCRecoConditions::noiseMatrix(const CSCDetId& id, int geomStrip, std::vect
       }
     }
 
-    for (int k = 0; k < 15; ++k) {
-      nMatrix.push_back(elem[k]);
+    for (float k : elem) {
+      nMatrix.push_back(k);
     }
   }
 }

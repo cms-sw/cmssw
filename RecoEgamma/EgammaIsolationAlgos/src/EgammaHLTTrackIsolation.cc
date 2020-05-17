@@ -25,7 +25,7 @@ std::pair<int, float> EgammaHLTTrackIsolation::electronIsolation(const reco::Tra
 
 std::pair<int, float> EgammaHLTTrackIsolation::electronIsolation(const reco::Track* const tr,
                                                                  const reco::TrackCollection* isoTracks,
-                                                                 GlobalPoint zvtx) {
+                                                                 const GlobalPoint& zvtx) {
   // Just to insure consistency with no-vertex-code
   GlobalPoint vtx(0, 0, zvtx.z());
   const reco::Track::Vector& p = tr->momentum();
@@ -57,7 +57,7 @@ std::pair<int, float> EgammaHLTTrackIsolation::photonIsolation(const reco::RecoC
 
 std::pair<int, float> EgammaHLTTrackIsolation::photonIsolation(const reco::RecoCandidate* const recocandidate,
                                                                const reco::TrackCollection* isoTracks,
-                                                               GlobalPoint zvtx) {
+                                                               const GlobalPoint& zvtx) {
   // to insure consistency with no-free-vertex-code
   GlobalPoint vtx(0, 0, zvtx.z());
 
@@ -75,16 +75,19 @@ std::pair<int, float> EgammaHLTTrackIsolation::photonIsolation(const reco::RecoC
   return findIsoTracksWithoutEle(mom, GlobalPoint(), allEle, isoTracks);
 }
 
-std::pair<int, float> EgammaHLTTrackIsolation::findIsoTracks(
-    GlobalVector mom, GlobalPoint vtx, const reco::TrackCollection* isoTracks, bool isElectron, bool useVertex) {
+std::pair<int, float> EgammaHLTTrackIsolation::findIsoTracks(const GlobalVector& mom,
+                                                             const GlobalPoint& vtx,
+                                                             const reco::TrackCollection* isoTracks,
+                                                             bool isElectron,
+                                                             bool useVertex) {
   // Check that reconstructed tracks fit within cone boundaries,
   // (Note: tracks will not always stay within boundaries)
   int ntrack = 0;
   float ptSum = 0.;
 
-  for (reco::TrackCollection::const_iterator trItr = isoTracks->begin(); trItr != isoTracks->end(); ++trItr) {
-    GlobalPoint ivtx(trItr->vertex().x(), trItr->vertex().y(), trItr->vertex().z());
-    reco::Track::Vector ip = trItr->momentum();
+  for (const auto& isoTrack : *isoTracks) {
+    GlobalPoint ivtx(isoTrack.vertex().x(), isoTrack.vertex().y(), isoTrack.vertex().z());
+    reco::Track::Vector ip = isoTrack.momentum();
     GlobalVector imom(ip.x(), ip.y(), ip.z());
 
     float pt = imom.perp();
@@ -143,8 +146,8 @@ std::pair<int, float> EgammaHLTTrackIsolation::findIsoTracks(
   return (std::pair<int, float>(ntrack, ptSum));
 }
 
-std::pair<int, float> EgammaHLTTrackIsolation::findIsoTracksWithoutEle(GlobalVector mom,
-                                                                       GlobalPoint vtx,
+std::pair<int, float> EgammaHLTTrackIsolation::findIsoTracksWithoutEle(const GlobalVector& mom,
+                                                                       const GlobalPoint& vtx,
                                                                        const reco::ElectronCollection* allEle,
                                                                        const reco::TrackCollection* isoTracks) {
   // Check that reconstructed tracks fit within cone boundaries,
@@ -158,17 +161,17 @@ std::pair<int, float> EgammaHLTTrackIsolation::findIsoTracksWithoutEle(GlobalVec
   // std::cout << "allEle.size() = " << allEle->size() << std::endl;
 
   // Store ALL electrons eta and phi
-  for (reco::ElectronCollection::const_iterator iElectron = allEle->begin(); iElectron != allEle->end(); iElectron++) {
+  for (const auto& iElectron : *allEle) {
     iele++;
-    reco::TrackRef anothereletrackref = iElectron->track();
+    reco::TrackRef anothereletrackref = iElectron.track();
     etaele.push_back(anothereletrackref->momentum().eta());
     phiele.push_back(anothereletrackref->momentum().phi());
     // std::cout << "Electron " << iele << ": phi = " << anothereletrackref->momentum().phi() << ", eta = " << anothereletrackref->momentum().eta() << std::endl;
   }
 
-  for (reco::TrackCollection::const_iterator trItr = isoTracks->begin(); trItr != isoTracks->end(); ++trItr) {
-    GlobalPoint ivtx(trItr->vertex().x(), trItr->vertex().y(), trItr->vertex().z());
-    reco::Track::Vector ip = trItr->momentum();
+  for (const auto& isoTrack : *isoTracks) {
+    GlobalPoint ivtx(isoTrack.vertex().x(), isoTrack.vertex().y(), isoTrack.vertex().z());
+    reco::Track::Vector ip = isoTrack.momentum();
     GlobalVector imom(ip.x(), ip.y(), ip.z());
 
     float pt = imom.perp();

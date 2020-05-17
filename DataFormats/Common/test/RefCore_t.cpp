@@ -18,9 +18,9 @@ class TestRefCore : public CppUnit::TestFixture {
 
 public:
   TestRefCore() {}
-  ~TestRefCore() {}
-  void setUp() {}
-  void tearDown() {}
+  ~TestRefCore() override {}
+  void setUp() override {}
+  void tearDown() override {}
 
   void default_ctor();
   void nondefault_ctor();
@@ -37,7 +37,7 @@ void TestRefCore::default_ctor() {
   CPPUNIT_ASSERT(default_refcore.isNull());
   CPPUNIT_ASSERT(default_refcore.isNonnull() == false);
   CPPUNIT_ASSERT(!default_refcore);
-  CPPUNIT_ASSERT(default_refcore.productGetter() == 0);
+  CPPUNIT_ASSERT(default_refcore.productGetter() == nullptr);
   CPPUNIT_ASSERT(default_refcore.id().isValid() == false);
 }
 
@@ -46,7 +46,7 @@ void TestRefCore::nondefault_ctor() {
   edm::ProductID id(1, 201U);
   CPPUNIT_ASSERT(id.isValid());
 
-  edm::RefCore refcore(id, 0, &getter, false);
+  edm::RefCore refcore(id, nullptr, &getter, false);
   CPPUNIT_ASSERT(refcore.isNull() == false);
   CPPUNIT_ASSERT(refcore.isNonnull());
   CPPUNIT_ASSERT(!!refcore);
@@ -59,7 +59,7 @@ void TestRefCore::default_ctor_withindex() {
   CPPUNIT_ASSERT(default_refcore.isNull());
   CPPUNIT_ASSERT(default_refcore.isNonnull() == false);
   CPPUNIT_ASSERT(!default_refcore);
-  CPPUNIT_ASSERT(default_refcore.productGetter() == 0);
+  CPPUNIT_ASSERT(default_refcore.productGetter() == nullptr);
   CPPUNIT_ASSERT(default_refcore.id().isValid() == false);
   CPPUNIT_ASSERT(default_refcore.index() == edm::key_traits<unsigned int>::value);
   edm::RefCore compareTo;
@@ -73,7 +73,7 @@ void TestRefCore::nondefault_ctor_withindex() {
   edm::ProductID id(1, 201U);
   CPPUNIT_ASSERT(id.isValid());
 
-  edm::RefCoreWithIndex refcore(id, 0, &getter, false, 1);
+  edm::RefCoreWithIndex refcore(id, nullptr, &getter, false, 1);
   CPPUNIT_ASSERT(refcore.isNull() == false);
   CPPUNIT_ASSERT(refcore.isNonnull());
   CPPUNIT_ASSERT(!!refcore);
@@ -81,7 +81,7 @@ void TestRefCore::nondefault_ctor_withindex() {
   CPPUNIT_ASSERT(refcore.id().isValid());
   CPPUNIT_ASSERT(refcore.index() == 1);
 
-  edm::RefCore compareTo(id, 0, &getter, false);
+  edm::RefCore compareTo(id, nullptr, &getter, false);
   edm::RefCore const& converted = refcore.toRefCore();
   CPPUNIT_ASSERT(compareTo.productGetter() == converted.productGetter());
   CPPUNIT_ASSERT(compareTo.id() == converted.id());

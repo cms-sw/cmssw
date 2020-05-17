@@ -80,16 +80,14 @@ void ShiftedJetProducerByMatchedObjectT<T>::produce(edm::Event& evt, const edm::
 
   auto shiftedJets = std::make_unique<JetCollection>();
 
-  for (typename JetCollection::const_iterator originalJet = originalJets->begin(); originalJet != originalJets->end();
-       ++originalJet) {
+  for (auto originalJet = originalJets->begin(); originalJet != originalJets->end(); ++originalJet) {
     double shift = 0.;
     bool applyShift = false;
     double dR2bestMatch_Jet = std::numeric_limits<double>::max();
     prevMatch = -1;
     cnt = 0;
 
-    for (typename std::vector<objectEntryType>::const_iterator object = objects_.begin(); object != objects_.end();
-         ++object) {
+    for (auto object = objects_.begin(); object != objects_.end(); ++object) {
       if (!object->isValidMatch_)
         continue;
       if (match[cnt])

@@ -44,12 +44,12 @@
 class DumpConeDefinition : public edm::EDAnalyzer {
 public:
   explicit DumpConeDefinition(const edm::ParameterSet&);
-  ~DumpConeDefinition();
+  ~DumpConeDefinition() override;
 
 private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   // ----------member data ---------------------------
 };
@@ -87,8 +87,8 @@ void DumpConeDefinition::analyze(const edm::Event& iEvent, const edm::EventSetup
   edm::ESHandle<L1RPCConeDefinition> l1RPCConeDefinition;
   iSetup.get<L1RPCConeDefinitionRcd>().get(l1RPCConeDefinition);
 
-  L1RPCConeDefinition::TLPSizeVec::const_iterator it = l1RPCConeDefinition->getLPSizeVec().begin();
-  L1RPCConeDefinition::TLPSizeVec::const_iterator itEnd = l1RPCConeDefinition->getLPSizeVec().end();
+  auto it = l1RPCConeDefinition->getLPSizeVec().begin();
+  auto itEnd = l1RPCConeDefinition->getLPSizeVec().end();
 
   LogTrace("DumpConeDefinition") << std::endl;
 
@@ -101,9 +101,9 @@ void DumpConeDefinition::analyze(const edm::Event& iEvent, const edm::EventSetup
   }
 
   LogTrace("DumpConeDefinition") << "\nRing to tower connections dump: \n" << std::endl;
-  L1RPCConeDefinition::TRingToTowerVec::const_iterator itR = l1RPCConeDefinition->getRingToTowerVec().begin();
+  auto itR = l1RPCConeDefinition->getRingToTowerVec().begin();
 
-  const L1RPCConeDefinition::TRingToTowerVec::const_iterator itREnd = l1RPCConeDefinition->getRingToTowerVec().end();
+  const auto itREnd = l1RPCConeDefinition->getRingToTowerVec().end();
 
   for (; itR != itREnd; ++itR) {
     LogTrace("DumpConeDefinition") << "EP " << (int)itR->m_etaPart << " hwPL " << (int)itR->m_hwPlane << " tw "

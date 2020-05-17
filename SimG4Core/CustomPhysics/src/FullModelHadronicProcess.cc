@@ -73,7 +73,7 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
   G4double e_kin_0 = IncidentRhadron->GetKineticEnergy();
   //  G4cout<<e_kin_0/GeV<<G4endl;
 
-  G4DynamicParticle* cloudParticle = new G4DynamicParticle();
+  auto* cloudParticle = new G4DynamicParticle();
   /*
   if(CustomPDGParser::s_isRMeson(theIncidentPDG))
     G4cout<<"Rmeson"<<G4endl;
@@ -158,7 +158,7 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
 
   // OK Let's make some particles :-)
   // We're not using them for anything yet, I know, but let's make sure the machinery is there
-  for (ReactionProduct::iterator it = rp.begin(); it != rp.end(); ++it) {
+  for (auto it = rp.begin(); it != rp.end(); ++it) {
     G4ParticleDefinition* tempDef = theParticleTable->FindParticle(*it);
     CustomParticle* tempCust = dynamic_cast<CustomParticle*>(tempDef);
     if (tempDef == aTarget)
@@ -223,7 +223,7 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
 
   // create the target particle
 
-  G4DynamicParticle* originalTarget = new G4DynamicParticle;
+  auto* originalTarget = new G4DynamicParticle;
   originalTarget->SetDefinition(aTarget);
 
   G4ReactionProduct targetParticle(aTarget);
@@ -262,7 +262,7 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
   for (G4int i = 0; i != NumberOfSecondaries; i++) {
     if (theParticleDefinitions[i] != aTarget && theParticleDefinitions[i] != originalIncident->GetDefinition() &&
         theParticleDefinitions[i] != outgoingRhadron && theParticleDefinitions[i] != outgoingTarget) {
-      G4ReactionProduct* pa = new G4ReactionProduct;
+      auto* pa = new G4ReactionProduct;
       pa->SetDefinition(theParticleDefinitions[i]);
       (G4UniformRand() < 0.5) ? pa->SetSide(-1) : pa->SetSide(1);
       vec.SetElement(vecLen++, pa);
@@ -366,7 +366,7 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
   aParticleChange.ProposeLocalEnergyDeposit((p4_new - cloud_p4_new - gluinoMomentum).m());
 
   if (incidentHasChanged) {
-    G4DynamicParticle* p0 = new G4DynamicParticle;
+    auto* p0 = new G4DynamicParticle;
     p0->SetDefinition(outgoingRhadron);
     p0->SetMomentum(p_new);
 
@@ -404,7 +404,7 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
   //    return G4VDiscreteProcess::PostStepDoIt( aTrack, aStep);
   if (targetParticle.GetMass() > 0.0)  // targetParticle can be eliminated in TwoBody
   {
-    G4DynamicParticle* p1 = new G4DynamicParticle;
+    auto* p1 = new G4DynamicParticle;
     p1->SetDefinition(targetParticle.GetDefinition());
     //G4cout<<"Target secondary: "<<targetParticle.GetDefinition()->GetParticleName()<<G4endl;
     G4ThreeVector momentum = targetParticle.GetMomentum();

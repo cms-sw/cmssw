@@ -185,7 +185,7 @@ void L1MuDTPhiLut::print() const {
       cout << '-';
     cout << "----------------------" << endl;
 
-    LUT::const_iterator iter = phi_lut[idx].begin();
+    auto iter = phi_lut[idx].begin();
     while (iter != phi_lut[idx].end()) {
       int address = (*iter).first;
       int value = (*iter).second;
@@ -218,7 +218,7 @@ void L1MuDTPhiLut::print() const {
 // get delta-phi value for a given address
 //
 int L1MuDTPhiLut::getDeltaPhi(int idx, int address) const {
-  LUT::const_iterator iter = phi_lut[idx].find(address);
+  auto iter = phi_lut[idx].find(address);
   if (iter != phi_lut[idx].end()) {
     return (*iter).second;
   } else {

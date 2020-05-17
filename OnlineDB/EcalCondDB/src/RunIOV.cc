@@ -350,7 +350,7 @@ void RunIOV::setByRun(RunTag* tag, run_t run) noexcept(false) {
   }
 }
 
-void RunIOV::setByTime(std::string location, const Tm& t) noexcept(false) {
+void RunIOV::setByTime(const std::string& location, const Tm& t) noexcept(false) {
   this->checkConnection();
 
   DateHandler dh(m_env, m_conn);
@@ -390,7 +390,7 @@ void RunIOV::setByTime(std::string location, const Tm& t) noexcept(false) {
   }
 }
 
-void RunIOV::setByRun(std::string location, run_t run) noexcept(false) {
+void RunIOV::setByRun(const std::string& location, run_t run) noexcept(false) {
   this->checkConnection();
 
   DateHandler dh(m_env, m_conn);
@@ -426,7 +426,7 @@ void RunIOV::setByRun(std::string location, run_t run) noexcept(false) {
   }
 }
 
-void RunIOV::setByRecentData(std::string dataTable, RunTag* tag, run_t run) noexcept(false) {
+void RunIOV::setByRecentData(const std::string& dataTable, RunTag* tag, run_t run) noexcept(false) {
   this->checkConnection();
 
   tag->setConnection(m_env, m_conn);
@@ -472,7 +472,7 @@ void RunIOV::setByRecentData(std::string dataTable, RunTag* tag, run_t run) noex
   }
 }
 
-void RunIOV::setByRecentData(std::string dataTable, std::string location, run_t run) noexcept(false) {
+void RunIOV::setByRecentData(const std::string& dataTable, const std::string& location, run_t run) noexcept(false) {
   this->checkConnection();
 
   DateHandler dh(m_env, m_conn);

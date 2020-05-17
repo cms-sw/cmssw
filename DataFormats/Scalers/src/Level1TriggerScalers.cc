@@ -59,7 +59,7 @@ Level1TriggerScalers::Level1TriggerScalers()
 Level1TriggerScalers::Level1TriggerScalers(const unsigned char* rawData) {
   Level1TriggerScalers();
 
-  struct ScalersEventRecordRaw_v5 const* raw = reinterpret_cast<struct ScalersEventRecordRaw_v5 const*>(rawData);
+  auto const* raw = reinterpret_cast<struct ScalersEventRecordRaw_v5 const*>(rawData);
 
   trigType_ = (raw->header >> 56) & 0xFULL;
   eventID_ = (raw->header >> 32) & 0x00FFFFFFULL;
@@ -104,12 +104,12 @@ Level1TriggerScalers::Level1TriggerScalers(const unsigned char* rawData) {
     deadtimeBeamActivePartitionController_ = raw->trig.deadtimeBeamActivePartitionController;
     deadtimeBeamActiveTimeSlot_ = raw->trig.deadtimeBeamActiveTimeSlot;
 
-    for (int i = 0; i < ScalersRaw::N_L1_TRIGGERS_v1; i++) {
-      gtAlgoCounts_.push_back(raw->trig.gtAlgoCounts[i]);
+    for (unsigned int gtAlgoCount : raw->trig.gtAlgoCounts) {
+      gtAlgoCounts_.push_back(gtAlgoCount);
     }
 
-    for (int i = 0; i < ScalersRaw::N_L1_TEST_TRIGGERS_v1; i++) {
-      gtTechCounts_.push_back(raw->trig.gtTechCounts[i]);
+    for (unsigned int gtTechCount : raw->trig.gtTechCounts) {
+      gtTechCounts_.push_back(gtTechCount);
     }
 
     if (version_ >= 5) {
@@ -143,7 +143,7 @@ double Level1TriggerScalers::rateLS(unsigned int counts) { return (rateLS(counts
 double Level1TriggerScalers::rateLS(unsigned long long counts) { return (rateLS(counts, firstShortLSRun)); }
 
 double Level1TriggerScalers::rateLS(unsigned int counts, int runNumber) {
-  unsigned long long counts64 = (unsigned long long)counts;
+  auto counts64 = (unsigned long long)counts;
   return (rateLS(counts64, runNumber));
 }
 

@@ -50,16 +50,16 @@ void ProduceDropBoxMetadata::beginRun(const edm::Run& run, const edm::EventSetup
     DropBoxMetadata* metadata = new DropBoxMetadata;
 
     // loop over all the pSets for the TF1 that we want to write to DB
-    for (vector<ParameterSet>::const_iterator fSetup = fToWrite.begin(); fSetup != fToWrite.end(); ++fSetup) {
-      string record = (*fSetup).getUntrackedParameter<string>("record");
+    for (const auto& fSetup : fToWrite) {
+      string record = fSetup.getUntrackedParameter<string>("record");
       cout << "\n--- record: " << record << endl;
       DropBoxMetadata::Parameters params;
-      vector<string> paramKeys = (*fSetup).getParameterNames();
-      for (vector<string>::const_iterator key = paramKeys.begin(); key != paramKeys.end(); ++key) {
-        if (*key != "record") {
-          string value = (*fSetup).getUntrackedParameter<string>(*key);
-          params.addParameter(*key, value);
-          cout << "           key: " << *key << " value: " << value << endl;
+      vector<string> paramKeys = fSetup.getParameterNames();
+      for (const auto& paramKey : paramKeys) {
+        if (paramKey != "record") {
+          string value = fSetup.getUntrackedParameter<string>(paramKey);
+          params.addParameter(paramKey, value);
+          cout << "           key: " << paramKey << " value: " << value << endl;
         }
       }
       metadata->addRecordParameters(record, params);
@@ -81,12 +81,12 @@ void ProduceDropBoxMetadata::beginRun(const edm::Run& run, const edm::EventSetup
     const DropBoxMetadata* metadata = mdPayload.product();
 
     // loop
-    for (vector<string>::const_iterator name = fToRead.begin(); name != fToRead.end(); ++name) {
-      cout << "\n--- record: " << *name << endl;
-      if (metadata->knowsRecord(*name)) {
-        const map<string, string>& params = metadata->getRecordParameters(*name).getParameterMap();
-        for (map<string, string>::const_iterator par = params.begin(); par != params.end(); ++par) {
-          cout << "           key: " << par->first << " value: " << par->second << endl;
+    for (const auto& name : fToRead) {
+      cout << "\n--- record: " << name << endl;
+      if (metadata->knowsRecord(name)) {
+        const map<string, string>& params = metadata->getRecordParameters(name).getParameterMap();
+        for (const auto& param : params) {
+          cout << "           key: " << param.first << " value: " << param.second << endl;
         }
       } else {
         cout << "     not in the payload!" << endl;

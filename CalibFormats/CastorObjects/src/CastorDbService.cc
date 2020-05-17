@@ -68,12 +68,12 @@ void CastorDbService::buildCalibrations() {
   CastorCalibrations tool;
 
   //  std::cout << " length of id-vector: " << ids.size() << std::endl;
-  for (std::vector<DetId>::const_iterator id = ids.begin(); id != ids.end(); ++id) {
+  for (auto id : ids) {
     // make
-    bool ok = makeCastorCalibration(*id, &tool, pedsInADC);
+    bool ok = makeCastorCalibration(id, &tool, pedsInADC);
     // store
     if (ok)
-      mCalibSet.setCalibrations(*id, tool);
+      mCalibSet.setCalibrations(id, tool);
     //    std::cout << "Castor calibrations built... detid no. " << HcalGenericDetId(*id) << std::endl;
   }
   mCalibSet.sort();
@@ -92,12 +92,12 @@ void CastorDbService::buildCalibWidths() {
   CastorCalibrationWidths tool;
 
   //  std::cout << " length of id-vector: " << ids.size() << std::endl;
-  for (std::vector<DetId>::const_iterator id = ids.begin(); id != ids.end(); ++id) {
+  for (auto id : ids) {
     // make
-    bool ok = makeCastorCalibrationWidth(*id, &tool, pedsInADC);
+    bool ok = makeCastorCalibrationWidth(id, &tool, pedsInADC);
     // store
     if (ok)
-      mCalibWidthSet.setCalibrationWidths(*id, tool);
+      mCalibWidthSet.setCalibrationWidths(id, tool);
     //    std::cout << "Castor calibrations built... detid no. " << HcalGenericDetId(*id) << std::endl;
   }
   mCalibWidthSet.sort();

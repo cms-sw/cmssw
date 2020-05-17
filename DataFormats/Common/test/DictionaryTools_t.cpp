@@ -22,9 +22,9 @@ class TestDictionaries : public CppUnit::TestFixture {
 
 public:
   TestDictionaries() {}
-  ~TestDictionaries() {}
-  void setUp() {}
-  void tearDown() {}
+  ~TestDictionaries() override {}
+  void setUp() override {}
+  void tearDown() override {}
 
   void default_is_invalid();
   void no_dictionary_is_invalid();

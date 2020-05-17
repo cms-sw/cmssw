@@ -83,7 +83,7 @@ namespace cms {
   //!  and make a RecHit to store the result.
   //!  New interface reading DetSetVector by V.Chiochia (May 30th, 2006)
   //---------------------------------------------------------------------------
-  void SiPixelRecHitConverter::run(edm::Handle<edmNew::DetSetVector<SiPixelCluster> > inputhandle,
+  void SiPixelRecHitConverter::run(const edm::Handle<edmNew::DetSetVector<SiPixelCluster> >& inputhandle,
                                    SiPixelRecHitCollectionNew& output,
                                    edm::ESHandle<TrackerGeometry>& geom) {
     if (!cpe_) {
@@ -105,7 +105,7 @@ namespace cms {
       unsigned int detid = DSViter->detId();
       DetId detIdObject(detid);
       const GeomDetUnit* genericDet = geom->idToDetUnit(detIdObject);
-      const PixelGeomDetUnit* pixDet = dynamic_cast<const PixelGeomDetUnit*>(genericDet);
+      const auto* pixDet = dynamic_cast<const PixelGeomDetUnit*>(genericDet);
       assert(pixDet);
       SiPixelRecHitCollectionNew::FastFiller recHitsOnDetUnit(output, detid);
 

@@ -119,15 +119,15 @@ std::vector<CSCSegment> CSCSegAlgoTC::buildSegments(const ChamberHitContainer& u
 
   sfit_ = nullptr;
 
-  ChamberHitContainerCIt ib = rechits.begin();
-  ChamberHitContainerCIt ie = rechits.end();
+  auto ib = rechits.begin();
+  auto ie = rechits.end();
 
-  for (ChamberHitContainerCIt i1 = ib; i1 != ie; ++i1) {
+  for (auto i1 = ib; i1 != ie; ++i1) {
     int layer1 = layerIndex[i1 - ib];
 
     const CSCRecHit2D* h1 = *i1;
 
-    for (ChamberHitContainerCIt i2 = ie - 1; i2 != i1; --i2) {
+    for (auto i2 = ie - 1; i2 != i1; --i2) {
       int layer2 = layerIndex[i2 - ib];
 
       if (abs(layer2 - layer1) < minLayersApart)
@@ -181,8 +181,7 @@ std::vector<CSCSegment> CSCSegAlgoTC::buildSegments(const ChamberHitContainer& u
   pruneTheSegments(rechits);
 
   // Create CSCSegments for the surviving candidates
-  for (unsigned int i = 0; i < candidates.size(); ++i) {
-    CSCSegFit* sfit = candidates[i];
+  for (auto sfit : candidates) {
     //    edm::LogVerbatim("CSCSegment") << "candidate fit " << i+1 << " of " << candidates.size() << " is at " << sfit;
     //    if ( !sfit ) {
     //      edm::LogVerbatim("CSCSegment") << "stored a null pointer for element " << i+1 << " of " << candidates.size();
@@ -217,10 +216,10 @@ void CSCSegAlgoTC::tryAddingHitsToSegment(const ChamberHitContainer& rechits,
   //    - if not, copy the segment, add the hit. If the new chi2/dof is still satisfactory
   //      then replace the original segment with the new one (by swap)
 
-  ChamberHitContainerCIt ib = rechits.begin();
-  ChamberHitContainerCIt ie = rechits.end();
+  auto ib = rechits.begin();
+  auto ie = rechits.end();
 
-  for (ChamberHitContainerCIt i = ib; i != ie; ++i) {
+  for (auto i = ib; i != ie; ++i) {
     if (i == i1 || i == i2)
       continue;
 
@@ -457,9 +456,9 @@ bool CSCSegAlgoTC::isSegmentGood(std::vector<CSCSegFit*>::iterator seg,
   ChamberHitContainer hits_ = (*seg)->hits();
 
   for (size_t ish = 0; ish < nhits; ++ish) {
-    ChamberHitContainerCIt ib = rechitsInChamber.begin();
+    auto ib = rechitsInChamber.begin();
 
-    for (ChamberHitContainerCIt ic = ib; ic != rechitsInChamber.end(); ++ic) {
+    for (auto ic = ib; ic != rechitsInChamber.end(); ++ic) {
       if ((hits_[ish] == (*ic)) && used[ic - ib])
         return false;
     }
@@ -473,12 +472,12 @@ void CSCSegAlgoTC::flagHitsAsUsed(std::vector<CSCSegFit*>::iterator seg,
                                   BoolContainer& used) const {
   // Flag hits on segment as used
 
-  ChamberHitContainerCIt ib = rechitsInChamber.begin();
+  auto ib = rechitsInChamber.begin();
   ChamberHitContainer hits = (*seg)->hits();
 
-  for (size_t ish = 0; ish < hits.size(); ++ish) {
-    for (ChamberHitContainerCIt iu = ib; iu != rechitsInChamber.end(); ++iu)
-      if (hits[ish] == (*iu))
+  for (auto& hit : hits) {
+    for (auto iu = ib; iu != rechitsInChamber.end(); ++iu)
+      if (hit == (*iu))
         used[iu - ib] = true;
   }
 }

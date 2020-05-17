@@ -56,7 +56,7 @@ void FWDTRecHitProxyBuilder::buildViewType(const DTRecHit1DPair& iData,
     return;
   }
 
-  TEveStraightLineSet* recHitSet = new TEveStraightLineSet;
+  auto* recHitSet = new TEveStraightLineSet;
   setupAddElement(recHitSet, &oItemHolder);
 
   TEvePointSet* pointSet = new TEvePointSet;

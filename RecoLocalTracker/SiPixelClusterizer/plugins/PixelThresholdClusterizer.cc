@@ -125,8 +125,8 @@ void PixelThresholdClusterizer::clusterizeDetUnitT(const T& input,
                                                    const TrackerTopology* tTopo,
                                                    const std::vector<short>& badChannels,
                                                    edmNew::DetSetVector<SiPixelCluster>::FastFiller& output) {
-  typename T::const_iterator begin = input.begin();
-  typename T::const_iterator end = input.end();
+  auto begin = input.begin();
+  auto end = input.end();
 
   // Do not bother for empty detectors
   //if (begin == end) cout << " PixelThresholdClusterizer::clusterizeDetUnit - No digis to clusterize";
@@ -150,12 +150,12 @@ void PixelThresholdClusterizer::clusterizeDetUnitT(const T& input,
   assert(output.empty());
   //  Loop over all seeds.  TO DO: wouldn't using iterators be faster?
   //  edm::LogError("PixelThresholdClusterizer") <<  "Starting clusterizing" << endl;
-  for (unsigned int i = 0; i < theSeeds.size(); i++) {
+  for (auto theSeed : theSeeds) {
     // Gavril : The charge of seeds that were already inlcuded in clusters is set to 1 electron
     // so we don't want to call "make_cluster" for these cases
-    if (theBuffer(theSeeds[i]) >= theSeedThreshold) {  // Is this seed still valid?
+    if (theBuffer(theSeed) >= theSeedThreshold) {  // Is this seed still valid?
       //  Make a cluster around this seed
-      SiPixelCluster&& cluster = make_cluster(theSeeds[i], output);
+      SiPixelCluster&& cluster = make_cluster(theSeed, output);
 
       //  Check if the cluster is above threshold
       // (TO DO: one is signed, other unsigned, gcc warns...)
@@ -191,7 +191,7 @@ void PixelThresholdClusterizer::clusterizeDetUnitT(const T& input,
 //!  the whole buffer array?
 //----------------------------------------------------------------------------
 void PixelThresholdClusterizer::clear_buffer(DigiIterator begin, DigiIterator end) {
-  for (DigiIterator di = begin; di != end; ++di) {
+  for (auto di = begin; di != end; ++di) {
     theBuffer.set_adc(di->row(), di->column(), 0);  // reset pixel adc to 0
   }
 }
@@ -222,7 +222,7 @@ void PixelThresholdClusterizer::copy_to_buffer(DigiIterator begin, DigiIterator 
 
   if (doPhase2Calibration) {
     int i = 0;
-    for (DigiIterator di = begin; di != end; ++di) {
+    for (auto di = begin; di != end; ++di) {
       electron[i] = calibrate(di->adc(), di->column(), di->row());
       i++;
     }
@@ -240,7 +240,7 @@ void PixelThresholdClusterizer::copy_to_buffer(DigiIterator begin, DigiIterator 
     } else {
       int i = 0;
       const float gain = theElectronPerADCGain;  // default: 1 ADC = 135 electrons
-      for (DigiIterator di = begin; di != end; ++di) {
+      for (auto di = begin; di != end; ++di) {
         auto adc = di->adc();
         const float pedestal = 0.;  //
         electron[i] = int(adc * gain + pedestal);
@@ -254,7 +254,7 @@ void PixelThresholdClusterizer::copy_to_buffer(DigiIterator begin, DigiIterator 
 #ifdef PIXELREGRESSION
   static std::atomic<int> eqD = 0;
 #endif
-  for (DigiIterator di = begin; di != end; ++di) {
+  for (auto di = begin; di != end; ++di) {
     int row = di->row();
     int col = di->column();
     int adc = electron[i++];  // this is in electrons
@@ -278,7 +278,7 @@ void PixelThresholdClusterizer::copy_to_buffer(DigiIterator begin, DigiIterator 
     if (adc >= thePixelThreshold) {
       theBuffer.set_adc(row, col, adc);
       if (adc >= theSeedThreshold)
-        theSeeds.push_back(SiPixelCluster::PixelPos(row, col));
+        theSeeds.emplace_back(row, col);
     }
   }
   assert(i == (end - begin));
@@ -297,7 +297,7 @@ void PixelThresholdClusterizer::copy_to_buffer(ClusterIterator begin, ClusterIte
       if (adc >= thePixelThreshold) {
         theBuffer.add_adc(row, col, adc);
         if (adc >= theSeedThreshold)
-          theSeeds.push_back(SiPixelCluster::PixelPos(row, col));
+          theSeeds.emplace_back(row, col);
       }
     }
   }
@@ -494,10 +494,10 @@ endClus:
       //We also want to keep the merged cluster in data and let the RecHit algorithm decide which set to keep
       //This loop adds the second cluster to the first.
       const std::vector<SiPixelCluster::Pixel>& branch_pixels = second_cluster.pixels();
-      for (unsigned int i = 0; i < branch_pixels.size(); i++) {
-        int temp_x = branch_pixels[i].x;
-        int temp_y = branch_pixels[i].y;
-        int temp_adc = branch_pixels[i].adc;
+      for (auto branch_pixel : branch_pixels) {
+        int temp_x = branch_pixel.x;
+        int temp_y = branch_pixel.y;
+        int temp_adc = branch_pixel.adc;
         SiPixelCluster::PixelPos newpix(temp_x, temp_y);
         cluster.add(newpix, temp_adc);
       }

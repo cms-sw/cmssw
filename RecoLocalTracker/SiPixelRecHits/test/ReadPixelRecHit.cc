@@ -259,7 +259,7 @@ void ReadPixelRecHit::analyze(const edm::Event& e, const edm::EventSetup& es) {
       continue;
 
     // Get the geometrical information for this det
-    const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>(theTracker.idToDet(detId));
+    const auto* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>(theTracker.idToDet(detId));
     double detZ = theGeomDet->surface().position().z();
     double detR = theGeomDet->surface().position().perp();
 

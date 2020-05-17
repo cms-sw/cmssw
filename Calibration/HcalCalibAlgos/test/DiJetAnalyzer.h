@@ -87,12 +87,12 @@ private:
 class DiJetAnalyzer : public edm::EDAnalyzer {
 public:
   explicit DiJetAnalyzer(const edm::ParameterSet&);
-  ~DiJetAnalyzer();
+  ~DiJetAnalyzer() override;
 
 private:
-  virtual void beginJob();  //(const edm::EventSetup&);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob() override;  //(const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   // parameters
   bool debug_;                    // print debug statements

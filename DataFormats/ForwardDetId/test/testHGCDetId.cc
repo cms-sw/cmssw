@@ -23,7 +23,7 @@ void testCell(int type) {
         std::cout << "ID " << std::hex << id.rawId() << std::dec << " " << id << " Trigger: " << id.triggerCellU()
                   << ":" << id.triggerCellV() << std::endl;
         std::pair<int, int> trig = id.triggerCellUV();
-        std::map<std::pair<int, int>, int>::iterator itr = triggers.find(trig);
+        auto itr = triggers.find(trig);
         if (itr == triggers.end()) {
           triggers[trig] = 0;
           itr = triggers.find(trig);

@@ -153,7 +153,7 @@ TaggingVariableList CombinedSVComputer::operator()(const TrackIPTagInfo &ipInfo,
 
     const Vertex &vertex = svInfo.secondaryVertex(i);
     bool hasRefittedTracks = vertex.hasRefittedTracks();
-    for (reco::Vertex::trackRef_iterator track = vertex.tracks_begin(); track != vertex.tracks_end(); track++) {
+    for (auto track = vertex.tracks_begin(); track != vertex.tracks_end(); track++) {
       double w = vertex.trackWeight(*track);
       if (w < minTrackWeight)
         continue;
@@ -215,13 +215,13 @@ TaggingVariableList CombinedSVComputer::operator()(const CandIPTagInfo &ipInfo,
 
     const reco::VertexCompositePtrCandidate &vertex = svInfo.secondaryVertex(i);
     const std::vector<CandidatePtr> &tracks = vertex.daughterPtrVector();
-    for (std::vector<CandidatePtr>::const_iterator track = tracks.begin(); track != tracks.end(); ++track) {
-      vertexKinematics.add(*track);
-      vars.insert(btau::trackEtaRel, reco::btau::etaRel(jetDir, (*track)->momentum()), true);
+    for (const auto &track : tracks) {
+      vertexKinematics.add(track);
+      vars.insert(btau::trackEtaRel, reco::btau::etaRel(jetDir, track->momentum()), true);
       if (vtx < 0)  // calculate this only for the first vertex
       {
-        vtx_track_ptSum += std::sqrt((*track)->momentum().Perp2());
-        vtx_track_ESum += std::sqrt((*track)->momentum().Mag2() + ROOT::Math::Square(ParticleMasses::piPlus));
+        vtx_track_ptSum += std::sqrt(track->momentum().Perp2());
+        vtx_track_ESum += std::sqrt(track->momentum().Mag2() + ROOT::Math::Square(ParticleMasses::piPlus));
       }
     }
 

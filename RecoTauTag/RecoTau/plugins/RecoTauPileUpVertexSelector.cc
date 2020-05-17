@@ -53,7 +53,7 @@ bool RecoTauPileUpVertexSelector::filter(edm::Event& evt, const edm::EventSetup&
     // better name: copy_if_not
     std::remove_copy_if(vertices_->begin() + 1, vertices_->end(), std::back_inserter(*output), [this](auto const& vtx) {
       double trackPtSum = 0.;
-      for (reco::Vertex::trackRef_iterator track = vtx.tracks_begin(); track != vtx.tracks_end(); ++track) {
+      for (auto track = vtx.tracks_begin(); track != vtx.tracks_end(); ++track) {
         trackPtSum += (*track)->pt();
       }
       return trackPtSum > this->minPt_;

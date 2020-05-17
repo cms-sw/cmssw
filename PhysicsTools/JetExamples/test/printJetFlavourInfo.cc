@@ -19,8 +19,8 @@
 class printJetFlavourInfo : public edm::EDAnalyzer {
 public:
   explicit printJetFlavourInfo(const edm::ParameterSet&);
-  ~printJetFlavourInfo(){};
-  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  ~printJetFlavourInfo() override{};
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
 private:
   edm::EDGetTokenT<reco::JetFlavourInfoMatchingCollection> jetFlavourInfosToken_;
@@ -56,20 +56,17 @@ void printJetFlavourInfo::analyze(const edm::Event& iEvent, const edm::EventSetu
     std::vector<bool> jetLocks(theJetFlavourInfos->size(), false);
     std::vector<int> jetIndices;
 
-    for (size_t gj = 0; gj < groomedJets->size(); ++gj) {
+    for (const auto& gj : *groomedJets) {
       double matchedDR2 = 1e9;
       int matchedIdx = -1;
 
-      if (groomedJets->at(gj).pt() > 0.)  // skips pathological cases of groomed jets with Pt=0
+      if (gj.pt() > 0.)  // skips pathological cases of groomed jets with Pt=0
       {
-        for (reco::JetFlavourInfoMatchingCollection::const_iterator j = theJetFlavourInfos->begin();
-             j != theJetFlavourInfos->end();
-             ++j) {
+        for (auto j = theJetFlavourInfos->begin(); j != theJetFlavourInfos->end(); ++j) {
           if (jetLocks.at(j - theJetFlavourInfos->begin()))
             continue;  // skip jets that have already been matched
 
-          double tempDR2 = reco::deltaR2(
-              j->first->rapidity(), j->first->phi(), groomedJets->at(gj).rapidity(), groomedJets->at(gj).phi());
+          double tempDR2 = reco::deltaR2(j->first->rapidity(), j->first->phi(), gj.rapidity(), gj.phi());
           if (tempDR2 < matchedDR2) {
             matchedDR2 = tempDR2;
             matchedIdx = (j - theJetFlavourInfos->begin());
@@ -83,15 +80,13 @@ void printJetFlavourInfo::analyze(const edm::Event& iEvent, const edm::EventSetu
     }
 
     for (size_t j = 0; j < theJetFlavourInfos->size(); ++j) {
-      std::vector<int>::iterator matchedIndex = std::find(jetIndices.begin(), jetIndices.end(), j);
+      auto matchedIndex = std::find(jetIndices.begin(), jetIndices.end(), j);
 
       matchedIndices.push_back(matchedIndex != jetIndices.end() ? std::distance(jetIndices.begin(), matchedIndex) : -1);
     }
   }
 
-  for (reco::JetFlavourInfoMatchingCollection::const_iterator j = theJetFlavourInfos->begin();
-       j != theJetFlavourInfos->end();
-       ++j) {
+  for (auto j = theJetFlavourInfos->begin(); j != theJetFlavourInfos->end(); ++j) {
     std::cout << "-------------------- Jet Flavour Info --------------------" << std::endl;
 
     const reco::Jet* aJet = (*j).first.get();
@@ -162,14 +157,12 @@ void printJetFlavourInfo::analyze(const edm::Event& iEvent, const edm::EventSetu
         const edm::Ptr<reco::Candidate>& subjet =
             groomedJets->at(matchedIndices.at(j - theJetFlavourInfos->begin())).daughterPtr(s);
 
-        for (reco::JetFlavourInfoMatchingCollection::const_iterator sj = theSubjetFlavourInfos->begin();
-             sj != theSubjetFlavourInfos->end();
-             ++sj) {
-          if (subjet != edm::Ptr<reco::Candidate>((*sj).first.id(), (*sj).first.get(), (*sj).first.key()))
+        for (const auto& sj : *theSubjetFlavourInfos) {
+          if (subjet != edm::Ptr<reco::Candidate>(sj.first.id(), sj.first.get(), sj.first.key()))
             continue;
 
-          const reco::Jet* aSubjet = (*sj).first.get();
-          aInfo = (*sj).second;
+          const reco::Jet* aSubjet = sj.first.get();
+          aInfo = sj.second;
           std::cout << std::setprecision(2) << std::setw(6) << std::fixed << "  [printSubjetFlavourInfo] Subjet " << s
                     << " pt, eta, rapidity, phi, dR(eta-phi), dR(rap-phi) = " << aSubjet->pt() << ", " << aSubjet->eta()
                     << ", " << aSubjet->rapidity() << ", " << aSubjet->phi() << ", "

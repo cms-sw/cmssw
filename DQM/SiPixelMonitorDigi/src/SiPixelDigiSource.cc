@@ -119,10 +119,10 @@ void SiPixelDigiSource::dqmBeginLuminosityBlock(const edm::LuminosityBlock& lb, 
   if (modOn && thisls % 10 == 0) {
     ROCMapToReset = true;  //the ROC map is reset each 10 lumisections
 
-    for (int i = 0; i < 2; i++)
-      NzeroROCs[i] = 0;
-    for (int i = 0; i < 2; i++)
-      NloEffROCs[i] = 0;  //resetting also Zero and low eff. ROC counters
+    for (int& NzeroROC : NzeroROCs)
+      NzeroROC = 0;
+    for (int& NloEffROC : NloEffROCs)
+      NloEffROC = 0;  //resetting also Zero and low eff. ROC counters
 
     NzeroROCs[1] = -672;
     NloEffROCs[1] =
@@ -296,10 +296,10 @@ void SiPixelDigiSource::dqmBeginRun(const edm::Run& r, const edm::EventSetup& iS
     DoZeroRocsFMI1 = false;
     DoZeroRocsFMI2 = false;
 
-    for (int i = 0; i < 2; i++)
-      NzeroROCs[i] = 0;
-    for (int i = 0; i < 2; i++)
-      NloEffROCs[i] = 0;
+    for (int& NzeroROC : NzeroROCs)
+      NzeroROC = 0;
+    for (int& NloEffROC : NloEffROCs)
+      NloEffROC = 0;
 
     // Build map
     buildStructure(iSetup);
@@ -1107,11 +1107,11 @@ void SiPixelDigiSource::buildStructure(const edm::EventSetup& iSetup) {
   LogVerbatim("PixelDQM") << " *** I have " << pDD->dets().size() << " detectors" << std::endl;
   LogVerbatim("PixelDQM") << " *** I have " << pDD->detTypes().size() << " types" << std::endl;
 
-  for (TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++) {
+  for (auto it = pDD->dets().begin(); it != pDD->dets().end(); it++) {
     if (dynamic_cast<PixelGeomDetUnit const*>((*it)) != nullptr) {
       DetId detId = (*it)->geographicalId();
       const GeomDetUnit* geoUnit = pDD->idToDetUnit(detId);
-      const PixelGeomDetUnit* pixDet = dynamic_cast<const PixelGeomDetUnit*>(geoUnit);
+      const auto* pixDet = dynamic_cast<const PixelGeomDetUnit*>(geoUnit);
       int nrows = (pixDet->specificTopology()).nrows();
       int ncols = (pixDet->specificTopology()).ncolumns();
 
@@ -1123,13 +1123,13 @@ void SiPixelDigiSource::buildStructure(const edm::EventSetup& iSetup) {
         int layer = PixelBarrelName(DetId(id), pTT, isUpgrade).layerName();
         if (layer > noOfLayers)
           noOfLayers = layer;
-        SiPixelDigiModule* theModule = new SiPixelDigiModule(id, ncols, nrows);
+        auto* theModule = new SiPixelDigiModule(id, ncols, nrows);
         thePixelStructure.insert(pair<uint32_t, SiPixelDigiModule*>(id, theModule));
 
       } else if ((detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) && (!isUpgrade)) {
         LogDebug("PixelDQM") << " ---> Adding Endcap Module " << detId.rawId() << endl;
         uint32_t id = detId();
-        SiPixelDigiModule* theModule = new SiPixelDigiModule(id, ncols, nrows);
+        auto* theModule = new SiPixelDigiModule(id, ncols, nrows);
 
         PixelEndcapName::HalfCylinder side = PixelEndcapName(DetId(id), pTT, isUpgrade).halfCylinder();
         int disk = PixelEndcapName(DetId(id), pTT, isUpgrade).diskName();
@@ -1163,7 +1163,7 @@ void SiPixelDigiSource::buildStructure(const edm::EventSetup& iSetup) {
       } else if ((detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) && (isUpgrade)) {
         LogDebug("PixelDQM") << " ---> Adding Endcap Module " << detId.rawId() << endl;
         uint32_t id = detId();
-        SiPixelDigiModule* theModule = new SiPixelDigiModule(id, ncols, nrows);
+        auto* theModule = new SiPixelDigiModule(id, ncols, nrows);
 
         PixelEndcapName::HalfCylinder side = PixelEndcapName(DetId(id), pTT, isUpgrade).halfCylinder();
         int disk = PixelEndcapName(DetId(id), pTT, isUpgrade).diskName();

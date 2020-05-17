@@ -94,7 +94,7 @@ namespace cscdqm {
                 for (unsigned int x = x1; x < x2; x++) {
                   for (unsigned int y = y1; y < y2; y++) {
                     unsigned int index = PARTITION_INDEX(x, y);
-                    PartitionMapIterator iter = partitions.find(index);
+                    auto iter = partitions.find(index);
                     if (iter == partitions.end()) {
                       std::vector<unsigned int> v;
                       partitions.insert(std::make_pair(index, v));
@@ -181,9 +181,9 @@ namespace cscdqm {
    */
   const float Detector::Area(const Address& adr) const {
     float a = 0;
-    for (unsigned int i = 0; i < N_ELEMENTS; i++) {
-      if (boxes[i].adr == adr) {
-        a += fabs((boxes[i].xmax - boxes[i].xmin) * (boxes[i].ymax - boxes[i].ymin));
+    for (const auto& boxe : boxes) {
+      if (boxe.adr == adr) {
+        a += fabs((boxe.xmax - boxe.xmin) * (boxe.ymax - boxe.ymin));
       }
     }
     return a;
@@ -377,7 +377,7 @@ namespace cscdqm {
                                                  AddressBox*& box) {
     unsigned int index = PARTITION_INDEX(px, py);
 
-    PartitionMapIterator iter = partitions.find(index);
+    auto iter = partitions.find(index);
     if (iter != partitions.end()) {
       if (i < partitions[index].size()) {
         box = &boxes[partitions[index].at(i)];

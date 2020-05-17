@@ -79,7 +79,7 @@ public:
       edm::Handle<reco::VertexCollection> vertices;
       e.getByToken(token_vertex, vertices);
       const reco::VertexCollection vertCollection = *(vertices.product());
-      reco::VertexCollection::const_iterator ci = vertCollection.begin();
+      auto ci = vertCollection.begin();
 
       if (!vertCollection.empty()) {
         originz = ci->z();
@@ -91,7 +91,7 @@ public:
       if (tracks->empty())
         return result;
 
-      reco::TrackCollection::const_iterator itr = tracks->begin();
+      auto itr = tracks->begin();
       for (; itr != tracks->end(); itr++) {
         GlobalVector ptrVec((itr)->px(), (itr)->py(), (itr)->pz());
         globalVector = ptrVec;
@@ -112,7 +112,7 @@ public:
       edm::Handle<reco::VertexCollection> vertices;
       e.getByToken(token_vertex, vertices);
       const reco::VertexCollection vertCollection = *(vertices.product());
-      reco::VertexCollection::const_iterator ci = vertCollection.begin();
+      auto ci = vertCollection.begin();
 
       if (!vertCollection.empty()) {
         originz = ci->z();
@@ -124,10 +124,9 @@ public:
       if (isoPixTrackRefs.empty())
         return result;
 
-      for (uint32_t p = 0; p < isoPixTrackRefs.size(); p++) {
-        GlobalVector ptrVec((isoPixTrackRefs[p]->track())->px(),
-                            (isoPixTrackRefs[p]->track())->py(),
-                            (isoPixTrackRefs[p]->track())->pz());
+      for (auto& isoPixTrackRef : isoPixTrackRefs) {
+        GlobalVector ptrVec(
+            (isoPixTrackRef->track())->px(), (isoPixTrackRef->track())->py(), (isoPixTrackRef->track())->pz());
         globalVector = ptrVec;
 
         result.push_back(std::make_unique<RectangularEtaPhiTrackingRegion>(
@@ -142,7 +141,7 @@ public:
       edm::Handle<reco::VertexCollection> vertices;
       e.getByToken(token_vertex, vertices);
       const reco::VertexCollection vertCollection = *(vertices.product());
-      reco::VertexCollection::const_iterator ci = vertCollection.begin();
+      auto ci = vertCollection.begin();
       if (!vertCollection.empty()) {
         originz = ci->z();
       } else {
@@ -153,8 +152,8 @@ public:
       if (jets->empty())
         return result;
 
-      for (l1extra::L1JetParticleCollection::const_iterator iJet = jets->begin(); iJet != jets->end(); iJet++) {
-        GlobalVector jetVector(iJet->p4().x(), iJet->p4().y(), iJet->p4().z());
+      for (const auto& iJet : *jets) {
+        GlobalVector jetVector(iJet.p4().x(), iJet.p4().y(), iJet.p4().z());
         GlobalPoint vertex(0, 0, originz);
 
         result.push_back(std::make_unique<RectangularEtaPhiTrackingRegion>(
@@ -170,7 +169,7 @@ public:
       edm::Handle<reco::VertexCollection> vertices;
       e.getByToken(token_vertex, vertices);
       const reco::VertexCollection vertCollection = *(vertices.product());
-      reco::VertexCollection::const_iterator ci = vertCollection.begin();
+      auto ci = vertCollection.begin();
       if (!vertCollection.empty()) {
         originz = ci->z();
       } else {

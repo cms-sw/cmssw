@@ -153,7 +153,7 @@ std::unique_ptr<PixelCPEBase::ClusterParam> PixelCPEGeneric::createClusterParam(
 //! into the local frame (in centimeters).
 //-----------------------------------------------------------------------------
 LocalPoint PixelCPEGeneric::localPosition(DetParam const& theDetParam, ClusterParam& theClusterParamBase) const {
-  ClusterParamGeneric& theClusterParam = static_cast<ClusterParamGeneric&>(theClusterParamBase);
+  auto& theClusterParam = static_cast<ClusterParamGeneric&>(theClusterParamBase);
 
   //cout<<" in PixelCPEGeneric:localPosition - "<<endl; //dk
 
@@ -403,7 +403,7 @@ void PixelCPEGeneric::collect_edge_charges(ClusterParam& theClusterParamBase,  /
                                            int& Q_f_Y,                         //!< output, Q first  in Y
                                            int& Q_l_Y                          //!< output, Q last   in Y
 ) const {
-  ClusterParamGeneric& theClusterParam = static_cast<ClusterParamGeneric&>(theClusterParamBase);
+  auto& theClusterParam = static_cast<ClusterParamGeneric&>(theClusterParamBase);
 
   // Initialize return variables.
   Q_f_X = Q_l_X = 0.0;
@@ -447,7 +447,7 @@ void PixelCPEGeneric::collect_edge_charges(ClusterParam& theClusterParamBase,  /
 //  Hit error in the local frame
 //-------------------------------------------------------------------------
 LocalError PixelCPEGeneric::localError(DetParam const& theDetParam, ClusterParam& theClusterParamBase) const {
-  ClusterParamGeneric& theClusterParam = static_cast<ClusterParamGeneric&>(theClusterParamBase);
+  auto& theClusterParam = static_cast<ClusterParamGeneric&>(theClusterParamBase);
 
   const bool localPrint = false;
   // Default errors are the maximum error used for edge clusters.

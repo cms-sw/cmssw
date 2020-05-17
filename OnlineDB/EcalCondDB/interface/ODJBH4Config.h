@@ -3,6 +3,7 @@
 
 #include <map>
 #include <stdexcept>
+#include <utility>
 
 #include "OnlineDB/EcalCondDB/interface/IODConfig.h"
 
@@ -21,19 +22,19 @@ public:
   inline void setUseBuffer(int x) { m_use_buffer = x; }
   inline int getUseBuffer() const { return m_use_buffer; }
 
-  inline void setHalModuleFile(std::string x) { m_hal_mod_file = x; }
+  inline void setHalModuleFile(std::string x) { m_hal_mod_file = std::move(x); }
   inline std::string getHalModuleFile() const { return m_hal_mod_file; }
 
-  inline void setHalAddressTableFile(std::string x) { m_hal_add_file = x; }
+  inline void setHalAddressTableFile(std::string x) { m_hal_add_file = std::move(x); }
   inline std::string getHalAddressTableFile() const { return m_hal_add_file; }
 
-  inline void setHalStaticTableFile(std::string x) { m_hal_tab_file = x; }
+  inline void setHalStaticTableFile(std::string x) { m_hal_tab_file = std::move(x); }
   inline std::string getHalStaticTableFile() const { return m_hal_tab_file; }
 
-  inline void setCbd8210SerialNumber(std::string x) { m_serial = x; }
+  inline void setCbd8210SerialNumber(std::string x) { m_serial = std::move(x); }
   inline std::string getCbd8210SerialNumber() const { return m_serial; }
 
-  inline void setCaenBridgeType(std::string x) { m_caen1 = x; }
+  inline void setCaenBridgeType(std::string x) { m_caen1 = std::move(x); }
   inline std::string getCaenBridgeType() const { return m_caen1; }
 
   inline void setCaenLinkNumber(int x) { m_caen2 = x; }

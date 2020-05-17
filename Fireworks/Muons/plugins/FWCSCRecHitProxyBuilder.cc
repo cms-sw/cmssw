@@ -41,9 +41,9 @@ void FWCSCRecHitProxyBuilder::build(const CSCRecHit2D& iData,
     fwLog(fwlog::kError) << "failed to get geometry of CSC layer with detid: " << rawid << std::endl;
     return;
   }
-  FWGeometry::IdToInfoItr det = geom->find(rawid);
+  auto det = geom->find(rawid);
 
-  TEveStraightLineSet* recHitSet = new TEveStraightLineSet;
+  auto* recHitSet = new TEveStraightLineSet;
   setupAddElement(recHitSet, &oItemHolder);
 
   TEvePointSet* pointSet = new TEvePointSet;

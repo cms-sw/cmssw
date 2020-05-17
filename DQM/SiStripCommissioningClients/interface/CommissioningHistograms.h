@@ -90,9 +90,9 @@ public:
                                   const std::string& top_level_dir,
                                   const sistrip::Granularity&);
 
-  void remove(std::string pattern = "");
+  void remove(const std::string& pattern = "");
 
-  void save(std::string& filename, uint32_t run_number = 0, std::string partitionName = "");
+  void save(std::string& filename, uint32_t run_number = 0, const std::string& partitionName = "");
 
   // ---------- protected methods ----------
 

@@ -154,16 +154,13 @@ void TKinFitter::resetStatus() {
 void TKinFitter::resetParams() {
   // reset all particles to their initial parameters
 
-  for (unsigned int iP = 0; iP < _measParticles.size(); iP++) {
-    TAbsFitParticle* particle = _measParticles[iP];
+  for (auto particle : _measParticles) {
     particle->reset();
   }
-  for (unsigned int iP = 0; iP < _unmeasParticles.size(); iP++) {
-    TAbsFitParticle* particle = _unmeasParticles[iP];
+  for (auto particle : _unmeasParticles) {
     particle->reset();
   }
-  for (unsigned int iC = 0; iC < _constraints.size(); iC++) {
-    TAbsFitConstraint* constraint = _constraints[iC];
+  for (auto constraint : _constraints) {
     constraint->reset();
   }
 }
@@ -174,11 +171,11 @@ void TKinFitter::countMeasParams() {
   // count number of measured parameters
 
   _nParB = 0;
-  for (unsigned int indexParticle = 0; indexParticle < _measParticles.size(); indexParticle++) {
-    _nParB += _measParticles[indexParticle]->getNPar();
+  for (auto& _measParticle : _measParticles) {
+    _nParB += _measParticle->getNPar();
   }
-  for (unsigned int indexConstraint = 0; indexConstraint < _constraints.size(); indexConstraint++) {
-    _nParB += _constraints[indexConstraint]->getNPar();
+  for (auto& _constraint : _constraints) {
+    _nParB += _constraint->getNPar();
   }
 }
 
@@ -186,8 +183,8 @@ void TKinFitter::countUnmeasParams() {
   // count number of unmeasured parameters
 
   _nParA = 0;
-  for (unsigned int indexParticle = 0; indexParticle < _unmeasParticles.size(); indexParticle++) {
-    _nParA += _unmeasParticles[indexParticle]->getNPar();
+  for (auto& _unmeasParticle : _unmeasParticles) {
+    _nParA += _unmeasParticle->getNPar();
   }
 }
 
@@ -478,8 +475,7 @@ Bool_t TKinFitter::calcV() {
   _V.Zero();
 
   Int_t offsetP = 0;
-  for (unsigned int iP = 0; iP < _measParticles.size(); iP++) {
-    TAbsFitParticle* particle = _measParticles[iP];
+  for (auto particle : _measParticles) {
     Int_t nParP = particle->getNPar();
     const TMatrixD* covMatrix = particle->getCovMatrix();
 
@@ -492,8 +488,7 @@ Bool_t TKinFitter::calcV() {
     offsetP += nParP;
   }
 
-  for (unsigned int iC = 0; iC < _constraints.size(); iC++) {
-    TAbsFitConstraint* constraint = _constraints[iC];
+  for (auto constraint : _constraints) {
     Int_t nParP = constraint->getNPar();
     const TMatrixD* covMatrix = constraint->getCovMatrix();
 
@@ -527,10 +522,9 @@ Bool_t TKinFitter::calcA() {
 
   for (unsigned int indexConstr = 0; indexConstr < _constraints.size(); indexConstr++) {
     int offsetParam = 0;
-    for (unsigned int indexParticle = 0; indexParticle < _unmeasParticles.size(); indexParticle++) {
+    for (auto particle : _unmeasParticles) {
       // Calculate matrix product  df/dP * dP/dy = (df/dr, df/dtheta, df/dphi, ...)
 
-      TAbsFitParticle* particle = _unmeasParticles[indexParticle];
       TMatrixD* derivParticle = particle->getDerivative();
       TMatrixD* derivConstr = _constraints[indexConstr]->getDerivative(particle);
       TMatrixD deriv(*derivConstr, TMatrixD::kMult, *derivParticle);
@@ -563,9 +557,8 @@ Bool_t TKinFitter::calcB() {
   int offsetParam = 0;
   for (unsigned int indexConstr = 0; indexConstr < _constraints.size(); indexConstr++) {
     offsetParam = 0;
-    for (unsigned int indexParticle = 0; indexParticle < _measParticles.size(); indexParticle++) {
+    for (auto particle : _measParticles) {
       // Calculate matrix product  df/dP * dP/dy = (df/dr, df/dtheta, df/dphi, ...)
-      TAbsFitParticle* particle = _measParticles[indexParticle];
       TMatrixD* derivParticle = particle->getDerivative();
       TMatrixD* derivConstr = _constraints[indexConstr]->getDerivative(particle);
       TMatrixD deriv(*derivConstr, TMatrixD::kMult, *derivParticle);
@@ -787,8 +780,7 @@ Bool_t TKinFitter::calcC() {
   TMatrixD deltaastar(1, 1);
   if (_nParA > 0) {
     deltaastar.ResizeTo(_nParA, 1);
-    for (unsigned int indexParticle = 0; indexParticle < _unmeasParticles.size(); indexParticle++) {
-      TAbsFitParticle* particle = _unmeasParticles[indexParticle];
+    for (auto particle : _unmeasParticles) {
       const TMatrixD* astar = particle->getParCurr();
       const TMatrixD* a = particle->getParIni();
       TMatrixD deltaastarpart(*astar);
@@ -808,8 +800,7 @@ Bool_t TKinFitter::calcC() {
   // calculate delta(y*), = 0 in the first iteration
   TMatrixD deltaystar(_nParB, 1);
   offsetParam = 0;
-  for (unsigned int indexParticle = 0; indexParticle < _measParticles.size(); indexParticle++) {
-    TAbsFitParticle* particle = _measParticles[indexParticle];
+  for (auto particle : _measParticles) {
     const TMatrixD* ystar = particle->getParCurr();
     const TMatrixD* y = particle->getParIni();
     TMatrixD deltaystarpart(*ystar);
@@ -821,9 +812,7 @@ Bool_t TKinFitter::calcC() {
     offsetParam += deltaystarpart.GetNrows();
   }
 
-  for (unsigned int iC = 0; iC < _constraints.size(); iC++) {
-    TAbsFitConstraint* constraint = _constraints[iC];
-
+  for (auto constraint : _constraints) {
     if (constraint->getNPar() > 0) {
       const TMatrixD* alphastar = constraint->getParCurr();
       const TMatrixD* alpha = constraint->getParIni();
@@ -960,8 +949,7 @@ void TKinFitter::applyVFit() {
   // apply fit covariance matrix to measured and unmeasured  particles
 
   int offsetParam = 0;
-  for (unsigned int indexParticle = 0; indexParticle < _measParticles.size(); indexParticle++) {
-    TAbsFitParticle* particle = _measParticles[indexParticle];
+  for (auto particle : _measParticles) {
     Int_t nbParams = particle->getNPar();
     TMatrixD vfit(nbParams, nbParams);
     for (Int_t c = 0; c < nbParams; c++) {
@@ -973,8 +961,7 @@ void TKinFitter::applyVFit() {
     offsetParam += nbParams;
   }
 
-  for (unsigned int indexConstraint = 0; indexConstraint < _constraints.size(); indexConstraint++) {
-    TAbsFitConstraint* constraint = _constraints[indexConstraint];
+  for (auto constraint : _constraints) {
     Int_t nbParams = constraint->getNPar();
     if (nbParams > 0) {
       TMatrixD vfit(nbParams, nbParams);
@@ -988,8 +975,7 @@ void TKinFitter::applyVFit() {
     }
   }
 
-  for (unsigned int indexParticle = 0; indexParticle < _unmeasParticles.size(); indexParticle++) {
-    TAbsFitParticle* particle = _unmeasParticles[indexParticle];
+  for (auto particle : _unmeasParticles) {
     Int_t nbParams = particle->getNPar();
     TMatrixD vfit(nbParams, nbParams);
     for (Int_t c = 0; c < nbParams; c++) {
@@ -1006,8 +992,7 @@ Bool_t TKinFitter::applyDeltaA() {
   //apply corrections to unmeasured particles
 
   int offsetParam = 0;
-  for (unsigned int indexParticle = 0; indexParticle < _unmeasParticles.size(); indexParticle++) {
-    TAbsFitParticle* particle = _unmeasParticles[indexParticle];
+  for (auto particle : _unmeasParticles) {
     Int_t nbParams = particle->getNPar();
     TMatrixD params(nbParams, 1);
     for (Int_t index = 0; index < nbParams; index++) {
@@ -1024,8 +1009,7 @@ Bool_t TKinFitter::applyDeltaY() {
   //apply corrections to measured particles
 
   int offsetParam = 0;
-  for (unsigned int indexParticle = 0; indexParticle < _measParticles.size(); indexParticle++) {
-    TAbsFitParticle* particle = _measParticles[indexParticle];
+  for (auto particle : _measParticles) {
     Int_t nbParams = particle->getNPar();
     TMatrixD params(nbParams, 1);
     for (Int_t index = 0; index < nbParams; index++) {
@@ -1035,8 +1019,7 @@ Bool_t TKinFitter::applyDeltaY() {
     offsetParam += nbParams;
   }
 
-  for (unsigned int indexConstraint = 0; indexConstraint < _constraints.size(); indexConstraint++) {
-    TAbsFitConstraint* constraint = _constraints[indexConstraint];
+  for (auto constraint : _constraints) {
     Int_t nbParams = constraint->getNPar();
     if (nbParams > 0) {
       TMatrixD params(nbParams, 1);
@@ -1056,8 +1039,8 @@ Double_t TKinFitter::getF() {
   // F = Sum[ Abs(f_k( aStar, yStar)) ]
 
   Double_t F = 0.;
-  for (unsigned int indexConstr = 0; indexConstr < _constraints.size(); indexConstr++) {
-    F += TMath::Abs(_constraints[indexConstr]->getCurrentValue());
+  for (auto& _constraint : _constraints) {
+    F += TMath::Abs(_constraint->getCurrentValue());
   }
 
   return F;
@@ -1196,8 +1179,8 @@ void TKinFitter::print() {
   log << "\n";
   // Print constraints
   log << "constraints: \n";
-  for (unsigned int indexConstr = 0; indexConstr < _constraints.size(); indexConstr++) {
-    log << _constraints[indexConstr]->getInfoString();
+  for (auto& _constraint : _constraints) {
+    log << _constraint->getInfoString();
   }
   log << "\n";
 }

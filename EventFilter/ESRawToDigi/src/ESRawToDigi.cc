@@ -66,12 +66,12 @@ void ESRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
   ESDigiCollection digis;
 
   if (regional_) {
-    for (unsigned int i = 0; i < esFeds_to_unpack.size(); ++i) {
-      const FEDRawData& fedRawData = rawdata->FEDData(esFeds_to_unpack[i]);
-      ESUnpacker_->interpretRawData(esFeds_to_unpack[i], fedRawData, *productDCC, *productKCHIP, *productDigis);
+    for (int i : esFeds_to_unpack) {
+      const FEDRawData& fedRawData = rawdata->FEDData(i);
+      ESUnpacker_->interpretRawData(i, fedRawData, *productDCC, *productKCHIP, *productDigis);
 
       if (debug_)
-        std::cout << "FED : " << esFeds_to_unpack[i] << " Data size : " << fedRawData.size() << " (Bytes)" << std::endl;
+        std::cout << "FED : " << i << " Data size : " << fedRawData.size() << " (Bytes)" << std::endl;
     }
   } else {
     for (int fedId = FEDNumbering::MINPreShowerFEDID; fedId <= FEDNumbering::MAXPreShowerFEDID; ++fedId) {

@@ -7,7 +7,7 @@ CSCPedestals::~CSCPedestals() {}
 
 const CSCPedestals::Item& CSCPedestals::item(const CSCDetId& cscId, int strip) const {
   CSCIndexer indexer;
-  PedestalMap::const_iterator mapItr = pedestals.find(indexer.dbIndex(cscId, strip));
+  auto mapItr = pedestals.find(indexer.dbIndex(cscId, strip));
   if (mapItr == pedestals.end()) {
     throw cms::Exception("CSCPedestals") << "Cannot find CSC conditions for chamber " << cscId;
   }

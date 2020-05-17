@@ -24,7 +24,7 @@ void FWEveOverlap::Paint(Option_t*) {
 
   int topNodeIdx = m_browser->getTopNodeIdx();
 
-  FWGeometryTableManagerBase::Entries_i sit = m_browser->getTableManager()->refEntries().begin();
+  auto sit = m_browser->getTableManager()->refEntries().begin();
   std::advance(sit, topNodeIdx);
   TGeoHMatrix mtx;
   m_browser->getTableManager()->getNodeMatrix(*sit, mtx);
@@ -91,7 +91,7 @@ bool FWEveOverlap::paintChildNodesRecurse(FWGeometryTableManagerBase::Entries_i 
 
 TString FWEveOverlap::GetHighlightTooltip() {
   //   printf("highlight tooltio \n");
-  std::set<TGLPhysicalShape*>::iterator it = fHted.begin();
+  auto it = fHted.begin();
   int idx = tableIdx(*it);
   if (idx < 0) {
     return Form("TopNode ");

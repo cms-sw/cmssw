@@ -17,14 +17,12 @@ bool ClusterFilter::filter(Event& e, EventSetup const& es) {
   e.getByLabel(clusterProducer, clusters);
   //   int size=clusters.product()->size();
   int size = 0;
-  for (edm::DetSetVector<SiStripCluster>::const_iterator DSViter = clusters.product()->begin();
-       DSViter != clusters.product()->end();
-       ++DSViter) {
-    size += DSViter->data.size();
+  for (const auto& DSViter : *clusters.product()) {
+    size += DSViter.data.size();
   }
 
   if (size > nMax_)
-    return 0;
+    return false;
   else
-    return 1;
+    return true;
 }

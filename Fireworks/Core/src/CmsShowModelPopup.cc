@@ -141,7 +141,7 @@ void CmsShowModelPopup::fillModelPopup(const FWSelectionManager &iSelMgr) {
   bool multipleNames = false, multipleColors = false, multipleVis = false, multipleTransparecy = false;
 
   m_models = iSelMgr.selected();
-  std::set<FWModelId>::const_iterator id = m_models.begin();
+  auto id = m_models.begin();
   const FWEventItem *item = id->item();
   const FWEventItem::ModelInfo info = item->modelInfo(id->index());
   const FWDisplayProperties &props = info.displayProperties();
@@ -151,7 +151,7 @@ void CmsShowModelPopup::fillModelPopup(const FWSelectionManager &iSelMgr) {
   // equal. This should fix it. The idea is that if any of the elements in
   // models in [1, N] are different from the first, then we consider the
   // set with multipleXYZ.
-  for (std::set<FWModelId>::const_iterator i = ++(m_models.begin()), e = m_models.end(); i != e; ++i) {
+  for (auto i = ++(m_models.begin()), e = m_models.end(); i != e; ++i) {
     const FWEventItem::ModelInfo &nextInfo = i->item()->modelInfo(i->index());
     const FWDisplayProperties &nextProps = nextInfo.displayProperties();
 
@@ -177,7 +177,7 @@ void CmsShowModelPopup::fillModelPopup(const FWSelectionManager &iSelMgr) {
     if (viewChoices.size() > m_openDetailedViewButtons.size()) {
       for (size_t i = 0, e = m_openDetailedViewButtons.size(); i != e; ++i) {
         // printf("show existing buttons\n");
-        TGCompositeFrame *cf = (TGCompositeFrame *)m_openDetailedViewButtons[i]->GetParent();
+        auto *cf = (TGCompositeFrame *)m_openDetailedViewButtons[i]->GetParent();
         cf->ShowFrame(m_openDetailedViewButtons[i]);
       }
 
@@ -186,7 +186,7 @@ void CmsShowModelPopup::fillModelPopup(const FWSelectionManager &iSelMgr) {
       for (size_t index = m_openDetailedViewButtons.size(); index < viewChoices.size(); ++index) {
         button = new TGTextButton(this, "dummy", index);
         AddFrame(button, new TGLayoutHints(kLHintsExpandX, 4, 4, 4, 4));
-        TGCompositeFrame *cf = (TGCompositeFrame *)button->GetParent();
+        auto *cf = (TGCompositeFrame *)button->GetParent();
         cf->MapWindow();
         cf->MapSubwindows();
         m_openDetailedViewButtons.push_back(button);
@@ -196,7 +196,7 @@ void CmsShowModelPopup::fillModelPopup(const FWSelectionManager &iSelMgr) {
     } else if (!viewChoices.empty()) {
       //  printf("show button subset %d \n",  viewChoices.size());
       for (size_t i = 0, e = viewChoices.size(); i != e; ++i) {
-        TGCompositeFrame *cf = (TGCompositeFrame *)m_openDetailedViewButtons[i]->GetParent();
+        auto *cf = (TGCompositeFrame *)m_openDetailedViewButtons[i]->GetParent();
         cf->ShowFrame(m_openDetailedViewButtons[i]);
       }
     }
@@ -233,8 +233,8 @@ void CmsShowModelPopup::fillModelPopup(const FWSelectionManager &iSelMgr) {
 /** Based on the actual models properties, update the GUI. 
   */
 void CmsShowModelPopup::updateDisplay() {
-  for (std::set<FWModelId>::iterator i = m_models.begin(), e = m_models.end(); i != e; ++i) {
-    const FWEventItem::ModelInfo &info = i->item()->modelInfo(i->index());
+  for (auto m_model : m_models) {
+    const FWEventItem::ModelInfo &info = m_model.item()->modelInfo(m_model.index());
     const FWDisplayProperties &p = info.displayProperties();
     m_colorSelectWidget->SetColorByIndex(p.color(), kFALSE);
 
@@ -249,8 +249,8 @@ void CmsShowModelPopup::updateDisplay() {
 
 /* Called by FWGUIManager when change background/colorset. */
 void CmsShowModelPopup::colorSetChanged() {
-  for (std::set<FWModelId>::iterator i = m_models.begin(), e = m_models.end(); i != e; ++i) {
-    const FWEventItem::ModelInfo &info = i->item()->modelInfo(i->index());
+  for (auto m_model : m_models) {
+    const FWEventItem::ModelInfo &info = m_model.item()->modelInfo(m_model.index());
     const FWDisplayProperties &p = info.displayProperties();
     m_colorSelectWidget->SetColorByIndex(p.color(), kFALSE);
   }
@@ -274,7 +274,7 @@ void CmsShowModelPopup::disconnectAll() {
   m_openDetailedViewButtons.front()->SetText("Open Detail View ...");
   assert(!m_openDetailedViewButtons.empty());
   for (size_t i = 1, e = m_openDetailedViewButtons.size(); i != e; ++i) {
-    TGCompositeFrame *cf = (TGCompositeFrame *)m_openDetailedViewButtons[i]->GetParent();
+    auto *cf = (TGCompositeFrame *)m_openDetailedViewButtons[i]->GetParent();
     cf->HideFrame(m_openDetailedViewButtons[i]);
   }
 }
@@ -291,11 +291,11 @@ void CmsShowModelPopup::changeModelColor(Color_t color) {
     return;
 
   FWChangeSentry sentry(*(m_models.begin()->item()->changeManager()));
-  for (std::set<FWModelId>::iterator i = m_models.begin(), e = m_models.end(); i != e; ++i) {
-    const FWEventItem::ModelInfo &info = i->item()->modelInfo(i->index());
+  for (auto m_model : m_models) {
+    const FWEventItem::ModelInfo &info = m_model.item()->modelInfo(m_model.index());
     FWDisplayProperties changeProperties = info.displayProperties();
     changeProperties.setColor(color);
-    i->item()->setDisplayProperties(i->index(), changeProperties);
+    m_model.item()->setDisplayProperties(m_model.index(), changeProperties);
   }
 }
 
@@ -307,11 +307,11 @@ void CmsShowModelPopup::changeModelOpacity(Int_t opacity) {
     return;
 
   FWChangeSentry sentry(*(m_models.begin()->item()->changeManager()));
-  for (std::set<FWModelId>::iterator i = m_models.begin(), e = m_models.end(); i != e; ++i) {
-    const FWEventItem::ModelInfo &info = i->item()->modelInfo(i->index());
+  for (auto m_model : m_models) {
+    const FWEventItem::ModelInfo &info = m_model.item()->modelInfo(m_model.index());
     FWDisplayProperties changeProperties = info.displayProperties();
     changeProperties.setTransparency(100 - opacity);
-    i->item()->setDisplayProperties(i->index(), changeProperties);
+    m_model.item()->setDisplayProperties(m_model.index(), changeProperties);
   }
 }
 
@@ -323,11 +323,11 @@ void CmsShowModelPopup::toggleModelVisible(Bool_t on) {
     return;
 
   FWChangeSentry sentry(*(m_models.begin()->item()->changeManager()));
-  for (std::set<FWModelId>::iterator i = m_models.begin(); i != m_models.end(); ++i) {
-    const FWEventItem::ModelInfo &info = i->item()->modelInfo(i->index());
+  for (auto m_model : m_models) {
+    const FWEventItem::ModelInfo &info = m_model.item()->modelInfo(m_model.index());
     FWDisplayProperties changeProperties = info.displayProperties();
     changeProperties.setIsVisible(on);
-    i->item()->setDisplayProperties(i->index(), changeProperties);
+    m_model.item()->setDisplayProperties(m_model.index(), changeProperties);
   }
 }
 

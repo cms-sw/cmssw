@@ -63,7 +63,7 @@ PFRecoTauTagInfoProducer::PFRecoTauTagInfoProducer(const edm::ParameterSet& iCon
   smearedPVsigmaX_ = iConfig.getParameter<double>("smearedPVsigmaX");
   smearedPVsigmaY_ = iConfig.getParameter<double>("smearedPVsigmaY");
   smearedPVsigmaZ_ = iConfig.getParameter<double>("smearedPVsigmaZ");
-  PFRecoTauTagInfoAlgo_.reset(new PFRecoTauTagInfoAlgorithm(iConfig));
+  PFRecoTauTagInfoAlgo_ = std::make_unique<PFRecoTauTagInfoAlgorithm>(iConfig);
   PFCandidate_token = consumes<PFCandidateCollection>(PFCandidateProducer_);
   PFJetTracksAssociator_token = consumes<JetTracksAssociationCollection>(PFJetTracksAssociatorProducer_);
   PV_token = consumes<VertexCollection>(PVProducer_);
@@ -79,7 +79,7 @@ void PFRecoTauTagInfoProducer::produce(edm::StreamID, edm::Event& iEvent, const 
   iEvent.getByToken(PFCandidate_token, thePFCandidateCollection);
   vector<CandidatePtr> thePFCandsInTheEvent;
   for (unsigned int i_PFCand = 0; i_PFCand != thePFCandidateCollection->size(); i_PFCand++) {
-    thePFCandsInTheEvent.push_back(CandidatePtr(thePFCandidateCollection, i_PFCand));
+    thePFCandsInTheEvent.emplace_back(thePFCandidateCollection, i_PFCand);
   }
   // ***
   // query a rec/sim PV
@@ -101,11 +101,9 @@ void PFRecoTauTagInfoProducer::produce(edm::StreamID, edm::Event& iEvent, const 
   }
 
   auto resultExt = std::make_unique<PFTauTagInfoCollection>();
-  for (JetTracksAssociationCollection::const_iterator iAssoc = thePFJetTracksAssociatorCollection->begin();
-       iAssoc != thePFJetTracksAssociatorCollection->end();
-       iAssoc++) {
-    PFTauTagInfo myPFTauTagInfo = PFRecoTauTagInfoAlgo_->buildPFTauTagInfo(
-        JetBaseRef((*iAssoc).first), thePFCandsInTheEvent, (*iAssoc).second, thePV);
+  for (const auto& iAssoc : *thePFJetTracksAssociatorCollection) {
+    PFTauTagInfo myPFTauTagInfo =
+        PFRecoTauTagInfoAlgo_->buildPFTauTagInfo(JetBaseRef(iAssoc.first), thePFCandsInTheEvent, iAssoc.second, thePV);
     resultExt->push_back(myPFTauTagInfo);
   }
 

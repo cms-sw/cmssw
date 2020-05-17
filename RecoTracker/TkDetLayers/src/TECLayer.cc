@@ -54,8 +54,8 @@ TECLayer::TECLayer(vector<const TECPetal*>& innerPetals, vector<const TECPetal*>
   theComps.assign(theFrontComps.begin(), theFrontComps.end());
   theComps.insert(theComps.end(), theBackComps.begin(), theBackComps.end());
 
-  for (vector<const GeometricSearchDet*>::const_iterator it = theComps.begin(); it != theComps.end(); it++) {
-    theBasicComps.insert(theBasicComps.end(), (**it).basicComponents().begin(), (**it).basicComponents().end());
+  for (auto theComp : theComps) {
+    theBasicComps.insert(theBasicComps.end(), (*theComp).basicComponents().begin(), (*theComp).basicComponents().end());
   }
 
   //This should be no necessary. TO BE CHECKED
@@ -78,21 +78,23 @@ TECLayer::TECLayer(vector<const TECPetal*>& innerPetals, vector<const TECPetal*>
                           << this->position().perp() << " , " << this->specificSurface().innerRadius() << " , "
                           << this->specificSurface().outerRadius();
 
-  for (auto it = theFrontComps.begin(); it != theFrontComps.end(); it++) {
-    LogDebug("TkDetLayers") << "frontPetal phi,z,r: " << (*it)->surface().position().phi() << " , "
-                            << (*it)->surface().position().z() << " , " << (*it)->surface().position().perp();
+  for (auto& theFrontComp : theFrontComps) {
+    LogDebug("TkDetLayers") << "frontPetal phi,z,r: " << theFrontComp->surface().position().phi() << " , "
+                            << theFrontComp->surface().position().z() << " , "
+                            << theFrontComp->surface().position().perp();
   }
 
-  for (auto it = theBackComps.begin(); it != theBackComps.end(); it++) {
-    LogDebug("TkDetLayers") << "backPetal phi,z,r: " << (*it)->surface().position().phi() << " , "
-                            << (*it)->surface().position().z() << " , " << (*it)->surface().position().perp();
+  for (auto& theBackComp : theBackComps) {
+    LogDebug("TkDetLayers") << "backPetal phi,z,r: " << theBackComp->surface().position().phi() << " , "
+                            << theBackComp->surface().position().z() << " , "
+                            << theBackComp->surface().position().perp();
   }
   //-----------------------------------
 }
 
 TECLayer::~TECLayer() {
-  for (auto i = theComps.begin(); i != theComps.end(); i++) {
-    delete *i;
+  for (auto& theComp : theComps) {
+    delete theComp;
   }
 }
 

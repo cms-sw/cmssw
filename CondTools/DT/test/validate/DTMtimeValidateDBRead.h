@@ -15,9 +15,9 @@ class DTMtimeValidateDBRead : public edm::EDAnalyzer {
 public:
   explicit DTMtimeValidateDBRead(edm::ParameterSet const& p);
   explicit DTMtimeValidateDBRead(int i);
-  virtual ~DTMtimeValidateDBRead();
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-  virtual void endJob();
+  ~DTMtimeValidateDBRead() override;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void endJob() override;
 
 private:
   std::string dataFileName;

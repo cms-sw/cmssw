@@ -106,18 +106,18 @@ void ConversionTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
 
   std::map<reco::ConversionTrackCollection::const_iterator, std::vector<const TrackingRecHit*> > rh1;
   std::map<reco::ConversionTrackCollection::const_iterator, std::vector<const TrackingRecHit*> > rh2;
-  for (reco::ConversionTrackCollection::const_iterator track = tC1.begin(); track != tC1.end(); ++track) {
-    trackingRecHit_iterator itB = track->track()->recHitsBegin();
-    trackingRecHit_iterator itE = track->track()->recHitsEnd();
-    for (trackingRecHit_iterator it = itB; it != itE; ++it) {
+  for (auto track = tC1.begin(); track != tC1.end(); ++track) {
+    auto itB = track->track()->recHitsBegin();
+    auto itE = track->track()->recHitsEnd();
+    for (auto it = itB; it != itE; ++it) {
       const TrackingRecHit* hit = &(**it);
       rh1[track].push_back(hit);
     }
   }
-  for (reco::ConversionTrackCollection::const_iterator track = tC2.begin(); track != tC2.end(); ++track) {
-    trackingRecHit_iterator jtB = track->track()->recHitsBegin();
-    trackingRecHit_iterator jtE = track->track()->recHitsEnd();
-    for (trackingRecHit_iterator jt = jtB; jt != jtE; ++jt) {
+  for (auto track = tC2.begin(); track != tC2.end(); ++track) {
+    auto jtB = track->track()->recHitsBegin();
+    auto jtE = track->track()->recHitsEnd();
+    for (auto jt = jtB; jt != jtE; ++jt) {
       const TrackingRecHit* hit = &(**jt);
       rh2[track].push_back(hit);
     }
@@ -125,7 +125,7 @@ void ConversionTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
 
   if ((!tC1.empty()) && (!tC2.empty())) {
     i = -1;
-    for (reco::ConversionTrackCollection::iterator track = tC1.begin(); track != tC1.end(); ++track) {
+    for (auto track = tC1.begin(); track != tC1.end(); ++track) {
       i++;
 
       //clear flags if preferCollection was set to 0
@@ -139,7 +139,7 @@ void ConversionTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
       std::vector<const TrackingRecHit*>& iHits = rh1[track];
       unsigned nh1 = iHits.size();
       int j = -1;
-      for (reco::ConversionTrackCollection::iterator track2 = tC2.begin(); track2 != tC2.end(); ++track2) {
+      for (auto track2 = tC2.begin(); track2 != tC2.end(); ++track2) {
         j++;
 
         //clear flags if preferCollection was set to 0
@@ -243,7 +243,7 @@ void ConversionTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
 
   if (!tC1.empty()) {
     i = 0;
-    for (reco::ConversionTrackCollection::const_iterator track = tC1.begin(); track != tC1.end(); ++track, ++i) {
+    for (auto track = tC1.begin(); track != tC1.end(); ++track, ++i) {
       //don't store tracks rejected as duplicates
       if (!selected1[i]) {
         continue;
@@ -257,7 +257,7 @@ void ConversionTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
 
   if (!tC2.empty()) {
     i = 0;
-    for (reco::ConversionTrackCollection::const_iterator track = tC2.begin(); track != tC2.end(); ++track, ++i) {
+    for (auto track = tC2.begin(); track != tC2.end(); ++track, ++i) {
       //don't store tracks rejected as duplicates
       if (!selected2[i]) {
         continue;

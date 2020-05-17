@@ -157,8 +157,8 @@ void MonMemTTConsistencyDat::writeArrayDB(const std::map<EcalLogicID, MonMemTTCo
   const MonMemTTConsistencyDat* dataitem;
   int count = 0;
   typedef map<EcalLogicID, MonMemTTConsistencyDat>::const_iterator CI;
-  for (CI p = data->begin(); p != data->end(); ++p) {
-    channel = &(p->first);
+  for (const auto& p : *data) {
+    channel = &(p.first);
     int logicID = channel->getLogicID();
     if (!logicID) {
       throw(std::runtime_error("MonMemTTConsistencyDat::writeArrayDB:  Bad EcalLogicID"));
@@ -166,7 +166,7 @@ void MonMemTTConsistencyDat::writeArrayDB(const std::map<EcalLogicID, MonMemTTCo
     ids[count] = logicID;
     iovid_vec[count] = iovID;
 
-    dataitem = &(p->second);
+    dataitem = &(p.second);
     // dataIface.writeDB( channel, dataitem, iov);
     int x = dataitem->getProcessedEvents();
     int y = dataitem->getProblematicEvents();

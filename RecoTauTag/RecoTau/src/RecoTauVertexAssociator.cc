@@ -26,7 +26,7 @@ namespace reco {
           else
             return nullptr;
         }
-        const pat::PackedCandidate* packedCand = dynamic_cast<const pat::PackedCandidate*>(&cand);
+        const auto* packedCand = dynamic_cast<const pat::PackedCandidate*>(&cand);
         if (packedCand != nullptr && packedCand->hasTrackDetails())
           return &packedCand->pseudoTrack();
 
@@ -81,10 +81,8 @@ namespace reco {
         if (leadingTrkOrPFCandOption_ == kFirstTrack) {
           leadCand = selectedPFCands[0];
         } else {
-          for (std::vector<CandidatePtr>::const_iterator pfCand = selectedPFCands.begin();
-               pfCand != selectedPFCands.end();
-               ++pfCand) {
-            const reco::Track* track = getTrack(**pfCand);
+          for (const auto& selectedPFCand : selectedPFCands) {
+            const reco::Track* track = getTrack(*selectedPFCand);
             double actualTrackPt = 0., actualTrackPtError = 0.;
             if (track != nullptr) {
               actualTrackPt = track->pt();
@@ -94,13 +92,13 @@ namespace reco {
             if (leadingTrkOrPFCandOption_ == kLeadTrack) {
               trackPt = actualTrackPt - 2. * actualTrackPtError;
             } else if (leadingTrkOrPFCandOption_ == kLeadPFCand) {
-              trackPt = (*pfCand)->pt();
+              trackPt = selectedPFCand->pt();
             } else if (leadingTrkOrPFCandOption_ == kMinLeadTrackOrPFCand) {
-              trackPt = std::min(actualTrackPt, (double)(*pfCand)->pt());
+              trackPt = std::min(actualTrackPt, (double)selectedPFCand->pt());
             } else
               assert(0);
             if (trackPt > leadTrackPt) {
-              leadCand = (*pfCand);
+              leadCand = selectedPFCand;
               leadTrackPt = trackPt;
             }
           }
@@ -291,17 +289,15 @@ namespace reco {
           double closestDistance = 1.e+6;
           // Find the vertex that has the lowest dZ to the track
           int idxVertex = 0;
-          for (std::vector<reco::VertexRef>::const_iterator selectedVertex = selectedVertices_.begin();
-               selectedVertex != selectedVertices_.end();
-               ++selectedVertex) {
-            double dZ = dzToTrack(*selectedVertex, track);
+          for (const auto& selectedVertice : selectedVertices_) {
+            double dZ = dzToTrack(selectedVertice, track);
             if (verbosity_) {
-              std::cout << "vertex #" << idxVertex << ": x = " << (*selectedVertex)->position().x()
-                        << ", y = " << (*selectedVertex)->position().y()
-                        << ", z = " << (*selectedVertex)->position().z() << " --> dZ = " << dZ << std::endl;
+              std::cout << "vertex #" << idxVertex << ": x = " << selectedVertice->position().x()
+                        << ", y = " << selectedVertice->position().y() << ", z = " << selectedVertice->position().z()
+                        << " --> dZ = " << dZ << std::endl;
             }
             if (dZ < closestDistance) {
-              trkVertex = (*selectedVertex);
+              trkVertex = selectedVertice;
               closestDistance = dZ;
             }
             ++idxVertex;
@@ -325,17 +321,15 @@ namespace reco {
           double largestWeight = -1.;
           // Find the vertex that has the highest association probability to the track
           int idxVertex = 0;
-          for (std::vector<reco::VertexRef>::const_iterator selectedVertex = selectedVertices_.begin();
-               selectedVertex != selectedVertices_.end();
-               ++selectedVertex) {
-            double weight = trackWeightInVertex(*selectedVertex, track);
+          for (const auto& selectedVertice : selectedVertices_) {
+            double weight = trackWeightInVertex(selectedVertice, track);
             if (verbosity_) {
-              std::cout << "vertex #" << idxVertex << ": x = " << (*selectedVertex)->position().x()
-                        << ", y = " << (*selectedVertex)->position().y()
-                        << ", z = " << (*selectedVertex)->position().z() << " --> weight = " << weight << std::endl;
+              std::cout << "vertex #" << idxVertex << ": x = " << selectedVertice->position().x()
+                        << ", y = " << selectedVertice->position().y() << ", z = " << selectedVertice->position().z()
+                        << " --> weight = " << weight << std::endl;
             }
             if (weight > largestWeight) {
-              trkVertex = (*selectedVertex);
+              trkVertex = selectedVertice;
               largestWeight = weight;
             }
             ++idxVertex;
@@ -348,17 +342,15 @@ namespace reco {
             double closestDistance = 1.e+6;
             // Find the vertex that has the lowest dZ to the leading track
             int idxVertex = 0;
-            for (std::vector<reco::VertexRef>::const_iterator selectedVertex = selectedVertices_.begin();
-                 selectedVertex != selectedVertices_.end();
-                 ++selectedVertex) {
-              double dZ = dzToTrack(*selectedVertex, track.get());
+            for (const auto& selectedVertice : selectedVertices_) {
+              double dZ = dzToTrack(selectedVertice, track.get());
               if (verbosity_) {
-                std::cout << "vertex #" << idxVertex << ": x = " << (*selectedVertex)->position().x()
-                          << ", y = " << (*selectedVertex)->position().y()
-                          << ", z = " << (*selectedVertex)->position().z() << " --> dZ = " << dZ << std::endl;
+                std::cout << "vertex #" << idxVertex << ": x = " << selectedVertice->position().x()
+                          << ", y = " << selectedVertice->position().y() << ", z = " << selectedVertice->position().z()
+                          << " --> dZ = " << dZ << std::endl;
               }
               if (dZ < closestDistance) {
-                trkVertex = (*selectedVertex);
+                trkVertex = selectedVertice;
                 closestDistance = dZ;
               }
               ++idxVertex;
@@ -390,7 +382,7 @@ namespace reco {
       const Jet* jetPtr = &jet;
 
       // check if jet-vertex association has been determined for this jet before
-      std::map<const reco::Jet*, reco::VertexRef>::iterator vertexPtr = jetToVertexAssociation_->find(jetPtr);
+      auto vertexPtr = jetToVertexAssociation_->find(jetPtr);
       if (vertexPtr != jetToVertexAssociation_->end()) {
         jetVertex = vertexPtr->second;
       } else {

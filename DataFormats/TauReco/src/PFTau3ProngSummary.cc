@@ -4,8 +4,8 @@
 #include "TVectorT.h"
 using namespace reco;
 
-PFTau3ProngSummary::PFTau3ProngSummary(reco::PFTauTransverseImpactParameterRef TIP,
-                                       TLorentzVector a1,
+PFTau3ProngSummary::PFTau3ProngSummary(const reco::PFTauTransverseImpactParameterRef& TIP,
+                                       const TLorentzVector& a1,
                                        double vertex_chi2,
                                        double vertex_ndf) {
   TIP_ = TIP;
@@ -13,10 +13,10 @@ PFTau3ProngSummary::PFTau3ProngSummary(reco::PFTauTransverseImpactParameterRef T
     has3ProngSolution_.push_back(false);
     solution_Chi2_.push_back(0);
     thetaGJsig_.push_back(0);
-    tau_p4_.push_back(TLorentzVector(0, 0, 0, 0));
-    daughter_PDGID_.push_back(std::vector<int>());
-    daughter_charge_.push_back(std::vector<int>());
-    daughter_p4_.push_back(std::vector<TLorentzVector>());
+    tau_p4_.emplace_back(0, 0, 0, 0);
+    daughter_PDGID_.emplace_back();
+    daughter_charge_.emplace_back();
+    daughter_p4_.emplace_back();
   }
   a1_ = a1;
   sv_ = TVector3(TIP_->secondaryVertex()->x(), TIP_->secondaryVertex()->y(), TIP_->secondaryVertex()->z());
@@ -25,21 +25,21 @@ PFTau3ProngSummary::PFTau3ProngSummary(reco::PFTauTransverseImpactParameterRef T
   vertex_ndf_ = vertex_ndf;
 }
 
-PFTau3ProngSummary::PFTau3ProngSummary(reco::PFTauTransverseImpactParameterRef TIP,
-                                       TLorentzVector a1,
+PFTau3ProngSummary::PFTau3ProngSummary(const reco::PFTauTransverseImpactParameterRef& TIP,
+                                       const TLorentzVector& a1,
                                        double vertex_chi2,
                                        double vertex_ndf,
-                                       TVector3 sv,
-                                       CovMatrix svcov) {
+                                       const TVector3& sv,
+                                       const CovMatrix& svcov) {
   TIP_ = TIP;
   for (unsigned int i = 0; i < nsolutions; i++) {
     has3ProngSolution_.push_back(false);
     solution_Chi2_.push_back(0);
     thetaGJsig_.push_back(0);
-    tau_p4_.push_back(TLorentzVector(0, 0, 0, 0));
-    daughter_PDGID_.push_back(std::vector<int>());
-    daughter_charge_.push_back(std::vector<int>());
-    daughter_p4_.push_back(std::vector<TLorentzVector>());
+    tau_p4_.emplace_back(0, 0, 0, 0);
+    daughter_PDGID_.emplace_back();
+    daughter_charge_.emplace_back();
+    daughter_p4_.emplace_back();
   }
   a1_ = a1;
   sv_ = sv;
@@ -53,10 +53,10 @@ PFTau3ProngSummary::PFTau3ProngSummary() {
     has3ProngSolution_.push_back(false);
     solution_Chi2_.push_back(0);
     thetaGJsig_.push_back(0);
-    tau_p4_.push_back(TLorentzVector(0, 0, 0, 0));
-    daughter_PDGID_.push_back(std::vector<int>());
-    daughter_charge_.push_back(std::vector<int>());
-    daughter_p4_.push_back(std::vector<TLorentzVector>());
+    tau_p4_.emplace_back(0, 0, 0, 0);
+    daughter_PDGID_.emplace_back();
+    daughter_charge_.emplace_back();
+    daughter_p4_.emplace_back();
   }
 }
 

@@ -13,8 +13,8 @@ class testOwnVector : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
   void checkAll();
 };
 
@@ -44,8 +44,8 @@ namespace test {
   class ClassB : public a {
   public:
     ClassB(int i) : ii(i) { memset(&waste, 0, sizeof(waste)); }
-    virtual ~ClassB() {}
-    virtual int f() const { return ii; }
+    ~ClassB() override {}
+    int f() const override { return ii; }
     int ii;
 
   private:
@@ -66,7 +66,7 @@ namespace test {
 void testOwnVector::checkAll() {
   {
     edm::OwnVector<test::Dummy> v;
-    CPPUNIT_ASSERT(v.size() == 0);
+    CPPUNIT_ASSERT(v.empty());
     CPPUNIT_ASSERT(v.empty());
     bool deleted[4] = {false, false, false, false};
     v.push_back(new test::Dummy(0, deleted + 0));
@@ -103,7 +103,7 @@ void testOwnVector::checkAll() {
     CPPUNIT_ASSERT(!deleted[2]);
     CPPUNIT_ASSERT(!deleted[3]);
     v.clear();
-    CPPUNIT_ASSERT(v.size() == 0);
+    CPPUNIT_ASSERT(v.empty());
     CPPUNIT_ASSERT(v.empty());
     CPPUNIT_ASSERT(deleted[0]);
     CPPUNIT_ASSERT(deleted[1]);
@@ -128,10 +128,10 @@ void testOwnVector::checkAll() {
     v.setPtr(typeid(test::a), index, data);
     test::a const* data_a = static_cast<test::a const*>(data);
     test::ClassB const* data_b = dynamic_cast<test::ClassB const*>(data_a);
-    CPPUNIT_ASSERT(data != 0);
-    CPPUNIT_ASSERT(data_a != 0);
-    CPPUNIT_ASSERT(data_b != 0);
-    if (data_b != 0) {  // To silence Coverity
+    CPPUNIT_ASSERT(data != nullptr);
+    CPPUNIT_ASSERT(data_a != nullptr);
+    CPPUNIT_ASSERT(data_b != nullptr);
+    if (data_b != nullptr) {  // To silence Coverity
       CPPUNIT_ASSERT(data_b->f() == 3);
     }
   }

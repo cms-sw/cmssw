@@ -69,7 +69,7 @@ L1CaloGeometryProd::ReturnType L1CaloGeometryProd::produce(const L1CaloGeometryR
   using namespace edm::es;
   std::unique_ptr<L1CaloGeometry> pL1CaloGeometry;
 
-  pL1CaloGeometry = std::unique_ptr<L1CaloGeometry>(new L1CaloGeometry(m_geom));
+  pL1CaloGeometry = std::make_unique<L1CaloGeometry>(m_geom);
 
   return pL1CaloGeometry;
 }

@@ -26,12 +26,12 @@ public:
   testMagGeometryAnalyzer(const edm::ParameterSet& pset){};
 
   /// Destructor
-  virtual ~testMagGeometryAnalyzer(){};
+  ~testMagGeometryAnalyzer() override{};
 
   /// Perform the real analysis
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
 
-  virtual void endJob() {}
+  void endJob() override {}
 
 private:
   void testGrids(const vector<MagVolume6Faces const*>& bvol, const VolumeBasedMagneticField* field);
@@ -43,7 +43,7 @@ void testMagGeometryAnalyzer::analyze(const edm::Event& event, const edm::EventS
   ESHandle<MagneticField> magfield;
   eventSetup.get<IdealMagneticFieldRecord>().get(magfield);
 
-  const VolumeBasedMagneticField* field = dynamic_cast<const VolumeBasedMagneticField*>(magfield.product());
+  const auto* field = dynamic_cast<const VolumeBasedMagneticField*>(magfield.product());
   const MagGeometry* geom = field->field;
 
   // Test that findVolume succeeds for random points
@@ -73,21 +73,21 @@ void testMagGeometryAnalyzer::testGrids(const vector<MagVolume6Faces const*>& bv
                                         const VolumeBasedMagneticField* field) {
   static map<string, int> nameCalls;
 
-  for (vector<MagVolume6Faces const*>::const_iterator i = bvol.begin(); i != bvol.end(); i++) {
-    if ((*i)->copyno != 1) {
+  for (auto i : bvol) {
+    if (i->copyno != 1) {
       continue;
     }
 
-    const MagProviderInterpol* prov = (**i).provider();
-    if (prov == 0) {
-      cout << (*i)->volumeNo << " No interpolator; skipping " << endl;
+    const MagProviderInterpol* prov = (*i).provider();
+    if (prov == nullptr) {
+      cout << i->volumeNo << " No interpolator; skipping " << endl;
       continue;
     }
-    VolumeGridTester tester(*i, prov, field);
+    VolumeGridTester tester(i, prov, field);
     if (tester.testInside())
-      cout << "testGrids: success: " << (**i).volumeNo << endl;
+      cout << "testGrids: success: " << (*i).volumeNo << endl;
     else
-      cout << "testGrids: ERROR: " << (**i).volumeNo << endl;
+      cout << "testGrids: ERROR: " << (*i).volumeNo << endl;
   }
 }
 

@@ -85,7 +85,7 @@ namespace dqmservices {
 
     unsigned int runNumber();
     unsigned int lastLumiFound();
-    void advanceToLumi(unsigned int lumi, std::string reason);
+    void advanceToLumi(unsigned int lumi, const std::string& reason);
 
     static void fillDescription(edm::ParameterSetDescription& d);
 

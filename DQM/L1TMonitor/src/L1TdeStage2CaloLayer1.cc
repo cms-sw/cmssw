@@ -217,18 +217,18 @@ void L1TdeStage2CaloLayer1::endLuminosityBlock(const edm::LuminosityBlock& lumi,
 }
 
 void L1TdeStage2CaloLayer1::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& run, const edm::EventSetup& es) {
-  auto bookEt = [&ibooker](std::string name, std::string title) {
+  auto bookEt = [&ibooker](const std::string& name, std::string title) {
     title += ";Raw ET value";
     return ibooker.book1D(name, title, 512, -0.5, 511.5);
   };
-  auto bookEtDiff = [&ibooker](std::string name, std::string title) {
+  auto bookEtDiff = [&ibooker](const std::string& name, std::string title) {
     title += ";#Delta raw ET value";
     return ibooker.book1D(name, title, 1023, -511.5, 511.5);
   };
-  auto bookEtCorrelation = [&ibooker](std::string name, std::string title) {
+  auto bookEtCorrelation = [&ibooker](const std::string& name, const std::string& title) {
     return ibooker.book2D(name, title, 512, -0.5, 511.5, 512, -0.5, 511.5);
   };
-  auto bookOccupancy = [&ibooker](std::string name, std::string title) {
+  auto bookOccupancy = [&ibooker](const std::string& name, std::string title) {
     title += ";i#eta;i#phi";
     return ibooker.book2D(name, title, 83, -41.5, 41.5, 72, 0.5, 72.5);
   };

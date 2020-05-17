@@ -20,15 +20,14 @@ static long algorithm(dd4hep::Detector& /* description */,
   std::string material = args.value<std::string>("Material");        // Material
   std::string fullCN = args.value<std::string>("FullCell");          // Name of the full cell
   std::string fullSensN = args.value<std::string>("FullSensitive");  // Name of the sensitive part for a full cell
-  std::vector<std::string> truncCN =
-      args.value<std::vector<std::string> >("TruncatedCell");  // Names of truncated cells
-  std::vector<std::string> truncSensN =
+  auto truncCN = args.value<std::vector<std::string> >("TruncatedCell");  // Names of truncated cells
+  auto truncSensN =
       args.value<std::vector<std::string> >("TruncatedSensitive");  // Names of the sensitive parts for truncated cells
-  std::vector<std::string> extenCN = args.value<std::vector<std::string> >("ExtendedCell");  // Names of extended cells
-  std::vector<std::string> extenSensN =
+  auto extenCN = args.value<std::vector<std::string> >("ExtendedCell");  // Names of extended cells
+  auto extenSensN =
       args.value<std::vector<std::string> >("ExtendedSensitive");  // Names of the sensitive parts for extended cells
-  std::vector<std::string> cornrCN = args.value<std::vector<std::string> >("CornerCell");  // Names of the corner cells
-  std::vector<std::string> cornrSensN =
+  auto cornrCN = args.value<std::vector<std::string> >("CornerCell");  // Names of the corner cells
+  auto cornrSensN =
       args.value<std::vector<std::string> >("CornerSensitive");  // Names of the sensitive parts for corner cells
 
   if ((truncCN.size() != truncSensN.size()) || (extenCN.size() != extenSensN.size()) ||

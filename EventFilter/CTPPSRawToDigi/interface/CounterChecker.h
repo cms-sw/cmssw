@@ -45,7 +45,7 @@ public:
       : type(_type), name(_name), min(_min), fraction(_fraction), verbosity(_verbosity) {}
 
   /// add new value to map, counter takes value of EC or BC number
-  void Fill(word counter, TotemFramePosition fr);
+  void Fill(word counter, const TotemFramePosition &fr);
 
   /// summarizes and fill the status (wrong EC and BC progress error for some frames)
   template <typename T>
@@ -88,13 +88,13 @@ void CounterChecker::Analyze(T &status, bool error, std::ostream &es) {
   unsigned int totalFrames = 0;
 
   // finding the most frequent counter
-  for (CounterMap::iterator iter = relationMap.begin(); iter != relationMap.end(); iter++) {
-    unsigned int iterSize = iter->second.size();
+  for (auto &iter : relationMap) {
+    unsigned int iterSize = iter.second.size();
     totalFrames += iterSize;
 
     if (iterSize > mostFrequentSize) {
-      mostFrequentCounter = iter->first;
-      mostFrequentSize = iter->second.size();
+      mostFrequentCounter = iter.first;
+      mostFrequentSize = iter.second.size();
     }
   }
 
@@ -113,9 +113,9 @@ void CounterChecker::Analyze(T &status, bool error, std::ostream &es) {
     return;
   }
 
-  for (CounterMap::iterator iter = relationMap.begin(); iter != relationMap.end(); iter++) {
-    if (iter->first != mostFrequentCounter) {
-      for (std::vector<TotemFramePosition>::iterator fr = iter->second.begin(); fr != iter->second.end(); fr++) {
+  for (auto &iter : relationMap) {
+    if (iter.first != mostFrequentCounter) {
+      for (auto fr = iter.second.begin(); fr != iter.second.end(); fr++) {
         if (error) {
           if (type == ECChecker)
             status[*fr].status.setECProgressError();
@@ -124,7 +124,7 @@ void CounterChecker::Analyze(T &status, bool error, std::ostream &es) {
         }
 
         if (verbosity > 0)
-          es << "Frame at " << *fr << ": " << name << " number " << iter->first
+          es << "Frame at " << *fr << ": " << name << " number " << iter.first
              << " is different from the most frequent one " << mostFrequentCounter << std::endl;
       }
     }

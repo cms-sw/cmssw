@@ -78,8 +78,8 @@ namespace {
 
       TCanvas canvas("Canv", "Canv", 1200, 1000);
       canvas.cd();
-      auto h1 = std::unique_ptr<TH1F>(new TH1F(
-          "value", "SiPixel LA value;SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T];# modules", 50, 0.051, 0.15));
+      auto h1 = std::make_unique<TH1F>(
+          "value", "SiPixel LA value;SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T];# modules", 50, 0.051, 0.15);
 
       canvas.SetTopMargin(0.06);
       canvas.SetBottomMargin(0.12);
@@ -161,20 +161,20 @@ namespace {
 
       TCanvas canvas("Canv", "Canv", 1200, 1000);
       canvas.cd();
-      auto hfirst = std::unique_ptr<TH1F>(
-          new TH1F("value_first",
-                   "SiPixel LA value;SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T];# modules",
-                   50,
-                   0.051,
-                   0.15));
+      auto hfirst =
+          std::make_unique<TH1F>("value_first",
+                                 "SiPixel LA value;SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T];# modules",
+                                 50,
+                                 0.051,
+                                 0.15);
       hfirst->SetStats(false);
 
-      auto hlast = std::unique_ptr<TH1F>(
-          new TH1F("value_last",
-                   "SiPixel LA value;SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T];# modules",
-                   50,
-                   0.051,
-                   0.15));
+      auto hlast =
+          std::make_unique<TH1F>("value_last",
+                                 "SiPixel LA value;SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T];# modules",
+                                 50,
+                                 0.051,
+                                 0.15);
       hlast->SetStats(false);
 
       canvas.SetTopMargin(0.06);
@@ -293,7 +293,7 @@ namespace {
 
       // book the intermediate histograms
       for (int r = SiPixelPI::BPixL1o; r != SiPixelPI::NUM_OF_REGIONS; r++) {
-        SiPixelPI::regions part = static_cast<SiPixelPI::regions>(r);
+        auto part = static_cast<SiPixelPI::regions>(r);
         std::string s_part = SiPixelPI::getStringFromRegionEnum(part);
 
         FirstLA_spectraByRegion[part] = std::make_shared<TH1F>(Form("hfirstLA_%s", s_part.c_str()),
@@ -381,7 +381,7 @@ namespace {
       // fill the summary plots
       int bin = 1;
       for (int r = SiPixelPI::BPixL1o; r != SiPixelPI::NUM_OF_REGIONS; r++) {
-        SiPixelPI::regions part = static_cast<SiPixelPI::regions>(r);
+        auto part = static_cast<SiPixelPI::regions>(r);
 
         summaryFirst->GetXaxis()->SetBinLabel(bin, SiPixelPI::getStringFromRegionEnum(part).c_str());
         // avoid filling the histogram with numerical noise

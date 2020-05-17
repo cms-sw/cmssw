@@ -56,21 +56,20 @@ void CSCSegmentValidation::analyze(const edm::Event &e, const edm::EventSetup &e
 
   theChamberSegmentMap.clear();
   unsigned nPerEvent = 0;
-  for (CSCSegmentCollection::const_iterator segmentItr = cscRecHits->begin(); segmentItr != cscRecHits->end();
-       segmentItr++) {
+  for (const auto &cscRecHit : *cscRecHits) {
     ++nPerEvent;
-    int detId = segmentItr->geographicalId().rawId();
+    int detId = cscRecHit.geographicalId().rawId();
     int chamberType = whatChamberType(detId);
 
-    theNRecHitsPlot->Fill(segmentItr->nRecHits());
+    theNRecHitsPlot->Fill(cscRecHit.nRecHits());
     theNPerChamberTypePlot->Fill(chamberType);
-    theChamberSegmentMap[detId].push_back(*segmentItr);
+    theChamberSegmentMap[detId].push_back(cscRecHit);
 
     // do the resolution plots
     const PSimHit *hit = keyHit(detId);
     if (hit != nullptr) {
       const CSCLayer *layer = findLayer(hit->detUnitId());
-      plotResolution(*hit, *segmentItr, layer, chamberType);
+      plotResolution(*hit, cscRecHit, layer, chamberType);
     }
   }
 
@@ -82,16 +81,14 @@ void CSCSegmentValidation::analyze(const edm::Event &e, const edm::EventSetup &e
 
 void CSCSegmentValidation::fillEfficiencyPlots() {
   // now plot efficiency by looping over all chambers with hits
-  for (ChamberHitMap::const_iterator mapItr = theLayerHitsPerChamber.begin(), mapEnd = theLayerHitsPerChamber.end();
-       mapItr != mapEnd;
-       ++mapItr) {
-    int chamberId = mapItr->first;
-    int nHitsInChamber = mapItr->second.size();
+  for (const auto &mapItr : theLayerHitsPerChamber) {
+    int chamberId = mapItr.first;
+    int nHitsInChamber = mapItr.second.size();
     bool isShower = (nHitsInChamber > theShowerThreshold);
     bool hasSeg = hasSegment(chamberId);
     int chamberType = whatChamberType(chamberId);
     // find how many layers were hit in this chamber
-    std::vector<int> v = mapItr->second;
+    std::vector<int> v = mapItr.second;
     std::sort(v.begin(), v.end());
     // maybe can just count
     v.erase(std::unique(v.begin(), v.end()), v.end());
@@ -185,15 +182,13 @@ void CSCSegmentValidation::plotResolution(const PSimHit &simHit,
 void CSCSegmentValidation::fillLayerHitsPerChamber() {
   theLayerHitsPerChamber.clear();
   std::vector<int> layersHit = theSimHitMap->detsWithHits();
-  for (std::vector<int>::const_iterator layerItr = layersHit.begin(), layersHitEnd = layersHit.end();
-       layerItr != layersHitEnd;
-       ++layerItr) {
-    CSCDetId layerId(*layerItr);
+  for (int layerItr : layersHit) {
+    CSCDetId layerId(layerItr);
     CSCDetId chamberId = layerId.chamberId();
-    int nhits = theSimHitMap->hits(*layerItr).size();
+    int nhits = theSimHitMap->hits(layerItr).size();
     // multiple entries, so we can see showers
     for (int i = 0; i < nhits; ++i) {
-      theLayerHitsPerChamber[chamberId.rawId()].push_back(*layerItr);
+      theLayerHitsPerChamber[chamberId.rawId()].push_back(layerItr);
     }
   }
 }
@@ -209,8 +204,7 @@ const PSimHit *CSCSegmentValidation::keyHit(int chamberId) const {
 
   if (!layerHits.empty()) {
     // pick the hit with maximum energy
-    edm::PSimHitContainer::const_iterator hitItr =
-        std::max_element(layerHits.begin(), layerHits.end(), CSCSegmentValidationUtils::SimHitPabsLessThan);
+    auto hitItr = std::max_element(layerHits.begin(), layerHits.end(), CSCSegmentValidationUtils::SimHitPabsLessThan);
     result = &(*hitItr);
   }
   return result;

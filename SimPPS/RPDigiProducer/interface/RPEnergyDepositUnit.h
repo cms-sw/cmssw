@@ -17,7 +17,7 @@ public:
   inline const Local3DPoint& Position() const { return position_; }
 
   inline void setEnergy(double e) { energy_ = e; }
-  inline void setPosition(Local3DPoint p) { position_ = p; }
+  inline void setPosition(const Local3DPoint& p) { position_ = p; }
 
 private:
   double energy_;

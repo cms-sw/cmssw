@@ -1,10 +1,12 @@
 #include <iostream>
 #include <iomanip>
 #include <string>
+#include <utility>
+
 #include <vector>
-#include <time.h>
+#include <ctime>
 #include <cstdlib>
-#include <limits.h>
+#include <climits>
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 #include "OnlineDB/EcalCondDB/interface/LMFDefFabric.h"
 #include "OnlineDB/EcalCondDB/interface/LMFLaserPulseDat.h"
@@ -21,7 +23,7 @@ public:
   CondDBApp(string sid, string user, string pass) {
     try {
       cout << "Making connection..." << flush;
-      econn = new EcalCondDBInterface(sid, user, pass);
+      econn = new EcalCondDBInterface(std::move(sid), std::move(user), std::move(pass));
       cout << "Done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
@@ -54,7 +56,7 @@ public:
   }
 
 private:
-  CondDBApp();  // hidden default constructor
+  CondDBApp() = delete;  // hidden default constructor
   EcalCondDBInterface *econn;
 };
 

@@ -77,8 +77,8 @@ void DTResolutionTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
       bookHistos(ibooker, wheel);
     }
     vector<const DTChamber*> chambers = muonGeom->chambers();
-    for (vector<const DTChamber*>::const_iterator chamber = chambers.begin(); chamber != chambers.end(); ++chamber) {
-      bookHistos(ibooker, (*chamber)->id());
+    for (auto chamber : chambers) {
+      bookHistos(ibooker, chamber->id());
     }
   }
   bookingdone = true;
@@ -92,19 +92,16 @@ void DTResolutionTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
   if (nLumiSegs % prescaleFactor != 0)
     return;
 
-  for (map<int, MonitorElement*>::const_iterator histo = wheelMeanHistos.begin(); histo != wheelMeanHistos.end();
-       histo++) {
+  for (auto histo = wheelMeanHistos.begin(); histo != wheelMeanHistos.end(); histo++) {
     (*histo).second->Reset();
   }
   if (parameters.getUntrackedParameter<bool>("sigmaTest")) {
-    for (map<int, MonitorElement*>::const_iterator histo = wheelSigmaHistos.begin(); histo != wheelSigmaHistos.end();
-         histo++) {
+    for (auto histo = wheelSigmaHistos.begin(); histo != wheelSigmaHistos.end(); histo++) {
       (*histo).second->Reset();
     }
   }
   if (parameters.getUntrackedParameter<bool>("slopeTest")) {
-    for (map<int, MonitorElement*>::const_iterator histo = wheelSlopeHistos.begin(); histo != wheelSlopeHistos.end();
-         histo++) {
+    for (auto histo = wheelSlopeHistos.begin(); histo != wheelSlopeHistos.end(); histo++) {
       (*histo).second->Reset();
     }
   }
@@ -159,8 +156,8 @@ void DTResolutionTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
 
   edm::LogVerbatim("resolution") << "[DTResolutionTest]: " << nLumiSegs << " updates";
 
-  vector<const DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
-  vector<const DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
+  auto ch_it = muonGeom->chambers().begin();
+  auto ch_end = muonGeom->chambers().end();
 
   edm::LogVerbatim("resolution") << "[DTResolutionTest]: Residual Distribution tests results";
 
@@ -178,8 +175,8 @@ void DTResolutionTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
     if (chID.station() == 4)
       entry = 9;
 
-    vector<const DTSuperLayer*>::const_iterator sl_it = (*ch_it)->superLayers().begin();
-    vector<const DTSuperLayer*>::const_iterator sl_end = (*ch_it)->superLayers().end();
+    auto sl_it = (*ch_it)->superLayers().begin();
+    auto sl_end = (*ch_it)->superLayers().end();
 
     for (; sl_it != sl_end; ++sl_it) {
       DTSuperLayerId slID = (*sl_it)->id();
@@ -251,8 +248,7 @@ void DTResolutionTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
 
   // Mean test
   string MeanCriterionName = parameters.getUntrackedParameter<string>("meanTestName", "ResidualsMeanInRange");
-  for (map<pair<int, int>, MonitorElement*>::const_iterator hMean = MeanHistos.begin(); hMean != MeanHistos.end();
-       hMean++) {
+  for (auto hMean = MeanHistos.begin(); hMean != MeanHistos.end(); hMean++) {
     const QReport* theMeanQReport = (*hMean).second->getQReport(MeanCriterionName);
     stringstream wheel;
     wheel << (*hMean).first.first;
@@ -261,25 +257,24 @@ void DTResolutionTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
     // Report the channels failing the test on the mean
     if (theMeanQReport) {
       vector<dqm::me_util::Channel> badChannels = theMeanQReport->getBadChannels();
-      for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); channel != badChannels.end();
-           channel++) {
+      for (auto& badChannel : badChannels) {
         edm::LogError("resolution") << "Bad mean channel: wh: " << wheel.str()
-                                    << " st: " << stationFromBin((*channel).getBin()) << " sect: " << sector.str()
-                                    << " sl: " << slFromBin((*channel).getBin())
-                                    << " mean (cm): " << (*channel).getContents();
+                                    << " st: " << stationFromBin(badChannel.getBin()) << " sect: " << sector.str()
+                                    << " sl: " << slFromBin(badChannel.getBin())
+                                    << " mean (cm): " << badChannel.getContents();
         string HistoName = "W" + wheel.str() + "_Sec" + sector.str();
         if (parameters.getUntrackedParameter<bool>("meanWrongHisto")) {
-          MeanHistosSetRange.find(HistoName)->second->Fill((*channel).getBin());
-          MeanHistosSetRange2D.find(HistoName)->second->Fill((*channel).getBin(), (*channel).getContents());
+          MeanHistosSetRange.find(HistoName)->second->Fill(badChannel.getBin());
+          MeanHistosSetRange2D.find(HistoName)->second->Fill(badChannel.getBin(), badChannel.getContents());
         }
         // fill the wheel summary histos if the SL has not passed the test
-        if (abs((*channel).getContents()) < parameters.getUntrackedParameter<double>("meanMaxLimit"))
-          wheelMeanHistos[(*hMean).first.first]->Fill(((*hMean).first.second) - 1, (*channel).getBin() - 1, 1);
+        if (abs(badChannel.getContents()) < parameters.getUntrackedParameter<double>("meanMaxLimit"))
+          wheelMeanHistos[(*hMean).first.first]->Fill(((*hMean).first.second) - 1, badChannel.getBin() - 1, 1);
         else
-          wheelMeanHistos[(*hMean).first.first]->Fill(((*hMean).first.second) - 1, (*channel).getBin() - 1, 2);
+          wheelMeanHistos[(*hMean).first.first]->Fill(((*hMean).first.second) - 1, badChannel.getBin() - 1, 2);
         // fill the cms summary histo if the percentual of SL which have not passed the test
         // is more than a predefined treshold
-        if (abs((*channel).getContents()) > parameters.getUntrackedParameter<double>("meanMaxLimit")) {
+        if (abs(badChannel.getContents()) > parameters.getUntrackedParameter<double>("meanMaxLimit")) {
           cmsMeanHistos[make_pair((*hMean).first.first, (*hMean).first.second)]++;
           if (((*hMean).first.second < 13 &&
                double(cmsMeanHistos[make_pair((*hMean).first.first, (*hMean).first.second)]) / 11 >
@@ -300,8 +295,7 @@ void DTResolutionTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
   // Sigma test
   if (parameters.getUntrackedParameter<bool>("sigmaTest")) {
     string SigmaCriterionName = parameters.getUntrackedParameter<string>("sigmaTestName", "ResidualsSigmaInRange");
-    for (map<pair<int, int>, MonitorElement*>::const_iterator hSigma = SigmaHistos.begin(); hSigma != SigmaHistos.end();
-         hSigma++) {
+    for (auto hSigma = SigmaHistos.begin(); hSigma != SigmaHistos.end(); hSigma++) {
       const QReport* theSigmaQReport = (*hSigma).second->getQReport(SigmaCriterionName);
       stringstream wheel;
       wheel << (*hSigma).first.first;
@@ -309,17 +303,16 @@ void DTResolutionTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
       sector << (*hSigma).first.second;
       if (theSigmaQReport) {
         vector<dqm::me_util::Channel> badChannels = theSigmaQReport->getBadChannels();
-        for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); channel != badChannels.end();
-             channel++) {
+        for (auto& badChannel : badChannels) {
           edm::LogError("resolution") << "Bad sigma: wh: " << wheel.str()
-                                      << " st: " << stationFromBin((*channel).getBin()) << " sect: " << sector.str()
-                                      << " sl: " << slFromBin((*channel).getBin())
-                                      << " sigma (cm): " << (*channel).getContents();
+                                      << " st: " << stationFromBin(badChannel.getBin()) << " sect: " << sector.str()
+                                      << " sl: " << slFromBin(badChannel.getBin())
+                                      << " sigma (cm): " << badChannel.getContents();
           string HistoName = "W" + wheel.str() + "_Sec" + sector.str();
-          SigmaHistosSetRange.find(HistoName)->second->Fill((*channel).getBin());
-          SigmaHistosSetRange2D.find(HistoName)->second->Fill((*channel).getBin(), (*channel).getContents());
+          SigmaHistosSetRange.find(HistoName)->second->Fill(badChannel.getBin());
+          SigmaHistosSetRange2D.find(HistoName)->second->Fill(badChannel.getBin(), badChannel.getContents());
           // fill the wheel summary histos if the SL has not passed the test
-          wheelSigmaHistos[(*hSigma).first.first]->Fill(((*hSigma).first.second) - 1, (*channel).getBin() - 1);
+          wheelSigmaHistos[(*hSigma).first.first]->Fill(((*hSigma).first.second) - 1, badChannel.getBin() - 1);
           // fill the cms summary histo if the percentual of SL which have not passed the test
           // is more than a predefined treshold
           cmsSigmaHistos[make_pair((*hSigma).first.first, (*hSigma).first.second)]++;
@@ -342,8 +335,7 @@ void DTResolutionTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
   // Slope test
   if (parameters.getUntrackedParameter<bool>("slopeTest")) {
     string SlopeCriterionName = parameters.getUntrackedParameter<string>("slopeTestName", "ResidualsSlopeInRange");
-    for (map<pair<int, int>, MonitorElement*>::const_iterator hSlope = SlopeHistos.begin(); hSlope != SlopeHistos.end();
-         hSlope++) {
+    for (auto hSlope = SlopeHistos.begin(); hSlope != SlopeHistos.end(); hSlope++) {
       const QReport* theSlopeQReport = (*hSlope).second->getQReport(SlopeCriterionName);
       stringstream wheel;
       wheel << (*hSlope).first.first;
@@ -351,17 +343,16 @@ void DTResolutionTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
       sector << (*hSlope).first.second;
       if (theSlopeQReport) {
         vector<dqm::me_util::Channel> badChannels = theSlopeQReport->getBadChannels();
-        for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); channel != badChannels.end();
-             channel++) {
+        for (auto& badChannel : badChannels) {
           edm::LogError("resolution") << "Bad slope: wh: " << wheel.str()
-                                      << " st: " << stationFromBin((*channel).getBin()) << " sect: " << sector.str()
-                                      << " sl: " << slFromBin((*channel).getBin())
-                                      << " slope: " << (*channel).getContents();
+                                      << " st: " << stationFromBin(badChannel.getBin()) << " sect: " << sector.str()
+                                      << " sl: " << slFromBin(badChannel.getBin())
+                                      << " slope: " << badChannel.getContents();
           string HistoName = "W" + wheel.str() + "_Sec" + sector.str();
-          SlopeHistosSetRange.find(HistoName)->second->Fill((*channel).getBin());
-          SlopeHistosSetRange2D.find(HistoName)->second->Fill((*channel).getBin(), (*channel).getContents());
+          SlopeHistosSetRange.find(HistoName)->second->Fill(badChannel.getBin());
+          SlopeHistosSetRange2D.find(HistoName)->second->Fill(badChannel.getBin(), badChannel.getContents());
           // fill the wheel summary histos if the SL has not passed the test
-          wheelSlopeHistos[(*hSlope).first.first]->Fill(((*hSlope).first.second) - 1, (*channel).getBin() - 1);
+          wheelSlopeHistos[(*hSlope).first.first]->Fill(((*hSlope).first.second) - 1, badChannel.getBin() - 1);
           // fill the cms summary histo if the percentual of SL which have not passed the test
           // is more than a predefined treshold
           cmsSlopeHistos[make_pair((*hSlope).first.first, (*hSlope).first.second)]++;

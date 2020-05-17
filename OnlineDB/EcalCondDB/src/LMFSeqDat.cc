@@ -1,6 +1,8 @@
 #include <stdexcept>
 #include <sstream>
 #include <climits>
+#include <utility>
+
 #include "OnlineDB/EcalCondDB/interface/LMFSeqDat.h"
 #include "OnlineDB/EcalCondDB/interface/DateHandler.h"
 
@@ -184,7 +186,7 @@ void LMFSeqDat::fetchParentIDs() noexcept(false) {
 
 std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunIOV(std::string sql, std::string method) noexcept(false) {
   std::vector<std::string> pars;
-  return fetchByRunIOV(pars, sql, method);
+  return fetchByRunIOV(pars, std::move(sql), std::move(method));
 }
 
 std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunIOV(int par, std::string sql, std::string method) noexcept(false) {
@@ -192,12 +194,12 @@ std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunIOV(int par, std::string sql, std:
   std::stringstream ss;
   ss << "I" << par;
   pars.push_back(ss.str());
-  return fetchByRunIOV(pars, sql, method);
+  return fetchByRunIOV(pars, std::move(sql), std::move(method));
 }
 
 std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunIOV(const std::vector<std::string> &pars,
-                                                  std::string sql,
-                                                  std::string method) noexcept(false) {
+                                                  const std::string &sql,
+                                                  const std::string &method) noexcept(false) {
   std::map<int, LMFSeqDat> l;
   this->checkConnection();
   try {
@@ -278,7 +280,7 @@ std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunNumber(int runno) {
 
 LMFSeqDat LMFSeqDat::fetchByRunNumber(int runno, const Tm &taken_at) { return fetchByRunNumber(runno, taken_at.str()); }
 
-LMFSeqDat LMFSeqDat::fetchByRunNumber(int runno, std::string taken_at) {
+LMFSeqDat LMFSeqDat::fetchByRunNumber(int runno, const std::string &taken_at) {
   std::map<int, LMFSeqDat> l;
   std::vector<std::string> pars;
   std::stringstream ss;
@@ -296,7 +298,7 @@ LMFSeqDat LMFSeqDat::fetchByRunNumber(int runno, std::string taken_at) {
   l = fetchByRunIOV(pars, q, "fetchByRunNumberAt");
   LMFSeqDat ret;
   if (l.size() == 1) {
-    std::map<int, LMFSeqDat>::const_iterator x = l.begin();
+    auto x = l.begin();
     ret = x->second;
   } else if (l.size() > 1) {
     std::cout << "WARNING: Your query returned more than one result. " << std::endl;

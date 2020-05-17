@@ -117,18 +117,18 @@ namespace spr {
       vNeighboursDetId = topology->east(det);
       if (debug) {
         std::cout << "Neighbour:: East";
-        for (unsigned int i = 0; i < vNeighboursDetId.size(); i++)
-          std::cout << " " << (HcalDetId)vNeighboursDetId[i];
+        for (auto i : vNeighboursDetId)
+          std::cout << " " << (HcalDetId)i;
         std::cout << std::endl;
       }
       energy += energyHCAL(vNeighboursDetId, dets, topology, hits, includeHO, hbThr, heThr, hfThr, hoThr, debug);
       if (ieta == 2) {
-        for (int ii = 0; ii < (int)vNeighboursDetId.size(); ii++) {
-          std::vector<DetId> vNeighboursDetIdc = topology->east(vNeighboursDetId[ii]);
+        for (auto ii : vNeighboursDetId) {
+          std::vector<DetId> vNeighboursDetIdc = topology->east(ii);
           if (debug) {
             std::cout << "Neighbour:: East";
-            for (unsigned int i = 0; i < vNeighboursDetIdc.size(); i++)
-              std::cout << " " << (HcalDetId)vNeighboursDetIdc[i];
+            for (auto i : vNeighboursDetIdc)
+              std::cout << " " << (HcalDetId)i;
             std::cout << std::endl;
           }
           energy += energyHCAL(vNeighboursDetIdc, dets, topology, hits, includeHO, hbThr, heThr, hfThr, hoThr, debug);
@@ -140,18 +140,18 @@ namespace spr {
       vNeighboursDetId = topology->west(det);
       if (debug) {
         std::cout << "Neighbour:: West";
-        for (unsigned int i = 0; i < vNeighboursDetId.size(); i++)
-          std::cout << " " << (HcalDetId)vNeighboursDetId[i];
+        for (auto i : vNeighboursDetId)
+          std::cout << " " << (HcalDetId)i;
         std::cout << std::endl;
       }
       energy += energyHCAL(vNeighboursDetId, dets, topology, hits, includeHO, hbThr, heThr, hfThr, hoThr, debug);
       if (ieta == 2) {
-        for (int ii = 0; ii < (int)vNeighboursDetId.size(); ii++) {
-          std::vector<DetId> vNeighboursDetIdc = topology->west(vNeighboursDetId[ii]);
+        for (auto ii : vNeighboursDetId) {
+          std::vector<DetId> vNeighboursDetIdc = topology->west(ii);
           if (debug) {
             std::cout << "Neighbour:: West";
-            for (unsigned int i = 0; i < vNeighboursDetIdc.size(); i++)
-              std::cout << " " << (HcalDetId)vNeighboursDetIdc[i];
+            for (auto i : vNeighboursDetIdc)
+              std::cout << " " << (HcalDetId)i;
             std::cout << std::endl;
           }
           energy += energyHCAL(vNeighboursDetIdc, dets, topology, hits, includeHO, hbThr, heThr, hfThr, hoThr, debug);
@@ -167,8 +167,8 @@ namespace spr {
       std::vector<DetId> NorthDetId = topology->north(detnorth);
       if (debug) {
         std::cout << "Neighbour:: North";
-        for (unsigned int i = 0; i < NorthDetId.size(); i++)
-          std::cout << " " << (HcalDetId)NorthDetId[i];
+        for (auto i : NorthDetId)
+          std::cout << " " << (HcalDetId)i;
         std::cout << std::endl;
       }
       if (!(NorthDetId.empty())) {
@@ -179,18 +179,18 @@ namespace spr {
           vNeighboursDetId = topology->east(NorthDetId[0]);
           if (debug) {
             std::cout << "Neighbour:: East";
-            for (unsigned int i = 0; i < vNeighboursDetId.size(); i++)
-              std::cout << " " << (HcalDetId)vNeighboursDetId[i];
+            for (auto i : vNeighboursDetId)
+              std::cout << " " << (HcalDetId)i;
             std::cout << std::endl;
           }
           energy += energyHCAL(vNeighboursDetId, dets, topology, hits, includeHO, hbThr, heThr, hfThr, hoThr, debug);
           if (ieta == 2) {
-            for (int ii = 0; ii < (int)vNeighboursDetId.size(); ii++) {
-              std::vector<DetId> vNeighboursDetIdc = topology->east(vNeighboursDetId[ii]);
+            for (auto ii : vNeighboursDetId) {
+              std::vector<DetId> vNeighboursDetIdc = topology->east(ii);
               if (debug) {
                 std::cout << "Neighbour:: East";
-                for (unsigned int i = 0; i < vNeighboursDetIdc.size(); i++)
-                  std::cout << " " << (HcalDetId)vNeighboursDetIdc[i];
+                for (auto i : vNeighboursDetIdc)
+                  std::cout << " " << (HcalDetId)i;
                 std::cout << std::endl;
               }
               energy +=
@@ -203,18 +203,18 @@ namespace spr {
           vNeighboursDetId = topology->west(NorthDetId[0]);
           if (debug) {
             std::cout << "Neighbour:: West";
-            for (unsigned int i = 0; i < vNeighboursDetId.size(); i++)
-              std::cout << " " << (HcalDetId)vNeighboursDetId[i];
+            for (auto i : vNeighboursDetId)
+              std::cout << " " << (HcalDetId)i;
             std::cout << std::endl;
           }
           energy += energyHCAL(vNeighboursDetId, dets, topology, hits, includeHO, hbThr, heThr, hfThr, hoThr, debug);
           if (ieta == 2) {
-            for (int ii = 0; ii < (int)vNeighboursDetId.size(); ii++) {
-              std::vector<DetId> vNeighboursDetIdc = topology->west(vNeighboursDetId[ii]);
+            for (auto ii : vNeighboursDetId) {
+              std::vector<DetId> vNeighboursDetIdc = topology->west(ii);
               if (debug) {
                 std::cout << "Neighbour:: West";
-                for (unsigned int i = 0; i < vNeighboursDetIdc.size(); i++)
-                  std::cout << " " << (HcalDetId)vNeighboursDetIdc[i];
+                for (auto i : vNeighboursDetIdc)
+                  std::cout << " " << (HcalDetId)i;
                 std::cout << std::endl;
               }
               energy +=
@@ -239,8 +239,8 @@ namespace spr {
         energy += energyHCAL(SouthDetId, dets, topology, hits, includeHO, hbThr, heThr, hfThr, hoThr, debug);
         if (debug) {
           std::cout << "Neighbour:: South";
-          for (unsigned int i = 0; i < SouthDetId.size(); i++)
-            std::cout << " " << (HcalDetId)SouthDetId[i];
+          for (auto i : SouthDetId)
+            std::cout << " " << (HcalDetId)i;
           std::cout << std::endl;
         }
 
@@ -251,18 +251,18 @@ namespace spr {
           vNeighboursDetId = topology->east(SouthDetId[0]);
           if (debug) {
             std::cout << "Neighbour:: East";
-            for (unsigned int i = 0; i < vNeighboursDetId.size(); i++)
-              std::cout << " " << (HcalDetId)vNeighboursDetId[i];
+            for (auto i : vNeighboursDetId)
+              std::cout << " " << (HcalDetId)i;
             std::cout << std::endl;
           }
           energy += energyHCAL(vNeighboursDetId, dets, topology, hits, includeHO, hbThr, heThr, hfThr, hoThr, debug);
           if (ieta == 2) {
-            for (int ii = 0; ii < (int)vNeighboursDetId.size(); ii++) {
-              std::vector<DetId> vNeighboursDetIdc = topology->east(vNeighboursDetId[ii]);
+            for (auto ii : vNeighboursDetId) {
+              std::vector<DetId> vNeighboursDetIdc = topology->east(ii);
               if (debug) {
                 std::cout << "Neighbour:: East";
-                for (unsigned int i = 0; i < vNeighboursDetIdc.size(); i++)
-                  std::cout << " " << (HcalDetId)vNeighboursDetIdc[i];
+                for (auto i : vNeighboursDetIdc)
+                  std::cout << " " << (HcalDetId)i;
                 std::cout << std::endl;
               }
               energy +=
@@ -275,18 +275,18 @@ namespace spr {
           vNeighboursDetId = topology->west(SouthDetId[0]);
           if (debug) {
             std::cout << "Neighbour:: West";
-            for (unsigned int i = 0; i < vNeighboursDetId.size(); i++)
-              std::cout << " " << (HcalDetId)vNeighboursDetId[i];
+            for (auto i : vNeighboursDetId)
+              std::cout << " " << (HcalDetId)i;
             std::cout << std::endl;
           }
           energy += energyHCAL(vNeighboursDetId, dets, topology, hits, includeHO, hbThr, heThr, hfThr, hoThr, debug);
           if (ieta == 2) {
-            for (int ii = 0; ii < (int)vNeighboursDetId.size(); ii++) {
-              std::vector<DetId> vNeighboursDetIdc = topology->west(vNeighboursDetId[ii]);
+            for (auto ii : vNeighboursDetId) {
+              std::vector<DetId> vNeighboursDetIdc = topology->west(ii);
               if (debug) {
                 std::cout << "Neighbour:: West";
-                for (unsigned int i = 0; i < vNeighboursDetIdc.size(); i++)
-                  std::cout << " " << (HcalDetId)vNeighboursDetIdc[i];
+                for (auto i : vNeighboursDetIdc)
+                  std::cout << " " << (HcalDetId)i;
                 std::cout << std::endl;
               }
               energy +=
@@ -316,15 +316,15 @@ namespace spr {
                     bool debug) {
     double energySum = 0;
     int kHit = 0;
-    for (int i = 0; i < (int)vNeighboursDetId.size(); i++) {
-      int n = std::count(dets.begin(), dets.end(), vNeighboursDetId[i]);
+    for (auto& i : vNeighboursDetId) {
+      int n = std::count(dets.begin(), dets.end(), i);
       if (n != 0)
         continue;
-      dets.push_back(vNeighboursDetId[i]);
-      std::vector<typename T::const_iterator> hit = spr::findHit(hits, vNeighboursDetId[i]);
+      dets.push_back(i);
+      std::vector<typename T::const_iterator> hit = spr::findHit(hits, i);
 
       double energy = 0;
-      int subdet = ((HcalDetId)(vNeighboursDetId[i].rawId())).subdet();
+      int subdet = ((HcalDetId)(i.rawId())).subdet();
       double eThr = hbThr;
       if (subdet == (int)(HcalEndcap))
         eThr = heThr;
@@ -341,7 +341,7 @@ namespace spr {
       if (energy > eThr)
         energySum += energy;
 
-      HcalDetId depth = vNeighboursDetId[i];
+      HcalDetId depth = i;
       // max. three depths can be in endcap and we go to 2nd and 3rd from 1st where we are now
       for (int idepth = 0; idepth < 2; idepth++) {
         std::vector<DetId> vUpDetId = topology->up(depth);
@@ -417,7 +417,7 @@ namespace spr {
         else if (subdet == (int)(HcalOuter))
           eThr = hoThr;
         if (energy > eThr)
-          energyDetId.push_back(std::pair<DetId, double>(vdets[i], energy));
+          energyDetId.emplace_back(vdets[i], energy);
       }
     }
 

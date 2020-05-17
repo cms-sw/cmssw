@@ -40,8 +40,7 @@ void FWTracksModulesProxyBuilder::build(const reco::Track& track,
   if (track.extra().isAvailable()) {
     const FWGeometry* geom = item()->getGeom();
 
-    for (trackingRecHit_iterator recIt = track.recHitsBegin(), recItEnd = track.recHitsEnd(); recIt != recItEnd;
-         ++recIt) {
+    for (auto recIt = track.recHitsBegin(), recItEnd = track.recHitsEnd(); recIt != recItEnd; ++recIt) {
       DetId detid = (*recIt)->geographicalId();
       if ((*recIt)->isValid()) {
         if (detid.det() == DetId::Muon) {

@@ -41,7 +41,7 @@ namespace reco {
       for (int st = 1; st <= 4; st++)
         UsedStations_.push_back(ustMap.find(st)->second);
     };
-    void setUsedStations(const std::vector<bool> ustVal) { UsedStations_ = ustVal; };
+    void setUsedStations(const std::vector<bool> &ustVal) { UsedStations_ = ustVal; };
 
     /// DetId vector of chamber with valid estimator
     const std::vector<DetId> &IdChambers() const { return IdChambers_; };

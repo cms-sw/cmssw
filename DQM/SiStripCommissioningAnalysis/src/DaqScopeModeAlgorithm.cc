@@ -40,7 +40,7 @@ void DaqScopeModeAlgorithm::extract(const std::vector<TH1*>& histos) {
   }
 
   // Extract histograms
-  std::vector<TH1*>::const_iterator ihis = histos.begin();
+  auto ihis = histos.begin();
   for (; ihis != histos.end(); ihis++) {
     // Check for NULL pointer
     if (!(*ihis)) {
@@ -92,8 +92,8 @@ void DaqScopeModeAlgorithm::analyse() {
     return;
   }
 
-  CommissioningAnalysis* tmp = const_cast<CommissioningAnalysis*>(anal());
-  DaqScopeModeAnalysis* anal = dynamic_cast<DaqScopeModeAnalysis*>(tmp);
+  auto* tmp = const_cast<CommissioningAnalysis*>(anal());
+  auto* anal = dynamic_cast<DaqScopeModeAnalysis*>(tmp);
   if (!anal) {
     edm::LogWarning(mlCommissioning_) << "[DaqScopeModeAlgorithm::" << __func__ << "]"
                                       << " NULL pointer to derived Analysis object!";

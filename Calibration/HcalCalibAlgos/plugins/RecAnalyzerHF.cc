@@ -160,7 +160,7 @@ void RecAnalyzerHF::beginJob() {
       else
         h2 = fs_->make<TH1D>(name, title, 50, xmin, xmax);
     }
-    histo_.push_back(std::pair<TH1D*, TH1D*>(h1, h2));
+    histo_.emplace_back(h1, h2);
   };
 
   if (fillTree_) {
@@ -253,11 +253,10 @@ void RecAnalyzerHF::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
     iEvent.getByToken(tok_hltL1GtMap_, gtObjectMapRecord);
     if (gtObjectMapRecord.isValid()) {
       const std::vector<L1GlobalTriggerObjectMap>& objMapVec = gtObjectMapRecord->gtObjectMap();
-      for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itMap = objMapVec.begin(); itMap != objMapVec.end();
-           ++itMap) {
-        bool resultGt = (*itMap).algoGtlResult();
+      for (const auto& itMap : objMapVec) {
+        bool resultGt = itMap.algoGtlResult();
         if (resultGt) {
-          int algoBit = (*itMap).algoBitNumber();
+          int algoBit = itMap.algoBitNumber();
           if (std::find(trigbit_.begin(), trigbit_.end(), algoBit) != trigbit_.end()) {
             select = true;
             break;
@@ -277,11 +276,10 @@ void RecAnalyzerHF::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
     if (gtObjectMapRecord.isValid()) {
       const std::vector<L1GlobalTriggerObjectMap>& objMapVec = gtObjectMapRecord->gtObjectMap();
       bool ok(false);
-      for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itMap = objMapVec.begin(); itMap != objMapVec.end();
-           ++itMap) {
-        bool resultGt = (*itMap).algoGtlResult();
+      for (const auto& itMap : objMapVec) {
+        bool resultGt = itMap.algoGtlResult();
         if (resultGt) {
-          int algoBit = (*itMap).algoBitNumber();
+          int algoBit = itMap.algoBitNumber();
           analyzeHcal(Hithf, algoBit, (!ok));
           ok = true;
         }
@@ -330,7 +328,7 @@ void RecAnalyzerHF::analyzeHcal(const HFPreRecHitCollection& Hithf, int algoBit,
     // Remove PMT hits
     //
     if (((noise_ || nzs_) && fabs(energy) <= 40.) || (energy >= eLowHF_ && energy <= eHighHF_)) {
-      std::map<std::pair<int, HcalDetId>, myInfo>::iterator itr1 = myMap_.find(std::pair<int, HcalDetId>(algoBit, hid));
+      auto itr1 = myMap_.find(std::pair<int, HcalDetId>(algoBit, hid));
       if (itr1 == myMap_.end()) {
         myInfo info;
         myMap_[std::pair<int, HcalDetId>(algoBit, hid)] = info;

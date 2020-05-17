@@ -31,9 +31,9 @@ public:
   typedef reco::JetFloatAssociation::Container JetChargeCollection;
 
   explicit JetChargeAnalyzer(const edm::ParameterSet&);
-  ~JetChargeAnalyzer() {}
+  ~JetChargeAnalyzer() override {}
 
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
 private:
   // physics stuff
@@ -54,7 +54,7 @@ JetChargeAnalyzer::JetChargeAnalyzer(const edm::ParameterSet& iConfig)
       minET_(iConfig.getParameter<double>("minET")),
       dir_(iConfig.getParameter<std::string>("dir")) {
   edm::Service<TFileService> fs;
-  TFileDirectory cwd = fs->mkdir(dir_.c_str());
+  TFileDirectory cwd = fs->mkdir(dir_);
   char buff[255], biff[255];
   for (int i = 0; i < 12; i++) {
     sprintf(biff, "jch_id_%s%d", (pdgIds[i] >= 0 ? "p" : "m"), abs(pdgIds[i]));
@@ -76,9 +76,9 @@ void JetChargeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   FlavourMap flavours;
 
   iEvent.getByToken(jetMCSrcToken_, jetMC);
-  for (JetFlavourMatchingCollection::const_iterator iter = jetMC->begin(); iter != jetMC->end(); iter++) {
-    unsigned int fl = abs(iter->second.getFlavour());
-    flavours.insert(FlavourMap::value_type(iter->first, fl));
+  for (const auto& iter : *jetMC) {
+    unsigned int fl = abs(iter.second.getFlavour());
+    flavours.insert(FlavourMap::value_type(iter.first, fl));
   }
   //          for (JetChargeCollection::const_iterator it = hJC->begin(), ed = hJC->end(); it != ed; ++it) {
   for (unsigned int i = 0; i < hJC->size(); ++i) {

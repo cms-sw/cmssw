@@ -4,7 +4,7 @@
 template <class Item>
 void getBarrelErrorSummary(typename std::vector<Item> vItems, long unsigned int& errorCount) {
   unsigned int stcode = 0;
-  for (typename std::vector<Item>::const_iterator iItems = vItems.begin(); iItems != vItems.end(); ++iItems) {
+  for (auto iItems = vItems.begin(); iItems != vItems.end(); ++iItems) {
     stcode = iItems->getStatusCode();
     if (stcode != 0)
       errorCount++;
@@ -21,7 +21,7 @@ void getEndCapErrorSummary(typename std::vector<Item> vItems,
   EEDetId endcapId;
   long unsigned int count = 0;
 
-  for (typename std::vector<Item>::const_iterator iItems = vItems.begin(); iItems != vItems.end(); ++iItems) {
+  for (auto iItems = vItems.begin(); iItems != vItems.end(); ++iItems) {
     stcode = iItems->getStatusCode();
     if (stcode != 0) {
       endcapId = EEDetId::detIdFromDenseIndex(count);

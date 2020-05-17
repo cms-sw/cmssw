@@ -13,6 +13,8 @@
 
 #include <TString.h>
 
+#include <memory>
+
 int MultShiftMETcorrDBInputProducer::translateTypeToAbsPdgId(reco::PFCandidate::ParticleType type) {
   switch (type) {
     case reco::PFCandidate::ParticleType::h:
@@ -94,41 +96,39 @@ void MultShiftMETcorrDBInputProducer::produce(edm::Event& evt, const edm::EventS
   double cory = 0.;
 
   // check DB
-  for (std::vector<MEtXYcorrectParametersCollection::key_type>::const_iterator ikey = keys.begin(); ikey != keys.end();
-       ++ikey) {
+  for (int key : keys) {
     if (mIsData) {
-      if (!MEtXYcorParaColl->isShiftData(*ikey))
+      if (!MEtXYcorParaColl->isShiftData(key))
         throw cms::Exception("MultShiftMETcorrDBInputProducer::produce")
             << "DB is not for Data. Set proper option: \"corrPfMetXYMultDB.isData\" !!\n";
     } else {
-      if (MEtXYcorParaColl->isShiftData(*ikey))
+      if (MEtXYcorParaColl->isShiftData(key))
         throw cms::Exception("MultShiftMETcorrDBInputProducer::produce")
             << "DB is for Data. Set proper option: \"corrPfMetXYMultDB.isData\" !!\n";
     }
   }
 
-  for (std::vector<MEtXYcorrectParametersCollection::key_type>::const_iterator ikey = keys.begin(); ikey != keys.end();
-       ++ikey) {
+  for (int key : keys) {
     if (!mIsData) {
       if (mSampleType == "MC") {
-        if (!MEtXYcorParaColl->isShiftMC(*ikey))
+        if (!MEtXYcorParaColl->isShiftMC(key))
           continue;
       } else if (mSampleType == "DY") {
-        if (!MEtXYcorParaColl->isShiftDY(*ikey))
+        if (!MEtXYcorParaColl->isShiftDY(key))
           continue;
       } else if (mSampleType == "TTJets") {
-        if (!MEtXYcorParaColl->isShiftTTJets(*ikey))
+        if (!MEtXYcorParaColl->isShiftTTJets(key))
           continue;
       } else if (mSampleType == "WJets") {
-        if (!MEtXYcorParaColl->isShiftWJets(*ikey))
+        if (!MEtXYcorParaColl->isShiftWJets(key))
           continue;
       } else
         throw cms::Exception("MultShiftMETcorrDBInputProducer::produce")
             << "SampleType: " << mSampleType << " is not reserved !!!\n";
     }
 
-    std::string sectionName = MEtXYcorParaColl->findLabel(*ikey);
-    MEtXYcorrectParameters const& MEtXYcorParams = (*MEtXYcorParaColl)[*ikey];
+    std::string sectionName = MEtXYcorParaColl->findLabel(key);
+    MEtXYcorrectParameters const& MEtXYcorParams = (*MEtXYcorParaColl)[key];
 
     counts_ = 0;
     sumPt_ = 0;
@@ -162,8 +162,8 @@ void MultShiftMETcorrDBInputProducer::produce(edm::Event& evt, const edm::EventS
           << "parVar: " << parVar << " is not reserved !!!\n";
     }
 
-    formula_x_.reset(new TF1("corrPx", MEtXYcorParams.definitions().formula().c_str()));
-    formula_y_.reset(new TF1("corrPy", MEtXYcorParams.definitions().formula().c_str()));
+    formula_x_ = std::make_unique<TF1>("corrPx", MEtXYcorParams.definitions().formula().c_str());
+    formula_y_ = std::make_unique<TF1>("corrPy", MEtXYcorParams.definitions().formula().c_str());
 
     for (unsigned i(0); i < MEtXYcorParams.record(0).nParameters(); i++) {
       formula_x_->SetParameter(i, MEtXYcorParams.record(0).parameter(i));

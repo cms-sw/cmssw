@@ -34,7 +34,7 @@ private:
   template <typename TYPE>
   edm::ValueMap<reco::PFCandidatePtr> fillValueMap(
       edm::Event& event,
-      std::string label,
+      const std::string& label,
       edm::Handle<TYPE>& inputObjCollection,
       const std::map<edm::Ref<TYPE>, reco::PFCandidatePtr>& mapToTheCandidate,
       const edm::OrphanHandle<reco::PFCandidateCollection>& newPFCandColl) const;
@@ -81,8 +81,8 @@ PFLinker::PFLinker(const edm::ParameterSet& iConfig) {
   // vector of InputTag; more than 1 is not for RECO, it is for analysis
 
   std::vector<edm::InputTag> tags = iConfig.getParameter<std::vector<edm::InputTag>>("PFCandidate");
-  for (unsigned int i = 0; i < tags.size(); ++i)
-    inputTagPFCandidates_.push_back(consumes<reco::PFCandidateCollection>(tags[i]));
+  for (const auto& tag : tags)
+    inputTagPFCandidates_.push_back(consumes<reco::PFCandidateCollection>(tag));
 
   inputTagGsfElectrons_ = consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("GsfElectrons"));
 
@@ -255,7 +255,7 @@ void PFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 template <typename TYPE>
 edm::ValueMap<reco::PFCandidatePtr> PFLinker::fillValueMap(
     edm::Event& event,
-    std::string label,
+    const std::string& label,
     edm::Handle<TYPE>& inputObjCollection,
     const std::map<edm::Ref<TYPE>, reco::PFCandidatePtr>& mapToTheCandidate,
     const edm::OrphanHandle<reco::PFCandidateCollection>& newPFCandColl) const {
@@ -269,7 +269,7 @@ edm::ValueMap<reco::PFCandidatePtr> PFLinker::fillValueMap(
 
   for (unsigned iobj = 0; iobj < nObj; ++iobj) {
     edm::Ref<TYPE> objRef(inputObjCollection, iobj);
-    MapTYPE_it itcheck = mapToTheCandidate.find(objRef);
+    auto itcheck = mapToTheCandidate.find(objRef);
 
     reco::PFCandidatePtr candPtr;
 

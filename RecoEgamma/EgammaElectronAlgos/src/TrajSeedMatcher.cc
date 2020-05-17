@@ -163,7 +163,7 @@ std::vector<TrajSeedMatcher::SeedWithInfo> TrajSeedMatcher::operator()(const Tra
       matchCountPasses = matchedHitsNeg.size() >= nrHitsRequired || matchedHitsPos.size() >= nrHitsRequired;
     }
     if (matchCountPasses) {
-      matchedSeeds.push_back({seed, matchedHitsPos, matchedHitsNeg, nrValidLayers});
+      matchedSeeds.emplace_back(seed, matchedHitsPos, matchedHitsNeg, nrValidLayers);
     }
   }
   return matchedSeeds;
@@ -389,7 +389,7 @@ TrajSeedMatcher::SeedWithInfo::SeedWithInfo(const TrajectorySeed& seed,
           << " hits to be combined have different detIDs, this should not be possible and nothing good will come of it";
     }
     DetId detId = detIdPos.rawId() != 0 ? detIdPos : detIdNeg;
-    matchInfo_.push_back(MatchInfo(detId, dRZPos, dRZNeg, dPhiPos, dPhiNeg));
+    matchInfo_.emplace_back(detId, dRZPos, dRZNeg, dPhiPos, dPhiNeg);
   }
 }
 

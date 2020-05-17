@@ -287,14 +287,12 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
         if (myerr > maxErr) {
           maxErr = myerr;
         }
-        layerTree.push_back(KDTreeNodeInfo<RecHitsSortedInPhi::HitIter, 2>(hi, angle, myz));  // save it
+        layerTree.emplace_back(hi, angle, myz);  // save it
         // populate side-bands
         if (angle > safePhi)
-          layerTree.push_back(
-              KDTreeNodeInfo<RecHitsSortedInPhi::HitIter, 2>(hi, float(angle - Geom::twoPi()), float(myz)));
+          layerTree.emplace_back(hi, float(angle - Geom::twoPi()), float(myz));
         else if (angle < -safePhi)
-          layerTree.push_back(
-              KDTreeNodeInfo<RecHitsSortedInPhi::HitIter, 2>(hi, float(angle + Geom::twoPi()), float(myz)));
+          layerTree.emplace_back(hi, float(angle + Geom::twoPi()), float(myz));
       }
     }
     KDTreeBox phiZ(minphi, maxphi, minz - 0.01f, maxz + 0.01f);  // declare our bounds
@@ -319,12 +317,12 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
     ) {
       // carefull " for matched and projected local of tsos != local for individual clusters...
       if (hh->isMatched()) {
-        const SiStripMatchedRecHit2D* matchedHit = reinterpret_cast<const SiStripMatchedRecHit2D*>(hh);
+        const auto* matchedHit = reinterpret_cast<const SiStripMatchedRecHit2D*>(hh);
         if (filter->isCompatible(DetId(matchedHit->monoId()), matchedHit->monoCluster(), dir) == 0 ||
             filter->isCompatible(DetId(matchedHit->stereoId()), matchedHit->stereoCluster(), dir) == 0)
           return false;
       } else if (hh->isProjected()) {
-        const ProjectedSiStripRecHit2D* precHit = reinterpret_cast<const ProjectedSiStripRecHit2D*>(hh);
+        const auto* precHit = reinterpret_cast<const ProjectedSiStripRecHit2D*>(hh);
         if (filter->isCompatible(precHit->originalHit(), dir) == 0)
           return false;  //FIXME??
       } else if (hh->isSingle()) {
@@ -531,9 +529,7 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
       IfLogTrace(debugPair, "MultiHitGeneratorFromChi2") << "kd tree box size: " << foundNodes.size();
 
       //gc: now we loop over the hits in the box for this layer
-      for (std::vector<RecHitsSortedInPhi::HitIter>::iterator ih = foundNodes.begin();
-           ih != foundNodes.end() && !usePair;
-           ++ih) {
+      for (auto ih = foundNodes.begin(); ih != foundNodes.end() && !usePair; ++ih) {
         IfLogTrace(debugPair, "MultiHitGeneratorFromChi2") << endl << "triplet candidate";
 
         const RecHitsSortedInPhi::HitIter KDdata = *ih;

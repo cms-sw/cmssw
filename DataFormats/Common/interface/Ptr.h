@@ -79,7 +79,7 @@ namespace edm {
     // any object containing this Ptr.
     template <typename C>
     Ptr(TestHandle<C> const& handle, key_type itemKey, bool /*setNow*/ = true)
-        : core_(handle.id(), getItem_(handle.product(), itemKey), 0, true), key_(itemKey) {}
+        : core_(handle.id(), getItem_(handle.product(), itemKey), nullptr, true), key_(itemKey) {}
 
     /** Constructor for those users who do not have a product handle,
      but have a pointer to a product getter (such as the EventPrincipal).
@@ -205,7 +205,7 @@ namespace edm {
   template <typename C>
   T const* Ptr<T>::getItem_(C const* iProduct, key_type iKey) {
     assert(iProduct != nullptr);
-    typename C::const_iterator it = iProduct->begin();
+    auto it = iProduct->begin();
     std::advance(it, iKey);
     T const* address = detail::GetProduct<C>::address(it);
     return address;

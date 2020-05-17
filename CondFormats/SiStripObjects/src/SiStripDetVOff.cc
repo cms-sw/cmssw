@@ -27,7 +27,7 @@ bool SiStripDetVOff::put(const uint32_t DetId, const int HVoff, const int LVoff)
   uint32_t enDetId = (DetId << bitShift) & eightBitMask;
 
   // Binary search to determine if the element is already in the vector
-  vOffIterator p = std::lower_bound(v_Voff.begin(), v_Voff.end(), enDetId);
+  auto p = std::lower_bound(v_Voff.begin(), v_Voff.end(), enDetId);
   if (p != v_Voff.end() && (*p >> bitShift) == DetId) {
     // Found a matching entry, insert the HV and LV information.
     setBits(*p, HVoff, LVoff);
@@ -45,10 +45,10 @@ bool SiStripDetVOff::put(const uint32_t DetId, const int HVoff, const int LVoff)
 
 bool SiStripDetVOff::put(std::vector<uint32_t>& DetId, std::vector<int>& HVoff, std::vector<int>& LVoff) {
   if (DetId.size() == HVoff.size() && DetId.size() == LVoff.size()) {
-    constVoffIterator detIdIt = DetId.begin();
-    constVoffIterator detIdItEnd = DetId.end();
-    constVboolIterator HVoffIt = HVoff.begin();
-    constVboolIterator LVoffIt = LVoff.begin();
+    auto detIdIt = DetId.begin();
+    auto detIdItEnd = DetId.end();
+    auto HVoffIt = HVoff.begin();
+    auto LVoffIt = LVoff.begin();
     for (; detIdIt != detIdItEnd; ++detIdIt, ++HVoffIt, ++LVoffIt) {
       put(*detIdIt, *HVoffIt, *LVoffIt);
     }
@@ -65,8 +65,8 @@ void SiStripDetVOff::getDetIds(std::vector<uint32_t>& DetIds_) const {
   // returns vector of DetIds in map
   DetIds_.clear();
   // Extract the detId from the bitSet and fill the vector
-  constVoffIterator bitSetIt = v_Voff.begin();
-  constVoffIterator bitSetItEnd = v_Voff.end();
+  auto bitSetIt = v_Voff.begin();
+  auto bitSetItEnd = v_Voff.end();
   for (; bitSetIt != bitSetItEnd; ++bitSetIt) {
     DetIds_.push_back((*bitSetIt) >> bitShift);
   }
@@ -74,7 +74,7 @@ void SiStripDetVOff::getDetIds(std::vector<uint32_t>& DetIds_) const {
 
 bool SiStripDetVOff::IsModuleVOff(const uint32_t DetId) const {
   uint32_t enDetId = (DetId << bitShift) & eightBitMask;
-  constVoffIterator p = std::lower_bound(v_Voff.begin(), v_Voff.end(), enDetId);
+  auto p = std::lower_bound(v_Voff.begin(), v_Voff.end(), enDetId);
   if (p != v_Voff.end() && (*p >> bitShift) == DetId)
     return true;
   return false;
@@ -82,7 +82,7 @@ bool SiStripDetVOff::IsModuleVOff(const uint32_t DetId) const {
 
 bool SiStripDetVOff::IsModuleLVOff(const uint32_t DetId) const {
   uint32_t enDetId = (DetId << bitShift) & eightBitMask;
-  constVoffIterator p = std::lower_bound(v_Voff.begin(), v_Voff.end(), enDetId);
+  auto p = std::lower_bound(v_Voff.begin(), v_Voff.end(), enDetId);
   if (p != v_Voff.end() && (*p >> bitShift) == DetId && (*p & LVmask))
     return true;
   return false;
@@ -90,7 +90,7 @@ bool SiStripDetVOff::IsModuleLVOff(const uint32_t DetId) const {
 
 bool SiStripDetVOff::IsModuleHVOff(const uint32_t DetId) const {
   uint32_t enDetId = (DetId << bitShift) & eightBitMask;
-  constVoffIterator p = std::lower_bound(v_Voff.begin(), v_Voff.end(), enDetId);
+  auto p = std::lower_bound(v_Voff.begin(), v_Voff.end(), enDetId);
   if (p != v_Voff.end() && (*p >> bitShift) == DetId && (*p & HVmask))
     return true;
   return false;
@@ -99,7 +99,7 @@ bool SiStripDetVOff::IsModuleHVOff(const uint32_t DetId) const {
 void SiStripDetVOff::printDebug(std::stringstream& ss, const TrackerTopology* /*trackerTopo*/) const {
   std::vector<uint32_t> detIds;
   getDetIds(detIds);
-  constVoffIterator it = detIds.begin();
+  auto it = detIds.begin();
   ss << "DetId    \t HV \t LV" << std::endl;
   for (; it != detIds.end(); ++it) {
     ss << *it << "\t";
@@ -131,7 +131,7 @@ void SiStripDetVOff::printSummary(std::stringstream& ss, const TrackerTopology* 
   SiStripDetSummary summaryLV{trackerTopo};
   std::vector<uint32_t> detIds;
   getDetIds(detIds);
-  constVoffIterator it = detIds.begin();
+  auto it = detIds.begin();
   for (; it != detIds.end(); ++it) {
     if (IsModuleHVOff(*it))
       summaryHV.add(*it);

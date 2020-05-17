@@ -57,12 +57,12 @@
 class WriteVHDL : public edm::EDAnalyzer {
 public:
   explicit WriteVHDL(const edm::ParameterSet&);
-  ~WriteVHDL();
+  ~WriteVHDL() override;
 
 private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
   int getDCCNumber(int iTower, int iSec);
   int getDCC(int iSec);
   int getTBNumber(int iTower);
@@ -120,19 +120,20 @@ private:
 
   std::string writeVersion();
 
-  std::string writeCNT(const edm::EventSetup& iSetup, int tower, int logsector, std::string pacT);
+  std::string writeCNT(const edm::EventSetup& iSetup, int tower, int logsector, const std::string& pacT);
 
-  std::string writePACandLPDef(const edm::EventSetup& iSetup, int tower, int logsector, std::string PACt);
+  std::string writePACandLPDef(const edm::EventSetup& iSetup, int tower, int logsector, const std::string& PACt);
 
-  std::string writeConeDef(const edm::EventSetup& iSetup, int tower, int sector, std::string PACt);
+  std::string writeConeDef(const edm::EventSetup& iSetup, int tower, int sector, const std::string& PACt);
 
   std::string writeQualTable(const edm::EventSetup& iSetup, int tower, int sector);
 
-  std::string writePatterns(const edm::EventSetup& iSetup, int tower, int sector, std::string PACt);
+  std::string writePatterns(const edm::EventSetup& iSetup, int tower, int sector, const std::string& PACt);
 
-  std::string writeGB(std::string PACt);
+  std::string writeGB(const std::string& PACt);
 
-  void prepareEncdap4thPlaneConnections(edm::ESHandle<RPCGeometry> geom, edm::ESHandle<RPCReadOutMapping> map);
+  void prepareEncdap4thPlaneConnections(const edm::ESHandle<RPCGeometry>& geom,
+                                        const edm::ESHandle<RPCReadOutMapping>& map);
   // ----------member data ---------------------------
 };
 
@@ -187,7 +188,7 @@ void WriteVHDL::writePats(const edm::EventSetup& evtSetup, int tower, int logsec
   evtSetup.get<L1RPCConfigRcd>().get(conf);
   const L1RPCConfig* rpcconf = conf.product();
 
-  RPCPattern::RPCPatVec::const_iterator it = rpcconf->m_pats.begin();
+  auto it = rpcconf->m_pats.begin();
 
   while (it->getTower() != std::abs(tower) && it != rpcconf->m_pats.end())
     ++it;
@@ -271,7 +272,7 @@ std::string WriteVHDL::writeVersion() {
   return ret.str();
 }
 
-std::string WriteVHDL::writeCNT(const edm::EventSetup& iSetup, int tower, int sector, std::string pacT) {
+std::string WriteVHDL::writeCNT(const edm::EventSetup& iSetup, int tower, int sector, const std::string& pacT) {
   std::stringstream ret;
   int nT = 0, nE = 0, refGrps = 0;
   if (pacT == "E") {
@@ -299,7 +300,7 @@ std::string WriteVHDL::writeCNT(const edm::EventSetup& iSetup, int tower, int se
       sector = 0;
     }
 
-    const RPCPattern::RPCPatVec::const_iterator itEnd = pats->end();
+    const auto itEnd = pats->end();
     RPCPattern::RPCPatVec::const_iterator it;
 
     for (int iPAC = 0; iPAC < 12; ++iPAC) {
@@ -326,7 +327,10 @@ std::string WriteVHDL::writeCNT(const edm::EventSetup& iSetup, int tower, int se
   return ret.str();
 }
 
-std::string WriteVHDL::writePACandLPDef(const edm::EventSetup& iSetup, int tower, int logsector, std::string pacT) {
+std::string WriteVHDL::writePACandLPDef(const edm::EventSetup& iSetup,
+                                        int tower,
+                                        int logsector,
+                                        const std::string& pacT) {
   std::stringstream ret;
 
   tower = std::abs(tower);
@@ -346,8 +350,8 @@ std::string WriteVHDL::writePACandLPDef(const edm::EventSetup& iSetup, int tower
     for (int lp = 0; lp < 6; ++lp) {
       //int size = l1RPCConeDefinition->getLPSizes().at(tower).at(lp);
       int lpSize = -1;
-      L1RPCConeDefinition::TLPSizeVec::const_iterator it = l1RPCConeDefinition->getLPSizeVec().begin();
-      L1RPCConeDefinition::TLPSizeVec::const_iterator itEnd = l1RPCConeDefinition->getLPSizeVec().end();
+      auto it = l1RPCConeDefinition->getLPSizeVec().begin();
+      auto itEnd = l1RPCConeDefinition->getLPSizeVec().end();
       for (; it != itEnd; ++it) {
         if (it->m_tower != std::abs(tower) || it->m_LP != lp)
           continue;
@@ -382,8 +386,8 @@ std::string WriteVHDL::writeQualTable(const edm::EventSetup& iSetup, int tower, 
   const RPCPattern::TQualityVec* qvec = &conf.product()->m_quals;
 
   bool first = true;
-  RPCPattern::TQualityVec::const_iterator it = qvec->begin();
-  RPCPattern::TQualityVec::const_iterator itEnd = qvec->end();
+  auto it = qvec->begin();
+  auto itEnd = qvec->end();
 
   //unsigned int ppt = conf.product()->getPPT();
   // if (ppt == 1) {
@@ -421,7 +425,7 @@ std::string WriteVHDL::writeQualTable(const edm::EventSetup& iSetup, int tower, 
   return ret.str();
 }
 
-std::string WriteVHDL::writePatterns(const edm::EventSetup& iSetup, int tower, int sector, std::string pacT) {
+std::string WriteVHDL::writePatterns(const edm::EventSetup& iSetup, int tower, int sector, const std::string& pacT) {
   std::stringstream ret;
 
   tower = std::abs(tower);
@@ -437,7 +441,7 @@ std::string WriteVHDL::writePatterns(const edm::EventSetup& iSetup, int tower, i
     sector = 0;
   }
 
-  const RPCPattern::RPCPatVec::const_iterator itEnd = pats->end();
+  const auto itEnd = pats->end();
   RPCPattern::RPCPatVec::const_iterator it;
   int to[6], globalPatNo = 0;
   bool firstRun = true;
@@ -490,7 +494,7 @@ std::string WriteVHDL::writePatterns(const edm::EventSetup& iSetup, int tower, i
   return ret.str();
 }
 
-std::string WriteVHDL::writeGB(std::string PACt) {
+std::string WriteVHDL::writeGB(const std::string& PACt) {
   std::stringstream ret;
   bool frun = true;
 
@@ -510,8 +514,8 @@ std::string WriteVHDL::writeGB(std::string PACt) {
   return ret.str();
 }
 
-void WriteVHDL::prepareEncdap4thPlaneConnections(edm::ESHandle<RPCGeometry> rpcGeom,
-                                                 edm::ESHandle<RPCReadOutMapping> map) {
+void WriteVHDL::prepareEncdap4thPlaneConnections(const edm::ESHandle<RPCGeometry>& rpcGeom,
+                                                 const edm::ESHandle<RPCReadOutMapping>& map) {
   static bool jobDone = true;
   if (jobDone)
     return;
@@ -520,10 +524,10 @@ void WriteVHDL::prepareEncdap4thPlaneConnections(edm::ESHandle<RPCGeometry> rpcG
   //std::cout << "prepareEncdap4thPlaneConnections\n " ;
 
   // build map of used TB inputs
-  for (TrackingGeometry::DetContainer::const_iterator it = rpcGeom->dets().begin(); it != rpcGeom->dets().end(); ++it) {
-    if (dynamic_cast<const RPCRoll*>(*it) == 0)
+  for (auto it : rpcGeom->dets()) {
+    if (dynamic_cast<const RPCRoll*>(it) == nullptr)
       continue;
-    RPCRoll const* roll = dynamic_cast<RPCRoll const*>(*it);
+    RPCRoll const* roll = dynamic_cast<RPCRoll const*>(it);
     int detId = roll->id().rawId();
 
     for (int strip = 1; strip <= roll->nstrips(); ++strip) {
@@ -578,9 +582,9 @@ void WriteVHDL::prepareEncdap4thPlaneConnections(edm::ESHandle<RPCGeometry> rpcG
   }
   */
 
-  for (TrackingGeometry::DetContainer::const_iterator it = rpcGeom->dets().begin(); it != rpcGeom->dets().end(); ++it) {
+  for (auto it = rpcGeom->dets().begin(); it != rpcGeom->dets().end(); ++it) {
     RPCRoll const* roll = dynamic_cast<RPCRoll const*>(*it);
-    if (roll == 0)
+    if (roll == nullptr)
       continue;
     RPCDetId d = roll->id();
     if (std::abs(d.region()) != 1)
@@ -596,10 +600,9 @@ void WriteVHDL::prepareEncdap4thPlaneConnections(edm::ESHandle<RPCGeometry> rpcG
     //std::cout << d << std::endl;
     int chamberMatches = 0;
     // check if 3d plane matches 4th plane
-    for (TrackingGeometry::DetContainer::const_iterator it3 = rpcGeom->dets().begin(); it3 != rpcGeom->dets().end();
-         ++it3) {
-      RPCRoll const* roll3 = dynamic_cast<RPCRoll const*>(*it3);
-      if (roll3 == 0)
+    for (auto it3 : rpcGeom->dets()) {
+      RPCRoll const* roll3 = dynamic_cast<RPCRoll const*>(it3);
+      if (roll3 == nullptr)
         continue;
       RPCDetId d3 = roll3->id().rawId();
       if (d3 != matching4stDetId)
@@ -722,7 +725,7 @@ void WriteVHDL::prepareEncdap4thPlaneConnections(edm::ESHandle<RPCGeometry> rpcG
   }
 }
 
-std::string WriteVHDL::writeConeDef(const edm::EventSetup& evtSetup, int tower, int sector, std::string PACt) {
+std::string WriteVHDL::writeConeDef(const edm::EventSetup& evtSetup, int tower, int sector, const std::string& PACt) {
   std::stringstream ret;
 
   edm::ESHandle<L1RPCConeBuilder> coneBuilder;
@@ -759,10 +762,10 @@ std::string WriteVHDL::writeConeDef(const edm::EventSetup& evtSetup, int tower, 
    }*/
 
   bool beg = true;
-  for (TrackingGeometry::DetContainer::const_iterator it = rpcGeom->dets().begin(); it != rpcGeom->dets().end(); ++it) {
-    if (dynamic_cast<const RPCRoll*>(*it) == 0)
+  for (auto it : rpcGeom->dets()) {
+    if (dynamic_cast<const RPCRoll*>(it) == nullptr)
       continue;
-    RPCRoll const* roll = dynamic_cast<RPCRoll const*>(*it);
+    RPCRoll const* roll = dynamic_cast<RPCRoll const*>(it);
 
     int detId = roll->id().rawId();
     //iterate over strips
@@ -778,7 +781,7 @@ std::string WriteVHDL::writeConeDef(const edm::EventSetup& evtSetup, int tower, 
       std::pair<L1RPCConeBuilder::TCompressedConVec::const_iterator, L1RPCConeBuilder::TCompressedConVec::const_iterator>
           compressedConnPair = coneBuilder->getCompConVec(detId);
 
-      L1RPCConeBuilder::TCompressedConVec::const_iterator itComp = compressedConnPair.first;
+      auto itComp = compressedConnPair.first;
 
       for (; itComp != compressedConnPair.second; ++itComp) {
         int logstrip = itComp->getLogStrip(strip, coneDef->getLPSizeVec());

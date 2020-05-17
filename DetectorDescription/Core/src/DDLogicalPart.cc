@@ -204,7 +204,7 @@ bool DDLogicalPart::hasDDValue(const DDValue& v) const { return rep().hasDDValue
 namespace {
   struct Regex {
     explicit Regex(const std::string& s) : m_ok(false), me(s) {
-      size_t p = me.find(".");
+      size_t p = me.find('.');
       m_ok = p != std::string::npos;
       if (m_ok) {
         if (p > 0) {
@@ -272,7 +272,7 @@ std::pair<bool, std::string> DDIsValid(const std::string& ns,
   typedef std::vector<LPNAMES::value_type::const_iterator> Candidates;
   Candidates candidates;
   if (aRegex.notRegex()) {
-    LPNAMES::value_type::const_iterator it = LPNAMES::instance().find(aRegex.value());
+    auto it = LPNAMES::instance().find(aRegex.value());
     if (it != ed)
       candidates.emplace_back(it);
   } else {
@@ -280,7 +280,7 @@ std::pair<bool, std::string> DDIsValid(const std::string& ns,
       bn = LPNAMES::instance().lower_bound(aRegex.range().first);
       ed = LPNAMES::instance().upper_bound(aRegex.range().second);
     }
-    for (LPNAMES::value_type::const_iterator it = bn; it != ed; ++it)
+    for (auto it = bn; it != ed; ++it)
       if (aRegex.match(it->first))
         candidates.emplace_back(it);
   }
@@ -295,7 +295,7 @@ std::pair<bool, std::string> DDIsValid(const std::string& ns,
       //   edm::LogInfo("DDLogicalPart") << "DDD-WARNING: multiple namespaces match (in SpecPars PartSelector): " << *nsIt << std::endl;
       //}
     } else if (!emptyNs) {  // only accept matching namespaces
-      std::vector<DDName>::const_iterator nsit(it->second.begin()), nsed(it->second.end());
+      auto nsit(it->second.begin()), nsed(it->second.end());
       for (; nsit != nsed; ++nsit) {
         //edm::LogInfo("DDLogicalPart") << "comparing " << aNs << " with " << *nsit << std::endl;
         bool another_doit = aNsRegex.match(nsit->ns());
@@ -307,7 +307,7 @@ std::pair<bool, std::string> DDIsValid(const std::string& ns,
     } else {  // emtpyNs and sz>1 -> error, too ambigous
       std::string message = "DDLogicalPart-name \"" + it->first + "\" matching regex \"" + nm +
                             "\" has been found at least in following namespaces:\n";
-      std::vector<DDName>::const_iterator vit = it->second.begin();
+      auto vit = it->second.begin();
       for (; vit != it->second.end(); ++vit) {
         message += vit->ns();
         message += " ";

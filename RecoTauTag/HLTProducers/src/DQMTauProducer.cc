@@ -22,7 +22,7 @@ void DQMTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES) {
   using namespace edm;
   using namespace std;
 
-  HLTTauCollection* jetCollection = new HLTTauCollection;
+  auto* jetCollection = new HLTTauCollection;
 
   edm::Handle<IsolatedTauTagInfoCollection> tauL25Jets;
   iEvent.getByToken(trackIsolatedJets_, tauL25Jets);
@@ -34,20 +34,20 @@ void DQMTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES) {
   int trackIsolation = 1000.;
   int nTracks = 1000.;
 
-  for (unsigned int i = 0; i < tau.size(); i++) {
-    JetTracksAssociationRef jetTracks = tau[i].jtaRef();
+  for (auto& i : tau) {
+    JetTracksAssociationRef jetTracks = i.jtaRef();
     math::XYZVector jetDir(jetTracks->first->px(), jetTracks->first->py(), jetTracks->first->pz());
     eta_ = jetDir.eta();
     phi_ = jetDir.phi();
     pt_ = jetTracks->first->pt();
 
-    const TrackRef leadTk = tau[i].leadingSignalTrack(jetDir, matchingCone_, 1.);
+    const TrackRef leadTk = i.leadingSignalTrack(jetDir, matchingCone_, 1.);
     if (!leadTk) {
     } else {
-      trackIsolation = (int)tau[i].discriminator(jetDir, matchingCone_, signalCone_, isolationCone_, 1., 1., 0);
+      trackIsolation = (int)i.discriminator(jetDir, matchingCone_, signalCone_, isolationCone_, 1., 1., 0);
       ptLeadTk = (*leadTk).pt();
-      nTracks = (tau[i].tracksInCone((*leadTk).momentum(), isolationCone_, ptMin_)).size() -
-                (tau[i].tracksInCone((*leadTk).momentum(), signalCone_, ptMin_)).size();
+      nTracks = (i.tracksInCone((*leadTk).momentum(), isolationCone_, ptMin_)).size() -
+                (i.tracksInCone((*leadTk).momentum(), signalCone_, ptMin_)).size();
     }
     HLTTau pippo(eta_, phi_, pt_, -1, trackIsolation, ptLeadTk, trackIsolation, ptLeadTk);
     pippo.setNL25TrackIsolation(nTracks);

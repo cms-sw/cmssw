@@ -294,14 +294,14 @@ void SiPixelRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
   TrackerHitAssociator associate(e, trackerHitAssociatorConfig_);
 
   //iterate over detunits
-  for (TrackerGeometry::DetContainer::const_iterator it = geom->dets().begin(); it != geom->dets().end(); it++) {
-    DetId detId = ((*it)->geographicalId());
+  for (auto it : geom->dets()) {
+    DetId detId = (it->geographicalId());
     unsigned int subid = detId.subdetId();
 
     if (!((subid == 1) || (subid == 2)))
       continue;
 
-    const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>(theTracker.idToDet(detId));
+    const auto* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>(theTracker.idToDet(detId));
 
     SiPixelRecHitCollection::const_iterator pixeldet = recHitColl->find(detId);
     if (pixeldet == recHitColl->end())
@@ -319,13 +319,13 @@ void SiPixelRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 
       if (!matched.empty()) {
         float closest = 9999.9;
-        std::vector<PSimHit>::const_iterator closestit = matched.begin();
+        auto closestit = matched.begin();
         LocalPoint lp = pixeliter->localPosition();
         float rechit_x = lp.x();
         float rechit_y = lp.y();
 
         //loop over sim hits and fill closet
-        for (std::vector<PSimHit>::const_iterator m = matched.begin(); m < matched.end(); m++) {
+        for (auto m = matched.begin(); m < matched.end(); m++) {
           float sim_x1 = (*m).entryPoint().x();
           float sim_x2 = (*m).exitPoint().x();
           float sim_xpos = 0.5 * (sim_x1 + sim_x2);

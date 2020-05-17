@@ -14,10 +14,10 @@ PixelRod::PixelRod(vector<const GeomDet*>& theInputDets) : DetRodOneR(theInputDe
 
   //--------- DEBUG INFO --------------
   LogDebug("TkDetLayers") << "==== DEBUG PixelRod =====";
-  for (vector<const GeomDet*>::const_iterator i = theDets.begin(); i != theDets.end(); i++) {
-    LogDebug("TkDetLayers") << "PixelRod's Det pos z,perp,eta,phi: " << (**i).position().z() << " , "
-                            << (**i).position().perp() << " , " << (**i).position().eta() << " , "
-                            << (**i).position().phi();
+  for (auto theDet : theDets) {
+    LogDebug("TkDetLayers") << "PixelRod's Det pos z,perp,eta,phi: " << (*theDet).position().z() << " , "
+                            << (*theDet).position().perp() << " , " << (*theDet).position().eta() << " , "
+                            << (*theDet).position().phi();
   }
   LogDebug("TkDetLayers") << "==== end DEBUG PixelRod =====";
   //--------------------------------------
@@ -52,7 +52,7 @@ void PixelRod::compatibleDetsV(const TrajectoryStateOnSurface& startingState,
       theCompatibilityChecker.isCompatible(theDets[closest], startingState, prop, est);
 
   if (closestCompat.first) {
-    result.push_back(DetWithState(theDets[closest], closestCompat.second));
+    result.emplace_back(theDets[closest], closestCompat.second);
   } else {
     if (!closestCompat.second.isValid())
       return;  // to investigate why this happens

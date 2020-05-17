@@ -224,9 +224,7 @@ int cond::AuthenticationManager::execute() {
     size_t connectionLabelW = connectionLabelH.size();
     size_t userNameW = 0;
     size_t passwordW = 0;
-    for (std::map<std::string, std::pair<std::string, std::string> >::const_iterator iC = data.begin();
-         iC != data.end();
-         ++iC) {
+    for (auto iC = data.begin(); iC != data.end(); ++iC) {
       const std::string& userName = iC->second.first;
       const std::string& password = iC->second.second;
       const std::string& connectionLabel = iC->first;
@@ -260,9 +258,7 @@ int cond::AuthenticationManager::execute() {
     }
     std::cout << std::endl;
     std::cout << std::setfill(' ');
-    for (std::map<std::string, std::pair<std::string, std::string> >::const_iterator iC = data.begin();
-         iC != data.end();
-         ++iC) {
+    for (auto iC = data.begin(); iC != data.end(); ++iC) {
       const std::string& connectionLabel = iC->first;
       const std::string& userName = iC->second.first;
       const std::string& password = iC->second.second;
@@ -279,8 +275,7 @@ int cond::AuthenticationManager::execute() {
     std::cout << std::endl;
     static std::string principalH("principal name");
     size_t principalW = principalH.size();
-    for (std::vector<std::string>::const_iterator iP = data.begin(); iP != data.end(); ++iP) {
-      const std::string& principal = *iP;
+    for (const auto& principal : data) {
       if (principalW < principal.size())
         principalW = principal.size();
     }
@@ -289,8 +284,8 @@ int cond::AuthenticationManager::execute() {
     std::cout << std::setfill('-');
     std::cout << std::setw(principalW) << "" << std::endl;
     std::cout << std::setfill(' ');
-    for (std::vector<std::string>::const_iterator iP = data.begin(); iP != data.end(); ++iP) {
-      std::cout << std::setw(principalW) << *iP << std::endl;
+    for (const auto& iP : data) {
+      std::cout << std::setw(principalW) << iP << std::endl;
     }
     return 0;
   }
@@ -317,17 +312,17 @@ int cond::AuthenticationManager::execute() {
     size_t principalW = principalH.size();
     size_t roleW = roleH.size();
     size_t connectionLabelW = connectionLabelH.size();
-    for (std::vector<CredentialStore::Permission>::const_iterator iP = data.begin(); iP != data.end(); ++iP) {
-      const std::string& connectionString = iP->connectionString;
+    for (const auto& iP : data) {
+      const std::string& connectionString = iP.connectionString;
       if (connectionStringW < connectionString.size())
         connectionStringW = connectionString.size();
-      const std::string& principal = iP->principalName;
+      const std::string& principal = iP.principalName;
       if (principalW < principal.size())
         principalW = principal.size();
-      const std::string& role = iP->role;
+      const std::string& role = iP.role;
       if (roleW < role.size())
         roleW = role.size();
-      const std::string& connectionLabel = iP->connectionLabel;
+      const std::string& connectionLabel = iP.connectionLabel;
       if (connectionLabelW < connectionLabel.size())
         connectionLabelW = connectionLabel.size();
     }
@@ -341,11 +336,11 @@ int cond::AuthenticationManager::execute() {
               << "  " << std::setw(roleW) << ""
               << "  " << std::setw(connectionLabelW) << "" << std::endl;
     std::cout << std::setfill(' ');
-    for (std::vector<CredentialStore::Permission>::const_iterator iP = data.begin(); iP != data.end(); ++iP) {
-      std::cout << std::setw(connectionStringW) << iP->connectionString << "  " << std::setw(principalW)
-                << iP->principalName << "  ";
+    for (const auto& iP : data) {
+      std::cout << std::setw(connectionStringW) << iP.connectionString << "  " << std::setw(principalW)
+                << iP.principalName << "  ";
       ;
-      std::cout << std::setw(roleW) << iP->role << "  " << std::setw(connectionLabelW) << iP->connectionLabel
+      std::cout << std::setw(roleW) << iP.role << "  " << std::setw(connectionLabelW) << iP.connectionLabel
                 << std::endl;
     }
     return 0;
@@ -360,12 +355,9 @@ int cond::AuthenticationManager::execute() {
     const std::map<std::pair<std::string, std::string>, coral::AuthenticationCredentials*>& creds = data.data();
     std::set<std::string> connections;
     bool started = false;
-    for (std::map<std::pair<std::string, std::string>, coral::AuthenticationCredentials*>::const_iterator iEntry =
-             creds.begin();
-         iEntry != creds.end();
-         iEntry++) {
+    for (auto iEntry = creds.begin(); iEntry != creds.end(); iEntry++) {
       const std::string& connectStr = iEntry->first.first;
-      std::set<std::string>::iterator iConn = connections.find(connectStr);
+      auto iConn = connections.find(connectStr);
       if (iConn == connections.end()) {
         if (started)
           xmlFile.closeConnectionEntry();
@@ -373,8 +365,7 @@ int cond::AuthenticationManager::execute() {
         started = true;
         connections.insert(connectStr);
         std::pair<std::string, std::string> defRoleKey(connectStr, auth::COND_DEFAULT_ROLE);
-        std::map<std::pair<std::string, std::string>, coral::AuthenticationCredentials*>::const_iterator iDef =
-            creds.find(defRoleKey);
+        auto iDef = creds.find(defRoleKey);
         if (iDef != creds.end()) {
           xmlFile.addCredentialEntry(iDef->second->valueForItem(coral::IAuthenticationCredentials::userItem()),
                                      iDef->second->valueForItem(coral::IAuthenticationCredentials::passwordItem()));

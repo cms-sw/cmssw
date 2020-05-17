@@ -47,8 +47,7 @@ namespace ecaldqm {
   void DQWorkerClient::setSource(edm::ParameterSet const& _params) {
     std::vector<std::string> const& sourceNames(_params.getParameterNames());
 
-    for (unsigned iS(0); iS < sourceNames.size(); iS++) {
-      std::string name(sourceNames[iS]);
+    for (auto name : sourceNames) {
       edm::ParameterSet const& params(_params.getUntrackedParameterSet(name));
 
       if (onlineMode_ && params.getUntrackedParameter<bool>("online"))
@@ -176,8 +175,8 @@ namespace ecaldqm {
       float mean(0.);
       float nValid(0.);
       bool masked(false);
-      for (unsigned iId(0); iId < cryIds.size(); ++iId) {
-        float content(_source.getBinContent(cryIds[iId]));
+      for (auto cryId : cryIds) {
+        float content(_source.getBinContent(cryId));
         if (isQuality) {
           if (content < 0. || content == 2.)
             continue;

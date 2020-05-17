@@ -77,8 +77,7 @@ void FWPFCandidateWithHitsProxyBuilder::build(const FWEventItem* iItem,
 
   Int_t idx = 0;
   initPFRecHitsCollections();
-  for (reco::PFCandidateCollection::const_iterator it = candidates->begin(), itEnd = candidates->end(); it != itEnd;
-       ++it, ++idx) {
+  for (auto it = candidates->begin(), itEnd = candidates->end(); it != itEnd; ++it, ++idx) {
     TEveCompound* comp = createCompound();
     setupAddElement(comp, product);
     // printf("products size %d/%d \n", (int)iItem->size(), product->NumChildren());
@@ -153,9 +152,9 @@ void FWPFCandidateWithHitsProxyBuilder::viewContextBoxScale(
 
 //______________________________________________________________________________
 const reco::PFRecHit* FWPFCandidateWithHitsProxyBuilder::getHitForDetId(unsigned candIdx) {
-  for (reco::PFRecHitCollection::const_iterator it = m_collectionHCAL->begin(); it != m_collectionHCAL->end(); ++it) {
-    if (it->detId() == candIdx) {
-      return &(*it);
+  for (const auto& it : *m_collectionHCAL) {
+    if (it.detId() == candIdx) {
+      return &it;
     }
   }
   return nullptr;
@@ -168,20 +167,20 @@ void FWPFCandidateWithHitsProxyBuilder::scaleProduct(TEveElementList* parent,
   std::vector<float> scaledCorners(24);
 
   float scale = vc->getEnergyScale()->getScaleFactor3D() / 50;
-  for (TEveElement::List_i i = parent->BeginChildren(); i != parent->EndChildren(); ++i) {
+  for (auto i = parent->BeginChildren(); i != parent->EndChildren(); ++i) {
     if ((*i)->NumChildren() > 1) {
-      TEveElement::List_i xx = (*i)->BeginChildren();
+      auto xx = (*i)->BeginChildren();
       ++xx;
       TEveBoxSet* boxset = dynamic_cast<TEveBoxSet*>(*xx);
       ++xx;
-      TEveStraightLineSet* lineset = dynamic_cast<TEveStraightLineSet*>(*xx);
+      auto* lineset = dynamic_cast<TEveStraightLineSet*>(*xx);
       TEveChunkManager::iterator li(lineset->GetLinePlex());
       li.next();
 
       TEveChunkManager* plex = boxset->GetPlex();
       if (plex->N()) {
         for (int atomIdx = 0; atomIdx < plex->Size(); ++atomIdx) {
-          TEveBoxSet::BFreeBox_t* atom = (TEveBoxSet::BFreeBox_t*)boxset->GetPlex()->Atom(atomIdx);
+          auto* atom = (TEveBoxSet::BFreeBox_t*)boxset->GetPlex()->Atom(atomIdx);
           reco::PFRecHit* hit = (reco::PFRecHit*)boxset->GetUserData(atomIdx);
           const float* corners = item()->getGeom()->getCorners(hit->detId());
           viewContextBoxScale(corners, hit->energy() * scale, vc->getEnergyScale()->getPlotEt(), scaledCorners, hit);
@@ -190,8 +189,8 @@ void FWPFCandidateWithHitsProxyBuilder::scaleProduct(TEveElementList* parent,
           editBoxInLineSet(li, &scaledCorners[0]);
         }
 
-        for (TEveProjectable::ProjList_i p = lineset->BeginProjecteds(); p != lineset->EndProjecteds(); ++p) {
-          TEveStraightLineSetProjected* projLineSet = (TEveStraightLineSetProjected*)(*p);
+        for (auto p = lineset->BeginProjecteds(); p != lineset->EndProjecteds(); ++p) {
+          auto* projLineSet = (TEveStraightLineSetProjected*)(*p);
           projLineSet->UpdateProjection();
         }
       }
@@ -261,8 +260,8 @@ void FWPFCandidateWithHitsProxyBuilder::addHitsForCandidate(const reco::PFCandid
         }
 
         bool hitsFound = false;
-        for (int ihandf = 0, lastIdx = (int)(hitsandfracs.size()); ihandf < lastIdx; ihandf++) {
-          unsigned int hitDetId = hitsandfracs[ihandf].first;
+        for (const auto& hitsandfrac : hitsandfracs) {
+          unsigned int hitDetId = hitsandfrac.first;
           const float* corners = context().getGeom()->getCorners(hitDetId);
           const reco::PFRecHit* hit = getHitForDetId(hitDetId);
           if (hit) {

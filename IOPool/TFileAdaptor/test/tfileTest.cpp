@@ -60,7 +60,7 @@ int main(int argc, char* argv[]) {
     Bool_t result = gSystem->AccessPathName(fname.c_str(), kFileExists);
     std::cout << "file " << fname << (result ? " does not exist\n" : " exists\n");
     char const* err = gSystem->GetErrorStr();
-    if (err != 0 && *err != '\0')
+    if (err != nullptr && *err != '\0')
       std::cout << "error was " << err << "\n";
 
     if (!result) {

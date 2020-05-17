@@ -100,7 +100,7 @@ private:
   double estimated2Gatti(double Xestimated, float StripWidth, bool ME1_1);
   double estimated2GattiCorrection(double Xestimated, float StripWidth, bool ME1_1);
 
-  void getCorrectionValues(std::string Estimator);
+  void getCorrectionValues(const std::string& Estimator);
   void hardcodedCorrectionInitialization();
 
   static const int n_SW_noME1_1 = 11;

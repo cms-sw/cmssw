@@ -7,6 +7,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TProfile.h"
 #include <iostream>
+#include <memory>
+
 #include <sstream>
 #include <iomanip>
 
@@ -18,7 +20,7 @@ using namespace sistrip;
 FastFedCablingHistograms::FastFedCablingHistograms(const edm::ParameterSet& pset, DQMStore* bei)
     : CommissioningHistograms(
           pset.getParameter<edm::ParameterSet>("FastFedCablingParameters"), bei, sistrip::FAST_CABLING) {
-  factory_ = unique_ptr<FastFedCablingSummaryFactory>(new FastFedCablingSummaryFactory);
+  factory_ = std::make_unique<FastFedCablingSummaryFactory>();
   LogTrace(mlDqmClient_) << "[FastFedCablingHistograms::" << __func__ << "]"
                          << " Constructing object...";
 }
@@ -60,7 +62,7 @@ void FastFedCablingHistograms::histoAnalysis(bool debug) {
 
     // Retrieve pointers to histos
     std::vector<TH1*> profs;
-    Histos::const_iterator ihis = iter->second.begin();
+    auto ihis = iter->second.begin();
     for (; ihis != iter->second.end(); ihis++) {
       TProfile* prof = ExtractTObject<TProfile>().extract((*ihis)->me_);
       if (prof) {
@@ -69,9 +71,9 @@ void FastFedCablingHistograms::histoAnalysis(bool debug) {
     }
 
     // Perform histo analysis
-    FastFedCablingAnalysis* anal = new FastFedCablingAnalysis(iter->first);
+    auto* anal = new FastFedCablingAnalysis(iter->first);
     FastFedCablingAlgorithm algo(this->pset(), anal);
-    FedToFecMap::const_iterator ifed = mapping().find(iter->first);
+    auto ifed = mapping().find(iter->first);
     if (ifed != mapping().end()) {
       anal->fecKey(ifed->second);
     }
@@ -110,10 +112,10 @@ void FastFedCablingHistograms::histoAnalysis(bool debug) {
 // -----------------------------------------------------------------------------
 /** */
 void FastFedCablingHistograms::printAnalyses() {
-  Analyses::iterator ianal = data().begin();
-  Analyses::iterator janal = data().end();
+  auto ianal = data().begin();
+  auto janal = data().end();
   for (; ianal != janal; ++ianal) {
-    FastFedCablingAnalysis* anal = dynamic_cast<FastFedCablingAnalysis*>(ianal->second);
+    auto* anal = dynamic_cast<FastFedCablingAnalysis*>(ianal->second);
     if (!anal) {
       edm::LogError(mlDqmClient_) << "[FastFedCablingHistograms::" << __func__ << "]"
                                   << " NULL pointer to analysis object!";
@@ -136,10 +138,10 @@ void FastFedCablingHistograms::printSummary() {
   std::stringstream good;
   std::stringstream bad;
 
-  Analyses::iterator ianal = data().begin();
-  Analyses::iterator janal = data().end();
+  auto ianal = data().begin();
+  auto janal = data().end();
   for (; ianal != janal; ++ianal) {
-    FastFedCablingAnalysis* anal = dynamic_cast<FastFedCablingAnalysis*>(ianal->second);
+    auto* anal = dynamic_cast<FastFedCablingAnalysis*>(ianal->second);
     if (!anal) {
       edm::LogError(mlDqmClient_) << "[FastFedCablingHistograms::" << __func__ << "]"
                                   << " NULL pointer to analysis object!";

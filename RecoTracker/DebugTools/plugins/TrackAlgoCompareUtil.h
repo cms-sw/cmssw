@@ -54,11 +54,11 @@ public:
 private:
   void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
 
-  void SetTrackingParticleD0Dz(TrackingParticleRef tp,
+  void SetTrackingParticleD0Dz(const TrackingParticleRef &tp,
                                const reco::BeamSpot &bs,
                                const MagneticField *bf,
                                TPtoRecoTrack &TPRT) const;
-  void SetTrackingParticleD0Dz(TrackingParticleRef tp,
+  void SetTrackingParticleD0Dz(const TrackingParticleRef &tp,
                                const reco::BeamSpot &bs,
                                const MagneticField *bf,
                                RecoTracktoTP &RTTP) const;

@@ -294,7 +294,7 @@ namespace edm {
     _alreadySorted = false;  // it's non const
     // Find the right DetSet, and return a reference to it.  Throw if
     // there is none.
-    iterator it = this->find(i);
+    auto it = this->find(i);
     if (it == this->end())
       detail::_throw_range(i);
     return *it;
@@ -304,7 +304,7 @@ namespace edm {
   inline typename DetSetVector<T>::const_reference DetSetVector<T>::operator[](det_id_type i) const {
     // Find the right DetSet, and return a reference to it.  Throw if
     // there is none.
-    const_iterator it = this->find(i);
+    auto it = this->find(i);
     if (it == this->end())
       detail::_throw_range(i);
     return *it;
@@ -343,8 +343,8 @@ namespace edm {
     _sets.shrink_to_fit();
     if (_alreadySorted)
       return;
-    typename collection_type::iterator i = _sets.begin();
-    typename collection_type::iterator e = _sets.end();
+    auto i = _sets.begin();
+    auto e = _sets.end();
     // For each DetSet...
     for (; i != e; ++i) {
       i->data.shrink_to_fit();
@@ -419,7 +419,7 @@ namespace edm {
       const HandleT& iHandle, det_id_type iDetID, typename HandleT::element_type::value_type::const_iterator itIter) {
     typedef typename HandleT::element_type Vec;
     typename Vec::value_type::collection_type::size_type index = 0;
-    typename Vec::const_iterator itFound = iHandle->find(iDetID);
+    auto itFound = iHandle->find(iDetID);
     if (itFound == iHandle->end()) {
       Exception::throwThis(errors::InvalidReference,
                            "an edm::Ref to an edm::DetSetVector was given a DetId, ",
@@ -442,7 +442,7 @@ namespace edm {
                         det_id_type iDetID,
                         typename HandleT::element_type::value_type::iterator itIter) {
     typedef typename HandleT::element_type Vec;
-    typename Vec::detset::const_iterator itIter2 = itIter;
+    auto itIter2 = itIter;
     return makeRefTo(iHandle, iDetID, itIter2);
   }
 }  // namespace edm

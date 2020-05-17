@@ -84,12 +84,12 @@ class StripClusterMCanalysis : public edm::EDAnalyzer {
 public:
   explicit StripClusterMCanalysis(const edm::ParameterSet&);
 
-  ~StripClusterMCanalysis();
+  ~StripClusterMCanalysis() override;
 
 private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   typedef std::pair<unsigned int, unsigned int> simHitCollectionID;
   typedef std::pair<simHitCollectionID, unsigned int> simhitAddr;
@@ -249,7 +249,7 @@ void StripClusterMCanalysis::analyze(const edm::Event& iEvent, const edm::EventS
     const reco::VertexCollection pixelVertexColl = *(pixelVertexCollectionHandle.product());
     hNpv->Fill(int(pixelVertexColl.size()));
     float zv = 0, zverr = 0;
-    reco::VertexCollection::const_iterator vi = pixelVertexColl.begin();
+    auto vi = pixelVertexColl.begin();
     if (vi != pixelVertexColl.end() && vi->isValid()) {
       estPriVtx = vi->position();
       zv = vi->z();
@@ -258,27 +258,27 @@ void StripClusterMCanalysis::analyze(const edm::Event& iEvent, const edm::EventS
     hZvPri->Fill(zv);
     //    iterate over pixel vertices and fill the pixel vertex Ntuple
     int iVtx = 0;
-    for (reco::VertexCollection::const_iterator vi = pixelVertexColl.begin(); vi != pixelVertexColl.end(); ++vi) {
+    for (const auto& vi : pixelVertexColl) {
       if (printOut_ > 0)
-        std::cout << "  " << vi->tracksSize() << "  " << vi->z() << "+/-" << vi->zError() << std::endl;
-      pvNtp_.isValid = int(vi->isValid());
-      pvNtp_.isFake = int(vi->isFake());
-      pvNtp_.Ntrks = vi->tracksSize();
-      pvNtp_.nDoF = vi->ndof();
-      pvNtp_.chisq = vi->chi2();
-      pvNtp_.xV = vi->x();
-      pvNtp_.yV = vi->y();
-      pvNtp_.zV = vi->z();
-      pvNtp_.xVsig = vi->xError();
-      pvNtp_.yVsig = vi->yError();
-      pvNtp_.zVsig = vi->zError();
+        std::cout << "  " << vi.tracksSize() << "  " << vi.z() << "+/-" << vi.zError() << std::endl;
+      pvNtp_.isValid = int(vi.isValid());
+      pvNtp_.isFake = int(vi.isFake());
+      pvNtp_.Ntrks = vi.tracksSize();
+      pvNtp_.nDoF = vi.ndof();
+      pvNtp_.chisq = vi.chi2();
+      pvNtp_.xV = vi.x();
+      pvNtp_.yV = vi.y();
+      pvNtp_.zV = vi.z();
+      pvNtp_.xVsig = vi.xError();
+      pvNtp_.yVsig = vi.yError();
+      pvNtp_.zVsig = vi.zError();
       pvTree_->Fill();
-      hzV_Iev->Fill(vi->z(), evCnt_);
+      hzV_Iev->Fill(vi.z(), evCnt_);
       if (iVtx == 0) {
-        hNtrk_zVerrPri->Fill(vi->zError(), vi->tracksSize());
+        hNtrk_zVerrPri->Fill(vi.zError(), vi.tracksSize());
       } else {
-        hNtrk_zVerrSec->Fill(vi->zError(), vi->tracksSize());
-        hZvSec->Fill(vi->z() - zv);
+        hNtrk_zVerrSec->Fill(vi.zError(), vi.tracksSize());
+        hZvSec->Fill(vi.z() - zv);
       }
       ++iVtx;
     }
@@ -319,10 +319,10 @@ void StripClusterMCanalysis::analyze(const edm::Event& iEvent, const edm::EventS
     int subDet = theDet.subdetId();
 
     // Find the path length of a straight track from the primary vertex
-    const StripGeomDetUnit* DetUnit = 0;
+    const StripGeomDetUnit* DetUnit = nullptr;
     DetUnit = (const StripGeomDetUnit*)tracker.idToDetUnit(theDet);
     float thickness = 0;
-    if (DetUnit != 0)
+    if (DetUnit != nullptr)
       thickness = DetUnit->surface().bounds().thickness();
     int layer = 0;
     int stereo = 0;
@@ -344,7 +344,7 @@ void StripClusterMCanalysis::analyze(const edm::Event& iEvent, const edm::EventS
       printf("%s%7.4f%s%4d%s\n", " path ", modPathLength, ", ", DSViter->size(), " clusters");
     }
 
-    edm::DetSetVector<StripDigiSimLink>::const_iterator isearch = stripdigisimlink->find(detID);
+    auto isearch = stripdigisimlink->find(detID);
 
     // Traverse the clusters for this subdetector
     for (edmNew::DetSet<SiStripCluster>::const_iterator ClusIter = DSViter->begin(); ClusIter != DSViter->end();
@@ -391,11 +391,8 @@ void StripClusterMCanalysis::analyze(const edm::Event& iEvent, const edm::EventS
 
       int prevIdx = -1;
       edm::DetSet<StripDigiSimLink> link_detset = (*isearch);
-      for (edm::DetSet<StripDigiSimLink>::const_iterator linkiter = link_detset.data.begin(),
-                                                         linkEnd = link_detset.data.end();
-           linkiter != linkEnd;
-           ++linkiter) {
-        int theChannel = linkiter->channel();
+      for (const auto& linkiter : link_detset.data) {
+        int theChannel = linkiter.channel();
         if (printOut_ > 3)
           printf("  %s%4d%s\n", "channel = ", theChannel, " before matching to cluster");
         if (theChannel >= first && theChannel < last) {
@@ -405,24 +402,24 @@ void StripClusterMCanalysis::analyze(const edm::Event& iEvent, const edm::EventS
           if (printOut_ > 1)
             printf("  %s%4d%s%8d%s%8d%s%2d%s%8d%s%8.4f%s%5d\n",
                    "channel = ",
-                   linkiter->channel(),
+                   linkiter.channel(),
                    " TrackID = ",
-                   linkiter->SimTrackId(),
+                   linkiter.SimTrackId(),
                    " EventID = ",
-                   linkiter->eventId().rawId(),
+                   linkiter.eventId().rawId(),
                    " TofBin = ",
-                   linkiter->TofBin(),
+                   linkiter.TofBin(),
                    " CFPos = ",
-                   linkiter->CFposition(),
+                   linkiter.CFposition(),
                    " fraction = ",
-                   linkiter->fraction(),
+                   linkiter.fraction(),
                    " amp = ",
                    rawAmpl);
 
           //
           // Find simTracks associated with this cluster
           //
-          unsigned int thisTrackID = linkiter->SimTrackId();
+          unsigned int thisTrackID = linkiter.SimTrackId();
           // Does at least one strip have >1 track?
           if (stripIdx == prevIdx)
             ovlap = 1;
@@ -434,31 +431,31 @@ void StripClusterMCanalysis::analyze(const edm::Event& iEvent, const edm::EventS
             // This is the first time we've encountered this track (linked to this cluster)
             trackID.push_back(thisTrackID);
 
-            trackCharge.push_back(linkiter->fraction() * rawAmpl);
+            trackCharge.push_back(linkiter.fraction() * rawAmpl);
           } else {
             for (unsigned int i = 0; i < trackID.size(); ++i)
               if (trackID[i] == thisTrackID)
-                trackCharge[i] += linkiter->fraction() * rawAmpl;
+                trackCharge[i] += linkiter.fraction() * rawAmpl;
           }  // if newTrack ... else
           if (printOut_ > 2) {
             std::cout << "    Track charge accumulator = ";
-            for (unsigned int it = 0; it < trackCharge.size(); ++it)
-              printf("%7.1f  ", trackCharge[it]);
+            for (float it : trackCharge)
+              printf("%7.1f  ", it);
             std::cout << std::endl;
           }
 
           //
           // Find simHits associaed with this cluster
           //
-          unsigned int currentCFPos = linkiter->CFposition();
-          unsigned int tofBin = linkiter->TofBin();
+          unsigned int currentCFPos = linkiter.CFposition();
+          unsigned int tofBin = linkiter.TofBin();
           simHitCollectionID theSimHitCollID = std::make_pair(theDet.subdetId(), tofBin);
           simhitAddr currentAddr = std::make_pair(theSimHitCollID, currentCFPos);
           bool newHit = true;
           if (std::find(CFaddr.begin(), CFaddr.end(), currentAddr) != CFaddr.end())
             newHit = false;
           if (newHit) {
-            simhit_collectionMap::const_iterator it = SimHitCollMap_.find(theSimHitCollID);
+            auto it = SimHitCollMap_.find(theSimHitCollID);
             if (it != SimHitCollMap_.end()) {
               if (currentCFPos < (it->second).size()) {
                 const PSimHit& theSimHit = (it->second)[currentCFPos];
@@ -509,33 +506,33 @@ void StripClusterMCanalysis::analyze(const edm::Event& iEvent, const edm::EventS
       clusNtp_.thickness = thickness;
       clusNtp_.width = amp.size();
       clusNtp_.NsimHits = CFaddr.size();
-      clusNtp_.firstProcess = hitProcess.size() > 0 ? hitProcess[0] : -1;
+      clusNtp_.firstProcess = !hitProcess.empty() ? hitProcess[0] : -1;
       clusNtp_.secondProcess = hitProcess.size() > 1 ? hitProcess[1] : -1;
       clusNtp_.thirdProcess = hitProcess.size() > 2 ? hitProcess[2] : -1;
       clusNtp_.fourthProcess = hitProcess.size() > 3 ? hitProcess[3] : -1;
-      clusNtp_.firstPID = hitPID.size() > 0 ? hitPID[0] : 0;
+      clusNtp_.firstPID = !hitPID.empty() ? hitPID[0] : 0;
       clusNtp_.secondPID = hitPID.size() > 1 ? hitPID[1] : 0;
       clusNtp_.thirdPID = hitPID.size() > 2 ? hitPID[2] : 0;
       clusNtp_.fourthPID = hitPID.size() > 3 ? hitPID[3] : 0;
-      clusNtp_.firstPmag = hitPmag.size() > 0 ? hitPmag[0] : 0;
+      clusNtp_.firstPmag = !hitPmag.empty() ? hitPmag[0] : 0;
       clusNtp_.secondPmag = hitPmag.size() > 1 ? hitPmag[1] : 0;
       clusNtp_.thirdPmag = hitPmag.size() > 2 ? hitPmag[2] : 0;
       clusNtp_.fourthPmag = hitPmag.size() > 3 ? hitPmag[3] : 0;
-      clusNtp_.firstPathLength = hitPathLength.size() > 0 ? hitPathLength[0] : 0;
+      clusNtp_.firstPathLength = !hitPathLength.empty() ? hitPathLength[0] : 0;
       clusNtp_.secondPathLength = hitPathLength.size() > 1 ? hitPathLength[1] : 0;
       clusNtp_.thirdPathLength = hitPathLength.size() > 2 ? hitPathLength[2] : 0;
       clusNtp_.fourthPathLength = hitPathLength.size() > 3 ? hitPathLength[3] : 0;
       clusNtp_.pathLstraight = modPathLength;
       float allHtPathLength = 0;
-      for (unsigned int ih = 0; ih < hitPathLength.size(); ++ih)
-        allHtPathLength += hitPathLength[ih];
+      for (float ih : hitPathLength)
+        allHtPathLength += ih;
       clusNtp_.allHtPathLength = allHtPathLength;
       clusNtp_.Ntp = trackID.size();
       if (printOut_ > 0 && trackCharge.size() == 2)
         cout << "  charge 1st, 2nd, dE/dx 1st, 2nd, asymmetry = " << trackCharge[0] << "  " << trackCharge[1] << "  "
              << 3.36e-4 * trackCharge[0] / modPathLength << "  " << 3.36e-4 * trackCharge[1] / modPathLength << "  "
              << (trackCharge[0] - trackCharge[1]) / (trackCharge[0] + trackCharge[1]) << "  " << tkFlip << endl;
-      clusNtp_.firstTkChg = trackCharge.size() > 0 ? trackCharge[0] : 0;
+      clusNtp_.firstTkChg = !trackCharge.empty() ? trackCharge[0] : 0;
       clusNtp_.secondTkChg = trackCharge.size() > 1 ? trackCharge[1] : 0;
       clusNtp_.thirdTkChg = trackCharge.size() > 2 ? trackCharge[2] : 0;
       clusNtp_.fourthTkChg = trackCharge.size() > 3 ? trackCharge[3] : 0;

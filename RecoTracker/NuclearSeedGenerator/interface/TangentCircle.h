@@ -74,7 +74,7 @@ private:
                           const GlobalPoint& initalPosition,
                           double theta,
                           int direction) const;
-  int chargeLocally(float magz, GlobalVector v) const;
+  int chargeLocally(float magz, const GlobalVector& v) const;
   GlobalVector direction(const GlobalPoint& point) const;
 };
 

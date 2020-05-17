@@ -71,10 +71,10 @@ void ESIntegrityTask::dqmBeginLuminosityBlock(const edm::LuminosityBlock& lumi, 
   LogInfo("ESIntegrityTask") << "analyzed " << ievt_ << " events";
   // In case of Lumi based analysis SoftReset the Integrity histogram
   if (doLumiAnalysis_) {
-    for (int i = 0; i < 2; ++i) {
+    for (auto& meDIError : meDIErrors_) {
       for (int j = 0; j < 2; ++j) {
-        if (meDIErrors_[i][j]) {
-          meDIErrors_[i][j]->Reset();
+        if (meDIError[j]) {
+          meDIError[j]->Reset();
         }
       }
     }
@@ -202,15 +202,15 @@ void ESIntegrityTask::analyze(const Event& e, const EventSetup& c) {
 
   // # of DI errors
   Double_t nDIErr[56][36];
-  for (int i = 0; i < 56; ++i)
+  for (auto& i : nDIErr)
     for (int j = 0; j < 36; ++j)
-      nDIErr[i][j] = 0;
+      i[j] = 0;
 
   // DCC
   vector<int> fiberStatus;
   if (e.getByToken(dccCollections_, dccs)) {
-    for (ESRawDataCollection::const_iterator dccItr = dccs->begin(); dccItr != dccs->end(); ++dccItr) {
-      ESDCCHeaderBlock dcc = (*dccItr);
+    for (const auto& dccItr : *dccs) {
+      ESDCCHeaderBlock dcc = dccItr;
 
       meFED_->Fill(dcc.fedId());
 
@@ -286,8 +286,8 @@ void ESIntegrityTask::analyze(const Event& e, const EventSetup& c) {
 
   // KCHIP's
   if (e.getByToken(kchipCollections_, kchips)) {
-    for (ESLocalRawDataCollection::const_iterator kItr = kchips->begin(); kItr != kchips->end(); ++kItr) {
-      ESKCHIPBlock kchip = (*kItr);
+    for (const auto& kItr : *kchips) {
+      ESKCHIPBlock kchip = kItr;
 
       meKF1_->Fill(kchip.id(), kchip.getFlag1());
       meKF2_->Fill(kchip.id(), kchip.getFlag2());

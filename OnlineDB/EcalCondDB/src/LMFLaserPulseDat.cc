@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "OnlineDB/EcalCondDB/interface/LMFLaserPulseDat.h"
 
 LMFLaserPulseDat::LMFLaserPulseDat() : LMFColoredTable() { init(); }
@@ -11,18 +13,18 @@ LMFLaserPulseDat::LMFLaserPulseDat(EcalDBConnection* c) : LMFColoredTable(c) { i
 
 LMFLaserPulseDat::LMFLaserPulseDat(std::string color) : LMFColoredTable() {
   init();
-  setColor(color);
+  setColor(std::move(color));
 }
 
 LMFLaserPulseDat::LMFLaserPulseDat(oracle::occi::Environment* env, oracle::occi::Connection* conn, std::string color)
     : LMFColoredTable(env, conn) {
   init();
-  setColor(color);
+  setColor(std::move(color));
 }
 
 LMFLaserPulseDat::LMFLaserPulseDat(EcalDBConnection* c, std::string color) : LMFColoredTable(c) {
   init();
-  setColor(color);
+  setColor(std::move(color));
 }
 
 void LMFLaserPulseDat::init() {
@@ -38,7 +40,7 @@ void LMFLaserPulseDat::init() {
   m_keys["VMIN"] = 8;
   m_keys["VMAX"] = 9;
   for (int i = 0; i < 10; i++) {
-    m_type.push_back("NUMBER");
+    m_type.emplace_back("NUMBER");
   }
   setSystem("LASER");
   m_color = 0;

@@ -169,8 +169,7 @@ void APVCyclePhaseProducerFromL1ABC::endRun(const edm::Run&, const edm::EventSet
   // summary of absolute bx offset vector
 
   edm::LogInfo("L1AcceptBunchCrossingAbsoluteBXOffsetSummary") << "Absolute BX offset summary:";
-  for (std::map<edm::EventNumber_t, long long>::const_iterator offset = _offsets.begin(); offset != _offsets.end();
-       ++offset) {
+  for (auto offset = _offsets.begin(); offset != _offsets.end(); ++offset) {
     edm::LogVerbatim("L1AcceptBunchCrossingAbsoluteBXOffsetSummary") << offset->first << " " << offset->second;
   }
 }
@@ -220,7 +219,7 @@ void APVCyclePhaseProducerFromL1ABC::produce(edm::Event& iEvent, const edm::Even
         edm::LogPrint("L1AcceptBunchCrossingNoType") << *tcdsRecord;
       }
     } else {
-      for (L1AcceptBunchCrossingCollection::const_iterator l1abc = pIn->begin(); l1abc != pIn->end(); ++l1abc) {
+      for (auto l1abc = pIn->begin(); l1abc != pIn->end(); ++l1abc) {
         if (l1abc->l1AcceptOffset() == 0) {
           if (l1abc->eventType() != 0) {
             orbitoffset = (long long)iEvent.orbitNumber() - (long long)l1abc->orbitNumber();
@@ -238,8 +237,8 @@ void APVCyclePhaseProducerFromL1ABC::produce(edm::Event& iEvent, const edm::Even
             }
           } else {
             edm::LogWarning("L1AcceptBunchCrossingNoType") << "L1AcceptBunchCrossing with no type found: ";
-            for (L1AcceptBunchCrossingCollection::const_iterator debu = pIn->begin(); debu != pIn->end(); ++debu) {
-              edm::LogPrint("L1AcceptBunchCrossingNoType") << *debu;
+            for (const auto& debu : *pIn) {
+              edm::LogPrint("L1AcceptBunchCrossingNoType") << debu;
             }
           }
         }
@@ -264,8 +263,8 @@ void APVCyclePhaseProducerFromL1ABC::produce(edm::Event& iEvent, const edm::Even
           if (useTCDS) {
             edm::LogVerbatim("AbsoluteBXOffsetChanged") << *tcdsRecord;  // Not sure about this
           } else {
-            for (L1AcceptBunchCrossingCollection::const_iterator l1abc = pIn->begin(); l1abc != pIn->end(); ++l1abc) {
-              edm::LogVerbatim("L1AcceptBunchCrossingAbsoluteBXOffsetChanged") << *l1abc;
+            for (const auto& l1abc : *pIn) {
+              edm::LogVerbatim("L1AcceptBunchCrossingAbsoluteBXOffsetChanged") << l1abc;
             }
           }
         }

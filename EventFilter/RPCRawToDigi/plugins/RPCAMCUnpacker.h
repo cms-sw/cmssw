@@ -18,7 +18,7 @@ namespace edm {
 
 class RPCAMCUnpacker {
 public:
-  RPCAMCUnpacker(edm::ParameterSet const&, edm::ProducesCollector);
+  RPCAMCUnpacker(edm::ParameterSet const&, const edm::ProducesCollector&);
   virtual ~RPCAMCUnpacker();
 
   static void fillDescription(edm::ParameterSetDescription& desc);

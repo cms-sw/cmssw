@@ -26,9 +26,9 @@ class TTRHBuilderTest : public edm::EDAnalyzer {
 public:
   TTRHBuilderTest(const edm::ParameterSet& pset) { conf_ = pset; }
 
-  ~TTRHBuilderTest() {}
+  ~TTRHBuilderTest() override {}
 
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) {
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override {
     using namespace std;
 
     //     std::string cpeName = conf_.getParameter<std::string>("PixelCPE");

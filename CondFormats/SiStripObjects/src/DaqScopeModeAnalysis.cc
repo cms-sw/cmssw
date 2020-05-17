@@ -178,14 +178,14 @@ void DaqScopeModeAnalysis::print(std::stringstream& ss, uint32_t iapv) {
      << "  Raw noise                [ADC] : " << std::setw(6) << raw_[iapv][0] << ", " << std::setw(6) << raw_[iapv][31]
      << ", " << std::setw(6) << raw_[iapv][63] << ", " << std::setw(6) << raw_[iapv][127] << std::endl
      << " Dead strips (<5s)       [strip] : (" << dead_[iapv].size() << " in total) ";
-  for (uint16_t ii = 0; ii < dead_[iapv].size(); ii++) {
-    ss << dead_[iapv][ii] << " ";
+  for (unsigned short ii : dead_[iapv]) {
+    ss << ii << " ";
   }
 
   ss << std::endl;
   ss << " Noisy strips (>5s)      [strip] : (" << noisy_[iapv].size() << " in total) ";
-  for (uint16_t ii = 0; ii < noisy_[iapv].size(); ii++) {
-    ss << noisy_[iapv][ii] << " ";
+  for (unsigned short ii : noisy_[iapv]) {
+    ss << ii << " ";
   }
   ss << std::endl;
   ss << " Mean peds +/- spread      [ADC] : " << pedsMean_[iapv] << " +/- " << pedsSpread_[iapv] << std::endl
@@ -202,8 +202,8 @@ void DaqScopeModeAnalysis::print(std::stringstream& ss, uint32_t iapv) {
   if (getErrorCodes().empty()) {
     ss << "(none)";
   } else {
-    VString::const_iterator istr = getErrorCodes().begin();
-    VString::const_iterator jstr = getErrorCodes().end();
+    auto istr = getErrorCodes().begin();
+    auto jstr = getErrorCodes().end();
     for (; istr != jstr; ++istr) {
       ss << *istr << " ";
     }

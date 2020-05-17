@@ -20,20 +20,20 @@ BoundDisk* ForwardDetLayer::computeSurface() {
   LogDebug("DetLayers") << "ForwaLayer::computeSurface callded";
   vector<const GeomDet*> comps = basicComponents();
 
-  vector<const GeomDet*>::const_iterator ifirst = comps.begin();
-  vector<const GeomDet*>::const_iterator ilast = comps.end();
+  auto ifirst = comps.begin();
+  auto ilast = comps.end();
 
   // Find extension in R
   float theRmin = components().front()->position().perp();
   float theRmax = theRmin;
   float theZmin = components().back()->position().z();
   float theZmax = theZmin;
-  for (vector<const GeomDet*>::const_iterator deti = ifirst; deti != ilast; deti++) {
+  for (auto deti = ifirst; deti != ilast; deti++) {
     vector<GlobalPoint> corners = BoundingBox().corners(dynamic_cast<const Plane&>((**deti).surface()));
-    for (vector<GlobalPoint>::const_iterator ic = corners.begin(); ic != corners.end(); ic++) {
-      float r = ic->perp();
+    for (const auto& corner : corners) {
+      float r = corner.perp();
       LogDebug("DetLayers") << "corner.perp(): " << r;
-      float z = ic->z();
+      float z = corner.z();
       theRmin = min(theRmin, r);
       theRmax = max(theRmax, r);
       theZmin = min(theZmin, z);

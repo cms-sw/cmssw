@@ -30,7 +30,7 @@ void FWPhotonLegoProxyBuilder::build(const reco::Photon& iData,
                                      unsigned int iIndex,
                                      TEveElement& oItemHolder,
                                      const FWViewContext*) {
-  TEveStraightLineSet* marker = new TEveStraightLineSet("marker");
+  auto* marker = new TEveStraightLineSet("marker");
   setupAddElement(marker, &oItemHolder);
 
   const double delta = 0.1;

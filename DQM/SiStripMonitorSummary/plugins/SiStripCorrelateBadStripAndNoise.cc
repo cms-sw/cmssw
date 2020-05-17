@@ -51,10 +51,10 @@ void SiStripCorrelateBadStripAndNoise::DoAnalysis(const edm::EventSetup &es) {
 }
 
 void SiStripCorrelateBadStripAndNoise::iterateOnDets(const TrackerTopology *tTopo, const TrackerGeometry *tGeom) {
-  SiStripQuality::RegistryIterator rbegin = qualityHandle_->getRegistryVectorBegin();
-  SiStripQuality::RegistryIterator rend = qualityHandle_->getRegistryVectorEnd();
+  auto rbegin = qualityHandle_->getRegistryVectorBegin();
+  auto rend = qualityHandle_->getRegistryVectorEnd();
 
-  for (SiStripBadStrip::RegistryIterator rp = rbegin; rp != rend; ++rp) {
+  for (auto rp = rbegin; rp != rend; ++rp) {
     const uint32_t detid = rp->detid;
 
     SiStripQuality::Range sqrange = SiStripQuality::Range(qualityHandle_->getDataVectorBegin() + rp->ibegin,
@@ -106,8 +106,8 @@ void SiStripCorrelateBadStripAndNoise::correlateWithNoise(const uint32_t &detid,
     getHistos(detid, tTopo, histos);
     float yvalue = range < 21 ? 1. * range : 21;
 
-    for (size_t i = 0; i < histos.size(); ++i)
-      histos[i]->Fill(meanNoiseHotStrips / meanAPVNoise - 1., yvalue);
+    for (auto &histo : histos)
+      histo->Fill(meanNoiseHotStrips / meanAPVNoise - 1., yvalue);
 
     if (meanNoiseHotStrips / meanAPVNoise - 1. < -0.3)
       tkmap->fillc(detid, 0xFF0000);
@@ -169,9 +169,9 @@ TH2F *SiStripCorrelateBadStripAndNoise::getHisto(const long unsigned int &index)
 }
 
 void SiStripCorrelateBadStripAndNoise::endJob() {
-  for (size_t i = 0; i < vTH2.size(); i++)
-    if (vTH2[i] != nullptr)
-      vTH2[i]->Write();
+  for (auto &i : vTH2)
+    if (i != nullptr)
+      i->Write();
 
   file->Write();
   file->Close();

@@ -111,7 +111,7 @@ void CSCDCCEventData::addChamber(
     // make a new one
     CSCDDUHeader newDDUHeader(
         dccHeader().getCDFBunchCounter(), dccHeader().getCDFEventNumber(), dduID, ddu_fmt_version);
-    theDDUData.push_back(CSCDDUEventData(newDDUHeader));
+    theDDUData.emplace_back(newDDUHeader);
     dduIndex = nDDUs;
     dccHeader().setDAV(dduSlot);
   }
@@ -128,8 +128,8 @@ boost::dynamic_bitset<> CSCDCCEventData::pack() {
   //  if (((i+1)%32)==0) std::cout<<std::endl;
   //}
 
-  for (size_t i = 0; i < theDDUData.size(); ++i) {
-    result = bitset_utilities::append(result, theDDUData[i].pack());
+  for (auto& i : theDDUData) {
+    result = bitset_utilities::append(result, i.pack());
     //std::cout <<"SANDRIK here is ddu data check ";
     //theDDUData[i].header().check();
     //std::cout <<std::endl;

@@ -58,7 +58,7 @@ public:
   /**
    * Receives a string with a path and checks if file is accessible
    */
-  bool setDCCMapFilePath(std::string);
+  bool setDCCMapFilePath(const std::string&);
 
   /**
    * Retrieves current path do the map file

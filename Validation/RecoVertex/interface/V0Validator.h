@@ -84,7 +84,7 @@ public:
   struct V0Couple {
     reco::TrackRef one;
     reco::TrackRef two;
-    explicit V0Couple(reco::TrackRef first_daughter, reco::TrackRef second_daughter) {
+    explicit V0Couple(const reco::TrackRef &first_daughter, const reco::TrackRef &second_daughter) {
       one = first_daughter.key() < second_daughter.key() ? first_daughter : second_daughter;
       two = first_daughter.key() > second_daughter.key() ? first_daughter : second_daughter;
       assert(one != two);

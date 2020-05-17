@@ -202,15 +202,15 @@ void FWECALCaloDataDetailViewBuilder::setColor(Color_t color, const std::vector<
   // note that the zeroth slice is the default one (all else)
   int slice = m_colors.size();
   // take a note of which slice these detids are going to go into
-  for (size_t i = 0; i < detIds.size(); ++i)
-    m_detIdsToColor[detIds[i]] = slice;
+  for (auto detId : detIds)
+    m_detIdsToColor[detId] = slice;
 }
 
 void FWECALCaloDataDetailViewBuilder::showSuperCluster(const reco::SuperCluster& cluster, Color_t color) {
   std::vector<DetId> clusterDetIds;
   const std::vector<std::pair<DetId, float> >& hitsAndFractions = cluster.hitsAndFractions();
-  for (size_t j = 0; j < hitsAndFractions.size(); ++j) {
-    clusterDetIds.push_back(hitsAndFractions[j].first);
+  for (const auto& hitsAndFraction : hitsAndFractions) {
+    clusterDetIds.push_back(hitsAndFraction.first);
   }
 
   setColor(color, clusterDetIds);
@@ -238,14 +238,14 @@ void FWECALCaloDataDetailViewBuilder::showSuperClusters(Color_t color1, Color_t 
     // sort clusters in eta so neighboring clusters have distinct colors
     reco::SuperClusterCollection sorted = *collection.product();
     std::sort(sorted.begin(), sorted.end(), superClusterEtaLess);
-    for (size_t i = 0; i < sorted.size(); ++i) {
-      if (!(fabs(sorted[i].eta() - m_eta) < (m_size * 0.0172) && fabs(sorted[i].phi() - m_phi) < (m_size * 0.0172)))
+    for (auto& i : sorted) {
+      if (!(fabs(i.eta() - m_eta) < (m_size * 0.0172) && fabs(i.phi() - m_phi) < (m_size * 0.0172)))
         continue;
 
       if (colorIndex % 2 == 0)
-        showSuperCluster(sorted[i], color1);
+        showSuperCluster(i, color1);
       else
-        showSuperCluster(sorted[i], color2);
+        showSuperCluster(i, color2);
       ++colorIndex;
     }
   }
@@ -255,11 +255,11 @@ void FWECALCaloDataDetailViewBuilder::fillData(const EcalRecHitCollection* hits,
   const float barrelCR = m_size * 0.0172;  // barrel cell range
 
   // loop on all the detids
-  for (EcalRecHitCollection::const_iterator k = hits->begin(), kEnd = hits->end(); k != kEnd; ++k) {
+  for (const auto& hit : *hits) {
     // get reco geometry
     double centerEta = 0;
     double centerPhi = 0;
-    const float* points = m_geom->getCorners(k->id().rawId());
+    const float* points = m_geom->getCorners(hit.id().rawId());
     if (points != nullptr) {
       TEveVector v;
       int j = 0;
@@ -270,18 +270,18 @@ void FWECALCaloDataDetailViewBuilder::fillData(const EcalRecHitCollection* hits,
       centerEta = v.Eta();
       centerPhi = v.Phi();
     } else
-      fwLog(fwlog::kInfo) << "cannot get geometry for DetId: " << k->id().rawId() << ". Ignored.\n";
+      fwLog(fwlog::kInfo) << "cannot get geometry for DetId: " << hit.id().rawId() << ". Ignored.\n";
 
-    double size = k->energy() / cosh(centerEta);
+    double size = hit.energy() / cosh(centerEta);
 
     // check what slice to put in
     int slice = 0;
-    std::map<DetId, int>::const_iterator itr = m_detIdsToColor.find(k->id());
+    auto itr = m_detIdsToColor.find(hit.id());
     if (itr != m_detIdsToColor.end())
       slice = itr->second;
 
     // if in the EB
-    if (k->id().subdetId() == EcalBarrel || xyEE == false) {
+    if (hit.id().subdetId() == EcalBarrel || xyEE == false) {
       // do phi wrapping
       if (centerPhi > m_phi + M_PI)
         centerPhi -= 2 * M_PI;
@@ -307,8 +307,8 @@ void FWECALCaloDataDetailViewBuilder::fillData(const EcalRecHitCollection* hits,
           j += 3;
           double eta = crystal.Eta();
           double phi = crystal.Phi();
-          if (((k->id().subdetId() == EcalBarrel) && (crystal.Perp() > 135)) ||
-              ((k->id().subdetId() == EcalEndcap) && (crystal.Perp() > 155)))
+          if (((hit.id().subdetId() == EcalBarrel) && (crystal.Perp() > 135)) ||
+              ((hit.id().subdetId() == EcalEndcap) && (crystal.Perp() > 155)))
             continue;
           if (minEta - eta > eps)
             minEta = eta;
@@ -341,7 +341,7 @@ void FWECALCaloDataDetailViewBuilder::fillData(const EcalRecHitCollection* hits,
         data->FillSlice(slice, size);
       }
       // otherwise in the EE
-    } else if (k->id().subdetId() == EcalEndcap) {
+    } else if (hit.id().subdetId() == EcalEndcap) {
       // check if the hit is in the window to be drawn
       double crystalSize = m_size * 0.0172;
       if (!(fabs(centerEta - m_eta) < (crystalSize) && fabs(centerPhi - m_phi) < (crystalSize)))

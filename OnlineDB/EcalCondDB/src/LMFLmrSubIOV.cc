@@ -84,9 +84,9 @@ std::string LMFLmrSubIOV::writeDBSql(Statement *stmt) {
   // Validate the data, use infinity-till convention
   DateHandler dh(m_env, m_conn);
 
-  for (int i = 0; i < 3; i++) {
-    if (m_t[i].isNull()) {
-      m_t[i] = dh.getPlusInfTm();
+  for (auto &i : m_t) {
+    if (i.isNull()) {
+      i = dh.getPlusInfTm();
     }
   }
 

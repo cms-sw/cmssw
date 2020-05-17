@@ -27,13 +27,13 @@ protected:
   std::set<DetId> getASetOfValidDetIds() override {
     std::set<DetId> setOfValidIds;
     const std::vector<DetId>& vectOfValidIds = geometry_->getValidDetIds(DetId::Ecal, 1);  //EB
-    for (std::vector<DetId>::const_iterator it = vectOfValidIds.begin(); it != vectOfValidIds.end(); ++it)
-      setOfValidIds.insert(*it);
+    for (auto vectOfValidId : vectOfValidIds)
+      setOfValidIds.insert(vectOfValidId);
 
     //      vectOfValidIds.clear();
     const std::vector<DetId>& vectOfValidIdsEE = geometry_->getValidDetIds(DetId::Ecal, 2);  //EE
-    for (std::vector<DetId>::const_iterator it = vectOfValidIdsEE.begin(); it != vectOfValidIdsEE.end(); ++it)
-      setOfValidIds.insert(*it);
+    for (auto it : vectOfValidIdsEE)
+      setOfValidIds.insert(it);
 
     return setOfValidIds;
   }

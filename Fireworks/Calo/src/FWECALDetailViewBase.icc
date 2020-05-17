@@ -57,7 +57,7 @@ void FWECALDetailViewBase<T>::build(const FWModelId& id, const T* element) {
 
   // draw axis at the window corners
   if (true) {
-    TEveCaloLegoOverlay* overlay = new TEveCaloLegoOverlay();
+    auto* overlay = new TEveCaloLegoOverlay();
     overlay->SetShowPlane(kFALSE);
     overlay->SetShowPerspective(kFALSE);
     overlay->SetCaloLego(lego);
@@ -67,7 +67,7 @@ void FWECALDetailViewBase<T>::build(const FWModelId& id, const T* element) {
   }
   // set event handler and flip camera to top view at beginning
   FWDetailViewGL<T>::viewerGL()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
-  FWGLEventHandler* eh = new FWGLEventHandler(
+  auto* eh = new FWGLEventHandler(
       (TGWindow*)FWDetailViewGL<T>::viewerGL()->GetGLWidget(), (TObject*)FWDetailViewGL<T>::viewerGL(), lego);
   FWDetailViewGL<T>::viewerGL()->SetEventHandler(eh);
   FWDetailViewGL<T>::viewerGL()->ResetCamerasAfterNextUpdate();

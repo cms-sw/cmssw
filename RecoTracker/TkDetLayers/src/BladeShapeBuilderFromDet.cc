@@ -20,13 +20,13 @@ namespace {
     float phimin(plane.toLocal(tmpPos).phi());
     float phimax(plane.toLocal(tmpPos).phi());
 
-    for (vector<const GeomDet*>::const_iterator it = dets.begin(); it != dets.end(); it++) {
-      vector<GlobalPoint> corners = BoundingBox().corners((*it)->specificSurface());
+    for (auto det : dets) {
+      vector<GlobalPoint> corners = BoundingBox().corners(det->specificSurface());
 
-      for (vector<GlobalPoint>::const_iterator i = corners.begin(); i != corners.end(); i++) {
-        float r = plane.toLocal(*i).perp();
-        float z = plane.toLocal(*i).z();
-        float phi = plane.toLocal(*i).phi();
+      for (const auto& corner : corners) {
+        float r = plane.toLocal(corner).perp();
+        float z = plane.toLocal(corner).z();
+        float phi = plane.toLocal(corner).phi();
         rmin = min(rmin, r);
         rmax = max(rmax, r);
         zmin = min(zmin, z);
@@ -40,8 +40,8 @@ namespace {
       // det +/- length/2, since the min (max) radius for typical fw
       // dets is reached there
 
-      float rdet = (*it)->position().perp();
-      float height = (*it)->surface().bounds().width();
+      float rdet = det->position().perp();
+      float height = det->surface().bounds().width();
       rmin = min(rmin, rdet - height / 2.F);
       rmax = max(rmax, rdet + height / 2.F);
     }
@@ -110,8 +110,8 @@ BoundDiskSector* BladeShapeBuilderFromDet::build(const vector<const GeomDet*>& d
   // find mean position
   typedef Surface::PositionType::BasicVectorType Vector;
   Vector posSum(0, 0, 0);
-  for (vector<const GeomDet*>::const_iterator i = dets.begin(); i != dets.end(); i++) {
-    posSum += (**i).surface().position().basicVector();
+  for (auto det : dets) {
+    posSum += (*det).surface().position().basicVector();
   }
   Surface::PositionType meanPos(0., 0., posSum.z() / float(dets.size()));
 

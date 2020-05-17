@@ -39,8 +39,8 @@ FWFromTEveCaloDataSelector::FWFromTEveCaloDataSelector(TEveCaloData* iData) : m_
 // }
 
 FWFromTEveCaloDataSelector::~FWFromTEveCaloDataSelector() {
-  for (std::vector<FWFromSliceSelector*>::iterator i = m_sliceSelectors.begin(); i != m_sliceSelectors.end(); ++i) {
-    delete *i;
+  for (auto& m_sliceSelector : m_sliceSelectors) {
+    delete m_sliceSelector;
   }
   m_sliceSelectors.clear();
 }
@@ -65,7 +65,7 @@ void FWFromTEveCaloDataSelector::doSelect() {
   FWChangeSentry sentry(*m_changeManager);
   std::for_each(m_sliceSelectors.begin(), m_sliceSelectors.end(), boost::bind(&FWFromSliceSelector::clear, _1));
   const TEveCaloData::vCellId_t& cellIds = m_data->GetCellsSelected();
-  for (TEveCaloData::vCellId_t::const_iterator it = cellIds.begin(), itEnd = cellIds.end(); it != itEnd; ++it) {
+  for (auto it = cellIds.begin(), itEnd = cellIds.end(); it != itEnd; ++it) {
     assert(it->fSlice < static_cast<int>(m_sliceSelectors.size()));
     m_sliceSelectors[it->fSlice]->doSelect(*it);
   }
@@ -77,7 +77,7 @@ void FWFromTEveCaloDataSelector::doUnselect() {
 
   FWChangeSentry sentry(*m_changeManager);
   const TEveCaloData::vCellId_t& cellIds = m_data->GetCellsSelected();
-  for (TEveCaloData::vCellId_t::const_iterator it = cellIds.begin(), itEnd = cellIds.end(); it != itEnd; ++it) {
+  for (auto it = cellIds.begin(), itEnd = cellIds.end(); it != itEnd; ++it) {
     assert(it->fSlice < static_cast<int>(m_sliceSelectors.size()));
     m_sliceSelectors[it->fSlice]->doUnselect(*it);
   }

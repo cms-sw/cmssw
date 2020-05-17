@@ -93,18 +93,18 @@ void BTagPerformaceRootProducerFromSQLITE::analyze(const edm::Event& iEvent, con
     if (!writer_.get()) {
       edm::Service<TFileService> fs;
       TFile* f = &(fs->file());
-      writer_ = std::unique_ptr<fwlite::RecordWriter>(new fwlite::RecordWriter(r.key().name(), f));
+      writer_ = std::make_unique<fwlite::RecordWriter>(r.key().name(), f);
     }
     lastValue_ = r.validityInterval().last();
 
-    for (size_t i = 0; i < names_.size(); i++) {
+    for (auto& name : names_) {
       edm::ESHandle<BtagPerformance> perfH;
-      std::cout << " Studying performance with label " << names_.at(i) << std::endl;
-      r.get(names_.at(i), perfH);
+      std::cout << " Studying performance with label " << name << std::endl;
+      r.get(name, perfH);
       const BtagPerformance& perf = *(perfH.product());
 
-      writer_->update(&(perf.payload()), typeid(PerformancePayload), names_.at(i).c_str());
-      writer_->update(&(perf.workingPoint()), typeid(PerformanceWorkingPoint), names_.at(i).c_str());
+      writer_->update(&(perf.payload()), typeid(PerformancePayload), name.c_str());
+      writer_->update(&(perf.workingPoint()), typeid(PerformanceWorkingPoint), name.c_str());
     }
     writer_->fill(edm::ESRecordAuxiliary(r.validityInterval().first().eventID(), r.validityInterval().first().time()));
   }

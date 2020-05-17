@@ -28,7 +28,7 @@ void L3CalibBlock::Fill(std::map<int, double>::const_iterator MapBegin,
   std::vector<float> energy;
   std::vector<unsigned int> position;
   // loop over the energies map
-  for (std::map<int, double>::const_iterator itMap = MapBegin; itMap != MapEnd; ++itMap) {
+  for (auto itMap = MapBegin; itMap != MapEnd; ++itMap) {
     // translation into vectors for the L3 algo
     position.push_back(itMap->first);
     energy.push_back(itMap->second);

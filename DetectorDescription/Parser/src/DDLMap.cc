@@ -120,7 +120,7 @@ void DDLMap::processElement(const std::string& name, const std::string& nmspace,
     pMapMap[tName] = pMap;
   } else if (parent() == "ConstantsSection" || parent() == "DDDefinition") {
     dd_map_type tMap;
-    for (std::map<std::string, double>::const_iterator it = pMap.begin(); it != pMap.end(); ++it) {
+    for (auto it = pMap.begin(); it != pMap.end(); ++it) {
       tMap[it->first] = it->second;
     }
     DDMap m(getDDName(pNameSpace), std::make_unique<dd_map_type>(tMap));

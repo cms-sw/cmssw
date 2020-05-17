@@ -153,7 +153,7 @@ void ME0SegmentsValidation::analyze(const edm::Event &e, const edm::EventSetup &
       continue;
     int count = 0;
 
-    for (edm::PSimHitContainer::const_iterator itHit = ME0Hits->begin(); itHit != ME0Hits->end(); ++itHit) {
+    for (auto itHit = ME0Hits->begin(); itHit != ME0Hits->end(); ++itHit) {
       int particleType_sh = itHit->particleType();
       int evtId_sh = itHit->eventId().event();
       int bx_sh = itHit->eventId().bunchCrossing();
@@ -212,20 +212,20 @@ void ME0SegmentsValidation::analyze(const edm::Event &e, const edm::EventSetup &
     int numberRHBkg = 0;
     std::vector<ME0RecHit> selectedME0RecHits;
 
-    for (auto rh = me0rhs.begin(); rh != me0rhs.end(); rh++) {
-      auto me0id = rh->me0Id();
+    for (auto &me0rh : me0rhs) {
+      auto me0id = me0rh.me0Id();
       auto rhr = ME0Geometry_->etaPartition(me0id);
-      auto rhLP = rh->localPosition();
+      auto rhLP = me0rh.localPosition();
 
       auto result = isMatched(me0id, rhLP, ME0Digis);
       if (result.second == 1) {
         ++numberRHSig;
-        selectedME0RecHits.push_back(*rh);
+        selectedME0RecHits.push_back(me0rh);
 
       } else
         ++numberRHBkg;
 
-      auto erhLEP = rh->localPositionError();
+      auto erhLEP = me0rh.localPositionError();
       auto rhGP = rhr->toGlobal(rhLP);
       auto rhLPSegm = chamber->toLocal(rhGP);
       float xe = segLP.x() + segLD.x() * rhLPSegm.z() / segLD.z();
@@ -343,8 +343,8 @@ void ME0SegmentsValidation::analyze(const edm::Event &e, const edm::EventSetup &
 }
 
 std::pair<int, int> ME0SegmentsValidation::isMatched(ME0DetId me0id,
-                                                     LocalPoint rhLP,
-                                                     edm::Handle<ME0DigiPreRecoCollection> ME0Digis) {
+                                                     const LocalPoint &rhLP,
+                                                     const edm::Handle<ME0DigiPreRecoCollection> &ME0Digis) {
   int region_rh = (int)me0id.region();
   int layer_rh = (int)me0id.layer();
   int roll_rh = (int)me0id.roll();
@@ -356,8 +356,8 @@ std::pair<int, int> ME0SegmentsValidation::isMatched(ME0DetId me0id,
   int particleType = 0;
   int isPrompt = -1;
 
-  for (ME0DigiPreRecoCollection::DigiRangeIterator cItr = ME0Digis->begin(); cItr != ME0Digis->end(); cItr++) {
-    ME0DetId id = (*cItr).first;
+  for (auto &&cItr : *ME0Digis) {
+    ME0DetId id = cItr.first;
 
     int region_dg = (int)id.region();
     int layer_dg = (int)id.layer();
@@ -374,7 +374,7 @@ std::pair<int, int> ME0SegmentsValidation::isMatched(ME0DetId me0id,
       continue;
 
     ME0DigiPreRecoCollection::const_iterator digiItr;
-    for (digiItr = (*cItr).second.first; digiItr != (*cItr).second.second; ++digiItr) {
+    for (digiItr = cItr.second.first; digiItr != cItr.second.second; ++digiItr) {
       float l_x_dg = digiItr->x();
       float l_y_dg = digiItr->y();
 

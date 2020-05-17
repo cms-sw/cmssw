@@ -39,7 +39,7 @@ namespace gainCalibHelper {
     // helper method to fill the gain / pedestals distributions
     template <typename PayloadType>
     static void fillTheHisto(const std::shared_ptr<PayloadType>& payload,
-                             std::shared_ptr<TH1F> h1,
+                             const std::shared_ptr<TH1F>& h1,
                              gainCalibPI::type theType) {
       std::vector<uint32_t> detids;
       payload->getDetIds(detids);
@@ -133,8 +133,8 @@ namespace gainCalibHelper {
     // helper method to fill the gain / pedestals distributions
     template <typename PayloadType>
     static void fillTheHistos(const std::shared_ptr<PayloadType>& payload,
-                              std::shared_ptr<TH1> hBPix,
-                              std::shared_ptr<TH1> hFPix,
+                              const std::shared_ptr<TH1>& hBPix,
+                              const std::shared_ptr<TH1>& hFPix,
                               gainCalibPI::type theType) {
       std::vector<uint32_t> detids;
       payload->getDetIds(detids);
@@ -1038,7 +1038,7 @@ namespace gainCalibHelper {
 
       // book the intermediate histograms
       for (int r = SiPixelPI::BPixL1o; r != SiPixelPI::NUM_OF_REGIONS; r++) {
-        SiPixelPI::regions part = static_cast<SiPixelPI::regions>(r);
+        auto part = static_cast<SiPixelPI::regions>(r);
         std::string s_part = SiPixelPI::getStringFromRegionEnum(part);
 
         FirstGains_spectraByRegion[part] =
@@ -1134,7 +1134,7 @@ namespace gainCalibHelper {
       // fill the summary plots
       int bin = 1;
       for (int r = SiPixelPI::BPixL1o; r != SiPixelPI::NUM_OF_REGIONS; r++) {
-        SiPixelPI::regions part = static_cast<SiPixelPI::regions>(r);
+        auto part = static_cast<SiPixelPI::regions>(r);
 
         summaryFirst->GetXaxis()->SetBinLabel(bin, SiPixelPI::getStringFromRegionEnum(part).c_str());
         // avoid filling the histogram with numerical noise

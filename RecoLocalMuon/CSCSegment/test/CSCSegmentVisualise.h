@@ -36,9 +36,9 @@ public:
   explicit CSCSegmentVisualise(const edm::ParameterSet &pset);
 
   /// Destructor
-  virtual ~CSCSegmentVisualise();
+  ~CSCSegmentVisualise() override;
 
-  void analyze(const edm::Event &event, const edm::EventSetup &eventSetup);
+  void analyze(const edm::Event &event, const edm::EventSetup &eventSetup) override;
 
 private:
   std::string filename;

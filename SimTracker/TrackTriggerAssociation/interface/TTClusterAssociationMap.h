@@ -225,10 +225,8 @@ bool TTClusterAssociationMap<T>::isUnknown(edm::Ref<edmNew::DetSetVector<TTClust
   std::vector<const TrackingParticle*> tpAddressVector;
 
   /// Loop over the TrackingParticles
-  for (unsigned int itp = 0; itp < theseTrackingParticles.size(); itp++) {
+  for (const auto& curTP : theseTrackingParticles) {
     /// Get the TrackingParticle
-    edm::Ptr<TrackingParticle> curTP = theseTrackingParticles.at(itp);
-
     /// Count the non-NULL TrackingParticles
     if (!curTP.isNull()) {
       /// Store the pointers (addresses) of the TrackingParticle
@@ -270,10 +268,8 @@ bool TTClusterAssociationMap<T>::isCombinatoric(
   std::vector<const TrackingParticle*> tpAddressVector;
 
   /// Loop over the TrackingParticles
-  for (unsigned int itp = 0; itp < theseTrackingParticles.size(); itp++) {
+  for (const auto& curTP : theseTrackingParticles) {
     /// Get the TrackingParticle
-    edm::Ptr<TrackingParticle> curTP = theseTrackingParticles.at(itp);
-
     /// Count the NULL TrackingParticles
     if (curTP.isNull()) {
       nullTPs++;
@@ -302,7 +298,7 @@ edm::Ptr<TrackingParticle> TTClusterAssociationMap<T>::findTrackingParticlePtr(
     return this->findTrackingParticlePtrs(aCluster).at(0);
   }
 
-  edm::Ptr<TrackingParticle>* temp = new edm::Ptr<TrackingParticle>();
+  auto* temp = new edm::Ptr<TrackingParticle>();
   return *temp;
 }
 

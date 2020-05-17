@@ -360,7 +360,7 @@ IsolatedTracksCone::IsolatedTracksCone(const edm::ParameterSet& iConfig)
   edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
   edm::ConsumesCollector iC = consumesCollector();
   parameters_.loadParameters(parameters, iC);
-  trackAssociator_ = std::unique_ptr<TrackDetectorAssociator>(new TrackDetectorAssociator());
+  trackAssociator_ = std::make_unique<TrackDetectorAssociator>();
   trackAssociator_->useDefaultPropagator();
 
   if (myverbose_ >= 0) {
@@ -620,7 +620,7 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent, const edm::EventSetup
   ////////////////////////////
   std::unique_ptr<TrackerHitAssociator> associate;
   if (doMC_)
-    associate.reset(new TrackerHitAssociator(iEvent, trackerHitAssociatorConfig_));
+    associate = std::make_unique<TrackerHitAssociator>(iEvent, trackerHitAssociatorConfig_);
 
   nTRK = 0;
   nRawTRK = 0;
@@ -695,8 +695,7 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent, const edm::EventSetup
 
     double simP = 0;
     if (doMC_) {
-      edm::SimTrackContainer::const_iterator matchedSimTrk =
-          spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, *associate, false);
+      auto matchedSimTrk = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, *associate, false);
       simP = matchedSimTrk->momentum().P();
     }
     ////////////////////////////////////////////
@@ -802,20 +801,20 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent, const edm::EventSetup
     a_mipR[4] = 9.0;  // = from standard analyzer
 
     std::vector<double> v_eDR;
-    for (int i = 0; i < a_size; i++) {
+    for (double i : a_neutIsoR) {
       int nRH_eDR = 0;
 
       // Cone in ecal
-      double eDR = spr::eCone_ecal(
-          geo, barrelRecHitsHandle, endcapRecHitsHandle, hpoint1, point1, a_neutIsoR[i], trackMomAtEcal, nRH_eDR);
+      double eDR =
+          spr::eCone_ecal(geo, barrelRecHitsHandle, endcapRecHitsHandle, hpoint1, point1, i, trackMomAtEcal, nRH_eDR);
       v_eDR.push_back(eDR);
     }
 
     std::vector<double> v_eMipDR;
-    for (int i = 0; i < a_mip_size; i++) {
+    for (double i : a_mipR) {
       int nRH_eMipDR = 0;
       double eMipDR = spr::eCone_ecal(
-          geo, barrelRecHitsHandle, endcapRecHitsHandle, hpoint1, point1, a_mipR[i], trackMomAtEcal, nRH_eMipDR);
+          geo, barrelRecHitsHandle, endcapRecHitsHandle, hpoint1, point1, i, trackMomAtEcal, nRH_eMipDR);
 
       v_eMipDR.push_back(eMipDR);
     }
@@ -837,7 +836,7 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent, const edm::EventSetup
     std::vector<int> v_cone_hnLayers_maxNearP;
     std::vector<int> v_cone_htrkQual_maxNearP;
 
-    for (int i = 0; i < a_size; i++) {
+    for (double i : a_charIsoR) {
       double hmaxNearP = -999.0;
       int hnNearTRKs = 0;
       int hnLayers_maxNearP = 0;
@@ -863,7 +862,7 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent, const edm::EventSetup
                                                conehmaxNearP_goodTrk,
                                                hpoint1,
                                                trackMomAtHcal,
-                                               a_charIsoR[i]);
+                                               i);
 
       v_hmaxNearP_goodTrk.push_back(hmaxNearP_goodTrk);
       v_hmaxNearP.push_back(hmaxNearP);
@@ -990,7 +989,7 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent, const edm::EventSetup
     std::vector<int> v_RH_r44_iphi;
     std::vector<double> v_RH_r44_ene;
 
-    for (int i = 0; i < a_size; i++) {
+    for (double i : a_coneR) {
       std::map<std::string, double> hsimInfoCone;
       double hsimCone = -999.0, hCone = -999.0;
       double distFromHotCell = -99.0;
@@ -1004,17 +1003,17 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent, const edm::EventSetup
       std::vector<int> multiplicityCone;
       std::vector<DetId> coneRecHitDetIds;
       if (doMC_)
-        hsimCone = spr::eCone_hcal(geo, pcalohh, hpoint1, point1, a_coneR[i], trackMomAtHcal, nSimHitsCone);
+        hsimCone = spr::eCone_hcal(geo, pcalohh, hpoint1, point1, i, trackMomAtHcal, nSimHitsCone);
 
       // If needed, get ieta and iphi of rechits for cones of 23.25
       // and for hitmap for debugging
       bool makeHitmaps = false;
-      if (a_coneR[i] == 26.23 && makeHitmaps) {
+      if (i == 26.23 && makeHitmaps) {
         hCone = spr::eCone_hcal(geo,
                                 hbhe,
                                 hpoint1,
                                 point1,
-                                a_coneR[i],
+                                i,
                                 trackMomAtHcal,
                                 nRecHitsCone,
                                 v_RH_r26_ieta,
@@ -1025,12 +1024,12 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent, const edm::EventSetup
                                 ietaHotCell,
                                 iphiHotCell,
                                 gposHotCell);
-      } else if (a_coneR[i] == 43.72 && makeHitmaps) {
+      } else if (i == 43.72 && makeHitmaps) {
         hCone = spr::eCone_hcal(geo,
                                 hbhe,
                                 hpoint1,
                                 point1,
-                                a_coneR[i],
+                                i,
                                 trackMomAtHcal,
                                 nRecHitsCone,
                                 v_RH_r44_ieta,
@@ -1046,7 +1045,7 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent, const edm::EventSetup
                                 hbhe,
                                 hpoint1,
                                 point1,
-                                a_coneR[i],
+                                i,
                                 trackMomAtHcal,
                                 nRecHitsCone,
                                 coneRecHitDetIds,
@@ -1072,7 +1071,7 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent, const edm::EventSetup
                                              geo,
                                              hpoint1,
                                              point1,
-                                             a_coneR[i],
+                                             i,
                                              trackMomAtHcal,
                                              multiplicityCone);
 

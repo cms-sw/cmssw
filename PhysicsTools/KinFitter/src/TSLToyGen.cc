@@ -78,8 +78,8 @@ Bool_t TSLToyGen::doToyExperiments(Int_t nbExperiments) {
 
   // Calculate Y4S
   _Y4S.SetXYZ(0., 0., 0.);
-  for (unsigned int p = 0; p < _inimeasParticles.size(); p++) {
-    _Y4S += _inimeasParticles[p]->getIni4Vec()->Vect();
+  for (auto& _inimeasParticle : _inimeasParticles) {
+    _Y4S += _inimeasParticle->getIni4Vec()->Vect();
   }
   _Y4S += _iniNeutrino->getIni4Vec()->Vect();
   //_Y4S.SetXYZ(-0.1212, -0.0033, 5.8784);
@@ -235,8 +235,8 @@ void TSLToyGen::smearParticles() {
 
   // Calculate neutrino
   TVector3 nuP3 = _Y4S;
-  for (unsigned int p = 0; p < _measParticles.size(); p++) {
-    nuP3 -= _measParticles[p]->getCurr4Vec()->Vect();
+  for (auto& _measParticle : _measParticles) {
+    nuP3 -= _measParticle->getCurr4Vec()->Vect();
   }
   TLorentzVector ini4VecNeutrino;
   ini4VecNeutrino.SetXYZM(nuP3.X(), nuP3.Y(), nuP3.Z(), 0.);
@@ -267,11 +267,11 @@ void TSLToyGen::fillPull1() {
 
 void TSLToyGen::fillPull2() {
   Int_t histindex = 0;
-  for (unsigned int p = 0; p < _measParticles.size(); p++) {
-    const TMatrixD* pull = _measParticles[p]->getPull();
-    const TMatrixD* VDeltaY = _measParticles[p]->getCovMatrixDeltaY();
-    TMatrixD pardiff(*(_measParticles[p]->getParCurr()));
-    pardiff -= *(_measParticles[p]->getParIni());
+  for (auto& _measParticle : _measParticles) {
+    const TMatrixD* pull = _measParticle->getPull();
+    const TMatrixD* VDeltaY = _measParticle->getCovMatrixDeltaY();
+    TMatrixD pardiff(*(_measParticle->getParCurr()));
+    pardiff -= *(_measParticle->getParIni());
     for (int i = 0; i < pull->GetNrows(); i++) {
       ((TH1D*)_histsPull2[histindex])->Fill((*pull)(i, 0));
       ((TH1D*)_histsError2[histindex])->Fill(TMath::Sqrt((*VDeltaY)(i, i)));
@@ -382,8 +382,8 @@ void TSLToyGen::createHists() {
   arrmin[8] = -.5;
   arrmax[8] = .5;  //Diff2
 
-  for (unsigned int p = 0; p < _measParticles.size(); p++) {
-    const TAbsFitParticle* particle = _measParticles[p];
+  for (auto& _measParticle : _measParticles) {
+    const TAbsFitParticle* particle = _measParticle;
     //    const TMatrixD* covMatrix = particle->getCovMatrix();
 
     for (int i = 0; i < particle->getNPar(); i++) {
@@ -391,7 +391,7 @@ void TSLToyGen::createHists() {
         TString name = histnames[h] + (TString)particle->GetName();
         name += i;
         if (h < 3) {
-          const TMatrixD* parfit = _measParticles[p]->getParCurr();
+          const TMatrixD* parfit = _measParticle->getParCurr();
           arrmin[h] = (*parfit)(i, 0) * 0.5;
           arrmax[h] = (*parfit)(i, 0) * 1.5;
         }

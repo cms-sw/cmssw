@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "DataFormats/GEMDigi/interface/GEMGEBStatusDigi.h"
 
 GEMGEBStatusDigi::GEMGEBStatusDigi(uint32_t ZeroSup,
@@ -17,4 +19,4 @@ GEMGEBStatusDigi::GEMGEBStatusDigi(uint32_t ZeroSup,
       InputID_(InputID),
       InFu_(InFu),
       Stuckd_(Stuckd),
-      v_GEBflags_(v_GEBflags){};
+      v_GEBflags_(std::move(v_GEBflags)){};

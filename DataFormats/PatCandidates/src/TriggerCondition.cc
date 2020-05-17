@@ -31,16 +31,16 @@ TriggerCondition::TriggerCondition(const std::string& name, bool accept)
 // Get the trigger object types
 std::vector<int> TriggerCondition::triggerObjectTypes() const {
   std::vector<int> triggerObjectTypes;
-  for (size_t iT = 0; iT < triggerObjectTypes_.size(); ++iT) {
-    triggerObjectTypes.push_back(int(triggerObjectTypes_.at(iT)));
+  for (auto triggerObjectType : triggerObjectTypes_) {
+    triggerObjectTypes.push_back(int(triggerObjectType));
   }
   return triggerObjectTypes;
 }
 
 // Checks, if a certain trigger object type is assigned
 bool TriggerCondition::hasTriggerObjectType(trigger::TriggerObjectType triggerObjectType) const {
-  for (size_t iT = 0; iT < triggerObjectTypes_.size(); ++iT) {
-    if (triggerObjectTypes_.at(iT) == triggerObjectType)
+  for (auto iT : triggerObjectTypes_) {
+    if (iT == triggerObjectType)
       return true;
   }
   return false;
@@ -48,8 +48,8 @@ bool TriggerCondition::hasTriggerObjectType(trigger::TriggerObjectType triggerOb
 
 // Checks, if a certain trigger object collection index is assigned
 bool TriggerCondition::hasObjectKey(unsigned objectKey) const {
-  for (size_t iO = 0; iO < objectKeys_.size(); ++iO) {
-    if (objectKeys_.at(iO) == objectKey)
+  for (unsigned int iO : objectKeys_) {
+    if (iO == objectKey)
       return true;
   }
   return false;

@@ -94,8 +94,8 @@ int main(int argc, char* argv[]) {
 
     std::cout << "edge size of produce graph:" << cpv.graph().edge_size() << std::endl;
     const auto& gt = cpv.graph();
-    adjl_iterator git = gt.begin();
-    adjl_iterator gend = gt.end();
+    auto git = gt.begin();
+    auto gend = gt.end();
 
     Graph::index_type i = 0;
     for (; git != gend; ++git) {

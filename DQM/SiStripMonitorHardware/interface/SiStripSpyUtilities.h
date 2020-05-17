@@ -88,7 +88,7 @@ namespace sistrip {
         const uint16_t threshold,
         const uint16_t aFirstBits);
 
-    static std::string print(const Frame& aFrame, std::string aErr);
+    static std::string print(const Frame& aFrame, const std::string& aErr);
 
     static void fedIndex(uint32_t aFedIndex, uint16_t& aFedId, uint16_t& aFedChannel);
 

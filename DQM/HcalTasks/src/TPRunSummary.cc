@@ -107,16 +107,16 @@ namespace hcaldqm {
 
     //	iterate
     std::vector<HcalTrigTowerDetId> tids = _emap->allTriggerId();
-    for (std::vector<HcalTrigTowerDetId>::const_iterator it = tids.begin(); it != tids.end(); ++it) {
+    for (auto it : tids) {
       //	skip 2x3
-      HcalTrigTowerDetId tid = HcalTrigTowerDetId(*it);
+      auto tid = HcalTrigTowerDetId(it);
       if (tid.version() == 0 && tid.ietaAbs() >= 29)
         continue;
 
       //	do the comparison if there are channels that were correlated
       //	both had emul and data tps
       if (cEtCorrRatio_depthlike.getBinEntries(tid) > 0) {
-        HcalElectronicsId eid = HcalElectronicsId(ehashmap.lookup(*it));
+        auto eid = HcalElectronicsId(ehashmap.lookup(it));
 
         double numetmsm = cEtMsm_depthlike.getBinContent(tid);
         double numfgmsm = cFGMsm_depthlike.getBinContent(tid);
@@ -157,11 +157,11 @@ namespace hcaldqm {
 
       //	combine
       int iflag = 0;
-      for (std::vector<flag::Flag>::iterator ft = vflags.begin(); ft != vflags.end(); ++ft) {
-        cSummary.setBinContent(eid, iflag, ft->_state);
-        fSum += (*ft);
+      for (auto& vflag : vflags) {
+        cSummary.setBinContent(eid, iflag, vflag._state);
+        fSum += vflag;
         iflag++;
-        ft->reset();
+        vflag.reset();
       }
       sumflags.push_back(fSum);
     }

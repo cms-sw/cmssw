@@ -36,27 +36,27 @@ PixelDelay25Calib::PixelDelay25Calib(vector<vector<string> > &tableMat)
   CALIB_OBJ_DATA_CLOB			    NOT NULL CLOB
   */
 
-  colNames.push_back("CONFIG_KEY");
-  colNames.push_back("KEY_TYPE");
-  colNames.push_back("KEY_ALIAS");
-  colNames.push_back("VERSION");
-  colNames.push_back("KIND_OF_COND");
-  colNames.push_back("CALIB_TYPE");
-  colNames.push_back("CALIB_OBJ_DATA_FILE");
-  colNames.push_back("CALIB_OBJ_DATA_CLOB");
+  colNames.emplace_back("CONFIG_KEY");
+  colNames.emplace_back("KEY_TYPE");
+  colNames.emplace_back("KEY_ALIAS");
+  colNames.emplace_back("VERSION");
+  colNames.emplace_back("KIND_OF_COND");
+  colNames.emplace_back("CALIB_TYPE");
+  colNames.emplace_back("CALIB_OBJ_DATA_FILE");
+  colNames.emplace_back("CALIB_OBJ_DATA_CLOB");
 
   for (unsigned int c = 0; c < tableMat[0].size(); c++) {
-    for (unsigned int n = 0; n < colNames.size(); n++) {
-      if (tableMat[0][c] == colNames[n]) {
-        colM[colNames[n]] = c;
+    for (const auto &colName : colNames) {
+      if (tableMat[0][c] == colName) {
+        colM[colName] = c;
         break;
       }
     }
   }  //end for
-  for (unsigned int n = 0; n < colNames.size(); n++) {
-    if (colM.find(colNames[n]) == colM.end()) {
+  for (const auto &colName : colNames) {
+    if (colM.find(colName) == colM.end()) {
       std::cerr << "[[PixelDelay25Calib::PixelDelay25Calib()]\tCouldn't find in the database the column with name "
-                << colNames[n] << std::endl;
+                << colName << std::endl;
       assert(0);
     }
   }
@@ -131,7 +131,7 @@ PixelDelay25Calib::PixelDelay25Calib(vector<vector<string> > &tableMat)
   // End of temporary patch
 }
 
-PixelDelay25Calib::PixelDelay25Calib(std::string filename) : PixelCalibBase(), PixelConfigBase("", "", "") {
+PixelDelay25Calib::PixelDelay25Calib(const std::string &filename) : PixelCalibBase(), PixelConfigBase("", "", "") {
   std::string mthn = "[PixelDelay25Calib::PixelDelay25Calib()]\t\t\t    ";
 
   std::ifstream in(filename.c_str());
@@ -223,7 +223,7 @@ PixelDelay25Calib::PixelDelay25Calib(std::string filename) : PixelCalibBase(), P
 
 PixelDelay25Calib::~PixelDelay25Calib() {}
 
-void PixelDelay25Calib::openFiles(std::string portcardName, std::string moduleName, std::string path) {
+void PixelDelay25Calib::openFiles(const std::string &portcardName, const std::string &moduleName, std::string path) {
   if (!path.empty())
     path += "/";
   graph_ = path + "graph_" + portcardName + "_" + moduleName + ".dat";
@@ -231,7 +231,7 @@ void PixelDelay25Calib::openFiles(std::string portcardName, std::string moduleNa
   return;
 }
 
-void PixelDelay25Calib::writeSettings(std::string portcardName, std::string moduleName) {
+void PixelDelay25Calib::writeSettings(const std::string &portcardName, const std::string &moduleName) {
   graphout_ << "Portcard: " << portcardName << endl;
   graphout_ << "Module: " << moduleName << endl;
   graphout_ << "SDaOrigin: " << origSDa_ << endl;
@@ -243,7 +243,7 @@ void PixelDelay25Calib::writeSettings(std::string portcardName, std::string modu
   return;
 }
 
-void PixelDelay25Calib::writeFiles(std::string tmp) {
+void PixelDelay25Calib::writeFiles(const std::string &tmp) {
   graphout_ << tmp << endl;
   return;
 }
@@ -270,7 +270,7 @@ void PixelDelay25Calib::writeASCII(std::string dir) const {
 
   out << "Portcards:" << endl;
 
-  std::set<std::string>::const_iterator i = portcardNames_.begin();
+  auto i = portcardNames_.begin();
   while (i != portcardNames_.end()) {
     out << *i << endl;
     ++i;

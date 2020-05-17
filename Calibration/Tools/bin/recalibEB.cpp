@@ -26,7 +26,7 @@ int main() {
   if (!barrelfile.empty())
     barrelreader.parseXMLMiscalibFile(barrelfile);
 
-  EcalIntercalibConstants* constants = new EcalIntercalibConstants(map.get());
+  auto* constants = new EcalIntercalibConstants(map.get());
   const EcalIntercalibConstantMap& imap = constants->getMap();
 
   std::string barrelfile2 = "EBcalib.xml";
@@ -35,7 +35,7 @@ int main() {
   MiscalibReaderFromXMLEcalBarrel barrelreader2(map2);
   if (!barrelfile2.empty())
     barrelreader2.parseXMLMiscalibFile(barrelfile2);
-  EcalIntercalibConstants* constants2 = new EcalIntercalibConstants(map2.get());
+  auto* constants2 = new EcalIntercalibConstants(map2.get());
   const EcalIntercalibConstantMap& imap2 = constants2->getMap();
   for (int eta = -85; eta <= 85; ++eta)
     for (int phi = 1; phi <= 360; ++phi) {

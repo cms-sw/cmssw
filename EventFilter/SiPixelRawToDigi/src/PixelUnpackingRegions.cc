@@ -35,8 +35,8 @@ PixelUnpackingRegions::PixelUnpackingRegions(const edm::ParameterSet& conf, edm:
   maxZ_ = regPSet.getParameter<std::vector<double> >("maxZ");
 
   tBeamSpot = iC.consumes<reco::BeamSpot>(beamSpotTag_);
-  for (unsigned int t = 0; t < inputs_.size(); t++)
-    tCandidateView.push_back(iC.consumes<reco::CandidateView>(inputs_[t]));
+  for (const auto& input : inputs_)
+    tCandidateView.push_back(iC.consumes<reco::CandidateView>(input));
 
   if (inputs_.size() != dPhi_.size() || dPhi_.size() != maxZ_.size()) {
     edm::LogError("PixelUnpackingRegions")

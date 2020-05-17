@@ -240,16 +240,16 @@ namespace pat {
     //============ BEGIN ISODEPOSIT BLOCK =====
     /// Returns the IsoDeposit associated with some key, or a null pointer if it is not available
     const IsoDeposit *isoDeposit(IsolationKeys key) const {
-      for (IsoDepositPairs::const_iterator it = isoDeposits_.begin(), ed = isoDeposits_.end(); it != ed; ++it) {
-        if (it->first == key)
-          return &it->second;
+      for (const auto &isoDeposit : isoDeposits_) {
+        if (isoDeposit.first == key)
+          return &isoDeposit.second;
       }
       return nullptr;
     }
 
     /// Sets the IsoDeposit associated with some key; if it is already existent, it is overwritten.
     void setIsoDeposit(IsolationKeys key, const IsoDeposit &dep) {
-      IsoDepositPairs::iterator it = isoDeposits_.begin(), ed = isoDeposits_.end();
+      auto it = isoDeposits_.begin(), ed = isoDeposits_.end();
       for (; it != ed; ++it) {
         if (it->first == key) {
           it->second = dep;

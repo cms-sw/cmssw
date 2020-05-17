@@ -92,7 +92,7 @@ void dEdxAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iR
   if (doDeDxPlots_ || doAllPlots_) {
     for (unsigned int i = 0; i < dEdxInputList_.size(); i++) {
       ibooker.setCurrentFolder(MEFolderName + "/" + dEdxInputList_[i]);
-      dEdxMEsVector.push_back(dEdxMEs());
+      dEdxMEsVector.emplace_back();
 
       histname = "MIP_dEdxPerTrack_";
       dEdxMEsVector[i].ME_MipDeDx = ibooker.book1D(histname, histname, dEdxBin, dEdxMin, dEdxMax);

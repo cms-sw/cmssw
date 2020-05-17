@@ -34,16 +34,16 @@ bool FilterByLTC::filter(Event& event, const EventSetup& eventSetup) {
   event.getByLabel(ltcTag_, ltcdigis);
 
   bool DTtrig = false, CSCtrig = false, RPCtrig = false;
-  for (std::vector<LTCDigi>::const_iterator ltc_it = ltcdigis->begin(); ltc_it != ltcdigis->end(); ltc_it++) {
-    if ((*ltc_it).HasTriggered(0))
+  for (const auto& ltc_it : *ltcdigis) {
+    if (ltc_it.HasTriggered(0))
       DTtrig = true;
-    if ((*ltc_it).HasTriggered(1))
+    if (ltc_it.HasTriggered(1))
       CSCtrig = true;
-    if ((*ltc_it).HasTriggered(2))
+    if (ltc_it.HasTriggered(2))
       RPCtrig = true;
-    if ((*ltc_it).HasTriggered(3))
+    if (ltc_it.HasTriggered(3))
       RPCtrig = true;
-    if ((*ltc_it).HasTriggered(4))
+    if (ltc_it.HasTriggered(4))
       RPCtrig = true;
   }
 

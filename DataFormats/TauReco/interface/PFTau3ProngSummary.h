@@ -34,16 +34,16 @@ namespace reco {
 
     /// constructor from values
     PFTau3ProngSummary();
-    PFTau3ProngSummary(reco::PFTauTransverseImpactParameterRef TIP,
-                       TLorentzVector a1,
+    PFTau3ProngSummary(const reco::PFTauTransverseImpactParameterRef& TIP,
+                       const TLorentzVector& a1,
                        double vertex_chi2,
                        double vertex_ndf);
-    PFTau3ProngSummary(reco::PFTauTransverseImpactParameterRef TIP,
-                       TLorentzVector a1,
+    PFTau3ProngSummary(const reco::PFTauTransverseImpactParameterRef& TIP,
+                       const TLorentzVector& a1,
                        double vertex_chi2,
                        double vertex_ndf,
-                       TVector3 sv,
-                       CovMatrix svcov);
+                       const TVector3& sv,
+                       const CovMatrix& svcov);
 
     virtual ~PFTau3ProngSummary() {}
 

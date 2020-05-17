@@ -17,9 +17,9 @@ class SiStripDeDxMipBuilder : public edm::EDAnalyzer {
 public:
   explicit SiStripDeDxMipBuilder(const edm::ParameterSet& iConfig);
 
-  ~SiStripDeDxMipBuilder(){};
+  ~SiStripDeDxMipBuilder() override{};
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   edm::FileInPath fp_;

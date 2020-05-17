@@ -174,7 +174,7 @@ int TempTrajectory::numberOfCCCBadHits(float ccc_threshold) {
 }
 
 Trajectory TempTrajectory::toTrajectory() const {
-  PropagationDirection p = PropagationDirection(theDirection);
+  auto p = PropagationDirection(theDirection);
   Trajectory traj(p);
   traj.setNLoops(theNLoops);
   traj.setStopReason(stopReason_);

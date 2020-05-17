@@ -63,8 +63,8 @@ public:
 
   DetGroup(const std::vector<DetWithState>& vec) {
     reserve(vec.size());
-    for (std::vector<DetWithState>::const_iterator i = vec.begin(); i != vec.end(); i++) {
-      push_back(DetGroupElement(*i));
+    for (const auto& i : vec) {
+      push_back(DetGroupElement(i));
     }
   }
 

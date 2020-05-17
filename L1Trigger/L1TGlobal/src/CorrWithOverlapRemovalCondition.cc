@@ -504,16 +504,15 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
   // BLW: Optimization issue: potentially making the same comparison twice
   //                          if both legs are the same object type.
   // ///////////////////////////////////////////////////////////////////////////////////////////
-  for (std::vector<SingleCombInCond>::const_iterator it0Comb = cond0Comb.begin(); it0Comb != cond0Comb.end();
-       it0Comb++) {
+  for (const auto& it0Comb : cond0Comb) {
     // Type1s: there is 1 object only, no need for a loop, index 0 should be OK in (*it0Comb)[0]
     // ... but add protection to not crash
     int obj0Index = -1;
 
-    if (!(*it0Comb).empty()) {
-      obj0Index = (*it0Comb)[0];
+    if (!it0Comb.empty()) {
+      obj0Index = it0Comb[0];
     } else {
-      LogTrace("L1TGlobal") << "\n  SingleCombInCond (*it0Comb).size() " << ((*it0Comb).size()) << std::endl;
+      LogTrace("L1TGlobal") << "\n  SingleCombInCond (*it0Comb).size() " << (it0Comb.size()) << std::endl;
       return false;
     }
 
@@ -798,9 +797,7 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
     // ///////////////////////////////////////////////////////////////////////////////////////////
     // loop over overlap-removal leg combination which produced individually "true" as Type1s
     // ///////////////////////////////////////////////////////////////////////////////////////////
-    for (std::vector<SingleCombInCond>::const_iterator it2Comb = cond2Comb.begin();
-         it2Comb != cond2Comb.end() && overlapRemovalMatchLeg1 != 0x1;
-         it2Comb++) {
+    for (auto it2Comb = cond2Comb.begin(); it2Comb != cond2Comb.end() && overlapRemovalMatchLeg1 != 0x1; it2Comb++) {
       // Type1s: there is 1 object only, no need for a loop, index 0 should be OK in (*it2Comb)[0]
       // ... but add protection to not crash
       int obj2Index = -1;
@@ -1152,17 +1149,16 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
     // ///////////////////////////////////////////////////////////////////////////////////////////
     // Now loop over the second leg to get its information
     // ///////////////////////////////////////////////////////////////////////////////////////////
-    for (std::vector<SingleCombInCond>::const_iterator it1Comb = cond1Comb.begin(); it1Comb != cond1Comb.end();
-         it1Comb++) {
+    for (const auto& it1Comb : cond1Comb) {
       LogDebug("L1TGlobal") << "Looking at second Condition" << std::endl;
       // Type1s: there is 1 object only, no need for a loop (*it1Comb)[0]
       // ... but add protection to not crash
       int obj1Index = -1;
 
-      if (!(*it1Comb).empty()) {
-        obj1Index = (*it1Comb)[0];
+      if (!it1Comb.empty()) {
+        obj1Index = it1Comb[0];
       } else {
-        LogTrace("L1TGlobal") << "\n  SingleCombInCond (*it1Comb).size() " << ((*it1Comb).size()) << std::endl;
+        LogTrace("L1TGlobal") << "\n  SingleCombInCond (*it1Comb).size() " << (it1Comb.size()) << std::endl;
         return false;
       }
 
@@ -1444,9 +1440,7 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
       // ///////////////////////////////////////////////////////////////////////////////////////////
       // loop over overlap-removal leg combination which produced individually "true" as Type1s
       // ///////////////////////////////////////////////////////////////////////////////////////////
-      for (std::vector<SingleCombInCond>::const_iterator it2Comb = cond2Comb.begin();
-           it2Comb != cond2Comb.end() && overlapRemovalMatchLeg2 != 0x1;
-           it2Comb++) {
+      for (auto it2Comb = cond2Comb.begin(); it2Comb != cond2Comb.end() && overlapRemovalMatchLeg2 != 0x1; it2Comb++) {
         // Type1s: there is 1 object only, no need for a loop, index 0 should be OK in (*it2Comb)[0]
         // ... but add protection to not crash
         int obj2Index = -1;

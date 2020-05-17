@@ -197,7 +197,7 @@ namespace edm {
     size_type numberOfAssociations(const key_type& k) const {
       if (ref_.key.id() != k.id())
         return 0;
-      typename map_type::const_iterator f = map_.find(k.key());
+      auto f = map_.find(k.key());
       if (f == map_.end())
         return 0;
       return Tag::size(f->second);
@@ -251,7 +251,7 @@ namespace edm {
     mutable internal_transient_map_type transientMap_;
     /// find element with index i
     const_iterator find(size_type i) const {
-      typename map_type::const_iterator f = map_.find(i);
+      auto f = map_.find(i);
       if (f == map_.end())
         return end();
       return const_iterator(this, f);
@@ -260,7 +260,7 @@ namespace edm {
     const value_type& get(size_type i) const {
       typename internal_transient_map_type::const_iterator tf = transientMap_.find(i);
       if (tf == transientMap_.end()) {
-        typename map_type::const_iterator f = map_.find(i);
+        auto f = map_.find(i);
         if (f == map_.end())
           Exception::throwThis(edm::errors::InvalidReference, "can't find reference in AssociationMap at position ", i);
         value_type v(key_type(ref_.key, i), Tag::val(ref_, f->second));

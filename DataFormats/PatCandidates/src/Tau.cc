@@ -93,7 +93,7 @@ void Tau::initFromBaseTau(const reco::BaseTau& aTau) {
   if (pfTau != nullptr) {
     // If PFTau is made from PackedCandidates, directly fill slimmed version
     // without PFSpecific
-    const pat::PackedCandidate* pc = dynamic_cast<const pat::PackedCandidate*>(pfTau->leadChargedHadrCand().get());
+    const auto* pc = dynamic_cast<const pat::PackedCandidate*>(pfTau->leadChargedHadrCand().get());
     if (pc != nullptr) {
       for (const auto& ptr : pfTau->signalChargedHadrCands())
         signalChargedHadrCandPtrs_.push_back(ptr);
@@ -113,9 +113,9 @@ void Tau::initFromBaseTau(const reco::BaseTau& aTau) {
       for (const auto& ptr : pfTau->isolationGammaCands())
         isolationGammaCandPtrs_.push_back(ptr);
     } else {
-      pfSpecific_.push_back(pat::tau::TauPFSpecific(*pfTau));
+      pfSpecific_.emplace_back(*pfTau);
     }
-    pfEssential_.push_back(pat::tau::TauPFEssential(*pfTau));
+    pfEssential_.emplace_back(*pfTau);
   }
 }
 
@@ -181,8 +181,8 @@ const reco::TrackRefVector& Tau::signalTracks() const {
 void Tau::embedIsolationTracks() {
   isolationTracks_.clear();
   reco::TrackRefVector trackRefVec = reco::BaseTau::isolationTracks();
-  for (unsigned int i = 0; i < trackRefVec.size(); i++) {
-    isolationTracks_.push_back(*trackRefVec.at(i));
+  for (const auto& i : trackRefVec) {
+    isolationTracks_.push_back(*i);
   }
   embeddedIsolationTracks_ = true;
 }
@@ -200,8 +200,8 @@ void Tau::embedLeadTrack() {
 void Tau::embedSignalTracks() {
   signalTracks_.clear();
   reco::TrackRefVector trackRefVec = reco::BaseTau::signalTracks();
-  for (unsigned int i = 0; i < trackRefVec.size(); i++) {
-    signalTracks_.push_back(*trackRefVec.at(i));
+  for (const auto& i : trackRefVec) {
+    signalTracks_.push_back(*i);
   }
   embeddedSignalTracks_ = true;
 }
@@ -217,23 +217,23 @@ const reco::GenJet* Tau::genJet() const { return (!genJet_.empty() ? &genJet_.fr
 
 // method to retrieve a tau ID (or throw)
 float Tau::tauID(const std::string& name) const {
-  for (std::vector<IdPair>::const_iterator it = tauIDs_.begin(), ed = tauIDs_.end(); it != ed; ++it) {
-    if (it->first == name)
-      return it->second;
+  for (const auto& tauID : tauIDs_) {
+    if (tauID.first == name)
+      return tauID.second;
   }
   cms::Exception ex("Key not found");
   ex << "pat::Tau: the ID " << name << " can't be found in this pat::Tau.\n";
   ex << "The available IDs are: ";
-  for (std::vector<IdPair>::const_iterator it = tauIDs_.begin(), ed = tauIDs_.end(); it != ed; ++it) {
-    ex << "'" << it->first << "' ";
+  for (const auto& tauID : tauIDs_) {
+    ex << "'" << tauID.first << "' ";
   }
   ex << ".\n";
   throw ex;
 }
 // check if an ID is there
 bool Tau::isTauIDAvailable(const std::string& name) const {
-  for (std::vector<IdPair>::const_iterator it = tauIDs_.begin(), ed = tauIDs_.end(); it != ed; ++it) {
-    if (it->first == name)
+  for (const auto& tauID : tauIDs_) {
+    if (tauID.first == name)
       return true;
   }
   return false;
@@ -355,8 +355,8 @@ void Tau::embedSignalPFCands() {
     return;
   }
   std::vector<reco::PFCandidatePtr> candPtrs = pfSpecific_[0].selectedSignalPFCands_;
-  for (unsigned int i = 0; i < candPtrs.size(); i++) {
-    signalPFCands_.push_back(candPtrs.at(i));
+  for (const auto& candPtr : candPtrs) {
+    signalPFCands_.emplace_back(candPtr);
   }
   embeddedSignalPFCands_ = true;
 }
@@ -365,8 +365,8 @@ void Tau::embedSignalPFChargedHadrCands() {
     return;
   }
   std::vector<reco::PFCandidatePtr> candPtrs = pfSpecific_[0].selectedSignalPFChargedHadrCands_;
-  for (unsigned int i = 0; i < candPtrs.size(); i++) {
-    signalPFChargedHadrCands_.push_back(candPtrs.at(i));
+  for (const auto& candPtr : candPtrs) {
+    signalPFChargedHadrCands_.emplace_back(candPtr);
   }
   embeddedSignalPFChargedHadrCands_ = true;
 }
@@ -375,8 +375,8 @@ void Tau::embedSignalPFNeutralHadrCands() {
     return;
   }
   std::vector<reco::PFCandidatePtr> candPtrs = pfSpecific_[0].selectedSignalPFNeutrHadrCands_;
-  for (unsigned int i = 0; i < candPtrs.size(); i++) {
-    signalPFNeutralHadrCands_.push_back(candPtrs.at(i));
+  for (const auto& candPtr : candPtrs) {
+    signalPFNeutralHadrCands_.emplace_back(candPtr);
   }
   embeddedSignalPFNeutralHadrCands_ = true;
 }
@@ -385,8 +385,8 @@ void Tau::embedSignalPFGammaCands() {
     return;
   }
   std::vector<reco::PFCandidatePtr> candPtrs = pfSpecific_[0].selectedSignalPFGammaCands_;
-  for (unsigned int i = 0; i < candPtrs.size(); i++) {
-    signalPFGammaCands_.push_back(candPtrs.at(i));
+  for (const auto& candPtr : candPtrs) {
+    signalPFGammaCands_.emplace_back(candPtr);
   }
   embeddedSignalPFGammaCands_ = true;
 }
@@ -396,8 +396,8 @@ void Tau::embedIsolationPFCands() {
     return;
   }
   std::vector<reco::PFCandidatePtr> candPtrs = pfSpecific_[0].selectedIsolationPFCands_;
-  for (unsigned int i = 0; i < candPtrs.size(); i++) {
-    isolationPFCands_.push_back(candPtrs.at(i));
+  for (const auto& candPtr : candPtrs) {
+    isolationPFCands_.emplace_back(candPtr);
   }
   embeddedIsolationPFCands_ = true;
 }
@@ -407,8 +407,8 @@ void Tau::embedIsolationPFChargedHadrCands() {
     return;
   }
   std::vector<reco::PFCandidatePtr> candPtrs = pfSpecific_[0].selectedIsolationPFChargedHadrCands_;
-  for (unsigned int i = 0; i < candPtrs.size(); i++) {
-    isolationPFChargedHadrCands_.push_back(candPtrs.at(i));
+  for (const auto& candPtr : candPtrs) {
+    isolationPFChargedHadrCands_.emplace_back(candPtr);
   }
   embeddedIsolationPFChargedHadrCands_ = true;
 }
@@ -417,8 +417,8 @@ void Tau::embedIsolationPFNeutralHadrCands() {
     return;
   }
   std::vector<reco::PFCandidatePtr> candPtrs = pfSpecific_[0].selectedIsolationPFNeutrHadrCands_;
-  for (unsigned int i = 0; i < candPtrs.size(); i++) {
-    isolationPFNeutralHadrCands_.push_back(candPtrs.at(i));
+  for (const auto& candPtr : candPtrs) {
+    isolationPFNeutralHadrCands_.emplace_back(candPtr);
   }
   embeddedIsolationPFNeutralHadrCands_ = true;
 }
@@ -427,8 +427,8 @@ void Tau::embedIsolationPFGammaCands() {
     return;
   }
   std::vector<reco::PFCandidatePtr> candPtrs = pfSpecific_[0].selectedIsolationPFGammaCands_;
-  for (unsigned int i = 0; i < candPtrs.size(); i++) {
-    isolationPFGammaCands_.push_back(candPtrs.at(i));
+  for (const auto& candPtr : candPtrs) {
+    isolationPFGammaCands_.emplace_back(candPtr);
   }
   embeddedIsolationPFGammaCands_ = true;
 }
@@ -444,7 +444,7 @@ reco::PFRecoTauChargedHadronRef Tau::leadTauChargedHadronCandidate() const {
 }
 
 const reco::PFCandidatePtr convertToPFCandidatePtr(const reco::CandidatePtr& ptr) {
-  const reco::PFCandidate* pf_cand = dynamic_cast<const reco::PFCandidate*>(&*ptr);
+  const auto* pf_cand = dynamic_cast<const reco::PFCandidate*>(&*ptr);
   if (pf_cand)
     return edm::Ptr<reco::PFCandidate>(ptr);
   return reco::PFCandidatePtr();
@@ -723,8 +723,7 @@ void Tau::initializeJEC(unsigned int level, unsigned int set) {
 
 /// return true if this jet carries the jet correction factors of a different set, for systematic studies
 int Tau::jecSet(const std::string& set) const {
-  for (std::vector<pat::TauJetCorrFactors>::const_iterator corrFactor = jec_.begin(); corrFactor != jec_.end();
-       ++corrFactor) {
+  for (auto corrFactor = jec_.begin(); corrFactor != jec_.end(); ++corrFactor) {
     if (corrFactor->jecSet() == set)
       return corrFactor - jec_.begin();
   }
@@ -734,9 +733,8 @@ int Tau::jecSet(const std::string& set) const {
 /// all available label-names of all sets of jet energy corrections
 const std::vector<std::string> Tau::availableJECSets() const {
   std::vector<std::string> sets;
-  for (std::vector<pat::TauJetCorrFactors>::const_iterator corrFactor = jec_.begin(); corrFactor != jec_.end();
-       ++corrFactor) {
-    sets.push_back(corrFactor->jecSet());
+  for (const auto& corrFactor : jec_) {
+    sets.push_back(corrFactor.jecSet());
   }
   return sets;
 }
@@ -868,17 +866,17 @@ reco::CandidatePtrVector Tau::signalCands() const {
 
     for (const auto& p : signalChargedHadrCandPtrs_) {
       ret2.push_back(p);
-      pt_index.push_back(std::make_pair(p->pt(), index));
+      pt_index.emplace_back(p->pt(), index);
       index++;
     }
     for (const auto& p : signalNeutralHadrCandPtrs_) {
       ret2.push_back(p);
-      pt_index.push_back(std::make_pair(p->pt(), index));
+      pt_index.emplace_back(p->pt(), index);
       index++;
     }
     for (const auto& p : signalGammaCandPtrs_) {
       ret2.push_back(p);
-      pt_index.push_back(std::make_pair(p->pt(), index));
+      pt_index.emplace_back(p->pt(), index);
       index++;
     }
     std::sort(pt_index.begin(), pt_index.end(), std::greater<>());
@@ -952,17 +950,17 @@ reco::CandidatePtrVector Tau::isolationCands() const {
     size_t index = 0;
     for (const auto& p : isolationChargedHadrCandPtrs_) {
       ret2.push_back(p);
-      pt_index.push_back(std::make_pair(p->pt(), index));
+      pt_index.emplace_back(p->pt(), index);
       index++;
     }
     for (const auto& p : isolationNeutralHadrCandPtrs_) {
       ret2.push_back(p);
-      pt_index.push_back(std::make_pair(p->pt(), index));
+      pt_index.emplace_back(p->pt(), index);
       index++;
     }
     for (const auto& p : isolationGammaCandPtrs_) {
       ret2.push_back(p);
-      pt_index.push_back(std::make_pair(p->pt(), index));
+      pt_index.emplace_back(p->pt(), index);
       index++;
     }
     std::sort(pt_index.begin(), pt_index.end(), std::greater<>());

@@ -32,7 +32,7 @@ namespace std {
 class testLeptonAssociator : public edm::EDAnalyzer {
 public:
   explicit testLeptonAssociator(const edm::ParameterSet& iConfig);
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& setup) override;
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& setup) override;
 
 private:
   edm::EDGetTokenT<edm::View<reco::Track> > token_recoTracks;
@@ -47,7 +47,7 @@ private:
   double m_ptcut;
 };
 
-std::ostream& operator<<(std::ostream& out, edm::RefToBase<reco::Track> ref) {
+std::ostream& operator<<(std::ostream& out, const edm::RefToBase<reco::Track>& ref) {
   out << " {" << std::setw(2) << ref->found() << "}    "
       << " [" << std::setw(4) << ref.key() << "]"
       << "            "
@@ -56,7 +56,7 @@ std::ostream& operator<<(std::ostream& out, edm::RefToBase<reco::Track> ref) {
   return out;
 }
 
-std::ostream& operator<<(std::ostream& out, reco::MuonRef ref) {
+std::ostream& operator<<(std::ostream& out, const reco::MuonRef& ref) {
   if (ref->isGlobalMuon()) {
     out << " {" << std::setw(2) << ref->track()->found() << "+" << std::setw(2) << ref->standAloneMuon()->found()
         << "} "
@@ -85,7 +85,7 @@ std::ostream& operator<<(std::ostream& out, reco::MuonRef ref) {
   return out;
 }
 
-std::ostream& operator<<(std::ostream& out, TrackingParticleRef ref) {
+std::ostream& operator<<(std::ostream& out, const TrackingParticleRef& ref) {
   out << " [" << std::setw(4) << ref.key() << "]"
       << " type:" << std::setw(6) << ref->pdgId() << " pT: " << std::setw(6) << std::setprecision(3) << ref->pt()
       << " eta: " << std::setw(6) << std::setprecision(3) << ref->eta() << " phi: " << std::setw(6)
@@ -94,7 +94,7 @@ std::ostream& operator<<(std::ostream& out, TrackingParticleRef ref) {
 }
 
 void printAssociations(const char* label,
-                       TrackingParticleRef tp,
+                       const TrackingParticleRef& tp,
                        const reco::SimToRecoCollection& byhits,
                        const reco::SimToRecoCollection& bychi2) {
   reco::SimToRecoCollection::result_type found_byhits;
@@ -107,22 +107,18 @@ void printAssociations(const char* label,
   typedef boost::tuple<double, double> Quality;
   Quality quality;
   std::map<edm::RefToBase<reco::Track>, Quality> found;
-  for (std::vector<std::pair<edm::RefToBase<reco::Track>, double> >::const_iterator it = found_byhits.begin();
-       it != found_byhits.end();
-       ++it) {
-    const edm::RefToBase<reco::Track> ref = it->first;
+  for (const auto& found_byhit : found_byhits) {
+    const edm::RefToBase<reco::Track> ref = found_byhit.first;
     found.insert(std::make_pair(ref, Quality()));
-    found[ref].get<0>() = it->second;
+    found[ref].get<0>() = found_byhit.second;
   }
-  for (std::vector<std::pair<edm::RefToBase<reco::Track>, double> >::const_iterator it = found_bychi2.begin();
-       it != found_bychi2.end();
-       ++it) {
-    const edm::RefToBase<reco::Track> ref = it->first;
+  for (const auto& it : found_bychi2) {
+    const edm::RefToBase<reco::Track> ref = it.first;
     found.insert(std::make_pair(ref, Quality()));
-    found[ref].get<1>() = -it->second;  // why is chi2 negative ?
+    found[ref].get<1>() = -it.second;  // why is chi2 negative ?
   }
 
-  for (std::map<edm::RefToBase<reco::Track>, Quality>::const_iterator it = found.begin(); it != found.end(); ++it) {
+  for (auto it = found.begin(); it != found.end(); ++it) {
     std::cout << "    " << std::setw(7) << std::left << label << std::right << it->first;
     if (it->second.get<0>())
       std::cout << " [" << std::setw(6) << std::setprecision(3) << it->second.get<0>() << "]";
@@ -137,7 +133,7 @@ void printAssociations(const char* label,
 }
 
 void printAssociations(const char* label,
-                       edm::RefToBase<reco::Track> tp,
+                       const edm::RefToBase<reco::Track>& tp,
                        const reco::RecoToSimCollection& byhits,
                        const reco::RecoToSimCollection& bychi2) {
   reco::RecoToSimCollection::result_type found_byhits;
@@ -150,22 +146,18 @@ void printAssociations(const char* label,
   typedef boost::tuple<double, double> Quality;
   Quality quality;
   std::map<TrackingParticleRef, Quality> found;
-  for (std::vector<std::pair<TrackingParticleRef, double> >::const_iterator it = found_byhits.begin();
-       it != found_byhits.end();
-       ++it) {
-    const TrackingParticleRef ref = it->first;
+  for (const auto& found_byhit : found_byhits) {
+    const TrackingParticleRef ref = found_byhit.first;
     found.insert(std::make_pair(ref, Quality()));
-    found[ref].get<0>() = it->second;
+    found[ref].get<0>() = found_byhit.second;
   }
-  for (std::vector<std::pair<TrackingParticleRef, double> >::const_iterator it = found_bychi2.begin();
-       it != found_bychi2.end();
-       ++it) {
-    const TrackingParticleRef ref = it->first;
+  for (const auto& it : found_bychi2) {
+    const TrackingParticleRef ref = it.first;
     found.insert(std::make_pair(ref, Quality()));
-    found[ref].get<1>() = -it->second;  // why is chi2 negative ?
+    found[ref].get<1>() = -it.second;  // why is chi2 negative ?
   }
 
-  for (std::map<TrackingParticleRef, Quality>::const_iterator it = found.begin(); it != found.end(); ++it) {
+  for (auto it = found.begin(); it != found.end(); ++it) {
     std::cout << "    " << std::setw(7) << std::left << label << std::right << it->first;
     if (it->second.get<0>())
       std::cout << " [" << std::setw(6) << std::setprecision(3) << it->second.get<0>() << "]";
@@ -180,7 +172,7 @@ void printAssociations(const char* label,
 }
 
 void printAssociations(const char* label,
-                       reco::TrackRef tp,
+                       const reco::TrackRef& tp,
                        const reco::RecoToSimCollection& byhits,
                        const reco::RecoToSimCollection& bychi2) {
   printAssociations(label, edm::RefToBase<reco::Track>(tp), byhits, bychi2);
@@ -237,9 +229,8 @@ void testLeptonAssociator::analyze(const edm::Event& iEvent, const edm::EventSet
   std::cout << std::endl;
   std::cout << "Found " << std::setw(6) << trackingParticleCollection.size() << " TrackingParticles" << std::flush;
   unsigned int count = 0;
-  for (TrackingParticleCollection::size_type i = 0; i < trackingParticleCollection.size(); ++i)
-    if ((std::abs(trackingParticleCollection[i].pdgId()) == (int)m_flavour) and
-        (trackingParticleCollection[i].pt() >= m_ptcut))
+  for (const auto& i : trackingParticleCollection)
+    if ((std::abs(i.pdgId()) == (int)m_flavour) and (i.pt() >= m_ptcut))
       ++count;
 
   std::cout << " ( " << std::setw(2) << count << " leptons with pT above " << m_ptcut << " GeV)" << std::endl;

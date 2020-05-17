@@ -27,11 +27,11 @@
 class SiStripDigiValidator : public edm::EDAnalyzer {
 public:
   SiStripDigiValidator(const edm::ParameterSet& config);
-  ~SiStripDigiValidator();
+  ~SiStripDigiValidator() override;
 
-  virtual void beginJob();
-  virtual void endJob();
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
+  void beginJob() override;
+  void endJob() override;
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
 
   void validate(const edm::DetSetVector<SiStripDigi>&, const edm::DetSetVector<SiStripDigi>&);
   void validate(const edm::DetSetVector<SiStripDigi>&, const edm::DetSetVector<SiStripRawDigi>&);

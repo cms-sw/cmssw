@@ -20,7 +20,7 @@ namespace spr {
 #endif
   ) {
 
-    edm::SimTrackContainer::const_iterator itr = SimTk->end();
+    auto itr = SimTk->end();
     ;
 
     //Get the vector of PsimHits associated to TrackerRecHits and select the
@@ -28,8 +28,8 @@ namespace spr {
     std::vector<unsigned int> trkId, trkOcc;
     for (auto const& trkHit : pTrack->recHits()) {
       std::vector<PSimHit> matchedSimIds = associate.associateHit(*trkHit);
-      for (unsigned int isim = 0; isim < matchedSimIds.size(); isim++) {
-        unsigned tkId = matchedSimIds[isim].trackId();
+      for (auto& matchedSimId : matchedSimIds) {
+        unsigned tkId = matchedSimId.trackId();
         bool found = false;
         for (unsigned int j = 0; j < trkId.size(); j++) {
           if (tkId == trkId[j]) {
@@ -94,8 +94,7 @@ namespace spr {
                                      TrackerHitAssociator& associate,
                                      bool debug) {
     // get the matching SimTrack
-    edm::SimTrackContainer::const_iterator trkInfo =
-        spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, associate, debug);
+    auto trkInfo = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, associate, debug);
     unsigned int matchSimTrk = trkInfo->trackId();
 #ifdef EDM_ML_DEBUG
     if (debug)
@@ -116,14 +115,14 @@ namespace spr {
                                      edm::Handle<edm::SimVertexContainer>& SimVtx,
                                      bool debug) {
     spr::simTkInfo info;
-    for (edm::SimTrackContainer::const_iterator simTrkItr = SimTk->begin(); simTrkItr != SimTk->end(); simTrkItr++) {
+    for (auto simTrkItr = SimTk->begin(); simTrkItr != SimTk->end(); simTrkItr++) {
       if (simTkId == simTrkItr->trackId()) {
         if (spr::validSimTrack(simTkId, simTrkItr, SimTk, SimVtx, debug)) {
           info.found = true;
           info.pdgId = simTrkItr->type();
           info.charge = simTrkItr->charge();
         } else {
-          edm::SimTrackContainer::const_iterator parentItr = spr::parentSimTrack(simTrkItr, SimTk, SimVtx, debug);
+          auto parentItr = spr::parentSimTrack(simTrkItr, SimTk, SimVtx, debug);
 #ifdef EDM_ML_DEBUG
           if (debug) {
             if (parentItr != SimTk->end())
@@ -165,7 +164,7 @@ namespace spr {
     if (vertIndex == -1 || vertIndex >= (int)SimVtx->size())
       return false;
 
-    edm::SimVertexContainer::const_iterator simVtxItr = SimVtx->begin();
+    auto simVtxItr = SimVtx->begin();
     for (int iv = 0; iv < vertIndex; iv++)
       simVtxItr++;
     int parent = simVtxItr->parentIndex();
@@ -191,7 +190,7 @@ namespace spr {
       std::cout << "final index " << parent << std::endl;
     ;
 #endif
-    for (edm::SimTrackContainer::const_iterator simTrkItr = SimTk->begin(); simTrkItr != SimTk->end(); simTrkItr++) {
+    for (auto simTrkItr = SimTk->begin(); simTrkItr != SimTk->end(); simTrkItr++) {
       if ((int)simTrkItr->trackId() == parent && simTrkItr != thisTrkItr)
         return validSimTrack(simTkId, simTrkItr, SimTk, SimVtx, debug);
     }
@@ -204,7 +203,7 @@ namespace spr {
                                                         edm::Handle<edm::SimTrackContainer>& SimTk,
                                                         edm::Handle<edm::SimVertexContainer>& SimVtx,
                                                         bool debug) {
-    edm::SimTrackContainer::const_iterator itr = SimTk->end();
+    auto itr = SimTk->end();
 
     int vertIndex = thisTrkItr->vertIndex();
 #ifdef EDM_ML_DEBUG
@@ -217,7 +216,7 @@ namespace spr {
     else if (vertIndex >= (int)SimVtx->size())
       return itr;
 
-    edm::SimVertexContainer::const_iterator simVtxItr = SimVtx->begin();
+    auto simVtxItr = SimVtx->begin();
     for (int iv = 0; iv < vertIndex; iv++)
       simVtxItr++;
     int parent = simVtxItr->parentIndex();
@@ -235,7 +234,7 @@ namespace spr {
         }
       }
     }
-    for (edm::SimTrackContainer::const_iterator simTrkItr = SimTk->begin(); simTrkItr != SimTk->end(); simTrkItr++) {
+    for (auto simTrkItr = SimTk->begin(); simTrkItr != SimTk->end(); simTrkItr++) {
       if ((int)simTrkItr->trackId() == parent && simTrkItr != thisTrkItr)
         return parentSimTrack(simTrkItr, SimTk, SimVtx, debug);
     }

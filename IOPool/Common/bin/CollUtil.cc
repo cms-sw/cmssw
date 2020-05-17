@@ -274,19 +274,18 @@ namespace edm {
     unsigned long nEvents = 0;
     unsigned long runID = 0;
     unsigned long lumiID = 0;
-    for (std::vector<FileIndex::Element>::const_iterator it = fileIndex.begin(), itEnd = fileIndex.end(); it != itEnd;
-         ++it) {
-      if (it->getEntryType() == FileIndex::kEvent) {
+    for (const auto &it : fileIndex) {
+      if (it.getEntryType() == FileIndex::kEvent) {
         ++nEvents;
-      } else if (it->getEntryType() == FileIndex::kLumi) {
-        if (runID != it->run_ || lumiID != it->lumi_) {
+      } else if (it.getEntryType() == FileIndex::kLumi) {
+        if (runID != it.run_ || lumiID != it.lumi_) {
           //print the previous one
           if (lumiID != 0) {
             std::cout << std::setw(15) << runID << std::setw(15) << lumiID << std::setw(15) << nEvents << "\n";
           }
           nEvents = 0;
-          runID = it->run_;
-          lumiID = it->lumi_;
+          runID = it.run_;
+          lumiID = it.lumi_;
         }
       }
     }

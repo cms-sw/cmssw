@@ -29,7 +29,7 @@ bool ModelFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   for (comment = product->comments_begin(); comment != product->comments_end(); comment++) {
     if (comment->find(modelTag_) != string::npos) {
       tempString = comment->substr(comment->find(modelTag_), comment->size());
-      tempString = tempString.substr(0, tempString.find(" "));
+      tempString = tempString.substr(0, tempString.find(' '));
       parameters = split(tempString, "_");
 
       if (parameters.size() - 1 != parameterMins_.size()) {
@@ -60,7 +60,7 @@ void ModelFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   desc.setUnknown();
   descriptions.addDefault(desc);
 }
-vector<string> ModelFilter::split(string fstring, string splitter) {
+vector<string> ModelFilter::split(const string& fstring, const string& splitter) {
   vector<string> returnVector;
   size_t cursor;
   string beforeSplitter;

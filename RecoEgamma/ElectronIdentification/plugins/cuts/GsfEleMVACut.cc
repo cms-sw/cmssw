@@ -40,7 +40,7 @@ GsfEleMVACut::GsfEleMVACut(const edm::ParameterSet& c)
   contentTags_.emplace("mvaCat", mvaCatTag);
 
   for (auto& cutString : mvaCutStrings_) {
-    cutFormula_.push_back(StringObjectFunction<reco::GsfElectron>(cutString));
+    cutFormula_.emplace_back(cutString);
   }
 }
 

@@ -20,12 +20,12 @@ namespace reco {
 
     const PFRecTrackRefVector& pfRecTracks() const { return pfRecTracks_; }
 
-    const bool isIncomingTrack(const reco::PFRecTrackRef originalTrack) const {
+    const bool isIncomingTrack(const reco::PFRecTrackRef& originalTrack) const {
       reco::TrackBaseRef trackBaseRef(originalTrack->trackRef());
       return displacedVertexRef_->isIncomingTrack(trackBaseRef);
     }
 
-    const bool isOutgoingTrack(const reco::PFRecTrackRef originalTrack) const {
+    const bool isOutgoingTrack(const reco::PFRecTrackRef& originalTrack) const {
       reco::TrackBaseRef trackBaseRef(originalTrack->trackRef());
       return displacedVertexRef_->isOutgoingTrack(trackBaseRef);
     }

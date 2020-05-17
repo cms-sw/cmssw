@@ -45,9 +45,9 @@ void TrackInfoProducer::produce(edm::Event& theEvent, const edm::EventSetup& set
   std::map<reco::TrackRef, unsigned int> trackid;
   int i = 0;
 
-  for (TrajTrackAssociationCollection::const_iterator it = assoMap->begin(); it != assoMap->end(); ++it) {
-    const edm::Ref<std::vector<Trajectory> > traj = it->key;
-    const reco::TrackRef track = it->val;
+  for (const auto& it : *assoMap) {
+    const edm::Ref<std::vector<Trajectory> > traj = it.key;
+    const reco::TrackRef track = it.val;
     trackid.insert(make_pair(track, i));
     i++;
     theAlgo_.run(traj, track, output, tracker);
@@ -65,9 +65,8 @@ void TrackInfoProducer::produce(edm::Event& theEvent, const edm::EventSetup& set
   std::unique_ptr<reco::TrackInfoTrackAssociationCollection> TIassociationColl(
       new reco::TrackInfoTrackAssociationCollection(assoMap->refProd().val, rTrackInfo));
 
-  for (std::map<reco::TrackRef, unsigned int>::iterator ref_iter = trackid.begin(); ref_iter != trackid.end();
-       ++ref_iter) {
-    TIassociationColl->insert(ref_iter->first, edm::Ref<reco::TrackInfoCollection>(rTrackInfo, ref_iter->second));
+  for (auto& ref_iter : trackid) {
+    TIassociationColl->insert(ref_iter.first, edm::Ref<reco::TrackInfoCollection>(rTrackInfo, ref_iter.second));
   }
 
   theEvent.put(std::move(TIassociationColl));

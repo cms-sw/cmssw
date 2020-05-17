@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "SimG4Core/CustomPhysics/interface/CustomPhysicsList.h"
 #include "SimG4Core/CustomPhysics/interface/CustomParticleFactory.h"
 #include "SimG4Core/CustomPhysics/interface/CustomParticle.h"
@@ -35,7 +37,7 @@ CustomPhysicsList::CustomPhysicsList(const std::string& name, const edm::Paramet
   }
   edm::FileInPath fp = p.getParameter<edm::FileInPath>("particlesDef");
   particleDefFilePath = fp.fullPath();
-  fParticleFactory.reset(new CustomParticleFactory());
+  fParticleFactory = std::make_unique<CustomParticleFactory>();
   myHelper.reset(nullptr);
 
   edm::LogVerbatim("SimG4CoreCustomPhysics") << "CustomPhysicsList: Path for custom particle definition file: \n"
@@ -60,8 +62,8 @@ void CustomPhysicsList::ConstructProcess() {
     if (particle->GetParticleType() == "simp") {
       G4ProcessManager* pmanager = particle->GetProcessManager();
       if (pmanager) {
-        CMSSIMPInelasticProcess* simpInelPr = new CMSSIMPInelasticProcess();
-        CMSQGSPSIMPBuilder* theQGSPSIMPB = new CMSQGSPSIMPBuilder();
+        auto* simpInelPr = new CMSSIMPInelasticProcess();
+        auto* theQGSPSIMPB = new CMSQGSPSIMPBuilder();
         theQGSPSIMPB->Build(simpInelPr);
         pmanager->AddDiscreteProcess(simpInelPr);
       } else
@@ -86,12 +88,12 @@ void CustomPhysicsList::ConstructProcess() {
               << " GeV; SpectatorMass= " << cp->GetSpectator()->GetPDGMass() / GeV << " GeV.";
 
           if (!myHelper.get()) {
-            myHelper.reset(new G4ProcessHelper(myConfig, fParticleFactory.get()));
+            myHelper = std::make_unique<G4ProcessHelper>(myConfig, fParticleFactory.get());
           }
           pmanager->AddDiscreteProcess(new FullModelHadronicProcess(myHelper.get()));
         }
         if (particle->GetParticleType() == "darkpho") {
-          CMSDarkPairProductionProcess* darkGamma = new CMSDarkPairProductionProcess(dfactor);
+          auto* darkGamma = new CMSDarkPairProductionProcess(dfactor);
           pmanager->AddDiscreteProcess(darkGamma);
         }
       }

@@ -48,7 +48,7 @@ void LegacyIOHelper::save(std::string const &filename,
     // into:
     // DQMData/Run X/A/Run summary/B/C/plot
     std::string dirName = me->getPathname();
-    uint64_t firstSlashPos = dirName.find("/");
+    uint64_t firstSlashPos = dirName.find('/');
     if (firstSlashPos == std::string::npos) {
       firstSlashPos = dirName.length();
     }

@@ -64,8 +64,8 @@ private:
   std::pair<LocalPoint, LocalVector> projectHit(const PSimHit &, const StripGeomDetUnit *, const BoundPlane &);
 
   template <unsigned int D>
-  double computeChi2Increment(MeasurementExtractor, TransientTrackingRecHit::ConstRecHitPointer);
-  double computeChi2Increment(MeasurementExtractor me, TransientTrackingRecHit::ConstRecHitPointer hit) {
+  double computeChi2Increment(MeasurementExtractor, const TransientTrackingRecHit::ConstRecHitPointer &);
+  double computeChi2Increment(MeasurementExtractor me, const TransientTrackingRecHit::ConstRecHitPointer &hit) {
     switch (hit->dimension()) {
       case 1:
         return computeChi2Increment<1>(me, hit);

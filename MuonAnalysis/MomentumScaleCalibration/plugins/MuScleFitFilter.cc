@@ -214,8 +214,8 @@ bool MuScleFitFilter::filter(edm::Event& event, const edm::EventSetup& iSetup) {
             // Loop on all the cuts on invariant mass.
             // If it passes at least one of the cuts, the event will be accepted.
             // ------------------------------------------------------------------
-            std::vector<double>::const_iterator mMinCut = Mmin.begin();
-            std::vector<double>::const_iterator mMaxCut = Mmax.begin();
+            auto mMinCut = Mmin.begin();
+            auto mMaxCut = Mmax.begin();
             for (; mMinCut != Mmin.end(); ++mMinCut, ++mMaxCut) {
               // When the two borders are -1 do not cut.
               if (*mMinCut == *mMaxCut && *mMaxCut == -1) {

@@ -137,13 +137,13 @@ template <typename RecHitType>
 void HLTRecHitInAllL1RegionsProducer<RecHitType>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   std::vector<std::string> productTags;
-  productTags.push_back("EcalRegionalRecHitsEB");
-  productTags.push_back("EcalRegionalRecHitsEE");
+  productTags.emplace_back("EcalRegionalRecHitsEB");
+  productTags.emplace_back("EcalRegionalRecHitsEE");
   desc.add<std::vector<std::string>>("productLabels", productTags);
   std::vector<edm::InputTag> recHitLabels;
-  recHitLabels.push_back(edm::InputTag("hltEcalRegionalEgammaRecHit:EcalRecHitsEB"));
-  recHitLabels.push_back(edm::InputTag("hltEcalRegionalEgammaRecHit:EcalRecHitsEE"));
-  recHitLabels.push_back(edm::InputTag("hltESRegionalEgammaRecHit:EcalRecHitsES"));
+  recHitLabels.emplace_back("hltEcalRegionalEgammaRecHit:EcalRecHitsEB");
+  recHitLabels.emplace_back("hltEcalRegionalEgammaRecHit:EcalRecHitsEE");
+  recHitLabels.emplace_back("hltESRegionalEgammaRecHit:EcalRecHitsES");
   desc.add<std::vector<edm::InputTag>>("recHitLabels", recHitLabels);
   std::vector<edm::ParameterSet> l1InputRegions;
 
@@ -286,7 +286,7 @@ void L1RegionData<L1CollType>::getEtaPhiRegions(const edm::Event& event,
       double phiLow = l1CandIt->phi() - regionPhiMargin_;
       double phiHigh = l1CandIt->phi() + regionPhiMargin_;
 
-      regions.push_back(RectangularEtaPhiRegion(etaLow, etaHigh, phiLow, phiHigh));
+      regions.emplace_back(etaLow, etaHigh, phiLow, phiHigh);
     }
   }
 }
@@ -315,7 +315,7 @@ void L1RegionData<l1extra::L1JetParticleCollection>::getEtaPhiRegions(const edm:
       phiLow -= regionPhiMargin_;
       phiHigh += regionPhiMargin_;
 
-      regions.push_back(RectangularEtaPhiRegion(etaLow, etaHigh, phiLow, phiHigh));
+      regions.emplace_back(etaLow, etaHigh, phiLow, phiHigh);
     }
   }
 }
@@ -344,7 +344,7 @@ void L1RegionData<l1extra::L1EmParticleCollection>::getEtaPhiRegions(const edm::
       phiLow -= regionPhiMargin_;
       phiHigh += regionPhiMargin_;
 
-      regions.push_back(RectangularEtaPhiRegion(etaLow, etaHigh, phiLow, phiHigh));
+      regions.emplace_back(etaLow, etaHigh, phiLow, phiHigh);
     }
   }
 }

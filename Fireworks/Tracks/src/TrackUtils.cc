@@ -67,23 +67,21 @@ namespace fireworks {
 
     std::vector<State> refStates;
     TEveVector trackMomentum(track.px(), track.py(), track.pz());
-    refStates.push_back(State(TEveVector(track.vx(), track.vy(), track.vz()), trackMomentum));
+    refStates.emplace_back(TEveVector(track.vx(), track.vy(), track.vz()), trackMomentum);
     if (track.extra().isAvailable()) {
       if (track.innerOk()) {
         const reco::TrackBase::Point& v = track.innerPosition();
         const reco::TrackBase::Vector& p = track.innerMomentum();
-        refStates.push_back(State(TEveVector(v.x(), v.y(), v.z()), TEveVector(p.x(), p.y(), p.z())));
+        refStates.emplace_back(TEveVector(v.x(), v.y(), v.z()), TEveVector(p.x(), p.y(), p.z()));
       }
       if (track.outerOk()) {
         const reco::TrackBase::Point& v = track.outerPosition();
         const reco::TrackBase::Vector& p = track.outerMomentum();
-        refStates.push_back(State(TEveVector(v.x(), v.y(), v.z()), TEveVector(p.x(), p.y(), p.z())));
+        refStates.emplace_back(TEveVector(v.x(), v.y(), v.z()), TEveVector(p.x(), p.y(), p.z()));
       }
     }
-    for (std::vector<TEveVector>::const_iterator point = extraRefPoints.begin(), pointEnd = extraRefPoints.end();
-         point != pointEnd;
-         ++point)
-      refStates.push_back(State(*point));
+    for (auto extraRefPoint : extraRefPoints)
+      refStates.emplace_back(extraRefPoint);
     if (track.pt() > 1)
       std::sort(refStates.begin(), refStates.end(), StateOrdering(trackMomentum));
 
@@ -340,7 +338,7 @@ namespace fireworks {
 
     const edmNew::DetSetVector<SiStripCluster>* allClusters = nullptr;
     if (addNearbyClusters) {
-      for (trackingRecHit_iterator it = t.recHitsBegin(), itEnd = t.recHitsEnd(); it != itEnd; ++it) {
+      for (auto it = t.recHitsBegin(), itEnd = t.recHitsEnd(); it != itEnd; ++it) {
         const auto& rhs = *(*(it));
         if (typeid(rhs) == typeid(SiStripRecHit2D)) {
           const SiStripRecHit2D& hit = static_cast<const SiStripRecHit2D&>(**it);
@@ -362,7 +360,7 @@ namespace fireworks {
       }
     }
 
-    for (trackingRecHit_iterator it = t.recHitsBegin(), itEnd = t.recHitsEnd(); it != itEnd; ++it) {
+    for (auto it = t.recHitsBegin(), itEnd = t.recHitsEnd(); it != itEnd; ++it) {
       unsigned int rawid = (*it)->geographicalId();
       if (!geom->contains(rawid)) {
         fwLog(fwlog::kError) << "failed to get geometry of SiStripCluster with detid: " << rawid << std::endl;
@@ -381,17 +379,14 @@ namespace fireworks {
         if (allClusters != nullptr) {
           const edmNew::DetSet<SiStripCluster>& clustersOnThisDet = (*allClusters)[rechit->geographicalId().rawId()];
 
-          for (edmNew::DetSet<SiStripCluster>::const_iterator itc = clustersOnThisDet.begin(),
-                                                              edc = clustersOnThisDet.end();
-               itc != edc;
-               ++itc) {
-            TEveStraightLineSet* scposition = new TEveStraightLineSet;
+          for (const auto& itc : clustersOnThisDet) {
+            auto* scposition = new TEveStraightLineSet;
             scposition->SetDepthTest(false);
             scposition->SetPickable(kTRUE);
 
-            short firststrip = itc->firstStrip();
+            short firststrip = itc.firstStrip();
 
-            if (&*itc == cluster) {
+            if (&itc == cluster) {
               scposition->SetTitle(Form("Exact SiStripCluster from TrackingRecHit, first strip %d", firststrip));
               scposition->SetLineColor(kGreen);
             } else {
@@ -415,7 +410,7 @@ namespace fireworks {
           }
         } else {
           short firststrip = cluster->firstStrip();
-          TEveStraightLineSet* scposition = new TEveStraightLineSet;
+          auto* scposition = new TEveStraightLineSet;
           scposition->SetDepthTest(false);
           scposition->SetPickable(kTRUE);
           scposition->SetTitle(Form("SiStripCluster, first strip %d", firststrip));
@@ -440,13 +435,10 @@ namespace fireworks {
           edmNew::DetSetVector<SiStripCluster>::const_iterator itds = allClusters->find(rawid);
           if (itds != allClusters->end()) {
             const edmNew::DetSet<SiStripCluster>& clustersOnThisDet = *itds;
-            for (edmNew::DetSet<SiStripCluster>::const_iterator itc = clustersOnThisDet.begin(),
-                                                                edc = clustersOnThisDet.end();
-                 itc != edc;
-                 ++itc) {
-              short firststrip = itc->firstStrip();
+            for (const auto& itc : clustersOnThisDet) {
+              short firststrip = itc.firstStrip();
 
-              TEveStraightLineSet* scposition = new TEveStraightLineSet;
+              auto* scposition = new TEveStraightLineSet;
               scposition->SetDepthTest(false);
               scposition->SetPickable(kTRUE);
               scposition->SetTitle(Form("Lost SiStripCluster, first strip %d", firststrip));
@@ -479,7 +471,7 @@ namespace fireworks {
 
   void pushNearbyPixelHits(std::vector<TVector3>& pixelPoints, const FWEventItem& iItem, const reco::Track& t) {
     const edmNew::DetSetVector<SiPixelCluster>* allClusters = nullptr;
-    for (trackingRecHit_iterator it = t.recHitsBegin(), itEnd = t.recHitsEnd(); it != itEnd; ++it) {
+    for (auto it = t.recHitsBegin(), itEnd = t.recHitsEnd(); it != itEnd; ++it) {
       const auto& rhs = *(*(it));
       if (typeid(rhs) == typeid(SiPixelRecHit)) {
         const SiPixelRecHit& hit = static_cast<const SiPixelRecHit&>(**it);
@@ -496,7 +488,7 @@ namespace fireworks {
 
     const FWGeometry* geom = iItem.getGeom();
 
-    for (trackingRecHit_iterator it = t.recHitsBegin(), itEnd = t.recHitsEnd(); it != itEnd; ++it) {
+    for (auto it = t.recHitsBegin(), itEnd = t.recHitsEnd(); it != itEnd; ++it) {
       const TrackingRecHit* rh = &(**it);
 
       DetId id = (*it)->geographicalId();
@@ -517,12 +509,9 @@ namespace fireworks {
       edmNew::DetSetVector<SiPixelCluster>::const_iterator itds = allClusters->find(id.rawId());
       if (itds != allClusters->end()) {
         const edmNew::DetSet<SiPixelCluster>& clustersOnThisDet = *itds;
-        for (edmNew::DetSet<SiPixelCluster>::const_iterator itc = clustersOnThisDet.begin(),
-                                                            edc = clustersOnThisDet.end();
-             itc != edc;
-             ++itc) {
-          if (&*itc != hitCluster)
-            pushPixelCluster(pixelPoints, *geom, id, *itc, geom->getParameters(id));
+        for (const auto& itc : clustersOnThisDet) {
+          if (&itc != hitCluster)
+            pushPixelCluster(pixelPoints, *geom, id, itc, geom->getParameters(id));
         }
       }
     }
@@ -543,7 +532,7 @@ namespace fireworks {
     fwLog(fwlog::kDebug) << "Track eta: " << etaT << ", vz: " << vz << ", dz: " << dz << std::endl;
 
     int cnt = 0;
-    for (trackingRecHit_iterator it = t.recHitsBegin(), itEnd = t.recHitsEnd(); it != itEnd; ++it) {
+    for (auto it = t.recHitsBegin(), itEnd = t.recHitsEnd(); it != itEnd; ++it) {
       const TrackingRecHit* rh = &(**it);
       // -- get position of center of wafer, assuming (0,0,0) is the center
       DetId id = (*it)->geographicalId();
@@ -715,8 +704,8 @@ namespace fireworks {
 
   std::string info(const std::set<DetId>& idSet) {
     std::string text;
-    for (std::set<DetId>::const_iterator id = idSet.begin(), idEnd = idSet.end(); id != idEnd; ++id) {
-      text += info(*id);
+    for (auto id : idSet) {
+      text += info(id);
       text += "\n";
     }
     return text;
@@ -724,8 +713,8 @@ namespace fireworks {
 
   std::string info(const std::vector<DetId>& idSet) {
     std::string text;
-    for (std::vector<DetId>::const_iterator id = idSet.begin(), idEnd = idSet.end(); id != idEnd; ++id) {
-      text += info(*id);
+    for (auto id : idSet) {
+      text += info(id);
       text += "\n";
     }
     return text;

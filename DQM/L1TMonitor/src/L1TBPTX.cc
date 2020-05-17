@@ -42,18 +42,18 @@ L1TBPTX::L1TBPTX(const ParameterSet& pset) {
 
   m_monitorBits = pset.getParameter<vector<ParameterSet> >("MonitorBits");
 
-  for (unsigned i = 0; i < m_monitorBits.size(); i++) {
+  for (auto& m_monitorBit : m_monitorBits) {
     // Algorithms
-    if (m_monitorBits[i].getParameter<bool>("bitType")) {
-      int bit = m_monitorBits[i].getParameter<int>("bitNumber");
-      int offset = m_monitorBits[i].getParameter<int>("bitOffset");
-      m_selAlgoBit.push_back(pair<int, int>(bit, offset));
+    if (m_monitorBit.getParameter<bool>("bitType")) {
+      int bit = m_monitorBit.getParameter<int>("bitNumber");
+      int offset = m_monitorBit.getParameter<int>("bitOffset");
+      m_selAlgoBit.emplace_back(bit, offset);
     }
     // Tech
     else {
-      int bit = m_monitorBits[i].getParameter<int>("bitNumber");
-      int offset = m_monitorBits[i].getParameter<int>("bitOffset");
-      m_selTechBit.push_back(pair<int, int>(bit, offset));
+      int bit = m_monitorBit.getParameter<int>("bitNumber");
+      int offset = m_monitorBit.getParameter<int>("bitOffset");
+      m_selTechBit.emplace_back(bit, offset);
     }
   }
 
@@ -87,12 +87,12 @@ void L1TBPTX::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& iRun, c
   const L1GtTriggerMenu* menu = menuRcd.product();
 
   // Filling Alias-Bit Map
-  for (CItAlgo algo = menu->gtAlgorithmAliasMap().begin(); algo != menu->gtAlgorithmAliasMap().end(); ++algo) {
-    m_algoBit_Alias[(algo->second).algoBitNumber()] = (algo->second).algoAlias();
+  for (const auto& algo : menu->gtAlgorithmAliasMap()) {
+    m_algoBit_Alias[(algo.second).algoBitNumber()] = (algo.second).algoAlias();
   }
 
-  for (CItAlgo algo = menu->gtTechnicalTriggerMap().begin(); algo != menu->gtTechnicalTriggerMap().end(); ++algo) {
-    m_techBit_Alias[(algo->second).algoBitNumber()] = (algo->second).algoName();
+  for (const auto& algo : menu->gtTechnicalTriggerMap()) {
+    m_techBit_Alias[(algo.second).algoBitNumber()] = (algo.second).algoName();
   }
 
   // Initializing DQM Monitor Elements
@@ -107,10 +107,10 @@ void L1TBPTX::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& iRun, c
   m_ErrorMonitor->setBinLabel(ERROR_TRIGGERALIAS_NOTVALID, "ERROR_TRIGGERALIAS_NOTVALID");
   m_ErrorMonitor->setBinLabel(ERROR_LSBLOCK_NOTVALID, "ERROR_LSBLOCK_NOTVALID");
 
-  for (unsigned i = 0; i < m_monitorBits.size(); i++) {
-    bool isAlgo = m_monitorBits[i].getParameter<bool>("bitType");
-    TString testName = m_monitorBits[i].getParameter<string>("testName");
-    int bit = m_monitorBits[i].getParameter<int>("bitNumber");
+  for (auto& m_monitorBit : m_monitorBits) {
+    bool isAlgo = m_monitorBit.getParameter<bool>("bitType");
+    TString testName = m_monitorBit.getParameter<string>("testName");
+    int bit = m_monitorBit.getParameter<int>("bitNumber");
 
     TString meTitle = "";
     ibooker.setCurrentFolder("L1T/L1TBPTX/Efficiency/");
@@ -155,10 +155,10 @@ void L1TBPTX::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& iRun, c
     }
   }
 
-  for (unsigned i = 0; i < m_monitorRates.size(); i++) {
-    TString testName = m_monitorRates[i].getParameter<string>("testName");
-    bool isAlgo = m_monitorRates[i].getParameter<bool>("bitType");
-    int bit = m_monitorRates[i].getParameter<int>("bitNumber");
+  for (auto& m_monitorRate : m_monitorRates) {
+    TString testName = m_monitorRate.getParameter<string>("testName");
+    bool isAlgo = m_monitorRate.getParameter<bool>("bitType");
+    int bit = m_monitorRate.getParameter<int>("bitNumber");
 
     pair<bool, int> refME = pair<bool, int>(isAlgo, bit);
 
@@ -224,12 +224,12 @@ void L1TBPTX::beginLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup 
   // A LS will be valid if BeamMode==STABLE for all events monitored
   m_currentLSValid = true;
 
-  for (unsigned i = 0; i < m_monitorBits.size(); i++) {
+  for (auto& m_monitorBit : m_monitorBits) {
     TString triggerName = "";
-    if (m_monitorBits[i].getParameter<bool>("bitType")) {
-      triggerName = "algo_" + std::to_string(m_monitorBits[i].getParameter<int>("bitNumber"));
+    if (m_monitorBit.getParameter<bool>("bitType")) {
+      triggerName = "algo_" + std::to_string(m_monitorBit.getParameter<int>("bitNumber"));
     } else {
-      triggerName = "tech_" + std::to_string(m_monitorBits[i].getParameter<int>("bitNumber"));
+      triggerName = "tech_" + std::to_string(m_monitorBit.getParameter<int>("bitNumber"));
     }
 
     m_effNumerator[triggerName] = 0;
@@ -253,10 +253,10 @@ void L1TBPTX::endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup co
 
   // If this LS is valid (i.e. all events recorded with stable beams)
   if (m_currentLSValid && m_beamConfig.isValid()) {
-    for (unsigned i = 0; i < m_monitorBits.size(); i++) {
-      bool isAlgo = m_monitorBits[i].getParameter<bool>("bitType");
-      TString testName = m_monitorBits[i].getParameter<string>("testName");
-      int bit = m_monitorBits[i].getParameter<int>("bitNumber");
+    for (auto& m_monitorBit : m_monitorBits) {
+      bool isAlgo = m_monitorBit.getParameter<bool>("bitType");
+      TString testName = m_monitorBit.getParameter<string>("testName");
+      int bit = m_monitorBit.getParameter<int>("bitNumber");
 
       TString triggerName;
       if (isAlgo) {
@@ -301,9 +301,9 @@ void L1TBPTX::endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup co
     const vector<int>& currentPFAlgo = (*m_prescaleFactorsAlgoTrig).at(m_currentPrescalesIndex);
     const vector<int>& currentPFTech = (*m_prescaleFactorsTechTrig).at(m_currentPrescalesIndex);
 
-    for (unsigned i = 0; i < m_monitorRates.size(); i++) {
-      bool isAlgo = m_monitorRates[i].getParameter<bool>("bitType");
-      int bit = m_monitorRates[i].getParameter<int>("bitNumber");
+    for (auto& m_monitorRate : m_monitorRates) {
+      bool isAlgo = m_monitorRate.getParameter<bool>("bitType");
+      int bit = m_monitorRate.getParameter<int>("bitNumber");
 
       pair<bool, int> refME = pair<bool, int>(isAlgo, bit);
 
@@ -405,11 +405,11 @@ void L1TBPTX::analyze(const Event& iEvent, const EventSetup& eventSetup) {
 
       m_currentPrescalesIndex = gtFdlVectorData[eventFDL].gtPrescaleFactorIndexAlgo();
 
-      for (unsigned i = 0; i < m_monitorBits.size(); i++) {
+      for (auto& m_monitorBit : m_monitorBits) {
         TString triggerName = "";
-        bool isAlgo = m_monitorBits[i].getParameter<bool>("bitType");
-        int bit = m_monitorBits[i].getParameter<int>("bitNumber");
-        int offset = m_monitorBits[i].getParameter<int>("bitOffset");
+        bool isAlgo = m_monitorBit.getParameter<bool>("bitType");
+        int bit = m_monitorBit.getParameter<int>("bitNumber");
+        int offset = m_monitorBit.getParameter<int>("bitOffset");
 
         if (isAlgo) {
           triggerName = "algo_" + std::to_string(bit);
@@ -427,18 +427,18 @@ void L1TBPTX::analyze(const Event& iEvent, const EventSetup& eventSetup) {
           evBxEnd += -1 * offset;
         }
 
-        for (unsigned a = 0; a < gtFdlVectorData.size(); a++) {
-          int testBx = gtFdlVectorData[a].localBxNr() - offset;
+        for (const auto& a : gtFdlVectorData) {
+          int testBx = a.localBxNr() - offset;
           bool lhcBxFilled = m_beamConfig.beam1[testBx] && m_beamConfig.beam2[testBx];
           bool algoFired = false;
 
           if (isAlgo) {
-            if (gtFdlVectorData[a].gtDecisionWord()[bit]) {
+            if (a.gtDecisionWord()[bit]) {
               algoFired = true;
             }
 
           } else {
-            if (gtFdlVectorData[a].gtTechnicalTriggerWord()[bit]) {
+            if (a.gtTechnicalTriggerWord()[bit]) {
               algoFired = true;
             }
           }
@@ -468,14 +468,14 @@ void L1TBPTX::analyze(const Event& iEvent, const EventSetup& eventSetup) {
   iEvent.getByToken(m_scalersSource, triggerScalers);
 
   if (triggerScalers.isValid()) {
-    Level1TriggerScalersCollection::const_iterator itL1TScalers = triggerScalers->begin();
+    auto itL1TScalers = triggerScalers->begin();
     Level1TriggerRates trigRates(*itL1TScalers, iEvent.id().run());
 
     m_currentGTLS = (*itL1TScalers).lumiSegmentNr();
 
-    for (unsigned i = 0; i < m_monitorRates.size(); i++) {
-      bool isAlgo = m_monitorRates[i].getParameter<bool>("bitType");
-      int bit = m_monitorRates[i].getParameter<int>("bitNumber");
+    for (auto& m_monitorRate : m_monitorRates) {
+      bool isAlgo = m_monitorRate.getParameter<bool>("bitType");
+      int bit = m_monitorRate.getParameter<int>("bitNumber");
 
       pair<bool, int> refTrig = pair<bool, int>(isAlgo, bit);
 
@@ -582,4 +582,4 @@ void L1TBPTX::doFractionInSync(bool iForce, bool iBad) {}
 // Variable: iEndLs   - Blocks end LS
 // Variable: iValue   - Value to be used to fill
 //_____________________________________________________________________
-void L1TBPTX::certifyLSBlock(string iTrigger, int iInitLs, int iEndLs, float iValue) {}
+void L1TBPTX::certifyLSBlock(const string& iTrigger, int iInitLs, int iEndLs, float iValue) {}

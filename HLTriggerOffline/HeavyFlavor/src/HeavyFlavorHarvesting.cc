@@ -26,8 +26,8 @@ public:
   // virtual void endRun(const edm::Run &, const edm::EventSetup &) override;
 private:
   void calculateEfficiency(const ParameterSet& pset, DQMStore::IBooker&, DQMStore::IGetter&);
-  void calculateEfficiency1D(TH1* num, TH1* den, string name, DQMStore::IBooker&, DQMStore::IGetter&);
-  void calculateEfficiency2D(TH2F* num, TH2F* den, string name, DQMStore::IBooker&, DQMStore::IGetter&);
+  void calculateEfficiency1D(TH1* num, TH1* den, const string& name, DQMStore::IBooker&, DQMStore::IGetter&);
+  void calculateEfficiency2D(TH2F* num, TH2F* den, const string& name, DQMStore::IBooker&, DQMStore::IGetter&);
 
   string myDQMrootFolder;
   const VParameterSet efficiencies;
@@ -41,8 +41,8 @@ HeavyFlavorHarvesting::HeavyFlavorHarvesting(const edm::ParameterSet& pset)
       efficiencies(pset.getUntrackedParameter<VParameterSet>("Efficiencies")) {}
 
 void HeavyFlavorHarvesting::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::IGetter& igetter_) {
-  for (VParameterSet::const_iterator pset = efficiencies.begin(); pset != efficiencies.end(); pset++) {
-    calculateEfficiency(*pset, ibooker_, igetter_);
+  for (const auto& efficiencie : efficiencies) {
+    calculateEfficiency(efficiencie, ibooker_, igetter_);
   }
 }
 
@@ -103,7 +103,7 @@ void HeavyFlavorHarvesting::calculateEfficiency(const ParameterSet& pset,
 }
 
 void HeavyFlavorHarvesting::calculateEfficiency1D(
-    TH1* num, TH1* den, string effName, DQMStore::IBooker& ibooker_, DQMStore::IGetter& igetter_) {
+    TH1* num, TH1* den, const string& effName, DQMStore::IBooker& ibooker_, DQMStore::IGetter& igetter_) {
   TProfile* eff;
   if (num->GetXaxis()->GetXbins()->GetSize() == 0) {
     eff = new TProfile(effName.c_str(),
@@ -145,7 +145,7 @@ void HeavyFlavorHarvesting::calculateEfficiency1D(
 }
 
 void HeavyFlavorHarvesting::calculateEfficiency2D(
-    TH2F* num, TH2F* den, string effName, DQMStore::IBooker& ibooker_, DQMStore::IGetter& igetter_) {
+    TH2F* num, TH2F* den, const string& effName, DQMStore::IBooker& ibooker_, DQMStore::IGetter& igetter_) {
   TProfile2D* eff;
   if (num->GetXaxis()->GetXbins()->GetSize() == 0 && num->GetYaxis()->GetXbins()->GetSize() == 0) {
     eff = new TProfile2D(effName.c_str(),

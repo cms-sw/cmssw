@@ -42,8 +42,8 @@ void RPCPointVsRecHit::analyze(const edm::Event &event, const edm::EventSetup &e
 
   // Loop over refHits, fill histograms which does not need associations
   int nRefHitBarrel = 0, nRefHitEndcap = 0;
-  for (RecHitIter refHitIter = refHitHandle->begin(); refHitIter != refHitHandle->end(); ++refHitIter) {
-    const RPCDetId detId = static_cast<const RPCDetId>(refHitIter->rpcId());
+  for (const auto &refHitIter : *refHitHandle) {
+    const RPCDetId detId = static_cast<const RPCDetId>(refHitIter.rpcId());
     const RPCRoll *roll = dynamic_cast<const RPCRoll *>(rpcGeom->roll(detId()));
     if (!roll)
       continue;
@@ -70,8 +70,8 @@ void RPCPointVsRecHit::analyze(const edm::Event &event, const edm::EventSetup &e
   // Loop over recHits, fill histograms which does not need associations
   int sumClusterSizeBarrel = 0, sumClusterSizeEndcap = 0;
   int nRecHitBarrel = 0, nRecHitEndcap = 0;
-  for (RecHitIter recHitIter = recHitHandle->begin(); recHitIter != recHitHandle->end(); ++recHitIter) {
-    const RPCDetId detId = static_cast<const RPCDetId>(recHitIter->rpcId());
+  for (const auto &recHitIter : *recHitHandle) {
+    const RPCDetId detId = static_cast<const RPCDetId>(recHitIter.rpcId());
     const RPCRoll *roll = dynamic_cast<const RPCRoll *>(rpcGeom->roll(detId()));
     if (!roll)
       continue;
@@ -83,19 +83,19 @@ void RPCPointVsRecHit::analyze(const edm::Event &event, const edm::EventSetup &e
     // const int layer = roll->id().layer();
     // const int subSector = roll->id().subsector();
 
-    h_.clusterSize->Fill(recHitIter->clusterSize());
+    h_.clusterSize->Fill(recHitIter.clusterSize());
 
     if (region == 0) {
       ++nRecHitBarrel;
-      sumClusterSizeBarrel += recHitIter->clusterSize();
-      h_.clusterSizeBarrel->Fill(recHitIter->clusterSize());
+      sumClusterSizeBarrel += recHitIter.clusterSize();
+      h_.clusterSizeBarrel->Fill(recHitIter.clusterSize());
       h_.recHitOccupancyBarrel_wheel->Fill(ring);
       h_.recHitOccupancyBarrel_station->Fill(station);
       h_.recHitOccupancyBarrel_wheel_station->Fill(ring, station);
     } else {
       ++nRecHitEndcap;
-      sumClusterSizeEndcap += recHitIter->clusterSize();
-      h_.clusterSizeEndcap->Fill(recHitIter->clusterSize());
+      sumClusterSizeEndcap += recHitIter.clusterSize();
+      h_.clusterSizeEndcap->Fill(recHitIter.clusterSize());
       h_.recHitOccupancyEndcap_disk->Fill(region * station);
       h_.recHitOccupancyEndcap_disk_ring->Fill(ring, region * station);
     }
@@ -140,7 +140,7 @@ void RPCPointVsRecHit::analyze(const edm::Event &event, const edm::EventSetup &e
       const double newDx = fabs(recX - refX);
 
       // Associate RefHit to RecHit
-      RecToRecHitMap::const_iterator prevRefToReco = refToRecHitMap.find(refHitIter);
+      auto prevRefToReco = refToRecHitMap.find(refHitIter);
       if (prevRefToReco == refToRecHitMap.end()) {
         refToRecHitMap.insert(std::make_pair(refHitIter, recHitIter));
       } else {
@@ -155,7 +155,7 @@ void RPCPointVsRecHit::analyze(const edm::Event &event, const edm::EventSetup &e
 
   // Now we have refHit-recHit mapping
   // So we can fill up relavant histograms
-  for (RecToRecHitMap::const_iterator match = refToRecHitMap.begin(); match != refToRecHitMap.end(); ++match) {
+  for (auto match = refToRecHitMap.begin(); match != refToRecHitMap.end(); ++match) {
     RecHitIter refHitIter = match->first;
     RecHitIter recHitIter = match->second;
 

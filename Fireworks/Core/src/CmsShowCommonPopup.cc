@@ -58,7 +58,7 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
     TGLabel* xx = new TGLabel(vf2, "GlobalScales     ", fTextGC->GetGC());
     vf2->AddFrame(xx, new TGLayoutHints(kLHintsLeft, 2, 2, 4, 4));
   }
-  FWViewEnergyScaleEditor* scaleEditor = new FWViewEnergyScaleEditor(m_common->getEnergyScale(), vf2);
+  auto* scaleEditor = new FWViewEnergyScaleEditor(m_common->getEnergyScale(), vf2);
   vf2->AddFrame(scaleEditor);
   //==============================================================================
   // Projections
@@ -106,7 +106,7 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
 
   // color palette swapping
   if (true) {
-    const TGCompositeFrame* f = static_cast<const TGCompositeFrame*>(makeSetter(vf2, &m_common->m_palette));
+    const auto* f = static_cast<const TGCompositeFrame*>(makeSetter(vf2, &m_common->m_palette));
     // MTXXXX combo is at(0) (label on right!) and there is a tgframeelement in between!
     // for (int i = 0; i < f->GetList()->GetEntries(); ++i)
     //   printf("QWE %d %s\n", i, ((TGFrameElement*)f->GetList()->At(i))->fFrame->ClassName());
@@ -134,10 +134,10 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
   {
     int hci, sci;
     getColorSetColors(hci, sci);
-    TGHorizontalFrame* top = new TGHorizontalFrame(vf2);
+    auto* top = new TGHorizontalFrame(vf2);
     vf2->AddFrame(top);
     {
-      TGHorizontalFrame* hf = new TGHorizontalFrame(top);
+      auto* hf = new TGHorizontalFrame(top);
       top->AddFrame(hf);
 
       m_colorRnrCtxHighlightWidget = new FWColorSelect(hf, "Highlight", 0, m_common->colorManager(), 3);
@@ -146,7 +146,7 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
       m_colorRnrCtxHighlightWidget->Connect(
           "ColorChosen(Color_t)", "CmsShowCommonPopup", this, "changeSelectionColorSet(Color_t)");
 
-      TGHorizontalFrame* lf = new TGHorizontalFrame(hf, 45, 16, kFixedSize);
+      auto* lf = new TGHorizontalFrame(hf, 45, 16, kFixedSize);
       TGLabel* label = new TGLabel(lf, "Higlight");
       label->SetTextFont(smallFont);
       lf->AddFrame(label);
@@ -154,7 +154,7 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
     }
 
     {
-      TGHorizontalFrame* hf = new TGHorizontalFrame(top);
+      auto* hf = new TGHorizontalFrame(top);
       top->AddFrame(hf);
 
       m_colorRnrCtxSelectWidget = new FWColorSelect(hf, "Selection", 0, m_common->colorManager(), 1);
@@ -163,7 +163,7 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
       m_colorRnrCtxSelectWidget->Connect(
           "ColorChosen(Color_t)", "CmsShowCommonPopup", this, "changeSelectionColorSet(Color_t)");
 
-      TGHorizontalFrame* lf = new TGHorizontalFrame(hf, 45, 16, kFixedSize);
+      auto* lf = new TGHorizontalFrame(hf, 45, 16, kFixedSize);
       TGLabel* label = new TGLabel(lf, "Selection");
       label->SetTextFont(smallFont);
       lf->AddFrame(label);
@@ -187,14 +187,14 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
   vf2->AddFrame(top, new TGLayoutHints(kLHintsNormal, 2, 2, 2, 0));
 
   {
-    TGHorizontalFrame* hf = new TGHorizontalFrame(top);
+    auto* hf = new TGHorizontalFrame(top);
     hf->AddFrame(new TGLabel(hf, "Tansparency 2D:"), new TGLayoutHints(kLHintsBottom, 2, 2, 3, 3));
     transpWidget2D = new TGHSlider(hf, 100, kSlider1);
     hf->AddFrame(transpWidget2D);
     top->AddFrame(hf, new TGLayoutHints(kLHintsNormal, 0, 0, 2, 2));
   }
   {
-    TGHorizontalFrame* hf = new TGHorizontalFrame(top);
+    auto* hf = new TGHorizontalFrame(top);
     hf->AddFrame(new TGLabel(hf, "Tansparency 3D:"), new TGLayoutHints(kLHintsBottom, 2, 2, 2, 2));
     transpWidget3D = new TGHSlider(hf, 100, kSlider1);
     hf->AddFrame(transpWidget3D);
@@ -210,7 +210,7 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
   names[kFWMuonEndcapLineColorIndex] = "Muon Endcap";
   int i = 0;
   for (int k = 0; k < 3; ++k) {
-    TGHorizontalFrame* hf = new TGHorizontalFrame(top);
+    auto* hf = new TGHorizontalFrame(top);
     top->AddFrame(hf);
     for (int j = 0; j < 3; ++j) {
       m_colorSelectWidget[i] = new FWColorSelect(hf, names[i].c_str(), 0, m_common->colorManager(), i);
@@ -218,7 +218,7 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
       m_colorSelectWidget[i]->SetColorByIndex(m_common->colorManager()->geomColor(FWGeomColorIndex(i)), kFALSE);
       m_colorSelectWidget[i]->Connect("ColorChosen(Color_t)", "CmsShowCommonPopup", this, "changeGeomColor(Color_t)");
 
-      TGHorizontalFrame* lf = new TGHorizontalFrame(hf, 100, 16, kFixedSize);
+      auto* lf = new TGHorizontalFrame(hf, 100, 16, kFixedSize);
       TGLabel* label = new TGLabel(lf, m_colorSelectWidget[i]->label().c_str());
       label->SetTextFont(smallFont);
       lf->AddFrame(label);
@@ -256,7 +256,7 @@ void CmsShowCommonPopup::permuteColors() { m_common->permuteColors(); }
 
 void CmsShowCommonPopup::changeGeomColor(Color_t iColor) {
   TGColorSelect* cs = (TGColorSelect*)gTQSender;
-  FWGeomColorIndex cidx = FWGeomColorIndex(cs->WidgetId());
+  auto cidx = FWGeomColorIndex(cs->WidgetId());
   m_common->setGeomColor(cidx, iColor);
 }
 
@@ -264,7 +264,7 @@ void CmsShowCommonPopup::changeSelectionColorSet(Color_t idx) {
   TGColorSelect* cs = (TGColorSelect*)gTQSender;
 
   //printf("~~~~~  changeSelectionColorSet sel[%d] idx[%d]\n", cs->WidgetId(), idx);
-  for (TEveElement::List_i it = gEve->GetViewers()->BeginChildren(); it != gEve->GetViewers()->EndChildren(); ++it) {
+  for (auto it = gEve->GetViewers()->BeginChildren(); it != gEve->GetViewers()->EndChildren(); ++it) {
     TGLViewer* v = ((TEveViewer*)(*it))->GetGLViewer();
 
     TGLColorSet& colorset = m_common->colorManager()->isColorSetDark() ? v->RefDarkColorSet() : v->RefLightColorSet();

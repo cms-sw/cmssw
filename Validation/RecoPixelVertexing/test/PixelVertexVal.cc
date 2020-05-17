@@ -132,7 +132,7 @@ void PixelVertexVal::analyze(const edm::Event &ev, const edm::EventSetup &es) {
     h["h_ResZ"]->Fill(dz);
     h["h_PullZ"]->Fill(dz / pv.zError());
 
-    for (reco::Vertex::trackRef_iterator it = pv.tracks_begin(); it != pv.tracks_end(); it++) {
+    for (auto it = pv.tracks_begin(); it != pv.tracks_end(); it++) {
       //    for (reco::Vertex::track_iterator it=pv.tracks_begin(); it !=
       //    pv.tracks_end(); it++) { for (reco::TrackRefVector::iterator
       //    it=pv.tracks_begin(); it != pv.tracks_end(); it++) {
@@ -144,7 +144,7 @@ void PixelVertexVal::analyze(const edm::Event &ev, const edm::EventSetup &es) {
 
 void PixelVertexVal::endJob() {
   TFile rootFile(file_.c_str(), "RECREATE");
-  for (std::map<std::string, TH1 *>::const_iterator ih = h.begin(); ih != h.end(); ++ih) {
+  for (auto ih = h.begin(); ih != h.end(); ++ih) {
     TH1 *histo = (*ih).second;
     histo->Write();
     delete histo;

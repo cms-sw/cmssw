@@ -6,6 +6,7 @@
 #include <iostream>
 #include <cstdio>
 #include <cstring>
+#include <utility>
 
 #include "OnlineDB/Oracle/interface/Oracle.h"
 
@@ -26,7 +27,7 @@ public:
 
   virtual std::string getTable() = 0;
 
-  inline void setConfigTag(std::string x) { m_config_tag = x; }
+  inline void setConfigTag(std::string x) { m_config_tag = std::move(x); }
   inline std::string getConfigTag() { return m_config_tag; }
 
 protected:
@@ -64,7 +65,7 @@ protected:
 
   //  virtual void writeDB() noexcept(false) ;
 
-  void populateClob(Clob &clob, std::string fname, unsigned int bufsize) noexcept(false) {
+  void populateClob(Clob &clob, const std::string &fname, unsigned int bufsize) noexcept(false) {
     try {
       // Uses stream here
       std::cout << "Populating the Clob using writeBuffer(Stream) method" << std::endl;

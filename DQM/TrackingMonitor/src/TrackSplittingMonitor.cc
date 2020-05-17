@@ -206,7 +206,7 @@ void TrackSplittingMonitor::analyze(const edm::Event& iEvent, const edm::EventSe
     // looping through the hits for track 1
     double nRechits1 = 0;
     double nRechitinBPIX1 = 0;
-    for (trackingRecHit_iterator iHit = track1.recHitsBegin(); iHit != track1.recHitsEnd(); ++iHit) {
+    for (auto iHit = track1.recHitsBegin(); iHit != track1.recHitsEnd(); ++iHit) {
       if ((*iHit)->isValid()) {
         nRechits1++;
         int type = (*iHit)->geographicalId().subdetId();
@@ -218,7 +218,7 @@ void TrackSplittingMonitor::analyze(const edm::Event& iEvent, const edm::EventSe
     // looping through the hits for track 2
     double nRechits2 = 0;
     double nRechitinBPIX2 = 0;
-    for (trackingRecHit_iterator iHit = track2.recHitsBegin(); iHit != track2.recHitsEnd(); ++iHit) {
+    for (auto iHit = track2.recHitsBegin(); iHit != track2.recHitsEnd(); ++iHit) {
       if ((*iHit)->isValid()) {
         nRechits2++;
         int type = (*iHit)->geographicalId().subdetId();
@@ -300,22 +300,22 @@ void TrackSplittingMonitor::analyze(const edm::Event& iEvent, const edm::EventSe
               double bottomGlobalMuonNorchi2 = 1e10;
 
               // check if usable split global muons
-              for (std::vector<reco::Muon>::const_iterator gmI = splitMuons->begin(); gmI != splitMuons->end(); gmI++) {
-                if (gmI->isTrackerMuon() && gmI->isStandAloneMuon() && gmI->isGlobalMuon()) {
+              for (const auto& gmI : *splitMuons) {
+                if (gmI.isTrackerMuon() && gmI.isStandAloneMuon() && gmI.isGlobalMuon()) {
                   reco::TrackRef trackerTrackRef1(splitTracks, 0);
                   reco::TrackRef trackerTrackRef2(splitTracks, 1);
 
-                  if (gmI->innerTrack() == trackerTrackRef1) {
-                    if (gmI->globalTrack()->normalizedChi2() < topGlobalMuonNorchi2) {
+                  if (gmI.innerTrack() == trackerTrackRef1) {
+                    if (gmI.globalTrack()->normalizedChi2() < topGlobalMuonNorchi2) {
                       topGlobalMuonFlag = true;
-                      topGlobalMuonNorchi2 = gmI->globalTrack()->normalizedChi2();
+                      topGlobalMuonNorchi2 = gmI.globalTrack()->normalizedChi2();
                       topGlobalMuon = gmCtr;
                     }
                   }
-                  if (gmI->innerTrack() == trackerTrackRef2) {
-                    if (gmI->globalTrack()->normalizedChi2() < bottomGlobalMuonNorchi2) {
+                  if (gmI.innerTrack() == trackerTrackRef2) {
+                    if (gmI.globalTrack()->normalizedChi2() < bottomGlobalMuonNorchi2) {
                       bottomGlobalMuonFlag = true;
-                      bottomGlobalMuonNorchi2 = gmI->globalTrack()->normalizedChi2();
+                      bottomGlobalMuonNorchi2 = gmI.globalTrack()->normalizedChi2();
                       bottomGlobalMuon = gmCtr;
                     }
                   }

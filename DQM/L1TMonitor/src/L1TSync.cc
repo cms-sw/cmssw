@@ -324,8 +324,8 @@ void L1TSync::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const 
   const L1GtTriggerMenu* menu = menuRcd.product();
 
   // Filling Alias-Bit Map
-  for (CItAlgo algo = menu->gtAlgorithmAliasMap().begin(); algo != menu->gtAlgorithmAliasMap().end(); ++algo) {
-    m_algoBit[(algo->second).algoAlias()] = (algo->second).algoBitNumber();
+  for (const auto& algo : menu->gtAlgorithmAliasMap()) {
+    m_algoBit[(algo.second).algoAlias()] = (algo.second).algoBitNumber();
   }
 
   // Getting fill number for this run
@@ -358,7 +358,7 @@ void L1TSync::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const 
   m_ErrorMonitor->setBinLabel(ERROR_LSBLOCK_NOTVALID, "ERROR_LSBLOCK_NOTVALID");
 
   // Looping over selected triggers
-  for (map<string, string>::const_iterator i = m_selectedTriggers.begin(); i != m_selectedTriggers.end(); i++) {
+  for (auto i = m_selectedTriggers.begin(); i != m_selectedTriggers.end(); i++) {
     string tCategory = (*i).first;
     string tTrigger = (*i).second;
 
@@ -401,7 +401,7 @@ void L1TSync::beginLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup 
   m_currentLS = lumiBlock.id().luminosityBlock();
 
   // If this is the fist valid LS update first LS for certification
-  for (map<string, string>::const_iterator i = m_selectedTriggers.begin(); i != m_selectedTriggers.end(); i++) {
+  for (auto i = m_selectedTriggers.begin(); i != m_selectedTriggers.end(); i++) {
     string theTriggerAlias = (*i).second;
     if (m_certFirstLS[theTriggerAlias] == 0) {
       m_certFirstLS[theTriggerAlias] = m_currentLS;
@@ -427,7 +427,7 @@ void L1TSync::endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup co
     cout << "[L1TSync] m_beamConfig.isValid(): " << m_beamConfig.isValid() << endl;
   }
 
-  for (map<string, string>::const_iterator i = m_selectedTriggers.begin(); i != m_selectedTriggers.end(); i++) {
+  for (auto i = m_selectedTriggers.begin(); i != m_selectedTriggers.end(); i++) {
     // Update last LS for certification
     string theTriggerAlias = (*i).second;
     m_certLastLS[theTriggerAlias] = m_currentLS;
@@ -446,7 +446,7 @@ void L1TSync::endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup co
   //  * Beam just got unstable or dumped (we may have a complete block of data do certify)
   else {
     //-> First we close all blocks from certFirstLS[] to m_currentLS-1
-    for (map<string, string>::const_iterator i = m_selectedTriggers.begin(); i != m_selectedTriggers.end(); i++) {
+    for (auto i = m_selectedTriggers.begin(); i != m_selectedTriggers.end(); i++) {
       string theTriggerAlias = (*i).second;
 
       int fLs = m_certFirstLS[theTriggerAlias];
@@ -465,7 +465,7 @@ void L1TSync::endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup co
     doFractionInSync(true, false);
 
     //-> Second we mark this single LS bad for all triggers
-    for (map<string, string>::const_iterator i = m_selectedTriggers.begin(); i != m_selectedTriggers.end(); i++) {
+    for (auto i = m_selectedTriggers.begin(); i != m_selectedTriggers.end(); i++) {
       string theTriggerAlias = (*i).second;
       m_certFirstLS[theTriggerAlias] = m_currentLS;
       m_certLastLS[theTriggerAlias] = m_currentLS;
@@ -531,7 +531,7 @@ void L1TSync::analyze(const Event& iEvent, const EventSetup& eventSetup) {
       const vector<L1GtFdlWord>& gtFdlVectorData = gtReadoutRecordData->gtFdlVector();
 
       // Running over selected triggers
-      for (map<string, string>::const_iterator i = m_selectedTriggers.begin(); i != m_selectedTriggers.end(); i++) {
+      for (auto i = m_selectedTriggers.begin(); i != m_selectedTriggers.end(); i++) {
         string tTrigger = (*i).second;
 
         // Analyse only defined triggers
@@ -541,11 +541,11 @@ void L1TSync::analyze(const Event& iEvent, const EventSetup& eventSetup) {
           int eventBx = -1;
 
           // Running over FDL results to get which bits fired
-          for (unsigned int a = 0; a < gtFdlVectorData.size(); a++) {
+          for (const auto& a : gtFdlVectorData) {
             // Selecting the FDL that triggered
-            if (gtFdlVectorData[a].bxInEvent() == 0) {
-              eventBx = gtFdlVectorData[a].localBxNr();
-              if (gtFdlVectorData[a].gtDecisionWord()[m_algoBit[tTrigger]]) {
+            if (a.bxInEvent() == 0) {
+              eventBx = a.localBxNr();
+              if (a.gtDecisionWord()[m_algoBit[tTrigger]]) {
                 firedAlgo = true;
               }
             }
@@ -566,9 +566,9 @@ void L1TSync::analyze(const Event& iEvent, const EventSetup& eventSetup) {
           if (firedAlgo && !beamSingleConfig) {
             int DifAlgoVsBunchStructure = 9999;  // Majorated
 
-            for (unsigned int a = 0; a < gtFdlVectorData.size(); a++) {
-              int bxFDL = gtFdlVectorData[a].localBxNr();
-              int bxInEvent = gtFdlVectorData[a].bxInEvent();
+            for (const auto& a : gtFdlVectorData) {
+              int bxFDL = a.localBxNr();
+              int bxInEvent = a.bxInEvent();
 
               if (m_beamConfig.bxConfig(bxFDL) && abs(bxInEvent) < abs(DifAlgoVsBunchStructure)) {
                 DifAlgoVsBunchStructure = -1 * bxInEvent;
@@ -673,7 +673,7 @@ void L1TSync::getBeamConfOMDS() {
 //                    all current blocks to be marked as bad
 //_____________________________________________________________________
 void L1TSync::doFractionInSync(bool iForce, bool iBad) {
-  for (map<string, string>::const_iterator i = m_selectedTriggers.begin(); i != m_selectedTriggers.end(); i++) {
+  for (auto i = m_selectedTriggers.begin(); i != m_selectedTriggers.end(); i++) {
     string theCategory = (*i).first;
     string theTriggerAlias = (*i).second;
 
@@ -775,7 +775,7 @@ void L1TSync::doFractionInSync(bool iForce, bool iBad) {
 // Variable: iEndLs   - Blocks end LS
 // Variable: iValue   - Value to be used to fill
 //_____________________________________________________________________
-void L1TSync::certifyLSBlock(string iTrigger, int iInitLs, int iEndLs, float iValue) {
+void L1TSync::certifyLSBlock(const string& iTrigger, int iInitLs, int iEndLs, float iValue) {
   // Finding correct bins in the histogram for this block
   int binInit = m_algoCertification[iTrigger]->getTH1()->FindBin(iInitLs);
   int binEnd = m_algoCertification[iTrigger]->getTH1()->FindBin(iEndLs);

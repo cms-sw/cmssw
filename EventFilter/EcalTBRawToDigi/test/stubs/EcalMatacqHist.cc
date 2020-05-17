@@ -1,6 +1,8 @@
 #include "EcalMatacqHist.h"
 
 #include "TProfile.h"
+#include <memory>
+
 #include <sstream>
 #include <iostream>
 #include <iomanip>
@@ -14,7 +16,7 @@ EcalMatacqHist::EcalMatacqHist(const edm::ParameterSet& ps) : iEvent(0) {
   hTTrigMin = ps.getUntrackedParameter<double>("hTTrigMin", 0.);
   hTTrigMax = ps.getUntrackedParameter<double>("hTTrigMax", 2000.);
   TDirectory* dsave = gDirectory;
-  outFile = std::unique_ptr<TFile>(new TFile(outFileName.c_str(), "RECREATE"));
+  outFile = std::make_unique<TFile>(outFileName.c_str(), "RECREATE");
   if (outFile->IsZombie()) {
     std::cout << "EcalMatacqHist: Failed to create file " << outFileName << " No histogram will be created.\n";
   }
@@ -27,10 +29,10 @@ EcalMatacqHist::~EcalMatacqHist() {
   if (!outFile->IsZombie()) {
     TDirectory* dsave = gDirectory;
     outFile->cd();
-    for (std::vector<TProfile>::iterator it = profiles.begin(); it != profiles.end(); ++it) {
-      it->Write();
+    for (auto& profile : profiles) {
+      profile.Write();
     }
-    if (hTTrig != 0)
+    if (hTTrig != nullptr)
       hTTrig->Write();
     dsave->cd();
   }
@@ -47,7 +49,7 @@ void EcalMatacqHist::analyze(const edm::Event& e, const edm::EventSetup& c) {
   e.getByLabel("ecalEBunpacker", digiColl);
 
   unsigned iCh = 0;
-  for (EcalMatacqDigiCollection::const_iterator it = digiColl->begin(); it != digiColl->end(); ++it, ++iCh) {
+  for (auto it = digiColl->begin(); it != digiColl->end(); ++it, ++iCh) {
     const EcalMatacqDigi& digis = *it;
 
     if (digis.size() == 0)
@@ -77,9 +79,9 @@ void EcalMatacqHist::analyze(const edm::Event& e, const edm::EventSetup& c) {
       profTitle << "Matacq channel " << digis.chId() << " profile";
       std::stringstream profileName;
       profileName << "matacq" << digis.chId();
-      profiles.push_back(
-          TProfile(profileName.str().c_str(), profTitle.str().c_str(), digis.size(), -.5, -.5 + digis.size(), "I"));
-      profiles.back().SetDirectory(0);  //mem. management done by std::vector
+      profiles.emplace_back(
+          profileName.str().c_str(), profTitle.str().c_str(), digis.size(), -.5, -.5 + digis.size(), "I");
+      profiles.back().SetDirectory(nullptr);  //mem. management done by std::vector
       profChId.push_back(digis.chId());
     }
 

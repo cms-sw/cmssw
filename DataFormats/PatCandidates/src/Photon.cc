@@ -265,23 +265,23 @@ void Photon::embedRecHits(const EcalRecHitCollection* rechits) {
 
 // method to retrieve a photon ID (or throw)
 Bool_t Photon::photonID(const std::string& name) const {
-  for (std::vector<IdPair>::const_iterator it = photonIDs_.begin(), ed = photonIDs_.end(); it != ed; ++it) {
-    if (it->first == name)
-      return it->second;
+  for (const auto& photonID : photonIDs_) {
+    if (photonID.first == name)
+      return photonID.second;
   }
   cms::Exception ex("Key not found");
   ex << "pat::Photon: the ID " << name << " can't be found in this pat::Photon.\n";
   ex << "The available IDs are: ";
-  for (std::vector<IdPair>::const_iterator it = photonIDs_.begin(), ed = photonIDs_.end(); it != ed; ++it) {
-    ex << "'" << it->first << "' ";
+  for (const auto& photonID : photonIDs_) {
+    ex << "'" << photonID.first << "' ";
   }
   ex << ".\n";
   throw ex;
 }
 // check if an ID is there
 bool Photon::isPhotonIDAvailable(const std::string& name) const {
-  for (std::vector<IdPair>::const_iterator it = photonIDs_.begin(), ed = photonIDs_.end(); it != ed; ++it) {
-    if (it->first == name)
+  for (const auto& photonID : photonIDs_) {
+    if (photonID.first == name)
       return true;
   }
   return false;

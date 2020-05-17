@@ -40,7 +40,7 @@ bool NuclearTester::checkWithMultiplicity() {
   //RQ: assume that the input vector of compatible hits has been filled from Outside to Inside the tracker !
 
   // find the first min nb of compatible TM :
-  std::vector<int>::iterator min_it = min_element(compatible_hits.begin(), compatible_hits.end());
+  auto min_it = min_element(compatible_hits.begin(), compatible_hits.end());
 
   // if the outermost hit has no compatible TM, min_it has to be recalculated :
   if (min_it == compatible_hits.begin() && *min_it != 0)
@@ -78,8 +78,8 @@ double NuclearTester::meanHitDistance(const std::vector<TrajectoryMeasurement>& 
   int ncomb = 0;
   if (vgp.size() < 2)
     return 0;
-  for (std::vector<GlobalPoint>::iterator itp = vgp.begin(); itp != vgp.end() - 1; itp++) {
-    for (std::vector<GlobalPoint>::iterator itq = itp + 1; itq != vgp.end(); itq++) {
+  for (auto itp = vgp.begin(); itp != vgp.end() - 1; itp++) {
+    for (auto itq = itp + 1; itq != vgp.end(); itq++) {
       double dist = ((*itp) - (*itq)).mag();
       // to calculate mean distance between particles and not hits (to not take into account twice stereo hits)
       if (dist > 1E-12) {
@@ -94,9 +94,9 @@ double NuclearTester::meanHitDistance(const std::vector<TrajectoryMeasurement>& 
 std::vector<GlobalPoint> NuclearTester::HitPositions(const std::vector<TrajectoryMeasurement>& vecTM) const {
   std::vector<GlobalPoint> gp;
 
-  std::vector<TM>::const_iterator last = this->lastValidTM(vecTM);
+  auto last = this->lastValidTM(vecTM);
 
-  for (std::vector<TrajectoryMeasurement>::const_iterator itm = vecTM.begin(); itm != last; itm++) {
+  for (auto itm = vecTM.begin(); itm != last; itm++) {
     ConstRecHitPointer trh = itm->recHit();
     if (trh->isValid())
       gp.push_back(trackerGeom->idToDet(trh->geographicalId())->surface().toGlobal(trh->localPosition()));

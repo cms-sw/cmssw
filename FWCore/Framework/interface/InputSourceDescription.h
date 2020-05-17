@@ -7,6 +7,8 @@ InputSourceDescription : the stuff that is needed to configure an
 input source that does not come in through the ParameterSet  
 ----------------------------------------------------------------------*/
 #include <memory>
+#include <utility>
+
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
 
@@ -36,10 +38,10 @@ namespace edm {
                            int maxSecondsUntilRampdown,
                            PreallocationConfiguration const& allocations)
         : moduleDescription_(md),
-          productRegistry_(preg),
-          branchIDListHelper_(branchIDListHelper),
-          thinnedAssociationsHelper_(thinnedAssociationsHelper),
-          actReg_(areg),
+          productRegistry_(std::move(preg)),
+          branchIDListHelper_(std::move(branchIDListHelper)),
+          thinnedAssociationsHelper_(std::move(thinnedAssociationsHelper)),
+          actReg_(std::move(areg)),
           maxEvents_(maxEvents),
           maxLumis_(maxLumis),
           maxSecondsUntilRampdown_(maxSecondsUntilRampdown),

@@ -186,22 +186,22 @@ TDirectory* SiStripTFile::addPath(const std::string& path) {
     if (*it == std::string(sistrip::dir_)) {
       previous_dir = latest_dir;
       latest_dir = it;
-      directories.push_back(std::string(previous_dir + 1, latest_dir));
+      directories.emplace_back(previous_dir + 1, latest_dir);
     }
   }
 
   if (latest_dir != (path.end() - 1)) {
-    directories.push_back(std::string(latest_dir + 1, path.end()));
+    directories.emplace_back(latest_dir + 1, path.end());
   }
 
   //update file
   TDirectory* child = gDirectory;
-  for (std::vector<std::string>::const_iterator dir = directories.begin(); dir != directories.end(); dir++) {
-    if (!dynamic_cast<TDirectory*>(child->Get(dir->c_str()))) {
-      child = child->mkdir(dir->c_str());
+  for (const auto& directorie : directories) {
+    if (!dynamic_cast<TDirectory*>(child->Get(directorie.c_str()))) {
+      child = child->mkdir(directorie.c_str());
       child->cd();
     } else {
-      child->Cd(dir->c_str());
+      child->Cd(directorie.c_str());
       child = gDirectory;
     }
   }
@@ -249,7 +249,7 @@ void SiStripTFile::dirContent(TDirectory* dir,
         TH1* his = dynamic_cast<TH1*>(dir->Get(obj->GetName()));
         if (his) {
           bool found = false;
-          std::vector<TH1*>::iterator ihis = (*histos)[std::string(dir->GetPath())].begin();
+          auto ihis = (*histos)[std::string(dir->GetPath())].begin();
           for (; ihis != (*histos)[std::string(dir->GetPath())].end(); ihis++) {
             if ((*ihis)->GetName() == his->GetName()) {
               found = true;

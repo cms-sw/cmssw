@@ -78,8 +78,8 @@ TTClusterBuilder<T>::TTClusterBuilder(const edm::ParameterSet& iConfig) {
   storeLocalCoord = iConfig.getParameter<bool>("storeLocalCoord");
 
   std::vector<edm::InputTag> rawHitInputTags = iConfig.getParameter<std::vector<edm::InputTag> >("rawHits");
-  for (auto it = rawHitInputTags.begin(); it != rawHitInputTags.end(); ++it) {
-    rawHitTokens.push_back(consumes<edm::DetSetVector<Phase2TrackerDigi> >(*it));
+  for (auto& rawHitInputTag : rawHitInputTags) {
+    rawHitTokens.push_back(consumes<edm::DetSetVector<Phase2TrackerDigi> >(rawHitInputTag));
   }
 
   produces<edmNew::DetSetVector<TTCluster<T> > >("ClusterInclusive");

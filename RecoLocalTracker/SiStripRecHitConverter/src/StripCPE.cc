@@ -47,7 +47,7 @@ StripCPE::StripCPE(edm::ParameterSet& conf,
   xtalk1.resize(size);
   xtalk2.resize(size);
 
-  for (map_t::const_iterator it = modules.begin(); it != modules.end(); it++) {
+  for (auto it = modules.begin(); it != modules.end(); it++) {
     const std::string modeS(peakMode_ ? "Peak" : "Deco"), xtalk1S("xtalk1_" + it->first + modeS),
         xtalk2S("xtalk2_" + it->first + modeS);
 
@@ -110,7 +110,7 @@ void StripCPE::fillParams() {
   m_Params.resize(dus.size() - m_off);
   for (auto i = m_off; i != dus.size(); ++i) {
     auto& p = m_Params[i - m_off];
-    const StripGeomDetUnit* stripdet = (const StripGeomDetUnit*)(dus[i]);
+    const auto* stripdet = (const StripGeomDetUnit*)(dus[i]);
     assert(stripdet->index() == int(i));
     //    assert(stripdet->geographicalId().subdetId()>1); // not pixel..
     assert(stripdet->type().isTrackerStrip());  // not pixel
@@ -125,8 +125,7 @@ void StripCPE::fillParams() {
     p.moduleGeom = SiStripDetId(stripdet->geographicalId()).moduleGeometry();
     p.backplanecorrection = BackPlaneCorrectionMap_.getBackPlaneCorrection(stripdet->geographicalId().rawId());
 
-    const TkRadialStripTopology* rtop =
-        dynamic_cast<const TkRadialStripTopology*>(&stripdet->specificType().specificTopology());
+    const auto* rtop = dynamic_cast<const TkRadialStripTopology*>(&stripdet->specificType().specificTopology());
     p.pitch_rel_err2 =
         (rtop)
             ? pow(0.5f * rtop->angularWidth() * rtop->stripLength() / rtop->localPitch(LocalPoint(0, 0, 0)), 2.f) / 12.f

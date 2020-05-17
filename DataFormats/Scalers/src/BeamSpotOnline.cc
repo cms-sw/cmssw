@@ -34,7 +34,7 @@ BeamSpotOnline::BeamSpotOnline()
 BeamSpotOnline::BeamSpotOnline(const unsigned char* rawData) {
   BeamSpotOnline();
 
-  struct ScalersEventRecordRaw_v4 const* raw = reinterpret_cast<struct ScalersEventRecordRaw_v4 const*>(rawData);
+  auto const* raw = reinterpret_cast<struct ScalersEventRecordRaw_v4 const*>(rawData);
   trigType_ = (raw->header >> 56) & 0xFULL;
   eventID_ = (raw->header >> 32) & 0x00FFFFFFULL;
   sourceID_ = (raw->header >> 8) & 0x00000FFFULL;

@@ -36,7 +36,7 @@ QGLikelihoodSystematicsDBWriter::QGLikelihoodSystematicsDBWriter(const edm::Para
 
 // Begin Job
 void QGLikelihoodSystematicsDBWriter::beginJob() {
-  QGLikelihoodSystematicsObject* payload = new QGLikelihoodSystematicsObject();
+  auto* payload = new QGLikelihoodSystematicsObject();
   payload->data.clear();
 
   std::ifstream database;

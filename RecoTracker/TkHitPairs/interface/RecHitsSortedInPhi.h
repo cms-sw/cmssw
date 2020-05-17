@@ -76,8 +76,8 @@ public:
   std::vector<Hit> hits() const {
     std::vector<Hit> result;
     result.reserve(theHits.size());
-    for (HitIter i = theHits.begin(); i != theHits.end(); i++)
-      result.push_back(i->hit());
+    for (auto theHit : theHits)
+      result.push_back(theHit.hit());
     return result;
   }
 
@@ -131,7 +131,7 @@ public:
 
   HitDoublets(RecHitsSortedInPhi const& in, RecHitsSortedInPhi const& out) : layers{{&in, &out}} {}
 
-  HitDoublets(HitDoublets&& rh) : layers(std::move(rh.layers)), indeces(std::move(rh.indeces)) {}
+  HitDoublets(HitDoublets&& rh) : layers(rh.layers), indeces(std::move(rh.indeces)) {}
 
   void reserve(std::size_t s) { indeces.reserve(s); }
   std::size_t size() const { return indeces.size(); }

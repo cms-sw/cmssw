@@ -53,56 +53,56 @@ void SiStripBadComponentInfo::checkBadComponents(edm::EventSetup const& eSetup) 
 void SiStripBadComponentInfo::fillBadComponentMaps(const SiStripQuality* siStripQuality) {
   auto const& BC = siStripQuality->getBadComponentList();
 
-  for (size_t i = 0; i < BC.size(); ++i) {
+  for (auto i : BC) {
     int subdet = -999;
     int component = -999;
 
     //&&&&&&&&&&&&&&&&&
     // Single SubSyste
     //&&&&&&&&&&&&&&&&&
-    int subDet = DetId(BC[i].detid).subdetId();
+    int subDet = DetId(i.detid).subdetId();
     if (subDet == StripSubdetector::TIB) {
       //&&&&&&&&&&&&&&&&&
       // TIB
       //&&&&&&&&&&&&&&&&&
       subdet = 3;
-      component = tTopo_->tibLayer(BC[i].detid);
+      component = tTopo_->tibLayer(i.detid);
     } else if (subDet == StripSubdetector::TID) {
       //&&&&&&&&&&&&&&&&&
       // TID
       //&&&&&&&&&&&&&&&&&
-      if (tTopo_->tidSide(BC[i].detid) == 2)
+      if (tTopo_->tidSide(i.detid) == 2)
         subdet = 4;
       else
         subdet = 5;
-      component = tTopo_->tidWheel(BC[i].detid);
+      component = tTopo_->tidWheel(i.detid);
     } else if (subDet == StripSubdetector::TOB) {
       //&&&&&&&&&&&&&&&&&
       // TOB
       //&&&&&&&&&&&&&&&&&
       subdet = 6;
-      component = tTopo_->tobLayer(BC[i].detid);
+      component = tTopo_->tobLayer(i.detid);
     } else if (subDet == StripSubdetector::TEC) {
       //&&&&&&&&&&&&&&&&&
       // TEC
       //&&&&&&&&&&&&&&&&&
-      if (tTopo_->tecSide(BC[i].detid) == 2)
+      if (tTopo_->tecSide(i.detid) == 2)
         subdet = 2;
       else
         subdet = 1;
-      component = tTopo_->tecWheel(BC[i].detid);
+      component = tTopo_->tecWheel(i.detid);
     }
-    fillBadComponentMaps(subdet, component, BC[i]);
+    fillBadComponentMaps(subdet, component, i);
   }
 
   //&&&&&&&&&&&&&&&&&&
   // Single Strip Info
   //&&&&&&&&&&&&&&&&&&
 
-  SiStripQuality::RegistryIterator rbegin = siStripQuality->getRegistryVectorBegin();
-  SiStripQuality::RegistryIterator rend = siStripQuality->getRegistryVectorEnd();
+  auto rbegin = siStripQuality->getRegistryVectorBegin();
+  auto rend = siStripQuality->getRegistryVectorEnd();
 
-  for (SiStripBadStrip::RegistryIterator rp = rbegin; rp != rend; ++rp) {
+  for (auto rp = rbegin; rp != rend; ++rp) {
     uint32_t detid = rp->detid;
     int subdet = -999;
     int component = -999;
@@ -205,12 +205,12 @@ void SiStripBadComponentInfo::bookBadComponentHistos(DQMStore::IBooker& ibooker,
     badStripME_->setAxisTitle("Layer/Disc Number", 2);
 
     std::vector<std::string> names;
-    names.push_back("TECB");
-    names.push_back("TECF");
-    names.push_back("TIB");
-    names.push_back("TIDB");
-    names.push_back("TIDF");
-    names.push_back("TOB");
+    names.emplace_back("TECB");
+    names.emplace_back("TECF");
+    names.emplace_back("TIB");
+    names.emplace_back("TIDB");
+    names.emplace_back("TIDF");
+    names.emplace_back("TOB");
 
     for (unsigned int i = 0; i < names.size(); i++) {
       badAPVME_->setBinLabel(i + 1, names[i]);

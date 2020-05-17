@@ -5,7 +5,7 @@ Toy EDAnalyzer for testing purposes only.
 
 ----------------------------------------------------------------------*/
 
-#include <math.h>
+#include <cmath>
 #include <stdexcept>
 #include <string>
 #include <iostream>
@@ -54,8 +54,8 @@ void DTRangeT0ValidateDBRead::analyze(const edm::Event& e, const edm::EventSetup
   int ckt0min;
   int ckt0max;
 
-  DTRangeT0::const_iterator iter = tR->begin();
-  DTRangeT0::const_iterator iend = tR->end();
+  auto iter = tR->begin();
+  auto iend = tR->end();
   while (iter != iend) {
     const DTRangeT0Id& tRId = iter->first;
     const DTRangeT0Data& tRData = iter->second;

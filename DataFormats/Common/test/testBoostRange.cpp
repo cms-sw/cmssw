@@ -86,7 +86,7 @@ void test_read_value_brackets(R const& r) {
 template <typename R>
 void test_read_iter(R const& r) {
   int check = 4;
-  for (typename R::const_iterator it = r.begin(), ed = r.end(); it != ed; ++it, ++check) {
+  for (auto it = r.begin(), ed = r.end(); it != ed; ++it, ++check) {
     typename R::value_type v = *it;
     testEquals<R>(v, check, __func__);
   }

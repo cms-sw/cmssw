@@ -70,9 +70,9 @@
 class ModuleInfo_Phase2 : public edm::EDAnalyzer {
 public:
   explicit ModuleInfo_Phase2(const edm::ParameterSet&);
-  ~ModuleInfo_Phase2();
+  ~ModuleInfo_Phase2() override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   // ----------member data ---------------------------
@@ -299,19 +299,19 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
   std::vector<const GeometricDet*> modules = (*rDD).deepComponents();
   Output << "************************ List of modules with positions ************************" << std::endl;
   // MEC: 2010-04-13: need to find corresponding GeometricDetExtra.
-  std::vector<GeometricDetExtra>::const_iterator gdei(rDDE->begin()), gdeEnd(rDDE->end());
-  for (unsigned int i = 0; i < modules.size(); i++) {
-    unsigned int rawid = modules[i]->geographicalID().rawId();
+  auto gdei(rDDE->begin()), gdeEnd(rDDE->end());
+  for (auto& module : modules) {
+    unsigned int rawid = module->geographicalID().rawId();
     gdei = rDDE->begin();
     for (; gdei != gdeEnd; ++gdei) {
-      if (gdei->geographicalId() == modules[i]->geographicalId())
+      if (gdei->geographicalId() == module->geographicalId())
         break;
     }
 
     if (gdei == gdeEnd)
       throw cms::Exception("ModuleInfo") << "THERE IS NO MATCHING DetId in the GeometricDetExtra";  //THIS never happens!
 
-    GeometricDet::nav_type detNavType = modules[i]->navType();
+    GeometricDet::nav_type detNavType = module->navType();
     Output << std::fixed << std::setprecision(6);  // set as default 6 decimal digits
     std::bitset<32> binary_rawid(rawid);
     Output << " ******** raw Id = " << rawid << " (" << binary_rawid << ") ";
@@ -322,17 +322,17 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
     //nav_type typedef changed in 3_6_2; comment out for now.  idr 10/6/10
 
     Output << std::endl;
-    int subdetid = modules[i]->geographicalID().subdetId();
+    int subdetid = module->geographicalID().subdetId();
     double volume = gdei->volume() / 1000;  // mm3->cm3
     double density = gdei->density() / density_units;
     double weight = gdei->weight() / density_units / 1000.;        // [kg], hence the factor 1000;
-    double thickness = modules[i]->bounds()->thickness() * 10000;  // cm-->um
-    double length = (modules[i]->bounds()->length());              // already in cm
+    double thickness = module->bounds()->thickness() * 10000;      // cm-->um
+    double length = (module->bounds()->length());                  // already in cm
     //double width = (modules[i]->bounds()->width()); // already in cm
     double activeSurface = volume / (thickness / 10000);  // cm2 (thickness in um)
-    double polarRadius = std::sqrt(modules[i]->translation().X() * modules[i]->translation().X() +
-                                   modules[i]->translation().Y() * modules[i]->translation().Y());
-    double positionZ = std::abs(modules[i]->translation().Z()) / 10.;  //cm
+    double polarRadius = std::sqrt(module->translation().X() * module->translation().X() +
+                                   module->translation().Y() * module->translation().Y());
+    double positionZ = std::abs(module->translation().Z()) / 10.;  //cm
     volume_total += volume;
     weight_total += weight;
     activeSurface_total += activeSurface;
@@ -344,7 +344,7 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
         volume_pxb += volume;
         weight_pxb += weight;
         activeSurface_pxb += activeSurface;
-        std::string name = modules[i]->name();
+        std::string name = module->name();
         if (name == "PixelBarrelActiveFull" || name == "PixelBarrelActiveFull0" || name == "PixelBarrelActiveFull1" ||
             name == "PixelBarrelActiveFull2" || name == "PixelBarrelActiveFull3")
           pxb_fullN++;
@@ -364,13 +364,13 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
         unsigned int theLayer = tTopo->pxbLayer(rawid);
         unsigned int theLadder = tTopo->pxbLadder(rawid);
         unsigned int theModule = tTopo->pxbModule(rawid);
-        thepixROCRowsB[theLayer - 1] = modules[i]->pixROCRows();
-        thepixROCColsB[theLayer - 1] = modules[i]->pixROCCols();
+        thepixROCRowsB[theLayer - 1] = module->pixROCRows();
+        thepixROCColsB[theLayer - 1] = module->pixROCCols();
         {
-          const DetId& detid = modules[i]->geographicalID();
+          const DetId& detid = module->geographicalID();
           DetId detIdObject(detid);
           const GeomDetUnit* genericDet = pDD->idToDetUnit(detIdObject);
-          const PixelGeomDetUnit* pixDet = dynamic_cast<const PixelGeomDetUnit*>(genericDet);
+          const auto* pixDet = dynamic_cast<const PixelGeomDetUnit*>(genericDet);
           //std::cout << "  "<<__LINE__<<" PixelGeomDetUnit "<<pixDet->surface().position().perp()<<" , "<<pixDet->surface().position().z()<<"\n";
           const PixelTopology* theTopol = &(pixDet->specificTopology());
           std::pair<float, float> pitchxy = theTopol->pitch();
@@ -399,12 +399,12 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
             name == "PixelBarrelActiveStack3" || name == "PixelBarrelActiveStack4" ||
             name == "PixelBarrelActiveStack5" || name == "PixelBarrelActiveStack6" ||
             name == "PixelBarrelActiveStack7" || name == "PixelBarrelActiveStack8" || name == "PixelBarrelActiveStack9")
-          psi_pxb[theLayer - 1] += modules[i]->pixROCx() * modules[i]->pixROCy();
+          psi_pxb[theLayer - 1] += module->pixROCx() * module->pixROCy();
 
         if (name == "PixelBarrelActiveFull2" || name == "PixelBarrelActiveHalf2")
-          psi_pxb_strx12[theLayer - 1] += modules[i]->pixROCx() * modules[i]->pixROCy();
+          psi_pxb_strx12[theLayer - 1] += module->pixROCx() * module->pixROCy();
         if (name == "PixelBarrelActiveFull3" || name == "PixelBarrelActiveHalf3")
-          psi_pxb_strx34[theLayer - 1] += modules[i]->pixROCx() * modules[i]->pixROCy();
+          psi_pxb_strx34[theLayer - 1] += module->pixROCx() * module->pixROCy();
 
         // Make sure there are no new names we didn't know about.
         if ((name == "PixelBarrelActiveStack0" || name == "PixelBarrelActiveStack1" ||
@@ -420,7 +420,7 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
         if (16 < theLayer)
           std::cout << "\nYou need to increase the PXB array sizes!\n";
         activeSurface_pxb_L[theLayer - 1] += activeSurface;
-        psi_pxb_L[theLayer - 1] += modules[i]->pixROCx() * modules[i]->pixROCy();
+        psi_pxb_L[theLayer - 1] += module->pixROCx() * module->pixROCy();
 
         if (pxbZ_L[theLayer - 1] < positionZ + length / 2)
           pxbZ_L[theLayer - 1] = positionZ + length / 2;
@@ -443,7 +443,7 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
         volume_pxf += volume;
         weight_pxf += weight;
         activeSurface_pxf += activeSurface;
-        std::string name = modules[i]->name();
+        std::string name = module->name();
         if (name == "PixelForwardSensor" || name == "PixelForwardSensor1" || name == "PixelForwardSensor2" ||
             name == "PixelForwardSensor3")
           pxf_D_N++;
@@ -462,13 +462,13 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
         unsigned int theDisk = tTopo->pxfDisk(rawid);
         unsigned int theBlade = tTopo->pxfBlade(rawid);
         unsigned int theModule = tTopo->pxfModule(rawid);
-        thepixROCRowsD[theDisk - 1] = modules[i]->pixROCRows();
-        thepixROCColsD[theDisk - 1] = modules[i]->pixROCCols();
+        thepixROCRowsD[theDisk - 1] = module->pixROCRows();
+        thepixROCColsD[theDisk - 1] = module->pixROCCols();
         {
-          const DetId& detid = modules[i]->geographicalID();
+          const DetId& detid = module->geographicalID();
           DetId detIdObject(detid);
           const GeomDetUnit* genericDet = pDD->idToDetUnit(detIdObject);
-          const PixelGeomDetUnit* pixDet = dynamic_cast<const PixelGeomDetUnit*>(genericDet);
+          const auto* pixDet = dynamic_cast<const PixelGeomDetUnit*>(genericDet);
           const PixelTopology* theTopol = &(pixDet->specificTopology());
           std::pair<float, float> pitchxy = theTopol->pitch();
           pxfpitchx[theDisk - 1] = double(int(0.5 + (10000 * pitchxy.first)));
@@ -497,8 +497,8 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
         if (3 < theDisk)
           std::cout << "\nYou need to increase the PXF array sizes!\n";
         activeSurface_pxf_D[theDisk - 1] += activeSurface;
-        psi_pxf_D[theDisk - 1] += modules[i]->pixROCx() * modules[i]->pixROCy();
-        psi_pxf[theDisk - 1] += modules[i]->pixROCx() * modules[i]->pixROCy();
+        psi_pxf_D[theDisk - 1] += module->pixROCx() * module->pixROCy();
+        psi_pxf[theDisk - 1] += module->pixROCx() * module->pixROCy();
         pxfZ_D[theDisk - 1] += positionZ;
         polarRadius = polarRadius / 10.;
         if (pxfR_min_D[theDisk - 1] > polarRadius - length / 2)
@@ -524,7 +524,7 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
         volume_tib += volume;
         weight_tib += weight;
         activeSurface_tib += activeSurface;
-        std::string name = modules[i]->name();
+        std::string name = module->name();
         if (name == "TIBActiveRphi0")
           tib_L12_rphiN++;
         if (name == "TIBActiveSter0")
@@ -548,8 +548,8 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
         if (6 < theLayer)
           std::cout << "\nYou need to increase the TIB array sizes!\n";
         activeSurface_tib_L[theLayer - 1] += activeSurface;
-        tib_apv_L[theLayer - 1] += modules[i]->siliconAPVNum();
-        apv_tib += modules[i]->siliconAPVNum();
+        tib_apv_L[theLayer - 1] += module->siliconAPVNum();
+        apv_tib += module->siliconAPVNum();
         if (tibZ_L[theLayer - 1] < positionZ + length / 2)
           tibZ_L[theLayer - 1] = positionZ + length / 2;
         tibR_L[theLayer - 1] += polarRadius / 10;  // cm
@@ -567,8 +567,8 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
         } else {
           Output << " NO DDD Hierarchy available ";
         }
-        Output << " " << modules[i]->translation().X() << "   \t" << modules[i]->translation().Y() << "   \t"
-               << modules[i]->translation().Z() << std::endl;
+        Output << " " << module->translation().X() << "   \t" << module->translation().Y() << "   \t"
+               << module->translation().Z() << std::endl;
         break;
       }
 
@@ -578,7 +578,7 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
         volume_tid += volume;
         weight_tid += weight;
         activeSurface_tid += activeSurface;
-        std::string name = modules[i]->name();
+        std::string name = module->name();
         if (name == "TIDModule0RphiActive")
           tid_r1_rphiN++;
         if (name == "TIDModule0StereoActive")
@@ -611,8 +611,8 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
         if (3 < theDisk)
           std::cout << "\nYou need to increase the TID array sizes!\n";
         activeSurface_tid_D[theDisk - 1] += activeSurface;
-        tid_apv_D[theDisk - 1] += modules[i]->siliconAPVNum();
-        apv_tid += modules[i]->siliconAPVNum();
+        tid_apv_D[theDisk - 1] += module->siliconAPVNum();
+        apv_tid += module->siliconAPVNum();
         tidZ_D[theDisk - 1] += positionZ;
         polarRadius = polarRadius / 10.;
         if (tidR_min_D[theDisk - 1] > polarRadius - length / 2)
@@ -631,8 +631,8 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
         } else {
           Output << " NO DDD Hierarchy available ";
         }
-        Output << " " << modules[i]->translation().X() << "   \t" << modules[i]->translation().Y() << "   \t"
-               << modules[i]->translation().Z() << std::endl;
+        Output << " " << module->translation().X() << "   \t" << module->translation().Y() << "   \t"
+               << module->translation().Z() << std::endl;
         break;
       }
 
@@ -642,7 +642,7 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
         volume_tob += volume;
         weight_tob += weight;
         activeSurface_tob += activeSurface;
-        std::string name = modules[i]->name();
+        std::string name = module->name();
         if (name == "TOBActiveRphi0")
           tob_L12_rphiN++;
         if (name == "TOBActiveSter0")
@@ -671,8 +671,8 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
         if (6 < theLayer)
           std::cout << "\nYou need to increase the TOB array sizes!\n";
         activeSurface_tob_L[theLayer - 1] += activeSurface;
-        tob_apv_L[theLayer - 1] += modules[i]->siliconAPVNum();
-        apv_tob += modules[i]->siliconAPVNum();
+        tob_apv_L[theLayer - 1] += module->siliconAPVNum();
+        apv_tob += module->siliconAPVNum();
         if (tobZ_L[theLayer - 1] < positionZ + length / 2)
           tobZ_L[theLayer - 1] = positionZ + length / 2;
         tobR_L[theLayer - 1] += polarRadius / 10;  // cm
@@ -687,8 +687,8 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
         } else {
           Output << " NO DDD Hierarchy available ";
         }
-        Output << " " << modules[i]->translation().X() << "   \t" << modules[i]->translation().Y() << "   \t"
-               << modules[i]->translation().Z() << std::endl;
+        Output << " " << module->translation().X() << "   \t" << module->translation().Y() << "   \t"
+               << module->translation().Z() << std::endl;
         break;
       }
 
@@ -698,7 +698,7 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
         volume_tec += volume;
         weight_tec += weight;
         activeSurface_tec += activeSurface;
-        std::string name = modules[i]->name();
+        std::string name = module->name();
         if (name == "TECModule0RphiActive")
           tec_r1_rphiN++;
         if (name == "TECModule0StereoActive")
@@ -754,8 +754,8 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
         if (9 < theWheel)
           std::cout << "\nYou need to increase the TEC array sizes!\n";
         activeSurface_tec_D[theWheel - 1] += activeSurface;
-        tec_apv_D[theWheel - 1] += modules[i]->siliconAPVNum();
-        apv_tec += modules[i]->siliconAPVNum();
+        tec_apv_D[theWheel - 1] += module->siliconAPVNum();
+        apv_tec += module->siliconAPVNum();
         tecZ_D[theWheel - 1] += positionZ;
         polarRadius = polarRadius / 10.;
         if (tecR_min_D[theWheel - 1] > polarRadius - length / 2)
@@ -775,8 +775,8 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
         } else {
           Output << " NO DDD Hierarchy available ";
         }
-        Output << " " << modules[i]->translation().X() << "   \t" << modules[i]->translation().Y() << "   \t"
-               << modules[i]->translation().Z() << std::endl;
+        Output << " " << module->translation().X() << "   \t" << module->translation().Y() << "   \t"
+               << module->translation().Z() << std::endl;
 
         // TEC output as Martin Weber's
         int out_side = (tTopo->tecSide(rawid) == 1) ? -1 : 1;
@@ -828,12 +828,12 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
         } else {
           out_module = tTopo->tecModule(rawid);
         }
-        double out_x = modules[i]->translation().X();
-        double out_y = modules[i]->translation().Y();
-        double out_z = modules[i]->translation().Z();
-        double out_r = sqrt(modules[i]->translation().X() * modules[i]->translation().X() +
-                            modules[i]->translation().Y() * modules[i]->translation().Y());
-        double out_phi_rad = atan2(modules[i]->translation().Y(), modules[i]->translation().X());
+        double out_x = module->translation().X();
+        double out_y = module->translation().Y();
+        double out_z = module->translation().Z();
+        double out_r = sqrt(module->translation().X() * module->translation().X() +
+                            module->translation().Y() * module->translation().Y());
+        double out_phi_rad = atan2(module->translation().Y(), module->translation().X());
         TECOutput << out_side << " " << out_disk << " " << out_sector << " " << out_petal << " " << out_ring << " "
                   << out_module << " " << out_sensor << " " << out_x << " " << out_y << " " << out_z << " " << out_r
                   << " " << out_phi_rad << std::endl;
@@ -846,7 +846,7 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
     }
 
     // Local axes from Reco
-    const GeomDet* geomdet = pDD->idToDet(modules[i]->geographicalID());
+    const GeomDet* geomdet = pDD->idToDet(module->geographicalID());
     // Global Coordinates (i,j,k)
     LocalVector xLocal(1, 0, 0);
     LocalVector yLocal(0, 1, 0);
@@ -866,20 +866,20 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
            << "thickness " << std::fixed << std::setprecision(0) << thickness << " um \t"
            << " active area " << std::fixed << std::setprecision(2) << activeSurface << " cm2" << std::endl;
     Output << "\tActive Area Center" << std::endl;
-    Output << "\t O = (" << std::fixed << std::setprecision(4) << modules[i]->translation().X() << "," << std::fixed
-           << std::setprecision(4) << modules[i]->translation().Y() << "," << std::fixed << std::setprecision(4)
-           << modules[i]->translation().Z() << ")" << std::endl;
+    Output << "\t O = (" << std::fixed << std::setprecision(4) << module->translation().X() << "," << std::fixed
+           << std::setprecision(4) << module->translation().Y() << "," << std::fixed << std::setprecision(4)
+           << module->translation().Z() << ")" << std::endl;
     //
     //double polarRadius = std::sqrt(modules[i]->translation().X()*modules[i]->translation().X()+modules[i]->translation().Y()*modules[i]->translation().Y());
-    double phiDeg = atan2(modules[i]->translation().Y(), modules[i]->translation().X()) * 360. / 6.283185307;
-    double phiRad = atan2(modules[i]->translation().Y(), modules[i]->translation().X());
+    double phiDeg = atan2(module->translation().Y(), module->translation().X()) * 360. / 6.283185307;
+    double phiRad = atan2(module->translation().Y(), module->translation().X());
     //
     Output << "\t\t polar radius " << std::fixed << std::setprecision(4) << polarRadius << "\t"
            << "phi [deg] " << std::fixed << std::setprecision(4) << phiDeg << "\t"
            << "phi [rad] " << std::fixed << std::setprecision(4) << phiRad << std::endl;
     // active area versors (rotation matrix)
     DD3Vector x, y, z;
-    modules[i]->rotation().GetComponents(x, y, z);
+    module->rotation().GetComponents(x, y, z);
     Output << "\tActive Area Rotation Matrix" << std::endl;
     Output << "\t z = n = (" << std::fixed << std::setprecision(4) << z.X() << "," << std::fixed << std::setprecision(4)
            << z.Y() << "," << std::fixed << std::setprecision(4) << z.Z() << ")" << std::endl
@@ -905,9 +905,9 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
     //    }
     //nav_type typedef changed in 3_6_2; comment out for now.  idr 10/6/10
 
-    NumberingOutput << " " << std::fixed << std::setprecision(4) << modules[i]->translation().X() << " " << std::fixed
-                    << std::setprecision(4) << modules[i]->translation().Y() << " " << std::fixed
-                    << std::setprecision(4) << modules[i]->translation().Z() << " " << std::endl;
+    NumberingOutput << " " << std::fixed << std::setprecision(4) << module->translation().X() << " " << std::fixed
+                    << std::setprecision(4) << module->translation().Y() << " " << std::fixed << std::setprecision(4)
+                    << module->translation().Z() << " " << std::endl;
     //
   }
 

@@ -66,7 +66,7 @@ void FWTauProxyBuilderBase::buildBaseTau(const reco::BaseTau& iTau,
     float ecalR = barrel ? context().caloR1() : context().caloR2();
     float ecalZ = barrel ? context().caloZ1() : context().caloZ2();
 
-    TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
+    auto* marker = new TEveScalableStraightLineSet("energy");
 
     if (type == FWViewType::kRhoZ) {
       double r(0);
@@ -100,7 +100,7 @@ void FWTauProxyBuilderBase::buildBaseTau(const reco::BaseTau& iTau,
     FWViewEnergyScale* caloScale = vc->getEnergyScale();
     marker->SetScale(caloScale->getScaleFactor3D() * (caloScale->getPlotEt() ? iTau.et() : iTau.energy()));
     setupAddElement(marker, comp);
-    m_lines.push_back(fireworks::scaleMarker(marker, iTau.et(), iTau.energy(), vc));
+    m_lines.emplace_back(marker, iTau.et(), iTau.energy(), vc);
 
     context().voteMaxEtAndEnergy(iTau.et(), iTau.energy());
   } else if (iJet) {
@@ -156,11 +156,11 @@ void FWTauProxyBuilderBase::scaleProduct(TEveElementList* parent, FWViewType::ET
     typedef std::vector<fireworks::scaleMarker> Lines_t;
     FWViewEnergyScale* caloScale = vc->getEnergyScale();
     // printf("%p -> %f\n", this,caloScale->getValToHeight() );
-    for (Lines_t::iterator i = m_lines.begin(); i != m_lines.end(); ++i) {
-      if (vc == (*i).m_vc) {
-        float value = caloScale->getPlotEt() ? (*i).m_et : (*i).m_energy;
-        (*i).m_ls->SetScale(caloScale->getScaleFactor3D() * value);
-        TEveProjected* proj = *(*i).m_ls->BeginProjecteds();
+    for (auto& m_line : m_lines) {
+      if (vc == m_line.m_vc) {
+        float value = caloScale->getPlotEt() ? m_line.m_et : m_line.m_energy;
+        m_line.m_ls->SetScale(caloScale->getScaleFactor3D() * value);
+        TEveProjected* proj = *m_line.m_ls->BeginProjecteds();
         proj->UpdateProjection();
       }
     }

@@ -333,13 +333,13 @@ PixelCPEBase::DetParam const& PixelCPEBase::detParam(const GeomDetUnit& det) con
 //  used in the digitizer (SiPixelDigitizerAlgorithm.cc).
 //  &&& PM: needs to be consolidated, discuss with PS.
 //-----------------------------------------------------------------------------
-LocalVector PixelCPEBase::driftDirection(DetParam& theDetParam, GlobalVector bfield) const {
+LocalVector PixelCPEBase::driftDirection(DetParam& theDetParam, const GlobalVector& bfield) const {
   Frame detFrame(theDetParam.theDet->surface().position(), theDetParam.theDet->surface().rotation());
   LocalVector Bfield = detFrame.toLocal(bfield);
   return driftDirection(theDetParam, Bfield);
 }
 
-LocalVector PixelCPEBase::driftDirection(DetParam& theDetParam, LocalVector Bfield) const {
+LocalVector PixelCPEBase::driftDirection(DetParam& theDetParam, const LocalVector& Bfield) const {
   // Use LA from DB or from config
   float langle = 0.;
   if (!useLAOffsetFromConfig_) {     // get it from DB

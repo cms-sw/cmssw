@@ -5415,8 +5415,8 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
             calib2[k1][k2][k3] = 0.;
           }
           if (studyRunDependenceHist_) {
-            for (int k0 = 0; k0 < nsub; k0++) {
-              badchannels[k0][k1][k2][k3] = 0;
+            for (auto& badchannel : badchannels) {
+              badchannel[k1][k2][k3] = 0;
             }  //for
           }    //if
 
@@ -5466,7 +5466,7 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         cout << " ******************************  ===========================   No HFDigiCollection found " << endl;
       } else {
         ////////////////////////////////////////////////////////////////////   qie8   QIE8 :
-        for (HFDigiCollection::const_iterator digi = hf->begin(); digi != hf->end(); digi++) {
+        for (auto digi = hf->begin(); digi != hf->end(); digi++) {
           eta = digi->id().ieta();
           phi = digi->id().iphi();
           depth = digi->id().depth();
@@ -5592,7 +5592,7 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         double nnnnnnTSHB = 0.;
         double nnnnnnTSHE = 0.;
 
-        for (HBHEDigiCollection::const_iterator digi = hbhe->begin(); digi != hbhe->end(); digi++) {
+        for (auto digi = hbhe->begin(); digi != hbhe->end(); digi++) {
           eta = digi->id().ieta();
           phi = digi->id().iphi();
           depth = digi->id().depth();
@@ -5822,7 +5822,7 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     } else {
       int qwert6 = 0;
       double totalAmplitudeHO = 0.;
-      for (HODigiCollection::const_iterator digi = ho->begin(); digi != ho->end(); digi++) {
+      for (auto digi = ho->begin(); digi != ho->end(); digi++) {
         eta = digi->id().ieta();
         phi = digi->id().iphi();
         depth = digi->id().depth();
@@ -5893,15 +5893,14 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         //  if(!hbheNoise.isValid()) {
         std::cout << " No RecHits HBHENoise collection is found " << endl;
       } else {
-        for (HBHERecHitCollection::const_iterator hbheItr = hbheNoise->begin(); hbheItr != hbheNoise->end();
-             hbheItr++) {
+        for (const auto& hbheItr : *hbheNoise) {
           // Recalibration of energy
           float icalconst = 1.;
           //      DetId mydetid = hbheItr->id().rawId();
           //      if( theRecalib ) icalconst=myRecalib->getValues(mydetid)->getValue();
-          HBHERecHit aHit(hbheItr->id(), hbheItr->energy() * icalconst, hbheItr->time());
+          HBHERecHit aHit(hbheItr.id(), hbheItr.energy() * icalconst, hbheItr.time());
           double energyhit = aHit.energy();
-          DetId id = (*hbheItr).detid();
+          DetId id = hbheItr.detid();
           HcalDetId hid = HcalDetId(id);
           int sub = ((hid).rawId() >> 25) & 0x7;
 
@@ -5952,14 +5951,14 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         //  if(!hfNoise.isValid()) {
         std::cout << " No RecHits HFNoise collection is found " << endl;
       } else {
-        for (HFRecHitCollection::const_iterator hfItr = hfNoise->begin(); hfItr != hfNoise->end(); hfItr++) {
+        for (const auto& hfItr : *hfNoise) {
           // Recalibration of energy
           float icalconst = 1.;
           //      DetId mydetid = hfItr->id().rawId();
           //      if( theRecalib ) icalconst=myRecalib->getValues(mydetid)->getValue();
-          HFRecHit aHit(hfItr->id(), hfItr->energy() * icalconst, hfItr->time());
+          HFRecHit aHit(hfItr.id(), hfItr.energy() * icalconst, hfItr.time());
           double energyhit = aHit.energy();
-          DetId id = (*hfItr).detid();
+          DetId id = hfItr.detid();
           HcalDetId hid = HcalDetId(id);
           int sub = ((hid).rawId() >> 25) & 0x7;
 
@@ -6006,15 +6005,14 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         //  if(!hbheSignal.isValid()) {
         std::cout << " No RecHits HBHESignal collection is found " << endl;
       } else {
-        for (HBHERecHitCollection::const_iterator hbheItr = hbheSignal->begin(); hbheItr != hbheSignal->end();
-             hbheItr++) {
+        for (const auto& hbheItr : *hbheSignal) {
           // Recalibration of energy
           float icalconst = 1.;
           //      DetId mydetid = hbheItr->id().rawId();
           //      if( theRecalib ) icalconst=myRecalib->getValues(mydetid)->getValue();
-          HBHERecHit aHit(hbheItr->id(), hbheItr->energy() * icalconst, hbheItr->time());
+          HBHERecHit aHit(hbheItr.id(), hbheItr.energy() * icalconst, hbheItr.time());
           double energyhit = aHit.energy();
-          DetId id = (*hbheItr).detid();
+          DetId id = hbheItr.detid();
           HcalDetId hid = HcalDetId(id);
           int sub = ((hid).rawId() >> 25) & 0x7;
 
@@ -6064,14 +6062,14 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         //  if(!hfSignal.isValid()) {
         std::cout << " No RecHits HFSignal collection is found " << endl;
       } else {
-        for (HFRecHitCollection::const_iterator hfItr = hfSignal->begin(); hfItr != hfSignal->end(); hfItr++) {
+        for (const auto& hfItr : *hfSignal) {
           // Recalibration of energy
           float icalconst = 1.;
           //      DetId mydetid = hfItr->id().rawId();
           //      if( theRecalib ) icalconst=myRecalib->getValues(mydetid)->getValue();
-          HFRecHit aHit(hfItr->id(), hfItr->energy() * icalconst, hfItr->time());
+          HFRecHit aHit(hfItr.id(), hfItr.energy() * icalconst, hfItr.time());
           double energyhit = aHit.energy();
-          DetId id = (*hfItr).detid();
+          DetId id = hfItr.detid();
           HcalDetId hid = HcalDetId(id);
           int sub = ((hid).rawId() >> 25) & 0x7;
 
@@ -6947,11 +6945,11 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     }
     if (!gotCALIBDigis) {
     } else {
-      for (HcalCalibDigiCollection::const_iterator digi = calib->begin(); digi != calib->end(); digi++) {
-        int cal_det = digi->id().hcalSubdet();  // 1-HB,2-HE,3-HO,4-HF
-        int cal_phi = digi->id().iphi();
-        int cal_eta = digi->id().ieta();
-        int cal_cbox = digi->id().cboxChannel();
+      for (const auto& digi : *calib) {
+        int cal_det = digi.id().hcalSubdet();  // 1-HB,2-HE,3-HO,4-HF
+        int cal_phi = digi.id().iphi();
+        int cal_eta = digi.id().ieta();
+        int cal_cbox = digi.id().cboxChannel();
 
         /////////////////////////////////////////////
         if (recordHistoes_ && studyCalibCellsHist_) {
@@ -6960,7 +6958,7 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
             int ieta = cal_eta;
             if (ieta > 0)
               ieta -= 1;
-            nTS = digi->size();
+            nTS = digi.size();
             double max_signal = -100.;
             int ts_with_max_signal = -100;
             double timew = 0.;
@@ -6968,7 +6966,7 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
             //
             if (nTS <= numOfTS)
               for (int i = 0; i < nTS; i++) {
-                double ampldefault = adc2fC[digi->sample(i).adc() & 0xff];
+                double ampldefault = adc2fC[digi.sample(i).adc() & 0xff];
                 if (max_signal < ampldefault) {
                   max_signal = ampldefault;
                   ts_with_max_signal = i;
@@ -6989,7 +6987,7 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
             double rmsamp = 0.;
             for (int ii = 0; ii < nTS; ii++) {
-              double ampldefault = adc2fC[digi->sample(ii).adc() & 0xff];
+              double ampldefault = adc2fC[digi.sample(ii).adc() & 0xff];
               double aaaaaa = (ii + 1) - aveamplitude;
               double aaaaaa2 = aaaaaa * aaaaaa;
               rmsamp += (aaaaaa2 * ampldefault);  // fC
@@ -7003,25 +7001,25 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
             //
 
             if (ts_with_max_signal > -1 && ts_with_max_signal < nTS)
-              calib2[cal_det - 1][ieta + 41][iphi] = adc2fC[digi->sample(ts_with_max_signal).adc() & 0xff];
+              calib2[cal_det - 1][ieta + 41][iphi] = adc2fC[digi.sample(ts_with_max_signal).adc() & 0xff];
             if (ts_with_max_signal + 1 > -1 && ts_with_max_signal + 1 < nTS)
-              calib2[cal_det - 1][ieta + 41][iphi] += adc2fC[digi->sample(ts_with_max_signal + 1).adc() & 0xff];
+              calib2[cal_det - 1][ieta + 41][iphi] += adc2fC[digi.sample(ts_with_max_signal + 1).adc() & 0xff];
             if (ts_with_max_signal + 2 > -1 && ts_with_max_signal + 2 < nTS)
-              calib2[cal_det - 1][ieta + 41][iphi] += adc2fC[digi->sample(ts_with_max_signal + 2).adc() & 0xff];
+              calib2[cal_det - 1][ieta + 41][iphi] += adc2fC[digi.sample(ts_with_max_signal + 2).adc() & 0xff];
             if (ts_with_max_signal - 1 > -1 && ts_with_max_signal - 1 < nTS)
-              calib2[cal_det - 1][ieta + 41][iphi] += adc2fC[digi->sample(ts_with_max_signal - 1).adc() & 0xff];
+              calib2[cal_det - 1][ieta + 41][iphi] += adc2fC[digi.sample(ts_with_max_signal - 1).adc() & 0xff];
             if (ts_with_max_signal - 2 > -1 && ts_with_max_signal - 2 < nTS)
-              calib2[cal_det - 1][ieta + 41][iphi] += adc2fC[digi->sample(ts_with_max_signal - 2).adc() & 0xff];
+              calib2[cal_det - 1][ieta + 41][iphi] += adc2fC[digi.sample(ts_with_max_signal - 2).adc() & 0xff];
             //
             bool anycapid = true;
             bool anyer = false;
             bool anydv = true;
             int error1 = 0, error2 = 0, error3 = 0;
             int lastcapid = 0, capid = 0;
-            for (int ii = 0; ii < (*digi).size(); ii++) {
-              capid = (*digi)[ii].capid();  // capId (0-3, sequential)
-              bool er = (*digi)[ii].er();   // error
-              bool dv = (*digi)[ii].dv();   // valid data
+            for (int ii = 0; ii < digi.size(); ii++) {
+              capid = digi[ii].capid();  // capId (0-3, sequential)
+              bool er = digi[ii].er();   // error
+              bool dv = digi[ii].dv();   // valid data
               if (ii != 0 && ((lastcapid + 1) % 4) != capid)
                 anycapid = false;
               lastcapid = capid;

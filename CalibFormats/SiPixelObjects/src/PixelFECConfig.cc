@@ -33,20 +33,20 @@ PixelFECConfig::PixelFECConfig(std::vector<std::vector<std::string> > &tableMat)
    VME_ADDR				     NOT NULL VARCHAR2(200)
  */
 
-  colNames.push_back("CONFIG_KEY");
-  colNames.push_back("KEY_TYPE");
-  colNames.push_back("KEY_ALIAS");
-  colNames.push_back("VERSION");
-  colNames.push_back("KIND_OF_COND");
-  colNames.push_back("PIXFEC_NAME");
-  colNames.push_back("CRATE_NUMBER");
-  colNames.push_back("SLOT_NUMBER");
-  colNames.push_back("VME_ADDR");
+  colNames.emplace_back("CONFIG_KEY");
+  colNames.emplace_back("KEY_TYPE");
+  colNames.emplace_back("KEY_ALIAS");
+  colNames.emplace_back("VERSION");
+  colNames.emplace_back("KIND_OF_COND");
+  colNames.emplace_back("PIXFEC_NAME");
+  colNames.emplace_back("CRATE_NUMBER");
+  colNames.emplace_back("SLOT_NUMBER");
+  colNames.emplace_back("VME_ADDR");
 
   for (unsigned int c = 0; c < tableMat[0].size(); c++) {
-    for (unsigned int n = 0; n < colNames.size(); n++) {
-      if (tableMat[0][c] == colNames[n]) {
-        colM[colNames[n]] = c;
+    for (const auto &colName : colNames) {
+      if (tableMat[0][c] == colName) {
+        colM[colName] = c;
         break;
       }
     }
@@ -87,7 +87,7 @@ PixelFECConfig::PixelFECConfig(std::vector<std::vector<std::string> > &tableMat)
 
 //****************************************************************************************
 
-PixelFECConfig::PixelFECConfig(std::string filename) : PixelConfigBase(" ", " ", " ") {
+PixelFECConfig::PixelFECConfig(const std::string &filename) : PixelConfigBase(" ", " ", " ") {
   std::string mthn = "[[PixelFECConfig::PixelFECConfig()]\t\t\t   ";
 
   std::ifstream in(filename.c_str());
@@ -158,9 +158,9 @@ unsigned int PixelFECConfig::getVMEBaseAddress(unsigned int i) const {
 
 unsigned int PixelFECConfig::crateFromFECNumber(unsigned int fecnumber) const {
   std::string mthn = "[PixelFECConfig::crateFromFECNumber()]\t\t\t    ";
-  for (unsigned int i = 0; i < fecconfig_.size(); i++) {
-    if (fecconfig_[i].getFECNumber() == fecnumber)
-      return fecconfig_[i].getCrate();
+  for (const auto &i : fecconfig_) {
+    if (i.getFECNumber() == fecnumber)
+      return i.getCrate();
   }
 
   std::cout << __LINE__ << "]\t" << mthn << "Could not find FEC number: " << fecnumber << std::endl;
@@ -172,9 +172,9 @@ unsigned int PixelFECConfig::crateFromFECNumber(unsigned int fecnumber) const {
 
 unsigned int PixelFECConfig::VMEBaseAddressFromFECNumber(unsigned int fecnumber) const {
   std::string mthn = "[PixelFECConfig::VMEBaseAddressFromFECNumber()]\t\t    ";
-  for (unsigned int i = 0; i < fecconfig_.size(); i++) {
-    if (fecconfig_[i].getFECNumber() == fecnumber)
-      return fecconfig_[i].getVMEBaseAddress();
+  for (const auto &i : fecconfig_) {
+    if (i.getFECNumber() == fecnumber)
+      return i.getVMEBaseAddress();
   }
 
   std::cout << __LINE__ << "]\t" << mthn << "Could not find FEC number: " << fecnumber << std::endl;
@@ -191,7 +191,7 @@ void PixelFECConfig::writeASCII(std::string dir) const {
   std::string filename = dir + "fecconfig.dat";
   std::ofstream out(filename.c_str());
 
-  std::vector<PixelFECParameters>::const_iterator i = fecconfig_.begin();
+  auto i = fecconfig_.begin();
 
   out << "#FEC number     crate     vme base address" << endl;
   for (; i != fecconfig_.end(); ++i) {
@@ -243,7 +243,7 @@ void PixelFECConfig::writeXMLHeader(pos::PixelConfigKey key,
 void PixelFECConfig::writeXML(std::ofstream *outstream, std::ofstream *out1stream, std::ofstream *out2stream) const {
   std::string mthn = "[PixelFECConfig::writeXML()]\t\t\t    ";
 
-  std::vector<PixelFECParameters>::const_iterator i = fecconfig_.begin();
+  auto i = fecconfig_.begin();
 
   for (; i != fecconfig_.end(); ++i) {
     *outstream << "" << endl;

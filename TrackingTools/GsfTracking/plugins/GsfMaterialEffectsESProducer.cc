@@ -16,6 +16,8 @@
 #include "TrackingTools/GsfTracking/interface/GsfBetheHeitlerUpdator.h"
 #include "TrackingTools/GsfTracking/interface/GsfCombinedMaterialEffectsUpdator.h"
 
+#include <memory>
+
 #include <string>
 #include <memory>
 #include <optional>
@@ -70,16 +72,16 @@ std::unique_ptr<GsfMaterialEffectsUpdator> GsfMaterialEffectsESProducer::produce
     const TrackingComponentsRecord& iRecord) {
   std::unique_ptr<GsfMaterialEffectsUpdator> msUpdator;
   if (useMultipleScattering_) {
-    msUpdator.reset(new GsfMultipleScatteringUpdator(mass_));
+    msUpdator = std::make_unique<GsfMultipleScatteringUpdator>(mass_);
   } else {
-    msUpdator.reset(new GsfMaterialEffectsAdapter(MultipleScatteringUpdator(mass_)));
+    msUpdator = std::make_unique<GsfMaterialEffectsAdapter>(MultipleScatteringUpdator(mass_));
   }
 
   std::unique_ptr<GsfMaterialEffectsUpdator> elUpdator;
   if (betheHeitlerInit_) {
-    elUpdator.reset(new GsfBetheHeitlerUpdator(betheHeitlerInit_->fileName, betheHeitlerInit_->correction));
+    elUpdator = std::make_unique<GsfBetheHeitlerUpdator>(betheHeitlerInit_->fileName, betheHeitlerInit_->correction);
   } else {
-    elUpdator.reset(new GsfMaterialEffectsAdapter(EnergyLossUpdator(mass_)));
+    elUpdator = std::make_unique<GsfMaterialEffectsAdapter>(EnergyLossUpdator(mass_));
   }
 
   auto updator = std::make_unique<GsfCombinedMaterialEffectsUpdator>(*msUpdator, *elUpdator);

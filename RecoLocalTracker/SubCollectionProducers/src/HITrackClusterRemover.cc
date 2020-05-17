@@ -242,8 +242,8 @@ HITrackClusterRemover::HITrackClusterRemover(const ParameterSet &iConfig)
 HITrackClusterRemover::~HITrackClusterRemover() {}
 
 void HITrackClusterRemover::mergeOld(ClusterRemovalInfo::Indices &refs, const ClusterRemovalInfo::Indices &oldRefs) {
-  for (size_t i = 0, n = refs.size(); i < n; ++i) {
-    refs[i] = oldRefs[refs[i]];
+  for (unsigned int &ref : refs) {
+    ref = oldRefs[ref];
   }
 }
 
@@ -319,9 +319,8 @@ void HITrackClusterRemover::process(OmniClusterRef const &ocluster, SiStripDetId
     return;
   if (!fromTrack) {
     int clusCharge = 0;
-    for (std::vector<uint8_t>::const_iterator iAmp = cluster->amplitudes().begin(); iAmp != cluster->amplitudes().end();
-         ++iAmp) {
-      clusCharge += *iAmp;
+    for (unsigned char iAmp : cluster->amplitudes()) {
+      clusCharge += iAmp;
     }
     if (pblocks_[subdet - 1].cutOnStripCharge_ &&
         (clusCharge > (pblocks_[subdet - 1].minGoodStripCharge_ * sensorThickness(detid))))
@@ -388,12 +387,12 @@ void HITrackClusterRemover::process(const TrackingRecHit *hit, unsigned char chi
       const SiStripRecHit1D *hit1D = static_cast<const SiStripRecHit1D *>(hit);
       process(hit1D->omniClusterRef(), detid, true);
     } else if (hitType == typeid(SiStripMatchedRecHit2D)) {
-      const SiStripMatchedRecHit2D *matchHit = static_cast<const SiStripMatchedRecHit2D *>(hit);
+      const auto *matchHit = static_cast<const SiStripMatchedRecHit2D *>(hit);
       //DBG//     cout << "Matched RecHit 2D: " << endl;
       process(matchHit->monoClusterRef(), detid, true);
       process(matchHit->stereoClusterRef(), detid, true);
     } else if (hitType == typeid(ProjectedSiStripRecHit2D)) {
-      const ProjectedSiStripRecHit2D *projHit = static_cast<const ProjectedSiStripRecHit2D *>(hit);
+      const auto *projHit = static_cast<const ProjectedSiStripRecHit2D *>(hit);
       //DBG//     cout << "Projected RecHit 2D: " << endl;
       process(projHit->originalHit().omniClusterRef(), detid, true);
     } else
@@ -539,20 +538,16 @@ void HITrackClusterRemover::produce(Event &iEvent, const EventSetup &iSetup) {
     edm::Handle<SiStripRecHit2DCollection> rechitsrphi;
     iEvent.getByToken(rphiRecHitToken_, rechitsrphi);
     const SiStripRecHit2DCollection::DataContainer *rphiRecHits = &(rechitsrphi).product()->data();
-    for (SiStripRecHit2DCollection::DataContainer::const_iterator recHit = rphiRecHits->begin();
-         recHit != rphiRecHits->end();
-         recHit++) {
-      SiStripDetId detid = recHit->geographicalId();
-      process(recHit->omniClusterRef(), detid, false);
+    for (const auto &rphiRecHit : *rphiRecHits) {
+      SiStripDetId detid = rphiRecHit.geographicalId();
+      process(rphiRecHit.omniClusterRef(), detid, false);
     }
     edm::Handle<SiStripRecHit2DCollection> rechitsstereo;
     iEvent.getByToken(stereoRecHitToken_, rechitsstereo);
     const SiStripRecHit2DCollection::DataContainer *stereoRecHits = &(rechitsstereo).product()->data();
-    for (SiStripRecHit2DCollection::DataContainer::const_iterator recHit = stereoRecHits->begin();
-         recHit != stereoRecHits->end();
-         recHit++) {
-      SiStripDetId detid = recHit->geographicalId();
-      process(recHit->omniClusterRef(), detid, false);
+    for (const auto &stereoRecHit : *stereoRecHits) {
+      SiStripDetId detid = stereoRecHit.geographicalId();
+      process(stereoRecHit.omniClusterRef(), detid, false);
     }
   }
   //    if(doPixelChargeCheck_) {

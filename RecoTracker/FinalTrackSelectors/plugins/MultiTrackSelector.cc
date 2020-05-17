@@ -88,7 +88,7 @@ MultiTrackSelector::MultiTrackSelector(const edm::ParameterSet& cfg)
     qualityToSet_.push_back(TrackBase::undefQuality);
     // parameters for vertex selection
     vtxNumber_.push_back(useVertices_ ? trkSelectors[i].getParameter<int32_t>("vtxNumber") : 0);
-    vertexCut_.push_back(useVertices_ ? trkSelectors[i].getParameter<std::string>("vertexCut") : nullptr);
+    vertexCut_.emplace_back(useVertices_ ? trkSelectors[i].getParameter<std::string>("vertexCut") : nullptr);
     //  parameters for adapted optimal cuts on chi2 and primary vertex compatibility
     res_par_.push_back(trkSelectors[i].getParameter<std::vector<double>>("res_par"));
     chi2n_par_.push_back(trkSelectors[i].getParameter<double>("chi2n_par"));
@@ -184,15 +184,15 @@ MultiTrackSelector::MultiTrackSelector(const edm::ParameterSet& cfg)
       } else {
         min_MVA_.push_back(-9999.0);
         useMVAonly_.push_back(false);
-        mvaType_.push_back("Detached");
-        forestLabel_.push_back("MVASelectorIter0");
+        mvaType_.emplace_back("Detached");
+        forestLabel_.emplace_back("MVASelectorIter0");
       }
     } else {
       useMVA_.push_back(false);
       useMVAonly_.push_back(false);
       min_MVA_.push_back(-9999.0);
-      mvaType_.push_back("Detached");
-      forestLabel_.push_back("MVASelectorIter0");
+      mvaType_.emplace_back("Detached");
+      forestLabel_.emplace_back("MVASelectorIter0");
     }
   }
 }
@@ -262,7 +262,7 @@ void MultiTrackSelector::run(edm::Event& evt, const edm::EventSetup& es) const {
 
     // Loop over tracks
     size_t current = 0;
-    for (TrackCollection::const_iterator it = srcTracks.begin(), ed = srcTracks.end(); it != ed; ++it, ++current) {
+    for (auto it = srcTracks.begin(), ed = srcTracks.end(); it != ed; ++it, ++current) {
       const Track& trk = *it;
       // Check if this track passes cuts
 
@@ -449,12 +449,12 @@ bool MultiTrackSelector::select(unsigned int tsNum,
   }
 
   int iv = 0;
-  for (std::vector<Point>::const_iterator point = points.begin(), end = points.end(); point != end; ++point) {
-    LogTrace("TrackSelection") << "Test track w.r.t. vertex with z position " << point->z();
+  for (const auto& point : points) {
+    LogTrace("TrackSelection") << "Test track w.r.t. vertex with z position " << point.z();
     if (primaryVertexZCompatibility && primaryVertexD0Compatibility)
       break;
-    float dzPV = tk.dz(*point);   //re-evaluate the dz with respect to the vertex position
-    float d0PV = tk.dxy(*point);  //re-evaluate the dxy with respect to the vertex position
+    float dzPV = tk.dz(point);   //re-evaluate the dz with respect to the vertex position
+    float d0PV = tk.dxy(point);  //re-evaluate the dxy with respect to the vertex position
     if (useVtxError_) {
       float dzErrPV = std::sqrt(dzE * dzE + vzerr[iv] * vzerr[iv]);  // include vertex error in z
       float d0ErrPV = std::sqrt(d0E * d0E + vterr[iv] * vterr[iv]);  // include vertex error in xy
@@ -507,16 +507,16 @@ void MultiTrackSelector::selectVertices(unsigned int tsNum,
   // Select good primary vertices
   using namespace reco;
   int32_t toTake = vtxNumber_[tsNum];
-  for (VertexCollection::const_iterator it = vtxs.begin(), ed = vtxs.end(); it != ed; ++it) {
-    LogDebug("SelectVertex") << " select vertex with z position " << it->z() << " " << it->chi2() << " " << it->ndof()
-                             << " " << TMath::Prob(it->chi2(), static_cast<int32_t>(it->ndof()));
-    Vertex vtx = *it;
+  for (const auto& it : vtxs) {
+    LogDebug("SelectVertex") << " select vertex with z position " << it.z() << " " << it.chi2() << " " << it.ndof()
+                             << " " << TMath::Prob(it.chi2(), static_cast<int32_t>(it.ndof()));
+    Vertex vtx = it;
     bool pass = vertexCut_[tsNum](vtx);
     if (pass) {
-      points.push_back(it->position());
-      vterr.push_back(sqrt(it->yError() * it->xError()));
-      vzerr.push_back(it->zError());
-      LogTrace("SelectVertex") << " SELECTED vertex with z position " << it->z();
+      points.push_back(it.position());
+      vterr.push_back(sqrt(it.yError() * it.xError()));
+      vzerr.push_back(it.zError());
+      LogTrace("SelectVertex") << " SELECTED vertex with z position " << it.z();
       toTake--;
       if (toTake == 0)
         break;
@@ -564,7 +564,7 @@ void MultiTrackSelector::processMVA(edm::Event& evt,
     return;
 
   size_t current = 0;
-  for (TrackCollection::const_iterator it = srcTracks.begin(), ed = srcTracks.end(); it != ed; ++it, ++current) {
+  for (auto it = srcTracks.begin(), ed = srcTracks.end(); it != ed; ++it, ++current) {
     const Track& trk = *it;
     RefToBase<Track> trackRef(rtbpTrackCollection, current);
     auto tmva_ndof_ = trk.ndof();
@@ -650,7 +650,8 @@ void MultiTrackSelector::processMVA(edm::Event& evt,
   }
 }
 
-MultiTrackSelector::Point MultiTrackSelector::getBestVertex(TrackBaseRef track, VertexCollection vertices) const {
+MultiTrackSelector::Point MultiTrackSelector::getBestVertex(const TrackBaseRef& track,
+                                                            const VertexCollection& vertices) const {
   Point p(0, 0, -99999);
   Point p_dz(0, 0, -99999);
   float bestWeight = 0;

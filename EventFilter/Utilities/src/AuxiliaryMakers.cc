@@ -16,8 +16,7 @@ namespace evf {
                            lumiSection,
                            tcds->header.eventNumber);
 
-      edm::TimeValue_t time =
-          static_cast<edm::TimeValue_t>(((uint64_t)tcds->bst.gpstimehigh << 32) | tcds->bst.gpstimelow);
+      auto time = static_cast<edm::TimeValue_t>(((uint64_t)tcds->bst.gpstimehigh << 32) | tcds->bst.gpstimelow);
       if (time == 0) {
         timeval stv;
         gettimeofday(&stv, nullptr);

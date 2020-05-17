@@ -152,8 +152,8 @@ void MonCrystalConsistencyDat::writeArrayDB(const std::map<EcalLogicID, MonCryst
   const MonCrystalConsistencyDat* dataitem;
   int count = 0;
   typedef map<EcalLogicID, MonCrystalConsistencyDat>::const_iterator CI;
-  for (CI p = data->begin(); p != data->end(); ++p) {
-    channel = &(p->first);
+  for (const auto& p : *data) {
+    channel = &(p.first);
     int logicID = channel->getLogicID();
     if (!logicID) {
       throw(std::runtime_error("MonCrystalConsistencyDat::writeArrayDB:  Bad EcalLogicID"));
@@ -161,7 +161,7 @@ void MonCrystalConsistencyDat::writeArrayDB(const std::map<EcalLogicID, MonCryst
     ids[count] = logicID;
     iovid_vec[count] = iovID;
 
-    dataitem = &(p->second);
+    dataitem = &(p.second);
     // dataIface.writeDB( channel, dataitem, iov);
     int x = dataitem->getProcessedEvents();
     int y = dataitem->getProblematicEvents();

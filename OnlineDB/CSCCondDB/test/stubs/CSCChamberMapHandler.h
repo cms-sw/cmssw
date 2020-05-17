@@ -19,9 +19,9 @@
 namespace popcon {
   class CSCChamberMapImpl : public popcon::PopConSourceHandler<CSCChamberMap> {
   public:
-    void getNewObjects();
-    std::string id() const { return m_name; }
-    ~CSCChamberMapImpl();
+    void getNewObjects() override;
+    std::string id() const override { return m_name; }
+    ~CSCChamberMapImpl() override;
     CSCChamberMapImpl(const edm::ParameterSet& pset);
 
   private:

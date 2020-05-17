@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexSeed.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -34,8 +36,8 @@ void PFDisplacedVertexSeed::updateSeedPoint(const GlobalPoint& dcaPoint,
   }
 
   reserveElements(elements_.size() + 2);
-  addElement(r1);
-  addElement(r2);
+  addElement(std::move(r1));
+  addElement(std::move(r2));
 }
 
 void PFDisplacedVertexSeed::mergeWith(const PFDisplacedVertexSeed& displacedVertex) {

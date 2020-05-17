@@ -195,14 +195,14 @@ void EwkElecTauHistManager::fillHistograms(const edm::Event& evt, const edm::Eve
   const edm::TriggerNames& triggerNames = evt.triggerNames(*hltDecision);
 
   bool isTriggered = false;
-  for (vstring::const_iterator hltPath = hltPaths_.begin(); hltPath != hltPaths_.end(); ++hltPath) {
-    unsigned int index = triggerNames.triggerIndex(*hltPath);
+  for (const auto& hltPath : hltPaths_) {
+    unsigned int index = triggerNames.triggerIndex(hltPath);
     if (index < triggerNames.size()) {
       if (hltDecision->accept(index))
         isTriggered = true;
     } else {
       if (numWarningsHLTpath_ < maxNumWarnings_ || maxNumWarnings_ == -1)
-        edm::LogWarning("EwkElecTauHistManager") << " Undefined HLT path = " << (*hltPath) << " !!";
+        edm::LogWarning("EwkElecTauHistManager") << " Undefined HLT path = " << hltPath << " !!";
       ++numWarningsHLTpath_;
       continue;
     }
@@ -403,9 +403,8 @@ void EwkElecTauHistManager::fillHistograms(const edm::Event& evt, const edm::Eve
 
   //--- fill electron multiplicity histogram
   unsigned numIdElectrons = 0;
-  for (reco::GsfElectronCollection::const_iterator electron = electrons->begin(); electron != electrons->end();
-       ++electron) {
-    if (passesElectronId(*electron)) {
+  for (const auto& electron : *electrons) {
+    if (passesElectronId(electron)) {
       ++numIdElectrons;
     }
   }
@@ -669,14 +668,14 @@ void EwkMuTauHistManager::fillHistograms(const edm::Event& evt, const edm::Event
   const edm::TriggerNames& triggerNames = evt.triggerNames(*hltDecision);
 
   bool isTriggered = false;
-  for (vstring::const_iterator hltPath = hltPaths_.begin(); hltPath != hltPaths_.end(); ++hltPath) {
-    unsigned int index = triggerNames.triggerIndex(*hltPath);
+  for (const auto& hltPath : hltPaths_) {
+    unsigned int index = triggerNames.triggerIndex(hltPath);
     if (index < triggerNames.size()) {
       if (hltDecision->accept(index))
         isTriggered = true;
     } else {
       if (numWarningsHLTpath_ < maxNumWarnings_ || maxNumWarnings_ == -1)
-        edm::LogWarning("EwkMuTauHistManager") << " Undefined HLT path = " << (*hltPath) << " !!";
+        edm::LogWarning("EwkMuTauHistManager") << " Undefined HLT path = " << hltPath << " !!";
       ++numWarningsHLTpath_;
       continue;
     }
@@ -865,8 +864,8 @@ void EwkMuTauHistManager::fillHistograms(const edm::Event& evt, const edm::Event
 
   //--- fill muon multiplicity histogram
   unsigned numGlobalMuons = 0;
-  for (reco::MuonCollection::const_iterator muon = muons->begin(); muon != muons->end(); ++muon) {
-    if (muon->isGlobalMuon()) {
+  for (const auto& muon : *muons) {
+    if (muon.isGlobalMuon()) {
       ++numGlobalMuons;
     }
   }
@@ -1104,12 +1103,10 @@ const reco::GsfElectron* getTheElectron(const reco::GsfElectronCollection& elect
                                         double electronPtCut) {
   const reco::GsfElectron* theElectron = nullptr;
 
-  for (reco::GsfElectronCollection::const_iterator electron = electrons.begin(); electron != electrons.end();
-       ++electron) {
-    if (TMath::Abs(electron->eta()) < electronEtaCut && electron->pt() > electronPtCut &&
-        passesElectronPreId(*electron)) {
-      if (theElectron == nullptr || electron->pt() > theElectron->pt())
-        theElectron = &(*electron);
+  for (const auto& electron : electrons) {
+    if (TMath::Abs(electron.eta()) < electronEtaCut && electron.pt() > electronPtCut && passesElectronPreId(electron)) {
+      if (theElectron == nullptr || electron.pt() > theElectron->pt())
+        theElectron = &electron;
     }
   }
 
@@ -1119,10 +1116,10 @@ const reco::GsfElectron* getTheElectron(const reco::GsfElectronCollection& elect
 const reco::Muon* getTheMuon(const reco::MuonCollection& muons, double muonEtaCut, double muonPtCut) {
   const reco::Muon* theMuon = nullptr;
 
-  for (reco::MuonCollection::const_iterator muon = muons.begin(); muon != muons.end(); ++muon) {
-    if (TMath::Abs(muon->eta()) < muonEtaCut && muon->pt() > muonPtCut) {
-      if (theMuon == nullptr || muon->pt() > theMuon->pt())
-        theMuon = &(*muon);
+  for (const auto& muon : muons) {
+    if (TMath::Abs(muon.eta()) < muonEtaCut && muon.pt() > muonPtCut) {
+      if (theMuon == nullptr || muon.pt() > theMuon->pt())
+        theMuon = &muon;
     }
   }
 

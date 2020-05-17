@@ -41,7 +41,7 @@ private:
   bool enableDQMClients_;
   bool offlineDQM_;
 
-  void performeClientOperation(std::string, int, MonitorElement *, DQMStore::IGetter &);
+  void performeClientOperation(const std::string &, int, MonitorElement *, DQMStore::IGetter &);
 
   std::string prefixDir_, summaryDir_;
   static const std::string xLabels_[7];

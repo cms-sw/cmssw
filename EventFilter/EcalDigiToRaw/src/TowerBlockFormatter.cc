@@ -33,8 +33,8 @@ void TowerBlockFormatter::DigiToRaw(const EBDataFrame& dataframe,
   if (iFE <= 0 || iFE > 68)
     throw cms::Exception("InvalidFEid") << "TowerBlockFormatter::DigiToRaw : Invalid iFE " << iFE << endl;
 
-  map<int, map<int, int> >::iterator fen = FEDorder.find(FEDid);
-  map<int, map<int, int> >::iterator fed = FEDmap.find(FEDid);
+  auto fen = FEDorder.find(FEDid);
+  auto fed = FEDmap.find(FEDid);
 
   if (fen == FEDorder.end()) {
     if (debug_)
@@ -52,12 +52,12 @@ void TowerBlockFormatter::DigiToRaw(const EBDataFrame& dataframe,
   map<int, int>& FEorder = (*fen).second;
   map<int, int>& FEmap = (*fed).second;
 
-  map<int, int>::iterator fe = FEorder.find(iFE);
+  auto fe = FEorder.find(iFE);
   int FE_order;
   int FE_index;
   if (fe != FEorder.end()) {
     FE_order = (*fe).second;
-    map<int, int>::iterator ff = FEmap.find(FE_order);
+    auto ff = FEmap.find(FE_order);
     if (ff == FEmap.end())
       cout << "Error with maps... " << endl;
     FE_index = (*ff).second;
@@ -117,7 +117,7 @@ void TowerBlockFormatter::DigiToRaw(const EBDataFrame& dataframe,
   rawdata.resize(rawdata.size() + 8 * n_add);
   unsigned char* ppData = rawdata.data();
 
-  vector<unsigned char>::iterator iter = vv.begin() + 8 * (FE_index + 1);
+  auto iter = vv.begin() + 8 * (FE_index + 1);
 
   vector<unsigned char> toadd(n_add * 8);
 
@@ -249,7 +249,7 @@ void TowerBlockFormatter::EndEvent(FEDRawDataCollection* productRawData) {
 
     if (debug_) {
       cout << "vector of FrontEnd : " << FrontEnd.size() << endl;
-      for (std::map<int, int>::const_iterator it = FrontEnd.begin(); it != FrontEnd.end(); it++) {
+      for (auto it = FrontEnd.begin(); it != FrontEnd.end(); it++) {
         int fe = it->first;
         int l = it->second;
         cout << "FE line " << fe << " " << l << endl;
@@ -257,7 +257,7 @@ void TowerBlockFormatter::EndEvent(FEDRawDataCollection* productRawData) {
     }
 
     iTowerBlock_header = iTowerBlock_header_keep;
-    for (std::map<int, int>::const_iterator it = FrontEnd.begin(); it != FrontEnd.end(); it++) {
+    for (auto it = FrontEnd.begin(); it != FrontEnd.end(); it++) {
       int fe = it->first;
       int nlines = it->second;
       if (debug_)
@@ -284,7 +284,7 @@ void TowerBlockFormatter::EndEvent(FEDRawDataCollection* productRawData) {
 
     iTowerBlock_header = iTowerBlock_header_keep;
 
-    for (std::map<int, int>::const_iterator it = FrontEnd.begin(); it != FrontEnd.end(); it++) {
+    for (auto it = FrontEnd.begin(); it != FrontEnd.end(); it++) {
       int fe = it->first;
       if (fe > 68)
         cout << "Problem... fe = " << fe << " in FEDid = " << FEDid << endl;
@@ -308,7 +308,7 @@ void TowerBlockFormatter::EndEvent(FEDRawDataCollection* productRawData) {
         int strip = words[i_xtal] & 0x7;
         int xtal = (words[i_xtal] >> 4) & 0x7;
 
-        map<int, map<int, vector<Word64> > >::iterator iit = Strip_Map.find(strip);
+        auto iit = Strip_Map.find(strip);
 
         map<int, vector<Word64> > NewMap;
         map<int, vector<Word64> > Xtal_Map;
@@ -333,13 +333,13 @@ void TowerBlockFormatter::EndEvent(FEDRawDataCollection* productRawData) {
       // now, update the xtals for this FE :
 
       int idx = 0;
-      for (map<int, map<int, vector<Word64> > >::const_iterator jt = Strip_Map.begin(); jt != Strip_Map.end(); jt++) {
+      for (auto jt = Strip_Map.begin(); jt != Strip_Map.end(); jt++) {
         int strip = jt->first;
         if (debug_)
           cout << "   this is strip number " << strip << endl;
         map<int, vector<Word64> > Xtal_Map = jt->second;
 
-        for (map<int, vector<Word64> >::const_iterator kt = Xtal_Map.begin(); kt != Xtal_Map.end(); kt++) {
+        for (auto kt = Xtal_Map.begin(); kt != Xtal_Map.end(); kt++) {
           int xtal = kt->first;
           if (debug_)
             cout << "       this is xtal number " << xtal << endl;
@@ -417,8 +417,8 @@ void TowerBlockFormatter::DigiToRaw(const EEDataFrame& dataframe,
     return;
   }
 
-  map<int, map<int, int> >::iterator fen = FEDorder.find(FEDid);
-  map<int, map<int, int> >::iterator fed = FEDmap.find(FEDid);
+  auto fen = FEDorder.find(FEDid);
+  auto fed = FEDmap.find(FEDid);
 
   if (fen == FEDorder.end()) {
     if (debug_)
@@ -436,12 +436,12 @@ void TowerBlockFormatter::DigiToRaw(const EEDataFrame& dataframe,
   map<int, int>& FEorder = (*fen).second;
   map<int, int>& FEmap = (*fed).second;
 
-  map<int, int>::iterator fe = FEorder.find(iFE);
+  auto fe = FEorder.find(iFE);
   int FE_order;
   int FE_index;
   if (fe != FEorder.end()) {
     FE_order = (*fe).second;
-    map<int, int>::iterator ff = FEmap.find(FE_order);
+    auto ff = FEmap.find(FE_order);
     if (ff == FEmap.end())
       cout << "Error with maps... " << endl;
     FE_index = (*ff).second;
@@ -503,7 +503,7 @@ void TowerBlockFormatter::DigiToRaw(const EEDataFrame& dataframe,
   rawdata.resize(rawdata.size() + 8 * n_add);
   unsigned char* ppData = rawdata.data();
 
-  vector<unsigned char>::iterator iter = vv.begin() + 8 * (FE_index + 1);
+  auto iter = vv.begin() + 8 * (FE_index + 1);
 
   vector<unsigned char> toadd(n_add * 8);
 

@@ -120,10 +120,10 @@ void B2GSingleLeptonHLTValidation::analyze(const edm::Event &iEvent, const edm::
     edm::LogWarning("B2GSingleLeptonHLTValidation") << "Trigger collection not found \n";
   const edm::TriggerNames &triggerNames = iEvent.triggerNames(*triggerTable);
   bool isInteresting = false;
-  for (unsigned int i = 0; i < triggerNames.triggerNames().size(); ++i) {
-    TString name = triggerNames.triggerNames()[i].c_str();
-    for (unsigned int j = 0; j < vsPaths_.size(); j++) {
-      if (name.Contains(TString(vsPaths_[j]), TString::kIgnoreCase)) {
+  for (const auto &i : triggerNames.triggerNames()) {
+    TString name = i.c_str();
+    for (const auto &vsPath : vsPaths_) {
+      if (name.Contains(TString(vsPath), TString::kIgnoreCase)) {
         isInteresting = true;
         break;
       }
@@ -168,8 +168,8 @@ void B2GSingleLeptonHLTValidation::analyze(const edm::Event &iEvent, const edm::
       hNumJetPt->Fill(jet_->pt());
       hNumJetEta->Fill(jet_->eta());
     }
-    for (unsigned int i = 0; i < triggerNames.triggerNames().size(); ++i) {
-      TString name = triggerNames.triggerNames()[i].c_str();
+    for (const auto &i : triggerNames.triggerNames()) {
+      TString name = i.c_str();
       for (unsigned int j = 0; j < vsPaths_.size(); j++) {
         if (name.Contains(TString(vsPaths_[j]), TString::kIgnoreCase)) {
           hNumTriggerMon->Fill(j + 0.5);

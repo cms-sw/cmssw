@@ -84,26 +84,26 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run &iRun, const edm::EventSetup &
   outFile.open(outTxt.c_str(), std::ios::app);
 
   if (poolDbService.isAvailable()) {
-    for (AlcaBeamSpotManager::bsMap_iterator it = beamSpotMap.begin(); it != beamSpotMap.end(); it++) {
+    for (auto &it : beamSpotMap) {
       BeamSpotObjects *aBeamSpot = new BeamSpotObjects();
-      aBeamSpot->SetType(it->second.second.type());
-      aBeamSpot->SetPosition(it->second.second.x0(), it->second.second.y0(), it->second.second.z0());
+      aBeamSpot->SetType(it.second.second.type());
+      aBeamSpot->SetPosition(it.second.second.x0(), it.second.second.y0(), it.second.second.z0());
       if (sigmaZValue_ == -1) {
-        aBeamSpot->SetSigmaZ(it->second.second.sigmaZ());
+        aBeamSpot->SetSigmaZ(it.second.second.sigmaZ());
       } else {
         aBeamSpot->SetSigmaZ(sigmaZValue_);
       }
-      aBeamSpot->Setdxdz(it->second.second.dxdz());
-      aBeamSpot->Setdydz(it->second.second.dydz());
-      aBeamSpot->SetBeamWidthX(it->second.second.BeamWidthX());
-      aBeamSpot->SetBeamWidthY(it->second.second.BeamWidthY());
-      aBeamSpot->SetEmittanceX(it->second.second.emittanceX());
-      aBeamSpot->SetEmittanceY(it->second.second.emittanceY());
-      aBeamSpot->SetBetaStar(it->second.second.betaStar());
+      aBeamSpot->Setdxdz(it.second.second.dxdz());
+      aBeamSpot->Setdydz(it.second.second.dydz());
+      aBeamSpot->SetBeamWidthX(it.second.second.BeamWidthX());
+      aBeamSpot->SetBeamWidthY(it.second.second.BeamWidthY());
+      aBeamSpot->SetEmittanceX(it.second.second.emittanceX());
+      aBeamSpot->SetEmittanceY(it.second.second.emittanceY());
+      aBeamSpot->SetBetaStar(it.second.second.betaStar());
 
       for (int i = 0; i < 7; ++i) {
         for (int j = 0; j < 7; ++j) {
-          aBeamSpot->SetCovariance(i, j, it->second.second.covariance(i, j));
+          aBeamSpot->SetCovariance(i, j, it.second.second.covariance(i, j));
         }
       }
 
@@ -121,16 +121,16 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run &iRun, const edm::EventSetup &
       }
       // lumi based
       else if (beamSpotOutputBase_ == "lumibased") {
-        edm::LuminosityBlockID lu(iRun.id().run(), it->first);
+        edm::LuminosityBlockID lu(iRun.id().run(), it.first);
         thisIOV = (cond::Time_t)(lu.value());
 
-        currentBS.beamspot = it->second.second;
+        currentBS.beamspot = it.second.second;
         currentBS.run = iRun.id().run();
-        currentBS.beginLumiOfFit = it->first;
-        currentBS.endLumiOfFit = it->first;  // endLumi = initLumi
+        currentBS.beginLumiOfFit = it.first;
+        currentBS.endLumiOfFit = it.first;  // endLumi = initLumi
 
-        std::time_t lumi_t_begin = it->second.first.unixTime();
-        std::time_t lumi_t_end = it->second.first.unixTime();  // begin time == end time
+        std::time_t lumi_t_begin = it.second.first.unixTime();
+        std::time_t lumi_t_end = it.second.first.unixTime();  // begin time == end time
         strftime(
             currentBS.beginTimeOfFit, sizeof currentBS.beginTimeOfFit, "%Y.%m.%d %H:%M:%S GMT", gmtime(&lumi_t_begin));
         strftime(currentBS.endTimeOfFit, sizeof currentBS.endTimeOfFit, "%Y.%m.%d %H:%M:%S GMT", gmtime(&lumi_t_end));

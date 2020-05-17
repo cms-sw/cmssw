@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "OnlineDB/EcalCondDB/interface/LMFTrigType.h"
 
 using namespace std;
@@ -24,7 +26,7 @@ LMFTrigType::LMFTrigType(EcalDBConnection *c) : LMFUnique(c) {
 LMFTrigType::~LMFTrigType() {}
 
 LMFTrigType &LMFTrigType::setName(std::string s) {
-  setString("short_name", s);
+  setString("short_name", std::move(s));
   fetchID();
   return *this;
 }

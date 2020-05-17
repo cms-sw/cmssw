@@ -13,9 +13,9 @@ namespace edm {
 class writeMultipleRecords : public edm::EDAnalyzer {
 public:
   explicit writeMultipleRecords(const edm::ParameterSet& iConfig);
-  ~writeMultipleRecords();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() {}
+  ~writeMultipleRecords() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override {}
 
 private:
   std::string m_PedRecordName;

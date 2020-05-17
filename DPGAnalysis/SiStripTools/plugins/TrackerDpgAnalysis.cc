@@ -609,8 +609,8 @@ void TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup
   iEvent.getByToken(vertexToken_, vertexCollectionHandle);
   const reco::VertexCollection vertexColl = *(vertexCollectionHandle.product());
   nVertices_ = 0;
-  for (reco::VertexCollection::const_iterator v = vertexColl.begin(); v != vertexColl.end(); ++v) {
-    if (v->isValid() && !v->isFake())
+  for (const auto& v : vertexColl) {
+    if (v.isValid() && !v.isFake())
       ++nVertices_;
   }
 
@@ -656,9 +656,7 @@ void TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup
   std::vector<edm::Handle<reco::TrackCollection> > trackCollectionHandle;
   trackCollectionHandle.resize(trackSize);
   size_t index = 0;
-  for (std::vector<edm::EDGetTokenT<reco::TrackCollection> >::const_iterator token = trackTokens_.begin();
-       token != trackTokens_.end();
-       ++token, ++index) {
+  for (auto token = trackTokens_.begin(); token != trackTokens_.end(); ++token, ++index) {
     try {
       iEvent.getByToken(*token, trackCollectionHandle[index]);
     } catch (cms::Exception&) {
@@ -673,9 +671,7 @@ void TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup
   std::vector<edm::Handle<std::vector<Trajectory> > > trajectoryCollectionHandle;
   trajectoryCollectionHandle.resize(trackSize);
   index = 0;
-  for (std::vector<edm::EDGetTokenT<std::vector<Trajectory> > >::const_iterator token = trajectoryTokens_.begin();
-       token != trajectoryTokens_.end();
-       ++token, ++index) {
+  for (auto token = trajectoryTokens_.begin(); token != trajectoryTokens_.end(); ++token, ++index) {
     try {
       iEvent.getByToken(*token, trajectoryCollectionHandle[index]);
     } catch (cms::Exception&) {
@@ -688,12 +684,9 @@ void TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup
   // load the tracks/traj association maps
   std::vector<TrajTrackAssociationCollection> TrajToTrackMap;
   Handle<TrajTrackAssociationCollection> trajTrackAssociationHandle;
-  for (std::vector<edm::EDGetTokenT<TrajTrackAssociationCollection> >::const_iterator token =
-           trajTrackAssoTokens_.begin();
-       token != trajTrackAssoTokens_.end();
-       ++token) {
+  for (auto trajTrackAssoToken : trajTrackAssoTokens_) {
     try {
-      iEvent.getByToken(*token, trajTrackAssociationHandle);
+      iEvent.getByToken(trajTrackAssoToken, trajTrackAssociationHandle);
     } catch (cms::Exception&) {
       ;
     }
@@ -712,17 +705,17 @@ void TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   // iterate over vertices
   if (functionality_vertices_) {
-    for (reco::VertexCollection::const_iterator v = vertexColl.begin(); v != vertexColl.end(); ++v) {
-      nTracks_pvtx_ = v->tracksSize();
-      sumptsq_pvtx_ = sumPtSquared(*v);
-      isValid_pvtx_ = int(v->isValid());
-      isFake_pvtx_ = int(v->isFake());
-      recx_pvtx_ = v->x();
-      recy_pvtx_ = v->y();
-      recz_pvtx_ = v->z();
-      recx_err_pvtx_ = v->xError();
-      recy_err_pvtx_ = v->yError();
-      recz_err_pvtx_ = v->zError();
+    for (const auto& v : vertexColl) {
+      nTracks_pvtx_ = v.tracksSize();
+      sumptsq_pvtx_ = sumPtSquared(v);
+      isValid_pvtx_ = int(v.isValid());
+      isFake_pvtx_ = int(v.isFake());
+      recx_pvtx_ = v.x();
+      recy_pvtx_ = v.y();
+      recz_pvtx_ = v.z();
+      recx_err_pvtx_ = v.xError();
+      recy_err_pvtx_ = v.yError();
+      recz_err_pvtx_ = v.zError();
       globalvertexid_++;
       vertices_->Fill();
     }
@@ -730,17 +723,17 @@ void TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   // iterate over pixel vertices
   if (functionality_pixvertices_) {
-    for (reco::VertexCollection::const_iterator v = pixelVertexColl.begin(); v != pixelVertexColl.end(); ++v) {
-      nTracks_pvtx_ = v->tracksSize();
-      sumptsq_pvtx_ = sumPtSquared(*v);
-      isValid_pvtx_ = int(v->isValid());
-      isFake_pvtx_ = int(v->isFake());
-      recx_pvtx_ = v->x();
-      recy_pvtx_ = v->y();
-      recz_pvtx_ = v->z();
-      recx_err_pvtx_ = v->xError();
-      recy_err_pvtx_ = v->yError();
-      recz_err_pvtx_ = v->zError();
+    for (const auto& v : pixelVertexColl) {
+      nTracks_pvtx_ = v.tracksSize();
+      sumptsq_pvtx_ = sumPtSquared(v);
+      isValid_pvtx_ = int(v.isValid());
+      isFake_pvtx_ = int(v.isFake());
+      recx_pvtx_ = v.x();
+      recy_pvtx_ = v.y();
+      recz_pvtx_ = v.z();
+      recx_err_pvtx_ = v.xError();
+      recy_err_pvtx_ = v.yError();
+      recz_err_pvtx_ = v.zError();
       pixelVertices_->Fill();
     }
   }
@@ -837,24 +830,24 @@ void TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup
         trkWeightpvtx_ = 0.;
       }
       globaltrackid_[coll]++;
-      std::map<size_t, int>::const_iterator theV = trackVertices[coll].find(itTrack.key());
+      auto theV = trackVertices[coll].find(itTrack.key());
       vertexid_ = (theV != trackVertices[coll].end()) ? theV->second : 0;
       // add missing hits (separate tree, common strip + pixel)
       Trajectory::DataContainer const& measurements = traj->measurements();
       if (functionality_missingHits_) {
-        for (Trajectory::DataContainer::const_iterator it = measurements.begin(); it != measurements.end(); ++it) {
-          TrajectoryMeasurement::ConstRecHitPointer rechit = it->recHit();
+        for (const auto& measurement : measurements) {
+          TrajectoryMeasurement::ConstRecHitPointer rechit = measurement.recHit();
           if (!rechit->isValid()) {
             // detid
             detid_ = rechit->geographicalId();
             // status
             type_ = rechit->getType();
             // position
-            LocalPoint local = it->predictedState().localPosition();
+            LocalPoint local = measurement.predictedState().localPosition();
             clPositionX_ = local.x();
             clPositionY_ = local.y();
             // global position
-            GlobalPoint global = it->predictedState().globalPosition();
+            GlobalPoint global = measurement.predictedState().globalPosition();
             globalX_ = global.x();
             globalY_ = global.y();
             globalZ_ = global.z();
@@ -871,7 +864,7 @@ void TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup
               }
             }
             // local error
-            LocalError error = it->predictedState().localError().positionError();
+            LocalError error = measurement.predictedState().localError().positionError();
             errorX_ = error.xx();
             errorY_ = error.yy();
             // fill
@@ -880,7 +873,7 @@ void TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup
         }
       }
       // compute the fraction of low probability pixels... will be added to the event tree
-      for (trackingRecHit_iterator it = itTrack->recHitsBegin(); it != itTrack->recHitsEnd(); ++it) {
+      for (auto it = itTrack->recHitsBegin(); it != itTrack->recHitsEnd(); ++it) {
         const TrackingRecHit* hit = &(**it);
         const SiPixelRecHit* pixhit = dynamic_cast<const SiPixelRecHit*>(hit);
         if (pixhit) {
@@ -902,7 +895,7 @@ void TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   // iterate over clusters
   nclusters_ = 0;
-  std::vector<double>::const_iterator angleIt = clusterOntrackAngles.begin();
+  auto angleIt = clusterOntrackAngles.begin();
   uint32_t localCounter = 0;
   for (edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter = clusters->begin(); DSViter != clusters->end();
        DSViter++) {
@@ -940,7 +933,7 @@ void TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup
         clBareNoise_ = siStripClusterInfo_.noise();
         clBareCharge_ = clSignalOverNoise_ * clBareNoise_;
         // global position
-        const StripGeomDetUnit* sgdu = static_cast<const StripGeomDetUnit*>(tracker_->idToDet(detid));
+        const auto* sgdu = static_cast<const StripGeomDetUnit*>(tracker_->idToDet(detid));
         Surface::GlobalPoint gp =
             sgdu->surface().toGlobal(sgdu->specificTopology().localPosition(MeasurementPoint(clPosition_, 0)));
         globalX_ = gp.x();
@@ -959,7 +952,7 @@ void TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   // iterate over pixel clusters
   npixClusters_ = 0;
-  std::vector<std::pair<double, double> >::const_iterator pixAngleIt = pixclusterOntrackAngles.begin();
+  auto pixAngleIt = pixclusterOntrackAngles.begin();
   localCounter = 0;
   for (edmNew::DetSetVector<SiPixelCluster>::const_iterator DSViter = pixelclusters->begin();
        DSViter != pixelclusters->end();
@@ -986,7 +979,7 @@ void TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup
         charge_ = (iter->charge()) / 1000.;
         chargeCorr_ = charge_ * sqrt(1.0 / (1.0 / pow(tan(alpha_), 2) + 1.0 / pow(tan(beta_), 2) + 1.0)) / 1000.;
         // global position
-        const PixelGeomDetUnit* pgdu = static_cast<const PixelGeomDetUnit*>(tracker_->idToDet(detid));
+        const auto* pgdu = static_cast<const PixelGeomDetUnit*>(tracker_->idToDet(detid));
         Surface::GlobalPoint gp = pgdu->surface().toGlobal(
             pgdu->specificTopology().localPosition(MeasurementPoint(clPositionX_, clPositionY_)));
         globalX_ = gp.x();
@@ -1034,7 +1027,7 @@ void TrackerDpgAnalysis::beginRun(const edm::Run& iRun, const edm::EventSetup& i
     }
   }
   int i = 0;
-  for (std::vector<std::string>::const_iterator it = hlNames_.begin(); it < hlNames_.end(); ++it) {
+  for (auto it = hlNames_.begin(); it < hlNames_.end(); ++it) {
     std::cout << (i++) << " = " << (*it) << std::endl;
   }
 
@@ -1068,7 +1061,7 @@ void TrackerDpgAnalysis::beginRun(const edm::Run& iRun, const edm::EventSetup& i
         fedCh_ = conn->fedCh();
         fiberLength_ = conn->fiberLength();
         delay_ = delayMap[dcuId_];
-        const StripGeomDetUnit* sgdu = static_cast<const StripGeomDetUnit*>(tracker_->idToDet(detid_));
+        const auto* sgdu = static_cast<const StripGeomDetUnit*>(tracker_->idToDet(detid_));
         Surface::GlobalPoint gp = sgdu->surface().toGlobal(LocalPoint(0, 0));
         globalX_ = gp.x();
         globalY_ = gp.y();
@@ -1135,11 +1128,11 @@ std::vector<double> TrackerDpgAnalysis::onTrackAngles(edm::Handle<edmNew::DetSet
   std::vector<double> result;
   // first, build a list of positions and angles on trajectories
   std::multimap<const uint32_t, std::pair<LocalPoint, double> > onTrackPositions;
-  for (std::vector<Trajectory>::const_iterator traj = trajVec.begin(); traj < trajVec.end(); ++traj) {
+  for (auto traj = trajVec.begin(); traj < trajVec.end(); ++traj) {
     Trajectory::DataContainer measurements = traj->measurements();
-    for (Trajectory::DataContainer::iterator meas = measurements.begin(); meas != measurements.end(); ++meas) {
-      double tla = meas->updatedState().localDirection().theta();
-      insertMeasurement(onTrackPositions, &(*(meas->recHit())), tla);
+    for (auto& measurement : measurements) {
+      double tla = measurement.updatedState().localDirection().theta();
+      insertMeasurement(onTrackPositions, &(*(measurement.recHit())), tla);
     }
   }
   // then loop over the clusters to check
@@ -1154,8 +1147,7 @@ std::vector<double> TrackerDpgAnalysis::onTrackAngles(edm::Handle<edmNew::DetSet
     const GeomDetUnit* gdu = static_cast<const GeomDetUnit*>(tracker_->idToDet(DSViter->id()));
     for (edmNew::DetSet<SiStripCluster>::const_iterator iter = begin; iter != end; ++iter) {
       angle = 0.;
-      for (std::multimap<uint32_t, std::pair<LocalPoint, double> >::const_iterator cl = range.first; cl != range.second;
-           ++cl) {
+      for (auto cl = range.first; cl != range.second; ++cl) {
         if (fabs(gdu->topology().measurementPosition(cl->second.first).x() - iter->barycenter()) < 2) {
           angle = cl->second.second;
         }
@@ -1171,7 +1163,7 @@ void TrackerDpgAnalysis::insertMeasurement(std::multimap<const uint32_t, std::pa
                                            double tla) {
   if (!hit)
     return;
-  const SiTrackerMultiRecHit* multihit = dynamic_cast<const SiTrackerMultiRecHit*>(hit);
+  const auto* multihit = dynamic_cast<const SiTrackerMultiRecHit*>(hit);
   const SiStripRecHit2D* singlehit = dynamic_cast<const SiStripRecHit2D*>(hit);
   const SiStripRecHit1D* hit1d = dynamic_cast<const SiStripRecHit1D*>(hit);
   if (hit1d) {  //...->33X
@@ -1181,8 +1173,8 @@ void TrackerDpgAnalysis::insertMeasurement(std::multimap<const uint32_t, std::pa
         std::make_pair(singlehit->geographicalId().rawId(), std::make_pair(singlehit->localPosition(), tla)));
   } else if (multihit) {
     std::vector<const TrackingRecHit*> childs = multihit->recHits();
-    for (std::vector<const TrackingRecHit*>::const_iterator it = childs.begin(); it != childs.end(); ++it) {
-      insertMeasurement(collection, dynamic_cast<const TrackingRecHit*>(*it), tla);
+    for (auto child : childs) {
+      insertMeasurement(collection, dynamic_cast<const TrackingRecHit*>(child), tla);
     }
   }
 }
@@ -1194,9 +1186,8 @@ std::vector<int> TrackerDpgAnalysis::onTrack(edm::Handle<edmNew::DetSetVector<Si
   // first, build a list of positions and trackid on tracks
   std::multimap<const uint32_t, std::pair<int, int> > onTrackPositions;
   uint32_t trackid = firstTrack;
-  for (reco::TrackCollection::const_iterator itTrack = trackVec.begin(); itTrack != trackVec.end();
-       ++itTrack, ++trackid) {
-    for (trackingRecHit_iterator it = itTrack->recHitsBegin(); it != itTrack->recHitsEnd(); ++it) {
+  for (auto itTrack = trackVec.begin(); itTrack != trackVec.end(); ++itTrack, ++trackid) {
+    for (auto it = itTrack->recHitsBegin(); it != itTrack->recHitsEnd(); ++it) {
       const TrackingRecHit* hit = &(**it);
       insertMeasurement(onTrackPositions, hit, trackid);
     }
@@ -1212,7 +1203,7 @@ std::vector<int> TrackerDpgAnalysis::onTrack(edm::Handle<edmNew::DetSetVector<Si
         range = onTrackPositions.equal_range(DSViter->id());
     for (edmNew::DetSet<SiStripCluster>::const_iterator iter = begin; iter != end; ++iter) {
       thetrackid = -1;
-      for (std::multimap<uint32_t, std::pair<int, int> >::const_iterator cl = range.first; cl != range.second; ++cl) {
+      for (auto cl = range.first; cl != range.second; ++cl) {
         if (fabs(cl->second.first - iter->barycenter()) < 2) {
           thetrackid = cl->second.second;
         }
@@ -1228,7 +1219,7 @@ void TrackerDpgAnalysis::insertMeasurement(std::multimap<const uint32_t, std::pa
                                            int trackid) {
   if (!hit)
     return;
-  const SiTrackerMultiRecHit* multihit = dynamic_cast<const SiTrackerMultiRecHit*>(hit);
+  const auto* multihit = dynamic_cast<const SiTrackerMultiRecHit*>(hit);
   const SiStripRecHit2D* singlehit = dynamic_cast<const SiStripRecHit2D*>(hit);
   const SiStripRecHit1D* hit1d = dynamic_cast<const SiStripRecHit1D*>(hit);
   if (hit1d) {  // 41X->...
@@ -1239,8 +1230,8 @@ void TrackerDpgAnalysis::insertMeasurement(std::multimap<const uint32_t, std::pa
                                      std::make_pair(int(singlehit->cluster()->barycenter()), trackid)));
   } else if (multihit) {
     std::vector<const TrackingRecHit*> childs = multihit->recHits();
-    for (std::vector<const TrackingRecHit*>::const_iterator it = childs.begin(); it != childs.end(); ++it) {
-      insertMeasurement(collection, *it, trackid);
+    for (auto child : childs) {
+      insertMeasurement(collection, child, trackid);
     }
   }
 }
@@ -1251,9 +1242,9 @@ std::map<size_t, int> TrackerDpgAnalysis::inVertex(const reco::TrackCollection& 
   // build reverse map track -> vertex
   std::map<size_t, int> output;
   uint32_t vertexid = firstVertex;
-  for (reco::VertexCollection::const_iterator v = vertices.begin(); v != vertices.end(); ++v, ++vertexid) {
-    reco::Vertex::trackRef_iterator it = v->tracks_begin();
-    reco::Vertex::trackRef_iterator lastTrack = v->tracks_end();
+  for (auto v = vertices.begin(); v != vertices.end(); ++v, ++vertexid) {
+    auto it = v->tracks_begin();
+    auto lastTrack = v->tracks_end();
     for (; it != lastTrack; ++it) {
       output[it->key()] = vertexid;
     }
@@ -1266,13 +1257,13 @@ std::vector<std::pair<double, double> > TrackerDpgAnalysis::onTrackAngles(
   std::vector<std::pair<double, double> > result;
   // first, build a list of positions and angles on trajectories
   std::multimap<const uint32_t, std::pair<LocalPoint, std::pair<double, double> > > onTrackPositions;
-  for (std::vector<Trajectory>::const_iterator traj = trajVec.begin(); traj < trajVec.end(); ++traj) {
+  for (auto traj = trajVec.begin(); traj < trajVec.end(); ++traj) {
     Trajectory::DataContainer measurements = traj->measurements();
-    for (Trajectory::DataContainer::iterator meas = measurements.begin(); meas != measurements.end(); ++meas) {
-      LocalVector localDir = meas->updatedState().localDirection();
+    for (auto& measurement : measurements) {
+      LocalVector localDir = measurement.updatedState().localDirection();
       double alpha = atan2(localDir.z(), localDir.x());
       double beta = atan2(localDir.z(), localDir.y());
-      insertMeasurement(onTrackPositions, &(*(meas->recHit())), alpha, beta);
+      insertMeasurement(onTrackPositions, &(*(measurement.recHit())), alpha, beta);
     }
   }
   // then loop over the clusters to check
@@ -1289,16 +1280,14 @@ std::vector<std::pair<double, double> > TrackerDpgAnalysis::onTrackAngles(
                 std::multimap<uint32_t, std::pair<LocalPoint, std::pair<double, double> > >::const_iterator>
           range = onTrackPositions.equal_range(DSViter->id());
       const GeomDetUnit* gdu = static_cast<const GeomDetUnit*>(tracker_->idToDet(DSViter->id()));
-      for (std::multimap<uint32_t, std::pair<LocalPoint, std::pair<double, double> > >::const_iterator cl = range.first;
-           cl != range.second;
-           ++cl) {
+      for (auto cl = range.first; cl != range.second; ++cl) {
         if (fabs(gdu->topology().measurementPosition(cl->second.first).x() - iter->x()) < 2 &&
             fabs(gdu->topology().measurementPosition(cl->second.first).y() - iter->y()) < 2) {
           alpha = cl->second.second.first;
           beta = cl->second.second.second;
         }
       }
-      result.push_back(std::make_pair(alpha, beta));
+      result.emplace_back(alpha, beta);
     }
   }
   return result;
@@ -1325,9 +1314,8 @@ std::vector<int> TrackerDpgAnalysis::onTrack(edm::Handle<edmNew::DetSetVector<Si
   // first, build a list of positions and trackid on tracks
   std::multimap<const uint32_t, std::pair<std::pair<float, float>, int> > onTrackPositions;
   uint32_t trackid = firstTrack;
-  for (reco::TrackCollection::const_iterator itTrack = trackVec.begin(); itTrack != trackVec.end();
-       ++itTrack, ++trackid) {
-    for (trackingRecHit_iterator it = itTrack->recHitsBegin(); it != itTrack->recHitsEnd(); ++it) {
+  for (auto itTrack = trackVec.begin(); itTrack != trackVec.end(); ++itTrack, ++trackid) {
+    for (auto it = itTrack->recHitsBegin(); it != itTrack->recHitsEnd(); ++it) {
       const TrackingRecHit* hit = &(**it);
       insertMeasurement(onTrackPositions, hit, trackid);
     }
@@ -1343,9 +1331,7 @@ std::vector<int> TrackerDpgAnalysis::onTrack(edm::Handle<edmNew::DetSetVector<Si
       std::pair<std::multimap<uint32_t, std::pair<std::pair<float, float>, int> >::const_iterator,
                 std::multimap<uint32_t, std::pair<std::pair<float, float>, int> >::const_iterator>
           range = onTrackPositions.equal_range(DSViter->id());
-      for (std::multimap<uint32_t, std::pair<std::pair<float, float>, int> >::const_iterator cl = range.first;
-           cl != range.second;
-           ++cl) {
+      for (auto cl = range.first; cl != range.second; ++cl) {
         if ((fabs(cl->second.first.first - iter->x()) < 2) && (fabs(cl->second.first.second - iter->y()) < 2)) {
           thetrackid = cl->second.second;
         }
@@ -1466,7 +1452,7 @@ std::string TrackerDpgAnalysis::toStringId(uint32_t rawid) {
 double TrackerDpgAnalysis::sumPtSquared(const reco::Vertex& v) {
   double sum = 0.;
   double pT;
-  for (reco::Vertex::trackRef_iterator it = v.tracks_begin(); it != v.tracks_end(); it++) {
+  for (auto it = v.tracks_begin(); it != v.tracks_end(); it++) {
     pT = (**it).pt();
     sum += pT * pT;
   }
@@ -1495,7 +1481,7 @@ std::map<uint32_t, float> TrackerDpgAnalysis::delay(const std::vector<std::strin
   float delay;
   std::map<uint32_t, float> delayMap;
   //iterator over input files
-  for (std::vector<std::string>::const_iterator file = files.begin(); file < files.end(); ++file) {
+  for (auto file = files.begin(); file < files.end(); ++file) {
     // open the file
     std::ifstream cablingFile(file->c_str());
     if (cablingFile.is_open()) {
@@ -1508,12 +1494,12 @@ std::map<uint32_t, float> TrackerDpgAnalysis::delay(const std::vector<std::strin
         // one line containing dcuid
         if (pos != std::string::npos) {
           // decode dcuid
-          std::string dcuids = line.substr(pos + 7, line.find(" ", pos) - pos - 8);
+          std::string dcuids = line.substr(pos + 7, line.find(' ', pos) - pos - 8);
           std::istringstream dcuidstr(dcuids);
           dcuidstr >> std::hex >> dcuid;
           // decode delay
           pos = line.find("difpll");
-          std::string diffs = line.substr(pos + 8, line.find(" ", pos) - pos - 9);
+          std::string diffs = line.substr(pos + 8, line.find(' ', pos) - pos - 9);
           std::istringstream diffstr(diffs);
           diffstr >> delay;
           // fill the map

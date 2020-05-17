@@ -8,18 +8,18 @@ TtSemiLepEvtPartons::TtSemiLepEvtPartons(const std::vector<std::string>& partons
   for (unsigned int i = 0; i < 4; i++)
     ignorePartons_.push_back(false);
   // read vector of strings and flag partons to be ignored
-  for (std::vector<std::string>::const_iterator str = partonsToIgnore.begin(); str != partonsToIgnore.end(); ++str) {
-    if ((*str) == "LightQ")
+  for (const auto& str : partonsToIgnore) {
+    if (str == "LightQ")
       ignorePartons_[LightQ] = true;
-    else if ((*str) == "LightQBar")
+    else if (str == "LightQBar")
       ignorePartons_[LightQBar] = true;
-    else if ((*str) == "HadB")
+    else if (str == "HadB")
       ignorePartons_[HadB] = true;
-    else if ((*str) == "LepB")
+    else if (str == "LepB")
       ignorePartons_[LepB] = true;
     else
       throw cms::Exception("Configuration")
-          << "The following string in partonsToIgnore is not supported: " << (*str) << "\n";
+          << "The following string in partonsToIgnore is not supported: " << str << "\n";
   }
 }
 

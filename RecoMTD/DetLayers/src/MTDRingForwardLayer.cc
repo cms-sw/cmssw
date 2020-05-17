@@ -37,14 +37,14 @@ MTDRingForwardLayer::MTDRingForwardLayer(const vector<const ForwardDetRing*>& ri
 
   // Cache chamber pointers (the basic components_)
   // and find extension in R and Z
-  for (vector<const ForwardDetRing*>::const_iterator it = rings.begin(); it != rings.end(); it++) {
-    vector<const GeomDet*> tmp2 = (*it)->basicComponents();
+  for (auto ring : rings) {
+    vector<const GeomDet*> tmp2 = ring->basicComponents();
     theBasicComps.insert(theBasicComps.end(), tmp2.begin(), tmp2.end());
 
-    theRmin = min(theRmin, (*it)->specificSurface().innerRadius());
-    theRmax = max(theRmax, (*it)->specificSurface().outerRadius());
-    float halfThick = (*it)->surface().bounds().thickness() / 2.;
-    float zCenter = (*it)->surface().position().z();
+    theRmin = min(theRmin, ring->specificSurface().innerRadius());
+    theRmax = max(theRmax, ring->specificSurface().outerRadius());
+    float halfThick = ring->surface().bounds().thickness() / 2.;
+    float zCenter = ring->surface().position().z();
     theZmin = min(theZmin, zCenter - halfThick);
     theZmax = max(theZmax, zCenter + halfThick);
   }
@@ -70,7 +70,7 @@ MTDRingForwardLayer::MTDRingForwardLayer(const vector<const ForwardDetRing*>& ri
 
 MTDRingForwardLayer::~MTDRingForwardLayer() {
   delete theBinFinder;
-  for (vector<const ForwardDetRing*>::iterator i = theRings.begin(); i < theRings.end(); i++) {
+  for (auto i = theRings.begin(); i < theRings.end(); i++) {
     delete *i;
   }
 }

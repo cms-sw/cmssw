@@ -98,7 +98,7 @@ protected:
   std::vector<int> listTowers;
   std::vector<int> listPns;
 
-  void analyze(const edm::Event& e, const edm::EventSetup& c) {
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override {
     if (!inputIsOk)
       return;
 
@@ -120,25 +120,25 @@ protected:
 
     std::cout << "\n\n";
 
-    if (gainMem->size() && memErrors) {
+    if (!gainMem->empty() && memErrors) {
       std::cout << "\n\n^^^^^^^^^^^^^^^^^^ [EcalDigiDumperModule]  Size of collection of mem gain errors is: "
                 << gainMem->size() << std::endl;
       std::cout << "                                  [EcalDigiDumperModule]  dumping the bit gain errors\n"
                 << std::endl;
-      for (EcalElectronicsIdCollection::const_iterator errItr = gainMem->begin(); errItr != gainMem->end(); ++errItr) {
-        EcalElectronicsId id = (*errItr);
+      for (auto errItr : *gainMem) {
+        EcalElectronicsId id = errItr;
         std::cout << "channel: dccNum= " << id.dccId() << "\t tower= " << id.towerId()
                   << "\t channelNum= " << id.channelId() << " has problems in the gain bits" << std::endl;
       }  // end of loop on gain errors in the mem
     }    // end if
 
-    if (MemId->size() && memErrors) {
+    if (!MemId->empty() && memErrors) {
       std::cout << "\n\n^^^^^^^^^^^^^^^^^^ [EcalDigiDumperModule]  Size of collection of mem tt_block_id errors is: "
                 << MemId->size() << std::endl;
       std::cout << "                                  [EcalDigiDumperModule]  dumping the mem tt_block_idb errors\n"
                 << std::endl;
-      for (EcalElectronicsIdCollection::const_iterator errItr = MemId->begin(); errItr != MemId->end(); ++errItr) {
-        EcalElectronicsId id = (*errItr);
+      for (auto errItr : *MemId) {
+        EcalElectronicsId id = errItr;
         std::cout << "tower_block: dccNum= " << id.dccId() << "\t tower= " << id.towerId() << " has ID problems "
                   << std::endl;
       }  // end of loop tower_block_id errors in the mem
@@ -211,18 +211,18 @@ protected:
                 << std::endl;
       std::cout << "                                  [EcalDigiDumperModule]  dumping first " << numPN << " PNs ";
       dumpCounter = 0;
-      for (EcalPnDiodeDigiCollection::const_iterator pnItr = PNs->begin(); pnItr != PNs->end(); ++pnItr) {
+      for (const auto& pnItr : *PNs) {
         if ((dumpCounter++) >= numPN)
           break;
-        if (!((EcalPnDiodeDetId((*pnItr).id()).iDCCId() == ieb_id) || (ieb_id == -1)))
+        if (!((EcalPnDiodeDetId(pnItr.id()).iDCCId() == ieb_id) || (ieb_id == -1)))
           continue;
 
-        std::cout << "\nPN num: " << (*pnItr).id().iPnId();
+        std::cout << "\nPN num: " << pnItr.id().iPnId();
 
-        for (int samId = 0; samId < (*pnItr).size(); samId++) {
+        for (int samId = 0; samId < pnItr.size(); samId++) {
           if (!(samId % 3))
             std::cout << "\n\t";
-          std::cout << "sId: " << (samId + 1) << " " << (*pnItr).sample(samId) << "\t";
+          std::cout << "sId: " << (samId + 1) << " " << pnItr.sample(samId) << "\t";
         }  //  PN samples
 
       }  // PNs
@@ -232,10 +232,10 @@ protected:
       std::cout << "\n\n^^^^^^^^^^^^^^^^^^ EcalDigiDumperModule  digi PN collection.  Size: " << PNs->size()
                 << std::endl;
 
-      for (EcalPnDiodeDigiCollection::const_iterator pnItr = PNs->begin(); pnItr != PNs->end(); ++pnItr) {
-        int pnNum = (*pnItr).id().iPnId();
+      for (const auto& pnItr : *PNs) {
+        int pnNum = pnItr.id().iPnId();
 
-        if (!((EcalPnDiodeDetId((*pnItr).id()).iDCCId() == ieb_id) || (ieb_id == -1)))
+        if (!((EcalPnDiodeDetId(pnItr.id()).iDCCId() == ieb_id) || (ieb_id == -1)))
           continue;
 
         std::vector<int>::iterator pnIter;
@@ -244,11 +244,11 @@ protected:
           continue;
         }
 
-        std::cout << "\nPN num: " << (*pnItr).id().iPnId();
-        for (int samId = 0; samId < (*pnItr).size(); samId++) {
+        std::cout << "\nPN num: " << pnItr.id().iPnId();
+        for (int samId = 0; samId < pnItr.size(); samId++) {
           if (!(samId % 3))
             std::cout << "\n\t";
-          std::cout << "sId: " << (samId + 1) << " " << (*pnItr).sample(samId) << "\t";
+          std::cout << "sId: " << (samId + 1) << " " << pnItr.sample(samId) << "\t";
         }  //  PN samples
 
       }  // PNs

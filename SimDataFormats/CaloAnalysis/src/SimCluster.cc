@@ -36,7 +36,7 @@ std::ostream &operator<<(std::ostream &s, SimCluster const &tp) {
     s << " HepMC Track Momentum " << (*hepT)->momentum().rho() << std::endl;
   }
 
-  for (SimCluster::g4t_iterator g4T = tp.g4Track_begin(); g4T != tp.g4Track_end(); ++g4T) {
+  for (auto g4T = tp.g4Track_begin(); g4T != tp.g4Track_end(); ++g4T) {
     s << " Geant Track Momentum  " << g4T->momentum() << std::endl;
     s << " Geant Track ID & type " << g4T->trackId() << " " << g4T->type() << std::endl;
     if (g4T->type() != tp.pdgId()) {

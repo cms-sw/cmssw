@@ -21,6 +21,8 @@
 #include <memory>
 #include <string>
 #include <typeinfo>
+#include <utility>
+
 #include <vector>
 
 // user include files
@@ -93,7 +95,7 @@ namespace fwlite {
     Long64_t eventIndex() const { return eventIndex_; }
     Long64_t fileIndex() const override { return eventIndex_; }
 
-    void setGetter(std::shared_ptr<edm::EDProductGetter const> getter) { event_->setGetter(getter); }
+    void setGetter(std::shared_ptr<edm::EDProductGetter const> getter) { event_->setGetter(std::move(getter)); }
 
     Event const* event() const { return &*event_; }
 

@@ -201,15 +201,15 @@ namespace {
     declareDynArray(reco::TrackBase::AlgoMask, ntotTk, algoMask);
 
     auto nsel = 0U;
-    for (auto matchIter0 = matches.begin(); matchIter0 != matches.end(); matchIter0++) {
-      if ((*matchIter0)[0] < 0)
+    for (auto& matche : matches) {
+      if (matche[0] < 0)
         continue;
-      selId.push_back((*matchIter0)[0]);
+      selId.push_back(matche[0]);
 
-      pmvas->push_back(mergedMVA[(*matchIter0)[0]]);
+      pmvas->push_back(mergedMVA[matche[0]]);
 
-      const reco::Track& inTrk1 = originals[(*matchIter0)[1]];
-      const reco::Track& inTrk2 = originals[(*matchIter0)[2]];
+      const reco::Track& inTrk1 = originals[matche[1]];
+      const reco::Track& inTrk2 = originals[matche[2]];
       oriAlgo[nsel] = std::min(
           inTrk1.algo(), inTrk2.algo(), [&](reco::TrackBase::TrackAlgorithm a, reco::TrackBase::TrackAlgorithm b) {
             return trackAlgoPriorityOrder.priority(a) < trackAlgoPriorityOrder.priority(b);
@@ -220,8 +220,8 @@ namespace {
       pquals->push_back((inTrk1.qualityMask() | inTrk2.qualityMask()));
       pquals->back() |= (1 << reco::TrackBase::confirmed);
 
-      inputTracks.push_back((*matchIter0)[1]);
-      inputTracks.push_back((*matchIter0)[2]);
+      inputTracks.push_back(matche[1]);
+      inputTracks.push_back(matche[2]);
 
       ++nsel;
     }

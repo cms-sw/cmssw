@@ -34,7 +34,7 @@ namespace dqm {
     };
 
     void makeSnapshot(const FileParameters& fp, bool final) const;
-    void appendSnapshot(SnapshotFiles new_snap) const;
+    void appendSnapshot(const SnapshotFiles& new_snap) const;
 
     mutable std::mutex snapshots_lock_;
     mutable std::list<SnapshotFiles> snapshots_;

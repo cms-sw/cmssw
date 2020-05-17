@@ -12,12 +12,11 @@ TOBLayer* TOBLayerBuilder::build(const GeometricDet* aTOBLayer, const TrackerGeo
   vector<const GeometricDet*> negativeZrods;
   vector<const GeometricDet*> positiveZrods;
 
-  for (vector<const GeometricDet*>::const_iterator it = theGeometricDetRods.begin(); it != theGeometricDetRods.end();
-       it++) {
-    if ((*it)->positionBounds().z() < 0)
-      negativeZrods.push_back(*it);
-    if ((*it)->positionBounds().z() >= 0)
-      positiveZrods.push_back(*it);
+  for (auto theGeometricDetRod : theGeometricDetRods) {
+    if (theGeometricDetRod->positionBounds().z() < 0)
+      negativeZrods.push_back(theGeometricDetRod);
+    if (theGeometricDetRod->positionBounds().z() >= 0)
+      positiveZrods.push_back(theGeometricDetRod);
   }
 
   TOBRodBuilder myTOBRodBuilder;

@@ -59,6 +59,8 @@ ESElectronicsMapper::ESElectronicsMapper(const edm::ParameterSet& ps) {
 
   for (int i = 0; i < 18; ++i) {  // loop over EE feds
     std::vector<int> esFeds;
+    esFeds.reserve(nesfed[i]);
+
     for (int esFed = 0; esFed < nesfed[i]; esFed++)
       esFeds.emplace_back(esfed[i][esFed]);
     ee_es_map_.insert(make_pair(eefed[i], esFeds));
@@ -85,7 +87,7 @@ std::vector<int> ESElectronicsMapper::GetListofFEDs(const std::vector<int>& eeFE
 
 void ESElectronicsMapper::GetListofFEDs(const std::vector<int>& eeFEDs, std::vector<int>& esFEDs) const {
   for (int eeFED : eeFEDs) {
-    std::map<int, std::vector<int> >::const_iterator itr = ee_es_map_.find(eeFED);
+    auto itr = ee_es_map_.find(eeFED);
     if (itr == ee_es_map_.end())
       continue;
     std::vector<int> fed = itr->second;
@@ -95,7 +97,7 @@ void ESElectronicsMapper::GetListofFEDs(const std::vector<int>& eeFEDs, std::vec
   }
 
   sort(esFEDs.begin(), esFEDs.end());
-  std::vector<int>::iterator it = unique(esFEDs.begin(), esFEDs.end());
+  auto it = unique(esFEDs.begin(), esFEDs.end());
   esFEDs.erase(it, esFEDs.end());
 }
 

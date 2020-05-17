@@ -12,19 +12,19 @@ TIDRing* TIDRingBuilder::build(const GeometricDet* aTIDRing, const TrackerGeomet
 
   //---- to evaluate meanZ
   double meanZ = 0;
-  for (vector<const GeometricDet*>::const_iterator it = theGeometricDets.begin(); it != theGeometricDets.end(); it++) {
-    meanZ = meanZ + (*it)->positionBounds().z();
+  for (auto theGeometricDet : theGeometricDets) {
+    meanZ = meanZ + theGeometricDet->positionBounds().z();
   }
   meanZ = meanZ / theGeometricDets.size();
   //----
 
-  for (vector<const GeometricDet*>::const_iterator it = theGeometricDets.begin(); it != theGeometricDets.end(); it++) {
-    const GeomDet* theGeomDet = theGeomDetGeometry->idToDet((*it)->geographicalID());
+  for (auto theGeometricDet : theGeometricDets) {
+    const GeomDet* theGeomDet = theGeomDetGeometry->idToDet(theGeometricDet->geographicalID());
 
-    if (std::abs((*it)->positionBounds().z()) < std::abs(meanZ))
+    if (std::abs(theGeometricDet->positionBounds().z()) < std::abs(meanZ))
       innerGeomDets.push_back(theGeomDet);
 
-    if (std::abs((*it)->positionBounds().z()) > std::abs(meanZ))
+    if (std::abs(theGeometricDet->positionBounds().z()) > std::abs(meanZ))
       outerGeomDets.push_back(theGeomDet);
   }
 

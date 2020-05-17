@@ -113,7 +113,7 @@ namespace gem {
     uint32_t linkTo() const { return EventTrailer{et_}.linkTo; }
 
     //!Adds GEB data to vector
-    void addGEB(GEBdata g) { gebd_.push_back(g); }
+    void addGEB(const GEBdata& g) { gebd_.push_back(g); }
     //!Returns a vector of GEB data
     const std::vector<GEBdata>* gebs() const { return &gebd_; }
 

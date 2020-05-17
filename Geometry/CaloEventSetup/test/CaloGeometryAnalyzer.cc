@@ -277,7 +277,7 @@ void CaloGeometryAnalyzer::ovrTst(const CaloGeometry* cg,
   const int iphi(id.iPhiOuterRing());
   if (iphi != 0) {
     fOvr << "Barrel Neighbors of Endcap id = " << id << std::endl;
-    const EcalEndcapGeometry* eeG(dynamic_cast<const EcalEndcapGeometry*>(geom));
+    const auto* eeG(dynamic_cast<const EcalEndcapGeometry*>(geom));
     auto cell(geom->getGeometry(id));
     const CaloSubdetectorGeometry* bar(cg->getSubdetectorGeometry(DetId::Ecal, EcalBarrel));
     const EcalEndcapGeometry::OrderedListOfEBDetId* ol(eeG->getClosestBarrelCells(id));
@@ -303,7 +303,7 @@ void CaloGeometryAnalyzer::ovrTst(const CaloGeometry* cg,
   static const GlobalPoint origin(0, 0, 0);
   const int ieta(id.ieta());
   if (85 == std::abs(ieta)) {
-    const EcalBarrelGeometry* ebG(dynamic_cast<const EcalBarrelGeometry*>(geom));
+    const auto* ebG(dynamic_cast<const EcalBarrelGeometry*>(geom));
     auto cell(geom->getGeometry(id));
     const CaloSubdetectorGeometry* ecap(cg->getSubdetectorGeometry(DetId::Ecal, EcalEndcap));
     fOvr << "Endcap Neighbors of Barrel id = " << id << std::endl;

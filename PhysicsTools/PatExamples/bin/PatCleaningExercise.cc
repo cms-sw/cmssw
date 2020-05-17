@@ -92,7 +92,7 @@ int main(int argc, char* argv[]) {
     event.getByLabel(jets_, jets);
 
     // loop over the jets in the event
-    for (std::vector<pat::Jet>::const_iterator jet = jets->begin(); jet != jets->end(); jet++) {
+    for (auto jet = jets->begin(); jet != jets->end(); jet++) {
       if (jet->pt() > 20 && jet == jets->begin()) {
         emfAllJets_->Fill(jet->emEnergyFraction());
         if (!jet->hasOverlaps(overlaps_)) {
@@ -103,11 +103,10 @@ int main(int argc, char* argv[]) {
           nOverlaps_->Fill(overlaps.size());
           emfOverlapJets_->Fill(jet->emEnergyFraction());
           //loop over the overlaps
-          for (reco::CandidatePtrVector::const_iterator overlap = overlaps.begin(); overlap != overlaps.end();
-               overlap++) {
-            float deltaR = reco::deltaR((*overlap)->eta(), (*overlap)->phi(), jet->eta(), jet->phi());
+          for (auto&& overlap : overlaps) {
+            float deltaR = reco::deltaR((overlap)->eta(), (overlap)->phi(), jet->eta(), jet->phi());
             deltaRElecJet_->Fill(deltaR);
-            elecOverJet_->Fill((*overlap)->energy() / jet->energy());
+            elecOverJet_->Fill((overlap)->energy() / jet->energy());
           }
         }
       }

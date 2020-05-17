@@ -114,9 +114,8 @@ void DTBlockedROChannelsTest::fillChamberMap(DQMStore::IGetter& igetter, const E
       }
     }
     // loop over all chambers and remove the init flag
-    for (map<DTChamberId, DTRobBinsMap>::iterator chAndRobs = chamberMap.begin(); chAndRobs != chamberMap.end();
-         ++chAndRobs) {
-      chAndRobs->second.init(false);
+    for (auto& chAndRobs : chamberMap) {
+      chAndRobs.second.init(false);
     }
   }  //Legacy
 }
@@ -221,10 +220,8 @@ void DTBlockedROChannelsTest::performClientDiagnostic(DQMStore::IGetter& igetter
 
     if (checkUros) {
       // loop over all chambers and fill the wheel plots
-      for (map<DTChamberId, DTLinkBinsMap>::iterator chAndLinks = chamberMapUros.begin();
-           chAndLinks != chamberMapUros.end();
-           ++chAndLinks) {
-        DTChamberId chId = (*chAndLinks).first;
+      for (auto& chamberMapUro : chamberMapUros) {
+        DTChamberId chId = chamberMapUro.first;
         double scale = 1.;
         int sectorForPlot = chId.sector();
         if (sectorForPlot == 13 || (sectorForPlot == 4 && chId.station() == 4)) {
@@ -236,7 +233,7 @@ void DTBlockedROChannelsTest::performClientDiagnostic(DQMStore::IGetter& igetter
         }
 
         // NOTE: can be called only ONCE per event per each chamber
-        double chPercent = (*chAndLinks).second.getChamberPercentage(igetter);
+        double chPercent = chamberMapUro.second.getChamberPercentage(igetter);
         wheelHistos[chId.wheel()]->Fill(sectorForPlot, chId.station(), scale * chPercent);
         totalPerc += chPercent * scale * 1. /
                      240.;  // CB has to be 240 as double stations are taken into account by scale factor
@@ -247,9 +244,8 @@ void DTBlockedROChannelsTest::performClientDiagnostic(DQMStore::IGetter& igetter
     }       //Uros case
     else {  //Legacy case
       // loop over all chambers and fill the wheel plots
-      for (map<DTChamberId, DTRobBinsMap>::iterator chAndRobs = chamberMap.begin(); chAndRobs != chamberMap.end();
-           ++chAndRobs) {
-        DTChamberId chId = (*chAndRobs).first;
+      for (auto& chAndRobs : chamberMap) {
+        DTChamberId chId = chAndRobs.first;
         double scale = 1.;
         int sectorForPlot = chId.sector();
         if (sectorForPlot == 13 || (sectorForPlot == 4 && chId.station() == 4)) {
@@ -261,7 +257,7 @@ void DTBlockedROChannelsTest::performClientDiagnostic(DQMStore::IGetter& igetter
         }
 
         // NOTE: can be called only ONCE per event per each chamber
-        double chPercent = (*chAndRobs).second.getChamberPercentage(igetter);
+        double chPercent = chAndRobs.second.getChamberPercentage(igetter);
         wheelHistos[chId.wheel()]->Fill(sectorForPlot, chId.station(), scale * chPercent);
         totalPerc += chPercent * scale * 1. /
                      240.;  // CB has to be 240 as double stations are taken into account by scale factor
@@ -355,8 +351,7 @@ double DTBlockedROChannelsTest::DTRobBinsMap::getChamberPercentage(DQMStore::IGe
     return 0.;
   }
 
-  for (map<int, int>::const_iterator robAndValue = robsAndValues.begin(); robAndValue != robsAndValues.end();
-       ++robAndValue) {
+  for (auto robAndValue = robsAndValues.begin(); robAndValue != robsAndValues.end(); ++robAndValue) {
     if (robChanged((*robAndValue).first))
       nChangedROBs++;
   }
@@ -368,8 +363,7 @@ void DTBlockedROChannelsTest::DTRobBinsMap::readNewValues(DQMStore::IGetter& ige
   meDDU = igetter.get(dduHName);
 
   rosValue = getValueRos();
-  for (map<int, int>::const_iterator robAndValue = robsAndValues.begin(); robAndValue != robsAndValues.end();
-       ++robAndValue) {
+  for (auto robAndValue = robsAndValues.begin(); robAndValue != robsAndValues.end(); ++robAndValue) {
     robChanged((*robAndValue).first);
   }
 }
@@ -423,8 +417,7 @@ double DTBlockedROChannelsTest::DTLinkBinsMap::getChamberPercentage(DQMStore::IG
   meuROS = igetter.get(urosHName);
   int nChangedLinks = 0;
 
-  for (map<int, int>::const_iterator linkAndValue = linksAndValues.begin(); linkAndValue != linksAndValues.end();
-       ++linkAndValue) {
+  for (auto linkAndValue = linksAndValues.begin(); linkAndValue != linksAndValues.end(); ++linkAndValue) {
     if (linkChanged((*linkAndValue).first))
       nChangedLinks++;
   }
@@ -434,8 +427,7 @@ double DTBlockedROChannelsTest::DTLinkBinsMap::getChamberPercentage(DQMStore::IG
 void DTBlockedROChannelsTest::DTLinkBinsMap::readNewValues(DQMStore::IGetter& igetter) {
   meuROS = igetter.get(urosHName);
 
-  for (map<int, int>::const_iterator linkAndValue = linksAndValues.begin(); linkAndValue != linksAndValues.end();
-       ++linkAndValue) {
+  for (auto linkAndValue = linksAndValues.begin(); linkAndValue != linksAndValues.end(); ++linkAndValue) {
     linkChanged((*linkAndValue).first);
   }
 }

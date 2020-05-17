@@ -28,11 +28,11 @@ class PFCandidateAnalyzer : public edm::EDAnalyzer {
 public:
   explicit PFCandidateAnalyzer(const edm::ParameterSet&);
 
-  ~PFCandidateAnalyzer();
+  ~PFCandidateAnalyzer() override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  virtual void beginRun(const edm::Run& r, const edm::EventSetup& c);
+  void beginRun(const edm::Run& r, const edm::EventSetup& c) override;
 
 private:
   void printElementsInBlocks(const reco::PFCandidate& cand, std::ostream& out = std::cout) const;

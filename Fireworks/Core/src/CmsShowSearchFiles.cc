@@ -53,7 +53,7 @@ CmsShowSearchFiles::CmsShowSearchFiles(
     : TGTransientFrame(gClient->GetDefaultRoot(), p, w, h) {
   TGVerticalFrame* vf = new TGVerticalFrame(this);
   this->AddFrame(vf, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 5, 5, 5, 5));
-  TGHorizontalFrame* urlFrame = new TGHorizontalFrame(this);
+  auto* urlFrame = new TGHorizontalFrame(this);
   vf->AddFrame(urlFrame, new TGLayoutHints(kLHintsExpandX, 5, 0, 5, 5));
 
   TGLabel* urlLabel = new TGLabel(urlFrame, "URL");
@@ -70,7 +70,7 @@ CmsShowSearchFiles::CmsShowSearchFiles(
   m_webFile->Connect("MouseDown(const char*)", "CmsShowSearchFiles", this, "hyperlinkClicked(const char*)");
   vf->AddFrame(m_webFile, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 1, 1, 1, 1));
 
-  TGHorizontalFrame* buttonFrame = new TGHorizontalFrame(vf);
+  auto* buttonFrame = new TGHorizontalFrame(vf);
   vf->AddFrame(buttonFrame, new TGLayoutHints(kLHintsExpandX, 1, 10, 1, 10));
 
   m_openButton = new TGTextButton(buttonFrame, "Open");
@@ -123,7 +123,7 @@ void CmsShowSearchFiles::prefixChoosen(Int_t iIndex) {
 
 void CmsShowSearchFiles::fileEntryChanged(const char* iFileName) {
   std::string fileName = iFileName;
-  size_t index = fileName.find_last_of(".");
+  size_t index = fileName.find_last_of('.');
   std::string postfix;
   if (index != std::string::npos) {
     postfix = fileName.substr(index, std::string::npos);
@@ -149,7 +149,7 @@ void CmsShowSearchFiles::hyperlinkClicked(const char* iLink) {
 
   m_webFile->addToVisited(iLink);
   std::string fileName = iLink;
-  size_t index = fileName.find_last_of(".");
+  size_t index = fileName.find_last_of('.');
   std::string postfix = fileName.substr(index, std::string::npos);
 
   if (postfix != s_rootPostfix) {
@@ -175,12 +175,12 @@ void CmsShowSearchFiles::showPrefixes() {
     int index = 0;
     for (const char* const(*it)[s_columns] = s_prefixes; it != itEnd; ++it, ++index) {
       //only add the protocols this version of the code actually can load
-      std::string prefix = std::string((*it)[0]).substr(0, std::string((*it)[0]).find_first_of(":") + 1);
+      std::string prefix = std::string((*it)[0]).substr(0, std::string((*it)[0]).find_first_of(':') + 1);
       if (s_httpPrefix == prefix || s_filePrefix == prefix ||
           (gPluginMgr->FindHandler("TSystem", prefix.c_str()) &&
            gPluginMgr->FindHandler("TSystem", prefix.c_str())->CheckPlugin() != -1)) {
         m_prefixMenu->AddEntry((std::string((*it)[0]) + " (" + ((*it)[1]) + ")").c_str(), index);
-        m_prefixes.push_back((*it)[0]);
+        m_prefixes.emplace_back((*it)[0]);
         m_prefixComplete.push_back(nullptr != (*it)[2]);
       }
     }
@@ -232,7 +232,7 @@ static std::string readRemote(const char* url) {
 void CmsShowSearchFiles::sendToWebBrowser(std::string& fileName) {
   //  std::cout << "CmsShowSearchFiles::sendToWebBrowser " <<  fileName << std::endl ;
 
-  size_t index = fileName.find_first_of(":");
+  size_t index = fileName.find_first_of(':');
   if (index != std::string::npos) {
     ++index;
   } else {

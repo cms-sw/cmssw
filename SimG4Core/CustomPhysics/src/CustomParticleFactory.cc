@@ -385,8 +385,7 @@ G4DecayTable *CustomParticleFactory::getDecayTable(std::ifstream *configFile, in
       name[i] = part->GetParticleName();
     }
     ////Set the G4 decay
-    G4PhaseSpaceDecayChannel *aDecayChannel =
-        new G4PhaseSpaceDecayChannel(parentName, br, nDaughters, name[0], name[1], name[2], name[3]);
+    auto *aDecayChannel = new G4PhaseSpaceDecayChannel(parentName, br, nDaughters, name[0], name[1], name[2], name[3]);
     decaytable->Insert(aDecayChannel);
     edm::LogInfo("SimG4CoreCustomPhysics")
         << "CustomParticleFactory: inserted decay channel "
@@ -416,7 +415,7 @@ G4DecayTable *CustomParticleFactory::getAntiDecayTable(int pdgId, G4DecayTable *
       }
       name[j] = part->GetParticleName();
     }
-    G4PhaseSpaceDecayChannel *aDecayChannel =
+    auto *aDecayChannel =
         new G4PhaseSpaceDecayChannel(parentName, theDecayChannel->GetBR(), nd, name[0], name[1], name[2], name[3]);
     decaytable->Insert(aDecayChannel);
     edm::LogInfo("SimG4CoreCustomPhysics")
@@ -429,8 +428,8 @@ G4DecayTable *CustomParticleFactory::getAntiDecayTable(int pdgId, G4DecayTable *
 
 std::string CustomParticleFactory::ToLower(std::string str) {
   std::locale loc;
-  for (std::string::size_type i = 0; i < str.length(); ++i)
-    str.at(i) = std::tolower(str.at(i), loc);
+  for (char &i : str)
+    i = std::tolower(i, loc);
   return str;
 }
 

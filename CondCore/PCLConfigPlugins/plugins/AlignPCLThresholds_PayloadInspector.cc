@@ -54,12 +54,12 @@ namespace {
       canvas.Modified();
       canvas.SetGrid();
 
-      auto Thresholds = std::unique_ptr<TH2F>(
-          new TH2F("Thresholds", "Alignment parameter thresholds", alignables.size(), 0, alignables.size(), 24, 0, 24));
+      auto Thresholds = std::make_unique<TH2F>(
+          "Thresholds", "Alignment parameter thresholds", alignables.size(), 0, alignables.size(), 24, 0, 24);
       Thresholds->SetStats(false);
 
       std::function<float(types, std::string, AlignPCLThresholds::coordType)> cutFunctor =
-          [&payload](types my_type, std::string alignable, AlignPCLThresholds::coordType coord) {
+          [&payload](types my_type, const std::string& alignable, AlignPCLThresholds::coordType coord) {
             float ret(-999.);
             switch (my_type) {
               case DELTA:
@@ -85,7 +85,7 @@ namespace {
         Thresholds->GetXaxis()->SetBinLabel(xBin, (xLabel).c_str());
         unsigned int yBin = 24;
         for (int foo = AlignPCLThresholds::X; foo != AlignPCLThresholds::extra_DOF; foo++) {
-          AlignPCLThresholds::coordType coord = static_cast<AlignPCLThresholds::coordType>(foo);
+          auto coord = static_cast<AlignPCLThresholds::coordType>(foo);
           for (int bar = types::DELTA; bar != types::END_OF_TYPES; bar++) {
             types type = static_cast<types>(bar);
             std::string theLabel = getStringFromTypeEnum(type) + getStringFromCoordEnum(coord);

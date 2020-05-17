@@ -83,7 +83,7 @@ std::unique_ptr<L1MuGMTParameters> L1MuGMTParametersOnlineProducer::newObject(co
   auto ptrResult = std::make_unique<L1MuGMTParameters>();
 
   std::vector<std::string> resultColumns = helper.getColumnList();
-  resultColumns.push_back("CMSSW_VERSION");
+  resultColumns.emplace_back("CMSSW_VERSION");
 
   l1t::OMDSReader::QueryResults resultLines = m_omdsReader.basicQuery(
       // SELECTed columns

@@ -96,8 +96,8 @@ void DTSegmentAnalysisTask::bookHistograms(DQMStore::IBooker& ibooker,
 
   // loop over all the DT chambers & book the histos
   const vector<const DTChamber*>& chambers = dtGeom->chambers();
-  vector<const DTChamber*>::const_iterator ch_it = chambers.begin();
-  vector<const DTChamber*>::const_iterator ch_end = chambers.end();
+  auto ch_it = chambers.begin();
+  auto ch_end = chambers.end();
   for (; ch_it != ch_end; ++ch_it) {
     bookHistos(ibooker, (*ch_it)->id());
   }
@@ -145,8 +145,8 @@ void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSet
           const DTChamberRecSegment2D* phiSeg = (*segment4D).phiSegment();
           vector<DTRecHit1D> phiHits = phiSeg->specificRecHits();
           map<DTSuperLayerId, vector<DTRecHit1D> > hitsBySLMap;
-          for (vector<DTRecHit1D>::const_iterator hit = phiHits.begin(); hit != phiHits.end(); ++hit) {
-            DTWireId wireId = (*hit).wireId();
+          for (const auto& phiHit : phiHits) {
+            DTWireId wireId = phiHit.wireId();
 
             // Check for noisy channels to skip them
             bool isNoisy = false;
@@ -168,8 +168,8 @@ void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSet
           const DTSLRecSegment2D* zSeg = (*segment4D).zSegment();  // zSeg lives in the SL RF
           // Check for noisy channels to skip them
           vector<DTRecHit1D> zHits = zSeg->specificRecHits();
-          for (vector<DTRecHit1D>::const_iterator hit = zHits.begin(); hit != zHits.end(); ++hit) {
-            DTWireId wireId = (*hit).wireId();
+          for (const auto& zHit : zHits) {
+            DTWireId wireId = zHit.wireId();
             bool isNoisy = false;
             bool isFEMasked = false;
             bool isTDCMasked = false;
@@ -242,7 +242,7 @@ void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSet
 }
 
 // Book a set of histograms for a give chamber
-void DTSegmentAnalysisTask::bookHistos(DQMStore::IBooker& ibooker, DTChamberId chamberId) {
+void DTSegmentAnalysisTask::bookHistos(DQMStore::IBooker& ibooker, const DTChamberId& chamberId) {
   edm::LogVerbatim("DTDQM|DTMonitorModule|DTSegmentAnalysisTask") << "   Booking histos for chamber: " << chamberId;
 
   // Compose the chamber name
@@ -268,7 +268,7 @@ void DTSegmentAnalysisTask::bookHistos(DQMStore::IBooker& ibooker, DTChamberId c
 }
 
 // Fill a set of histograms for a give chamber
-void DTSegmentAnalysisTask::fillHistos(DTChamberId chamberId, int nHits, float chi2) {
+void DTSegmentAnalysisTask::fillHistos(const DTChamberId& chamberId, int nHits, float chi2) {
   int sector = chamberId.sector();
   if (chamberId.sector() == 13) {
     sector = 4;

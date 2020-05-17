@@ -64,9 +64,9 @@ private:
   edm::EDGetTokenT<DTRecSegment4DCollection> recHits4DToken_;
 
   // Book a set of histograms for a give chamber
-  void bookHistos(DQMStore::IBooker& ibooker, DTSuperLayerId slId);
+  void bookHistos(DQMStore::IBooker& ibooker, const DTSuperLayerId& slId);
   // Fill a set of histograms for a give chamber
-  void fillHistos(DTSuperLayerId slId, float distExtr, float residual);
+  void fillHistos(const DTSuperLayerId& slId, float distExtr, float residual);
 
   std::map<DTSuperLayerId, std::vector<MonitorElement*> > histosPerSL;
 

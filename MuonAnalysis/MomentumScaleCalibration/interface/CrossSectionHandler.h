@@ -32,7 +32,7 @@ public:
   CrossSectionHandler(const std::vector<double>& crossSection, const std::vector<int>& resfind)
       : parNum_(0), numberOfResonances_(resfind.size()) {
     // The number of parameters is the number of fitted resonances minus 1
-    std::vector<int>::const_iterator it = resfind.begin();
+    auto it = resfind.begin();
     for (; it != resfind.end(); ++it) {
       if (*it != 0)
         ++parNum_;
@@ -48,7 +48,7 @@ public:
 
   /// Inputs the vars in a vector
   void addParameters(std::vector<double>& initpar) {
-    std::vector<double>::const_iterator it = vars_.begin();
+    auto it = vars_.begin();
     for (; it != vars_.end(); ++it) {
       initpar.push_back(*it);
     }
@@ -143,7 +143,7 @@ public:
     }
 
     std::vector<double> allRelativeCrossSections;
-    std::vector<int>::const_iterator it = resfind.begin();
+    auto it = resfind.begin();
     int smallerVectorIndex = 0;
     for (; it != resfind.end(); ++it) {
       if (*it == 0) {

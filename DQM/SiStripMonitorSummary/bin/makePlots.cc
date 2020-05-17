@@ -18,8 +18,8 @@ void setHistoStackStyle(TH1* h, const unsigned int lineColor);
 void setLegendStyle(TLegend* l, const unsigned int nColumns);
 void setPaveTextStyle(TPaveText* t, const bool isHorizontal=true);
 void fillNormFactorMaps();
-double findNormFactor(const std::string currentPlotType, const std::string currentPart, const bool stackOption);
-void makePlots(std::string inputFileName, std::string outputFileName);
+double findNormFactor(const std::string& currentPlotType, const std::string& currentPart, const bool stackOption);
+void makePlots(const std::string& inputFileName, const std::string& outputFileName);
 
 // Map with <name of tracker part, count of channels in the part>
 // It is static so it can be read by the functions fillNormFactorMaps() and findNormFactor(...)
@@ -53,9 +53,7 @@ int main(int argc , char *argv[]) {
 
 }
 
-
-void makePlots(std::string inputFileName, std::string outputFileName)
-{
+void makePlots(const std::string& inputFileName, const std::string& outputFileName) {
   //
   
   
@@ -66,10 +64,20 @@ void makePlots(std::string inputFileName, std::string outputFileName)
   std::ostringstream oss;
   std::string histoName;
   std::vector< std::string > plotType;
-  plotType.push_back("BadModules"); plotType.push_back("BadFibers"); plotType.push_back("BadAPVs"); plotType.push_back("BadStrips"); plotType.push_back("BadStripsFromAPVs"); plotType.push_back("AllBadStrips");
+  plotType.emplace_back("BadModules");
+  plotType.emplace_back("BadFibers");
+  plotType.emplace_back("BadAPVs");
+  plotType.emplace_back("BadStrips");
+  plotType.emplace_back("BadStripsFromAPVs");
+  plotType.emplace_back("AllBadStrips");
   std::vector< std::string > subDetName;
-  subDetName.push_back("TIB"); subDetName.push_back("TID+"); subDetName.push_back("TID-"); subDetName.push_back("TOB"); subDetName.push_back("TEC+"); subDetName.push_back("TEC-");
-  
+  subDetName.emplace_back("TIB");
+  subDetName.emplace_back("TID+");
+  subDetName.emplace_back("TID-");
+  subDetName.emplace_back("TOB");
+  subDetName.emplace_back("TEC+");
+  subDetName.emplace_back("TEC-");
+
   // Standard plot options for THStack and for standalone histograms
   const bool stackHistograms = true;
   
@@ -119,49 +127,48 @@ void makePlots(std::string inputFileName, std::string outputFileName)
   std::string entryLabel;
   std::vector<TH1F*> hLayers;
 //   unsigned int normFactor;
-  
-  for(std::vector< std::string >::iterator itPlot=plotType.begin(); itPlot!=plotType.end(); itPlot++)
-  {
+
+  for (auto& itPlot : plotType) {
     // Put together the Tracker histograms with the TIB, TID, TOB and TEC ones
-    
-    histoName = "h" + *itPlot + "Tracker";
+
+    histoName = "h" + itPlot + "Tracker";
     hTracker = (TH1F*)inputFile->Get(histoName.c_str());
     if(hTracker) {
-      hTracker->Scale(1/findNormFactor(*itPlot,"Tracker",stackHistograms));
+      hTracker->Scale(1 / findNormFactor(itPlot, "Tracker", stackHistograms));
     }
     else {std::cout << histoName << " not found" << std::endl;}
 
     histoStack = new THStack(histoName.c_str(), histoName.c_str());
 
-    histoName = "h" + *itPlot + "TIB";
+    histoName = "h" + itPlot + "TIB";
     hTIB = (TH1F*)inputFile->Get(histoName.c_str());
     if(hTIB) {
-      hTIB->Scale(1/findNormFactor(*itPlot,"TIB",stackHistograms));
+      hTIB->Scale(1 / findNormFactor(itPlot, "TIB", stackHistograms));
     }
     else {std::cout << histoName << " not found" << std::endl;}
-    
-    histoName = "h" + *itPlot + "TID";
+
+    histoName = "h" + itPlot + "TID";
     hTID = (TH1F*)inputFile->Get(histoName.c_str());
     if(hTID) {
-      hTID->Scale(1/findNormFactor(*itPlot,"TID",stackHistograms));
+      hTID->Scale(1 / findNormFactor(itPlot, "TID", stackHistograms));
     }
     else {std::cout << histoName << " not found" << std::endl;}
 
-    histoName = "h" + *itPlot + "TOB";
+    histoName = "h" + itPlot + "TOB";
     hTOB = (TH1F*)inputFile->Get(histoName.c_str());
     if(hTOB) {
-      hTOB->Scale(1/findNormFactor(*itPlot,"TOB",stackHistograms));
+      hTOB->Scale(1 / findNormFactor(itPlot, "TOB", stackHistograms));
     }
     else {std::cout << histoName << " not found" << std::endl;}
 
-    histoName = "h" + *itPlot + "TEC";
+    histoName = "h" + itPlot + "TEC";
     hTEC = (TH1F*)inputFile->Get(histoName.c_str());
     if(hTEC) {
-      hTEC->Scale(1/findNormFactor(*itPlot,"TEC",stackHistograms));
+      hTEC->Scale(1 / findNormFactor(itPlot, "TEC", stackHistograms));
     }
     else {std::cout << histoName << " not found" << std::endl;}
-    
-    c1 = new TCanvas(("c"+*itPlot+"Tracker").c_str(), "", 1200, 600);
+
+    c1 = new TCanvas(("c" + itPlot + "Tracker").c_str(), "", 1200, 600);
     setCanvasStyle(c1, false);
     //     hTracker->Draw();
     if(hTracker) setHistoStackStyle(hTracker,1);
@@ -215,8 +222,8 @@ void makePlots(std::string inputFileName, std::string outputFileName)
     c1->Update();
     outputFile->cd();
     c1->Write();
-    c1->SaveAs((*itPlot+"Tracker.png").c_str());
-    
+    c1->SaveAs((itPlot + "Tracker.png").c_str());
+
     delete histoStack;
     delete textX;
     delete textY;
@@ -226,41 +233,33 @@ void makePlots(std::string inputFileName, std::string outputFileName)
    
     
     // Put together the histograms for the different layers of the detectors
-    for(std::vector< std::string >::iterator itSub=subDetName.begin(); itSub!=subDetName.end(); itSub++)
-    {
+    for (auto& itSub : subDetName) {
       unsigned int nLayers = 0;
       std::string layerName;
 //       std::cout << "itSub = " << (*itSub).c_str() << std::endl;
-      if((*itSub)=="TIB")
-      {
+      if (itSub == "TIB") {
         nLayers=4;
         layerName="Layer";
         legend = new TLegend(0.4,0.9,0.9,1);
         setLegendStyle(legend,2);
-      }
-      else if((*itSub)=="TID+" || (*itSub)=="TID-")
-      {
+      } else if (itSub == "TID+" || itSub == "TID-") {
         nLayers=3;
         layerName="Disk";
         legend = new TLegend(0.35,0.9,0.9,1);
         setLegendStyle(legend,3);
-      }
-      else if((*itSub)=="TOB")
-      {
+      } else if (itSub == "TOB") {
         nLayers=6;
         layerName="Layer";
         legend = new TLegend(0.35,0.9,0.9,1);
         setLegendStyle(legend,3);
-      }
-      else if((*itSub)=="TEC+" || (*itSub)=="TEC-")
-      {
+      } else if (itSub == "TEC+" || itSub == "TEC-") {
         nLayers=9;
         layerName="Disk";
         legend = new TLegend(0.35,0.9,1,1);
         setLegendStyle(legend,5);
       }
-      
-      c1 = new TCanvas(("c" + *itPlot + *itSub).c_str(),"", 1200, 600);
+
+      c1 = new TCanvas(("c" + itPlot + itSub).c_str(), "", 1200, 600);
       setCanvasStyle(c1, false);
 //       if((*itSub).compare("TEC+")==0 || (*itSub).compare("TEC-")==0)
 //       {
@@ -268,10 +267,10 @@ void makePlots(std::string inputFileName, std::string outputFileName)
 //       }
 //       else
 //       {
-      histoName = "h" + *itPlot + *itSub;
-//       }
-//       hSubDet = (TH1F*)inputFile->Get(histoName.c_str());
-//       setHistoStackStyle(hSubDet,1);
+      histoName = "h" + itPlot + itSub;
+      //       }
+      //       hSubDet = (TH1F*)inputFile->Get(histoName.c_str());
+      //       setHistoStackStyle(hSubDet,1);
       //       hSubDet->Draw();
       histoStack = new THStack(histoName.c_str(), histoName.c_str());
       
@@ -344,54 +343,53 @@ void makePlots(std::string inputFileName, std::string outputFileName)
 //         }
 //         else
 //         {
-          histoName = "h" + *itPlot + *itSub + layerName + oss.str();
-//           std::cout << "histoName = " << histoName.c_str() << std::endl;
-          histo = (TH1F*)inputFile->Get(histoName.c_str());
-	  if(histo) {
-	    histo2 = new TH1F(*histo);
-	    histo->Scale(1/findNormFactor(*itPlot, *itSub + " " + layerName + " " + oss.str(), false));
-	    histo2->Scale(1/findNormFactor(*itPlot, *itSub + " " + layerName + " " + oss.str(), stackHistograms));
-	    // First: plot histogram separately
-	    setHistoStyle(histo);
-	    c2 = new TCanvas(("c" + *itPlot + *itSub +  layerName + oss.str()).c_str(), "", 1200, 600);
-	    setCanvasStyle(c2, true);
-	    histo->Draw(plotHistoOptions.c_str());
-	    double histoMaximum = histo->GetMaximum();
-	    // Otherwise it does not draw the pad
-	    if(histoMaximum==0)
-	      {
-		c2->SetLogy(0);
-	      }
-	    legend2 = new TLegend(0.6,0.92,0.9,0.97);
-	    legend2->AddEntry(histo,(*itSub + layerName + oss.str()).c_str());
-	    setLegendStyle(legend2, 1);
-	    legend2->Draw();
-	    textX = new TPaveText();
-	    textY = new TPaveText();
-	    setPaveTextStyle(textX);
-	    setPaveTextStyle(textY,false);
-	    textX->Draw();
-	    textY->Draw();
-	    gSystem->ProcessEvents();
-	    c2->Update();
-	    outputFile->cd();
-	    c2->Write();
-	    c2->SaveAs((*itPlot + *itSub + layerName + oss.str() + ".png").c_str());
-	    delete textX;
-	    delete textY;
-	    delete legend2;
-	    delete c2;
-	    
-	    // Second: add histogram to THStack
-	    setHistoStyle(histo2);
-	    hLayers.push_back(histo2);
-	    setHistoStackStyle(hLayers.back(), iLayer);
-	    histoStack->Add(hLayers.back());
-	    entryLabel = *itSub + " " + layerName + " " + oss.str();
-	    legend->AddEntry(hLayers.back(), entryLabel.c_str());
-	    //           hLayers.back()->Draw("same");
-	    //         }
-	    //           delete histo2;
+        histoName = "h" + itPlot + itSub + layerName + oss.str();
+        //           std::cout << "histoName = " << histoName.c_str() << std::endl;
+        histo = (TH1F*)inputFile->Get(histoName.c_str());
+        if (histo) {
+          histo2 = new TH1F(*histo);
+          histo->Scale(1 / findNormFactor(itPlot, itSub + " " + layerName + " " + oss.str(), false));
+          histo2->Scale(1 / findNormFactor(itPlot, itSub + " " + layerName + " " + oss.str(), stackHistograms));
+          // First: plot histogram separately
+          setHistoStyle(histo);
+          c2 = new TCanvas(("c" + itPlot + itSub + layerName + oss.str()).c_str(), "", 1200, 600);
+          setCanvasStyle(c2, true);
+          histo->Draw(plotHistoOptions.c_str());
+          double histoMaximum = histo->GetMaximum();
+          // Otherwise it does not draw the pad
+          if (histoMaximum == 0) {
+            c2->SetLogy(0);
+          }
+          legend2 = new TLegend(0.6, 0.92, 0.9, 0.97);
+          legend2->AddEntry(histo, (itSub + layerName + oss.str()).c_str());
+          setLegendStyle(legend2, 1);
+          legend2->Draw();
+          textX = new TPaveText();
+          textY = new TPaveText();
+          setPaveTextStyle(textX);
+          setPaveTextStyle(textY, false);
+          textX->Draw();
+          textY->Draw();
+          gSystem->ProcessEvents();
+          c2->Update();
+          outputFile->cd();
+          c2->Write();
+          c2->SaveAs((itPlot + itSub + layerName + oss.str() + ".png").c_str());
+          delete textX;
+          delete textY;
+          delete legend2;
+          delete c2;
+
+          // Second: add histogram to THStack
+          setHistoStyle(histo2);
+          hLayers.push_back(histo2);
+          setHistoStackStyle(hLayers.back(), iLayer);
+          histoStack->Add(hLayers.back());
+          entryLabel = itSub + " " + layerName + " " + oss.str();
+          legend->AddEntry(hLayers.back(), entryLabel.c_str());
+          //           hLayers.back()->Draw("same");
+          //         }
+          //           delete histo2;
 	  }
 	  else {std::cout << histoName << " not found" << std::endl;}
       }
@@ -420,7 +418,7 @@ void makePlots(std::string inputFileName, std::string outputFileName)
       c1->Update();
       outputFile->cd();
       c1->Write();
-      c1->SaveAs((*itPlot + *itSub + ".png").c_str());
+      c1->SaveAs((itPlot + itSub + ".png").c_str());
       delete histoStack;
       delete textX;
       delete textY;
@@ -428,13 +426,10 @@ void makePlots(std::string inputFileName, std::string outputFileName)
       delete c1;
     }
   }
-  
+
   inputFile->Close();
   outputFile->Close();
-  
 }
-
-
 
 void setCanvasStyle(TCanvas* c, const bool logScale)
 {
@@ -532,46 +527,46 @@ void fillNormFactorMaps()
 {
   // Number of modules, fibers, APVs, strips for each tracker part
   std::vector< std::string > tkParts;
-  tkParts.push_back("Tracker");
-  tkParts.push_back("TIB");
-  tkParts.push_back("TID");
-  tkParts.push_back("TOB");
-  tkParts.push_back("TEC");
-  tkParts.push_back("TIB Layer 1");
-  tkParts.push_back("TIB Layer 2");
-  tkParts.push_back("TIB Layer 3");
-  tkParts.push_back("TIB Layer 4");
-  tkParts.push_back("TID+ Disk 1");
-  tkParts.push_back("TID+ Disk 2");
-  tkParts.push_back("TID+ Disk 3");
-  tkParts.push_back("TID- Disk 1");
-  tkParts.push_back("TID- Disk 2");
-  tkParts.push_back("TID- Disk 3");
-  tkParts.push_back("TOB Layer 1");
-  tkParts.push_back("TOB Layer 2");
-  tkParts.push_back("TOB Layer 3");
-  tkParts.push_back("TOB Layer 4");
-  tkParts.push_back("TOB Layer 5");
-  tkParts.push_back("TOB Layer 6");
-  tkParts.push_back("TEC+ Disk 1");
-  tkParts.push_back("TEC+ Disk 2");
-  tkParts.push_back("TEC+ Disk 3");
-  tkParts.push_back("TEC+ Disk 4");
-  tkParts.push_back("TEC+ Disk 5");
-  tkParts.push_back("TEC+ Disk 6");
-  tkParts.push_back("TEC+ Disk 7");
-  tkParts.push_back("TEC+ Disk 8");
-  tkParts.push_back("TEC+ Disk 9");
-  tkParts.push_back("TEC- Disk 1");
-  tkParts.push_back("TEC- Disk 2");
-  tkParts.push_back("TEC- Disk 3");
-  tkParts.push_back("TEC- Disk 4");
-  tkParts.push_back("TEC- Disk 5");
-  tkParts.push_back("TEC- Disk 6");
-  tkParts.push_back("TEC- Disk 7");
-  tkParts.push_back("TEC- Disk 8");
-  tkParts.push_back("TEC- Disk 9");
-  
+  tkParts.emplace_back("Tracker");
+  tkParts.emplace_back("TIB");
+  tkParts.emplace_back("TID");
+  tkParts.emplace_back("TOB");
+  tkParts.emplace_back("TEC");
+  tkParts.emplace_back("TIB Layer 1");
+  tkParts.emplace_back("TIB Layer 2");
+  tkParts.emplace_back("TIB Layer 3");
+  tkParts.emplace_back("TIB Layer 4");
+  tkParts.emplace_back("TID+ Disk 1");
+  tkParts.emplace_back("TID+ Disk 2");
+  tkParts.emplace_back("TID+ Disk 3");
+  tkParts.emplace_back("TID- Disk 1");
+  tkParts.emplace_back("TID- Disk 2");
+  tkParts.emplace_back("TID- Disk 3");
+  tkParts.emplace_back("TOB Layer 1");
+  tkParts.emplace_back("TOB Layer 2");
+  tkParts.emplace_back("TOB Layer 3");
+  tkParts.emplace_back("TOB Layer 4");
+  tkParts.emplace_back("TOB Layer 5");
+  tkParts.emplace_back("TOB Layer 6");
+  tkParts.emplace_back("TEC+ Disk 1");
+  tkParts.emplace_back("TEC+ Disk 2");
+  tkParts.emplace_back("TEC+ Disk 3");
+  tkParts.emplace_back("TEC+ Disk 4");
+  tkParts.emplace_back("TEC+ Disk 5");
+  tkParts.emplace_back("TEC+ Disk 6");
+  tkParts.emplace_back("TEC+ Disk 7");
+  tkParts.emplace_back("TEC+ Disk 8");
+  tkParts.emplace_back("TEC+ Disk 9");
+  tkParts.emplace_back("TEC- Disk 1");
+  tkParts.emplace_back("TEC- Disk 2");
+  tkParts.emplace_back("TEC- Disk 3");
+  tkParts.emplace_back("TEC- Disk 4");
+  tkParts.emplace_back("TEC- Disk 5");
+  tkParts.emplace_back("TEC- Disk 6");
+  tkParts.emplace_back("TEC- Disk 7");
+  tkParts.emplace_back("TEC- Disk 8");
+  tkParts.emplace_back("TEC- Disk 9");
+
   std::vector<unsigned int> nModulesStack;
   nModulesStack.push_back(15148);
   nModulesStack.push_back(15148);
@@ -923,14 +918,10 @@ void fillNormFactorMaps()
   
 }
 
-
-
-double findNormFactor(const std::string currentPlotType, const std::string currentPart, const bool stackOption)
-{
-
-//   std::cout << "findNormFactor(): Finding normalization factor for this part: \"" << currentPart.c_str() << "\".\n";
-//   std::cout << "                  Plot type is: \"" << currentPlotType.c_str() << "\".\n";
-//   std::cout << "                  stack option is: " << stackOption << std::endl;
+double findNormFactor(const std::string& currentPlotType, const std::string& currentPart, const bool stackOption) {
+  //   std::cout << "findNormFactor(): Finding normalization factor for this part: \"" << currentPart.c_str() << "\".\n";
+  //   std::cout << "                  Plot type is: \"" << currentPlotType.c_str() << "\".\n";
+  //   std::cout << "                  stack option is: " << stackOption << std::endl;
   if(stackOption)
   {
     if(currentPlotType == "BadModules")

@@ -43,7 +43,7 @@ bool uncompressBuffer(unsigned char* inputBuffer,
                       unsigned int expectedFullSize);
 bool test_chksum(EventMsgView const* eview);
 bool test_uncompress(EventMsgView const* eview, std::vector<unsigned char>& dest);
-void readfile(std::string filename, std::string outfile);
+void readfile(const std::string& filename, const std::string& outfile);
 void help();
 
 //==========================================================================
@@ -72,7 +72,7 @@ void help() {
             << " [output_file_name]" << std::endl;
 }
 //==========================================================================
-void readfile(std::string filename, std::string outfile) {
+void readfile(const std::string& filename, const std::string& outfile) {
   uint32 num_events(0);
   uint32 num_badevents(0);
   uint32 num_baduncompress(0);
@@ -129,7 +129,7 @@ void readfile(std::string filename, std::string outfile) {
         unsigned int srcSize = eview->size();
         savebuf.resize(srcSize);
         std::copy(src, src + srcSize, &(savebuf)[0]);
-        firstEvtView.reset(new EventMsgView(&(savebuf)[0]));
+        firstEvtView = std::make_unique<EventMsgView>(&(savebuf)[0]);
         //firstEvtView, reset(new EventMsgView((void*)eview->startAddress()));
         if (!test_chksum(eview)) {
           std::cout << "checksum error for count " << num_events << " event number " << eview->event()

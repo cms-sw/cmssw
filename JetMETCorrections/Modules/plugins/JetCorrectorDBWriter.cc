@@ -44,7 +44,7 @@ JetCorrectorDBWriter::JetCorrectorDBWriter(const edm::ParameterSet& pSet) {
 void JetCorrectorDBWriter::beginJob() {
   //  std::string path("CondFormats/JetMETObjects/data/");
 
-  JetCorrectorParametersCollection* payload = new JetCorrectorParametersCollection();
+  auto* payload = new JetCorrectorParametersCollection();
   std::cout << "Starting to import payload " << payloadTag << " from text files." << std::endl;
   for (int i = 0; i < JetCorrectorParametersCollection::N_LEVELS; ++i) {
     std::string append("_");
@@ -64,10 +64,7 @@ void JetCorrectorDBWriter::beginJob() {
       if (sections.empty()) {
         payload->push_back(i, JetCorrectorParameters(fip.fullPath(), ""));
       } else {
-        for (std::vector<std::string>::const_iterator isectbegin = sections.begin(),
-                                                      isectend = sections.end(),
-                                                      isect = isectbegin;
-             isect != isectend;
+        for (auto isectbegin = sections.begin(), isectend = sections.end(), isect = isectbegin; isect != isectend;
              ++isect) {
           payload->push_back(i, JetCorrectorParameters(fip.fullPath(), *isect), ilev + "_" + *isect);
           std::cout << "Added " << ilev + "_" + *isect << " to record " << i << std::endl;

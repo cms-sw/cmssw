@@ -16,6 +16,8 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <utility>
+
 #include <vector>
 
 #include "TH1F.h"
@@ -239,7 +241,8 @@ namespace HcalObjRepresent {
       gStyle->SetPadTickY(1);
     }
 
-    TH1D* GetProjection(TH2F* hist, std::string plotType, const char* newName, std::string subDetName, int depth) {
+    TH1D* GetProjection(
+        TH2F* hist, const std::string& plotType, const char* newName, const std::string& subDetName, int depth) {
       //TODO: Also want average for standard projection of 2DHist (not ratio or diff)?
       //if (PlotMode_ != "Ratio") return (plotType=="EtaProfile") ? ((TH2F*)(hist->Clone("temp")))->ProjectionX(newName) : ((TH2F*)(hist->Clone("temp")))->ProjectionY(newName);
 
@@ -285,7 +288,7 @@ namespace HcalObjRepresent {
                   std::string subDetName,
                   int startDepth = 1,
                   int startCanv = 1,
-                  std::string plotForm = "2DHist") {
+                  const std::string& plotForm = "2DHist") {
       const char* newName;
       std::pair<float, float> range;
       int padNum;
@@ -356,7 +359,7 @@ namespace HcalObjRepresent {
     //// functions called in Payload Inspector classes to import final canvases to be plotted
 
     // profile = "EtaProfile" || "PhiProfile"
-    TCanvas* getCanvasAll(std::string profile = "2DHist") {
+    TCanvas* getCanvasAll(const std::string& profile = "2DHist") {
       fillValConts();
       initGraphics();
       TCanvas* HAll = new TCanvas("HAll", "HAll", 1680, (GetTopoMode() == "2015/2016") ? 1680 : 2500);
@@ -398,7 +401,7 @@ namespace HcalObjRepresent {
       return HBHO;
     }
 
-    std::string GetUnit(std::string type) {
+    std::string GetUnit(const std::string& type) {
       std::string unit = units_[type];
       if (unit.empty())
         return "";
@@ -433,7 +436,7 @@ namespace HcalObjRepresent {
                                                  {"crossTalk", ""},
                                                  {"parLin", ""}};
 
-    tHcalValCont* getContFromString(std::string subDetString) {
+    tHcalValCont* getContFromString(const std::string& subDetString) {
       if (subDetString == "HB")
         return &HBvalContainer;
       else if (subDetString == "HE")
@@ -547,9 +550,9 @@ namespace HcalObjRepresent {
   //functions for making plot:
   void setBinLabels(std::vector<TH2F>& depth) {
     // Set labels for all depth histograms
-    for (unsigned int i = 0; i < depth.size(); ++i) {
-      depth[i].SetXTitle("i#eta");
-      depth[i].SetYTitle("i#phi");
+    for (auto& i : depth) {
+      i.SetXTitle("i#eta");
+      i.SetYTitle("i#phi");
     }
 
     std::stringstream label;
@@ -817,10 +820,10 @@ namespace HcalObjRepresent {
 
   inline std::vector<std::string> HcalEtaPhiHistNames() {
     std::vector<std::string> name;
-    name.push_back("HB HE HF Depth 1 ");
-    name.push_back("HB HE HF Depth 2 ");
-    name.push_back("HE Depth 3 ");
-    name.push_back("HO Depth 4 ");
+    name.emplace_back("HB HE HF Depth 1 ");
+    name.emplace_back("HB HE HF Depth 2 ");
+    name.emplace_back("HE Depth 3 ");
+    name.emplace_back("HO Depth 4 ");
     return name;
   }
 
@@ -1059,13 +1062,13 @@ namespace HcalObjRepresent {
   }
 
   void Reset(std::vector<TH2F>& depth) {
-    for (unsigned int d = 0; d < depth.size(); d++)
+    for (auto& d : depth)
       //BUG CAN BE HERE:
       //if(depth[d])
-      depth[d].Reset();
+      d.Reset();
   }  // void Reset(void)
 
-  void setup(std::vector<TH2F>& depth, std::string name, std::string units = "") {
+  void setup(std::vector<TH2F>& depth, const std::string& name, const std::string& units = "") {
     std::string unittitle, unitname;
     if (units.empty()) {
       unitname = units;
@@ -1078,14 +1081,14 @@ namespace HcalObjRepresent {
     // Push back depth plots
     ////////Create 4 plots:
     //1. create first plot
-    depth.push_back(TH2F(("HB HE HF Depth 1 " + name + unitname).c_str(),
-                         (name + " Depth 1 -- HB HE HF (" + unittitle + ")").c_str(),
-                         85,
-                         -42.5,
-                         42.5,
-                         72,
-                         0.5,
-                         72.5));
+    depth.emplace_back(("HB HE HF Depth 1 " + name + unitname).c_str(),
+                       (name + " Depth 1 -- HB HE HF (" + unittitle + ")").c_str(),
+                       85,
+                       -42.5,
+                       42.5,
+                       72,
+                       0.5,
+                       72.5);
 
     //2.1 prepare second plot
     float ybins[73];
@@ -1098,36 +1101,36 @@ namespace HcalObjRepresent {
                        33.5,  34.5,  35.5,  36.5,  37.5,  38.5,  39.5,  40.5,  41.5,  42.5};
 
     //2.2 create second plot
-    depth.push_back(TH2F(("HB HE HF Depth 2 " + name + unitname).c_str(),
-                         (name + " Depth 2 -- HB HE HF (" + unittitle + ")").c_str(),
-                         57,
-                         xbinsd2,
-                         72,
-                         ybins));
+    depth.emplace_back(("HB HE HF Depth 2 " + name + unitname).c_str(),
+                       (name + " Depth 2 -- HB HE HF (" + unittitle + ")").c_str(),
+                       57,
+                       xbinsd2,
+                       72,
+                       ybins);
 
     //3.1 Set up variable-sized bins for HE depth 3 (MonitorElement also requires phi bins to be entered in array format)
     float xbins[] = {-28.5, -27.5, -26.5, -16.5, -15.5, 15.5, 16.5, 26.5, 27.5, 28.5};
     //3.2
-    depth.push_back(TH2F(("HE Depth 3 " + name + unitname).c_str(),
-                         (name + " Depth 3 -- HE (" + unittitle + ")").c_str(),
-                         // Use variable-sized eta bins
-                         9,
-                         xbins,
-                         72,
-                         ybins));
+    depth.emplace_back(("HE Depth 3 " + name + unitname).c_str(),
+                       (name + " Depth 3 -- HE (" + unittitle + ")").c_str(),
+                       // Use variable-sized eta bins
+                       9,
+                       xbins,
+                       72,
+                       ybins);
 
     //4.1 HO bins are fixed width, but cover a smaller eta range (-15 -> 15)
-    depth.push_back(TH2F(("HO Depth 4 " + name + unitname).c_str(),
-                         (name + " Depth 4 -- HO (" + unittitle + ")").c_str(),
-                         31,
-                         -15.5,
-                         15.5,
-                         72,
-                         0.5,
-                         72.5));
+    depth.emplace_back(("HO Depth 4 " + name + unitname).c_str(),
+                       (name + " Depth 4 -- HO (" + unittitle + ")").c_str(),
+                       31,
+                       -15.5,
+                       15.5,
+                       72,
+                       0.5,
+                       72.5);
 
-    for (unsigned int i = 0; i < depth.size(); ++i)
-      depth[i].Draw("colz");
+    for (auto& i : depth)
+      i.Draw("colz");
 
     setBinLabels(depth);  // set axis titles, special bins
   }
@@ -1136,8 +1139,8 @@ namespace HcalObjRepresent {
                    HcalGains::tAllContWithNames& allContainers,
                    std::string name,
                    int id,
-                   std::string units = "") {
-    setup(graphData, name);
+                   const std::string& units = "") {
+    setup(graphData, std::move(name));
 
     std::stringstream x;
     // Change the titles of each individual histogram
@@ -1208,7 +1211,7 @@ namespace HcalObjRepresent {
     unsigned int nr, id;
     std::stringstream filename, rootname, plotname;
 
-    void fillOneGain(std::vector<TH2F>& graphData, std::string units = "") {
+    void fillOneGain(std::vector<TH2F>& graphData, const std::string& units = "") {
       std::stringstream ss("");
 
       if (m_total == 1)
@@ -1258,7 +1261,7 @@ namespace HcalObjRepresent {
     virtual void doFillIn(std::vector<TH2F>& graphData) = 0;
 
   private:
-    void draw(std::vector<TH2F>& graphData, std::string filename) {
+    void draw(std::vector<TH2F>& graphData, const std::string& filename) {
       //Drawing...
       // use David's palette
       gStyle->SetPalette(1);
@@ -1294,7 +1297,7 @@ namespace HcalObjRepresent {
       canvas.SaveAs(filename.c_str());
     }
 
-    void setup(std::vector<TH2F>& depth, std::string name, std::string units = "") {
+    void setup(std::vector<TH2F>& depth, const std::string& name, const std::string& units = "") {
       std::string unittitle, unitname;
       if (units.empty()) {
         unitname = units;
@@ -1307,14 +1310,14 @@ namespace HcalObjRepresent {
       // Push back depth plots
       ////////Create 4 plots:
       //1. create first plot
-      depth.push_back(TH2F(("HB HE HF Depth 1 " + name + unitname).c_str(),
-                           (name + " Depth 1 -- HB HE HF (" + unittitle + ")").c_str(),
-                           85,
-                           -42.5,
-                           42.5,
-                           72,
-                           0.5,
-                           72.5));
+      depth.emplace_back(("HB HE HF Depth 1 " + name + unitname).c_str(),
+                         (name + " Depth 1 -- HB HE HF (" + unittitle + ")").c_str(),
+                         85,
+                         -42.5,
+                         42.5,
+                         72,
+                         0.5,
+                         72.5);
 
       //2.1 prepare second plot
       float ybins[73];
@@ -1327,36 +1330,36 @@ namespace HcalObjRepresent {
                          33.5,  34.5,  35.5,  36.5,  37.5,  38.5,  39.5,  40.5,  41.5,  42.5};
 
       //2.2 create second plot
-      depth.push_back(TH2F(("HB HE HF Depth 2 " + name + unitname).c_str(),
-                           (name + " Depth 2 -- HB HE HF (" + unittitle + ")").c_str(),
-                           57,
-                           xbinsd2,
-                           72,
-                           ybins));
+      depth.emplace_back(("HB HE HF Depth 2 " + name + unitname).c_str(),
+                         (name + " Depth 2 -- HB HE HF (" + unittitle + ")").c_str(),
+                         57,
+                         xbinsd2,
+                         72,
+                         ybins);
 
       //3.1 Set up variable-sized bins for HE depth 3 (MonitorElement also requires phi bins to be entered in array format)
       float xbins[] = {-28.5, -27.5, -26.5, -16.5, -15.5, 15.5, 16.5, 26.5, 27.5, 28.5};
       //3.2
-      depth.push_back(TH2F(("HE Depth 3 " + name + unitname).c_str(),
-                           (name + " Depth 3 -- HE (" + unittitle + ")").c_str(),
-                           // Use variable-sized eta bins
-                           9,
-                           xbins,
-                           72,
-                           ybins));
+      depth.emplace_back(("HE Depth 3 " + name + unitname).c_str(),
+                         (name + " Depth 3 -- HE (" + unittitle + ")").c_str(),
+                         // Use variable-sized eta bins
+                         9,
+                         xbins,
+                         72,
+                         ybins);
 
       //4.1 HO bins are fixed width, but cover a smaller eta range (-15 -> 15)
-      depth.push_back(TH2F(("HO Depth 4 " + name + unitname).c_str(),
-                           (name + " Depth 4 -- HO (" + unittitle + ")").c_str(),
-                           31,
-                           -15.5,
-                           15.5,
-                           72,
-                           0.5,
-                           72.5));
+      depth.emplace_back(("HO Depth 4 " + name + unitname).c_str(),
+                         (name + " Depth 4 -- HO (" + unittitle + ")").c_str(),
+                         31,
+                         -15.5,
+                         15.5,
+                         72,
+                         0.5,
+                         72.5);
 
-      for (unsigned int i = 0; i < depth.size(); ++i)
-        depth[i].Draw("colz");
+      for (auto& i : depth)
+        i.Draw("colz");
 
       setBinLabels(depth);  // set axis titles, special bins
     }
@@ -1364,9 +1367,9 @@ namespace HcalObjRepresent {
     //functions for making plot:
     void setBinLabels(std::vector<TH2F>& depth) {
       // Set labels for all depth histograms
-      for (unsigned int i = 0; i < depth.size(); ++i) {
-        depth[i].SetXTitle("i#eta");
-        depth[i].SetYTitle("i#phi");
+      for (auto& i : depth) {
+        i.SetXTitle("i#eta");
+        i.SetYTitle("i#phi");
       }
 
       std::stringstream label;

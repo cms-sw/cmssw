@@ -20,8 +20,8 @@ using namespace edm;
 class RPCReadOutMapAnalyzer : public edm::EDAnalyzer {
 public:
   explicit RPCReadOutMapAnalyzer(const edm::ParameterSet&);
-  ~RPCReadOutMapAnalyzer();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  ~RPCReadOutMapAnalyzer() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   bool m_flag;
@@ -56,8 +56,8 @@ void RPCReadOutMapAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
   cout << " dcc range: " << dccRange.first << " to " << dccRange.second << endl;
   vector<const DccSpec*> dccs = map->dccList();
   typedef vector<const DccSpec*>::const_iterator IDCC;
-  for (IDCC idcc = dccs.begin(); idcc != dccs.end(); idcc++)
-    cout << (**idcc).print(4);
+  for (auto dcc : dccs)
+    cout << (*dcc).print(4);
 
   cout << "--- --- --- --- --- --- --- --- ---" << endl;
   cout << "--- --- --- --- --- --- --- --- ---" << endl;

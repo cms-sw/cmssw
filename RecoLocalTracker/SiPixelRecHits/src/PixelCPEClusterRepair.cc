@@ -103,7 +103,7 @@ PixelCPEClusterRepair::PixelCPEClusterRepair(edm::ParameterSet const& conf,
   std::vector<std::string> str_recommend2D = conf.getParameter<std::vector<std::string>>("Recommend2D");
   recommend2D_.reserve(str_recommend2D.size());
   for (auto& str : str_recommend2D) {
-    recommend2D_.push_back(str);
+    recommend2D_.emplace_back(str);
   }
 
   // do not recommend 2D if theMagField!=3.8T
@@ -174,7 +174,7 @@ std::unique_ptr<PixelCPEBase::ClusterParam> PixelCPEClusterRepair::createCluster
 //  The main call to the template code.
 //------------------------------------------------------------------
 LocalPoint PixelCPEClusterRepair::localPosition(DetParam const& theDetParam, ClusterParam& theClusterParamBase) const {
-  ClusterParamTemplate& theClusterParam = static_cast<ClusterParamTemplate&>(theClusterParamBase);
+  auto& theClusterParam = static_cast<ClusterParamTemplate&>(theClusterParamBase);
   bool filled_from_2d = false;
 
   if (!GeomDetEnumerators::isTrackerPixel(theDetParam.thePart))
@@ -625,7 +625,7 @@ void PixelCPEClusterRepair::checkRecommend2D(DetParam const& theDetParam,
 //  localError() relies on localPosition() being called FIRST!!!
 //------------------------------------------------------------------
 LocalError PixelCPEClusterRepair::localError(DetParam const& theDetParam, ClusterParam& theClusterParamBase) const {
-  ClusterParamTemplate& theClusterParam = static_cast<ClusterParamTemplate&>(theClusterParamBase);
+  auto& theClusterParam = static_cast<ClusterParamTemplate&>(theClusterParamBase);
 
   //--- Default is the maximum error used for edge clusters.
   //--- (never used, in fact: let comment it out, shut up the complains of the static analyzer, and save a few CPU cycles)

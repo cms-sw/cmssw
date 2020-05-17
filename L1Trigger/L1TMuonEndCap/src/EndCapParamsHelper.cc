@@ -10,7 +10,7 @@ const EndCapParamsHelper* EndCapParamsHelper::readFromEventSetup(const L1TMuonEn
 }
 
 EndCapParamsHelper* EndCapParamsHelper::readAndWriteFromEventSetup(const L1TMuonEndCapParams* es) {
-  EndCapParamsHelper* x = new EndCapParamsHelper(es);
+  auto* x = new EndCapParamsHelper(es);
   x->useCopy();
   return x;
 }

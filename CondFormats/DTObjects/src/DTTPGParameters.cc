@@ -147,7 +147,7 @@ int DTTPGParameters::set(int wheelId, int stationId, int sectorId, int nc, float
     data.nClock = nc;
     data.tPhase = ph;
     ientry = dataList.size();
-    dataList.push_back(std::pair<DTTPGParametersId, DTTPGParametersData>(key, data));
+    dataList.emplace_back(key, data);
     dBuf->insert(chanKey.begin(), chanKey.end(), ientry);
     return 0;
   }

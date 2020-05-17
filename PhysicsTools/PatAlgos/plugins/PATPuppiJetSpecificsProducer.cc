@@ -66,7 +66,7 @@ void PATPuppiJetSpecificProducer::produce(edm::StreamID, edm::Event& evt, const 
     float HFEMPuppiMultiplicity = 0;
 
     for (unsigned i = 0; i < c.numberOfDaughters(); i++) {
-      const pat::PackedCandidate& dau = static_cast<const pat::PackedCandidate&>(*c.daughter(i));
+      const auto& dau = static_cast<const pat::PackedCandidate&>(*c.daughter(i));
       auto weight = dau.puppiWeight();
       puppiMultiplicity += weight;
       // This logic is taken from RecoJets/JetProducers/src/JetSpecific.cc

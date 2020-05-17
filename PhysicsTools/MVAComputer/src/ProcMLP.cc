@@ -63,15 +63,15 @@ namespace {  // anonymous
     typedef Calibration::ProcMLP::Neuron Neuron;
 
     coeffs.resize(neurons * (inputs + 1));
-    std::vector<double>::iterator inserter = coeffs.begin();
+    auto inserter = coeffs.begin();
 
-    for (std::vector<Neuron>::const_iterator iter = calib.first.begin(); iter != calib.first.end(); iter++) {
-      *inserter++ = iter->first;
+    for (const auto &iter : calib.first) {
+      *inserter++ = iter.first;
 
-      if (iter->second.size() != inputs)
+      if (iter.second.size() != inputs)
         throw cms::Exception("ProcMLPInput") << "ProcMLP neuron layer inconsistent." << std::endl;
 
-      inserter = std::copy(iter->second.begin(), iter->second.end(), inserter);
+      inserter = std::copy(iter.second.begin(), iter.second.end(), inserter);
     }
   }
 
@@ -107,10 +107,10 @@ namespace {  // anonymous
       *pos = *iter;
 
     double *output = nullptr;
-    for (std::vector<Layer>::const_iterator layer = layers.begin(); layer != layers.end(); layer++, flip = !flip) {
+    for (auto layer = layers.begin(); layer != layers.end(); layer++, flip = !flip) {
       const double *input = &tmp[flip ? maxTmp : 0];
       output = &tmp[flip ? 0 : maxTmp];
-      std::vector<double>::const_iterator coeff = layer->coeffs.begin();
+      auto coeff = layer->coeffs.begin();
       for (unsigned int i = 0; i < layer->neurons; i++) {
         double sum = *coeff++;
         for (unsigned int j = 0; j < layer->inputs; j++)
@@ -137,20 +137,20 @@ namespace {  // anonymous
     for (unsigned int i = 0; i < size; i++)
       nextMatrix[i * size + i] = 1.;
 
-    for (std::vector<Layer>::const_iterator layer = layers.begin(); layer != layers.end(); layer++) {
+    for (const auto &layer : layers) {
       prevValues.clear();
       std::swap(prevValues, nextValues);
       prevMatrix.clear();
       std::swap(prevMatrix, nextMatrix);
 
-      std::vector<double>::const_iterator coeff = layer->coeffs.begin();
-      for (unsigned int i = 0; i < layer->neurons; i++) {
+      auto coeff = layer.coeffs.begin();
+      for (unsigned int i = 0; i < layer.neurons; i++) {
         double sum = *coeff++;
-        for (unsigned int j = 0; j < layer->inputs; j++)
+        for (unsigned int j = 0; j < layer.inputs; j++)
           sum += prevValues[j] * *coeff++;
 
         double deriv;
-        if (layer->sigmoid) {
+        if (layer.sigmoid) {
           double e = std::exp(-sum);
           sum = 1.0 / (e + 1.0);
           deriv = 1.0 / (e + 1.0 / e + 2.0);
@@ -161,8 +161,8 @@ namespace {  // anonymous
 
         for (unsigned int k = 0; k < size; k++) {
           sum = 0.0;
-          coeff -= layer->inputs;
-          for (unsigned int j = 0; j < layer->inputs; j++)
+          coeff -= layer.inputs;
+          for (unsigned int j = 0; j < layer.inputs; j++)
             sum += prevMatrix[j * size + k] * *coeff++;
           nextMatrix.push_back(sum * deriv);
         }

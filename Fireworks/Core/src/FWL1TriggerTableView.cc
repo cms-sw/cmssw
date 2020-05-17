@@ -26,9 +26,9 @@
 FWL1TriggerTableView::FWL1TriggerTableView(TEveWindowSlot* iParent)
     : FWTriggerTableView(iParent, FWViewType::kTableL1) {
   m_columns[0].title = "Algorithm Name";
-  m_columns.push_back(Column("Result"));
-  m_columns.push_back(Column("Bit Number"));
-  m_columns.push_back(Column("Prescale"));
+  m_columns.emplace_back("Result");
+  m_columns.emplace_back("Bit Number");
+  m_columns.emplace_back("Prescale");
 
   dataChanged();
 }
@@ -75,11 +75,9 @@ void FWL1TriggerTableView::fillTable(fwlite::Event* event) {
           (int)prescaleFactorsAlgoTrig.size());
 
     const DecisionWord dWord = triggerRecord->decisionWord();
-    for (L1GtTriggerMenuLite::CItL1Trig itTrig = algorithmMap.begin(), itTrigEnd = algorithmMap.end();
-         itTrig != itTrigEnd;
-         ++itTrig) {
-      const unsigned int bitNumber = itTrig->first;
-      const std::string& aName = itTrig->second;
+    for (const auto& itTrig : algorithmMap) {
+      const unsigned int bitNumber = itTrig.first;
+      const std::string& aName = itTrig.second;
       int errorCode = 0;
       const bool result = triggerMenuLite->gtTriggerResult(aName, dWord, errorCode);
 
@@ -87,14 +85,14 @@ void FWL1TriggerTableView::fillTable(fwlite::Event* event) {
         continue;
 
       m_columns.at(0).values.push_back(aName);
-      m_columns.at(1).values.push_back(Form("%d", result));
-      m_columns.at(2).values.push_back(Form("%d", bitNumber));
+      m_columns.at(1).values.emplace_back(Form("%d", result));
+      m_columns.at(2).values.emplace_back(Form("%d", bitNumber));
 
       if ((pfIndexAlgoTrig < pfIndexAlgoTrigValidSize) &&
           static_cast<unsigned int>(prescaleFactorsAlgoTrig.at(pfIndexAlgoTrig).size()) > bitNumber) {
-        m_columns.at(3).values.push_back(Form("%d", prescaleFactorsAlgoTrig.at(pfIndexAlgoTrig).at(bitNumber)));
+        m_columns.at(3).values.emplace_back(Form("%d", prescaleFactorsAlgoTrig.at(pfIndexAlgoTrig).at(bitNumber)));
       } else
-        m_columns.at(3).values.push_back("invalid");
+        m_columns.at(3).values.emplace_back("invalid");
     }
 
     const static std::string kTechTriggerName = "TechTrigger";
@@ -103,29 +101,28 @@ void FWL1TriggerTableView::fillTable(fwlite::Event* event) {
     int tBitNumber = 0;
     int tBitResult = 0;
     if (boost::regex_search(kTechTriggerName, filter)) {
-      for (TechnicalTriggerWord::const_iterator tBitIt = ttWord.begin(), tBitEnd = ttWord.end(); tBitIt != tBitEnd;
-           ++tBitIt, ++tBitNumber) {
+      for (auto tBitIt = ttWord.begin(), tBitEnd = ttWord.end(); tBitIt != tBitEnd; ++tBitIt, ++tBitNumber) {
         if (*tBitIt)
           tBitResult = 1;
         else
           tBitResult = 0;
 
         m_columns.at(0).values.push_back(kTechTriggerName);
-        m_columns.at(1).values.push_back(Form("%d", tBitResult));
-        m_columns.at(2).values.push_back(Form("%d", tBitNumber));
+        m_columns.at(1).values.emplace_back(Form("%d", tBitResult));
+        m_columns.at(2).values.emplace_back(Form("%d", tBitNumber));
 
         if ((pfIndexTechTrig < pfIndexTechTrigValidSize) &&
             static_cast<int>(prescaleFactorsTechTrig.at(pfIndexTechTrig).size()) > tBitNumber) {
-          m_columns.at(3).values.push_back(Form("%d", prescaleFactorsTechTrig.at(pfIndexTechTrig).at(tBitNumber)));
+          m_columns.at(3).values.emplace_back(Form("%d", prescaleFactorsTechTrig.at(pfIndexTechTrig).at(tBitNumber)));
         } else
-          m_columns.at(3).values.push_back(Form("invalid"));
+          m_columns.at(3).values.emplace_back(Form("invalid"));
       }
     }
   }  // trigger valid
   else {
-    m_columns.at(0).values.push_back("No L1Trigger menu available.");
-    m_columns.at(1).values.push_back(" ");
-    m_columns.at(2).values.push_back(" ");
-    m_columns.at(3).values.push_back(" ");
+    m_columns.at(0).values.emplace_back("No L1Trigger menu available.");
+    m_columns.at(1).values.emplace_back(" ");
+    m_columns.at(2).values.emplace_back(" ");
+    m_columns.at(3).values.emplace_back(" ");
   }
 }

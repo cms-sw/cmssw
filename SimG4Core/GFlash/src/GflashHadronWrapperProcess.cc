@@ -1,6 +1,8 @@
 //
 // S.Y. Jun, August 2007
 //
+#include <utility>
+
 #include "SimG4Core/GFlash/interface/GflashHadronWrapperProcess.h"
 
 #include "G4GPILSelection.hh"
@@ -14,7 +16,7 @@ using namespace CLHEP;
 
 GflashHadronWrapperProcess::GflashHadronWrapperProcess(G4String processName)
     : particleChange(nullptr), pmanager(nullptr), fProcessVector(nullptr), fProcess(nullptr) {
-  theProcessName = processName;
+  theProcessName = std::move(processName);
 }
 
 GflashHadronWrapperProcess::~GflashHadronWrapperProcess() {}
@@ -161,7 +163,7 @@ G4VParticleChange *GflashHadronWrapperProcess::PostStepDoIt(const G4Track &track
   // this->PostStepDoIt in G4SteppingManager::InvokePSDIP
 
   // move the iterator to the (nSecondarySave+1)th element in the secondary list
-  G4TrackVector::iterator itv = fSecondary->begin();
+  auto itv = fSecondary->begin();
   itv += nSecondarySave;
 
   // delete next num2ndaries tracks from the secondary list

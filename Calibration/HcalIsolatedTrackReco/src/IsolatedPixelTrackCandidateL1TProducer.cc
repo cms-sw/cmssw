@@ -92,7 +92,7 @@ void IsolatedPixelTrackCandidateL1TProducer::beginRun(const edm::Run& run, const
 
   edm::ESHandle<MagneticField> vbfField;
   theEventSetup.get<IdealMagneticFieldRecord>().get(vbfField);
-  const VolumeBasedMagneticField* vbfCPtr = dynamic_cast<const VolumeBasedMagneticField*>(&(*vbfField));
+  const auto* vbfCPtr = dynamic_cast<const VolumeBasedMagneticField*>(&(*vbfField));
   GlobalVector BField = vbfCPtr->inTesla(GlobalPoint(0, 0, 0));
   bfVal_ = BField.mag();
   LogTrace("IsoTrack") << "rEB " << rEB_ << " zEE " << zEE_ << " B " << bfVal_ << std::endl;
@@ -104,11 +104,11 @@ void IsolatedPixelTrackCandidateL1TProducer::produce(edm::Event& theEvent, const
   //create vector of refs from input collections
   std::vector<reco::TrackRef> pixelTrackRefs;
 
-  for (unsigned int iPix = 0; iPix < toks_pix_.size(); iPix++) {
+  for (auto iPix : toks_pix_) {
     edm::Handle<reco::TrackCollection> iPixCol;
-    theEvent.getByToken(toks_pix_[iPix], iPixCol);
-    for (reco::TrackCollection::const_iterator pit = iPixCol->begin(); pit != iPixCol->end(); pit++) {
-      pixelTrackRefs.push_back(reco::TrackRef(iPixCol, pit - iPixCol->begin()));
+    theEvent.getByToken(iPix, iPixCol);
+    for (auto pit = iPixCol->begin(); pit != iPixCol->end(); pit++) {
+      pixelTrackRefs.emplace_back(iPixCol, pit - iPixCol->begin());
     }
   }
 
@@ -133,14 +133,14 @@ void IsolatedPixelTrackCandidateL1TProducer::produce(edm::Event& theEvent, const
   //  l1trigobj->getObjects(trigger::TriggerJet, l1jetobjref);
   l1trigobj->getObjects(trigger::TriggerL1Jet, l1jetobjref);
 
-  for (auto p : l1tauobjref) {
+  for (const auto& p : l1tauobjref) {
     if (p->pt() > ptTriggered) {
       ptTriggered = p->pt();
       phiTriggered = p->phi();
       etaTriggered = p->eta();
     }
   }
-  for (auto p : l1jetobjref) {
+  for (const auto& p : l1jetobjref) {
     if (p->pt() > ptTriggered) {
       ptTriggered = p->pt();
       phiTriggered = p->phi();
@@ -160,7 +160,7 @@ void IsolatedPixelTrackCandidateL1TProducer::produce(edm::Event& theEvent, const
     reco::VertexCollection::const_iterator vitSel;
     double minDZ = 1000;
     bool found(false);
-    for (reco::VertexCollection::const_iterator vit = pVert->begin(); vit != pVert->end(); vit++) {
+    for (auto vit = pVert->begin(); vit != pVert->end(); vit++) {
       if (std::abs(pixelTrackRefs[iS]->dz(vit->position())) < minDZ) {
         minDZ = std::abs(pixelTrackRefs[iS]->dz(vit->position()));
         vitSel = vit;
@@ -186,7 +186,7 @@ void IsolatedPixelTrackCandidateL1TProducer::produce(edm::Event& theEvent, const
     //check taujet matching
     bool tmatch = false;
     l1t::TauBxCollection::const_iterator selj;
-    for (l1t::TauBxCollection::const_iterator tj = l1eTauJets->begin(); tj != l1eTauJets->end(); tj++) {
+    for (auto tj = l1eTauJets->begin(); tj != l1eTauJets->end(); tj++) {
       if (reco::deltaR(pixelTrackRefs[iS]->momentum().eta(),
                        pixelTrackRefs[iS]->momentum().phi(),
                        tj->momentum().eta(),
@@ -224,7 +224,7 @@ void IsolatedPixelTrackCandidateL1TProducer::produce(edm::Event& theEvent, const
     if (pixelTrackRefs[iSeed]->p() < minPTrackValue_)
       continue;
     l1t::TauBxCollection::const_iterator selj;
-    for (l1t::TauBxCollection::const_iterator tj = l1eTauJets->begin(); tj != l1eTauJets->end(); tj++) {
+    for (auto tj = l1eTauJets->begin(); tj != l1eTauJets->end(); tj++) {
       if (reco::deltaR(pixelTrackRefs[iSeed]->momentum().eta(),
                        pixelTrackRefs[iSeed]->momentum().phi(),
                        tj->momentum().eta(),
@@ -247,7 +247,7 @@ void IsolatedPixelTrackCandidateL1TProducer::produce(edm::Event& theEvent, const
       double minDZ2(1000);
       bool found(false);
       reco::VertexCollection::const_iterator vitSel2;
-      for (reco::VertexCollection::const_iterator vit = pVert->begin(); vit != pVert->end(); vit++) {
+      for (auto vit = pVert->begin(); vit != pVert->end(); vit++) {
         if (std::abs(pixelTrackRefs[iSurr]->dz(vit->position())) < minDZ2) {
           minDZ2 = std::abs(pixelTrackRefs[iSurr]->dz(vit->position()));
           vitSel2 = vit;

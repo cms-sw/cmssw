@@ -88,18 +88,16 @@ void AlCaHcalNoiseProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     JetContainer.clear();
     CaloTower seedTower;
     nEvents++;
-    for (reco::CaloJetCollection::const_iterator calojetIter = calojetHandle->begin();
-         calojetIter != calojetHandle->end();
-         ++calojetIter) {
-      if (((calojetIter->et()) * cosh(calojetIter->eta()) > JetMinE_) &&
-          (calojetIter->energyFractionHadronic() > JetHCALminEnergyFraction_)) {
-        JetContainer.push_back(*calojetIter);
+    for (const auto& calojetIter : *calojetHandle) {
+      if (((calojetIter.et()) * cosh(calojetIter.eta()) > JetMinE_) &&
+          (calojetIter.energyFractionHadronic() > JetHCALminEnergyFraction_)) {
+        JetContainer.push_back(calojetIter);
         double maxTowerE = 0.0;
-        for (CaloTowerCollection::const_iterator kal = towerHandle->begin(); kal != towerHandle->end(); kal++) {
-          double dR = deltaR((*calojetIter).eta(), (*calojetIter).phi(), (*kal).eta(), (*kal).phi());
-          if ((dR < 0.50) && (kal->p() > maxTowerE)) {
-            maxTowerE = kal->p();
-            seedTower = *kal;
+        for (const auto& kal : *towerHandle) {
+          double dR = deltaR(calojetIter.eta(), calojetIter.phi(), kal.eta(), kal.phi());
+          if ((dR < 0.50) && (kal.p() > maxTowerE)) {
+            maxTowerE = kal.p();
+            seedTower = kal;
           }
         }
         TowerContainer.push_back(seedTower);
@@ -147,8 +145,8 @@ void AlCaHcalNoiseProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     for (i = toks_ecal_.begin(); i != toks_ecal_.end(); i++) {
       edm::Handle<EcalRecHitCollection> ec;
       iEvent.getByToken(*i, ec);
-      for (EcalRecHitCollection::const_iterator recHit = (*ec).begin(); recHit != (*ec).end(); ++recHit) {
-        tmpEcalRecHitCollection->push_back(*recHit);
+      for (const auto& recHit : (*ec)) {
+        tmpEcalRecHitCollection->push_back(recHit);
       }
     }
 
@@ -156,24 +154,22 @@ void AlCaHcalNoiseProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
     //////// write HCAL collections:
     const HBHERecHitCollection Hithbhe = *(hbhe.product());
-    for (HBHERecHitCollection::const_iterator hbheItr = Hithbhe.begin(); hbheItr != Hithbhe.end(); hbheItr++) {
-      miniHBHERecHitCollection->push_back(*hbheItr);
+    for (const auto& hbheItr : Hithbhe) {
+      miniHBHERecHitCollection->push_back(hbheItr);
     }
     const HORecHitCollection Hitho = *(ho.product());
-    for (HORecHitCollection::const_iterator hoItr = Hitho.begin(); hoItr != Hitho.end(); hoItr++) {
-      miniHORecHitCollection->push_back(*hoItr);
+    for (const auto& hoItr : Hitho) {
+      miniHORecHitCollection->push_back(hoItr);
     }
 
     const HFRecHitCollection Hithf = *(hf.product());
-    for (HFRecHitCollection::const_iterator hfItr = Hithf.begin(); hfItr != Hithf.end(); hfItr++) {
-      miniHFRecHitCollection->push_back(*hfItr);
+    for (const auto& hfItr : Hithf) {
+      miniHFRecHitCollection->push_back(hfItr);
     }
     /////
 
     ///// write ECAL
-    for (std::vector<EcalRecHit>::const_iterator ehit = tmpEcalRecHitCollection->begin();
-         ehit != tmpEcalRecHitCollection->end();
-         ehit++) {
+    for (auto ehit = tmpEcalRecHitCollection->begin(); ehit != tmpEcalRecHitCollection->end(); ehit++) {
       outputEColl->push_back(*ehit);
     }
     /////////
@@ -181,8 +177,8 @@ void AlCaHcalNoiseProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     // write PS
     const EcalRecHitCollection& psrechits = *(pRecHits.product());
 
-    for (EcalRecHitCollection::const_iterator i = psrechits.begin(); i != psrechits.end(); i++) {
-      outputESColl->push_back(*i);
+    for (const auto& psrechit : psrechits) {
+      outputESColl->push_back(psrechit);
     }
 
     // get HCAL FEDs
@@ -203,8 +199,8 @@ void AlCaHcalNoiseProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
     for (int j = 0; j < FEDNumbering::MAXFEDID; ++j) {
       bool rightFED = false;
-      for (uint32_t k = 0; k < selFEDs.size(); k++) {
-        if (j == selFEDs[k]) {
+      for (int selFED : selFEDs) {
+        if (j == selFED) {
           rightFED = true;
         }
       }

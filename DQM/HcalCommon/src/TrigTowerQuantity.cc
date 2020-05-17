@@ -56,7 +56,7 @@ namespace hcaldqm {
       std::vector<std::string> labels;
       for (int i = 0; i < 82; i++) {
         sprintf(name, "%d", getTid_TTieta(i).ieta());
-        labels.push_back(name);
+        labels.emplace_back(name);
       }
       return labels;
     }
@@ -66,7 +66,7 @@ namespace hcaldqm {
       std::vector<std::string> labels;
       for (int i = 0; i < 8; i++) {
         sprintf(name, "%d", getTid_TTieta2x3(i).ieta());
-        labels.push_back(name);
+        labels.emplace_back(name);
       }
       return labels;
     }
@@ -75,6 +75,8 @@ namespace hcaldqm {
 
     std::vector<std::string> getLabels_TTSubdet() {
       std::vector<std::string> labels;
+      labels.reserve(2);
+
       for (int i = 0; i < 2; i++)
         labels.push_back(constants::TPSUBDET_NAME[getTid_TTSubdet(i).ietaAbs() < 29 ? 0 : 1]);
       return labels;

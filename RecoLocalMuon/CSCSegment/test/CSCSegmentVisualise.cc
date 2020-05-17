@@ -89,15 +89,15 @@ void CSCSegmentVisualise::analyze(const edm::Event& event, const edm::EventSetup
   std::vector<CSCDetId>::const_iterator chIt;
 
   // First, create vector of chambers with rechits
-  for (CSCRecHit2DCollection::const_iterator it2 = recHits->begin(); it2 != recHits->end(); it2++) {
+  for (const auto& it2 : *recHits) {
     bool insert = true;
     for (chIt = chambers.begin(); chIt != chambers.end(); ++chIt)
-      if (((*it2).cscDetId().chamber() == (*chIt).chamber()) && ((*it2).cscDetId().station() == (*chIt).station()) &&
-          ((*it2).cscDetId().ring() == (*chIt).ring()) && ((*it2).cscDetId().endcap() == (*chIt).endcap()))
+      if ((it2.cscDetId().chamber() == (*chIt).chamber()) && (it2.cscDetId().station() == (*chIt).station()) &&
+          (it2.cscDetId().ring() == (*chIt).ring()) && (it2.cscDetId().endcap() == (*chIt).endcap()))
         insert = false;
 
     if (insert)
-      chambers.push_back((*it2).cscDetId().chamberId());
+      chambers.push_back(it2.cscDetId().chamberId());
   }
 
   for (chIt = chambers.begin(); chIt != chambers.end(); ++chIt) {
@@ -214,19 +214,19 @@ void CSCSegmentVisualise::analyze(const edm::Event& event, const edm::EventSetup
       CSCDetId idrec = (CSCDetId)(*rec_it).cscDetId();
       LocalPoint rhitlocal = (*rec_it).localPosition();
 
-      for (edm::PSimHitContainer::const_iterator sim_it = simHits->begin(); sim_it != simHits->end(); sim_it++) {
-        CSCDetId idsim = (CSCDetId)(*sim_it).detUnitId();
+      for (const auto& sim_it : *simHits) {
+        CSCDetId idsim = (CSCDetId)sim_it.detUnitId();
 
         if (idrec.endcap() == idsim.endcap() && idrec.station() == idsim.station() && idrec.ring() == idsim.ring() &&
             idrec.chamber() == idsim.chamber() && idrec.layer() == idsim.layer()) {
-          LocalPoint shitlocal = (*sim_it).localPosition();
+          LocalPoint shitlocal = sim_it.localPosition();
 
           float dx2 = (rhitlocal.x() - shitlocal.x()) * (rhitlocal.x() - shitlocal.x());
           float dy2 = (rhitlocal.y() - shitlocal.y()) * (rhitlocal.y() - shitlocal.y());
           float dr2 = dx2 + dy2;
           if (dr2 < r_closest) {
             r_closest = dr2;
-            if (abs((*sim_it).particleType()) != 13) {
+            if (abs(sim_it.particleType()) != 13) {
               isElec = true;
             } else {
               isElec = false;

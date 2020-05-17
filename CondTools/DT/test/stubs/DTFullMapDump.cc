@@ -33,7 +33,7 @@ namespace edmtest {
   void DTFullMapDump::endJob() {
     std::ifstream mapFile(fileName.c_str());
     //    DTExpandMap::expandSteering( mapFile );
-    DTReadOutMapping* compMap = new DTReadOutMapping("rob", "ros");
+    auto* compMap = new DTReadOutMapping("rob", "ros");
     int ddu;
     int ros;
     int rob;
@@ -67,8 +67,8 @@ namespace edmtest {
     //                                                   *compMap );
     const DTReadOutMapping* fullMap = compMap->fullMap();
     std::cout << "done" << std::endl;
-    DTReadOutMapping::const_iterator iter = fullMap->begin();
-    DTReadOutMapping::const_iterator iend = fullMap->end();
+    auto iter = fullMap->begin();
+    auto iend = fullMap->end();
     while (iter != iend) {
       const DTReadOutGeometryLink& link = *iter++;
       std::cout << link.dduId << " " << link.rosId << " " << link.robId << " " << link.tdcId << " " << link.channelId

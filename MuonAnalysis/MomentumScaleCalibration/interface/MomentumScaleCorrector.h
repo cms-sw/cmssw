@@ -42,7 +42,7 @@ public:
    * the parameters and the functions identifiers.
    */
   MomentumScaleCorrector(const MuScleFitDBobject* dbObject) : BaseFunction(dbObject) {
-    std::vector<int>::const_iterator id = functionId_.begin();
+    auto id = functionId_.begin();
     for (; id != functionId_.end(); ++id) {
       scaleFunctionVec_.push_back(scaleFunctionService(*id));
     }
@@ -89,7 +89,7 @@ public:
 
 protected:
   /// Parser of the parameters file
-  void readParameters(TString fileName);
+  void readParameters(const TString& fileName);
 
   scaleFunctionBase<double*>** scaleFunction_;
   std::vector<scaleFunctionBase<double*>*> scaleFunctionVec_;

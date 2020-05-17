@@ -60,7 +60,7 @@ void TriggerOutputBranches::updateTriggerNames(TTree& tree,
   }
 }
 
-edm::TriggerNames TriggerOutputBranches::triggerNames(const edm::TriggerResults triggerResults) {
+edm::TriggerNames TriggerOutputBranches::triggerNames(const edm::TriggerResults& triggerResults) {
   edm::pset::Registry* psetRegistry = edm::pset::Registry::instance();
   edm::ParameterSet const* pset = nullptr;
   if (nullptr != (pset = psetRegistry->getMapped(triggerResults.parameterSetID()))) {
@@ -96,7 +96,7 @@ void TriggerOutputBranches::fill(const edm::EventForOutput& iEvent, TTree& tree)
   m_fills++;
 }
 
-bool TriggerOutputBranches::verifyBranchUniqueName(TTree& tree, std::string name) const {
+bool TriggerOutputBranches::verifyBranchUniqueName(TTree& tree, const std::string& name) const {
   auto const branches = tree.GetListOfBranches();
   for (int i = 0; i < branches->GetEntries(); i++) {
     if (name == std::string(branches->At(i)->GetName())) {

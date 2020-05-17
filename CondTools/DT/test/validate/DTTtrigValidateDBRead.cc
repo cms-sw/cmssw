@@ -5,7 +5,7 @@ Toy EDAnalyzer for testing purposes only.
 
 ----------------------------------------------------------------------*/
 
-#include <math.h>
+#include <cmath>
 #include <stdexcept>
 #include <string>
 #include <iostream>
@@ -55,8 +55,8 @@ void DTTtrigValidateDBRead::analyze(const edm::Event& e, const edm::EventSetup& 
   float cktrig;
   float ckrms;
   float ckfact;
-  DTTtrig::const_iterator iter = tT->begin();
-  DTTtrig::const_iterator iend = tT->end();
+  auto iter = tT->begin();
+  auto iend = tT->end();
   while (iter != iend) {
     const DTTtrigId& tTId = iter->first;
     const DTTtrigData& tTData = iter->second;

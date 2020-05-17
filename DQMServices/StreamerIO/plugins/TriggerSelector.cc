@@ -286,7 +286,7 @@ namespace dqmservices {
     } else if (!found_lbracket && !found_rbracket)  // assume single trigger or wildcard (parsing)
     {
       bool ignore_if_missing = true;
-      size_t chr_pos = str_.find("@");
+      size_t chr_pos = str_.find('@');
       if (chr_pos != std::string::npos) {
         ignore_if_missing = false;
         str_ = str_.substr(0, chr_pos);
@@ -313,19 +313,19 @@ namespace dqmservices {
       }
       if (matches.size() > 1) {
         op_ = OR;
-        for (size_t l = 0; l < matches.size(); l++)
-          children_.push_back(new TreeElement(*(matches[l]), tr, this));
+        for (auto& matche : matches)
+          children_.push_back(new TreeElement(*matche, tr, this));
       }
     }
   }
 
   std::string TriggerSelector::trim(std::string input) {
     if (!input.empty()) {
-      std::string::size_type pos = input.find_first_not_of(" ");
+      std::string::size_type pos = input.find_first_not_of(' ');
       if (pos != std::string::npos)
         input.erase(0, pos);
 
-      pos = input.find_last_not_of(" ");
+      pos = input.find_last_not_of(' ');
       if (pos != std::string::npos)
         input.erase(pos + 1);
     }
@@ -335,8 +335,7 @@ namespace dqmservices {
   std::string TriggerSelector::makeXMLString(std::string const& input) {
     std::string output;
     if (!input.empty()) {
-      for (size_t pos = 0; pos < input.size(); pos++) {
-        char ch = input.at(pos);
+      for (char ch : input) {
         if (ch == '&')
           output.append("&amp;");
         else
@@ -370,13 +369,13 @@ namespace dqmservices {
     }
     if (op_ == AND) {  // AND
       bool status = true;
-      for (size_t i = 0; i < children_.size(); i++)
-        status = status && children_[i]->returnStatus(trStatus);
+      for (auto i : children_)
+        status = status && i->returnStatus(trStatus);
       return status;
     } else if (op_ == OR) {  // OR
       bool status = false;
-      for (size_t i = 0; i < children_.size(); i++)
-        status = status || children_[i]->returnStatus(trStatus);
+      for (auto i : children_)
+        status = status || i->returnStatus(trStatus);
       return status;
     }
     throw edm::Exception(edm::errors::Configuration)
@@ -385,8 +384,8 @@ namespace dqmservices {
   }
 
   TriggerSelector::TreeElement::~TreeElement() {
-    for (std::vector<TreeElement*>::iterator it = children_.begin(); it != children_.end(); it++)
-      delete *it;
+    for (auto& it : children_)
+      delete it;
     children_.clear();
   }
 }  // namespace dqmservices

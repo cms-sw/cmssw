@@ -19,9 +19,9 @@
 namespace popcon {
   class CSCDDUMapImpl : public popcon::PopConSourceHandler<CSCDDUMap> {
   public:
-    void getNewObjects();
-    std::string id() const { return m_name; }
-    ~CSCDDUMapImpl();
+    void getNewObjects() override;
+    std::string id() const override { return m_name; }
+    ~CSCDDUMapImpl() override;
     CSCDDUMapImpl(const edm::ParameterSet& pset);
 
   private:

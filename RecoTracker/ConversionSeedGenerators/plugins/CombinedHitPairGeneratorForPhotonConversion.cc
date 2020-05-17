@@ -1,4 +1,7 @@
 #include "CombinedHitPairGeneratorForPhotonConversion.h"
+
+#include <memory>
+
 #include "HitPairGeneratorFromLayerPairForPhotonConversion.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -14,8 +17,8 @@ CombinedHitPairGeneratorForPhotonConversion::CombinedHitPairGeneratorForPhotonCo
     : theSeedingLayerToken(iC.consumes<SeedingLayerSetsHits>(cfg.getParameter<edm::InputTag>("SeedingLayers"))) {
   theMaxElement = cfg.getParameter<unsigned int>("maxElement");
   maxHitPairsPerTrackAndGenerator = cfg.getParameter<unsigned int>("maxHitPairsPerTrackAndGenerator");
-  theGenerator.reset(
-      new HitPairGeneratorFromLayerPairForPhotonConversion(0, 1, &theLayerCache, 0, maxHitPairsPerTrackAndGenerator));
+  theGenerator = std::make_unique<HitPairGeneratorFromLayerPairForPhotonConversion>(
+      0, 1, &theLayerCache, 0, maxHitPairsPerTrackAndGenerator);
 }
 
 const OrderedHitPairs& CombinedHitPairGeneratorForPhotonConversion::run(const ConversionRegion& convRegion,
@@ -39,8 +42,8 @@ void CombinedHitPairGeneratorForPhotonConversion::hitPairs(const ConversionRegio
   const SeedingLayerSetsHits& layers = *hlayers;
   assert(layers.numberOfLayersInSet() == 2);
 
-  for (SeedingLayerSetsHits::LayerSetIndex i = 0; i < layers.size(); ++i) {
-    theGenerator->hitPairs(convRegion, region, result, layers[i], ev, es);
+  for (const auto& layer : layers) {
+    theGenerator->hitPairs(convRegion, region, result, layer, ev, es);
   }
 }
 

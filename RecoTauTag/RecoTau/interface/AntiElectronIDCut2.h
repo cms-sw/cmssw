@@ -49,23 +49,21 @@ public:
     float TauLeadChargedPFCandEtaAtEcalEntrance = -99.;
     float TauLeadChargedPFCandPt = -99.;
     const std::vector<reco::PFCandidatePtr>& signalPFCands = thePFTau.signalPFCands();
-    for (std::vector<reco::PFCandidatePtr>::const_iterator pfCandidate = signalPFCands.begin();
-         pfCandidate != signalPFCands.end();
-         ++pfCandidate) {
+    for (const auto& signalPFCand : signalPFCands) {
       const reco::Track* track = nullptr;
-      if ((*pfCandidate)->trackRef().isNonnull())
-        track = (*pfCandidate)->trackRef().get();
-      else if ((*pfCandidate)->muonRef().isNonnull() && (*pfCandidate)->muonRef()->innerTrack().isNonnull())
-        track = (*pfCandidate)->muonRef()->innerTrack().get();
-      else if ((*pfCandidate)->muonRef().isNonnull() && (*pfCandidate)->muonRef()->globalTrack().isNonnull())
-        track = (*pfCandidate)->muonRef()->globalTrack().get();
-      else if ((*pfCandidate)->muonRef().isNonnull() && (*pfCandidate)->muonRef()->outerTrack().isNonnull())
-        track = (*pfCandidate)->muonRef()->outerTrack().get();
-      else if ((*pfCandidate)->gsfTrackRef().isNonnull())
-        track = (*pfCandidate)->gsfTrackRef().get();
+      if (signalPFCand->trackRef().isNonnull())
+        track = signalPFCand->trackRef().get();
+      else if (signalPFCand->muonRef().isNonnull() && signalPFCand->muonRef()->innerTrack().isNonnull())
+        track = signalPFCand->muonRef()->innerTrack().get();
+      else if (signalPFCand->muonRef().isNonnull() && signalPFCand->muonRef()->globalTrack().isNonnull())
+        track = signalPFCand->muonRef()->globalTrack().get();
+      else if (signalPFCand->muonRef().isNonnull() && signalPFCand->muonRef()->outerTrack().isNonnull())
+        track = signalPFCand->muonRef()->outerTrack().get();
+      else if (signalPFCand->gsfTrackRef().isNonnull())
+        track = signalPFCand->gsfTrackRef().get();
       if (track) {
         if (track->pt() > TauLeadChargedPFCandPt) {
-          TauLeadChargedPFCandEtaAtEcalEntrance = (*pfCandidate)->positionAtECALEntrance().eta();
+          TauLeadChargedPFCandEtaAtEcalEntrance = signalPFCand->positionAtECALEntrance().eta();
           TauLeadChargedPFCandPt = track->pt();
         }
       }
@@ -137,8 +135,8 @@ public:
 
   void SetEcalCracks(const std::vector<pdouble>& etaCracks) {
     ecalCracks_.clear();
-    for (size_t i = 0; i < etaCracks.size(); i++)
-      ecalCracks_.push_back(etaCracks[i]);
+    for (const auto& etaCrack : etaCracks)
+      ecalCracks_.push_back(etaCrack);
   }
 
 private:

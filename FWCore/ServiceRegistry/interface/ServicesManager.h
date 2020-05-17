@@ -72,7 +72,7 @@ namespace edm {
       // ---------- const member functions ---------------------
       template <typename T>
       T& get() const {
-        Type2Service::const_iterator itFound = type2Service_.find(TypeIDBase(typeid(T)));
+        auto itFound = type2Service_.find(TypeIDBase(typeid(T)));
         Type2Maker::const_iterator itFoundMaker;
         if (itFound == type2Service_.end()) {
           //do on demand building of the service
@@ -98,7 +98,7 @@ namespace edm {
       ///returns true of the particular service is accessible
       template <typename T>
       bool isAvailable() const {
-        Type2Service::const_iterator itFound = type2Service_.find(TypeIDBase(typeid(T)));
+        auto itFound = type2Service_.find(TypeIDBase(typeid(T)));
         Type2Maker::const_iterator itFoundMaker;
         if (itFound == type2Service_.end()) {
           //do on demand building of the service
@@ -123,7 +123,7 @@ namespace edm {
       ///returns false if put fails because a service of this type already exists
       template <typename T>
       bool put(std::shared_ptr<ServiceWrapper<T>> iPtr) {
-        Type2Service::const_iterator itFound = type2Service_.find(TypeIDBase(typeid(T)));
+        auto itFound = type2Service_.find(TypeIDBase(typeid(T)));
         if (itFound != type2Service_.end()) {
           return false;
         }

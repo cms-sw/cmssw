@@ -30,7 +30,7 @@ namespace fwlite {
     virtual ~RunFactory();
 
     // ---------- const member functions ---------------------
-    std::shared_ptr<fwlite::Run> makeRun(std::shared_ptr<BranchMapReader> branchMap) const;
+    std::shared_ptr<fwlite::Run> makeRun(const std::shared_ptr<BranchMapReader>& branchMap) const;
 
   private:
     RunFactory(const RunFactory&) = delete;  // stop default

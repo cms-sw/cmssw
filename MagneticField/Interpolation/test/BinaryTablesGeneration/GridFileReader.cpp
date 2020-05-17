@@ -9,7 +9,7 @@
 #include <fstream>
 #include <iomanip>
 #include <cmath>
-#include <stdlib.h>
+#include <cstdlib>
 #include "DataFormats/Math/interface/approx_exp.h"
 inline int bits(int a) {
   unsigned int aa = abs(a);

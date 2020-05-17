@@ -172,8 +172,8 @@ public:
     std::vector<uint8_t> samples;
     if (status_) {
       samples.assign(totemSampicDataPtr_, totemSampicDataPtr_ + TotemSampicConstant::numberOfSamples);
-      for (auto it = samples.begin(); it != samples.end(); ++it)
-        *it = grayToBinary<uint8_t>(*it);
+      for (unsigned char& sample : samples)
+        sample = grayToBinary<uint8_t>(sample);
     }
     return samples;
   }

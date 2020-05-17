@@ -191,11 +191,11 @@ void DTDigiTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup
     LogVerbatim("DTDQM|DTMonitorModule|DTDigiTask")
         << "[DTDigiTask]: Reset at the LS transition : " << lumiBlock << endl;
     // Loop over all ME
-    map<string, map<uint32_t, MonitorElement*> >::const_iterator histosIt = digiHistos.begin();
-    map<string, map<uint32_t, MonitorElement*> >::const_iterator histosEnd = digiHistos.end();
+    auto histosIt = digiHistos.begin();
+    auto histosEnd = digiHistos.end();
     for (; histosIt != histosEnd; ++histosIt) {
-      map<uint32_t, MonitorElement*>::const_iterator histoIt = (*histosIt).second.begin();
-      map<uint32_t, MonitorElement*>::const_iterator histoEnd = (*histosIt).second.end();
+      auto histoIt = (*histosIt).second.begin();
+      auto histoEnd = (*histosIt).second.end();
       for (; histoIt != histoEnd; ++histoIt) {
         (*histoIt).second->Reset();
       }
@@ -215,12 +215,12 @@ void DTDigiTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup
     }
 
     // loop over wheel summaries
-    map<string, map<int, MonitorElement*> >::const_iterator whHistosIt = wheelHistos.begin();
-    map<string, map<int, MonitorElement*> >::const_iterator whHistosEnd = wheelHistos.end();
+    auto whHistosIt = wheelHistos.begin();
+    auto whHistosEnd = wheelHistos.end();
     for (; whHistosIt != whHistosEnd; ++whHistosIt) {
       if ((*whHistosIt).first.find("Sync") == string::npos) {  // FIXME skips synch noise plots
-        map<int, MonitorElement*>::const_iterator histoIt = (*whHistosIt).second.begin();
-        map<int, MonitorElement*>::const_iterator histoEnd = (*whHistosIt).second.end();
+        auto histoIt = (*whHistosIt).second.begin();
+        auto histoEnd = (*whHistosIt).second.end();
         for (; histoIt != histoEnd; ++histoIt) {
           (*histoIt).second->Reset();
         }
@@ -229,7 +229,10 @@ void DTDigiTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup
   }
 }
 
-void DTDigiTask::bookHistos(DQMStore::IBooker& ibooker, const DTSuperLayerId& dtSL, string folder, string histoTag) {
+void DTDigiTask::bookHistos(DQMStore::IBooker& ibooker,
+                            const DTSuperLayerId& dtSL,
+                            const string& folder,
+                            const string& histoTag) {
   // set the folder
   stringstream wheel;
   wheel << dtSL.wheel();
@@ -294,7 +297,10 @@ void DTDigiTask::bookHistos(DQMStore::IBooker& ibooker, const DTSuperLayerId& dt
   }
 }
 
-void DTDigiTask::bookHistos(DQMStore::IBooker& ibooker, const DTChamberId& dtCh, string folder, string histoTag) {
+void DTDigiTask::bookHistos(DQMStore::IBooker& ibooker,
+                            const DTChamberId& dtCh,
+                            const string& folder,
+                            const string& histoTag) {
   // set the current folder
   stringstream wheel;
   wheel << dtCh.wheel();
@@ -316,8 +322,8 @@ void DTDigiTask::bookHistos(DQMStore::IBooker& ibooker, const DTChamberId& dtCh,
   if (folder == "Occupancies") {
     const DTChamber* dtchamber = muonGeom->chamber(dtCh);
     const std::vector<const DTSuperLayer*>& dtSupLylist = dtchamber->superLayers();
-    std::vector<const DTSuperLayer*>::const_iterator suly = dtSupLylist.begin();
-    std::vector<const DTSuperLayer*>::const_iterator sulyend = dtSupLylist.end();
+    auto suly = dtSupLylist.begin();
+    auto sulyend = dtSupLylist.end();
 
     int nWires = 0;
     int firstWire = 0;
@@ -325,8 +331,8 @@ void DTDigiTask::bookHistos(DQMStore::IBooker& ibooker, const DTChamberId& dtCh,
 
     while (suly != sulyend) {
       const std::vector<const DTLayer*> dtLyList = (*suly)->layers();
-      std::vector<const DTLayer*>::const_iterator ly = dtLyList.begin();
-      std::vector<const DTLayer*>::const_iterator lyend = dtLyList.end();
+      auto ly = dtLyList.begin();
+      auto lyend = dtLyList.end();
       stringstream superLayer;
       superLayer << (*suly)->id().superlayer();
 
@@ -390,7 +396,10 @@ void DTDigiTask::bookHistos(DQMStore::IBooker& ibooker, const DTChamberId& dtCh,
   }
 }
 
-void DTDigiTask::bookHistos(DQMStore::IBooker& ibooker, const int wheelId, string folder, string histoTag) {
+void DTDigiTask::bookHistos(DQMStore::IBooker& ibooker,
+                            const int wheelId,
+                            const string& folder,
+                            const string& histoTag) {
   // Set the current folder
   stringstream wheel;
   wheel << wheelId;
@@ -474,8 +483,8 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
     }
 
     // check chamber with # of digis above threshold and flag them as noisy
-    map<DTChamberId, int>::const_iterator hitMapIt = hitMap.begin();
-    map<DTChamberId, int>::const_iterator hitMapEnd = hitMap.end();
+    auto hitMapIt = hitMap.begin();
+    auto hitMapEnd = hitMap.end();
 
     map<int, int> chMap;
 
@@ -499,8 +508,8 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
     }
 
     // fill # of noisy ch per wheel plot
-    map<int, int>::const_iterator chMapIt = chMap.begin();
-    map<int, int>::const_iterator chMapEnd = chMap.end();
+    auto chMapIt = chMap.begin();
+    auto chMapEnd = chMap.end();
     for (; chMapIt != chMapEnd; ++chMapIt) {
       wheelHistos["SyncNoiseChambs"][(*chMapIt).first]->Fill((*chMapIt).second);
     }
@@ -526,8 +535,8 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
           << " Lumi : " << event.id().luminosityBlock() << " Event : " << event.id().event()
           << " at time : " << ctime(&eventTime) << endl;
 
-      set<DTChamberId>::const_iterator chIt = syncNoisyChambers.begin();
-      set<DTChamberId>::const_iterator chEnd = syncNoisyChambers.end();
+      auto chIt = syncNoisyChambers.begin();
+      auto chEnd = syncNoisyChambers.end();
 
       stringstream synchNoisyCh;
       for (; chIt != chEnd; ++chIt) {
@@ -558,8 +567,7 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
       }
     }
 
-    for (DTDigiCollection::const_iterator digiIt = ((*dtLayerId_It).second).first;
-         digiIt != ((*dtLayerId_It).second).second;
+    for (auto digiIt = ((*dtLayerId_It).second).first; digiIt != ((*dtLayerId_It).second).second;
          ++digiIt) {  // Loop over all digis
 
       bool isNoisy = false;
@@ -625,7 +633,7 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
         if (doAllHitsOccupancies) {  // fill occupancies for all hits
           //Occupancies per chamber & layer
           histoTag = "OccupancyAllHits_perCh";
-          map<uint32_t, MonitorElement*>::const_iterator mappedHisto = digiHistos[histoTag].find(indexCh);
+          auto mappedHisto = digiHistos[histoTag].find(indexCh);
 
           //FR comment the following cannot pass ibooker to analyze method!
           /*
@@ -638,7 +646,7 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
 
           // Fill the chamber occupancy
           histoTag = "OccupancyAllHits";
-          map<int, MonitorElement*>::const_iterator histoPerWheel = wheelHistos[histoTag].find(dtChId.wheel());
+          auto histoPerWheel = wheelHistos[histoTag].find(dtChId.wheel());
 
           histoPerWheel->second->Fill(dtChId.sector(), dtChId.station());  // FIXME: normalize to # of layers
         }
@@ -650,14 +658,14 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
             // Noise: Before tTrig
             //Occupancies Noise per chamber & layer
             histoTag = "OccupancyNoise_perCh";
-            map<uint32_t, MonitorElement*>::const_iterator mappedHisto = digiHistos[histoTag].find(indexCh);
+            auto mappedHisto = digiHistos[histoTag].find(indexCh);
 
             mappedHisto->second->Fill((*digiIt).wire(), (layer_number + (superlayer_number - 1) * 4) - 1);
 
             // Fill the chamber occupancy
 
             histoTag = "OccupancyNoise";
-            map<int, MonitorElement*>::const_iterator histoPerWheel = wheelHistos[histoTag].find(dtChId.wheel());
+            auto histoPerWheel = wheelHistos[histoTag].find(dtChId.wheel());
 
             histoPerWheel->second->Fill(dtChId.sector(), dtChId.station());  // FIXME: normalize to # of layers
           }
@@ -669,13 +677,13 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
 
             //Occupancies Signal per chamber & layer
             histoTag = "OccupancyInTimeHits_perCh";
-            map<uint32_t, MonitorElement*>::const_iterator mappedHisto = digiHistos[histoTag].find(indexCh);
+            auto mappedHisto = digiHistos[histoTag].find(indexCh);
 
             mappedHisto->second->Fill((*digiIt).wire(), (layer_number + (superlayer_number - 1) * 4) - 1);
 
             // Fill the chamber occupancy
             histoTag = "OccupancyInTimeHits";
-            map<int, MonitorElement*>::const_iterator histoPerWheel = wheelHistos[histoTag].find(dtChId.wheel());
+            auto histoPerWheel = wheelHistos[histoTag].find(dtChId.wheel());
 
             histoPerWheel->second->Fill(dtChId.sector(), dtChId.station());  // FIXME: normalize to # of layers
           }
@@ -692,16 +700,16 @@ string DTDigiTask::triggerSource() {
   if (isLocalRun)
     return l1ASource;
 
-  for (std::vector<LTCDigi>::const_iterator ltc_it = ltcdigis->begin(); ltc_it != ltcdigis->end(); ltc_it++) {
+  for (const auto& ltc_it : *ltcdigis) {
     size_t otherTriggerSum = 0;
     for (size_t i = 1; i < 6; i++)
-      otherTriggerSum += size_t((*ltc_it).HasTriggered(i));
+      otherTriggerSum += size_t(ltc_it.HasTriggered(i));
 
-    if ((*ltc_it).HasTriggered(0) && otherTriggerSum == 0)
+    if (ltc_it.HasTriggered(0) && otherTriggerSum == 0)
       l1ASource = "DTonly";
-    else if (!(*ltc_it).HasTriggered(0))
+    else if (!ltc_it.HasTriggered(0))
       l1ASource = "NoDT";
-    else if ((*ltc_it).HasTriggered(0) && otherTriggerSum > 0)
+    else if (ltc_it.HasTriggered(0) && otherTriggerSum > 0)
       l1ASource = "DTalso";
   }
 
@@ -716,7 +724,7 @@ string DTDigiTask::topFolder() const {
   return string("DT/01-Digi/");
 }
 
-void DTDigiTask::channelsMap(const DTChamberId& dtCh, string histoTag) {
+void DTDigiTask::channelsMap(const DTChamberId& dtCh, const string& histoTag) {
   // n max channels
   int nWires_max = (digiHistos[histoTag])[dtCh.rawId()]->getNbinsX();
 

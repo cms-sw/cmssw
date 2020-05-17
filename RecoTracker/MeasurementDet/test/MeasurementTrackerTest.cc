@@ -49,10 +49,10 @@ namespace {
 class MeasurementTrackerTest : public edm::EDAnalyzer {
 public:
   explicit MeasurementTrackerTest(const edm::ParameterSet&);
-  ~MeasurementTrackerTest();
+  ~MeasurementTrackerTest() override;
 
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   std::string theMeasurementTrackerName;
   std::string theNavigationSchoolName;
@@ -126,7 +126,7 @@ void MeasurementTrackerTest::analyze(const edm::Event& iEvent, const edm::EventS
 
     GlobalVector moms[3] = {0.5f * startingMomentum, startingMomentum, 10.f * startingMomentum};
 
-    for (auto mom : moms) {
+    for (const auto& mom : moms) {
       TrajectoryStateOnSurface startingStateP(
           GlobalTrajectoryParameters(startingPosition, mom, 1, magfield.product()), err, *startingPlane);
       auto tsos = startingStateP;
@@ -139,7 +139,7 @@ void MeasurementTrackerTest::analyze(const edm::Event& iEvent, const edm::EventS
                   << " SubDet " << it->subDetector() << std::endl;
       }
       auto const& detWithState = layer->compatibleDets(tsos, ANprop, estimator);
-      if (!detWithState.size()) {
+      if (detWithState.empty()) {
         std::cout << "no det on first layer" << std::endl;
         continue;
       }
@@ -169,7 +169,7 @@ void MeasurementTrackerTest::analyze(const edm::Event& iEvent, const edm::EventS
           std::cout << il << (it->isBarrel() ? " Barrel" : " Forward") << " layer " << it->seqNum() << " SubDet "
                     << it->subDetector() << std::endl;
           auto const& detWithState = it->compatibleDets(tsos, ANprop, estimator);
-          if (!detWithState.size()) {
+          if (detWithState.empty()) {
             std::cout << "no det on this layer" << std::endl;
             continue;
           }

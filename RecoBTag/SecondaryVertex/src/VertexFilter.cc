@@ -39,7 +39,7 @@ bool VertexFilter::operator()(const Vertex &pv,
                               const TemplatedSecondaryVertex<reco::Vertex> &sv,
                               const GlobalVector &direction) const {
   std::vector<TrackRef> svTracks;
-  for (std::vector<TrackBaseRef>::const_iterator iter = sv.tracks_begin(); iter != sv.tracks_end(); iter++)
+  for (auto iter = sv.tracks_begin(); iter != sv.tracks_end(); iter++)
     if (sv.trackWeight(*iter) >= minTrackWeight)
       svTracks.push_back(iter->castTo<TrackRef>());
 

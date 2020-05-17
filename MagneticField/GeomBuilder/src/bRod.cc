@@ -29,10 +29,10 @@ bRod::bRod(handles::const_iterator begin, handles::const_iterator end, bool debu
   if (debug)
     std::cout << "     Z slabs: " << zmin << " " << zmax << std::endl;
 
-  handles::const_iterator first = volumes.begin();
-  handles::const_iterator last = volumes.end();
+  auto first = volumes.begin();
+  auto last = volumes.end();
 
-  for (handles::const_iterator i = first; i != last; ++i) {
+  for (auto i = first; i != last; ++i) {
     hisZ.fill((*i)->center().z());
   }
   std::vector<float> zClust = hisZ.clusterize(resolution);
@@ -41,8 +41,8 @@ bRod::bRod(handles::const_iterator begin, handles::const_iterator end, bool debu
     std::cout << "     Found " << zClust.size() << " clusters in Z, "
               << " slabs: " << std::endl;
 
-  handles::const_iterator slabStart = first;
-  handles::const_iterator separ = first;
+  auto slabStart = first;
+  auto separ = first;
 
   for (unsigned int i = 0; i < zClust.size() - 1; ++i) {
     float zSepar = (zClust[i] + zClust[i + 1]) / 2.f;
@@ -53,7 +53,7 @@ bRod::bRod(handles::const_iterator begin, handles::const_iterator end, bool debu
       printUniqueNames(slabStart, separ);
     }
 
-    slabs.push_back(bSlab(slabStart, separ, debug));
+    slabs.emplace_back(slabStart, separ, debug);
     slabStart = separ;
   }
   {
@@ -61,11 +61,11 @@ bRod::bRod(handles::const_iterator begin, handles::const_iterator end, bool debu
       std::cout << "     Slab at: " << zClust.back() << " elements: " << last - separ << " unique volumes: ";
       printUniqueNames(separ, last);
     }
-    slabs.push_back(bSlab(separ, last, debug));
+    slabs.emplace_back(separ, last, debug);
   }
 
   // Check that all slabs have the same dphi.
-  std::vector<bSlab>::const_iterator i = slabs.begin();
+  auto i = slabs.begin();
   Geom::Phi<float> phimax = (*i).maxPhi();
   Geom::Phi<float> phimin = (*i).minPhi();
   for (++i; i != slabs.end(); ++i) {
@@ -81,8 +81,8 @@ bRod::bRod(handles::const_iterator begin, handles::const_iterator end, bool debu
 MagBRod* bRod::buildMagBRod() const {
   if (mrod == nullptr) {
     std::vector<MagBSlab*> mSlabs;
-    for (std::vector<bSlab>::const_iterator slab = slabs.begin(); slab != slabs.end(); ++slab) {
-      mSlabs.push_back((*slab).buildMagBSlab());
+    for (const auto& slab : slabs) {
+      mSlabs.push_back(slab.buildMagBSlab());
     }
     mrod = new MagBRod(mSlabs, slabs.front().minPhi());  //FIXME
   }

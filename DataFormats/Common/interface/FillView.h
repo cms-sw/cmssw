@@ -34,7 +34,7 @@ namespace edm {
       ptrs.reserve(ptrs.size() + coll.size());
       helpers.reserve(ptrs.size() + coll.size());
       size_type key = 0;
-      for (iter i = coll.begin(), e = coll.end(); i != e; ++i, ++key) {
+      for (auto i = coll.begin(), e = coll.end(); i != e; ++i, ++key) {
         element_type const* address = GetProduct<product_type>::address(i);
         ptrs.push_back(address);
         helpers.emplace_back(id, key);

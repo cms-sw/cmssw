@@ -61,7 +61,7 @@ Local3DPoint SensitiveDetector::InitialStepPosition(const G4Step* step, coordina
   if (cd == WorldCoordinates) {
     return ConvertToLocal3DPoint(globalCoordinates);
   }
-  const G4TouchableHistory* theTouchable = static_cast<const G4TouchableHistory*>(preStepPoint->GetTouchable());
+  const auto* theTouchable = static_cast<const G4TouchableHistory*>(preStepPoint->GetTouchable());
   const G4ThreeVector localCoordinates =
       theTouchable->GetHistory()->GetTopTransform().TransformPoint(globalCoordinates);
   return ConvertToLocal3DPoint(localCoordinates);
@@ -94,7 +94,7 @@ Local3DPoint SensitiveDetector::LocalPostStepPosition(const G4Step* step) const 
 }
 
 TrackInformation* SensitiveDetector::cmsTrackInformation(const G4Track* aTrack) {
-  TrackInformation* info = (TrackInformation*)(aTrack->GetUserInformation());
+  auto* info = (TrackInformation*)(aTrack->GetUserInformation());
   if (!info) {
     edm::LogWarning("SensitiveDetector") << " no TrackInformation available for trackID= " << aTrack->GetTrackID();
     throw SimG4Exception("SimG4CoreSensitiveDetector: cannot handle hits for " + GetName());

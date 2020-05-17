@@ -121,8 +121,8 @@ void DTTimeEvolutionHisto::updateTimeSlot(int ls, int nEventsInLS) {
       int firstLSinTimeSlot = nEventsInLastTimeSlot.begin()->first;
       int lastLSinTimeSlot = nEventsInLastTimeSlot.rbegin()->first;
 
-      map<int, int>::const_iterator nEventsIt = nEventsInLastTimeSlot.begin();
-      map<int, int>::const_iterator nEventsEnd = nEventsInLastTimeSlot.end();
+      auto nEventsIt = nEventsInLastTimeSlot.begin();
+      auto nEventsEnd = nEventsInLastTimeSlot.end();
 
       int nEvents = 0;
       for (; nEventsIt != nEventsEnd; ++nEventsIt)
@@ -142,8 +142,8 @@ void DTTimeEvolutionHisto::updateTimeSlot(int ls, int nEventsInLS) {
       } else if (theMode == 2) {
         value = nEvents;
       } else if (theMode == 3) {
-        map<int, int>::const_iterator nLumiTrIt = nLumiTrInLastTimeSlot.begin();
-        map<int, int>::const_iterator nLumiTrEnd = nLumiTrInLastTimeSlot.end();
+        auto nLumiTrIt = nLumiTrInLastTimeSlot.begin();
+        auto nLumiTrEnd = nLumiTrInLastTimeSlot.end();
 
         float nLumiTr = 0.;
         for (; nLumiTrIt != nLumiTrEnd; ++nLumiTrIt)

@@ -9,6 +9,8 @@
 #include <iostream>
 #include <map>
 #include <boost/ptr_container/ptr_list.hpp>
+#include <utility>
+
 #include "OnlineDB/EcalCondDB/interface/Tm.h"
 #include "OnlineDB/EcalCondDB/interface/IUniqueDBObject.h"
 #include "OnlineDB/Oracle/interface/Oracle.h"
@@ -52,16 +54,16 @@ public:
   //  int getID()       { return m_ID; }
   std::string sequencePostfix(const Tm &t);
   int getID() const { return m_ID; }
-  int getInt(std::string fieldname) const;
+  int getInt(const std::string &fieldname) const;
   std::string getClassName() { return m_className; }
   std::string getClassName() const { return m_className; }
-  std::string getString(std::string fieldname) const;
+  std::string getString(const std::string &fieldname) const;
 
   int fetchID() noexcept(false) override;
 
-  LMFUnique &setString(std::string key, std::string value);
-  LMFUnique &setInt(std::string key, int value);
-  void attach(std::string name, LMFUnique *u);
+  LMFUnique &setString(const std::string &key, const std::string &value);
+  LMFUnique &setInt(const std::string &key, int value);
+  void attach(const std::string &name, LMFUnique *u);
   void setByID(int id) noexcept(false) override;
 
   virtual void dump() const;
@@ -90,7 +92,7 @@ protected:
   virtual void getParameters(ResultSet *rset) {}
   virtual int writeDB() noexcept(false);
   virtual int writeForeignKeys() noexcept(false);
-  virtual void setClassName(std::string s) { m_className = s; }
+  virtual void setClassName(std::string s) { m_className = std::move(s); }
 
   std::string m_className;
   char m_debug;

@@ -32,6 +32,8 @@
 
 #include <iomanip>
 #include <string>
+#include <utility>
+
 #include <vector>
 #include <sstream>
 #include <algorithm>
@@ -46,7 +48,7 @@ using namespace edm;
 using namespace angle_units::operators;
 
 MagGeoBuilder::MagGeoBuilder(string tableSet, int geometryVersion, bool debug)
-    : tableSet_(tableSet), geometryVersion_(geometryVersion), theGridFiles_(nullptr), debug_(debug) {
+    : tableSet_(std::move(tableSet)), geometryVersion_(geometryVersion), theGridFiles_(nullptr), debug_(debug) {
   LogTrace("MagGeoBuilder") << "Constructing a MagGeoBuilder";
 }
 
@@ -156,7 +158,7 @@ void MagGeoBuilder::build(const cms::DDDetector* det) {
 
     if (theGridFiles_ != nullptr) {
       int key = (v->volumeno) * 100 + v->copyno;
-      TableFileMap::const_iterator itable = theGridFiles_->find(key);
+      auto itable = theGridFiles_->find(key);
       if (itable == theGridFiles_->end()) {
         key = (v->volumeno) * 100;
         itable = theGridFiles_->find(key);
@@ -257,16 +259,16 @@ void MagGeoBuilder::build(const cms::DDDetector* det) {
 
   LogTrace("MagGeoBuilder") << " R layers: " << rmin << " " << rmax;
 
-  handles::const_iterator first = bVolumes_.begin();
-  handles::const_iterator last = bVolumes_.end();
+  auto first = bVolumes_.begin();
+  auto last = bVolumes_.end();
 
   for (auto i : bVolumes_) {
     hisR.fill(i->RN());
   }
   vector<float> rClust = hisR.clusterize(resolution);
 
-  handles::const_iterator ringStart = first;
-  handles::const_iterator separ = first;
+  auto ringStart = first;
+  auto separ = first;
 
   for (unsigned int i = 0; i < rClust.size() - 1; ++i) {
     if (debug_)
@@ -316,14 +318,14 @@ void MagGeoBuilder::build(const cms::DDDetector* det) {
   // Handle the -pi/pi boundary: volumes crossing it could be half at the begin and half at end of the sorted list.
   // So, check if any of the volumes that should belong to the first bin (at -phi) are at the end of the list:
   float lastBinPhi = phiClust.back();
-  handles::reverse_iterator ri = eVolumes_.rbegin();
+  auto ri = eVolumes_.rbegin();
   while ((*ri)->center().phi() > lastBinPhi) {
     ++ri;
   }
   if (ri != eVolumes_.rbegin()) {
     // ri points to the first element that is within the last bin.
     // We need to move the following element (ie ri.base()) to the beginning of the list,
-    handles::iterator newbeg = ri.base();
+    auto newbeg = ri.base();
     rotate(eVolumes_.begin(), newbeg, eVolumes_.end());
   }
 
@@ -334,8 +336,7 @@ void MagGeoBuilder::build(const cms::DDDetector* det) {
       LogTrace("MagGeoBuilder") << " Sector at phi = " << (*(eVolumes_.begin() + ((i)*offset)))->center().phi();
       // Additional x-check: sectors are expected to be made by volumes with the same copyno
       int secCopyNo = -1;
-      for (handles::const_iterator iv = eVolumes_.begin() + ((i)*offset); iv != eVolumes_.begin() + ((i + 1) * offset);
-           ++iv) {
+      for (auto iv = eVolumes_.begin() + ((i)*offset); iv != eVolumes_.begin() + ((i + 1) * offset); ++iv) {
         if (secCopyNo >= 0 && (*iv)->copyno != secCopyNo)
           LogTrace("MagGeoBuilder") << "ERROR: volume copyno " << (*iv)->name << ":" << (*iv)->copyno
                                     << " differs from others in same sectors with copyno = " << secCopyNo;
@@ -343,7 +344,7 @@ void MagGeoBuilder::build(const cms::DDDetector* det) {
       }
     }
 
-    sectors.push_back(eSector(eVolumes_.begin() + ((i)*offset), eVolumes_.begin() + ((i + 1) * offset), debug_));
+    sectors.emplace_back(eVolumes_.begin() + ((i)*offset), eVolumes_.begin() + ((i + 1) * offset), debug_);
   }
 
   LogTrace("MagGeoBuilder") << "Endcap: Found " << sectors.size() << " sectors ";
@@ -357,7 +358,7 @@ void MagGeoBuilder::build(const cms::DDDetector* det) {
   buildMagVolumes(bVolumes_, bInterpolators);
 
   // Build MagBLayers
-  for (auto ilay : layers) {
+  for (const auto& ilay : layers) {
     mBLayers_.push_back(ilay.buildMagBLayer());
   }
   LogTrace("MagGeoBuilder") << "*** BARREL ********************************************" << newln
@@ -372,7 +373,7 @@ void MagGeoBuilder::build(const cms::DDDetector* det) {
   buildMagVolumes(eVolumes_, eInterpolators);
 
   // Build the MagESectors
-  for (auto isec : sectors) {
+  for (const auto& isec : sectors) {
     mESectors_.push_back(isec.buildMagESector());
   }
   LogTrace("MagGeoBuilder") << "*** ENDCAP ********************************************" << newln
@@ -399,7 +400,7 @@ void MagGeoBuilder::buildMagVolumes(const handles& volumes, map<string, MagProvi
     // Search for [volume,sector] in the list of scaling factors; sector = 0 handled as wildcard
     // ASSUMPTION: copyno == sector.
     int key = (vol->volumeno) * 100 + vol->copyno;
-    map<int, double>::const_iterator isf = theScalingFactors_.find(key);
+    auto isf = theScalingFactors_.find(key);
     if (isf == theScalingFactors_.end()) {
       key = (vol->volumeno) * 100;
       isf = theScalingFactors_.find(key);

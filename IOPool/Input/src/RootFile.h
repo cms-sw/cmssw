@@ -29,6 +29,8 @@ RootFile.h // used by ROOT input sources
 #include <map>
 #include <memory>
 #include <string>
+#include <utility>
+
 #include <vector>
 
 namespace edm {
@@ -66,8 +68,8 @@ namespace edm {
     RootFile(std::string const& fileName,
              ProcessConfiguration const& processConfiguration,
              std::string const& logicalFileName,
-             std::shared_ptr<InputFile> filePtr,
-             std::shared_ptr<EventSkipperByID> eventSkipperByID,
+             const std::shared_ptr<InputFile>& filePtr,
+             const std::shared_ptr<EventSkipperByID>& eventSkipperByID,
              bool skipAnyEvents,
              int remainingEvents,
              int remainingLumis,
@@ -79,10 +81,10 @@ namespace edm {
              bool noEventSort,
              ProductSelectorRules const& productSelectorRules,
              InputType inputType,
-             std::shared_ptr<BranchIDListHelper> branchIDListHelper,
-             std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper,
+             const std::shared_ptr<BranchIDListHelper>& branchIDListHelper,
+             const std::shared_ptr<ThinnedAssociationsHelper>& thinnedAssociationsHelper,
              std::vector<BranchID> const* associationsFromSecondary,
-             std::shared_ptr<DuplicateChecker> duplicateChecker,
+             const std::shared_ptr<DuplicateChecker>& duplicateChecker,
              bool dropDescendantsOfDroppedProducts,
              ProcessHistoryRegistry& processHistoryRegistry,
              std::vector<std::shared_ptr<IndexIntoFile>> const& indexesIntoFiles,
@@ -119,7 +121,7 @@ namespace edm {
         : RootFile(fileName,
                    processConfiguration,
                    logicalFileName,
-                   filePtr,
+                   std::move(filePtr),
                    nullptr,
                    false,
                    -1,
@@ -132,8 +134,8 @@ namespace edm {
                    false,
                    productSelectorRules,
                    inputType,
-                   branchIDListHelper,
-                   thinnedAssociationsHelper,
+                   std::move(branchIDListHelper),
+                   std::move(thinnedAssociationsHelper),
                    associationsFromSecondary,
                    nullptr,
                    dropDescendantsOfDroppedProducts,
@@ -167,7 +169,7 @@ namespace edm {
         : RootFile(fileName,
                    processConfiguration,
                    logicalFileName,
-                   filePtr,
+                   std::move(filePtr),
                    nullptr,
                    false,
                    -1,

@@ -118,8 +118,7 @@ namespace emtf {
     sortedCands->setBXRange(minBX, maxBX);
     for (int iBX = minBX; iBX <= maxBX; ++iBX) {
       for (int proc = emtfMinProc; proc <= emtfMaxProc; proc++) {
-        for (l1t::RegionalMuonCandBxCollection::const_iterator cand = cands.begin(iBX); cand != cands.end(iBX);
-             ++cand) {
+        for (auto cand = cands.begin(iBX); cand != cands.end(iBX); ++cand) {
           int cand_proc = cand->processor();
           if (cand->trackFinderType() == l1t::tftype::emtf_neg)
             cand_proc += 6;

@@ -119,9 +119,9 @@ void GEMPadDigiValidation::analyze(const edm::Event& event, const edm::EventSetu
   }
 
   // type of range_iter: GEMPadDigiCollection::DigiRangeIterator
-  for (auto range_iter = collection->begin(); range_iter != collection->end(); range_iter++) {
-    GEMDetId gemid = (*range_iter).first;
-    const auto& range = (*range_iter).second;
+  for (auto&& range_iter : *collection) {
+    GEMDetId gemid = range_iter.first;
+    const auto& range = range_iter.second;
 
     if (gem->idToDet(gemid) == nullptr) {
       edm::LogError(kLogCategory_) << "Getting DetId failed. Discard this gem pad hit. "

@@ -23,9 +23,9 @@ simromanpot::strip_charge_map RPGaussianTailNoiseAdder::addNoise(const simromanp
   simromanpot::strip_charge_map the_strip_charge_map;
 
   // noise on strips with signal:
-  for (simromanpot::strip_charge_map::const_iterator i = theSignal.begin(); i != theSignal.end(); ++i) {
+  for (auto i : theSignal) {
     double noise = CLHEP::RandGauss::shoot(&(rndEngine_), 0.0, theNoiseInElectrons);
-    the_strip_charge_map[i->first] = i->second + noise;
+    the_strip_charge_map[i.first] = i.second + noise;
     if (verbosity_)
       edm::LogInfo("RPDigiProducer") << "noise added to signal strips: " << noise << "\n";
   }

@@ -26,6 +26,7 @@
 //C++ headers
 #include <iostream>
 #include <sstream>
+#include <utility>
 
 using namespace edm;
 using namespace std;
@@ -76,7 +77,7 @@ void DTLocalTriggerBaseTest::endRun(Run const& run, EventSetup const& context) {
 }
 
 void DTLocalTriggerBaseTest::setConfig(const edm::ParameterSet& ps, string name) {
-  testName = name;
+  testName = std::move(name);
 
   LogTrace(category()) << "[" << testName << "Test]: Constructor";
 
@@ -85,7 +86,7 @@ void DTLocalTriggerBaseTest::setConfig(const edm::ParameterSet& ps, string name)
   hwSources = ps.getUntrackedParameter<vector<string> >("hwSources");
 
   if (ps.getUntrackedParameter<bool>("localrun", true)) {
-    trigSources.push_back("");
+    trigSources.emplace_back("");
   } else {
     trigSources = ps.getUntrackedParameter<vector<string> >("trigSources");
   }
@@ -96,9 +97,9 @@ void DTLocalTriggerBaseTest::setConfig(const edm::ParameterSet& ps, string name)
   prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
 }
 
-string DTLocalTriggerBaseTest::fullName(string htype) { return hwSource + "_" + htype + trigSource; }
+string DTLocalTriggerBaseTest::fullName(const string& htype) { return hwSource + "_" + htype + trigSource; }
 
-string DTLocalTriggerBaseTest::getMEName(string histoTag, string subfolder, const DTChamberId& chambid) {
+string DTLocalTriggerBaseTest::getMEName(string histoTag, const string& subfolder, const DTChamberId& chambid) {
   stringstream wheel;
   wheel << chambid.wheel();
   stringstream station;
@@ -111,13 +112,13 @@ string DTLocalTriggerBaseTest::getMEName(string histoTag, string subfolder, cons
     folderName += subfolder + "/";
   }
 
-  string histoname = sourceFolder + folderName + fullName(histoTag) + "_W" + wheel.str() + "_Sec" + sector.str() +
-                     "_St" + station.str();
+  string histoname = sourceFolder + folderName + fullName(std::move(histoTag)) + "_W" + wheel.str() + "_Sec" +
+                     sector.str() + "_St" + station.str();
 
   return histoname;
 }
 
-string DTLocalTriggerBaseTest::getMEName(string histoTag, string subfolder, int wh) {
+string DTLocalTriggerBaseTest::getMEName(string histoTag, const string& subfolder, int wh) {
   stringstream wheel;
   wheel << wh;
 
@@ -126,13 +127,13 @@ string DTLocalTriggerBaseTest::getMEName(string histoTag, string subfolder, int 
     folderName += subfolder + "/";
   }
 
-  string histoname = sourceFolder + folderName + fullName(histoTag) + "_W" + wheel.str();
+  string histoname = sourceFolder + folderName + fullName(std::move(histoTag)) + "_W" + wheel.str();
 
   return histoname;
 }
 
 void DTLocalTriggerBaseTest::bookSectorHistos(
-    DQMStore::IBooker& ibooker, int wheel, int sector, string hTag, string folder) {
+    DQMStore::IBooker& ibooker, int wheel, int sector, const string& hTag, const string& folder) {
   stringstream wh;
   wh << wheel;
   stringstream sc;
@@ -191,7 +192,10 @@ void DTLocalTriggerBaseTest::bookSectorHistos(
   }
 }
 
-void DTLocalTriggerBaseTest::bookCmsHistos(DQMStore::IBooker& ibooker, string hTag, string folder, bool isGlb) {
+void DTLocalTriggerBaseTest::bookCmsHistos(DQMStore::IBooker& ibooker,
+                                           const string& hTag,
+                                           const string& folder,
+                                           bool isGlb) {
   string basedir = topFolder();
   if (!folder.empty()) {
     basedir += folder + "/";
@@ -208,7 +212,10 @@ void DTLocalTriggerBaseTest::bookCmsHistos(DQMStore::IBooker& ibooker, string hT
   cmsME[hname] = me;
 }
 
-void DTLocalTriggerBaseTest::bookWheelHistos(DQMStore::IBooker& ibooker, int wheel, string hTag, string folder) {
+void DTLocalTriggerBaseTest::bookWheelHistos(DQMStore::IBooker& ibooker,
+                                             int wheel,
+                                             const string& hTag,
+                                             const string& folder) {
   stringstream wh;
   wh << wheel;
   string basedir;

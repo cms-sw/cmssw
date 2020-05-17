@@ -64,15 +64,15 @@ void CSCSegmentBuilder::build(const CSCRecHit2DCollection* recHits, CSCSegmentCo
   std::vector<CSCDetId> chambers;
   std::vector<CSCDetId>::const_iterator chIt;
 
-  for (CSCRecHit2DCollection::const_iterator it2 = recHits->begin(); it2 != recHits->end(); it2++) {
+  for (const auto& recHit : *recHits) {
     bool insert = true;
     for (chIt = chambers.begin(); chIt != chambers.end(); ++chIt)
-      if (((*it2).cscDetId().chamber() == (*chIt).chamber()) && ((*it2).cscDetId().station() == (*chIt).station()) &&
-          ((*it2).cscDetId().ring() == (*chIt).ring()) && ((*it2).cscDetId().endcap() == (*chIt).endcap()))
+      if ((recHit.cscDetId().chamber() == (*chIt).chamber()) && (recHit.cscDetId().station() == (*chIt).station()) &&
+          (recHit.cscDetId().ring() == (*chIt).ring()) && (recHit.cscDetId().endcap() == (*chIt).endcap()))
         insert = false;
 
     if (insert)
-      chambers.push_back((*it2).cscDetId().chamberId());
+      chambers.push_back(recHit.cscDetId().chamberId());
   }
 
   for (chIt = chambers.begin(); chIt != chambers.end(); ++chIt) {

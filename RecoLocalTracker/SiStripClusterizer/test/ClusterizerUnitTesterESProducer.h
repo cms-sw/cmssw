@@ -22,7 +22,7 @@ class ClusterizerUnitTesterESProducer : public edm::ESProducer {
 
 public:
   ClusterizerUnitTesterESProducer(const PSet&);
-  ~ClusterizerUnitTesterESProducer() {}
+  ~ClusterizerUnitTesterESProducer() override {}
   std::shared_ptr<const SiStripGain> produceGainRcd(const SiStripGainRcd&) { return gain_; }
   std::shared_ptr<const SiStripNoises> produceNoisesRcd(const SiStripNoisesRcd&) { return noises_; }
   std::shared_ptr<const SiStripQuality> produceQualityRcd(const SiStripQualityRcd&) { return quality_; }

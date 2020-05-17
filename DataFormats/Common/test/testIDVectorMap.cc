@@ -8,8 +8,8 @@ class testIDVectorMap : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
   void checkAll();
 };
 
@@ -74,7 +74,7 @@ void testIDVectorMap::checkAll() {
 
   map::range r = m.get(1);
   CPPUNIT_ASSERT(r.end - r.begin == s1);
-  map::container_iterator j = r.begin;
+  auto j = r.begin;
   CPPUNIT_ASSERT(*j++ == 1);
   CPPUNIT_ASSERT(*j++ == 2);
   CPPUNIT_ASSERT(*j++ == 3);

@@ -47,7 +47,7 @@ std::unique_ptr<L1GtPsbSetup> L1GtPsbSetupConfigOnlineProd::newObject(const std:
   // SELECT PSB_SLOT_*_SETUP_FK FROM CMS_GT.GT_SETUP WHERE GT_SETUP.ID = MyKey
   std::vector<std::string> psbColumns = m_omdsReader.columnNames(gtSchema, "GT_SETUP");
 
-  std::vector<std::string>::iterator newEnd = std::remove_if(psbColumns.begin(), psbColumns.end(), &notPsbColumnName);
+  auto newEnd = std::remove_if(psbColumns.begin(), psbColumns.end(), &notPsbColumnName);
   psbColumns.erase(newEnd, psbColumns.end());
 
   // select * from CMS_GT.GT_SETUP where GT_SETUP.ID = objectKey
@@ -61,12 +61,12 @@ std::unique_ptr<L1GtPsbSetup> L1GtPsbSetupConfigOnlineProd::newObject(const std:
   }
 
   // fill the psbConfigurations vector
-  for (std::vector<std::string>::const_iterator it = psbColumns.begin(); it != psbColumns.end(); ++it) {
+  for (const auto& psbColumn : psbColumns) {
     std::string psbKey;
-    psbKeys.fillVariable(*it, psbKey);
+    psbKeys.fillVariable(psbColumn, psbKey);
 
     if (psbKey.empty()) {
-      addDefaultPsb(*it, psbConfigurations);
+      addDefaultPsb(psbColumn, psbConfigurations);
     } else {
       addPsbFromDb(psbKey, psbConfigurations);
     }

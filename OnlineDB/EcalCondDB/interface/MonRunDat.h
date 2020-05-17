@@ -1,6 +1,8 @@
 #ifndef MONRUNDAT_H
 #define MONRUNDAT_H
 
+#include <utility>
+
 #include <vector>
 #include <stdexcept>
 
@@ -24,7 +26,7 @@ public:
   inline void setMonRunOutcomeDef(const MonRunOutcomeDef& outcomeDef) { m_outcomeDef = outcomeDef; }
   inline MonRunOutcomeDef getMonRunOutcomeDef() const { return m_outcomeDef; }
 
-  inline void setRootfileName(std::string name) { m_rootfileName = name; }
+  inline void setRootfileName(std::string name) { m_rootfileName = std::move(name); }
   inline std::string getRootfileName() const { return m_rootfileName; }
 
   inline void setTaskList(int list) { m_taskList = list; }

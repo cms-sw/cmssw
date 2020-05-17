@@ -28,9 +28,8 @@ public:
       : corrector(), token_(consumes<METCollection>(cfg.getParameter<edm::InputTag>("src"))) {
     std::vector<edm::InputTag> corrInputTags = cfg.getParameter<std::vector<edm::InputTag> >("srcCorrections");
     std::vector<edm::EDGetTokenT<CorrMETData> > corrTokens;
-    for (std::vector<edm::InputTag>::const_iterator inputTag = corrInputTags.begin(); inputTag != corrInputTags.end();
-         ++inputTag) {
-      corrTokens.push_back(consumes<CorrMETData>(*inputTag));
+    for (const auto& corrInputTag : corrInputTags) {
+      corrTokens.push_back(consumes<CorrMETData>(corrInputTag));
     }
 
     corrector.setCorTokens(corrTokens);
@@ -44,7 +43,7 @@ public:
     edm::ParameterSetDescription desc;
     desc.add<edm::InputTag>("src", edm::InputTag("pfMet", ""));
     std::vector<edm::InputTag> tmpv;
-    tmpv.push_back(edm::InputTag("corrPfMetType1", "type1"));
+    tmpv.emplace_back("corrPfMetType1", "type1");
     desc.add<std::vector<edm::InputTag> >("srcCorrections", tmpv);
     descriptions.add(defaultModuleLabel<CorrectedPFMETProducer>(), desc);
   }

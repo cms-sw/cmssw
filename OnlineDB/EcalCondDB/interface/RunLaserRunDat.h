@@ -1,6 +1,8 @@
 #ifndef RUNLASERRUNDAT_H
 #define RUNLASERRUNDAT_H
 
+#include <utility>
+
 #include <vector>
 #include <stdexcept>
 
@@ -17,10 +19,10 @@ public:
   // User data methods
   inline std::string getTable() override { return "RUN_LASERRUN_CONFIG_DAT"; }
 
-  inline void setLaserSequenceType(std::string x) { m_laserSeqType = x; }
+  inline void setLaserSequenceType(std::string x) { m_laserSeqType = std::move(x); }
   inline std::string getLaserSequenceType() const { return m_laserSeqType; }
   //
-  inline void setLaserSequenceCond(std::string x) { m_laserSeqCond = x; }
+  inline void setLaserSequenceCond(std::string x) { m_laserSeqCond = std::move(x); }
   inline std::string getLaserSequenceCond() const { return m_laserSeqCond; }
 
 private:

@@ -60,21 +60,21 @@ namespace tadqm {
 
   private:
     void initHistos();
-    void fillHistosForState(const edm::EventSetup& iSetup, const reco::Track& track, std::string sname);
-    void bookHistosForState(std::string sname, DQMStore::IBooker& ibooker);
+    void fillHistosForState(const edm::EventSetup& iSetup, const reco::Track& track, const std::string& sname);
+    void bookHistosForState(const std::string& sname, DQMStore::IBooker& ibooker);
     void bookHistosForHitProperties(DQMStore::IBooker& ibooker);
     void bookHistosForLScertification(DQMStore::IBooker& ibooker);
     void bookHistosForBeamSpot(DQMStore::IBooker& ibooker);
     void bookHistosForTrackerSpecific(DQMStore::IBooker& ibooker);
     void bookHistosForEfficiencyFromHitPatter(DQMStore::IBooker& ibooker,
                                               const edm::EventSetup& iSetup,
-                                              const std::string suffix,
+                                              const std::string& suffix,
                                               bool useInac);
     void fillHistosForHitProperties(const edm::EventSetup& iSetup, const reco::Track& track, std::string sname);
     void fillHistosForLScertification(const edm::EventSetup& iSetup, const reco::Track& track, std::string sname);
     void fillHistosForTrackerSpecific(const reco::Track& track);
     void fillHistosForEfficiencyFromHitPatter(const reco::Track& track,
-                                              const std::string suffix,
+                                              const std::string& suffix,
                                               const float monitoring,
                                               bool useInac);
 

@@ -40,7 +40,7 @@
 void FWRecoGeometryESProducer::ADD_PIXEL_TOPOLOGY(unsigned int rawid,
                                                   const GeomDet* detUnit,
                                                   FWRecoGeometry& fwRecoGeometry) {
-  const PixelGeomDetUnit* det = dynamic_cast<const PixelGeomDetUnit*>(detUnit);
+  const auto* det = dynamic_cast<const PixelGeomDetUnit*>(detUnit);
   if (det) {
     const PixelTopology* topo = &det->specificTopology();
 
@@ -164,9 +164,7 @@ std::unique_ptr<FWRecoGeometry> FWRecoGeometryESProducer::produce(const FWRecoGe
 void FWRecoGeometryESProducer::addCSCGeometry(FWRecoGeometry& fwRecoGeometry) {
   DetId detId(DetId::Muon, 2);
   const CSCGeometry* cscGeometry = static_cast<const CSCGeometry*>(m_trackingGeom->slaveGeometry(detId));
-  for (auto it = cscGeometry->chambers().begin(), end = cscGeometry->chambers().end(); it != end; ++it) {
-    const CSCChamber* chamber = *it;
-
+  for (auto chamber : cscGeometry->chambers()) {
     if (chamber) {
       unsigned int rawid = chamber->geographicalId();
       unsigned int current = insert_id(rawid, fwRecoGeometry);
@@ -174,11 +172,7 @@ void FWRecoGeometryESProducer::addCSCGeometry(FWRecoGeometry& fwRecoGeometry) {
       //
       // CSC layers geometry
       //
-      for (std::vector<const CSCLayer*>::const_iterator lit = chamber->layers().begin(), lend = chamber->layers().end();
-           lit != lend;
-           ++lit) {
-        const CSCLayer* layer = *lit;
-
+      for (auto layer : chamber->layers()) {
         if (layer) {
           unsigned int rawid = layer->geographicalId();
           unsigned int current = insert_id(rawid, fwRecoGeometry);
@@ -208,9 +202,7 @@ void FWRecoGeometryESProducer::addDTGeometry(FWRecoGeometry& fwRecoGeometry) {
   //
   // DT chambers geometry
   //
-  for (auto it = dtGeometry->chambers().begin(), end = dtGeometry->chambers().end(); it != end; ++it) {
-    const DTChamber* chamber = *it;
-
+  for (auto chamber : dtGeometry->chambers()) {
     if (chamber) {
       unsigned int rawid = chamber->geographicalId().rawId();
       unsigned int current = insert_id(rawid, fwRecoGeometry);
@@ -219,9 +211,7 @@ void FWRecoGeometryESProducer::addDTGeometry(FWRecoGeometry& fwRecoGeometry) {
   }
 
   // Fill in DT layer parameters
-  for (auto it = dtGeometry->layers().begin(), end = dtGeometry->layers().end(); it != end; ++it) {
-    const DTLayer* layer = *it;
-
+  for (auto layer : dtGeometry->layers()) {
     if (layer) {
       unsigned int rawid = layer->id().rawId();
       unsigned int current = insert_id(rawid, fwRecoGeometry);
@@ -251,8 +241,7 @@ void FWRecoGeometryESProducer::addRPCGeometry(FWRecoGeometry& fwRecoGeometry) {
   //
   DetId detId(DetId::Muon, 3);
   const RPCGeometry* rpcGeom = static_cast<const RPCGeometry*>(m_trackingGeom->slaveGeometry(detId));
-  for (auto it = rpcGeom->rolls().begin(), end = rpcGeom->rolls().end(); it != end; ++it) {
-    const RPCRoll* roll = (*it);
+  for (auto roll : rpcGeom->rolls()) {
     if (roll) {
       unsigned int rawid = roll->geographicalId().rawId();
       unsigned int current = insert_id(rawid, fwRecoGeometry);
@@ -368,12 +357,7 @@ void FWRecoGeometryESProducer::addME0Geometry(FWRecoGeometry& fwRecoGeometry) {
 }
 
 void FWRecoGeometryESProducer::addPixelBarrelGeometry(FWRecoGeometry& fwRecoGeometry) {
-  for (TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsPXB().begin(),
-                                                     end = m_trackerGeom->detsPXB().end();
-       it != end;
-       ++it) {
-    const GeomDet* det = *it;
-
+  for (auto det : m_trackerGeom->detsPXB()) {
     if (det) {
       DetId detid = det->geographicalId();
       unsigned int rawid = detid.rawId();
@@ -386,12 +370,7 @@ void FWRecoGeometryESProducer::addPixelBarrelGeometry(FWRecoGeometry& fwRecoGeom
 }
 
 void FWRecoGeometryESProducer::addPixelForwardGeometry(FWRecoGeometry& fwRecoGeometry) {
-  for (TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsPXF().begin(),
-                                                     end = m_trackerGeom->detsPXF().end();
-       it != end;
-       ++it) {
-    const GeomDet* det = *it;
-
+  for (auto det : m_trackerGeom->detsPXF()) {
     if (det) {
       DetId detid = det->geographicalId();
       unsigned int rawid = detid.rawId();
@@ -404,12 +383,7 @@ void FWRecoGeometryESProducer::addPixelForwardGeometry(FWRecoGeometry& fwRecoGeo
 }
 
 void FWRecoGeometryESProducer::addTIBGeometry(FWRecoGeometry& fwRecoGeometry) {
-  for (TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsTIB().begin(),
-                                                     end = m_trackerGeom->detsTIB().end();
-       it != end;
-       ++it) {
-    const GeomDet* det = *it;
-
+  for (auto det : m_trackerGeom->detsTIB()) {
     if (det) {
       DetId detid = det->geographicalId();
       unsigned int rawid = detid.rawId();
@@ -422,12 +396,7 @@ void FWRecoGeometryESProducer::addTIBGeometry(FWRecoGeometry& fwRecoGeometry) {
 }
 
 void FWRecoGeometryESProducer::addTOBGeometry(FWRecoGeometry& fwRecoGeometry) {
-  for (TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsTOB().begin(),
-                                                     end = m_trackerGeom->detsTOB().end();
-       it != end;
-       ++it) {
-    const GeomDet* det = *it;
-
+  for (auto det : m_trackerGeom->detsTOB()) {
     if (det) {
       DetId detid = det->geographicalId();
       unsigned int rawid = detid.rawId();
@@ -440,12 +409,7 @@ void FWRecoGeometryESProducer::addTOBGeometry(FWRecoGeometry& fwRecoGeometry) {
 }
 
 void FWRecoGeometryESProducer::addTIDGeometry(FWRecoGeometry& fwRecoGeometry) {
-  for (TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsTID().begin(),
-                                                     end = m_trackerGeom->detsTID().end();
-       it != end;
-       ++it) {
-    const GeomDet* det = *it;
-
+  for (auto det : m_trackerGeom->detsTID()) {
     if (det) {
       DetId detid = det->geographicalId();
       unsigned int rawid = detid.rawId();
@@ -458,12 +422,7 @@ void FWRecoGeometryESProducer::addTIDGeometry(FWRecoGeometry& fwRecoGeometry) {
 }
 
 void FWRecoGeometryESProducer::addTECGeometry(FWRecoGeometry& fwRecoGeometry) {
-  for (TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsTEC().begin(),
-                                                     end = m_trackerGeom->detsTEC().end();
-       it != end;
-       ++it) {
-    const GeomDet* det = *it;
-
+  for (auto det : m_trackerGeom->detsTEC()) {
     if (det) {
       DetId detid = det->geographicalId();
       unsigned int rawid = detid.rawId();
@@ -477,18 +436,18 @@ void FWRecoGeometryESProducer::addTECGeometry(FWRecoGeometry& fwRecoGeometry) {
 
 void FWRecoGeometryESProducer::addCaloGeometry(FWRecoGeometry& fwRecoGeometry) {
   std::vector<DetId> vid = m_caloGeom->getValidDetIds();  // Calo
-  for (std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it) {
-    unsigned int id = insert_id(it->rawId(), fwRecoGeometry);
-    if (!((DetId::Forward == it->det()) || (DetId::HGCalEE == it->det()) || (DetId::HGCalHSi == it->det()) ||
-          (DetId::HGCalHSc == it->det()))) {
-      const CaloCellGeometry::CornersVec& cor = m_caloGeom->getGeometry(*it)->getCorners();
+  for (auto it : vid) {
+    unsigned int id = insert_id(it.rawId(), fwRecoGeometry);
+    if (!((DetId::Forward == it.det()) || (DetId::HGCalEE == it.det()) || (DetId::HGCalHSi == it.det()) ||
+          (DetId::HGCalHSc == it.det()))) {
+      const CaloCellGeometry::CornersVec& cor = m_caloGeom->getGeometry(it)->getCorners();
       fillPoints(id, cor.begin(), cor.end(), fwRecoGeometry);
     } else {
-      DetId::Detector det = it->det();
+      DetId::Detector det = it.det();
       int subdet = (((DetId::HGCalEE == det) || (DetId::HGCalHSi == det) || (DetId::HGCalHSc == det)) ? ForwardEmpty
-                                                                                                      : it->subdetId());
+                                                                                                      : it.subdetId());
       const HGCalGeometry* geom = dynamic_cast<const HGCalGeometry*>(m_caloGeom->getSubdetectorGeometry(det, subdet));
-      const auto cor = geom->getNewCorners(*it);
+      const auto cor = geom->getNewCorners(it);
 
       // roll = yaw = pitch = 0
       fwRecoGeometry.idToName[id].matrix[0] = 1.0;
@@ -503,7 +462,7 @@ void FWRecoGeometryESProducer::addCaloGeometry(FWRecoGeometry& fwRecoGeometry) {
       }
 
       // center
-      auto center = geom->getPosition(*it);
+      auto center = geom->getPosition(it);
       fwRecoGeometry.idToName[id].points[(cor.size() - 1) * 3 + 0] = center.x();
       fwRecoGeometry.idToName[id].points[(cor.size() - 1) * 3 + 1] = center.y();
       fwRecoGeometry.idToName[id].points[(cor.size() - 1) * 3 + 2] = center.z();
@@ -545,7 +504,7 @@ void FWRecoGeometryESProducer::fillPoints(unsigned int id,
                                           std::vector<GlobalPoint>::const_iterator end,
                                           FWRecoGeometry& fwRecoGeometry) {
   unsigned int index(0);
-  for (std::vector<GlobalPoint>::const_iterator i = begin; i != end; ++i) {
+  for (auto i = begin; i != end; ++i) {
     assert(index < FWTGeoRecoGeometry::maxPoints_ - 1);
     fwRecoGeometry.idToName[id].points[index] = i->x();
     fwRecoGeometry.idToName[id].points[++index] = i->y();
@@ -560,7 +519,7 @@ void FWRecoGeometryESProducer::fillShapeAndPlacement(unsigned int id,
                                                      FWRecoGeometry& fwRecoGeometry) {
   // Trapezoidal
   const Bounds* b = &((det->surface()).bounds());
-  if (const TrapezoidalPlaneBounds* b2 = dynamic_cast<const TrapezoidalPlaneBounds*>(b)) {
+  if (const auto* b2 = dynamic_cast<const TrapezoidalPlaneBounds*>(b)) {
     std::array<const float, 4> const& par = b2->parameters();
 
     // These parameters are half-lengths, as in CMSIM/GEANT3
@@ -570,7 +529,7 @@ void FWRecoGeometryESProducer::fillShapeAndPlacement(unsigned int id,
     fwRecoGeometry.idToName[id].shape[3] = par[2];  // thickness
     fwRecoGeometry.idToName[id].shape[4] = par[3];  // apothem
   }
-  if (const RectangularPlaneBounds* b2 = dynamic_cast<const RectangularPlaneBounds*>(b)) {
+  if (const auto* b2 = dynamic_cast<const RectangularPlaneBounds*>(b)) {
     // Rectangular
     fwRecoGeometry.idToName[id].shape[0] = 2;
     fwRecoGeometry.idToName[id].shape[1] = b2->width() * 0.5;      // half width

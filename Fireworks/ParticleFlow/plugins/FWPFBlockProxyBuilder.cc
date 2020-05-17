@@ -8,19 +8,19 @@ void FWPFBlockProxyBuilder::scaleProduct(TEveElementList *parent, FWViewType::ET
 
   if (viewType == FWViewType::kRhoPhiPF ||
       viewType == FWViewType::kRhoZ) { /* Handle the rhophi and rhoz cluster scaling */
-    for (Lines_t::iterator i = m_clusters.begin(); i != m_clusters.end(); ++i) {
-      if (vc == (*i).m_vc) {
-        float value = caloScale->getPlotEt() ? (*i).m_et : (*i).m_energy;
-        (*i).m_ls->SetScale(caloScale->getScaleFactor3D() * value);
-        TEveProjected *proj = *(*i).m_ls->BeginProjecteds();
+    for (auto &m_cluster : m_clusters) {
+      if (vc == m_cluster.m_vc) {
+        float value = caloScale->getPlotEt() ? m_cluster.m_et : m_cluster.m_energy;
+        m_cluster.m_ls->SetScale(caloScale->getScaleFactor3D() * value);
+        TEveProjected *proj = *m_cluster.m_ls->BeginProjecteds();
         proj->UpdateProjection();
       }
     }
   } /* Handle cluster scaling in lego view(s) */
   else if (viewType == FWViewType::kLego || viewType == FWViewType::kLegoPFECAL) {  // Loop products
-    for (TEveElement::List_i i = parent->BeginChildren(); i != parent->EndChildren(); ++i) {
+    for (auto i = parent->BeginChildren(); i != parent->EndChildren(); ++i) {
       if ((*i)->HasChildren()) {  // Loop elements of block
-        for (TEveElement::List_i j = (*i)->BeginChildren(); j != (*i)->EndChildren(); ++j) {
+        for (auto j = (*i)->BeginChildren(); j != (*i)->EndChildren(); ++j) {
           if (strcmp((*j)->GetElementName(), "BlockCluster") == 0) {
             FWLegoCandidate *cluster = dynamic_cast<FWLegoCandidate *>(*j);
             cluster->updateScale(vc, context());
@@ -119,19 +119,19 @@ void FWPFBlockProxyBuilder::setupClusterElement(const reco::PFBlockElement &bloc
   }
   if (viewType == FWViewType::kRhoPhiPF) {
     const FWDisplayProperties &dp = item()->defaultDisplayProperties();
-    FWPFClusterRPZUtils *clusterUtils = new FWPFClusterRPZUtils();
+    auto *clusterUtils = new FWPFClusterRPZUtils();
     TEveScalableStraightLineSet *rpCluster = clusterUtils->buildRhoPhiClusterLineSet(cluster, vc, energy, et, r);
     rpCluster->SetLineColor(dp.color());
-    m_clusters.push_back(ScalableLines(rpCluster, et, energy, vc));
+    m_clusters.emplace_back(rpCluster, et, energy, vc);
     setupAddElement(rpCluster, &oItemHolder);
     delete clusterUtils;
   } else if (viewType == FWViewType::kRhoZ) {
     const FWDisplayProperties &dp = item()->defaultDisplayProperties();
-    FWPFClusterRPZUtils *clusterUtils = new FWPFClusterRPZUtils();
+    auto *clusterUtils = new FWPFClusterRPZUtils();
     TEveScalableStraightLineSet *rzCluster = clusterUtils->buildRhoZClusterLineSet(
         cluster, vc, context().caloTransAngle(), energy, et, r, context().caloZ1());
     rzCluster->SetLineColor(dp.color());
-    m_clusters.push_back(ScalableLines(rzCluster, et, energy, vc));
+    m_clusters.emplace_back(rzCluster, et, energy, vc);
     setupAddElement(rzCluster, &oItemHolder);
     delete clusterUtils;
   }
@@ -145,25 +145,25 @@ void FWPFBlockProxyBuilder::buildViewType(const reco::PFBlock &iData,
                                           const FWViewContext *vc) {
   const edm::OwnVector<reco::PFBlockElement> &elements = iData.elements();
 
-  for (unsigned int i = 0; i < elements.size(); ++i) {
-    reco::PFBlockElement::Type type = elements[i].type();
+  for (const auto &element : elements) {
+    reco::PFBlockElement::Type type = element.type();
     switch (type) {
       case 1:  // TRACK
         if (e_builderType == BASE)
-          setupTrackElement(elements[i], oItemHolder, vc, viewType);
+          setupTrackElement(element, oItemHolder, vc, viewType);
         break;
 
       case 4:  // ECAL
         if (e_builderType == ECAL)
-          setupClusterElement(elements[i], oItemHolder, vc, viewType, FWPFGeom::caloR1());
+          setupClusterElement(element, oItemHolder, vc, viewType, FWPFGeom::caloR1());
         break;
 
       case 5:  // HCAL
         if (e_builderType == HCAL) {
           if (viewType == FWViewType::kRhoPhiPF)
-            setupClusterElement(elements[i], oItemHolder, vc, viewType, FWPFGeom::caloR2());
+            setupClusterElement(element, oItemHolder, vc, viewType, FWPFGeom::caloR2());
           else  // RhoZ
-            setupClusterElement(elements[i], oItemHolder, vc, viewType, context().caloR1());
+            setupClusterElement(element, oItemHolder, vc, viewType, context().caloR1());
         }
         break;
 

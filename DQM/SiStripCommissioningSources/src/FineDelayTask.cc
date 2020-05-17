@@ -94,22 +94,22 @@ void FineDelayTask::fill(const SiStripEventSummary& summary, const edm::DetSet<S
 
   LogDebug("Commissioning") << "[FineDelayTask::fill]; the delay is " << delay;
   // loop on the strips to find the (maybe) non-zero digi
-  for (unsigned int strip = 0; strip < digis.data.size(); strip++) {
-    if (digis.data[strip].adc() != 0) {
+  for (auto strip : digis.data) {
+    if (strip.adc() != 0) {
       // apply the TOF correction
-      float tof = (digis.data[strip].adc() >> 8) / 10.;
+      float tof = (strip.adc() >> 8) / 10.;
       correctedDelay = delay - (latencyShift * 25.) - tof;
-      if ((digis.data[strip].adc() >> 8) == 255)
+      if ((strip.adc() >> 8) == 255)
         continue;  // skip hit if TOF is in overflow
       // compute the bin
       float nbins = NBINS;
       float lowbin = LOWBIN;
       float highbin = HIGHBIN;
       int bin = int((correctedDelay - lowbin) / ((highbin - lowbin) / nbins));
-      LogDebug("Commissioning") << "[FineDelayTask::fill]; using a hit with value " << (digis.data[strip].adc() & 0xff)
+      LogDebug("Commissioning") << "[FineDelayTask::fill]; using a hit with value " << (strip.adc() & 0xff)
                                 << " at corrected delay of " << correctedDelay << " in bin " << bin << "  (tof is "
-                                << tof << "( since adc = " << digis.data[strip].adc() << "))";
-      updateHistoSet(timing_, bin, digis.data[strip].adc() & 0xff);
+                                << tof << "( since adc = " << strip.adc() << "))";
+      updateHistoSet(timing_, bin, strip.adc() & 0xff);
       if (mode_)
         mode_->Fill(latencyCode);
     }

@@ -28,6 +28,8 @@
 #include "TCanvas.h"
 
 #include "TLorentzVector.h"
+#include <memory>
+
 #include <vector>
 #include <string>
 #include <iostream>
@@ -2154,8 +2156,7 @@ public:
   }
 
   ~HCovarianceVSParts() override {
-    for (std::map<TString, HCovarianceVSxy*>::const_iterator histo = mapHisto_.begin(); histo != mapHisto_.end();
-         histo++) {
+    for (auto histo = mapHisto_.begin(); histo != mapHisto_.end(); histo++) {
       delete (*histo).second;
     }
   }
@@ -2235,15 +2236,13 @@ public:
   void Write() override {
     if (!readMode_) {
       histoDir_->cd();
-      for (std::map<TString, HCovarianceVSxy*>::const_iterator histo = mapHisto_.begin(); histo != mapHisto_.end();
-           histo++) {
+      for (auto histo = mapHisto_.begin(); histo != mapHisto_.end(); histo++) {
         (*histo).second->Write();
       }
     }
   }
   void Clear() override {
-    for (std::map<TString, HCovarianceVSxy*>::const_iterator histo = mapHisto_.begin(); histo != mapHisto_.end();
-         histo++) {
+    for (auto histo = mapHisto_.begin(); histo != mapHisto_.end(); histo++) {
       (*histo).second->Clear();
     }
   }
@@ -2288,12 +2287,12 @@ public:
     }
 
     // single particles histograms
-    muMinus.reset(new HDelta("muMinus"));
-    muPlus.reset(new HDelta("muPlus"));
+    muMinus = std::make_unique<HDelta>("muMinus");
+    muPlus = std::make_unique<HDelta>("muPlus");
   }
 
   ~HMassResolutionVSPart() override {
-    for (std::map<TString, TH1*>::const_iterator histo = mapHisto_.begin(); histo != mapHisto_.end(); histo++) {
+    for (auto histo = mapHisto_.begin(); histo != mapHisto_.end(); histo++) {
       delete (*histo).second;
     }
   }
@@ -2365,7 +2364,7 @@ public:
 
   void Write() override {
     histoDir_->cd();
-    for (std::map<TString, TH1*>::const_iterator histo = mapHisto_.begin(); histo != mapHisto_.end(); histo++) {
+    for (auto histo = mapHisto_.begin(); histo != mapHisto_.end(); histo++) {
       (*histo).second->Write();
     }
     // Create the new dir and cd into it
@@ -2375,7 +2374,7 @@ public:
   }
 
   void Clear() override {
-    for (std::map<TString, TH1*>::const_iterator histo = mapHisto_.begin(); histo != mapHisto_.end(); histo++) {
+    for (auto histo = mapHisto_.begin(); histo != mapHisto_.end(); histo++) {
       (*histo).second->Clear();
     }
     muMinus->Clear();

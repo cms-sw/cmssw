@@ -36,12 +36,11 @@ FourVectorHLT::FourVectorHLT(const edm::ParameterSet& iConfig) {
 
   // this is the list of paths to look at.
   std::vector<edm::ParameterSet> filters = iConfig.getParameter<std::vector<edm::ParameterSet> >("filters");
-  for (std::vector<edm::ParameterSet>::iterator filterconf = filters.begin(); filterconf != filters.end();
-       filterconf++) {
-    std::string me = filterconf->getParameter<std::string>("name");
-    int objectType = filterconf->getParameter<unsigned int>("type");
-    float ptMin = filterconf->getUntrackedParameter<double>("ptMin");
-    float ptMax = filterconf->getUntrackedParameter<double>("ptMax");
+  for (auto& filter : filters) {
+    std::string me = filter.getParameter<std::string>("name");
+    int objectType = filter.getParameter<unsigned int>("type");
+    float ptMin = filter.getUntrackedParameter<double>("ptMin");
+    float ptMax = filter.getUntrackedParameter<double>("ptMax");
     hltPaths_.push_back(PathInfo(me, objectType, ptMin, ptMax));
   }
   if (!hltPaths_.empty() && plotAll_) {
@@ -98,7 +97,7 @@ void FourVectorHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       LogDebug("Parameter") << "filter " << ia << ", full name = " << fullname << ", p = " << p
                             << ", abbreviated = " << name;
 
-      PathInfoCollection::iterator pic = hltPaths_.find(name);
+      auto pic = hltPaths_.find(name);
       if (pic == hltPaths_.end()) {
         // doesn't exist - add it
         MonitorElement *et(nullptr), *eta(nullptr), *phi(nullptr), *etavsphi(nullptr);
@@ -127,29 +126,28 @@ void FourVectorHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
         pic = hltPaths_.begin() + hltPaths_.size() - 1;
       }
       const trigger::Keys& k = triggerObj->filterKeys(ia);
-      for (trigger::Keys::const_iterator ki = k.begin(); ki != k.end(); ++ki) {
-        LogDebug("Parameters") << "pt, eta, phi = " << toc[*ki].pt() << ", " << toc[*ki].eta() << ", "
-                               << toc[*ki].phi();
-        pic->getEtHisto()->Fill(toc[*ki].pt());
-        pic->getEtaHisto()->Fill(toc[*ki].eta());
-        pic->getPhiHisto()->Fill(toc[*ki].phi());
-        pic->getEtaVsPhiHisto()->Fill(toc[*ki].eta(), toc[*ki].phi());
+      for (unsigned short ki : k) {
+        LogDebug("Parameters") << "pt, eta, phi = " << toc[ki].pt() << ", " << toc[ki].eta() << ", " << toc[ki].phi();
+        pic->getEtHisto()->Fill(toc[ki].pt());
+        pic->getEtaHisto()->Fill(toc[ki].eta());
+        pic->getPhiHisto()->Fill(toc[ki].phi());
+        pic->getEtaVsPhiHisto()->Fill(toc[ki].eta(), toc[ki].phi());
       }
     }
 
   } else {  // not plotAll_
-    for (PathInfoCollection::iterator v = hltPaths_.begin(); v != hltPaths_.end(); ++v) {
-      const int index = triggerObj->filterIndex(v->getName());
+    for (auto& hltPath : hltPaths_) {
+      const int index = triggerObj->filterIndex(hltPath.getName());
       if (index >= triggerObj->sizeFilters()) {
         continue;  // not in this event
       }
       LogDebug("Status") << "filling ... ";
       const trigger::Keys& k = triggerObj->filterKeys(index);
-      for (trigger::Keys::const_iterator ki = k.begin(); ki != k.end(); ++ki) {
-        v->getEtHisto()->Fill(toc[*ki].pt());
-        v->getEtaHisto()->Fill(toc[*ki].eta());
-        v->getPhiHisto()->Fill(toc[*ki].phi());
-        v->getEtaVsPhiHisto()->Fill(toc[*ki].eta(), toc[*ki].phi());
+      for (unsigned short ki : k) {
+        hltPath.getEtHisto()->Fill(toc[ki].pt());
+        hltPath.getEtaHisto()->Fill(toc[ki].eta());
+        hltPath.getPhiHisto()->Fill(toc[ki].phi());
+        hltPath.getEtaVsPhiHisto()->Fill(toc[ki].eta(), toc[ki].phi());
       }
     }
   }
@@ -165,25 +163,25 @@ void FourVectorHLT::beginJob() {
     dbe->setCurrentFolder(dirname_);
 
     if (!plotAll_) {
-      for (PathInfoCollection::iterator v = hltPaths_.begin(); v != hltPaths_.end(); ++v) {
+      for (auto& hltPath : hltPaths_) {
         MonitorElement *et, *eta, *phi, *etavsphi = nullptr;
-        std::string histoname(v->getName() + "_et");
-        std::string title(v->getName() + " E_t");
-        et = dbe->book1D(histoname.c_str(), title.c_str(), nBins_, v->getPtMin(), v->getPtMax());
+        std::string histoname(hltPath.getName() + "_et");
+        std::string title(hltPath.getName() + " E_t");
+        et = dbe->book1D(histoname.c_str(), title.c_str(), nBins_, hltPath.getPtMin(), hltPath.getPtMax());
 
-        histoname = v->getName() + "_eta";
-        title = v->getName() + " #eta";
+        histoname = hltPath.getName() + "_eta";
+        title = hltPath.getName() + " #eta";
         eta = dbe->book1D(histoname.c_str(), title.c_str(), nBins_, -2.7, 2.7);
 
-        histoname = v->getName() + "_phi";
-        title = v->getName() + " #phi";
+        histoname = hltPath.getName() + "_phi";
+        title = hltPath.getName() + " #phi";
         phi = dbe->book1D(histoname.c_str(), histoname.c_str(), nBins_, -3.14, 3.14);
 
-        histoname = v->getName() + "_etaphi";
-        title = v->getName() + " #eta vs #phi";
+        histoname = hltPath.getName() + "_etaphi";
+        title = hltPath.getName() + " #eta vs #phi";
         etavsphi = dbe->book2D(histoname.c_str(), title.c_str(), nBins_, -2.7, 2.7, nBins_, -3.14, 3.14);
 
-        v->setHistos(et, eta, phi, etavsphi);
+        hltPath.setHistos(et, eta, phi, etavsphi);
       }
     }  // ! plotAll_ - for plotAll we discover it during the event
   }

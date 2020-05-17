@@ -270,32 +270,32 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   bspot = (bmspot.isValid()) ? bmspot->position() : math::XYZPoint(0, 0, 0);
 
   if (_Muon.isValid()) {
-    for (reco::MuonCollection::const_iterator RecMuon = _Muon->begin(); RecMuon != _Muon->end(); ++RecMuon) {
-      muon_is_good.push_back(RecMuon->isPFMuon());
-      muon_global.push_back(RecMuon->isGlobalMuon());
-      muon_tracker.push_back(RecMuon->isTrackerMuon());
-      PtGlob.push_back((RecMuon)->pt());
-      EtaGlob.push_back(RecMuon->eta());
-      PhiGlob.push_back(RecMuon->phi());
-      Energy.push_back(RecMuon->energy());
-      Pmuon.push_back(RecMuon->p());
+    for (const auto& RecMuon : *_Muon) {
+      muon_is_good.push_back(RecMuon.isPFMuon());
+      muon_global.push_back(RecMuon.isGlobalMuon());
+      muon_tracker.push_back(RecMuon.isTrackerMuon());
+      PtGlob.push_back(RecMuon.->pt());
+      EtaGlob.push_back(RecMuon.eta());
+      PhiGlob.push_back(RecMuon.phi());
+      Energy.push_back(RecMuon.energy());
+      Pmuon.push_back(RecMuon.p());
       //      if (RecMuon->isPFMuon()) goodEvent = true;
       // acessing tracker hits info
-      if (RecMuon->track().isNonnull()) {
-        TrackerLayer.push_back(RecMuon->track()->hitPattern().trackerLayersWithMeasurement());
+      if (RecMuon.track().isNonnull()) {
+        TrackerLayer.push_back(RecMuon.track()->hitPattern().trackerLayersWithMeasurement());
       } else {
         TrackerLayer.push_back(-1);
       }
-      if (RecMuon->innerTrack().isNonnull()) {
+      if (RecMuon.innerTrack().isNonnull()) {
         innerTrack.push_back(true);
-        NumPixelLayers.push_back(RecMuon->innerTrack()->hitPattern().pixelLayersWithMeasurement());
-        chiTracker.push_back(RecMuon->innerTrack()->normalizedChi2());
-        DxyTracker.push_back(fabs(RecMuon->innerTrack()->dxy((vertex).position())));
-        DzTracker.push_back(fabs(RecMuon->innerTrack()->dz((vertex).position())));
-        innerTrackpt.push_back(RecMuon->innerTrack()->pt());
-        innerTracketa.push_back(RecMuon->innerTrack()->eta());
-        innerTrackphi.push_back(RecMuon->innerTrack()->phi());
-        Tight_PixelHits.push_back(RecMuon->innerTrack()->hitPattern().numberOfValidPixelHits());
+        NumPixelLayers.push_back(RecMuon.innerTrack()->hitPattern().pixelLayersWithMeasurement());
+        chiTracker.push_back(RecMuon.innerTrack()->normalizedChi2());
+        DxyTracker.push_back(fabs(RecMuon.innerTrack()->dxy((vertex).position())));
+        DzTracker.push_back(fabs(RecMuon.innerTrack()->dz((vertex).position())));
+        innerTrackpt.push_back(RecMuon.innerTrack()->pt());
+        innerTracketa.push_back(RecMuon.innerTrack()->eta());
+        innerTrackphi.push_back(RecMuon.innerTrack()->phi());
+        Tight_PixelHits.push_back(RecMuon.innerTrack()->hitPattern().numberOfValidPixelHits());
       } else {
         innerTrack.push_back(false);
         NumPixelLayers.push_back(0);
@@ -309,14 +309,14 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       }
       // outer track info
 
-      if (RecMuon->outerTrack().isNonnull()) {
+      if (RecMuon.outerTrack().isNonnull()) {
         OuterTrack.push_back(true);
-        OuterTrackPt.push_back(RecMuon->outerTrack()->pt());
-        OuterTrackEta.push_back(RecMuon->outerTrack()->eta());
-        OuterTrackPhi.push_back(RecMuon->outerTrack()->phi());
-        OuterTrackChi.push_back(RecMuon->outerTrack()->normalizedChi2());
-        OuterTrackHits.push_back(RecMuon->outerTrack()->numberOfValidHits());
-        OuterTrackRHits.push_back(RecMuon->outerTrack()->recHitsSize());
+        OuterTrackPt.push_back(RecMuon.outerTrack()->pt());
+        OuterTrackEta.push_back(RecMuon.outerTrack()->eta());
+        OuterTrackPhi.push_back(RecMuon.outerTrack()->phi());
+        OuterTrackChi.push_back(RecMuon.outerTrack()->normalizedChi2());
+        OuterTrackHits.push_back(RecMuon.outerTrack()->numberOfValidHits());
+        OuterTrackRHits.push_back(RecMuon.outerTrack()->recHitsSize());
       } else {
         OuterTrack.push_back(false);
         OuterTrackPt.push_back(0);
@@ -327,16 +327,16 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         OuterTrackRHits.push_back(0);
       }
       // Tight Muon cuts
-      if (RecMuon->globalTrack().isNonnull()) {
+      if (RecMuon.globalTrack().isNonnull()) {
         GlobalTrack.push_back(true);
-        chiGlobal.push_back(RecMuon->globalTrack()->normalizedChi2());
-        GlobalMuonHits.push_back(RecMuon->globalTrack()->hitPattern().numberOfValidMuonHits());
-        MatchedStat.push_back(RecMuon->numberOfMatchedStations());
-        GlobalTrckPt.push_back(RecMuon->globalTrack()->pt());
-        GlobalTrckEta.push_back(RecMuon->globalTrack()->eta());
-        GlobalTrckPhi.push_back(RecMuon->globalTrack()->phi());
-        Tight_TransImpara.push_back(fabs(RecMuon->muonBestTrack()->dxy(vertex.position())));
-        Tight_LongPara.push_back(fabs(RecMuon->muonBestTrack()->dz(vertex.position())));
+        chiGlobal.push_back(RecMuon.globalTrack()->normalizedChi2());
+        GlobalMuonHits.push_back(RecMuon.globalTrack()->hitPattern().numberOfValidMuonHits());
+        MatchedStat.push_back(RecMuon.numberOfMatchedStations());
+        GlobalTrckPt.push_back(RecMuon.globalTrack()->pt());
+        GlobalTrckEta.push_back(RecMuon.globalTrack()->eta());
+        GlobalTrckPhi.push_back(RecMuon.globalTrack()->phi());
+        Tight_TransImpara.push_back(fabs(RecMuon.muonBestTrack()->dxy(vertex.position())));
+        Tight_LongPara.push_back(fabs(RecMuon.muonBestTrack()->dz(vertex.position())));
       } else {
         GlobalTrack.push_back(false);
         chiGlobal.push_back(0);
@@ -350,22 +350,22 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       }
 
       IsolationR04.push_back(
-          ((RecMuon->pfIsolationR04().sumChargedHadronPt +
+          ((RecMuon.pfIsolationR04().sumChargedHadronPt +
             std::max(0.,
-                     RecMuon->pfIsolationR04().sumNeutralHadronEt + RecMuon->pfIsolationR04().sumPhotonEt -
-                         (0.5 * RecMuon->pfIsolationR04().sumPUPt))) /
-           RecMuon->pt()));
+                     RecMuon.pfIsolationR04().sumNeutralHadronEt + RecMuon.pfIsolationR04().sumPhotonEt -
+                         (0.5 * RecMuon.pfIsolationR04().sumPUPt))) /
+           RecMuon.pt()));
 
       IsolationR03.push_back(
-          ((RecMuon->pfIsolationR03().sumChargedHadronPt +
+          ((RecMuon.pfIsolationR03().sumChargedHadronPt +
             std::max(0.,
-                     RecMuon->pfIsolationR03().sumNeutralHadronEt + RecMuon->pfIsolationR03().sumPhotonEt -
-                         (0.5 * RecMuon->pfIsolationR03().sumPUPt))) /
-           RecMuon->pt()));
+                     RecMuon.pfIsolationR03().sumNeutralHadronEt + RecMuon.pfIsolationR03().sumPhotonEt -
+                         (0.5 * RecMuon.pfIsolationR03().sumPUPt))) /
+           RecMuon.pt()));
 
-      MuonEcalEnergy.push_back(RecMuon->calEnergy().emS9);
-      MuonHcalEnergy.push_back(RecMuon->calEnergy().hadS9);
-      MuonHOEnergy.push_back(RecMuon->calEnergy().hoS9);
+      MuonEcalEnergy.push_back(RecMuon.calEnergy().emS9);
+      MuonHcalEnergy.push_back(RecMuon.calEnergy().hadS9);
+      MuonHOEnergy.push_back(RecMuon.calEnergy().hoS9);
 
       double eEcal(0), eHcal(0), activeL(0), eHcalDepth[7], eHcalDepthHot[7], eHcalDepthCalo[7], eHcalDepthHotCalo[7];
       unsigned int isHot = 0;
@@ -374,8 +374,8 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       for (int i = 0; i < 7; ++i)
         eHcalDepth[i] = eHcalDepthHot[i] = eHcalDepthCalo[i] = eHcalDepthHotCalo[i] = -10000;
 
-      if (RecMuon->innerTrack().isNonnull()) {
-        const reco::Track* pTrack = (RecMuon->innerTrack()).get();
+      if (RecMuon.innerTrack().isNonnull()) {
+        const reco::Track* pTrack = (RecMuon.innerTrack()).get();
         spr::propagatedTrackID trackID = spr::propagateCALO(pTrack, geo, bField, (((verbosity_ / 100) % 10 > 0)));
 
         MuonEcalDetId.push_back((trackID.detIdECAL)());
@@ -438,8 +438,8 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
                               useRaw_,
                               depthHE,
                               (((verbosity_ / 1000) % 10) > 0));
-          for (unsigned int i = 0; i < ehdepth.size(); ++i) {
-            eHcalDepth[ehdepth[i].second - 1] = ehdepth[i].first;
+          for (auto& i : ehdepth) {
+            eHcalDepth[i.second - 1] = i.first;
             //std::cout<<eHcalDepth[ehdepth[i].second-1]<<std::endl;
           }
 
@@ -477,8 +477,8 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
                               useRaw_,
                               depthHE,
                               (((verbosity_ / 1000) % 10) > 0));
-          for (unsigned int i = 0; i < ehdepthCalo.size(); ++i) {
-            eHcalDepthCalo[ehdepthCalo[i].second - 1] = ehdepthCalo[i].first;
+          for (auto& i : ehdepthCalo) {
+            eHcalDepthCalo[i.second - 1] = i.first;
             //std::cout<<eHcalDepth[ehdepth[i].second-1]<<std::endl;
           }
 
@@ -512,8 +512,8 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
                                 500.0,
                                 depthHE,
                                 false);  //(((verbosity_/1000)%10)>0));
-            for (unsigned int i = 0; i < ehdepth.size(); ++i) {
-              eHcalDepthHot[ehdepth[i].second - 1] = ehdepth[i].first;
+            for (auto& i : ehdepth) {
+              eHcalDepthHot[i.second - 1] = i.first;
               //  std::cout<<eHcalDepthHot[ehdepth[i].second-1]<<std::endl;
             }
           }
@@ -537,8 +537,8 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
                                 useRaw_,
                                 depthHE,
                                 false);
-            for (unsigned int i = 0; i < ehdepthCalo.size(); ++i) {
-              eHcalDepthHotCalo[ehdepthCalo[i].second - 1] = ehdepthCalo[i].first;
+            for (auto& i : ehdepthCalo) {
+              eHcalDepthHotCalo[i.second - 1] = i.first;
               //  std::cout<<eHcalDepthHot[ehdepth[i].second-1]<<std::endl;
             }
           }
@@ -716,8 +716,8 @@ void HcalRaddamMuon::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetu
     unsigned int ntriggers = hltConfig_.size();
     for (unsigned int t = 0; t < ntriggers; ++t) {
       std::string hltname(hltConfig_.triggerName(t));
-      for (unsigned int ik = 0; ik < 5; ++ik) {
-        if (hltname.find(string_search[ik]) != std::string::npos) {
+      for (const auto& ik : string_search) {
+        if (hltname.find(ik) != std::string::npos) {
           all_triggers.push_back(hltname);
           break;
         }
@@ -833,17 +833,17 @@ double HcalRaddamMuon::activeLength(const DetId& id_) {
   double lx(0);
   if (id.subdet() == HcalBarrel) {
     //    std::cout<<"actHB.size()"<<actHB.size()<<std::endl;
-    for (unsigned int i = 0; i < actHB.size(); ++i) {
-      if (ieta == actHB[i].ieta && depth == actHB[i].depth) {
-        lx = actHB[i].thick;
+    for (auto& i : actHB) {
+      if (ieta == i.ieta && depth == i.depth) {
+        lx = i.thick;
         break;
       }
     }
   } else {
     //    std::cout<<"actHE.size()"<<actHE.size()<<std::endl;
-    for (unsigned int i = 0; i < actHE.size(); ++i) {
-      if (ieta == actHE[i].ieta && depth == actHE[i].depth) {
-        lx = actHE[i].thick;
+    for (auto& i : actHE) {
+      if (ieta == i.ieta && depth == i.depth) {
+        lx = i.thick;
         //  std::cout<<"actHE[i].thick"<<actHE[i].thick<<std::endl;
         break;
       }

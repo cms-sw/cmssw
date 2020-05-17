@@ -222,8 +222,7 @@ namespace DeDxTools {
     int charge = 0;
 
     if (calibGains.empty()) {
-      for (unsigned int i = 0; i < Ampls.size(); i++) {
-        int calibratedCharge = Ampls[i];
+      for (int calibratedCharge : Ampls) {
         charge += calibratedCharge;
         if (calibratedCharge >= 254)
           nSatStrip++;
@@ -279,8 +278,8 @@ namespace DeDxTools {
 
   void buildDiscrimMap(edm::Run const& run,
                        const edm::EventSetup& iSetup,
-                       std::string Reccord,
-                       std::string ProbabilityMode,
+                       const std::string& Reccord,
+                       const std::string& ProbabilityMode,
                        TH3F*& Prob_ChargePath) {
     edm::ESHandle<PhysicsTools::Calibration::HistogramD3D> deDxMapHandle;
     if (strcmp(Reccord.c_str(), "SiStripDeDxMip_3D_Rcd") == 0) {
@@ -411,8 +410,8 @@ namespace DeDxTools {
     LocalError HitLocalError = trajState.localError().positionError();
 
     const BoundPlane plane = it->surface();
-    const TrapezoidalPlaneBounds* trapezoidalBounds(dynamic_cast<const TrapezoidalPlaneBounds*>(&(plane.bounds())));
-    const RectangularPlaneBounds* rectangularBounds(dynamic_cast<const RectangularPlaneBounds*>(&(plane.bounds())));
+    const auto* trapezoidalBounds(dynamic_cast<const TrapezoidalPlaneBounds*>(&(plane.bounds())));
+    const auto* rectangularBounds(dynamic_cast<const RectangularPlaneBounds*>(&(plane.bounds())));
 
     if (!trapezoidalBounds && !rectangularBounds)
       return false;

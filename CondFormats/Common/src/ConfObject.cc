@@ -1,7 +1,7 @@
 #include "CondFormats/Common/interface/ConfObject.h"
 
 void ConfObject::printSummary(std::stringstream& ss) const {
-  parMap::const_iterator it = parameters.begin();
+  auto it = parameters.begin();
   for (; it != parameters.end(); ++it) {
     ss << "parameter name = " << it->first << " value = " << it->second << std::endl;
   }

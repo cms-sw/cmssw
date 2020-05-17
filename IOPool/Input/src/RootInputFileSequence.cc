@@ -160,7 +160,7 @@ namespace edm {
       for (auto it = indexesIntoFiles_.begin(), itEnd = indexesIntoFiles_.end(); it != itEnd; ++it) {
         if (*it && (*it)->containsItem(run, lumi, event)) {
           // We found it. Close the currently open file, and open the correct one.
-          std::vector<FileCatalogItem>::const_iterator currentIter = fileIter_;
+          auto currentIter = fileIter_;
           setAtFileSequenceNumber(it - indexesIntoFiles_.begin());
           if (fileIter_ != currentIter) {
             initFile(false);
@@ -225,7 +225,7 @@ namespace edm {
 
     //this tries to open the file using multiple PFNs corresponding to different data catalogs
     std::list<std::string> exInfo;
-    for (std::vector<std::string>::const_iterator it = fNames.begin(); it != fNames.end(); ++it) {
+    for (auto it = fNames.begin(); it != fNames.end(); ++it) {
       try {
         std::unique_ptr<InputSource::FileOpenSentry> sentry(
             input ? std::make_unique<InputSource::FileOpenSentry>(*input, lfn_, false) : nullptr);

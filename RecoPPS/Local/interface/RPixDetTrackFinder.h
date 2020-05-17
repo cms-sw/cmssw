@@ -18,6 +18,8 @@
 
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 
+#include <utility>
+
 #include <vector>
 #include <map>
 
@@ -36,7 +38,7 @@ public:
   std::vector<CTPPSPixelLocalTrack> const &getLocalTracks() const { return localTrackVector_; }
   void setRomanPotId(CTPPSPixelDetId rpId) { romanPotId_ = rpId; };
   void setGeometry(const CTPPSGeometry *geometry) { geometry_ = geometry; }
-  void setListOfPlanes(std::vector<uint32_t> listOfAllPlanes) { listOfAllPlanes_ = listOfAllPlanes; }
+  void setListOfPlanes(std::vector<uint32_t> listOfAllPlanes) { listOfAllPlanes_ = std::move(listOfAllPlanes); }
   void setZ0(double z0) { z0_ = z0; }
 
 protected:

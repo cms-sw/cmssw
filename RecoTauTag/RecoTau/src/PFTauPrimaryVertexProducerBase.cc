@@ -45,19 +45,19 @@ PFTauPrimaryVertexProducerBase::PFTauPrimaryVertexProducerBase(const edm::Parame
   }
   // Build a string cut if desired
   if (iConfig.exists("cut"))
-    cut_.reset(new StringCutObjectSelector<reco::PFTau>(iConfig.getParameter<std::string>("cut")));
+    cut_ = std::make_unique<StringCutObjectSelector<reco::PFTau>>(iConfig.getParameter<std::string>("cut"));
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   produces<edm::AssociationVector<reco::PFTauRefProd, std::vector<reco::VertexRef>>>();
   produces<reco::VertexCollection>("PFTauPrimaryVertices");
 
-  vertexAssociator_.reset(new reco::tau::RecoTauVertexAssociator(qualityCutsPSet_, consumesCollector()));
+  vertexAssociator_ = std::make_unique<reco::tau::RecoTauVertexAssociator>(qualityCutsPSet_, consumesCollector());
 }
 
 PFTauPrimaryVertexProducerBase::~PFTauPrimaryVertexProducerBase() {}
 
 namespace {
   edm::Ptr<reco::TrackBase> getTrack(const reco::Candidate& cand) {
-    const reco::PFCandidate* pfCandPtr = dynamic_cast<const reco::PFCandidate*>(&cand);
+    const auto* pfCandPtr = dynamic_cast<const reco::PFCandidate*>(&cand);
     if (pfCandPtr) {
       if (pfCandPtr->trackRef().isNonnull())
         return edm::refToPtr(pfCandPtr->trackRef());
@@ -66,7 +66,7 @@ namespace {
       else
         return edm::Ptr<reco::TrackBase>();
     }
-    const pat::PackedCandidate* pCand = dynamic_cast<const pat::PackedCandidate*>(&cand);
+    const auto* pCand = dynamic_cast<const pat::PackedCandidate*>(&cand);
     if (pCand && pCand->hasTrackDetails()) {
       const reco::TrackBase* trkPtr = pCand->bestTrack();
       return edm::Ptr<reco::TrackBase>(trkPtr, 0);
@@ -167,7 +167,7 @@ void PFTauPrimaryVertexProducerBase::produce(edm::Event& iEvent, const edm::Even
           if (muons.isValid()) {
             for (const auto& muon : *muons) {
               if (muon.track().isNonnull())
-                signalTracks.push_back(edm::refToPtr(muon.track()));
+                signalTracks.emplace_back(edm::refToPtr(muon.track()));
             }
           }
         }
@@ -176,9 +176,9 @@ void PFTauPrimaryVertexProducerBase::produce(edm::Event& iEvent, const edm::Even
           if (electrons.isValid()) {
             for (const auto& electron : *electrons) {
               if (electron.track().isNonnull())
-                signalTracks.push_back(edm::refToPtr(electron.track()));
+                signalTracks.emplace_back(edm::refToPtr(electron.track()));
               if (electron.gsfTrack().isNonnull())
-                signalTracks.push_back(edm::refToPtr(electron.gsfTrack()));
+                signalTracks.emplace_back(edm::refToPtr(electron.gsfTrack()));
             }
           }
         }
@@ -191,6 +191,8 @@ void PFTauPrimaryVertexProducerBase::produce(edm::Event& iEvent, const edm::Even
         // Refit the vertex
         TransientVertex transVtx;
         std::vector<reco::TransientTrack> transTracks;
+        transTracks.reserve(nonTauTracks.size());
+
         for (const auto track : nonTauTracks) {
           transTracks.push_back(transTrackBuilder->build(*track));
         }

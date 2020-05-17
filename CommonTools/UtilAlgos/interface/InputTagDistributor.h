@@ -15,11 +15,11 @@ class InputTagDistributor {
 public:
   InputTagDistributor(const edm::ParameterSet& pset, edm::ConsumesCollector& iC) {
     std::vector<std::string> inpuTags = pset.getParameterNamesForType<edm::InputTag>();
-    for (std::vector<std::string>::iterator i = inpuTags.begin(); i != inpuTags.end(); ++i)
-      inputTags_[*i] = pset.getParameter<edm::InputTag>(*i);
+    for (auto& inpuTag : inpuTags)
+      inputTags_[inpuTag] = pset.getParameter<edm::InputTag>(inpuTag);
   }
-  const edm::InputTag& inputTag(std::string s) {
-    std::map<std::string, edm::InputTag>::iterator findMe = inputTags_.find(s);
+  const edm::InputTag& inputTag(const std::string& s) {
+    auto findMe = inputTags_.find(s);
     if (findMe != inputTags_.end())
       return findMe->second;
     else {
@@ -47,7 +47,7 @@ public:
   };
   ~InputTagDistributorService(){};
 
-  InputTagDistributor& init(std::string user, const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC) {
+  InputTagDistributor& init(const std::string& user, const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC) {
     if (multipleInstance_.find(user) != multipleInstance_.end()) {
       std::cerr << user << " InputTagDistributor user already defined." << std::endl;
       throw;
@@ -58,7 +58,7 @@ public:
   }
   void preModule(const edm::ModuleDescription& desc) {
     //does a set with the module name, except that it does not throw on non-configured modules
-    std::map<std::string, InputTagDistributor*>::iterator f = multipleInstance_.find(desc.moduleLabel());
+    auto f = multipleInstance_.find(desc.moduleLabel());
     if (f != multipleInstance_.end())
       SetInputTagDistributorUniqueInstance_ = f->second;
     else {
@@ -86,15 +86,15 @@ public:
     }
   }
 
-  edm::InputTag retrieve(std::string src, const edm::ParameterSet& pset) {
+  edm::InputTag retrieve(const std::string& src, const edm::ParameterSet& pset) {
     //if used without setting any InputTag mapping
     if (multipleInstance_.empty())
       return pset.getParameter<edm::InputTag>(src);
 
     // some mapping was setup
     InputTagDistributor& which = get();
-    std::map<std::string, InputTagDistributor*>::iterator inverseMap = multipleInstance_.begin();
-    std::map<std::string, InputTagDistributor*>::iterator inverseMap_end = multipleInstance_.end();
+    auto inverseMap = multipleInstance_.begin();
+    auto inverseMap_end = multipleInstance_.end();
     for (; inverseMap != inverseMap_end; ++inverseMap)
       if (inverseMap->second == &which)
         break;

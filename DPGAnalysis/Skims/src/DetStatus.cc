@@ -18,9 +18,9 @@ DetStatus::DetStatus(const edm::ParameterSet& pset) {
   // build a map
   DetMap_ = 0;
 
-  for (unsigned int detreq = 0; detreq < DetNames_.size(); detreq++) {
+  for (const auto& DetName : DetNames_) {
     for (unsigned int detlist = 0; detlist < DcsStatus::nPartitions; detlist++) {
-      if (DetNames_[detreq] == DcsStatus::partitionName[detlist]) {
+      if (DetName == DcsStatus::partitionName[detlist]) {
         //edm::LogPrint("DetStatus") << __PRETTY_FUNCTION__ << " requested:" << DetNames_[detreq] << std::endl;
 
         // set for DCSRecord

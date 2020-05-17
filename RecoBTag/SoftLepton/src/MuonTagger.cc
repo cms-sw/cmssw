@@ -3,6 +3,8 @@
 // * January 16, 2015
 
 #include <limits>
+#include <memory>
+
 #include <random>
 
 #include "RecoBTau/JetTagComputer/interface/JetTagComputerRecord.h"
@@ -26,9 +28,9 @@ MuonTagger::MuonTagger(const edm::ParameterSet& cfg, Tokens tokens)
                                                                : edm::FileInPath()),
       m_useGBRForest(cfg.existsAs<bool>("useGBRForest") ? cfg.getParameter<bool>("useGBRForest") : false),
       m_useAdaBoost(cfg.existsAs<bool>("useAdaBoost") ? cfg.getParameter<bool>("useAdaBoost") : false),
-      m_tokens{std::move(tokens)} {
+      m_tokens{tokens} {
   uses("smTagInfos");
-  mvaID.reset(new TMVAEvaluator());
+  mvaID = std::make_unique<TMVAEvaluator>();
 }
 
 void MuonTagger::initialize(const JetTagComputerRecord& record) {
@@ -48,7 +50,7 @@ void MuonTagger::initialize(const JetTagComputerRecord& record) {
 float MuonTagger::discriminator(const TagInfoHelper& tagInfo) const {
   float bestTag =
       -std::numeric_limits<float>::infinity();  // default value, used if there are no leptons associated to this jet
-  const reco::CandSoftLeptonTagInfo& info = tagInfo.get<reco::CandSoftLeptonTagInfo>();
+  const auto& info = tagInfo.get<reco::CandSoftLeptonTagInfo>();
 
   std::mt19937_64 random;
   std::uniform_real_distribution<float> dist(0.f, 1.f);

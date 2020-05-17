@@ -288,10 +288,10 @@ void EGXtraModFromVMObjFiller<egmodifier::EGID>::addValuesToObject(
     const std::unordered_map<unsigned, edm::Handle<edm::ValueMap<float>>>& vmaps,
     bool overrideExistingValues) {
   std::vector<std::pair<std::string, float>> ids;
-  for (auto itr = vmaps_token.begin(); itr != vmaps_token.end(); ++itr) {
+  for (const auto& itr : vmaps_token) {
     float idVal(0);
-    assignValue(ptr, itr->second, vmaps, idVal);
-    ids.push_back({itr->first, idVal});
+    assignValue(ptr, itr.second, vmaps, idVal);
+    ids.emplace_back(itr.first, idVal);
   }
   std::sort(ids.begin(), ids.end(), [](auto& lhs, auto& rhs) { return lhs.first < rhs.first; });
   obj.setElectronIDs(ids);
@@ -307,10 +307,10 @@ void EGXtraModFromVMObjFiller<egmodifier::EGID>::addValuesToObject(
     bool overrideExistingValues) {
   //we do a float->bool conversion here to make things easier to be consistent with electrons
   std::vector<std::pair<std::string, bool>> ids;
-  for (auto itr = vmaps_token.begin(); itr != vmaps_token.end(); ++itr) {
+  for (const auto& itr : vmaps_token) {
     float idVal(0);
-    assignValue(ptr, itr->second, vmaps, idVal);
-    ids.push_back({itr->first, idVal});
+    assignValue(ptr, itr.second, vmaps, idVal);
+    ids.emplace_back(itr.first, idVal);
   }
   std::sort(ids.begin(), ids.end(), [](auto& lhs, auto& rhs) { return lhs.first < rhs.first; });
   obj.setPhotonIDs(ids);

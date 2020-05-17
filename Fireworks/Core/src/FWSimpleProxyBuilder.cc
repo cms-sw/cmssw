@@ -55,10 +55,10 @@ FWSimpleProxyBuilder::~FWSimpleProxyBuilder() {}
 //
 
 void FWSimpleProxyBuilder::clean() {
-  for (Product_it i = m_products.begin(); i != m_products.end(); ++i) {
-    if ((*i)->m_elements) {
-      TEveElement* elms = (*i)->m_elements;
-      for (TEveElement::List_i it = elms->BeginChildren(); it != elms->EndChildren(); ++it)
+  for (auto& m_product : m_products) {
+    if (m_product->m_elements) {
+      TEveElement* elms = m_product->m_elements;
+      for (auto it = elms->BeginChildren(); it != elms->EndChildren(); ++it)
         (*it)->DestroyElements();
     }
   }
@@ -74,7 +74,7 @@ void FWSimpleProxyBuilder::itemChangedImp(const FWEventItem* iItem) {
 
 void FWSimpleProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext* vc) {
   size_t size = iItem->size();
-  TEveElement::List_i pIdx = product->BeginChildren();
+  auto pIdx = product->BeginChildren();
   for (int index = 0; index < static_cast<int>(size); ++index) {
     TEveElement* itemHolder = nullptr;
     if (index < product->NumChildren()) {
@@ -97,7 +97,7 @@ void FWSimpleProxyBuilder::buildViewType(const FWEventItem* iItem,
                                          FWViewType::EType viewType,
                                          const FWViewContext* vc) {
   size_t size = iItem->size();
-  TEveElement::List_i pIdx = product->BeginChildren();
+  auto pIdx = product->BeginChildren();
   for (int index = 0; index < static_cast<int>(size); ++index) {
     TEveElement* itemHolder = nullptr;
     if (index < product->NumChildren()) {

@@ -96,18 +96,17 @@ void DTCalibValidation::analyze(const edm::Event& event, const edm::EventSetup& 
   map<DTWireId, vector<DTRecHit1D> > recHitsPerWire_3S = map1DRecHitsPerWire(segment4Ds.product());
 
   // Loop over all 4D segments
-  for (DTRecSegment4DCollection::const_iterator segment = segment4Ds->begin(); segment != segment4Ds->end();
-       ++segment) {
+  for (const auto& segment : *segment4Ds) {
     if (detailedAnalysis) {
       LogTrace("DTCalibValidation") << "Anlysis on recHit at step 1";
-      compute(dtGeom.product(), (*segment), recHitsPerWire_1S, 1);
+      compute(dtGeom.product(), segment, recHitsPerWire_1S, 1);
 
       LogTrace("DTCalibValidation") << "Anlysis on recHit at step 2";
-      compute(dtGeom.product(), (*segment), recHitsPerWire_2S, 2);
+      compute(dtGeom.product(), segment, recHitsPerWire_2S, 2);
     }
 
     LogTrace("DTCalibValidation") << "Anlysis on recHit at step 3";
-    compute(dtGeom.product(), (*segment), recHitsPerWire_3S, 3);
+    compute(dtGeom.product(), segment, recHitsPerWire_3S, 3);
   }
 }
 
@@ -116,9 +115,8 @@ map<DTWireId, vector<DTRecHit1DPair> > DTCalibValidation::map1DRecHitsPerWire(
     const DTRecHitCollection* dt1DRecHitPairs) {
   map<DTWireId, vector<DTRecHit1DPair> > ret;
 
-  for (DTRecHitCollection::const_iterator rechit = dt1DRecHitPairs->begin(); rechit != dt1DRecHitPairs->end();
-       ++rechit) {
-    ret[(*rechit).wireId()].push_back(*rechit);
+  for (const auto& dt1DRecHitPair : *dt1DRecHitPairs) {
+    ret[dt1DRecHitPair.wireId()].push_back(dt1DRecHitPair);
   }
 
   return ret;
@@ -129,12 +127,11 @@ map<DTWireId, vector<DTRecHit1D> > DTCalibValidation::map1DRecHitsPerWire(const 
   map<DTWireId, vector<DTRecHit1D> > ret;
 
   // Loop over all 2D segments
-  for (DTRecSegment2DCollection::const_iterator segment = segment2Ds->begin(); segment != segment2Ds->end();
-       ++segment) {
-    vector<DTRecHit1D> component1DHits = (*segment).specificRecHits();
+  for (const auto& segment2D : *segment2Ds) {
+    vector<DTRecHit1D> component1DHits = segment2D.specificRecHits();
     // Loop over all component 1D hits
-    for (vector<DTRecHit1D>::const_iterator hit = component1DHits.begin(); hit != component1DHits.end(); ++hit) {
-      ret[(*hit).wireId()].push_back(*hit);
+    for (const auto& component1DHit : component1DHits) {
+      ret[component1DHit.wireId()].push_back(component1DHit);
     }
   }
   return ret;
@@ -145,18 +142,16 @@ map<DTWireId, std::vector<DTRecHit1D> > DTCalibValidation::map1DRecHitsPerWire(
     const DTRecSegment4DCollection* segment4Ds) {
   map<DTWireId, vector<DTRecHit1D> > ret;
   // Loop over all 4D segments
-  for (DTRecSegment4DCollection::const_iterator segment = segment4Ds->begin(); segment != segment4Ds->end();
-       ++segment) {
+  for (const auto& segment4D : *segment4Ds) {
     // Get component 2D segments
-    vector<const TrackingRecHit*> segment2Ds = (*segment).recHits();
+    vector<const TrackingRecHit*> segment2Ds = segment4D.recHits();
     // Loop over 2D segments:
-    for (vector<const TrackingRecHit*>::const_iterator segment2D = segment2Ds.begin(); segment2D != segment2Ds.end();
-         ++segment2D) {
+    for (auto segment2D : segment2Ds) {
       // Get 1D component rechits
-      vector<const TrackingRecHit*> hits = (*segment2D)->recHits();
+      vector<const TrackingRecHit*> hits = segment2D->recHits();
       // Loop over them
-      for (vector<const TrackingRecHit*>::const_iterator hit = hits.begin(); hit != hits.end(); ++hit) {
-        const DTRecHit1D* hit1D = dynamic_cast<const DTRecHit1D*>(*hit);
+      for (auto hit : hits) {
+        const DTRecHit1D* hit1D = dynamic_cast<const DTRecHit1D*>(hit);
         ret[hit1D->wireId()].push_back(*hit1D);
       }
     }
@@ -168,13 +163,13 @@ map<DTWireId, std::vector<DTRecHit1D> > DTCalibValidation::map1DRecHitsPerWire(
 // Find the RecHit closest to the segment4D
 template <typename type>
 const type* DTCalibValidation::findBestRecHit(const DTLayer* layer,
-                                              DTWireId wireId,
+                                              const DTWireId& wireId,
                                               const vector<type>& recHits,
                                               const float segmDist) {
   float res = 99999;
   const type* theBestRecHit = nullptr;
   // Loop over RecHits within the cell
-  for (typename vector<type>::const_iterator recHit = recHits.begin(); recHit != recHits.end(); ++recHit) {
+  for (auto recHit = recHits.begin(); recHit != recHits.end(); ++recHit) {
     float distTmp = recHitDistFromWire(*recHit, layer);
     if (fabs(distTmp - segmDist) < res) {
       res = fabs(distTmp - segmDist);
@@ -286,9 +281,8 @@ void DTCalibValidation::compute(const DTGeometry* dtGeom,
   if (computeResidual) {
     ++rightSegment;
     // Loop over 1D RecHit inside 4D segment
-    for (vector<DTRecHit1D>::const_iterator recHit1D = recHits1D_S3.begin(); recHit1D != recHits1D_S3.end();
-         ++recHit1D) {
-      const DTWireId wireId = (*recHit1D).wireId();
+    for (const auto& recHit1D : recHits1D_S3) {
+      const DTWireId wireId = recHit1D.wireId();
 
       // Get the layer and the wire position
       const DTLayer* layer = dtGeom->layer(wireId);
@@ -297,9 +291,9 @@ void DTCalibValidation::compute(const DTGeometry* dtGeom,
       // Extrapolate the segment to the z of the wire
       // Get wire position in chamber RF
       // (y and z must be those of the hit to be coherent in the transf. of RF in case of rotations of the layer alignment)
-      LocalPoint wirePosInLay(wireX, (*recHit1D).localPosition().y(), (*recHit1D).localPosition().z());
+      LocalPoint wirePosInLay(wireX, recHit1D.localPosition().y(), recHit1D.localPosition().z());
       GlobalPoint wirePosGlob = layer->toGlobal(wirePosInLay);
-      const DTChamber* chamber = dtGeom->chamber((*recHit1D).wireId().layerId().chamberId());
+      const DTChamber* chamber = dtGeom->chamber(recHit1D.wireId().layerId().chamberId());
       LocalPoint wirePosInChamber = chamber->toLocal(wirePosGlob);
 
       // Segment position at Wire z in chamber local frame
@@ -380,11 +374,11 @@ void DTCalibValidation::bookHistograms(DQMStore::IBooker& ibooker,
   DTSuperLayerId slId;
 
   // Loop over all the chambers
-  vector<const DTChamber*>::const_iterator ch_it = dtGeom->chambers().begin();
-  vector<const DTChamber*>::const_iterator ch_end = dtGeom->chambers().end();
+  auto ch_it = dtGeom->chambers().begin();
+  auto ch_end = dtGeom->chambers().end();
   for (; ch_it != ch_end; ++ch_it) {
-    vector<const DTSuperLayer*>::const_iterator sl_it = (*ch_it)->superLayers().begin();
-    vector<const DTSuperLayer*>::const_iterator sl_end = (*ch_it)->superLayers().end();
+    auto sl_it = (*ch_it)->superLayers().begin();
+    auto sl_end = (*ch_it)->superLayers().end();
     // Loop over the SLs
     for (; sl_it != sl_end; ++sl_it) {
       slId = (*sl_it)->id();
@@ -452,8 +446,12 @@ void DTCalibValidation::bookHistograms(DQMStore::IBooker& ibooker,
 }
 
 // Fill a set of histograms for a given SL
-void DTCalibValidation::fillHistos(
-    DTSuperLayerId slId, float distance, float residualOnDistance, float position, float residualOnPosition, int step) {
+void DTCalibValidation::fillHistos(const DTSuperLayerId& slId,
+                                   float distance,
+                                   float residualOnDistance,
+                                   float position,
+                                   float residualOnPosition,
+                                   int step) {
   // FIXME: optimization of the number of searches
   vector<MonitorElement*> histos = histosPerSL[make_pair(slId, step)];
   histos[0]->Fill(residualOnDistance);

@@ -18,7 +18,7 @@ void SiPixelDisabledModules::addDisabledModule(const disabledModuleListType& idV
 // remove disabled module from the list
 // returns false if id not in disable list, true otherwise
 bool SiPixelDisabledModules::removeDisabledModule(disabledModuleType module) {
-  disabledModuleListType::iterator iter = find(theDisabledModules.begin(), theDisabledModules.end(), module);
+  auto iter = find(theDisabledModules.begin(), theDisabledModules.end(), module);
   if (iter == theDisabledModules.end())
     return false;
 
@@ -30,7 +30,7 @@ bool SiPixelDisabledModules::removeDisabledModule(disabledModuleType module) {
 // method to return true if the specified module is in the list
 // of disabled modules
 bool SiPixelDisabledModules::isModuleDisabled(disabledModuleType module) {
-  disabledModuleListType::const_iterator iter = find(theDisabledModules.begin(), theDisabledModules.end(), module);
+  auto iter = find(theDisabledModules.begin(), theDisabledModules.end(), module);
 
   return iter != theDisabledModules.end();
 

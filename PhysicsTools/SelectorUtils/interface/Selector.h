@@ -129,10 +129,7 @@ public:
 
   /// set the bits to ignore from a vector
   void setIgnoredCuts(std::vector<std::string> const &bitsToIgnore) {
-    for (std::vector<std::string>::const_iterator ignoreBegin = bitsToIgnore.begin(),
-                                                  ignoreEnd = bitsToIgnore.end(),
-                                                  ibit = ignoreBegin;
-         ibit != ignoreEnd;
+    for (auto ignoreBegin = bitsToIgnore.begin(), ignoreEnd = bitsToIgnore.end(), ibit = ignoreBegin; ibit != ignoreEnd;
          ++ibit) {
       set(*ibit, false);
     }
@@ -143,8 +140,8 @@ public:
 
   void passCut(pat::strbitset &ret, index_type const &i) {
     ret[i] = true;
-    cut_flow_map::iterator found = cutFlow_.end();
-    for (cut_flow_map::iterator cutsBegin = cutFlow_.begin(), cutsEnd = cutFlow_.end(), icut = cutsBegin;
+    auto found = cutFlow_.end();
+    for (auto cutsBegin = cutFlow_.begin(), cutsEnd = cutFlow_.end(), icut = cutsBegin;
          icut != cutsEnd && found == cutsEnd;
          ++icut) {
       if (icut->first == i) {
@@ -168,9 +165,7 @@ public:
   pat::strbitset getBitTemplate() const {
     pat::strbitset ret = bits_;
     ret.set(false);
-    for (cut_flow_map::const_iterator cutsBegin = cutFlow_.begin(), cutsEnd = cutFlow_.end(), icut = cutsBegin;
-         icut != cutsEnd;
-         ++icut) {
+    for (auto cutsBegin = cutFlow_.begin(), cutsEnd = cutFlow_.end(), icut = cutsBegin; icut != cutsEnd; ++icut) {
       if (ignoreCut(icut->first))
         ret[icut->first] = true;
     }
@@ -179,9 +174,7 @@ public:
 
   /// set ignored bits
   void setIgnored(pat::strbitset &ret) {
-    for (cut_flow_map::const_iterator cutsBegin = cutFlow_.begin(), cutsEnd = cutFlow_.end(), icut = cutsBegin;
-         icut != cutsEnd;
-         ++icut) {
+    for (auto cutsBegin = cutFlow_.begin(), cutsEnd = cutFlow_.end(), icut = cutsBegin; icut != cutsEnd; ++icut) {
       if (ignoreCut(icut->first))
         ret[icut->first] = true;
     }
@@ -189,9 +182,7 @@ public:
 
   /// Print the cut flow
   void print(std::ostream &out) const {
-    for (cut_flow_map::const_iterator cutsBegin = cutFlow_.begin(), cutsEnd = cutFlow_.end(), icut = cutsBegin;
-         icut != cutsEnd;
-         ++icut) {
+    for (auto cutsBegin = cutFlow_.begin(), cutsEnd = cutFlow_.end(), icut = cutsBegin; icut != cutsEnd; ++icut) {
       char buff[1000];
       if (considerCut(icut->first)) {
         sprintf(buff,
@@ -210,9 +201,7 @@ public:
   /// Print the cuts being considered
   void printActiveCuts(std::ostream &out) const {
     bool already_printed_one = false;
-    for (cut_flow_map::const_iterator cutsBegin = cutFlow_.begin(), cutsEnd = cutFlow_.end(), icut = cutsBegin;
-         icut != cutsEnd;
-         ++icut) {
+    for (auto cutsBegin = cutFlow_.begin(), cutsEnd = cutFlow_.end(), icut = cutsBegin; icut != cutsEnd; ++icut) {
       if (considerCut(icut->first)) {
         if (already_printed_one)
           out << ", ";
@@ -226,8 +215,8 @@ public:
   /// Return the number of passing cases
   double getPasses(std::string const &s) const { return getPasses(index_type(&bits_, s)); }
   double getPasses(index_type const &i) const {
-    cut_flow_map::const_iterator found = cutFlow_.end();
-    for (cut_flow_map::const_iterator cutsBegin = cutFlow_.begin(), cutsEnd = cutFlow_.end(), icut = cutsBegin;
+    auto found = cutFlow_.end();
+    for (auto cutsBegin = cutFlow_.begin(), cutsEnd = cutFlow_.end(), icut = cutsBegin;
          icut != cutsEnd && found == cutsEnd;
          ++icut) {
       if (icut->first == i) {

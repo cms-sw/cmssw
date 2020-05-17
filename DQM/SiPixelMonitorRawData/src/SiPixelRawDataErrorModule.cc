@@ -99,7 +99,7 @@ int SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError>
 
   unsigned int numberOfSeriousErrors = 0;
 
-  edm::DetSetVector<SiPixelRawDataError>::const_iterator isearch = input.find(id_);  // search  errors of detid
+  auto isearch = input.find(id_);  // search  errors of detid
 
   if (isearch != input.end()) {  // Not at empty iterator
     // Look at errors now
@@ -623,7 +623,7 @@ int SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataErr
                                        std::map<std::string, MonitorElement **> *meMapFEDs) {
   unsigned int numberOfSeriousErrors = 0;
 
-  edm::DetSetVector<SiPixelRawDataError>::const_iterator isearch = input.find(0xffffffff);  // search  errors of detid
+  auto isearch = input.find(0xffffffff);                                                    // search  errors of detid
   if (isearch != input.end()) {                                                             // Not an empty iterator
     // Look at FED errors now
     edm::DetSet<SiPixelRawDataError>::const_iterator di;

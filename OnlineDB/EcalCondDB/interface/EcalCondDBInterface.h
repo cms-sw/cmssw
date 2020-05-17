@@ -10,6 +10,8 @@
 
 #include <iostream>
 #include <string>
+#include <utility>
+
 #include <vector>
 #include <map>
 #include <stdexcept>
@@ -50,7 +52,7 @@ public:
    *  port:    port number to connect, default 1521
    */
   EcalCondDBInterface(std::string host, std::string sid, std::string user, std::string pass, int port = 1521)
-      : EcalDBConnection(host, sid, user, pass, port) {
+      : EcalDBConnection(std::move(host), std::move(sid), std::move(user), std::move(pass), port) {
     // call the parent constructor
 
     // create a DateHandler
@@ -64,7 +66,8 @@ public:
    *  user:    User to connect
    *  pass:    Password for user
    */
-  EcalCondDBInterface(std::string sid, std::string user, std::string pass) : EcalDBConnection(sid, user, pass) {
+  EcalCondDBInterface(std::string sid, std::string user, std::string pass)
+      : EcalDBConnection(std::move(sid), std::move(user), std::move(pass)) {
     // call the parent constructor
 
     // create a DateHandler
@@ -94,7 +97,7 @@ public:
    *  id1, id2, id3:  ids of the channel type
    *  mapsTo:         name of the channel type you are mapping to
    */
-  EcalLogicID getEcalLogicID(std::string name,
+  EcalLogicID getEcalLogicID(const std::string& name,
                              int id1 = EcalLogicID::NULLID,
                              int id2 = EcalLogicID::NULLID,
                              int id3 = EcalLogicID::NULLID,
@@ -105,7 +108,7 @@ public:
    *  Map an LMR, or a Ex_LM_PN into the set of components
    */
 
-  std::vector<EcalLogicID> getEcalLogicIDMappedTo(int logic_id, std::string maps_to);
+  std::vector<EcalLogicID> getEcalLogicIDMappedTo(int logic_id, const std::string& maps_to);
 
   std::vector<EcalLogicID> getEcalLogicIDForLMR(int lmr_logic_id);
   std::vector<EcalLogicID> getEcalLogicIDForLMR(const EcalLogicID& lmr_logic_id);
@@ -277,7 +280,7 @@ public:
       const EcalLogicID* channel;
       const DATT* dataitem;
       typedef typename std::map<EcalLogicID, DATT>::const_iterator CI;
-      for (CI p = data->begin(); p != data->end(); ++p) {
+      for (auto p = data->begin(); p != data->end(); ++p) {
         channel = &(p->first);
         dataitem = &(p->second);
         dataIface.writeDB(channel, dataitem, iov);

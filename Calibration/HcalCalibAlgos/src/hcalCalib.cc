@@ -306,12 +306,12 @@ Bool_t hcalCalib::Process(Long64_t entry) {
   vector<Float_t> energies;
   vector<UInt_t> ids;
 
-  for (vector<TCell>::iterator i_it = selectCells.begin(); i_it != selectCells.end(); ++i_it) {
+  for (auto& selectCell : selectCells) {
     // for testing : fill only unique id's
 
-    if (uniqueIds.insert(i_it->id()).second) {
-      energies.push_back(i_it->e());
-      ids.push_back(i_it->id());
+    if (uniqueIds.insert(selectCell.id()).second) {
+      energies.push_back(selectCell.e());
+      ids.push_back(selectCell.id());
     }
   }
 
@@ -359,16 +359,16 @@ void hcalCalib::Terminate() {
   cout << "Number of input objects: " << cellIds.size() << endl;
   cout << "Performing minimization: depending on selected method can take some time...\n\n";
 
-  for (vector<pair<Int_t, UInt_t> >::iterator it_rp = refIEtaIPhi.begin(); it_rp != refIEtaIPhi.end(); ++it_rp) {
-    Float_t weight = (abs(it_rp->first) < 21) ? 1.0 / 72.0 : 1.0 / 36.0;
-    h1_numEventsTwrIEta->Fill(it_rp->first, weight);
+  for (auto& it_rp : refIEtaIPhi) {
+    Float_t weight = (abs(it_rp.first) < 21) ? 1.0 / 72.0 : 1.0 / 36.0;
+    h1_numEventsTwrIEta->Fill(it_rp.first, weight);
   }
 
   if (CALIB_METHOD == "MATRIX_INV_OF_ETA_AVE") {
     GetCoefFromMtrxInvOfAve();
   } else if (CALIB_METHOD == "L3" || CALIB_METHOD == "L3_AND_MTRX_INV") {
     int eventWeight = 2;  // 2 is the default (try at some point 0,1,2,3)
-    MinL3AlgoUniv<UInt_t>* thisL3Algo = new MinL3AlgoUniv<UInt_t>(eventWeight);
+    auto* thisL3Algo = new MinL3AlgoUniv<UInt_t>(eventWeight);
     int numIterations = 10;  // default 10
 
     solution = thisL3Algo->iterate(cellEnergies, cellIds, targetEnergies, numIterations);
@@ -380,18 +380,19 @@ void hcalCalib::Terminate() {
     if (!SUM_DEPTHS && SUM_SMALL_DEPTHS) {
       vector<UInt_t> idForSummedCells;
 
-      for (map<UInt_t, Float_t>::iterator m_it = solution.begin(); m_it != solution.end(); ++m_it) {
-        if (HcalDetId(m_it->first).ietaAbs() != 15 && HcalDetId(m_it->first).ietaAbs() != 16)
+      for (auto& m_it : solution) {
+        if (HcalDetId(m_it.first).ietaAbs() != 15 && HcalDetId(m_it.first).ietaAbs() != 16)
           continue;
-        if (HcalDetId(m_it->first).subdet() != HcalBarrel)
+        if (HcalDetId(m_it.first).subdet() != HcalBarrel)
           continue;
-        if (HcalDetId(m_it->first).depth() == 1)
-          idForSummedCells.push_back(HcalDetId(m_it->first));
+        if (HcalDetId(m_it.first).depth() == 1)
+          idForSummedCells.push_back(HcalDetId(m_it.first));
       }
 
-      for (vector<UInt_t>::iterator v_it = idForSummedCells.begin(); v_it != idForSummedCells.end(); ++v_it) {
-        UInt_t addCoefId = HcalDetId(HcalBarrel, HcalDetId(*v_it).ieta(), HcalDetId(*v_it).iphi(), 2);
-        solution[addCoefId] = solution[*v_it];
+      for (unsigned int& idForSummedCell : idForSummedCells) {
+        UInt_t addCoefId =
+            HcalDetId(HcalBarrel, HcalDetId(idForSummedCell).ieta(), HcalDetId(idForSummedCell).iphi(), 2);
+        solution[addCoefId] = solution[idForSummedCell];
       }
 
     }  // end of special treatment for "sumSmallDepths" mode
@@ -401,12 +402,12 @@ void hcalCalib::Terminate() {
 
       // loop over the solution from L3 and multiply by the additional factor from
       // the matrix inversion. Set coef outside of the valid calibration region =1.
-      for (map<UInt_t, Float_t>::iterator it_s = solution.begin(); it_s != solution.end(); ++it_s) {
-        Int_t iEtaSol = HcalDetId(it_s->first).ieta();
+      for (auto& it_s : solution) {
+        Int_t iEtaSol = HcalDetId(it_s.first).ieta();
         if (abs(iEtaSol) < CALIB_ABS_IETA_MIN || abs(iEtaSol) > CALIB_ABS_IETA_MAX)
-          it_s->second = 1.0;
+          it_s.second = 1.0;
         else
-          it_s->second *= iEtaCoefMap[iEtaSol];
+          it_s.second *= iEtaCoefMap[iEtaSol];
       }
 
     }  // if CALIB_METHOD=="L3_AND_MTRX_INV"
@@ -495,8 +496,8 @@ void hcalCalib::Terminate() {
   h1_numEventsTwrIEta->Write();
   h2_dHitRefBarrel->Write();
   h2_dHitRefEndcap->Write();
-  for (Int_t i = 0; i < 48; ++i) {
-    h1_corRespIEta[i]->Write();
+  for (auto& i : h1_corRespIEta) {
+    i->Write();
   }
 
   histoFile->Write();
@@ -536,12 +537,12 @@ void hcalCalib::GetCoefFromMtrxInvOfAve() {
 
   // scale by number of entries to get the averages
   Float_t norm = 1.0;
-  for (map<Int_t, Float_t>::iterator m_it = aveTargetE.begin(); m_it != aveTargetE.end(); ++m_it) {
+  for (auto m_it = aveTargetE.begin(); m_it != aveTargetE.end(); ++m_it) {
     Int_t iEta = m_it->first;
     norm = (nEntries[iEta] > 0) ? 1.0 / (nEntries[iEta]) : 1.0;
     aveTargetE[iEta] *= norm;
 
-    map<Int_t, Float_t>::iterator n_it = (aveHitE[iEta]).begin();
+    auto n_it = (aveHitE[iEta]).begin();
 
     Float_t sumRawE = 0;
     for (; n_it != (aveHitE[iEta]).end(); ++n_it) {
@@ -576,7 +577,7 @@ void hcalCalib::GetCoefFromMtrxInvOfAve() {
   for (UInt_t i = 0; i < iEtaList.size(); ++i) {
     b(i, 0) = aveTargetE[iEtaList[i]];
 
-    map<Int_t, Float_t>::iterator n_it = aveHitE[iEtaList[i]].begin();
+    auto n_it = aveHitE[iEtaList[i]].begin();
     for (; n_it != aveHitE[iEtaList[i]].end(); ++n_it) {
       if (fabs(n_it->first) > CALIB_ABS_IETA_MAX || fabs(n_it->first) < CALIB_ABS_IETA_MIN)
         continue;

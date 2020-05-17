@@ -197,7 +197,7 @@ void MET::initCorMap() {
 
 const MET::PackedMETUncertainty MET::findMETTotalShift(MET::METCorrectionLevel cor, MET::METUncertainty shift) const {
   //find corrections shifts =============================
-  std::map<MET::METCorrectionLevel, std::vector<MET::METCorrectionType> >::const_iterator itCor_ = corMap_.find(cor);
+  auto itCor_ = corMap_.find(cor);
   if (itCor_ == corMap_.end())
     throw cms::Exception("Unsupported", "Specified MET correction scheme does not exist");
 

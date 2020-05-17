@@ -3,6 +3,7 @@
 
 #include <stdexcept>
 #include <iostream>
+#include <utility>
 
 #include "OnlineDB/EcalCondDB/interface/RunModeDef.h"
 #include "OnlineDB/EcalCondDB/interface/RunTypeDef.h"
@@ -23,10 +24,10 @@ public:
   inline void setId(int id) { m_ID = id; }
   inline int getId() const { return m_ID; }
 
-  void setDescription(std::string x) { m_description = x; }
+  void setDescription(std::string x) { m_description = std::move(x); }
   std::string getDescription() const { return m_description; }
   //
-  void setTag(std::string x) { m_tag = x; }
+  void setTag(std::string x) { m_tag = std::move(x); }
   std::string getTag() const { return m_tag; }
   //
   void setSequenceID(int x) { m_sequence_id = x; }

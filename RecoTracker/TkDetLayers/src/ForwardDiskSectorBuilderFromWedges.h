@@ -21,7 +21,8 @@ public:
 private:
   std::pair<DiskSectorBounds*, GlobalVector> computeBounds(const std::vector<const TECWedge*>& wedges) const;
 
-  Surface::RotationType computeRotation(const std::vector<const TECWedge*>& wedges, Surface::PositionType pos) const;
+  Surface::RotationType computeRotation(const std::vector<const TECWedge*>& wedges,
+                                        const Surface::PositionType& pos) const;
 };
 
 #pragma GCC visibility pop

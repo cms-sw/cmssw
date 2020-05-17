@@ -23,7 +23,7 @@ public:
       if (file.eof()) {
         break;
       }
-      if (name.find("#") != std::string::npos) {
+      if (name.find('#') != std::string::npos) {
         file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         continue;
       }
@@ -36,7 +36,7 @@ public:
   }
 
   int getVarIndex(const std::string &name) {
-    std::map<std::string, int>::iterator it = indexMap_.find(name);
+    auto it = indexMap_.find(name);
     if (it == indexMap_.end()) {
       return -1;
     } else {

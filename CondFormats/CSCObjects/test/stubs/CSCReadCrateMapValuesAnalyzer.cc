@@ -28,8 +28,8 @@ namespace edmtest {
   public:
     explicit CSCReadCrateMapValuesAnalyzer(edm::ParameterSet const& p) {}
     explicit CSCReadCrateMapValuesAnalyzer(int i) {}
-    virtual ~CSCReadCrateMapValuesAnalyzer() {}
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    ~CSCReadCrateMapValuesAnalyzer() override {}
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   private:
   };

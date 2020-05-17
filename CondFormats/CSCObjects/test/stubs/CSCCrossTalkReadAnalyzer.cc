@@ -26,8 +26,8 @@ namespace edmtest {
   public:
     explicit CSCCrossTalkReadAnalyzer(edm::ParameterSet const& p) {}
     explicit CSCCrossTalkReadAnalyzer(int i) {}
-    virtual ~CSCCrossTalkReadAnalyzer() {}
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    ~CSCCrossTalkReadAnalyzer() override {}
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   private:
   };

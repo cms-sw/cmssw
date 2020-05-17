@@ -27,10 +27,10 @@ class CandIsoComparer : public edm::EDAnalyzer {
 public:
   CandIsoComparer(const edm::ParameterSet&);
 
-  virtual ~CandIsoComparer();
+  ~CandIsoComparer() override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
 private:
   std::string label_;

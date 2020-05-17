@@ -2491,12 +2491,12 @@ void TrackingNtuple::fillPixelHits(const edm::Event& iEvent,
   iEvent.getByToken(pixelRecHitToken_, pixelHits);
   for (auto it = pixelHits->begin(); it != pixelHits->end(); it++) {
     const DetId hitId = it->detId();
-    for (auto hit = it->begin(); hit != it->end(); hit++) {
-      TransientTrackingRecHit::RecHitPointer ttrh = theTTRHBuilder.build(&*hit);
+    for (auto& hit : *it) {
+      TransientTrackingRecHit::RecHitPointer ttrh = theTTRHBuilder.build(&hit);
 
-      hitProductIds.insert(hit->cluster().id());
+      hitProductIds.insert(hit.cluster().id());
 
-      const int key = hit->cluster().key();
+      const int key = hit.cluster().key();
       const int lay = tTopo.layer(hitId);
 
       pix_isBarrel.push_back(hitId.subdetId() == 1);
@@ -2518,7 +2518,7 @@ void TrackingNtuple::fillPixelHits(const edm::Event& iEvent,
       LogTrace("TrackingNtuple") << "pixHit cluster=" << key << " subdId=" << hitId.subdetId() << " lay=" << lay
                                  << " rawId=" << hitId.rawId() << " pos =" << ttrh->globalPosition();
       if (includeTrackingParticles_) {
-        SimHitData simHitData = matchCluster(hit->firstClusterRef(),
+        SimHitData simHitData = matchCluster(hit.firstClusterRef(),
                                              hitId,
                                              key,
                                              ttrh,
@@ -2681,8 +2681,8 @@ void TrackingNtuple::fillStripMatchedHits(const edm::Event& iEvent,
   edm::Handle<SiStripMatchedRecHit2DCollection> matchedHits;
   iEvent.getByToken(stripMatchedRecHitToken_, matchedHits);
   for (auto it = matchedHits->begin(); it != matchedHits->end(); it++) {
-    for (auto hit = it->begin(); hit != it->end(); hit++) {
-      addStripMatchedHit(*hit, theTTRHBuilder, tTopo, monoStereoClusterList);
+    for (auto& hit : *it) {
+      addStripMatchedHit(hit, theTTRHBuilder, tTopo, monoStereoClusterList);
     }
   }
 }
@@ -2700,12 +2700,12 @@ void TrackingNtuple::fillPhase2OTHits(const edm::Event& iEvent,
   iEvent.getByToken(phase2OTRecHitToken_, phase2OTHits);
   for (auto it = phase2OTHits->begin(); it != phase2OTHits->end(); it++) {
     const DetId hitId = it->detId();
-    for (auto hit = it->begin(); hit != it->end(); hit++) {
-      TransientTrackingRecHit::RecHitPointer ttrh = theTTRHBuilder.build(&*hit);
+    for (auto& hit : *it) {
+      TransientTrackingRecHit::RecHitPointer ttrh = theTTRHBuilder.build(&hit);
 
-      hitProductIds.insert(hit->cluster().id());
+      hitProductIds.insert(hit.cluster().id());
 
-      const int key = hit->cluster().key();
+      const int key = hit.cluster().key();
       const int lay = tTopo.layer(hitId);
 
       ph2_isBarrel.push_back(hitId.subdetId() == 1);
@@ -2728,7 +2728,7 @@ void TrackingNtuple::fillPhase2OTHits(const edm::Event& iEvent,
                                  << " rawId=" << hitId.rawId() << " pos =" << ttrh->globalPosition();
 
       if (includeTrackingParticles_) {
-        SimHitData simHitData = matchCluster(hit->firstClusterRef(),
+        SimHitData simHitData = matchCluster(hit.firstClusterRef(),
                                              hitId,
                                              key,
                                              ttrh,
@@ -2934,7 +2934,7 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
         TransientTrackingRecHit::RecHitPointer recHit = theTTRHBuilder.build(&*hit);
         int subid = recHit->geographicalId().subdetId();
         if (subid == (int)PixelSubdetector::PixelBarrel || subid == (int)PixelSubdetector::PixelEndcap) {
-          const BaseTrackerRecHit* bhit = dynamic_cast<const BaseTrackerRecHit*>(&*recHit);
+          const auto* bhit = dynamic_cast<const BaseTrackerRecHit*>(&*recHit);
           const auto& clusterRef = bhit->firstClusterRef();
           const auto clusterKey = clusterRef.cluster_pixel().key();
           if (includeAllHits_) {
@@ -2946,7 +2946,7 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
         } else if (subid == (int)StripSubdetector::TOB || subid == (int)StripSubdetector::TID ||
                    subid == (int)StripSubdetector::TIB || subid == (int)StripSubdetector::TEC) {
           if (trackerHitRTTI::isMatched(*recHit)) {
-            const SiStripMatchedRecHit2D* matchedHit = dynamic_cast<const SiStripMatchedRecHit2D*>(&*recHit);
+            const auto* matchedHit = dynamic_cast<const SiStripMatchedRecHit2D*>(&*recHit);
             if (includeAllHits_) {
               checkProductID(hitProductIds, matchedHit->monoClusterRef().id(), "seed");
               checkProductID(hitProductIds, matchedHit->stereoClusterRef().id(), "seed");
@@ -2954,7 +2954,7 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
             int monoIdx = matchedHit->monoClusterRef().key();
             int stereoIdx = matchedHit->stereoClusterRef().key();
 
-            std::vector<std::pair<int, int>>::iterator pos =
+            auto pos =
                 find(monoStereoClusterList.begin(), monoStereoClusterList.end(), std::make_pair(monoIdx, stereoIdx));
             size_t gluedIndex = -1;
             if (pos != monoStereoClusterList.end()) {
@@ -2972,7 +2972,7 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
             hitIdx.push_back(gluedIndex);
             hitType.push_back(static_cast<int>(HitType::Glued));
           } else {
-            const BaseTrackerRecHit* bhit = dynamic_cast<const BaseTrackerRecHit*>(&*recHit);
+            const auto* bhit = dynamic_cast<const BaseTrackerRecHit*>(&*recHit);
             const auto& clusterRef = bhit->firstClusterRef();
             unsigned int clusterKey;
             if (clusterRef.isPhase2()) {
@@ -3325,7 +3325,7 @@ void TrackingNtuple::fillTracks(const edm::RefToBaseVector<reco::Track>& tracks,
 
       if (hit->isValid()) {
         //ugly... but works
-        const BaseTrackerRecHit* bhit = dynamic_cast<const BaseTrackerRecHit*>(&*hit);
+        const auto* bhit = dynamic_cast<const BaseTrackerRecHit*>(&*hit);
         const auto& clusterRef = bhit->firstClusterRef();
         unsigned int clusterKey;
         if (clusterRef.isPixel()) {

@@ -17,7 +17,7 @@ using namespace cms::dd;
 dd4hep::Solid DDSolid::solidA() const {
   if (dd4hep::isA<dd4hep::SubtractionSolid>(solid_) or dd4hep::isA<dd4hep::UnionSolid>(solid_) or
       dd4hep::isA<dd4hep::IntersectionSolid>(solid_)) {
-    const TGeoCompositeShape* sh = (const TGeoCompositeShape*)solid_.ptr();
+    const auto* sh = (const TGeoCompositeShape*)solid_.ptr();
     const TGeoBoolNode* boolean = sh->GetBoolNode();
     TGeoShape* solidA = boolean->GetLeftShape();
     return dd4hep::Solid(solidA);
@@ -28,7 +28,7 @@ dd4hep::Solid DDSolid::solidA() const {
 dd4hep::Solid DDSolid::solidB() const {
   if (dd4hep::isA<dd4hep::SubtractionSolid>(solid_) or dd4hep::isA<dd4hep::UnionSolid>(solid_) or
       dd4hep::isA<dd4hep::IntersectionSolid>(solid_)) {
-    const TGeoCompositeShape* sh = static_cast<const TGeoCompositeShape*>(solid_.ptr());
+    const auto* sh = static_cast<const TGeoCompositeShape*>(solid_.ptr());
     const TGeoBoolNode* boolean = sh->GetBoolNode();
     TGeoShape* solidB = boolean->GetRightShape();
     return dd4hep::Solid(solidB);
@@ -450,7 +450,7 @@ const std::vector<double> DDFilteredView::parameters() const {
   Volume currVol = node_->GetVolume();
   // Boolean shapes are a special case
   if (currVol->GetShape()->IsA() == TGeoCompositeShape::Class()) {
-    const TGeoCompositeShape* shape = static_cast<const TGeoCompositeShape*>(currVol->GetShape());
+    const auto* shape = static_cast<const TGeoCompositeShape*>(currVol->GetShape());
     const TGeoBoolNode* boolean = shape->GetBoolNode();
     while (boolean->GetLeftShape()->IsA() != TGeoBBox::Class()) {
       boolean = static_cast<const TGeoCompositeShape*>(boolean->GetLeftShape())->GetBoolNode();

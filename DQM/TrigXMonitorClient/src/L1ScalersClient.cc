@@ -54,16 +54,16 @@ L1ScalersClient::L1ScalersClient(const edm::ParameterSet &ps)
   bxSelected_ = dbe_->book2D(
       "l1BitsBxSel", "Selected L1 Algorithm Bits vs Bx", 3600, -0.5, 3599.5, numSelected_, -0.5, numSelected_ - 0.5);
   int j = 1;
-  for (unsigned int i = 0; i < algoSelected_.size(); ++i) {
+  for (int i : algoSelected_) {
     char title[256];
-    snprintf(title, 256, "Algo %d", algoSelected_[i]);
+    snprintf(title, 256, "Algo %d", i);
     selected_->setBinLabel(j, title);
     bxSelected_->setBinLabel(j, title, 2);
     ++j;
   }
-  for (unsigned int i = 0; i < techSelected_.size(); ++i) {
+  for (int i : techSelected_) {
     char title[256];
-    snprintf(title, 256, "Tech %d", techSelected_[i]);
+    snprintf(title, 256, "Tech %d", i);
     selected_->setBinLabel(j, title);
     bxSelected_->setBinLabel(j, title, 2);
     ++j;
@@ -133,12 +133,12 @@ L1ScalersClient::L1ScalersClient(const edm::ParameterSet &ps)
 
   std::ostringstream params;
   params << "Algo: ";
-  for (unsigned int i = 0; i < algoSelected_.size(); ++i) {
-    params << algoSelected_[i] << " ";
+  for (int i : algoSelected_) {
+    params << i << " ";
   }
   params << ", Tech: ";
-  for (unsigned int i = 0; i < techSelected_.size(); ++i) {
-    params << techSelected_[i] << " ";
+  for (int i : techSelected_) {
+    params << i << " ";
   }
   LogDebug("Parameter") << "L1 bits to monitor are " << params.str();
 }

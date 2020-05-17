@@ -67,7 +67,7 @@ void SiPixelHitEfficiencyModule::book(const edm::ParameterSet &iConfig,
   int nbinY = 40;
 
   if (type == 0) {
-    SiPixelHistogramId *theHistogramId = new SiPixelHistogramId(src.label());
+    auto *theHistogramId = new SiPixelHistogramId(src.label());
 
     if (updateEfficiencies) {
       // EFFICIENCY

@@ -370,8 +370,8 @@ namespace {  // anonymous
         }
       } else {
         double factor = signal * background / ((signal + background) * (signal + background));
-        for (std::vector<double>::iterator p = result.begin(); p != result.end(); ++p)
-          *p *= factor;
+        for (double &p : result)
+          p *= factor;
       }
     }
 

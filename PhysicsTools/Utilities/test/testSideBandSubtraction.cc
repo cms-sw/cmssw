@@ -23,7 +23,7 @@ using namespace RooFit;
 using std::string;
 using std::vector;
 
-void print_plot(RooDataSet *dataSet, RooRealVar printVar, string outname, string cut) {
+void print_plot(RooDataSet *dataSet, const RooRealVar &printVar, string outname, const string &cut) {
   RooPlot *genericFrame = printVar.frame();
   dataSet->plotOn(genericFrame, Cut(cut.c_str()));
   TCanvas genericCanvas;

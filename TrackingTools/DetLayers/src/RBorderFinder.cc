@@ -32,7 +32,7 @@ RBorderFinder::RBorderFinder(const std::vector<const Det*>& utheDets)
     for (int i = 0; i < theNbins; i++) {
       theRBins.push_back((disks[i]->outerRadius() + disks[i]->innerRadius()) / 2.);
       spread.push_back(theRBins.back() - (theRBins[0] + i * step));
-      REdge.push_back(std::pair<double, double>(disks[i]->innerRadius(), disks[i]->outerRadius()));
+      REdge.emplace_back(disks[i]->innerRadius(), disks[i]->outerRadius());
     }
 
     theRBorders.push_back(REdge[0].first);

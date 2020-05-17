@@ -9,7 +9,7 @@ using namespace reco;
 
 WMuNuCandidatePtr::WMuNuCandidatePtr() {}
 
-WMuNuCandidatePtr::WMuNuCandidatePtr(const reco::CandidatePtr muon, const reco::CandidatePtr met)
+WMuNuCandidatePtr::WMuNuCandidatePtr(const reco::CandidatePtr& muon, const reco::CandidatePtr& met)
     : muon_(muon), neutrino_(met) {
   addDaughter(muon_);
   addDaughter(neutrino_);

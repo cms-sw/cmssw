@@ -22,7 +22,7 @@ public:
       : volume_(vol), magProvider_(mp), field_(field) {}
 
   bool testInside() const;
-  bool testFind(GlobalPoint gp) const;
+  bool testFind(const GlobalPoint& gp) const;
 
 private:
   const MagVolume6Faces* volume_;

@@ -79,9 +79,9 @@ void HFRecoEcalCandidateProducer::produce(edm::Event& e, edm::EventSetup const& 
 
     //count verticies
 
-    for (reco::VertexCollection::const_iterator vit = vertices.begin(); vit != vertices.end(); ++vit) {
-      if (vit->ndof() > minNDOF && ((maxAbsZ <= 0) || fabs(vit->z()) <= maxAbsZ) &&
-          ((maxd0 <= 0) || fabs(vit->position().rho()) <= maxd0))
+    for (const auto& vertice : vertices) {
+      if (vertice.ndof() > minNDOF && ((maxAbsZ <= 0) || fabs(vertice.z()) <= maxAbsZ) &&
+          ((maxd0 <= 0) || fabs(vertice.position().rho()) <= maxd0))
         nvertex++;
     }
   } else {

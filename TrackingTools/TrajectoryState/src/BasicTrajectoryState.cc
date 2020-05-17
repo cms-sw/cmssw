@@ -8,6 +8,7 @@
 
 #include <cmath>
 #include <sstream>
+#include <utility>
 
 #ifdef DO_BTSCount
 unsigned int BTSCount::maxReferences = 0;
@@ -60,7 +61,7 @@ namespace {
                                      GlobalVector fieldValue) {
     GlobalPoint x = surface.toGlobal(par.position());
     GlobalVector p = surface.toGlobal(par.momentum());
-    return FreeTrajectoryState(x, p, par.charge(), field, fieldValue);
+    return FreeTrajectoryState(x, p, par.charge(), field, std::move(fieldValue));
   }
 
 }  // namespace

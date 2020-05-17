@@ -163,7 +163,7 @@ L1MuGlobalMuonTrigger::~L1MuGlobalMuonTrigger() {
   m_config = nullptr;
 
   // copied from produce() by Jim B, 7 Aug 2007
-  std::vector<L1MuGMTReadoutRecord*>::iterator irr = m_ReadoutRingbuffer.begin();
+  auto irr = m_ReadoutRingbuffer.begin();
   for (; irr != m_ReadoutRingbuffer.end(); irr++)
     delete (*irr);
   m_ReadoutRingbuffer.clear();
@@ -266,7 +266,7 @@ void L1MuGlobalMuonTrigger::produce(edm::Event& e, const edm::EventSetup& es) {
   m_ExtendedCands.clear();
 
   // clear readout ring buffer
-  std::vector<L1MuGMTReadoutRecord*>::iterator irr = m_ReadoutRingbuffer.begin();
+  auto irr = m_ReadoutRingbuffer.begin();
   for (; irr != m_ReadoutRingbuffer.end(); irr++)
     delete (*irr);
   m_ReadoutRingbuffer.clear();
@@ -449,7 +449,7 @@ std::unique_ptr<L1MuGMTReadoutCollection> L1MuGlobalMuonTrigger::getReadoutColle
   std::unique_ptr<L1MuGMTReadoutCollection> rrc(new L1MuGMTReadoutCollection(bx_size));
 
   for (int bx = bx_min_ro; bx <= bx_max_ro; bx++) {
-    std::vector<L1MuGMTReadoutRecord*>::const_iterator iter = m_ReadoutRingbuffer.begin();
+    auto iter = m_ReadoutRingbuffer.begin();
 
     for (; iter != m_ReadoutRingbuffer.end(); iter++) {
       if ((*iter)->getBxInEvent() == bx) {

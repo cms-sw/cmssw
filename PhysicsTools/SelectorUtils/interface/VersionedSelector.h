@@ -58,8 +58,8 @@ public:
     memset(id_md5_, 0, length * sizeof(unsigned char));
     MD5((unsigned char*)tracked.c_str(), tracked.size(), id_md5_);
     char buf[32];
-    for (unsigned i = 0; i < MD5_DIGEST_LENGTH; ++i) {
-      sprintf(buf, "%02x", id_md5_[i]);
+    for (auto& i : id_md5_) {
+      sprintf(buf, "%02x", i);
       md5_string_.append(buf);
     }
     initialize(conf);
@@ -95,7 +95,7 @@ public:
     // setup isolation needs
     for (size_t i = 0, cutssize = cuts_.size(); i < cutssize; ++i) {
       if (needs_event_content_[i]) {
-        CutApplicatorWithEventContentBase* needsEvent = static_cast<CutApplicatorWithEventContentBase*>(cuts_[i].get());
+        auto* needsEvent = static_cast<CutApplicatorWithEventContentBase*>(cuts_[i].get());
         needsEvent->getEventContent(e);
       }
     }
@@ -201,8 +201,8 @@ void VersionedSelector<T>::initialize(const edm::ParameterSet& conf) {
   }
 
   // this lets us keep track of cuts without knowing what they are :D
-  std::vector<edm::ParameterSet>::const_iterator cbegin(cutflow.begin()), cend(cutflow.end());
-  std::vector<edm::ParameterSet>::const_iterator icut = cbegin;
+  auto cbegin(cutflow.begin()), cend(cutflow.end());
+  auto icut = cbegin;
   std::map<std::string, unsigned> cut_counter;
   std::vector<std::string> ignored_cuts;
   for (; icut != cend; ++icut) {
@@ -263,7 +263,7 @@ template <class T>
 void VersionedSelector<T>::setConsumes(edm::ConsumesCollector cc) {
   for (size_t i = 0, cutssize = cuts_.size(); i < cutssize; ++i) {
     if (needs_event_content_[i]) {
-      CutApplicatorWithEventContentBase* needsEvent = dynamic_cast<CutApplicatorWithEventContentBase*>(cuts_[i].get());
+      auto* needsEvent = dynamic_cast<CutApplicatorWithEventContentBase*>(cuts_[i].get());
       if (nullptr != needsEvent) {
         needsEvent->setConsumes(cc);
       } else {

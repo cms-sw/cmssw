@@ -96,7 +96,7 @@ void Vertex::removeTracks() {
 TrackBaseRef Vertex::originalTrack(const Track& refTrack) const {
   if (refittedTracks_.empty())
     throw cms::Exception("Vertex") << "No refitted tracks stored in vertex\n";
-  std::vector<Track>::const_iterator it = find_if(refittedTracks_.begin(), refittedTracks_.end(), TrackEqual(refTrack));
+  auto it = find_if(refittedTracks_.begin(), refittedTracks_.end(), TrackEqual(refTrack));
   if (it == refittedTracks_.end())
     throw cms::Exception("Vertex") << "Refitted track not found in list\n";
   size_t pos = it - refittedTracks_.begin();
@@ -106,7 +106,7 @@ TrackBaseRef Vertex::originalTrack(const Track& refTrack) const {
 Track Vertex::refittedTrack(const TrackBaseRef& track) const {
   if (refittedTracks_.empty())
     throw cms::Exception("Vertex") << "No refitted tracks stored in vertex\n";
-  trackRef_iterator it = find(tracks_begin(), tracks_end(), track);
+  auto it = find(tracks_begin(), tracks_end(), track);
   if (it == tracks_end())
     throw cms::Exception("Vertex") << "Track not found in list\n";
   size_t pos = it - tracks_begin();
@@ -120,17 +120,17 @@ math::XYZTLorentzVectorD Vertex::p4(float mass, float minWeight) const {
   ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double> > vec;
 
   if (hasRefittedTracks()) {
-    for (std::vector<Track>::const_iterator iter = refittedTracks_.begin(); iter != refittedTracks_.end(); ++iter) {
-      if (trackWeight(originalTrack(*iter)) >= minWeight) {
-        vec.SetPx(iter->px());
-        vec.SetPy(iter->py());
-        vec.SetPz(iter->pz());
+    for (const auto& refittedTrack : refittedTracks_) {
+      if (trackWeight(originalTrack(refittedTrack)) >= minWeight) {
+        vec.SetPx(refittedTrack.px());
+        vec.SetPy(refittedTrack.py());
+        vec.SetPz(refittedTrack.pz());
         vec.SetM(mass);
         sum += vec;
       }
     }
   } else {
-    for (std::vector<reco::TrackBaseRef>::const_iterator iter = tracks_begin(); iter != tracks_end(); iter++) {
+    for (auto iter = tracks_begin(); iter != tracks_end(); iter++) {
       if (trackWeight(*iter) >= minWeight) {
         vec.SetPx((*iter)->px());
         vec.SetPy((*iter)->py());
@@ -146,11 +146,11 @@ math::XYZTLorentzVectorD Vertex::p4(float mass, float minWeight) const {
 unsigned int Vertex::nTracks(float minWeight) const {
   int n = 0;
   if (hasRefittedTracks()) {
-    for (std::vector<Track>::const_iterator iter = refittedTracks_.begin(); iter != refittedTracks_.end(); ++iter)
-      if (trackWeight(originalTrack(*iter)) >= minWeight)
+    for (const auto& refittedTrack : refittedTracks_)
+      if (trackWeight(originalTrack(refittedTrack)) >= minWeight)
         n++;
   } else {
-    for (std::vector<reco::TrackBaseRef>::const_iterator iter = tracks_begin(); iter != tracks_end(); iter++)
+    for (auto iter = tracks_begin(); iter != tracks_end(); iter++)
       if (trackWeight(*iter) >= minWeight)
         n++;
   }

@@ -6,6 +6,8 @@
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
+#include <memory>
+
 #include <sstream>
 #include <iomanip>
 #include "TProfile.h"
@@ -18,7 +20,7 @@ using namespace sistrip;
 PedsFullNoiseHistograms::PedsFullNoiseHistograms(const edm::ParameterSet& pset, DQMStore* bei)
     : CommissioningHistograms(
           pset.getParameter<edm::ParameterSet>("PedsFullNoiseParameters"), bei, sistrip::PEDS_FULL_NOISE) {
-  factory_ = unique_ptr<PedsFullNoiseSummaryFactory>(new PedsFullNoiseSummaryFactory);
+  factory_ = std::make_unique<PedsFullNoiseSummaryFactory>();
   LogTrace(mlDqmClient_) << "[PedsFullNoiseHistograms::" << __func__ << "]"
                          << " Constructing object...";
 }
@@ -62,7 +64,7 @@ void PedsFullNoiseHistograms::histoAnalysis(bool debug) {
 
     // Retrieve pointers to peds and noise histos
     std::vector<TH1*> hists;
-    Histos::const_iterator ihis = iter->second.begin();
+    auto ihis = iter->second.begin();
 
     for (; ihis != iter->second.end(); ihis++) {
       // pedestal and noise 1D profiles
@@ -83,7 +85,7 @@ void PedsFullNoiseHistograms::histoAnalysis(bool debug) {
     ichannel++;
 
     // Perform histo analysis
-    PedsFullNoiseAnalysis* anal = new PedsFullNoiseAnalysis(iter->first);
+    auto* anal = new PedsFullNoiseAnalysis(iter->first);
     PedsFullNoiseAlgorithm algo(this->pset(), anal);
     algo.analysis(hists);
 
@@ -122,8 +124,8 @@ void PedsFullNoiseHistograms::histoAnalysis(bool debug) {
 // -----------------------------------------------------------------------------
 /** */
 void PedsFullNoiseHistograms::printAnalyses() {
-  Analyses::iterator ianal = data().begin();
-  Analyses::iterator janal = data().end();
+  auto ianal = data().begin();
+  auto janal = data().end();
   for (; ianal != janal; ++ianal) {
     if (ianal->second) {
       std::stringstream ss;

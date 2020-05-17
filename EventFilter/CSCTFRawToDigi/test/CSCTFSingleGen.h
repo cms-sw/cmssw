@@ -14,10 +14,10 @@ private:
   CSCTriggerMapping* mapping;  // redundant, but needed
 
 public:
-  void produce(edm::Event& e, const edm::EventSetup& c);
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
 
   CSCTFSingleGen(const edm::ParameterSet& pset);
-  ~CSCTFSingleGen(void);
+  ~CSCTFSingleGen(void) override;
 };
 
 #endif

@@ -22,14 +22,14 @@ Toy EDAnalyzer for testing purposes only.
 
 namespace edmtest {
 
-  DTDeadUpdate::DTDeadUpdate(edm::ParameterSet const& p) : dSum(0) {}
+  DTDeadUpdate::DTDeadUpdate(edm::ParameterSet const& p) : dSum(nullptr) {}
 
-  DTDeadUpdate::DTDeadUpdate(int i) : dSum(0) {}
+  DTDeadUpdate::DTDeadUpdate(int i) : dSum(nullptr) {}
 
   DTDeadUpdate::~DTDeadUpdate() {}
 
   void DTDeadUpdate::analyze(const edm::Event& e, const edm::EventSetup& context) {
-    if (dSum == 0)
+    if (dSum == nullptr)
       dSum = new DTDeadFlag("deadList");
     using namespace edm::eventsetup;
     // Context is not used.
@@ -39,8 +39,8 @@ namespace edmtest {
     context.get<DTDeadFlagRcd>().get(dList);
     std::cout << dList->version() << std::endl;
     std::cout << std::distance(dList->begin(), dList->end()) << " data in the container" << std::endl;
-    DTDeadFlag::const_iterator iter = dList->begin();
-    DTDeadFlag::const_iterator iend = dList->end();
+    auto iter = dList->begin();
+    auto iend = dList->end();
     while (iter != iend) {
       const std::pair<DTDeadFlagId, DTDeadFlagData>& data = *iter++;
       const DTDeadFlagId& id = data.first;

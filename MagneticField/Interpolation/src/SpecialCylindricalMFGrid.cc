@@ -45,7 +45,7 @@ SpecialCylindricalMFGrid::SpecialCylindricalMFGrid(binary_ifstream& inFile,
 
     // Preserve double precision!
     Vector3DBase<double, LocalTag> lB = frame().toLocal(Vector3DBase<double, GlobalTag>(Bx, By, Bz));
-    fieldValues.push_back(BVector(lB.x(), lB.y(), lB.z()));
+    fieldValues.emplace_back(lB.x(), lB.y(), lB.z());
   }
   // check completeness
   string lastEntry;

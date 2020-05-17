@@ -71,12 +71,12 @@ namespace MsgTools {
     pos = len_pos + sizeof(char_uint32);         // area for full string of names
     bool first = true;
 
-    for (Strings::const_iterator beg = names.begin(); beg != names.end(); ++beg) {
+    for (const auto& name : names) {
       if (first)
         first = false;
       else
         *pos++ = ' ';
-      pos = edm::copy_all(*beg, pos);
+      pos = edm::copy_all(name, pos);
     }
     convert((uint32)(pos - len_pos - sizeof(char_uint32)), len_pos);
     return pos;

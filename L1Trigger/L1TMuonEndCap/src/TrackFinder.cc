@@ -1,6 +1,8 @@
 #include "L1Trigger/L1TMuonEndCap/interface/TrackFinder.h"
 
 #include <iostream>
+#include <memory>
+
 #include <sstream>
 
 #include "L1Trigger/L1TMuonEndCap/interface/EMTFSubsystemCollector.h"
@@ -25,9 +27,9 @@ TrackFinder::TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollecto
       useGEM_(iConfig.getParameter<bool>("GEMEnable")),
       era_(iConfig.getParameter<std::string>("Era")) {
   if (era_ == "Run2_2016") {
-    pt_assign_engine_.reset(new PtAssignmentEngine2016());
+    pt_assign_engine_ = std::make_unique<PtAssignmentEngine2016>();
   } else if (era_ == "Run2_2017" || era_ == "Run2_2018") {
-    pt_assign_engine_.reset(new PtAssignmentEngine2017());
+    pt_assign_engine_ = std::make_unique<PtAssignmentEngine2017>();
   } else {
     edm::LogError("L1T") << "era_ = " << era_;
     return;

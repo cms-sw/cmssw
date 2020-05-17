@@ -48,11 +48,8 @@ FWTabularWidget::FWTabularWidget(FWTableManagerBase* iTable, const TGWindow* p, 
   m_widthOfTextInColumns = m_table->maxWidthForColumns();
 
   m_tableWidth = (kTextBuffer + kTextBuffer + kSeperatorWidth) * (m_widthOfTextInColumns.size()) + kSeperatorWidth;
-  for (std::vector<unsigned int>::const_iterator it = m_widthOfTextInColumns.begin(),
-                                                 itEnd = m_widthOfTextInColumns.end();
-       it != itEnd;
-       ++it) {
-    m_tableWidth += *it;
+  for (unsigned int m_widthOfTextInColumn : m_widthOfTextInColumns) {
+    m_tableWidth += m_widthOfTextInColumn;
   }
   Resize();
 
@@ -96,9 +93,8 @@ void FWTabularWidget::setWidthOfTextInColumns(const std::vector<unsigned int>& i
   if (m_growInWidth) {
     // with of columns grow to prevent resizing/flickering on next event
     m_widthOfTextInColumnsMax.resize(iNew.size());
-    std::vector<unsigned int>::iterator k = m_widthOfTextInColumnsMax.begin();
-    for (std::vector<unsigned int>::iterator it = m_widthOfTextInColumns.begin(); it != m_widthOfTextInColumns.end();
-         ++it, ++k) {
+    auto k = m_widthOfTextInColumnsMax.begin();
+    for (auto it = m_widthOfTextInColumns.begin(); it != m_widthOfTextInColumns.end(); ++it, ++k) {
       if (*it < *k)
         *it = *k;
       else
@@ -107,11 +103,8 @@ void FWTabularWidget::setWidthOfTextInColumns(const std::vector<unsigned int>& i
   }
 
   m_tableWidth = 0;
-  for (std::vector<unsigned int>::const_iterator it = m_widthOfTextInColumns.begin(),
-                                                 itEnd = m_widthOfTextInColumns.end();
-       it != itEnd;
-       ++it) {
-    m_tableWidth += *it + kTextBuffer + kTextBuffer + kSeperatorWidth;
+  for (unsigned int m_widthOfTextInColumn : m_widthOfTextInColumns) {
+    m_tableWidth += m_widthOfTextInColumn + kTextBuffer + kTextBuffer + kSeperatorWidth;
   }
   m_tableWidth += kSeperatorWidth;
 }
@@ -171,10 +164,7 @@ void FWTabularWidget::translateToRowColumn(
     } else {
       iX += m_hOffset;
       oCol = 0;
-      for (std::vector<unsigned int>::const_iterator it = m_widthOfTextInColumns.begin(),
-                                                     itEnd = m_widthOfTextInColumns.end();
-           it != itEnd;
-           ++it, ++oCol) {
+      for (auto it = m_widthOfTextInColumns.begin(), itEnd = m_widthOfTextInColumns.end(); it != itEnd; ++it, ++oCol) {
         oRelX = iX - kTextBuffer;
         iX -= 2 * kTextBuffer + kSeperatorWidth + *it;
         if (iX <= 0) {
@@ -256,8 +246,7 @@ void FWTabularWidget::DoRedraw() {
   //calculate offset for rows and columns
   Int_t rowOffset = (kSeperatorWidth + 2 * kTextBuffer + m_textHeight) * startRow;
   Int_t columnOffset = kSeperatorWidth + kTextBuffer + xOrigin;
-  for (std::vector<unsigned int>::iterator itTextWidth = m_widthOfTextInColumns.begin(),
-                                           itEnd = m_widthOfTextInColumns.begin() + startColumn;
+  for (auto itTextWidth = m_widthOfTextInColumns.begin(), itEnd = m_widthOfTextInColumns.begin() + startColumn;
        itTextWidth != itEnd;
        ++itTextWidth) {
     columnOffset += *itTextWidth + kTextBuffer + kSeperatorWidth + kTextBuffer;
@@ -265,7 +254,7 @@ void FWTabularWidget::DoRedraw() {
 
   y += rowOffset;
   for (int row = startRow; row <= endRow; ++row) {
-    std::vector<unsigned int>::iterator itTextWidth = m_widthOfTextInColumns.begin() + startColumn;
+    auto itTextWidth = m_widthOfTextInColumns.begin() + startColumn;
     //int x=kSeperatorWidth+kTextBuffer+xOrigin;
     int x = columnOffset;
     y += kTextBuffer + kSeperatorWidth;
@@ -282,10 +271,8 @@ void FWTabularWidget::DoRedraw() {
   int x = xOrigin;
   gVirtualX->DrawLine(fId, m_normGC, x, 0, x, y);
   x += kSeperatorWidth;
-  for (std::vector<unsigned int>::iterator itTextWidth = m_widthOfTextInColumns.begin();
-       itTextWidth != m_widthOfTextInColumns.end();
-       ++itTextWidth) {
-    x += 2 * kTextBuffer + *itTextWidth;
+  for (unsigned int& m_widthOfTextInColumn : m_widthOfTextInColumns) {
+    x += 2 * kTextBuffer + m_widthOfTextInColumn;
     gVirtualX->DrawLine(fId, m_normGC, x, 0, x, y);
     x += kSeperatorWidth;
   }

@@ -74,7 +74,7 @@ void HltComparator::initialise(const edm::TriggerResults &onlineResults,
   }
   for (unsigned int i = 0; i < numTriggers_; ++i) {
     // Find offline position for fixed online bit
-    std::map<std::string, unsigned int>::iterator it = offlineNameBitMap.find(onlineActualNames_[i]);
+    auto it = offlineNameBitMap.find(onlineActualNames_[i]);
     if (it != offlineNameBitMap.end()) {
       onlineToOfflineBitMappings_.push_back(it->second);
     } else {
@@ -86,11 +86,11 @@ void HltComparator::initialise(const edm::TriggerResults &onlineResults,
 
   // Create histograms
   edm::Service<TFileService> fs;
-  for (std::vector<std::string>::iterator it = onlineActualNames_.begin(); it != onlineActualNames_.end(); ++it) {
+  for (auto &onlineActualName : onlineActualNames_) {
     // Bin descriptions: OnOfPass, OnOffFail, OnPassOffFail, OnFailOffPass,
     // OnOffError, OnRunOffError, OnErrorOffRun, OnRunOffNot OnNotOffRun
     // OnNotOffNot
-    TH1F *h = fs->make<TH1F>(it->c_str(), it->c_str(), 10, 0, 10);
+    TH1F *h = fs->make<TH1F>(onlineActualName.c_str(), onlineActualName.c_str(), 10, 0, 10);
     TAxis *a = h->GetXaxis();
     a->SetBinLabel(1, "OnPass_OffPass");
     a->SetBinLabel(2, "OnFail_OffFail");

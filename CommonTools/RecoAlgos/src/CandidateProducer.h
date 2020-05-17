@@ -41,7 +41,7 @@ namespace converter {
     struct PolymorphicCreator {
       template <typename CColl, typename Comp, typename Conv>
       static void create(size_t idx, CColl& cands, const Comp& components, Conv& converter) {
-        typename Conv::Candidate* c = new typename Conv::Candidate;
+        auto* c = new typename Conv::Candidate;
         typedef edm::Ref<std::vector<typename Conv::value_type> > ref_type;
         ref_type ref = components.template getConcreteRef<ref_type>(idx);
         converter.convert(ref, *c);

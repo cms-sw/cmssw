@@ -134,13 +134,12 @@ void BasicGenParticleValidation::analyze(const edm::Event& iEvent, const edm::Ev
 
   std::vector<const reco::GenParticle*> particles;
   particles.reserve(initSize);
-  for (reco::GenParticleCollection::const_iterator iter = genParticles->begin(); iter != genParticles->end(); ++iter) {
-    if ((*iter).status() == 1) {
-      particles.push_back(&*iter);
+  for (const auto& iter : *genParticles) {
+    if (iter.status() == 1) {
+      particles.push_back(&iter);
       if (verbosity_ > 0) {
-        std::cout << "reco  " << std::setw(14) << std::fixed << (*iter).pdgId() << std::setw(14) << std::fixed
-                  << (*iter).px() << std::setw(14) << std::fixed << (*iter).py() << std::setw(14) << std::fixed
-                  << (*iter).pz() << std::endl;
+        std::cout << "reco  " << std::setw(14) << std::fixed << iter.pdgId() << std::setw(14) << std::fixed << iter.px()
+                  << std::setw(14) << std::fixed << iter.py() << std::setw(14) << std::fixed << iter.pz() << std::endl;
       }
     }
   }
@@ -220,9 +219,9 @@ void BasicGenParticleValidation::analyze(const edm::Event& iEvent, const edm::Ev
   std::vector<double> jetEta;
   jetEta.reserve(initSize);
 
-  for (reco::GenJetCollection::const_iterator iter = genJets->begin(); iter != genJets->end(); ++iter) {
+  for (const auto& iter : *genJets) {
     nJets++;
-    double pt = (*iter).pt();
+    double pt = iter.pt();
     totPt += pt;
     if (pt > 1.)
       nJetso1++;
@@ -230,15 +229,15 @@ void BasicGenParticleValidation::analyze(const edm::Event& iEvent, const edm::Ev
       nJetso10++;
     if (pt > 100.)
       nJetso100++;
-    double eta = (*iter).eta();
+    double eta = iter.eta();
     if (std::fabs(eta) < 2.5)
       nJetsCentral++;
     jetEta.push_back(eta);
 
-    genJetEnergy->Fill(std::log10((*iter).energy()), weight);
+    genJetEnergy->Fill(std::log10(iter.energy()), weight);
     genJetPt->Fill(std::log10(pt), weight);
     genJetEta->Fill(eta, weight);
-    genJetPhi->Fill((*iter).phi() / CLHEP::degree, weight);
+    genJetPhi->Fill(iter.phi() / CLHEP::degree, weight);
   }
 
   genJetMult->Fill(nJets, weight);

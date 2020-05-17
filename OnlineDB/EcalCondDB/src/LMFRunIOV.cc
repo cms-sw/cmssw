@@ -3,6 +3,7 @@
 #include "OnlineDB/EcalCondDB/interface/DateHandler.h"
 
 #include <ctime>
+#include <utility>
 
 using namespace std;
 using namespace oracle::occi;
@@ -84,7 +85,7 @@ LMFRunIOV &LMFRunIOV::setColorIndex(int color_index) {
 
 LMFRunIOV &LMFRunIOV::setColor(std::string name) {
   checkFabric();
-  setInt("color_id", _fabric->getColorID(name));
+  setInt("color_id", _fabric->getColorID(std::move(name)));
   return *this;
 }
 
@@ -111,7 +112,7 @@ LMFRunIOV &LMFRunIOV::setTriggerType(LMFTrigType &trigType) {
 
 LMFRunIOV &LMFRunIOV::setTriggerType(std::string sname) {
   checkFabric();
-  setInt("trigType_id", _fabric->getTrigTypeID(sname));
+  setInt("trigType_id", _fabric->getTrigTypeID(std::move(sname)));
   return *this;
 }
 

@@ -10,7 +10,7 @@ using namespace std;
 
 #include <iostream>
 
-DTROSErrorNotifier::DTROSErrorNotifier(DTROSErrorWord error) : error_(error) {}
+DTROSErrorNotifier::DTROSErrorNotifier(const DTROSErrorWord& error) : error_(error) {}
 
 DTROSErrorNotifier::~DTROSErrorNotifier() {}
 

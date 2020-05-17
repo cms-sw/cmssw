@@ -89,7 +89,7 @@ public:
    * Returns a DTTracoTrig corresponding to a DTTracoTrigData.
    * Creates the corresponding TRACO chip if needed and stores the trigger
    */
-  DTTracoTrig *storeTrigger(DTTracoTrigData);
+  DTTracoTrig *storeTrigger(const DTTracoTrigData &);
 
   /// NEWGEO Local position in chamber of a trigger-data object
   LocalPoint localPosition(const DTTrigData *) const override;

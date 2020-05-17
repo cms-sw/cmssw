@@ -12,6 +12,7 @@ This struct is used to communication parameters into the module factory.
 #include <memory>
 
 #include <string>
+#include <utility>
 
 namespace edm {
   class ProcessConfiguration;
@@ -25,7 +26,7 @@ namespace edm {
                      ProductRegistry& reg,
                      PreallocationConfiguration const* prealloc,
                      std::shared_ptr<ProcessConfiguration const> processConfiguration)
-        : pset_(pset), reg_(&reg), preallocate_(prealloc), processConfiguration_(processConfiguration) {}
+        : pset_(pset), reg_(&reg), preallocate_(prealloc), processConfiguration_(std::move(processConfiguration)) {}
 
     ParameterSet* pset_;
     ProductRegistry* reg_;

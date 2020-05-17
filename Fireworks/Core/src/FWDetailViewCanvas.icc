@@ -4,7 +4,7 @@
 #include "TRootEmbeddedCanvas.h"
 
 template <typename T>
-FWDetailViewCanvas<T>::FWDetailViewCanvas() : m_infoCanvas(0), m_guiFrame(0), m_viewCanvas(0) {}
+FWDetailViewCanvas<T>::FWDetailViewCanvas() : m_infoCanvas(nullptr), m_guiFrame(nullptr), m_viewCanvas(nullptr) {}
 
 template <typename T>
 FWDetailViewCanvas<T>::~FWDetailViewCanvas() {}
@@ -30,7 +30,7 @@ void FWDetailViewCanvas<T>::init(TEveWindowSlot* slot) {
     m_guiFrame->SetCleanup(kDeepCleanup);
 
     // legend
-    TRootEmbeddedCanvas* ec = new TRootEmbeddedCanvas("Embeddedcanvas", hf, 100, 100, 0);
+    auto* ec = new TRootEmbeddedCanvas("Embeddedcanvas", hf, 100, 100, 0);
     hf->AddFrame(ec, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
     m_infoCanvas = ec->GetCanvas();
     m_infoCanvas->SetHighLightColor(-1);
@@ -41,7 +41,7 @@ void FWDetailViewCanvas<T>::init(TEveWindowSlot* slot) {
   cf->MapWindow();
 
   // view canvas
-  TRootEmbeddedCanvas* ec = new TRootEmbeddedCanvas();
+  auto* ec = new TRootEmbeddedCanvas();
   TEveWindowFrame* wf = pack->NewSlotWithWeight(3)->MakeFrame(ec);
   wf->GetEveFrame()->SetShowTitleBar(kFALSE);
   m_viewCanvas = ec->GetCanvas();

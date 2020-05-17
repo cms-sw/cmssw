@@ -24,9 +24,9 @@ namespace cms {
   public:
     explicit ReadRecHit(const edm::ParameterSet& conf);
 
-    virtual ~ReadRecHit();
+    ~ReadRecHit() override;
 
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   private:
     ReadRecHitAlgorithm readRecHitAlgorithm_;

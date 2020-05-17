@@ -100,8 +100,8 @@ std::vector<CSCSegment> CSCSegAlgoSK::buildSegments(const ChamberHitContainer& u
   // This is going to point to fits to hits, and its content will be used to create a CSCSegment
   sfit_ = nullptr;
 
-  ChamberHitContainerCIt ib = rechits.begin();
-  ChamberHitContainerCIt ie = rechits.end();
+  auto ib = rechits.begin();
+  auto ie = rechits.end();
 
   // Possibly allow 2 passes, second widening scale factor for cuts
   windowScale = 1.;  // scale factor for cuts
@@ -109,7 +109,7 @@ std::vector<CSCSegment> CSCSegAlgoSK::buildSegments(const ChamberHitContainer& u
   int npass = (wideSeg > 1.) ? 2 : 1;
 
   for (int ipass = 0; ipass < npass; ++ipass) {
-    for (ChamberHitContainerCIt i1 = ib; i1 != ie; ++i1) {
+    for (auto i1 = ib; i1 != ie; ++i1) {
       bool segok = false;
       if (used[i1 - ib])
         continue;
@@ -117,7 +117,7 @@ std::vector<CSCSegment> CSCSegAlgoSK::buildSegments(const ChamberHitContainer& u
       int layer1 = layerIndex[i1 - ib];  //(*i1)->cscDetId().layer();
       const CSCRecHit2D* h1 = *i1;
 
-      for (ChamberHitContainerCIt i2 = ie - 1; i2 != i1; --i2) {
+      for (auto i2 = ie - 1; i2 != i1; --i2) {
         if (used[i2 - ib])
           continue;
 
@@ -208,10 +208,10 @@ void CSCSegAlgoSK::tryAddingHitsToSegment(const ChamberHitContainer& rechits,
   //    - if not, copy the segment, add the hit. If the new chi2/dof is still satisfactory
   //      then replace the original segment with the new one (by swap)
 
-  ChamberHitContainerCIt ib = rechits.begin();
-  ChamberHitContainerCIt ie = rechits.end();
+  auto ib = rechits.begin();
+  auto ie = rechits.end();
 
-  for (ChamberHitContainerCIt i = ib; i != ie; ++i) {
+  for (auto i = ib; i != ie; ++i) {
     if (i == i1 || i == i2 || used[i - ib])
       continue;
 
@@ -344,7 +344,7 @@ bool CSCSegAlgoSK::isSegmentGood(const ChamberHitContainer& rechitsInChamber) co
 
 void CSCSegAlgoSK::flagHitsAsUsed(const ChamberHitContainer& rechitsInChamber, BoolContainer& used) const {
   // Flag hits on segment as used
-  ChamberHitContainerCIt ib = rechitsInChamber.begin();
+  auto ib = rechitsInChamber.begin();
   ChamberHitContainerCIt hi, iu;
 
   for (hi = proto_segment.begin(); hi != proto_segment.end(); ++hi) {

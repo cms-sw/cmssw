@@ -110,10 +110,10 @@ DigiBXCorrHistogramMaker<T>::DigiBXCorrHistogramMaker(const edm::ParameterSet& i
   std::vector<edm::ParameterSet> wantedsubds(iConfig.getUntrackedParameter<std::vector<edm::ParameterSet> >(
       "wantedSubDets", std::vector<edm::ParameterSet>()));
 
-  for (std::vector<edm::ParameterSet>::iterator ps = wantedsubds.begin(); ps != wantedsubds.end(); ++ps) {
-    m_binmax[ps->getParameter<unsigned int>("detSelection")] = ps->getParameter<int>("binMax");
-    m_phasepart[ps->getParameter<unsigned int>("detSelection")] =
-        ps->getUntrackedParameter<std::string>("phasePartition", "None");
+  for (auto& wantedsubd : wantedsubds) {
+    m_binmax[wantedsubd.getParameter<unsigned int>("detSelection")] = wantedsubd.getParameter<int>("binMax");
+    m_phasepart[wantedsubd.getParameter<unsigned int>("detSelection")] =
+        wantedsubd.getUntrackedParameter<std::string>("phasePartition", "None");
   }
 }
 
@@ -128,12 +128,12 @@ void DigiBXCorrHistogramMaker<T>::book(const char* dirname, const std::map<int, 
 
   edm::LogInfo("NumberOfBins") << "Number of Bins: " << m_nbins;
   edm::LogInfo("ScaleFactors") << "x-axis range scale factors: ";
-  for (std::vector<int>::const_iterator sf = m_scalefact.begin(); sf != m_scalefact.end(); ++sf) {
+  for (auto sf = m_scalefact.begin(); sf != m_scalefact.end(); ++sf) {
     edm::LogVerbatim("ScaleFactors") << *sf;
   }
   edm::LogInfo("BinMaxValue") << "Setting bin max values";
 
-  for (std::map<int, std::string>::const_iterator lab = m_labels.begin(); lab != m_labels.end(); lab++) {
+  for (auto lab = m_labels.begin(); lab != m_labels.end(); lab++) {
     const int i = lab->first;
     const std::string slab = lab->second;
     const unsigned int ui = i;
@@ -149,7 +149,7 @@ void DigiBXCorrHistogramMaker<T>::book(const char* dirname, const std::map<int, 
 
   edm::LogInfo("PhasePartitions") << "Partitions for APV Cycle Phase";
 
-  for (std::map<int, std::string>::const_iterator lab = m_labels.begin(); lab != m_labels.end(); lab++) {
+  for (auto lab = m_labels.begin(); lab != m_labels.end(); lab++) {
     const int i = lab->first;
     const std::string slab = lab->second;
     const unsigned int ui = i;
@@ -158,7 +158,7 @@ void DigiBXCorrHistogramMaker<T>::book(const char* dirname, const std::map<int, 
                                                                                         : "not found");
   }
 
-  for (std::map<int, std::string>::const_iterator lab = m_labels.begin(); lab != m_labels.end(); lab++) {
+  for (auto lab = m_labels.begin(); lab != m_labels.end(); lab++) {
     const int i = lab->first;
     const std::string slab = lab->second;
     const unsigned int ui = i;
@@ -354,7 +354,7 @@ template <class T>
 void DigiBXCorrHistogramMaker<T>::beginRun(const unsigned int nrun) {
   m_rhm.beginRun(nrun);
 
-  for (std::map<int, std::string>::const_iterator lab = m_labels.begin(); lab != m_labels.end(); lab++) {
+  for (auto lab = m_labels.begin(); lab != m_labels.end(); lab++) {
     const int i = lab->first;
     if (m_runHisto) {
       if (m_ndigivscycletime[i]) {
@@ -370,9 +370,9 @@ template <class T>
 void DigiBXCorrHistogramMaker<T>::fill(const T& he,
                                        const std::map<int, int>& ndigi,
                                        const edm::Handle<APVCyclePhaseCollection>& phase) {
-  for (std::map<int, int>::const_iterator digi = ndigi.begin(); digi != ndigi.end(); digi++) {
-    if (m_labels.find(digi->first) != m_labels.end()) {
-      const int i = digi->first;
+  for (auto digi : ndigi) {
+    if (m_labels.find(digi.first) != m_labels.end()) {
+      const int i = digi.first;
       const unsigned int ui = i;
 
       int thephase = APVCyclePhaseCollection::invalid;
@@ -388,64 +388,64 @@ void DigiBXCorrHistogramMaker<T>::fill(const T& he,
         tbx -= thephase;
 
         if (m_nmeandigivscycle.find(i) != m_nmeandigivscycle.end())
-          m_nmeandigivscycle[i]->Fill(tbx % 70, digi->second);
+          m_nmeandigivscycle[i]->Fill(tbx % 70, digi.second);
 
         if (m_ndigivscycle.find(i) != m_ndigivscycle.end())
-          m_ndigivscycle[i]->Fill(tbx % 70, digi->second);
+          m_ndigivscycle[i]->Fill(tbx % 70, digi.second);
         if (m_ndigivscyclezoom.find(i) != m_ndigivscyclezoom.end())
-          m_ndigivscyclezoom[i]->Fill(tbx % 70, digi->second);
+          m_ndigivscyclezoom[i]->Fill(tbx % 70, digi.second);
         if (m_ndigivscyclezoom2.find(i) != m_ndigivscyclezoom2.end())
-          m_ndigivscyclezoom2[i]->Fill(tbx % 70, digi->second);
+          m_ndigivscyclezoom2[i]->Fill(tbx % 70, digi.second);
       }
 
       if (m_runHisto) {
         if (m_ndigivscycletime.find(i) != m_ndigivscycletime.end()) {
           if (m_ndigivscycletime[i] != nullptr && (*m_ndigivscycletime[i]) != nullptr)
-            (*m_ndigivscycletime[i])->Fill(tbx % 70, (int)he._orbit, digi->second);
+            (*m_ndigivscycletime[i])->Fill(tbx % 70, (int)he._orbit, digi.second);
         }
       }
 
-      m_ndigivsbx[i]->Fill(he.bx() % 3564, digi->second);
+      m_ndigivsbx[i]->Fill(he.bx() % 3564, digi.second);
       if (m_ndigivsbx2D.find(i) != m_ndigivsbx2D.end())
-        m_ndigivsbx2D[i]->Fill(he.bx() % 3564, digi->second);
+        m_ndigivsbx2D[i]->Fill(he.bx() % 3564, digi.second);
       if (m_ndigivsbx2Dzoom.find(i) != m_ndigivsbx2Dzoom.end())
-        m_ndigivsbx2Dzoom[i]->Fill(he.bx() % 3564, digi->second);
+        m_ndigivsbx2Dzoom[i]->Fill(he.bx() % 3564, digi.second);
       if (m_ndigivsbx2Dzoom2.find(i) != m_ndigivsbx2Dzoom2.end())
-        m_ndigivsbx2Dzoom2[i]->Fill(he.bx() % 3564, digi->second);
+        m_ndigivsbx2Dzoom2[i]->Fill(he.bx() % 3564, digi.second);
 
       if (he.depth() > 0) {
         long long dbx = he.deltaBX();
 
-        m_ndigivsdbx[i]->Fill(dbx, digi->second);
-        m_ndigivsdbxzoom[i]->Fill(dbx, digi->second);
-        m_ndigivsdbxzoom2[i]->Fill(dbx, digi->second);
+        m_ndigivsdbx[i]->Fill(dbx, digi.second);
+        m_ndigivsdbxzoom[i]->Fill(dbx, digi.second);
+        m_ndigivsdbxzoom2[i]->Fill(dbx, digi.second);
 
         if (m_ndigivsdbx2D.find(i) != m_ndigivsdbx2D.end())
-          m_ndigivsdbx2D[i]->Fill(dbx, digi->second);
+          m_ndigivsdbx2D[i]->Fill(dbx, digi.second);
         if (m_ndigivsdbx2Dzoom.find(i) != m_ndigivsdbx2Dzoom.end())
-          m_ndigivsdbx2Dzoom[i]->Fill(dbx, digi->second);
+          m_ndigivsdbx2Dzoom[i]->Fill(dbx, digi.second);
         if (m_ndigivsdbx2Dzoom2.find(i) != m_ndigivsdbx2Dzoom2.end())
-          m_ndigivsdbx2Dzoom2[i]->Fill(dbx, digi->second);
+          m_ndigivsdbx2Dzoom2[i]->Fill(dbx, digi.second);
 
         long long prevtbx = he.absoluteBX(1);
         if (thephase != APVCyclePhaseCollection::nopartition && thephase != APVCyclePhaseCollection::multiphase &&
             thephase != APVCyclePhaseCollection::invalid) {
           long long dbxincycle = he.deltaBXinCycle(thephase);
           if (m_ndigivsdbxincycle2D.find(i) != m_ndigivsdbxincycle2D.end())
-            m_ndigivsdbxincycle2D[i]->Fill(dbxincycle, digi->second);
+            m_ndigivsdbxincycle2D[i]->Fill(dbxincycle, digi.second);
           if (m_ndigivsdbxincycle.find(i) != m_ndigivsdbxincycle.end())
-            m_ndigivsdbxincycle[i]->Fill(dbxincycle, digi->second);
+            m_ndigivsdbxincycle[i]->Fill(dbxincycle, digi.second);
 
           prevtbx -= thephase;
           if (m_ndigivscycledbx.find(i) != m_ndigivscycledbx.end())
-            m_ndigivscycledbx[i]->Fill(prevtbx % 70, dbx, digi->second);
+            m_ndigivscycledbx[i]->Fill(prevtbx % 70, dbx, digi.second);
           if (m_ndigivscycle2dbx.find(i) != m_ndigivscycle2dbx.end())
-            m_ndigivscycle2dbx[i]->Fill(tbx % 70, dbx, digi->second);
+            m_ndigivscycle2dbx[i]->Fill(tbx % 70, dbx, digi.second);
         }
 
         if (he.depth() > 1) {
           long long dbx2 = he.deltaBX(2);
-          m_ndigivsdbx3zoom[i]->Fill(dbx2, dbx, digi->second);
+          m_ndigivsdbx3zoom[i]->Fill(dbx2, dbx, digi.second);
 
           if (thephase != APVCyclePhaseCollection::nopartition && thephase != APVCyclePhaseCollection::multiphase &&
               thephase != APVCyclePhaseCollection::invalid) {
@@ -453,10 +453,10 @@ void DigiBXCorrHistogramMaker<T>::fill(const T& he,
             long long dbxincycle2 = he.deltaBXinCycle(2, thephase);
             if (m_dbx3Histo) {
               if (m_ndigivsdbxincycle3.find(i) != m_ndigivsdbxincycle3.end())
-                m_ndigivsdbxincycle3[i]->Fill(dbxincycle, dbxincycle2 - dbxincycle, digi->second);
+                m_ndigivsdbxincycle3[i]->Fill(dbxincycle, dbxincycle2 - dbxincycle, digi.second);
               if (m_dbx3Histo3D) {
                 if (m_ndigivsdbxincycle33D.find(i) != m_ndigivsdbxincycle33D.end())
-                  m_ndigivsdbxincycle33D[i]->Fill(dbxincycle, dbxincycle2 - dbxincycle, digi->second);
+                  m_ndigivsdbxincycle33D[i]->Fill(dbxincycle, dbxincycle2 - dbxincycle, digi.second);
               }
             }
           }
@@ -464,22 +464,22 @@ void DigiBXCorrHistogramMaker<T>::fill(const T& he,
       }
 
     } else {
-      edm::LogWarning("MissingKey") << " Key " << digi->first << " is missing ";
+      edm::LogWarning("MissingKey") << " Key " << digi.first << " is missing ";
     }
   }
 }
 
 template <class T>
 void DigiBXCorrHistogramMaker<T>::fillcorr(const T& he1, const T& he2, const std::map<int, int>& ndigi) {
-  for (std::map<int, int>::const_iterator digi = ndigi.begin(); digi != ndigi.end(); digi++) {
-    if (m_labels.find(digi->first) != m_labels.end()) {
-      const int i = digi->first;
+  for (auto digi : ndigi) {
+    if (m_labels.find(digi.first) != m_labels.end()) {
+      const int i = digi.first;
 
       long long dbx = he2.deltaBX(he1);
-      m_digicorr[i]->Fill(dbx, digi->second);
+      m_digicorr[i]->Fill(dbx, digi.second);
 
     } else {
-      edm::LogWarning("MissingKey") << " Key " << digi->first << " is missing ";
+      edm::LogWarning("MissingKey") << " Key " << digi.first << " is missing ";
     }
   }
 }

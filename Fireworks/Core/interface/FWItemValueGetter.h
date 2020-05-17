@@ -19,6 +19,8 @@
 //
 
 #include <string>
+#include <utility>
+
 #include <vector>
 
 #include "Rtypes.h"
@@ -48,10 +50,14 @@ private:
     UInt_t m_precision;
 
     Entry(reco::parser::ExpressionPtr iExpr, std::string iExpression, std::string iUnit, std::string iTitle, int iPrec)
-        : m_expr(iExpr), m_expression(iExpression), m_unit(iUnit), m_title(iTitle), m_precision(iPrec) {}
+        : m_expr(std::move(iExpr)),
+          m_expression(std::move(iExpression)),
+          m_unit(std::move(iUnit)),
+          m_title(std::move(iTitle)),
+          m_precision(iPrec) {}
   };
 
-  bool addEntry(std::string iExpression, int iPrec = 2, std::string iTitle = "", std::string iUnit = "");
+  bool addEntry(const std::string& iExpression, int iPrec = 2, const std::string& iTitle = "", std::string iUnit = "");
 
   typedef std::vector<Entry> Entries_t;
   Entries_t::const_iterator Entries_i;

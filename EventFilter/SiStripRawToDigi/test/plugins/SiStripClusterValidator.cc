@@ -131,13 +131,13 @@ void SiStripClusterValidator::validate(const edm::DetSetVector<SiStripCluster>& 
 
   /// loop over first collection DetSets comparing them to same DetSet in other collection
 
-  edm::DetSetVector<SiStripCluster>::const_iterator iDetSet1 = collection1.begin();
-  edm::DetSetVector<SiStripCluster>::const_iterator jDetSet1 = collection1.end();
+  auto iDetSet1 = collection1.begin();
+  auto jDetSet1 = collection1.end();
   for (; iDetSet1 != jDetSet1; ++iDetSet1) {
     /// check that it exists
 
     edm::det_id_type id = iDetSet1->detId();
-    edm::DetSetVector<SiStripCluster>::const_iterator iDetSet2 = collection2.find(id);
+    auto iDetSet2 = collection2.find(id);
     if (iDetSet2 == collection2.end()) {
       std::stringstream ss;
       ss << "[SiStripClusterValidator::" << __func__ << "]" << std::endl
@@ -149,9 +149,9 @@ void SiStripClusterValidator::validate(const edm::DetSetVector<SiStripCluster>& 
 
     /// check that the clusters are identical
 
-    edm::DetSet<SiStripCluster>::const_iterator iCluster1 = iDetSet1->begin();
-    edm::DetSet<SiStripCluster>::const_iterator iCluster2 = iDetSet2->begin();
-    edm::DetSet<SiStripCluster>::const_iterator jCluster2 = iDetSet2->end();
+    auto iCluster1 = iDetSet1->begin();
+    auto iCluster2 = iDetSet2->begin();
+    auto jCluster2 = iDetSet2->end();
     for (; iCluster2 != jCluster2; ++iCluster2) {
       if (std::equal(iCluster1->amplitudes().begin(), iCluster1->amplitudes().end(), iCluster2->amplitudes().begin()) &&
           iCluster1->firstStrip() == iCluster2->firstStrip())
@@ -197,13 +197,13 @@ std::ostream& operator<<(std::ostream& ss, const edmNew::DetSetVector<SiStripClu
 /// Debug for SiStripCluster collection
 
 std::ostream& operator<<(std::ostream& ss, const edm::DetSetVector<SiStripCluster>& clusters) {
-  edm::DetSetVector<SiStripCluster>::const_iterator ids = clusters.begin();
-  edm::DetSetVector<SiStripCluster>::const_iterator jds = clusters.end();
+  auto ids = clusters.begin();
+  auto jds = clusters.end();
   for (; ids != jds; ++ids) {
     std::stringstream sss;
     uint16_t nd = 0;
-    edm::DetSet<SiStripCluster>::const_iterator id = ids->begin();
-    edm::DetSet<SiStripCluster>::const_iterator jd = ids->end();
+    auto id = ids->begin();
+    auto jd = ids->end();
     for (; id != jd; ++id) {
       nd++;
       if (uint16_t(id - ids->begin()) < 10) {

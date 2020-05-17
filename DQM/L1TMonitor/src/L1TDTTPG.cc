@@ -274,10 +274,8 @@ void L1TDTTPG::analyze(const Event &e, const EventSetup &c) {
   int ndttpgthtrack = 0;
   int NumberOfSegmentsPhi[3] = {0, 0, 0};
 
-  for (L1MuDTChambPhContainer::Phi_Container::const_iterator DTPhDigiItr = myPhContainer->begin();
-       DTPhDigiItr != myPhContainer->end();
-       ++DTPhDigiItr) {
-    int bx = DTPhDigiItr->bxNum() - DTPhDigiItr->Ts2Tag();
+  for (const auto &DTPhDigiItr : *myPhContainer) {
+    int bx = DTPhDigiItr.bxNum() - DTPhDigiItr.Ts2Tag();
     if (bx == -1)
       NumberOfSegmentsPhi[0]++;
     if (bx == 0)
@@ -291,8 +289,8 @@ void L1TDTTPG::analyze(const Event &e, const EventSetup &c) {
     dttpgphbx[k + 2]->Fill(NumberOfSegmentsPhi[k]);
   }
   int bxCounterDttfPhi = 0;  // = no. of BX's with non-zero data
-  for (int k = 0; k < 3; k++) {
-    if (NumberOfSegmentsPhi[k] > 0)
+  for (int k : NumberOfSegmentsPhi) {
+    if (k > 0)
       bxCounterDttfPhi++;
   }
 
@@ -321,46 +319,44 @@ void L1TDTTPG::analyze(const Event &e, const EventSetup &c) {
   const L1MuDTChambPhDigi *bestPhQualMap[5][12][4];
   memset(bestPhQualMap, 0, 240 * sizeof(L1MuDTChambPhDigi *));
 
-  for (L1MuDTChambPhContainer::Phi_Container::const_iterator DTPhDigiItr = myPhContainer->begin();
-       DTPhDigiItr != myPhContainer->end();
-       ++DTPhDigiItr) {
+  for (const auto &DTPhDigiItr : *myPhContainer) {
     ndttpgphtrack++;
 
-    int bxindex = DTPhDigiItr->bxNum() - DTPhDigiItr->Ts2Tag() + 1;
+    int bxindex = DTPhDigiItr.bxNum() - DTPhDigiItr.Ts2Tag() + 1;
 
-    dttpgphwheel[bxindex]->Fill(DTPhDigiItr->whNum());
+    dttpgphwheel[bxindex]->Fill(DTPhDigiItr.whNum());
     if (verbose_) {
-      cout << "DTTPG phi wheel number " << DTPhDigiItr->whNum() << endl;
+      cout << "DTTPG phi wheel number " << DTPhDigiItr.whNum() << endl;
     }
-    dttpgphstation[bxindex]->Fill(DTPhDigiItr->stNum());
+    dttpgphstation[bxindex]->Fill(DTPhDigiItr.stNum());
     if (verbose_) {
-      cout << "DTTPG phi station number " << DTPhDigiItr->stNum() << endl;
+      cout << "DTTPG phi station number " << DTPhDigiItr.stNum() << endl;
     }
-    dttpgphsector[bxindex]->Fill(DTPhDigiItr->scNum());
+    dttpgphsector[bxindex]->Fill(DTPhDigiItr.scNum());
     if (verbose_) {
-      cout << "DTTPG phi sector number " << DTPhDigiItr->scNum() << endl;
+      cout << "DTTPG phi sector number " << DTPhDigiItr.scNum() << endl;
     }
-    dttpgphquality[bxindex]->Fill(DTPhDigiItr->code());
+    dttpgphquality[bxindex]->Fill(DTPhDigiItr.code());
     if (verbose_) {
-      cout << "DTTPG phi quality " << DTPhDigiItr->code() << endl;
+      cout << "DTTPG phi quality " << DTPhDigiItr.code() << endl;
     }
-    dttpgphts2tag[bxindex]->Fill(DTPhDigiItr->Ts2Tag());
+    dttpgphts2tag[bxindex]->Fill(DTPhDigiItr.Ts2Tag());
     if (verbose_) {
-      cout << "DTTPG phi ts2tag " << DTPhDigiItr->Ts2Tag() << endl;
+      cout << "DTTPG phi ts2tag " << DTPhDigiItr.Ts2Tag() << endl;
     }
-    int ypos = DTPhDigiItr->scNum();
-    int xpos = DTPhDigiItr->stNum() + 4 * (DTPhDigiItr->whNum() + 2);
+    int ypos = DTPhDigiItr.scNum();
+    int xpos = DTPhDigiItr.stNum() + 4 * (DTPhDigiItr.whNum() + 2);
     dttpgphmap->Fill(xpos, ypos);
-    if (DTPhDigiItr->Ts2Tag())
+    if (DTPhDigiItr.Ts2Tag())
       dttpgphmap2nd->Fill(xpos, ypos);
     dttpgphmapbx[bxindex]->Fill(xpos, ypos);
-    if (DTPhDigiItr->code() > 3)
+    if (DTPhDigiItr.code() > 3)
       dttpgphmapcorr->Fill(xpos, ypos);
 
-    if (bestPhQualMap[DTPhDigiItr->whNum() + 2][DTPhDigiItr->scNum()][DTPhDigiItr->stNum() - 1] == nullptr ||
-        bestPhQualMap[DTPhDigiItr->whNum() + 2][DTPhDigiItr->scNum()][DTPhDigiItr->stNum() - 1]->code() <
-            DTPhDigiItr->code()) {
-      bestPhQualMap[DTPhDigiItr->whNum() + 2][DTPhDigiItr->scNum()][DTPhDigiItr->stNum() - 1] = &(*DTPhDigiItr);
+    if (bestPhQualMap[DTPhDigiItr.whNum() + 2][DTPhDigiItr.scNum()][DTPhDigiItr.stNum() - 1] == nullptr ||
+        bestPhQualMap[DTPhDigiItr.whNum() + 2][DTPhDigiItr.scNum()][DTPhDigiItr.stNum() - 1]->code() <
+            DTPhDigiItr.code()) {
+      bestPhQualMap[DTPhDigiItr.whNum() + 2][DTPhDigiItr.scNum()][DTPhDigiItr.stNum() - 1] = &DTPhDigiItr;
     }
   }
 
@@ -380,56 +376,54 @@ void L1TDTTPG::analyze(const Event &e, const EventSetup &c) {
   int bestThQualMap[5][12][3];
   memset(bestThQualMap, 0, 180 * sizeof(int));
   //for( vector<L1MuDTChambThDigi>::const_iterator
-  for (L1MuDTChambThContainer::The_Container::const_iterator DTThDigiItr = myThContainer->begin();
-       DTThDigiItr != myThContainer->end();
-       ++DTThDigiItr) {
+  for (const auto &DTThDigiItr : *myThContainer) {
     ndttpgthtrack++;
 
-    int bxindex = DTThDigiItr->bxNum() + 1;
+    int bxindex = DTThDigiItr.bxNum() + 1;
 
-    dttpgthwheel[bxindex]->Fill(DTThDigiItr->whNum());
+    dttpgthwheel[bxindex]->Fill(DTThDigiItr.whNum());
     if (verbose_) {
-      cout << "DTTPG theta wheel number " << DTThDigiItr->whNum() << endl;
+      cout << "DTTPG theta wheel number " << DTThDigiItr.whNum() << endl;
     }
-    dttpgthstation[bxindex]->Fill(DTThDigiItr->stNum());
+    dttpgthstation[bxindex]->Fill(DTThDigiItr.stNum());
     if (verbose_) {
-      cout << "DTTPG theta station number " << DTThDigiItr->stNum() << endl;
+      cout << "DTTPG theta station number " << DTThDigiItr.stNum() << endl;
     }
-    dttpgthsector[bxindex]->Fill(DTThDigiItr->scNum());
+    dttpgthsector[bxindex]->Fill(DTThDigiItr.scNum());
     if (verbose_) {
-      cout << "DTTPG theta sector number " << DTThDigiItr->scNum() << endl;
+      cout << "DTTPG theta sector number " << DTThDigiItr.scNum() << endl;
     }
-    dttpgthbx[bxindex]->Fill(DTThDigiItr->bxNum());
+    dttpgthbx[bxindex]->Fill(DTThDigiItr.bxNum());
     if (verbose_) {
-      cout << "DTTPG theta bx number " << DTThDigiItr->bxNum() << endl;
+      cout << "DTTPG theta bx number " << DTThDigiItr.bxNum() << endl;
     }
     int thcode[7] = {0, 0, 0, 0, 0, 0, 0};
     for (int j = 0; j < 7; j++) {
-      dttpgththeta[bxindex]->Fill(DTThDigiItr->position(j));
+      dttpgththeta[bxindex]->Fill(DTThDigiItr.position(j));
       if (verbose_) {
-        cout << "DTTPG theta position " << DTThDigiItr->position(j) << endl;
+        cout << "DTTPG theta position " << DTThDigiItr.position(j) << endl;
       }
-      thcode[j] = DTThDigiItr->code(j);
+      thcode[j] = DTThDigiItr.code(j);
       dttpgthquality[bxindex]->Fill(thcode[j]);
       if (verbose_) {
-        cout << "DTTPG theta quality " << DTThDigiItr->code(j) << endl;
+        cout << "DTTPG theta quality " << DTThDigiItr.code(j) << endl;
       }
     }
 
-    int ypos = DTThDigiItr->scNum();
-    int xpos = DTThDigiItr->stNum() + 4 * (DTThDigiItr->whNum() + 2);
+    int ypos = DTThDigiItr.scNum();
+    int xpos = DTThDigiItr.stNum() + 4 * (DTThDigiItr.whNum() + 2);
     int bestqual = 0;
     dttpgthmap->Fill(xpos, ypos);
     dttpgthmapbx[bxindex]->Fill(xpos, ypos);
-    for (int pos = 0; pos < 7; pos++) {
-      if (thcode[pos] > bestqual)
-        bestqual = thcode[pos];
-      if (thcode[pos] == 2)
+    for (int pos : thcode) {
+      if (pos > bestqual)
+        bestqual = pos;
+      if (pos == 2)
         dttpgthmaph->Fill(xpos, ypos);
     }
 
-    if (bestThQualMap[DTThDigiItr->whNum() + 2][DTThDigiItr->scNum()][DTThDigiItr->stNum() - 1] < bestqual) {
-      bestThQualMap[DTThDigiItr->whNum() + 2][DTThDigiItr->scNum()][DTThDigiItr->stNum() - 1] = bestqual;
+    if (bestThQualMap[DTThDigiItr.whNum() + 2][DTThDigiItr.scNum()][DTThDigiItr.stNum() - 1] < bestqual) {
+      bestThQualMap[DTThDigiItr.whNum() + 2][DTThDigiItr.scNum()][DTThDigiItr.stNum() - 1] = bestqual;
     }
   }
 
@@ -466,12 +460,12 @@ void L1TDTTPG::analyze(const Event &e, const EventSetup &c) {
   L1MuDTTrackContainer::TrackContainer const *t = myL1MuDTTrackContainer->getContainer();
 
   int NumberOfSegmentsOut[3] = {0, 0, 0};
-  for (L1MuDTTrackContainer::TrackContainer::const_iterator i = t->begin(); i != t->end(); ++i) {
-    if (i->bx() == -1)
+  for (const auto &i : *t) {
+    if (i.bx() == -1)
       NumberOfSegmentsOut[0]++;
-    if (i->bx() == 0)
+    if (i.bx() == 0)
       NumberOfSegmentsOut[1]++;
-    if (i->bx() == 1)
+    if (i.bx() == 1)
       NumberOfSegmentsOut[2]++;
   }
 
@@ -483,8 +477,8 @@ void L1TDTTPG::analyze(const Event &e, const EventSetup &c) {
   /*Bunch assigments*/
 
   int bxCounterDttfOut = 0;
-  for (int k = 0; k < 3; k++) {
-    if (NumberOfSegmentsOut[k] > 0)
+  for (int k : NumberOfSegmentsOut) {
+    if (k > 0)
       bxCounterDttfOut++;
   }
 
@@ -513,20 +507,20 @@ void L1TDTTPG::analyze(const Event &e, const EventSetup &c) {
   // the 2-DIM histo with phi.input vs. output
   dttpgphbxcomp->Fill(bxCodePhi, bxCodeOut);
 
-  for (L1MuDTTrackContainer::TrackContainer::const_iterator i = t->begin(); i != t->end(); ++i) {
+  for (const auto &i : *t) {
     if (verbose_) {
-      std::cout << "bx = " << i->bx() << std::endl;
-      std::cout << "quality (packed) = " << i->quality_packed() << std::endl;
-      std::cout << "pt      (packed) = " << i->pt_packed() << std::endl;
-      std::cout << "phi     (packed) = " << i->phi_packed() << std::endl;
-      std::cout << "charge  (packed) = " << i->charge_packed() << std::endl;
+      std::cout << "bx = " << i.bx() << std::endl;
+      std::cout << "quality (packed) = " << i.quality_packed() << std::endl;
+      std::cout << "pt      (packed) = " << i.pt_packed() << std::endl;
+      std::cout << "phi     (packed) = " << i.phi_packed() << std::endl;
+      std::cout << "charge  (packed) = " << i.charge_packed() << std::endl;
     }
 
-    int bxindex = i->bx() + 1;
-    dttf_p_phi[bxindex]->Fill(i->phi_packed());
-    dttf_p_qual[bxindex]->Fill(i->quality_packed());
-    dttf_p_pt[bxindex]->Fill(i->pt_packed());
-    dttf_p_q[bxindex]->Fill(i->charge_packed());
+    int bxindex = i.bx() + 1;
+    dttf_p_phi[bxindex]->Fill(i.phi_packed());
+    dttf_p_qual[bxindex]->Fill(i.quality_packed());
+    dttf_p_pt[bxindex]->Fill(i.pt_packed());
+    dttf_p_q[bxindex]->Fill(i.charge_packed());
   }
 }
 

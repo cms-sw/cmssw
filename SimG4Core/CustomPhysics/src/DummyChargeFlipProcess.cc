@@ -35,7 +35,7 @@ G4bool DummyChargeFlipProcess::IsApplicable(const G4ParticleDefinition& aParticl
 void DummyChargeFlipProcess::DumpPhysicsTable(const G4ParticleDefinition& /*aParticleType*/) {}
 
 G4VParticleChange* DummyChargeFlipProcess::PostStepDoIt(const G4Track& aTrack, const G4Step& /*aStep*/) {
-  G4ParticleChange* pc = new G4ParticleChange();
+  auto* pc = new G4ParticleChange();
   pc->Initialize(aTrack);
   const G4DynamicParticle* aParticle = aTrack.GetDynamicParticle();
   //G4ParticleDefinition* aParticleDef = aParticle->GetDefinition();
@@ -65,7 +65,7 @@ G4VParticleChange* DummyChargeFlipProcess::PostStepDoIt(const G4Track& aTrack, c
 
   G4cout << "RHADRON: New charge = " << newType->GetPDGCharge() << G4endl;
 
-  G4DynamicParticle* newP = new G4DynamicParticle(newType, ParentDirection, ParentEnergy);
+  auto* newP = new G4DynamicParticle(newType, ParentDirection, ParentEnergy);
   G4Track* secondary = new G4Track(newP, finalGlobalTime, aTrack.GetPosition());
   // switch on good for tracking flag
   secondary->SetGoodForTrackingFlag();

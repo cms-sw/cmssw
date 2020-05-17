@@ -28,7 +28,7 @@ int main(int argc, char* argv[]) {
   // open input file (can be located on castor)
   TFile* inFile = TFile::Open(fileName.c_str());
 
-  MuScleFitProvenance* provenance = (MuScleFitProvenance*)(inFile->Get("MuScleFitProvenance"));
+  auto* provenance = (MuScleFitProvenance*)(inFile->Get("MuScleFitProvenance"));
   std::cout << "MuonType = " << provenance->muonType << std::endl;
 
   return 0;

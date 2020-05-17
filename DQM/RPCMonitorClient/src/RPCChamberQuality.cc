@@ -83,9 +83,9 @@ void RPCChamberQuality::myBooker(DQMStore::IBooker& ibooker) {
 
   rpcdqm::utils rpcUtils;
 
-  for (int r = 0; r < 3; r++) {
+  for (const auto& region : regions_) {
     histoName.str("");
-    histoName << "RPCChamberQuality_" << regions_[r];
+    histoName << "RPCChamberQuality_" << region;
     me = ibooker.book1D(histoName.str().c_str(), histoName.str().c_str(), 7, 0.5, 7.5);
 
     for (int x = 1; x < 8; x++) {
@@ -209,7 +209,7 @@ void RPCChamberQuality::fillMonitorElements(DQMStore::IGetter& igetter) {
   }
 }
 
-void RPCChamberQuality::performeClientOperation(std::string MESufix,
+void RPCChamberQuality::performeClientOperation(const std::string& MESufix,
                                                 int region,
                                                 MonitorElement* quality,
                                                 DQMStore::IGetter& igetter) {
@@ -230,7 +230,7 @@ void RPCChamberQuality::performeClientOperation(std::string MESufix,
   RCQ = igetter.get(meName.str());
   //  if (RCQ)  RCQ->Reset();
 
-  int pos = MESufix.find_last_of("_");
+  int pos = MESufix.find_last_of('_');
   meName.str("");
   meName << summaryDir_ << "/RPCChamberQuality_Distribution" << MESufix.substr(pos);
   RCQD = igetter.get(meName.str());

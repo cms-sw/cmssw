@@ -68,32 +68,31 @@ void TrajectoryReader::endJob() {
 }
 
 void TrajectoryReader::printTrajectoryRecHits(const Trajectory& trajectory,
-                                              ESHandle<GlobalTrackingGeometry> trackingGeometry) const {
+                                              const ESHandle<GlobalTrackingGeometry>& trackingGeometry) const {
   const std::string metname = "Reco|TrackingTools|TrajectoryReader";
 
   TransientTrackingRecHit::ConstRecHitContainer rechits = trajectory.recHits();
   LogDebug(metname) << "Size of the RecHit container: " << rechits.size();
 
   int i = 0;
-  for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator recHit = rechits.begin(); recHit != rechits.end();
-       ++recHit)
-    if ((*recHit)->isValid()) {
-      const GeomDet* geomDet = trackingGeometry->idToDet((*recHit)->geographicalId());
+  for (const auto& rechit : rechits)
+    if (rechit->isValid()) {
+      const GeomDet* geomDet = trackingGeometry->idToDet(rechit->geographicalId());
       double r = geomDet->surface().position().perp();
-      double z = geomDet->toGlobal((*recHit)->localPosition()).z();
-      LogTrace(metname) << i++ << " r: " << r << " z: " << z << " " << geomDet->toGlobal((*recHit)->localPosition())
+      double z = geomDet->toGlobal(rechit->localPosition()).z();
+      LogTrace(metname) << i++ << " r: " << r << " z: " << z << " " << geomDet->toGlobal(rechit->localPosition())
                         << endl;
     }
 }
 
 void TrajectoryReader::printTrackRecHits(const reco::Track& track,
-                                         ESHandle<GlobalTrackingGeometry> trackingGeometry) const {
+                                         const ESHandle<GlobalTrackingGeometry>& trackingGeometry) const {
   const std::string metname = "Reco|TrackingTools|TrajectoryReader";
 
   LogTrace(metname) << "Valid RecHits: " << track.found() << " invalid RecHits: " << track.lost();
 
   int i = 0;
-  for (trackingRecHit_iterator recHit = track.recHitsBegin(); recHit != track.recHitsEnd(); ++recHit)
+  for (auto recHit = track.recHitsBegin(); recHit != track.recHitsEnd(); ++recHit)
     if ((*recHit)->isValid()) {
       const GeomDet* geomDet = trackingGeometry->idToDet((*recHit)->geographicalId());
       double r = geomDet->surface().position().perp();
@@ -127,20 +126,20 @@ void TrajectoryReader::analyze(const Event& event, const EventSetup& eventSetup)
   LogTrace(metname) << "looking at: " << theInputLabel;
 
   LogTrace(metname) << "All trajectories";
-  for (Trajectories::const_iterator trajectory = trajectories->begin(); trajectory != trajectories->end(); ++trajectory)
-    printTrajectoryRecHits(*trajectory, trackingGeometry);
+  for (const auto& trajectory : *trajectories)
+    printTrajectoryRecHits(trajectory, trackingGeometry);
 
   LogTrace(metname) << "All tracks";
-  for (reco::TrackCollection::const_iterator tr = tracks->begin(); tr != tracks->end(); ++tr)
-    printTrackRecHits(*tr, trackingGeometry);
+  for (const auto& tr : *tracks)
+    printTrackRecHits(tr, trackingGeometry);
 
   Handle<TrajTrackAssociationCollection> assoMap;
   event.getByLabel(theInputLabel, assoMap);
 
   LogTrace(metname) << "Association";
-  for (TrajTrackAssociationCollection::const_iterator it = assoMap->begin(); it != assoMap->end(); ++it) {
-    const Ref<vector<Trajectory> > traj = it->key;
-    const reco::TrackRef tk = it->val;
+  for (const auto& it : *assoMap) {
+    const Ref<vector<Trajectory> > traj = it.key;
+    const reco::TrackRef tk = it.val;
 
     printTrackRecHits(*tk, trackingGeometry);
     printTrajectoryRecHits(*traj, trackingGeometry);

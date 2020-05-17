@@ -107,7 +107,7 @@ void VertexConstraintProducer::produce(edm::StreamID streamid,
 
   if (!theVertexHandle->empty()) {
     const reco::Vertex& pv = theVertexHandle->front();
-    for (reco::TrackCollection::const_iterator i = theTCollection->begin(); i != theTCollection->end(); i++) {
+    for (auto i = theTCollection->begin(); i != theTCollection->end(); i++) {
       VertexConstraint tmp(GlobalPoint(pv.x(), pv.y(), pv.z()),
                            GlobalError(pv.covariance(0, 0),
                                        pv.covariance(1, 0),

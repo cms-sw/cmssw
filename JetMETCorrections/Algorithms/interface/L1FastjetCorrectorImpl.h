@@ -7,6 +7,8 @@
 #ifndef JetMETCorrections_JetCorrector_L1FastjetCorrectorImpl_h
 #define JetMETCorrections_JetCorrector_L1FastjetCorrectorImpl_h 1
 
+#include <utility>
+
 #include "JetMETCorrections/JetCorrector/interface/JetCorrectorImpl.h"
 #include "JetMETCorrections/Algorithms/interface/JetCorrectorImplMakerBase.h"
 #include "CondFormats/JetMETObjects/interface/FactorizedJetCorrectorCalculator.h"
@@ -37,7 +39,7 @@ public:
 
   // construction / destruction
   L1FastjetCorrectorImpl(std::shared_ptr<FactorizedJetCorrectorCalculator const> corrector, double rho)
-      : rho_(rho), corrector_(corrector) {}
+      : rho_(rho), corrector_(std::move(corrector)) {}
 
   //member functions
 

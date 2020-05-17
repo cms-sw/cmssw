@@ -82,7 +82,7 @@ namespace edm {
     //  any object containing this RefProd.  Also, in the future work will
     //  be done to throw an exception if an attempt is made to put any object
     //  containing this RefProd into an event(or run or lumi).
-    explicit RefProd(TestHandle<C> const& handle) : product_(handle.id(), handle.product(), 0, true) {
+    explicit RefProd(TestHandle<C> const& handle) : product_(handle.id(), handle.product(), nullptr, true) {
       checkTypeAtCompileTime(handle.product());
     }
 

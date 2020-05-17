@@ -88,7 +88,7 @@ TrajectoryStateOnSurface MultiTrajectoryStateTransform::stateOnSurface(const std
     LocalTrajectoryParameters lp(pars, pzSign);
     LocalTrajectoryError le(cov);
     // create component
-    components.push_back(TrajectoryStateOnSurface(weights[i], lp, le, surface, field));
+    components.emplace_back(weights[i], lp, le, surface, field);
   }
   return TrajectoryStateOnSurface((BasicTrajectoryState*)(new BasicMultiTrajectoryState(components)));
 }
@@ -101,7 +101,7 @@ bool MultiTrajectoryStateTransform::checkGeometry() const {
   return false;
 }
 
-TrajectoryStateOnSurface MultiTrajectoryStateTransform::extrapolatedState(const TrajectoryStateOnSurface tsos,
+TrajectoryStateOnSurface MultiTrajectoryStateTransform::extrapolatedState(const TrajectoryStateOnSurface& tsos,
                                                                           const GlobalPoint& point) const {
   return checkExtrapolator() ? extrapolator_->extrapolate(tsos, point) : TrajectoryStateOnSurface();
 }

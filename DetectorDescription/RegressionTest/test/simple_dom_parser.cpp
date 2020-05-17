@@ -235,7 +235,7 @@ int main(int argC, char* argV[]) {
       unsigned int i = 0;
       for (; i < atts.size(); ++i) {
         const AttList& a = *(atts[i]);
-        AttList::const_iterator it = a.begin();
+        auto it = a.begin();
         for (; it != a.end(); ++it) {
           cout << it->first.str() << '=' << it->second.str() << ' ';
         }

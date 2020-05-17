@@ -118,13 +118,13 @@ void HLTScalers::dqmBeginRun(const edm::Run& run, const edm::EventSetup& c) {
       // get hold of PD names and constituent path names
       const std::vector<std::string>& PD = hltConfig_.streamContent("A");
 
-      for (unsigned int i = 0; i < PD.size(); i++) {
-        const std::vector<std::string>& datasetPaths = hltConfig_.datasetContent(PD[i]);
-        pairPDPaths_.push_back(make_pair(PD[i], datasetPaths));
+      for (const auto& i : PD) {
+        const std::vector<std::string>& datasetPaths = hltConfig_.datasetContent(i);
+        pairPDPaths_.emplace_back(i, datasetPaths);
       }
 
       // push stream A and its PDs
-      pairPDPaths_.push_back(make_pair("A", PD));
+      pairPDPaths_.emplace_back("A", PD);
 
     } else {
       LogDebug("HLTScalers") << "HLTScalers::beginRun, steamm A not in the HLT menu ";
@@ -203,10 +203,10 @@ void HLTScalers::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
     // save path names in DQM-accessible format
     int q = 0;
-    for (TriggerNames::Strings::const_iterator j = names.triggerNames().begin(); j != names.triggerNames().end(); ++j) {
-      LogDebug("HLTScalers") << q << ": " << *j;
+    for (const auto& j : names.triggerNames()) {
+      LogDebug("HLTScalers") << q << ": " << j;
       ++q;
-      scalers_->getTH1()->GetXaxis()->SetBinLabel(q, j->c_str());
+      scalers_->getTH1()->GetXaxis()->SetBinLabel(q, j.c_str());
     }
 
     for (unsigned int i = 0; i < nPD; i++) {
@@ -250,13 +250,13 @@ void HLTScalers::analyze(const edm::Event& e, const edm::EventSetup& c) {
   for (unsigned int mi = 0; mi < pairPDPaths_.size(); mi++) {
     bool groupPassed = false;
 
-    for (unsigned int i = 0; i < pairPDPaths_[mi].second.size(); i++) {
+    for (const auto& i : pairPDPaths_[mi].second) {
       // string hltPathName =  hist_2d->GetXaxis()->GetBinLabel(i);
-      std::string hltPathName = pairPDPaths_[mi].second[i];
+      std::string hltPathName = i;
 
       // check if this is hlt path name
       // unsigned int pathByIndex = triggerNames.triggerIndex(hltPathName);
-      unsigned int pathByIndex = trigNames.triggerIndex(pairPDPaths_[mi].second[i]);
+      unsigned int pathByIndex = trigNames.triggerIndex(i);
       if (pathByIndex >= hltResults->size())
         continue;
 

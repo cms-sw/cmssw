@@ -131,7 +131,7 @@ void HGCGeomAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &e
         int layer = id.layer() * id.zside();
         double r(pt.perp());
         double eta(pt.eta());
-        HGCSiliconDetId::waferType wt = (HGCSiliconDetId::waferType)id.type();
+        auto wt = (HGCSiliconDetId::waferType)id.type();
 
         //fill histograms
         std::pair<DetId::Detector, int> key(d, layer);

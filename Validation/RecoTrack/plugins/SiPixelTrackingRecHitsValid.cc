@@ -1139,8 +1139,8 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
     //   << " Pixel RecHits" << std::endl;
 
     //-----Iterate over detunits
-    for (TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++) {
-      DetId detId = ((*it)->geographicalId());
+    for (auto it : pDD->dets()) {
+      DetId detId = (it->geographicalId());
 
       unsigned int subid = detId.subdetId();
       if (!((subid == 1) || (subid == 2)))
@@ -1162,7 +1162,7 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
         float rechitx = lp.x();
         float rechity = lp.y();
 
-        detId = (*it)->geographicalId();
+        detId = it->geographicalId();
         subdetId = (int)detId.subdetId();
         if ((int)detId.subdetId() == (int)PixelSubdetector::PixelBarrel) {
           mePosxBarrel_all_hits->Fill(rechitx);
@@ -1225,7 +1225,7 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 
         int n_hits = 0;
         // First loop on hits: find matched hits
-        for (trackingRecHit_iterator it = tciter->recHitsBegin(); it != tciter->recHitsEnd(); it++) {
+        for (auto it = tciter->recHitsBegin(); it != tciter->recHitsEnd(); it++) {
           const TrackingRecHit& thit = **it;
           // Is it a matched hit?
           const SiPixelRecHit* matchedhit = dynamic_cast<const SiPixelRecHit*>(&thit);
@@ -1295,8 +1295,8 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 
               int n_assoc_muon = 0;
 
-              std::vector<PSimHit>::const_iterator closestit = matched.begin();
-              for (std::vector<PSimHit>::const_iterator m = matched.begin(); m < matched.end(); m++) {
+              auto closestit = matched.begin();
+              for (auto m = matched.begin(); m < matched.end(); m++) {
                 if (checkType_) {
                   int pid = (*m).particleType();
                   if (abs(pid) != genType_)
@@ -1380,7 +1380,7 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
                 mePullXvsEtaBarrel->Fill(eta, rechitpullx);
                 mePullYvsEtaBarrel->Fill(eta, rechitpully);
 
-                const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>(tracker->idToDet(detId));
+                const auto* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>(tracker->idToDet(detId));
                 //const PixelTopology * topol = (&(theGeomDet->specificTopology()));
 
                 int tmp_nrows = theGeomDet->specificTopology().nrows();

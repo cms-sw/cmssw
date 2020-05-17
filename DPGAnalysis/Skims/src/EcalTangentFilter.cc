@@ -30,10 +30,10 @@ bool EcalTangentFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   using namespace reco;
   edm::Handle<reco::MuonCollection> Muons;
   iEvent.getByLabel(fMuLabel, Muons);
-  for (MuonCollection::const_iterator muon = Muons->begin(); muon != Muons->end(); ++muon) {
+  for (const auto& muon : *Muons) {
     reco::TrackRef ref;
-    if (muon->outerTrack().isNonnull()) {
-      ref = muon->outerTrack();
+    if (muon.outerTrack().isNonnull()) {
+      ref = muon.outerTrack();
       // Cut on impact parameter
       double d0 = ref->d0();
       if (fabs(d0) > fMuonD0Min && fabs(d0) < fMuonD0Max)

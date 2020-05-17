@@ -10,7 +10,7 @@ SiStripLayoutParser::SiStripLayoutParser() {
   edm::LogInfo("SiStripLayoutParser") << " Creating SiStripLayoutParser "
                                       << "\n";
 }
-void SiStripLayoutParser::getDocument(std::string filepath) {
+void SiStripLayoutParser::getDocument(const std::string& filepath) {
   // TODO: add new parser based on boost::property_tree.
   assert(!"No longer implemented.");
 }

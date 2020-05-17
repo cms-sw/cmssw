@@ -49,7 +49,7 @@ std::array<float, EGEnergySysIndex::kNrSysErrs> PhotonEnergyCalibrator::calibrat
   }
 
   const DetId seedDetId = photon.superCluster()->seed()->seed();
-  EcalRecHitCollection::const_iterator seedRecHit = recHits->find(seedDetId);
+  auto seedRecHit = recHits->find(seedDetId);
   unsigned int gainSeedSC = 12;
   if (seedRecHit != recHits->end()) {
     if (seedRecHit->checkFlag(EcalRecHit::kHasSwitchToGain6))

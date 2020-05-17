@@ -78,7 +78,7 @@ void SiStripTrackerMapCreator::createForOffline(const edm::ParameterSet& tkmapPs
     edm::LogError("SiStripTopLevelDirNotFound") << "I cannot find the SiStrip top level directory in the DQM file";
   } else {
     const std::string& mechanicalview_dir = dqm_store.pwd();
-    stripTopLevelDir_ = mechanicalview_dir.substr(0, mechanicalview_dir.find_last_of("/"));
+    stripTopLevelDir_ = mechanicalview_dir.substr(0, mechanicalview_dir.find_last_of('/'));
     edm::LogInfo("SiStripTopLevelDirFound") << "SiStrip top level directory is " << stripTopLevelDir_;
   }
   dqm_store.cd();
@@ -274,12 +274,12 @@ void SiStripTrackerMapCreator::setTkMapFromHistogram(DQMStore& dqm_store,
   std::string mechanicalview_dir = dqm_store.pwd();
 
   std::vector<std::string> subdet_folder;
-  subdet_folder.push_back("TIB");
-  subdet_folder.push_back("TOB");
-  subdet_folder.push_back("TEC/MINUS");
-  subdet_folder.push_back("TEC/PLUS");
-  subdet_folder.push_back("TID/MINUS");
-  subdet_folder.push_back("TID/PLUS");
+  subdet_folder.emplace_back("TIB");
+  subdet_folder.emplace_back("TOB");
+  subdet_folder.emplace_back("TEC/MINUS");
+  subdet_folder.emplace_back("TEC/PLUS");
+  subdet_folder.emplace_back("TID/MINUS");
+  subdet_folder.emplace_back("TID/PLUS");
 
   nDet_ = 0;
   tkMapMax_ = 0.0;
@@ -464,7 +464,7 @@ void SiStripTrackerMapCreator::createInfoFile(std::vector<std::string> const& ma
           << "I cannot find the SiStrip top level directory in the DQM file";
     } else {
       const std::string& mechanicalview_dir = dqm_store.pwd();
-      dirname = mechanicalview_dir.substr(0, mechanicalview_dir.find_last_of("/"));
+      dirname = mechanicalview_dir.substr(0, mechanicalview_dir.find_last_of('/'));
       edm::LogInfo("SiStripTrackerMapCreator::createInfoFile") << "SiStrip top level directory is " << dirname;
     }
     dqm_store.cd();

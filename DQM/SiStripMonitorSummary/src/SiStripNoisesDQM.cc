@@ -95,7 +95,7 @@ void SiStripNoisesDQM::fillMEsForLayer(
   }
   // ----
 
-  std::map<uint32_t, ModMEs>::iterator selMEsMapIter_ = SummaryMEsMap_.find(getLayerNameAndId(selDetId_, tTopo).second);
+  auto selMEsMapIter_ = SummaryMEsMap_.find(getLayerNameAndId(selDetId_, tTopo).second);
   ModMEs selME_;
   if (selMEsMapIter_ != SummaryMEsMap_.end())
     selME_ = selMEsMapIter_->second;
@@ -178,8 +178,7 @@ void SiStripNoisesDQM::fillMEsForLayer(
     std::vector<uint32_t> sameLayerDetIds_;
     sameLayerDetIds_ = GetSameLayerDetId(activeDetIds, selDetId_, tTopo);
 
-    std::vector<uint32_t>::const_iterator ibound =
-        lower_bound(sameLayerDetIds_.begin(), sameLayerDetIds_.end(), selDetId_);
+    auto ibound = lower_bound(sameLayerDetIds_.begin(), sameLayerDetIds_.end(), selDetId_);
     if (ibound != sameLayerDetIds_.end() && *ibound == selDetId_)
       selME_.SummaryDistr->Fill(ibound - sameLayerDetIds_.begin() + 1, meanNoise);
 

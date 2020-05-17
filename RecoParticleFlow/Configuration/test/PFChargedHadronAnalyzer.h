@@ -36,11 +36,11 @@ public:
 
   explicit PFChargedHadronAnalyzer(const edm::ParameterSet&);
 
-  ~PFChargedHadronAnalyzer();
+  ~PFChargedHadronAnalyzer() override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  virtual void beginRun(const edm::Run& r, const edm::EventSetup& c);
+  void beginRun(const edm::Run& r, const edm::EventSetup& c) override;
 
 private:
   /// PFCandidates in which we'll look for pile up particles

@@ -168,29 +168,29 @@ bool AlCaLowPUHBHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& 
       edm::LogInfo("LowPUHBHEMuon") << "AlCaLowPUHBHEMuonFilter::Muon Handle " << _Muon.isValid();
 #endif
       if (_Muon.isValid()) {
-        for (reco::MuonCollection::const_iterator RecMuon = _Muon->begin(); RecMuon != _Muon->end(); ++RecMuon) {
+        for (const auto& RecMuon : *_Muon) {
 #ifdef EDM_ML_DEBUG
           edm::LogInfo("LowPUHBHEMuon") << "AlCaLowPUHBHEMuonFilter::Muon:Track " << RecMuon->track().isNonnull()
                                         << " innerTrack " << RecMuon->innerTrack().isNonnull() << " outerTrack "
                                         << RecMuon->outerTrack().isNonnull() << " globalTrack "
                                         << RecMuon->globalTrack().isNonnull();
 #endif
-          if ((RecMuon->pt() < minimumMuonpT_) || fabs(RecMuon->eta() < minimumMuoneta_))
+          if ((RecMuon.pt() < minimumMuonpT_) || fabs(RecMuon.eta() < minimumMuoneta_))
             continue;
-          if ((RecMuon->track().isNonnull()) && (RecMuon->innerTrack().isNonnull()) &&
-              (RecMuon->outerTrack().isNonnull()) && (RecMuon->globalTrack().isNonnull())) {
-            const reco::Track* pTrack = (RecMuon->innerTrack()).get();
+          if ((RecMuon.track().isNonnull()) && (RecMuon.innerTrack().isNonnull()) &&
+              (RecMuon.outerTrack().isNonnull()) && (RecMuon.globalTrack().isNonnull())) {
+            const reco::Track* pTrack = (RecMuon.innerTrack()).get();
             spr::propagatedTrackID trackID = spr::propagateCALO(pTrack, geo, bField, false);
 #ifdef EDM_ML_DEBUG
             edm::LogInfo("LowPUHBHEMuon")
                 << "AlCaLowPUHBHEMuonFilter::Propagate: ECAL " << trackID.okECAL << " to HCAL " << trackID.okHCAL;
 #endif
             double isolR04 =
-                ((RecMuon->pfIsolationR04().sumChargedHadronPt +
+                ((RecMuon.pfIsolationR04().sumChargedHadronPt +
                   std::max(0.,
-                           RecMuon->pfIsolationR04().sumNeutralHadronEt + RecMuon->pfIsolationR04().sumPhotonEt -
-                               (0.5 * RecMuon->pfIsolationR04().sumPUPt))) /
-                 RecMuon->pt());
+                           RecMuon.pfIsolationR04().sumNeutralHadronEt + RecMuon.pfIsolationR04().sumPhotonEt -
+                               (0.5 * RecMuon.pfIsolationR04().sumPUPt))) /
+                 RecMuon.pt());
             bool isoCut = (isolR04 < pfIsoCut_);
             if ((trackID.okECAL) && (trackID.okHCAL) && isoCut) {
               accept = true;

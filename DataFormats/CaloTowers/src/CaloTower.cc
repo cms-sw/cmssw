@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 
 CaloTower::CaloTower() {
@@ -52,15 +54,15 @@ CaloTower::CaloTower(CaloTowerDetId id,
                      float outerE,
                      int ecal_tp,
                      int hcal_tp,
-                     GlobalVector p3,
+                     const GlobalVector& p3,
                      float iEnergy,
                      bool massless,
                      GlobalPoint emPos,
                      GlobalPoint hadPos)
     : LeafCandidate(0, p3, iEnergy, massless, Point(0, 0, 0)),
       id_(id),
-      emPosition_(emPos),
-      hadPosition_(hadPos),
+      emPosition_(std::move(emPos)),
+      hadPosition_(std::move(hadPos)),
       emE_(emE),
       hadE_(hadE),
       outerE_(outerE),
@@ -73,15 +75,15 @@ CaloTower::CaloTower(CaloTowerDetId id,
                      float outerE,
                      int ecal_tp,
                      int hcal_tp,
-                     GlobalVector p3,
+                     const GlobalVector& p3,
                      float iEnergy,
                      float imass,
                      GlobalPoint emPos,
                      GlobalPoint hadPos)
     : LeafCandidate(0, p3, iEnergy, imass, Point(0, 0, 0)),
       id_(id),
-      emPosition_(emPos),
-      hadPosition_(hadPos),
+      emPosition_(std::move(emPos)),
+      hadPosition_(std::move(hadPos)),
       emE_(emE),
       hadE_(hadE),
       outerE_(outerE),
@@ -206,7 +208,7 @@ int CaloTower::numCrystals() const {
     return 0;
 
   int nC = 0;
-  std::vector<DetId>::const_iterator it = constituents_.begin();
+  auto it = constituents_.begin();
   for (; it != constituents_.end(); ++it) {
     if (it->det() == DetId::Ecal)
       ++nC;

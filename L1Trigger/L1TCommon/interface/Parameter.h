@@ -80,7 +80,7 @@ namespace l1t {
       const std::vector<std::string> &column = table.at(colName);
       std::vector<T> retval(column.size());
       std::transform(
-          column.begin(), column.end(), retval.begin(), [](std::string a) -> T { return castTo<T>(a.c_str()); });
+          column.begin(), column.end(), retval.begin(), [](const std::string &a) -> T { return castTo<T>(a.c_str()); });
       return retval;
     }
     // cast each element of a row of table to a vector of elements of type T

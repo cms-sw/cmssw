@@ -58,7 +58,7 @@ public:
   void fillGlobalQualityPlot(DQMStore::IBooker &iBooker,
                              DQMStore::IGetter &iGetter,
                              bool init,
-                             edm::ESHandle<SiPixelFedCablingMap> theCablingMap,
+                             const edm::ESHandle<SiPixelFedCablingMap> &theCablingMap,
                              int nFEDs,
                              bool Tier0Flag,
                              int lumisec);

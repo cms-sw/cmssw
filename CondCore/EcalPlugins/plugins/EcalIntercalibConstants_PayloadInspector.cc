@@ -73,7 +73,7 @@ namespace {
             uint32_t rawid = EBDetId::unhashIndex(cellid);
 
             // check the existence of ECAL Intercalib Constants, for a given ECAL barrel channel
-            EcalFloatCondObjectContainer::const_iterator value_ptr = payload->find(rawid);
+            auto value_ptr = payload->find(rawid);
             if (value_ptr == payload->end())
               continue;  // cell absent from payload
             float weight = (float)(*value_ptr);
@@ -122,7 +122,7 @@ namespace {
           for (int cellid = 0; cellid < EEDetId::kSizeForDenseIndexing; ++cellid) {  // loop on EE cells
             if (EEDetId::validHashIndex(cellid)) {
               uint32_t rawid = EEDetId::unhashIndex(cellid);
-              EcalFloatCondObjectContainer::const_iterator value_ptr = payload->find(rawid);
+              auto value_ptr = payload->find(rawid);
               if (value_ptr == payload->end())
                 continue;  // cell absent from payload
               float weight = (float)(*value_ptr);

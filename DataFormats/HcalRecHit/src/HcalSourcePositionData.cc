@@ -1,5 +1,6 @@
 #include "DataFormats/HcalRecHit/interface/HcalSourcePositionData.h"
 #include <cstdio>
+#include <utility>
 
 using namespace std;
 
@@ -51,10 +52,10 @@ void HcalSourcePositionData::set(int message_counter,
   motorVoltage_ = motor_voltage;
   driverId_ = driver_id;
   sourceId_ = source_id;
-  tubeNameFromCoord_ = tubeNameFromCoord;
-  tubeDescriptionFromSD_ = tubeDescFromSD;
-  lastCommand_ = lastCommand;
-  message_ = message;
+  tubeNameFromCoord_ = std::move(tubeNameFromCoord);
+  tubeDescriptionFromSD_ = std::move(tubeDescFromSD);
+  lastCommand_ = std::move(lastCommand);
+  message_ = std::move(message);
 }
 
 void HcalSourcePositionData::getDriverTimestamp(int& seconds, int& useconds) const {

@@ -76,7 +76,7 @@ void EMTFSubsystemCollector::extractPrimitives(
   iEvent.getByToken(token, cppfDigis);
 
   // Output
-  for (auto digi : *cppfDigis) {
+  for (const auto& digi : *cppfDigis) {
     out.emplace_back(digi.rpcId(), digi);
   }
 
@@ -202,8 +202,8 @@ void EMTFSubsystemCollector::make_copad_gem(const TriggerPrimitiveCollection& mu
 
   std::map<int, TriggerPrimitiveCollection> in_pads_layer1, in_pads_layer2;
 
-  TriggerPrimitiveCollection::const_iterator tp_it = muon_primitives.begin();
-  TriggerPrimitiveCollection::const_iterator tp_end = muon_primitives.end();
+  auto tp_it = muon_primitives.begin();
+  auto tp_end = muon_primitives.end();
 
   for (; tp_it != tp_end; ++tp_it) {
     const TriggerPrimitive& muon_primitive = *tp_it;
@@ -238,8 +238,8 @@ void EMTFSubsystemCollector::make_copad_gem(const TriggerPrimitiveCollection& mu
     }
   }
 
-  std::map<int, TriggerPrimitiveCollection>::iterator map_tp_it = in_pads_layer1.begin();
-  std::map<int, TriggerPrimitiveCollection>::iterator map_tp_end = in_pads_layer1.end();
+  auto map_tp_it = in_pads_layer1.begin();
+  auto map_tp_end = in_pads_layer1.end();
 
   for (; map_tp_it != map_tp_end; ++map_tp_it) {
     const GEMDetId& id = map_tp_it->first;
@@ -256,10 +256,10 @@ void EMTFSubsystemCollector::make_copad_gem(const TriggerPrimitiveCollection& mu
 
     // now let's correlate the pads in two layers of this partition
     const TriggerPrimitiveCollection& co_pads = found->second;
-    for (TriggerPrimitiveCollection::const_iterator p = pads.begin(); p != pads.end(); ++p) {
-      for (TriggerPrimitiveCollection::const_iterator co_p = co_pads.begin(); co_p != co_pads.end(); ++co_p) {
-        unsigned int deltaPad = std::abs(p->getGEMData().pad - co_p->getGEMData().pad);
-        unsigned int deltaBX = std::abs(p->getGEMData().bx - co_p->getGEMData().bx);
+    for (const auto& pad : pads) {
+      for (const auto& co_pad : co_pads) {
+        unsigned int deltaPad = std::abs(pad.getGEMData().pad - co_pad.getGEMData().pad);
+        unsigned int deltaBX = std::abs(pad.getGEMData().bx - co_pad.getGEMData().bx);
 
         // check the match in pad
         if ((id.station() == 1 && deltaPad > maxDeltaPadGE11) || (id.station() == 2 && deltaPad > maxDeltaPadGE21))
@@ -270,7 +270,7 @@ void EMTFSubsystemCollector::make_copad_gem(const TriggerPrimitiveCollection& mu
           continue;
 
         // make a new coincidence pad digi
-        copad_muon_primitives.push_back(*p);
+        copad_muon_primitives.push_back(pad);
       }
     }
   }

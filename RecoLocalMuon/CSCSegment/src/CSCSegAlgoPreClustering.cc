@@ -67,24 +67,24 @@ std::vector<std::vector<const CSCRecHit2D*> > CSCSegAlgoPreClustering::clusterHi
   // split rechits into subvectors and return vector of vectors:
   // Loop over rechits
   // Create one seed per hit
-  for (unsigned int i = 0; i < rechits.size(); ++i) {
+  for (auto rechit : rechits) {
     temp.clear();
 
-    temp.push_back(rechits[i]);
+    temp.push_back(rechit);
 
     seeds.push_back(temp);
 
     // First added hit in seed defines the mean to which the next hit is compared
     // for this seed.
 
-    running_meanX.push_back(rechits[i]->localPosition().x());
-    running_meanY.push_back(rechits[i]->localPosition().y());
+    running_meanX.push_back(rechit->localPosition().x());
+    running_meanY.push_back(rechit->localPosition().y());
 
     // set min/max X and Y for box containing the hits in the precluster:
-    seed_minX.push_back(rechits[i]->localPosition().x());
-    seed_maxX.push_back(rechits[i]->localPosition().x());
-    seed_minY.push_back(rechits[i]->localPosition().y());
-    seed_maxY.push_back(rechits[i]->localPosition().y());
+    seed_minX.push_back(rechit->localPosition().x());
+    seed_maxX.push_back(rechit->localPosition().x());
+    seed_minY.push_back(rechit->localPosition().y());
+    seed_maxY.push_back(rechit->localPosition().y());
   }
 
   // merge clusters that are too close

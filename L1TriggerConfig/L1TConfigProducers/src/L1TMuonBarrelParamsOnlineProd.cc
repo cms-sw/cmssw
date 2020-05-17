@@ -46,8 +46,8 @@ std::unique_ptr<const L1TMuonBarrelParams> L1TMuonBarrelParamsOnlineProd::newObj
     }
   }
 
-  std::string tscKey = objectKey.substr(0, objectKey.find(":"));
-  std::string rsKey = objectKey.substr(objectKey.find(":") + 1, std::string::npos);
+  std::string tscKey = objectKey.substr(0, objectKey.find(':'));
+  std::string rsKey = objectKey.substr(objectKey.find(':') + 1, std::string::npos);
 
   edm::LogInfo("L1-O2O: L1TMuonBarrelParamsOnlineProd")
       << "Producing L1TMuonBarrelParams with TSC key = " << tscKey << " and RS key = " << rsKey;
@@ -85,22 +85,22 @@ std::unique_ptr<const L1TMuonBarrelParams> L1TMuonBarrelParamsOnlineProd::newObj
 
   // for debugging dump the configs to local files
   {
-    std::ofstream output(std::string("/tmp/").append(hw_key.substr(0, hw_key.find("/"))).append(".xml"));
+    std::ofstream output(std::string("/tmp/").append(hw_key.substr(0, hw_key.find('/'))).append(".xml"));
     output << hw_payload;
     output.close();
   }
   {
-    std::ofstream output(std::string("/tmp/").append(algo_key.substr(0, algo_key.find("/"))).append(".xml"));
+    std::ofstream output(std::string("/tmp/").append(algo_key.substr(0, algo_key.find('/'))).append(".xml"));
     output << algo_payload;
     output.close();
   }
   {
-    std::ofstream output(std::string("/tmp/").append(mp7_key.substr(0, mp7_key.find("/"))).append(".xml"));
+    std::ofstream output(std::string("/tmp/").append(mp7_key.substr(0, mp7_key.find('/'))).append(".xml"));
     output << mp7_payload;
     output.close();
   }
   {
-    std::ofstream output(std::string("/tmp/").append(amc13_key.substr(0, amc13_key.find("/"))).append(".xml"));
+    std::ofstream output(std::string("/tmp/").append(amc13_key.substr(0, amc13_key.find('/'))).append(".xml"));
     output << amc13_payload;
     output.close();
   }

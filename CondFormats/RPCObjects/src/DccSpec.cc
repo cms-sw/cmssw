@@ -10,8 +10,8 @@ std::string DccSpec::print(int depth) const {
   depth--;
   if (depth >= 0) {
     typedef std::vector<TriggerBoardSpec>::const_iterator ITTB;
-    for (ITTB it = theTBs.begin(); it != theTBs.end(); it++)
-      str << it->print(depth);
+    for (const auto& theTB : theTBs)
+      str << theTB.print(depth);
   }
   return str.str();
 }
@@ -21,9 +21,9 @@ const TriggerBoardSpec* DccSpec::triggerBoard(int channelNumber) const {
 
   //FIXME - temporary implementaion, to be replace by LUT (in preparation)
   typedef std::vector<TriggerBoardSpec>::const_iterator IT;
-  for (IT it = theTBs.begin(); it != theTBs.end(); it++) {
-    if (channelNumber == it->dccInputChannelNum())
-      return &(*it);
+  for (const auto& theTB : theTBs) {
+    if (channelNumber == theTB.dccInputChannelNum())
+      return &theTB;
   }
   return nullptr;
 }

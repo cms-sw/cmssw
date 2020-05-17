@@ -123,16 +123,12 @@ void DTResolutionAnalysisTest::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::I
   // reset the ME with fixed scale
   resetMEs();
 
-  for (vector<const DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
-       ch_it != muonGeom->chambers().end();
-       ++ch_it) {  // loop over the chambers
+  for (auto ch_it : muonGeom->chambers()) {  // loop over the chambers
 
-    DTChamberId chID = (*ch_it)->id();
+    DTChamberId chID = ch_it->id();
 
     // Fill the test histos
-    for (vector<const DTSuperLayer*>::const_iterator sl_it = (*ch_it)->superLayers().begin();
-         sl_it != (*ch_it)->superLayers().end();
-         ++sl_it) {  // loop over SLs
+    for (auto sl_it = ch_it->superLayers().begin(); sl_it != ch_it->superLayers().end(); ++sl_it) {  // loop over SLs
 
       DTSuperLayerId slID = (*sl_it)->id();
       MonitorElement* res_histo = igetter.get(getMEName(slID));
@@ -427,12 +423,10 @@ double DTResolutionAnalysisTest::sigmaInRange(double sigma) const {
 void DTResolutionAnalysisTest::resetMEs() {
   globalResSummary->Reset();
   // Reset the summary histo
-  for (map<int, MonitorElement*>::const_iterator histo = wheelMeanHistos.begin(); histo != wheelMeanHistos.end();
-       histo++) {
+  for (auto histo = wheelMeanHistos.begin(); histo != wheelMeanHistos.end(); histo++) {
     (*histo).second->Reset();
   }
-  for (map<int, MonitorElement*>::const_iterator histo = wheelSigmaHistos.begin(); histo != wheelSigmaHistos.end();
-       histo++) {
+  for (auto histo = wheelSigmaHistos.begin(); histo != wheelSigmaHistos.end(); histo++) {
     (*histo).second->Reset();
   }
 

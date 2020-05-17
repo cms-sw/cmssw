@@ -155,7 +155,7 @@ public:
   void setPalette(int numpalette) { palette = numpalette; }
   void drawPalette(std::ofstream* file, int xoffset = 3660, int yoffset = 1540);
   void showPalette(bool printflag1) { printflag = printflag1; };
-  void setTitle(std::string s) { title = s; };
+  void setTitle(std::string s) { title = std::move(s); };
   void setRange(float min, float max);
   std::pair<float, float> getAutomaticRange();
   void addPixel(bool addPixelfl) { addPixelFlag = addPixelfl; };

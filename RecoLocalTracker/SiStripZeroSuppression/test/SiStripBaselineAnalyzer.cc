@@ -171,13 +171,13 @@ void SiStripBaselineAnalyzer::analyze(const edm::Event& e, const edm::EventSetup
     std::vector<uint32_t> detIdV;
     pedestalsHandle->getDetIds(detIdV);
 
-    for (uint32_t i = 0; i < detIdV.size(); ++i) {
+    for (unsigned int i : detIdV) {
       pedestals.clear();
-      SiStripPedestals::Range pedestalsRange = pedestalsHandle->getRange(detIdV[i]);
+      SiStripPedestals::Range pedestalsRange = pedestalsHandle->getRange(i);
       pedestals.resize((pedestalsRange.second - pedestalsRange.first) * 8 / 10);
       pedestalsHandle->allPeds(pedestals, pedestalsRange);
-      for (uint32_t it = 0; it < pedestals.size(); ++it)
-        h1Pedestals_->Fill(pedestals[it]);
+      for (int pedestal : pedestals)
+        h1Pedestals_->Fill(pedestal);
     }
   }
 
@@ -186,9 +186,9 @@ void SiStripBaselineAnalyzer::analyze(const edm::Event& e, const edm::EventSetup
     edm::InputTag CMLabel("siStripZeroSuppression:APVCM");
     e.getByLabel(srcAPVCM_, moduleCM);
 
-    edm::DetSetVector<SiStripProcessedRawDigi>::const_iterator itCMDetSetV = moduleCM->begin();
+    auto itCMDetSetV = moduleCM->begin();
     for (; itCMDetSetV != moduleCM->end(); ++itCMDetSetV) {
-      edm::DetSet<SiStripProcessedRawDigi>::const_iterator itCM = itCMDetSetV->begin();
+      auto itCM = itCMDetSetV->begin();
       for (; itCM != itCMDetSetV->end(); ++itCM)
         h1APVCM_->Fill(itCM->adc());
     }
@@ -231,7 +231,7 @@ void SiStripBaselineAnalyzer::analyze(const edm::Event& e, const edm::EventSetup
   edm::DetSetVector<SiStripProcessedRawDigi>::const_iterator itDSBaseline;
   if (plotBaseline_)
     itDSBaseline = moduleBaseline->begin();
-  edm::DetSetVector<SiStripRawDigi>::const_iterator itRawDigis = moduleRawDigi->begin();
+  auto itRawDigis = moduleRawDigi->begin();
 
   uint32_t NBabAPVs = moduleRawDigi->size();
   std::cout << "Number of module with HIP in this event: " << NBabAPVs << std::endl;
@@ -255,7 +255,7 @@ void SiStripBaselineAnalyzer::analyze(const edm::Event& e, const edm::EventSetup
     edm::EventNumber_t const event = e.id().event();
     //std::cout << "processing module N: " << actualModule_<< " detId: " << detId << " event: "<< event << std::endl;
 
-    edm::DetSet<SiStripRawDigi>::const_iterator itRaw = itRawDigis->begin();
+    auto itRaw = itRawDigis->begin();
     bool restAPV[6] = {false, false, false, false, false, false};
     int strip = 0, totADC = 0;
     int minAPVRes = 7, maxAPVRes = -1;
@@ -352,8 +352,8 @@ void SiStripBaselineAnalyzer::analyze(const edm::Event& e, const edm::EventSetup
             int firststrip = clus->firstStrip();
             //std::cout << "Found cluster in detId " << detId << " " << firststrip << " " << clus->amplitudes().size() << " -----------------------------------------------" << std::endl;
             strip = 0;
-            for (auto itAmpl = clus->amplitudes().begin(); itAmpl != clus->amplitudes().end(); ++itAmpl) {
-              h1Clusters_->Fill(firststrip + strip, *itAmpl);
+            for (unsigned char itAmpl : clus->amplitudes()) {
+              h1Clusters_->Fill(firststrip + strip, itAmpl);
               ++strip;
             }
           }

@@ -22,7 +22,7 @@ typedef fit::HistoChiSquare<FitFunction> ChiSquared;
 typedef fit::HistoPoissonLikelihoodRatio<FitFunction> PoissonLR;
 
 template <typename T>
-int main_t(const std::string tag) {
+int main_t(const std::string& tag) {
   try {
     fit::RootMinuitCommands<T> commands("PhysicsTools/Utilities/test/testZMassFit.txt");
 

@@ -16,6 +16,8 @@
  and transform them in PFGsfRecTracks.
 */
 
+#include <memory>
+
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
@@ -56,7 +58,7 @@ public:
   explicit PFElecTkProducer(const edm::ParameterSet&, const convbremhelpers::HeavyObjectCache*);
 
   static std::unique_ptr<convbremhelpers::HeavyObjectCache> initializeGlobalCache(const edm::ParameterSet& conf) {
-    return std::unique_ptr<convbremhelpers::HeavyObjectCache>(new convbremhelpers::HeavyObjectCache(conf));
+    return std::make_unique<convbremhelpers::HeavyObjectCache>(conf);
   }
 
   static void globalEndJob(convbremhelpers::HeavyObjectCache const*) {}
@@ -363,8 +365,8 @@ void PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup) {
                                                      theEcalClusters,
                                                      selGsfPFRecTracks[ipfgsf])) {
           const vector<PFRecTrackRef>& convBremPFRecTracks(convBremFinder_->getConvBremPFRecTracks());
-          for (unsigned int ii = 0; ii < convBremPFRecTracks.size(); ii++) {
-            selGsfPFRecTracks[ipfgsf].addConvBremPFRecTrackRef(convBremPFRecTracks[ii]);
+          for (const auto& convBremPFRecTrack : convBremPFRecTracks) {
+            selGsfPFRecTracks[ipfgsf].addConvBremPFRecTrackRef(convBremPFRecTrack);
           }
         }
 
@@ -379,11 +381,11 @@ void PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup) {
         vector<reco::GsfPFRecTrack> trueGsfPFRecTracks;
         if (!secondaries.empty()) {
           // loop on secondaries gsf tracks (from converted brems)
-          for (unsigned int isecpfgsf = 0; isecpfgsf < secondaries.size(); isecpfgsf++) {
-            PFRecTrackRef refsecKF = selGsfPFRecTracks[(secondaries[isecpfgsf])].kfPFRecTrackRef();
+          for (unsigned int& secondarie : secondaries) {
+            PFRecTrackRef refsecKF = selGsfPFRecTracks[secondarie].kfPFRecTrackRef();
 
-            unsigned int secGsfIndex = selGsfPFRecTracks[(secondaries[isecpfgsf])].trackId();
-            GsfTrackRef secGsfRef = selGsfPFRecTracks[(secondaries[isecpfgsf])].gsfTrackRef();
+            unsigned int secGsfIndex = selGsfPFRecTracks[secondarie].trackId();
+            GsfTrackRef secGsfRef = selGsfPFRecTracks[secondarie].gsfTrackRef();
 
             if (refsecKF.isNonnull()) {
               // NOTE::IT SAVED THE TRACKID OF THE PRIMARY!!! THIS IS USED IN PFBLOCKALGO.CC/H
@@ -423,8 +425,8 @@ void PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   //now the secondary GsfPFRecTracks are in the event, the Ref can be created
   createGsfPFRecTrackRef(gsfPfRefProd, primaryGsfPFRecTracks, GsfPFMap);
 
-  for (unsigned int iGSF = 0; iGSF < primaryGsfPFRecTracks.size(); iGSF++) {
-    gsfPFRecTrackCollection->push_back(primaryGsfPFRecTracks[iGSF]);
+  for (const auto& primaryGsfPFRecTrack : primaryGsfPFRecTracks) {
+    gsfPFRecTrackCollection->push_back(primaryGsfPFRecTrack);
   }
   iEvent.put(std::move(gsfPFRecTrackCollection));
 
@@ -442,9 +444,7 @@ void PFElecTkProducer::createGsfPFRecTrackRef(
     const std::map<unsigned int, std::vector<reco::GsfPFRecTrack> >& MapPrimSec) {
   unsigned int cgsf = 0;
   unsigned int csecgsf = 0;
-  for (std::map<unsigned int, std::vector<reco::GsfPFRecTrack> >::const_iterator igsf = MapPrimSec.begin();
-       igsf != MapPrimSec.end();
-       igsf++, cgsf++) {
+  for (auto igsf = MapPrimSec.begin(); igsf != MapPrimSec.end(); igsf++, cgsf++) {
     vector<reco::GsfPFRecTrack> SecGsfPF = igsf->second;
     for (unsigned int iSecGsf = 0; iSecGsf < SecGsfPF.size(); iSecGsf++) {
       edm::Ref<reco::GsfPFRecTrackCollection> refgprt(gsfPfHandle, csecgsf);
@@ -464,8 +464,8 @@ int PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection& PfRTkColl,
   auto const& ElSeedFromRef = static_cast<ElectronSeed const&>(*(gsftk.extra()->seedRef()));
   //CASE 1 ELECTRONSEED DOES NOT HAVE A REF TO THE CKFTRACK
   if (ElSeedFromRef.ctfTrack().isNull()) {
-    reco::PFRecTrackCollection::const_iterator pft = PfRTkColl.begin();
-    reco::PFRecTrackCollection::const_iterator pftend = PfRTkColl.end();
+    auto pft = PfRTkColl.begin();
+    auto pftend = PfRTkColl.end();
     unsigned int i_pf = 0;
     int ibest = -1;
     unsigned int ish_max = 0;
@@ -515,8 +515,8 @@ int PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection& PfRTkColl,
   } else {
     //ELECTRON SEED HAS A REFERENCE
 
-    reco::PFRecTrackCollection::const_iterator pft = PfRTkColl.begin();
-    reco::PFRecTrackCollection::const_iterator pftend = PfRTkColl.end();
+    auto pft = PfRTkColl.begin();
+    auto pftend = PfRTkColl.end();
     unsigned int i_pf = 0;
 
     for (; pft != pftend; ++pft) {
@@ -804,21 +804,19 @@ float PFElecTkProducer::minTangDist(const reco::GsfPFRecTrack& primGsf, const re
   std::vector<reco::PFBrem> secPFBrem = secGsf.PFRecBrem();
 
   unsigned int cbrem = 0;
-  for (unsigned isbrem = 0; isbrem < secPFBrem.size(); isbrem++) {
-    if (secPFBrem[isbrem].indTrajPoint() == 99)
+  for (auto& isbrem : secPFBrem) {
+    if (isbrem.indTrajPoint() == 99)
       continue;
-    const reco::PFTrajectoryPoint& atSecECAL =
-        secPFBrem[isbrem].extrapolatedPoint(reco::PFTrajectoryPoint::ECALEntrance);
+    const reco::PFTrajectoryPoint& atSecECAL = isbrem.extrapolatedPoint(reco::PFTrajectoryPoint::ECALEntrance);
     if (!atSecECAL.isValid())
       continue;
     float secPhi = atSecECAL.positionREP().Phi();
 
     unsigned int sbrem = 0;
-    for (unsigned ipbrem = 0; ipbrem < primPFBrem.size(); ipbrem++) {
-      if (primPFBrem[ipbrem].indTrajPoint() == 99)
+    for (auto& ipbrem : primPFBrem) {
+      if (ipbrem.indTrajPoint() == 99)
         continue;
-      const reco::PFTrajectoryPoint& atPrimECAL =
-          primPFBrem[ipbrem].extrapolatedPoint(reco::PFTrajectoryPoint::ECALEntrance);
+      const reco::PFTrajectoryPoint& atPrimECAL = ipbrem.extrapolatedPoint(reco::PFTrajectoryPoint::ECALEntrance);
       if (!atPrimECAL.isValid())
         continue;
       sbrem++;
@@ -900,8 +898,7 @@ bool PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nG
     vector<PFCluster> vecPFClusters;
     vecPFClusters.clear();
 
-    for (PFClusterCollection::const_iterator clus = theEClus.begin(); clus != theEClus.end(); clus++) {
-      PFCluster clust = *clus;
+    for (auto clust : theEClus) {
       clust.calculatePositionREP();
 
       float deta = fabs(scRef->position().eta() - clust.position().eta());
@@ -926,10 +923,10 @@ bool PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nG
         // check if it touch the Brem-tangents
         else {
           vector<PFBrem> primPFBrem = gsfPfTrack.PFRecBrem();
-          for (unsigned ipbrem = 0; ipbrem < primPFBrem.size(); ipbrem++) {
-            if (primPFBrem[ipbrem].indTrajPoint() == 99)
+          for (auto& ipbrem : primPFBrem) {
+            if (ipbrem.indTrajPoint() == 99)
               continue;
-            const reco::PFRecTrack& pfBremTrack = primPFBrem[ipbrem];
+            const reco::PFRecTrack& pfBremTrack = ipbrem;
             double dist = pfBremTrack.extrapolatedPoint(reco::PFTrajectoryPoint::ECALShowerMax).isValid()
                               ? LinkByRecHit::testTrackAndClusterByRecHit(pfBremTrack, clust, true)
                               : -1.;
@@ -945,8 +942,8 @@ bool PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nG
       }  // END if angle preselection
     }    // PFClusters Loop
     if (!vecPFClusters.empty()) {
-      for (unsigned int pf = 0; pf < vecPFClusters.size(); pf++) {
-        bool isCommon = ClusterClusterMapping::overlap(vecPFClusters[pf], *scRef);
+      for (const auto& vecPFCluster : vecPFClusters) {
+        bool isCommon = ClusterClusterMapping::overlap(vecPFCluster, *scRef);
         if (isCommon) {
           isSharingEnergy = true;
         }
@@ -963,8 +960,7 @@ bool PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nG
     nPFCluster.clear();
     iPFCluster.clear();
 
-    for (PFClusterCollection::const_iterator clus = theEClus.begin(); clus != theEClus.end(); clus++) {
-      PFCluster clust = *clus;
+    for (auto clust : theEClus) {
       clust.calculatePositionREP();
 
       float ndeta = fabs(nGsfPFRecTrack.gsfTrackRef()->eta() - clust.position().eta());
@@ -982,10 +978,10 @@ bool PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nG
           nEnergy += clust.energy();
         } else {
           const vector<PFBrem>& primPFBrem = nGsfPFRecTrack.PFRecBrem();
-          for (unsigned ipbrem = 0; ipbrem < primPFBrem.size(); ipbrem++) {
-            if (primPFBrem[ipbrem].indTrajPoint() == 99)
+          for (const auto& ipbrem : primPFBrem) {
+            if (ipbrem.indTrajPoint() == 99)
               continue;
-            const reco::PFRecTrack& pfBremTrack = primPFBrem[ipbrem];
+            const reco::PFRecTrack& pfBremTrack = ipbrem;
             double dist = pfBremTrack.extrapolatedPoint(reco::PFTrajectoryPoint::ECALShowerMax).isValid()
                               ? LinkByRecHit::testTrackAndClusterByRecHit(pfBremTrack, clust, true)
                               : -1.;
@@ -1013,10 +1009,10 @@ bool PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nG
           iEnergy += clust.energy();
         } else {
           vector<PFBrem> primPFBrem = iGsfPFRecTrack.PFRecBrem();
-          for (unsigned ipbrem = 0; ipbrem < primPFBrem.size(); ipbrem++) {
-            if (primPFBrem[ipbrem].indTrajPoint() == 99)
+          for (auto& ipbrem : primPFBrem) {
+            if (ipbrem.indTrajPoint() == 99)
               continue;
-            const reco::PFRecTrack& pfBremTrack = primPFBrem[ipbrem];
+            const reco::PFRecTrack& pfBremTrack = ipbrem;
             double dist = LinkByRecHit::testTrackAndClusterByRecHit(pfBremTrack, clust, true);
             if (dist > 0.) {
               iPFCluster.push_back(clust);
@@ -1029,9 +1025,9 @@ bool PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nG
     }
 
     if (!nPFCluster.empty() && !iPFCluster.empty()) {
-      for (unsigned int npf = 0; npf < nPFCluster.size(); npf++) {
-        for (unsigned int ipf = 0; ipf < iPFCluster.size(); ipf++) {
-          bool isCommon = ClusterClusterMapping::overlap(nPFCluster[npf], iPFCluster[ipf]);
+      for (const auto& npf : nPFCluster) {
+        for (const auto& ipf : iPFCluster) {
+          bool isCommon = ClusterClusterMapping::overlap(npf, ipf);
           if (isCommon) {
             isSharingEnergy = true;
             break;
@@ -1106,17 +1102,17 @@ void PFElecTkProducer::beginRun(const edm::Run& run, const EventSetup& iSetup) {
 
   mtsTransform_ = MultiTrajectoryStateTransform(tracker.product(), magneticField.product());
 
-  pfTransformer_.reset(new PFTrackTransformer(math::XYZVector(magneticField->inTesla(GlobalPoint(0, 0, 0)))));
+  pfTransformer_ = std::make_unique<PFTrackTransformer>(math::XYZVector(magneticField->inTesla(GlobalPoint(0, 0, 0))));
 
   edm::ESHandle<TransientTrackBuilder> builder;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
   TransientTrackBuilder thebuilder = *(builder.product());
 
-  convBremFinder_.reset(new ConvBremPFTrackFinder(thebuilder,
-                                                  mvaConvBremFinderIDBarrelLowPt_,
-                                                  mvaConvBremFinderIDBarrelHighPt_,
-                                                  mvaConvBremFinderIDEndcapsLowPt_,
-                                                  mvaConvBremFinderIDEndcapsHighPt_));
+  convBremFinder_ = std::make_unique<ConvBremPFTrackFinder>(thebuilder,
+                                                            mvaConvBremFinderIDBarrelLowPt_,
+                                                            mvaConvBremFinderIDBarrelHighPt_,
+                                                            mvaConvBremFinderIDEndcapsLowPt_,
+                                                            mvaConvBremFinderIDEndcapsHighPt_);
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

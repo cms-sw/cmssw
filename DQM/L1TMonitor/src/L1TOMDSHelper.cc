@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "DQM/L1TMonitor/interface/L1TOMDSHelper.h"
 
 #include "DataFormats/Common/interface/Handle.h"
@@ -14,8 +16,8 @@ L1TOMDSHelper::~L1TOMDSHelper() { delete m_omdsReader; }
 //_____________________________________________________________________
 bool L1TOMDSHelper::connect(string iOracleDB, string iPathCondDB, int &error) {
   // Handeling inputs
-  m_oracleDB = iOracleDB;
-  m_pathCondDB = iPathCondDB;
+  m_oracleDB = std::move(iOracleDB);
+  m_pathCondDB = std::move(iPathCondDB);
   error = NO_ERROR;
 
   // Initializing variables
@@ -41,7 +43,7 @@ bool L1TOMDSHelper::connect(string iOracleDB, string iPathCondDB, int &error) {
 }
 
 //_____________________________________________________________________
-map<string, WbMTriggerXSecFit> L1TOMDSHelper::getWbMTriggerXsecFits(string iTable, int &error) {
+map<string, WbMTriggerXSecFit> L1TOMDSHelper::getWbMTriggerXsecFits(const string &iTable, int &error) {
   map<string, WbMTriggerXSecFit> out;
   const l1t::OMDSReader::QueryResults qresults;
   error = NO_ERROR;
@@ -51,12 +53,12 @@ map<string, WbMTriggerXSecFit> L1TOMDSHelper::getWbMTriggerXsecFits(string iTabl
 
   // Fields to retrive in the query
   vector<string> qStrings;
-  qStrings.push_back("BIT");
-  qStrings.push_back("NAME");
-  qStrings.push_back("PM1");  //Inverse
-  qStrings.push_back("P0");   //Constant
-  qStrings.push_back("P1");   //Linear
-  qStrings.push_back("P2");   //Quadratic
+  qStrings.emplace_back("BIT");
+  qStrings.emplace_back("NAME");
+  qStrings.emplace_back("PM1");  //Inverse
+  qStrings.emplace_back("P0");   //Constant
+  qStrings.emplace_back("P1");   //Linear
+  qStrings.emplace_back("P2");   //Quadratic
 
   l1t::OMDSReader::QueryResults paramResults = m_omdsReader->basicQuery(qStrings, qSchema, iTable, "", qresults);
 
@@ -107,9 +109,9 @@ int L1TOMDSHelper::getNumberCollidingBunches(int lhcFillNumber, int &error) {
 
   // Fields to retrive in the query
   vector<std::string> qStrings;
-  qStrings.push_back("BUNCH");
-  qStrings.push_back("BEAM1CONFIG");
-  qStrings.push_back("BEAM2CONFIG");
+  qStrings.emplace_back("BUNCH");
+  qStrings.emplace_back("BEAM1CONFIG");
+  qStrings.emplace_back("BEAM2CONFIG");
 
   l1t::OMDSReader::QueryResults qResults =
       m_omdsReader->basicQuery(qStrings, rtlSchema, table, atribute1, m_omdsReader->singleAttribute(lhcFillNumber));
@@ -151,9 +153,9 @@ BeamConfiguration L1TOMDSHelper::getBeamConfiguration(int lhcFillNumber, int &er
 
   // Setting the strings we want to recover from OMDS
   vector<std::string> qStrings;
-  qStrings.push_back("BUNCH");
-  qStrings.push_back("BEAM1CONFIG");
-  qStrings.push_back("BEAM2CONFIG");
+  qStrings.emplace_back("BUNCH");
+  qStrings.emplace_back("BEAM1CONFIG");
+  qStrings.emplace_back("BEAM2CONFIG");
 
   l1t::OMDSReader::QueryResults qResults =
       m_omdsReader->basicQuery(qStrings, rtlSchema, table, atribute1, m_omdsReader->singleAttribute(lhcFillNumber));
@@ -211,9 +213,9 @@ vector<bool> L1TOMDSHelper::getBunchStructure(int lhcFillNumber, int &error) {
 
   // Setting the strings we want to recover from OMDS
   vector<std::string> qStrings;
-  qStrings.push_back("BUNCH");
-  qStrings.push_back("BEAM1CONFIG");
-  qStrings.push_back("BEAM2CONFIG");
+  qStrings.emplace_back("BUNCH");
+  qStrings.emplace_back("BEAM1CONFIG");
+  qStrings.emplace_back("BEAM2CONFIG");
 
   l1t::OMDSReader::QueryResults qResults =
       m_omdsReader->basicQuery(qStrings, rtlSchema, table, atribute1, m_omdsReader->singleAttribute(lhcFillNumber));
@@ -255,8 +257,8 @@ vector<float> L1TOMDSHelper::getInitBunchLumi(int lhcFillNumber, int &error) {
 
   // Setting the strings we want to recover from OMDS
   vector<std::string> qStrings;
-  qStrings.push_back("BUNCH");
-  qStrings.push_back("INITBUNCHLUMI");
+  qStrings.emplace_back("BUNCH");
+  qStrings.emplace_back("INITBUNCHLUMI");
 
   l1t::OMDSReader::QueryResults qResults =
       m_omdsReader->basicQuery(qStrings, rtlSchema, table, atribute1, m_omdsReader->singleAttribute(lhcFillNumber));
@@ -293,8 +295,8 @@ vector<double> L1TOMDSHelper::getRelativeBunchLumi(int lhcFillNumber, int &error
 
   // Setting the strings we want to recover from OMDS
   vector<std::string> qStrings;
-  qStrings.push_back("BUNCH");
-  qStrings.push_back("INITBUNCHLUMI");
+  qStrings.emplace_back("BUNCH");
+  qStrings.emplace_back("INITBUNCHLUMI");
 
   l1t::OMDSReader::QueryResults qResults =
       m_omdsReader->basicQuery(qStrings, rtlSchema, table, atribute1, m_omdsReader->singleAttribute(lhcFillNumber));
@@ -320,8 +322,8 @@ vector<double> L1TOMDSHelper::getRelativeBunchLumi(int lhcFillNumber, int &error
       }
 
       //-> We calculate the relative luminosity for each bunch
-      for (unsigned int i = 0; i < InitBunchLumi.size(); i++) {
-        RelativeBunchLumi.push_back(InitBunchLumi[i] / InitTotalLumi);
+      for (float i : InitBunchLumi) {
+        RelativeBunchLumi.push_back(i / InitTotalLumi);
       }
     }
   }

@@ -21,7 +21,7 @@ string RunTag::getGeneralTag() const { return m_genTag; }
 
 // User data methods
 
-void RunTag::setGeneralTag(string genTag) {
+void RunTag::setGeneralTag(const string& genTag) {
   if (genTag != m_genTag) {
     m_ID = 0;
     m_genTag = genTag;

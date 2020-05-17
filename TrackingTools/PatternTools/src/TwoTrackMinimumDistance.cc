@@ -8,11 +8,11 @@
 using namespace std;
 
 namespace {
-  inline GlobalPoint mean(pair<GlobalPoint, GlobalPoint> pr) {
+  inline GlobalPoint mean(const pair<GlobalPoint, GlobalPoint>& pr) {
     return GlobalPoint(0.5 * (pr.first.basicVector() + pr.second.basicVector()));
   }
 
-  inline double dist(pair<GlobalPoint, GlobalPoint> pr) { return (pr.first - pr.second).mag(); }
+  inline double dist(const pair<GlobalPoint, GlobalPoint>& pr) { return (pr.first - pr.second).mag(); }
 }  // namespace
 
 double TwoTrackMinimumDistance::firstAngle() const {

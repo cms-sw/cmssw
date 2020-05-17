@@ -453,13 +453,12 @@ void IsolatedGenParticles::analyze(const edm::Event &iEvent, const edm::EventSet
 
     // get ObjectMaps from ObjectMapRecord
     const std::vector<L1GlobalTriggerObjectMap> &objMapVec = gtOMRec->gtObjectMap();
-    for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itMap = objMapVec.begin(); itMap != objMapVec.end();
-         ++itMap) {
+    for (const auto &itMap : objMapVec) {
       // Get trigger bits
-      int itrig = (*itMap).algoBitNumber();
+      int itrig = itMap.algoBitNumber();
 
       // Get trigger names
-      algoBitToName_[itrig] = (*itMap).algoName();
+      algoBitToName_[itrig] = itMap.algoName();
 
       edm::LogVerbatim("IsoTrack") << "\t" << itrig << "\t" << algoBitToName_[itrig];
 
@@ -675,7 +674,7 @@ void IsolatedGenParticles::analyze(const edm::Event &iEvent, const edm::EventSet
 
     for (unsigned int indx = 0; indx < trackIDs.size(); ++indx) {
       int charge = trackIDs[indx].charge;
-      reco::GenParticleCollection::const_iterator p = trackIDs[indx].trkItr;
+      auto p = trackIDs[indx].trkItr;
 
       momVec = math::XYZTLorentzVector(p->momentum().x(), p->momentum().y(), p->momentum().z(), p->energy());
       if (verbosity_ > 1)

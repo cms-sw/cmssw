@@ -185,7 +185,7 @@ void AnalyzerMinbias::beginJob() {
 //
 void AnalyzerMinbias::endJob() {
   int ii = 0;
-  for (std::map<std::pair<int, HcalDetId>, myInfo>::const_iterator itr = myMap_.begin(); itr != myMap_.end(); ++itr) {
+  for (auto itr = myMap_.begin(); itr != myMap_.end(); ++itr) {
     LogDebug("AnalyzerMB") << "Fired trigger bit number " << itr->first.first;
     myInfo info = itr->second;
     if (info.theMB0 > 0) {
@@ -316,8 +316,7 @@ void AnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       const std::vector<L1GlobalTriggerObjectMap>& objMapVec = gtObjectMapRecord->gtObjectMap();
       int ii(0);
       bool ok(false), fill(true);
-      for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itMap = objMapVec.begin(); itMap != objMapVec.end();
-           ++itMap, ++ii) {
+      for (auto itMap = objMapVec.begin(); itMap != objMapVec.end(); ++itMap, ++ii) {
         bool resultGt = (*itMap).algoGtlResult();
         if (resultGt == 1) {
           ok = true;
@@ -345,19 +344,19 @@ void AnalyzerMinbias::analyzeHcal(const HcalRespCorrs* myRecalib,
   std::map<std::pair<int, HcalDetId>, myInfo> tmpMap;
   tmpMap.clear();
 
-  for (HBHERecHitCollection::const_iterator hbheItr = HithbheNS.begin(); hbheItr != HithbheNS.end(); hbheItr++) {
+  for (const auto& hbheItr : HithbheNS) {
     // Recalibration of energy
     float icalconst = 1.;
-    DetId mydetid = hbheItr->id().rawId();
+    DetId mydetid = hbheItr.id().rawId();
     if (theRecalib_)
       icalconst = myRecalib->getValues(mydetid)->getValue();
 
-    HBHERecHit aHit(hbheItr->id(), hbheItr->energy() * icalconst, hbheItr->time());
+    HBHERecHit aHit(hbheItr.id(), hbheItr.energy() * icalconst, hbheItr.time());
     double energyhit = aHit.energy();
 
-    DetId id = (*hbheItr).detid();
+    DetId id = hbheItr.detid();
     HcalDetId hid = HcalDetId(id);
-    std::map<std::pair<int, HcalDetId>, myInfo>::iterator itr1 = myMap_.find(std::pair<int, HcalDetId>(algoBit, hid));
+    auto itr1 = myMap_.find(std::pair<int, HcalDetId>(algoBit, hid));
     if (itr1 == myMap_.end()) {
       myInfo info;
       myMap_[std::pair<int, HcalDetId>(algoBit, hid)] = info;
@@ -372,7 +371,7 @@ void AnalyzerMinbias::analyzeHcal(const HcalRespCorrs* myRecalib,
     if (fill)
       h_Noise[hid.subdet() - 1]->Fill(energyhit);
 
-    std::map<std::pair<int, HcalDetId>, myInfo>::iterator itr2 = tmpMap.find(std::pair<int, HcalDetId>(algoBit, hid));
+    auto itr2 = tmpMap.find(std::pair<int, HcalDetId>(algoBit, hid));
     if (itr2 == tmpMap.end()) {
       myInfo info;
       tmpMap[std::pair<int, HcalDetId>(algoBit, hid)] = info;
@@ -389,21 +388,21 @@ void AnalyzerMinbias::analyzeHcal(const HcalRespCorrs* myRecalib,
 
   // Signal part for HB HE
 
-  for (HBHERecHitCollection::const_iterator hbheItr = HithbheMB.begin(); hbheItr != HithbheMB.end(); hbheItr++) {
+  for (const auto& hbheItr : HithbheMB) {
     // Recalibration of energy
     float icalconst = 1.;
-    DetId mydetid = hbheItr->id().rawId();
+    DetId mydetid = hbheItr.id().rawId();
     if (theRecalib_)
       icalconst = myRecalib->getValues(mydetid)->getValue();
 
-    HBHERecHit aHit(hbheItr->id(), hbheItr->energy() * icalconst, hbheItr->time());
+    HBHERecHit aHit(hbheItr.id(), hbheItr.energy() * icalconst, hbheItr.time());
     double energyhit = aHit.energy();
 
-    DetId id = (*hbheItr).detid();
+    DetId id = hbheItr.detid();
     HcalDetId hid = HcalDetId(id);
 
-    std::map<std::pair<int, HcalDetId>, myInfo>::iterator itr1 = myMap_.find(std::pair<int, HcalDetId>(algoBit, hid));
-    std::map<std::pair<int, HcalDetId>, myInfo>::iterator itr2 = tmpMap.find(std::pair<int, HcalDetId>(algoBit, hid));
+    auto itr1 = myMap_.find(std::pair<int, HcalDetId>(algoBit, hid));
+    auto itr2 = tmpMap.find(std::pair<int, HcalDetId>(algoBit, hid));
 
     if (itr1 == myMap_.end()) {
       myInfo info;
@@ -430,22 +429,22 @@ void AnalyzerMinbias::analyzeHcal(const HcalRespCorrs* myRecalib,
 
   // HF
 
-  for (HFRecHitCollection::const_iterator hbheItr = HithfNS.begin(); hbheItr != HithfNS.end(); hbheItr++) {
+  for (const auto& hbheItr : HithfNS) {
     // Recalibration of energy
     float icalconst = 1.;
-    DetId mydetid = hbheItr->id().rawId();
+    DetId mydetid = hbheItr.id().rawId();
     if (theRecalib_)
       icalconst = myRecalib->getValues(mydetid)->getValue();
 
-    HFRecHit aHit(hbheItr->id(), hbheItr->energy() * icalconst, hbheItr->time());
+    HFRecHit aHit(hbheItr.id(), hbheItr.energy() * icalconst, hbheItr.time());
     double energyhit = aHit.energy();
     // Remove PMT hits
     if (fabs(energyhit) > 40.)
       continue;
-    DetId id = (*hbheItr).detid();
+    DetId id = hbheItr.detid();
     HcalDetId hid = HcalDetId(id);
 
-    std::map<std::pair<int, HcalDetId>, myInfo>::iterator itr1 = myMap_.find(std::pair<int, HcalDetId>(algoBit, hid));
+    auto itr1 = myMap_.find(std::pair<int, HcalDetId>(algoBit, hid));
 
     if (itr1 == myMap_.end()) {
       myInfo info;
@@ -461,7 +460,7 @@ void AnalyzerMinbias::analyzeHcal(const HcalRespCorrs* myRecalib,
     if (fill)
       h_Noise[hid.subdet() - 1]->Fill(energyhit);
 
-    std::map<std::pair<int, HcalDetId>, myInfo>::iterator itr2 = tmpMap.find(std::pair<int, HcalDetId>(algoBit, hid));
+    auto itr2 = tmpMap.find(std::pair<int, HcalDetId>(algoBit, hid));
     if (itr2 == tmpMap.end()) {
       myInfo info;
       tmpMap[std::pair<int, HcalDetId>(algoBit, hid)] = info;
@@ -478,24 +477,24 @@ void AnalyzerMinbias::analyzeHcal(const HcalRespCorrs* myRecalib,
 
   // Signal part for HF
 
-  for (HFRecHitCollection::const_iterator hbheItr = HithfMB.begin(); hbheItr != HithfMB.end(); hbheItr++) {
+  for (const auto& hbheItr : HithfMB) {
     // Recalibration of energy
     float icalconst = 1.;
-    DetId mydetid = hbheItr->id().rawId();
+    DetId mydetid = hbheItr.id().rawId();
     if (theRecalib_)
       icalconst = myRecalib->getValues(mydetid)->getValue();
-    HFRecHit aHit(hbheItr->id(), hbheItr->energy() * icalconst, hbheItr->time());
+    HFRecHit aHit(hbheItr.id(), hbheItr.energy() * icalconst, hbheItr.time());
 
     double energyhit = aHit.energy();
     // Remove PMT hits
     if (fabs(energyhit) > 40.)
       continue;
 
-    DetId id = (*hbheItr).detid();
+    DetId id = hbheItr.detid();
     HcalDetId hid = HcalDetId(id);
 
-    std::map<std::pair<int, HcalDetId>, myInfo>::iterator itr1 = myMap_.find(std::pair<int, HcalDetId>(algoBit, hid));
-    std::map<std::pair<int, HcalDetId>, myInfo>::iterator itr2 = tmpMap.find(std::pair<int, HcalDetId>(algoBit, hid));
+    auto itr1 = myMap_.find(std::pair<int, HcalDetId>(algoBit, hid));
+    auto itr2 = tmpMap.find(std::pair<int, HcalDetId>(algoBit, hid));
 
     if (itr1 == myMap_.end()) {
       myInfo info;

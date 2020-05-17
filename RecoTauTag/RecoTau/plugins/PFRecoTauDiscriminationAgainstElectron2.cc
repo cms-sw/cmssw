@@ -136,16 +136,14 @@ void PFRecoTauDiscriminationAgainstElectron2::beginEvent(const edm::Event& evt, 
   //Ecal cracks in eta
   etaCracks_.clear();
   TPRegexp regexpParser_range("([0-9.e+/-]+):([0-9.e+/-]+)");
-  for (std::vector<std::string>::const_iterator etaCrack = etaCracks_string_.begin();
-       etaCrack != etaCracks_string_.end();
-       ++etaCrack) {
-    TObjArray* subStrings = regexpParser_range.MatchS(etaCrack->data());
+  for (const auto& etaCrack : etaCracks_string_) {
+    TObjArray* subStrings = regexpParser_range.MatchS(etaCrack.data());
     if (subStrings->GetEntries() == 3) {
       //std::cout << "substrings(1) = " << ((TObjString*)subStrings->At(1))->GetString() << std::endl;
       double range_begin = ((TObjString*)subStrings->At(1))->GetString().Atof();
       //std::cout << "substrings(2) = " << ((TObjString*)subStrings->At(2))->GetString() << std::endl;
       double range_end = ((TObjString*)subStrings->At(2))->GetString().Atof();
-      etaCracks_.push_back(pdouble(range_begin, range_end));
+      etaCracks_.emplace_back(range_begin, range_end);
     }
   }
 

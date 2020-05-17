@@ -80,14 +80,14 @@ void ProducePFCalibrationObject::beginRun(const edm::Run& run, const edm::EventS
     binsToWrite.push_back(BinningVariables::JetEt);
 
     // loop over all the pSets for the TF1 that we want to write to DB
-    for (vector<ParameterSet>::const_iterator fSetup = fToWrite.begin(); fSetup != fToWrite.end(); ++fSetup) {
+    for (const auto& fSetup : fToWrite) {
       // read from cfg
-      string fType = (*fSetup).getUntrackedParameter<string>("fType");
+      string fType = fSetup.getUntrackedParameter<string>("fType");
       //FIXME: should check that the give type exists
-      string formula = (*fSetup).getUntrackedParameter<string>("formula");
-      pair<float, float> limits = make_pair((*fSetup).getUntrackedParameter<vector<double> >("limits")[0],
-                                            (*fSetup).getUntrackedParameter<vector<double> >("limits")[1]);
-      vector<double> parameters = (*fSetup).getUntrackedParameter<vector<double> >("parameters");
+      string formula = fSetup.getUntrackedParameter<string>("formula");
+      pair<float, float> limits = make_pair(fSetup.getUntrackedParameter<vector<double> >("limits")[0],
+                                            fSetup.getUntrackedParameter<vector<double> >("limits")[1]);
+      vector<double> parameters = fSetup.getUntrackedParameter<vector<double> >("parameters");
 
       TF1* function = new TF1(fType.c_str(), formula.c_str(), limits.first, limits.second);
       for (unsigned int index = 0; index != parameters.size(); ++index) {
@@ -96,7 +96,7 @@ void ProducePFCalibrationObject::beginRun(const edm::Run& run, const edm::EventS
 
       // write them in the containers for the storage
       limitsToWrite.push_back(limits);
-      formulasToWrite.push_back(string(function->GetExpFormula("p").Data()));
+      formulasToWrite.emplace_back(function->GetExpFormula("p").Data());
       resToWrite.push_back(functType[fType]);
     }
 
@@ -104,8 +104,7 @@ void ProducePFCalibrationObject::beginRun(const edm::Run& run, const edm::EventS
     PhysicsTFormulaPayload allTFormulas(limitsToWrite, formulasToWrite);
 
     // put them in the container
-    PerformancePayloadFromTFormula* pfCalibrationFormulas =
-        new PerformancePayloadFromTFormula(resToWrite, binsToWrite, allTFormulas);
+    auto* pfCalibrationFormulas = new PerformancePayloadFromTFormula(resToWrite, binsToWrite, allTFormulas);
 
     // actually write to DB
     edm::Service<cond::service::PoolDBOutputService> dbOut;
@@ -120,12 +119,11 @@ void ProducePFCalibrationObject::beginRun(const edm::Run& run, const edm::EventS
     edm::ESHandle<PerformancePayload> perfH;
     eSetup.get<PFCalibrationRcd>().get(perfH);
 
-    const PerformancePayloadFromTFormula* pfCalibrations =
-        static_cast<const PerformancePayloadFromTFormula*>(perfH.product());
+    const auto* pfCalibrations = static_cast<const PerformancePayloadFromTFormula*>(perfH.product());
 
-    for (vector<string>::const_iterator name = fToRead.begin(); name != fToRead.end(); ++name) {
-      cout << "Function: " << *name << endl;
-      PerformanceResult::ResultType fType = functType[*name];
+    for (const auto& name : fToRead) {
+      cout << "Function: " << name << endl;
+      PerformanceResult::ResultType fType = functType[name];
       pfCalibrations->printFormula(fType);
 
       // evaluate it @ 10 GeV

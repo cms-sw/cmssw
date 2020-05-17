@@ -126,7 +126,7 @@ void SiStripDbParams::addPartition(const SiStripPartition& in) {
     //edm::LogWarning(mlConfigDb_) << ss.str();
   }
 
-  SiStripPartitions::const_iterator iter = partitions_.find(in.partitionName());
+  auto iter = partitions_.find(in.partitionName());
   if (iter == partitions_.end()) {
     partitions_[in.partitionName()] = in;
     if (in.partitionName() != SiStripPartition::defaultPartitionName_) {
@@ -159,7 +159,7 @@ void SiStripDbParams::pset(const edm::ParameterSet& cfg) {
   // Check if top-level PSet (containing partition-level Psets) exists
   std::string partitions = "Partitions";
   std::vector<std::string> str = cfg.getParameterNamesForType<edm::ParameterSet>(false);
-  std::vector<std::string>::const_iterator istr = std::find(str.begin(), str.end(), partitions);
+  auto istr = std::find(str.begin(), str.end(), partitions);
   if (istr != str.end()) {
     // Retrieve top-level PSet containing partition-level Psets
     edm::ParameterSet psets = cfg.getUntrackedParameter<edm::ParameterSet>(partitions);
@@ -168,8 +168,8 @@ void SiStripDbParams::pset(const edm::ParameterSet& cfg) {
     std::vector<std::string> names = psets.getParameterNamesForType<edm::ParameterSet>(false);
 
     // Iterator through PSets names, retrieve PSet for each partition and extract info
-    std::vector<std::string>::iterator iname = names.begin();
-    std::vector<std::string>::iterator jname = names.end();
+    auto iname = names.begin();
+    auto jname = names.end();
     for (; iname != jname; ++iname) {
       edm::ParameterSet pset = psets.getUntrackedParameter<edm::ParameterSet>(*iname);
       SiStripPartition tmp;
@@ -194,8 +194,8 @@ void SiStripDbParams::pset(const edm::ParameterSet& cfg) {
 //
 void SiStripDbParams::confdb(const std::string& confdb) {
   confdb_ = confdb;
-  size_t ipass = confdb.find("/");
-  size_t ipath = confdb.find("@");
+  size_t ipass = confdb.find('/');
+  size_t ipath = confdb.find('@');
   if (ipass != std::string::npos && ipath != std::string::npos) {
     user_ = confdb.substr(0, ipass);
     passwd_ = confdb.substr(ipass + 1, ipath - ipass - 1);
@@ -224,9 +224,9 @@ void SiStripDbParams::confdb(const std::string& user, const std::string& passwd,
 
 // -----------------------------------------------------------------------------
 //
-SiStripDbParams::SiStripPartitions::const_iterator SiStripDbParams::partition(std::string partition_name) const {
-  SiStripDbParams::SiStripPartitions::const_iterator ii = partitions().begin();
-  SiStripDbParams::SiStripPartitions::const_iterator jj = partitions().end();
+SiStripDbParams::SiStripPartitions::const_iterator SiStripDbParams::partition(const std::string& partition_name) const {
+  auto ii = partitions().begin();
+  auto jj = partitions().end();
   for (; ii != jj; ++ii) {
     if (partition_name == ii->second.partitionName()) {
       return ii;
@@ -237,9 +237,9 @@ SiStripDbParams::SiStripPartitions::const_iterator SiStripDbParams::partition(st
 
 // -----------------------------------------------------------------------------
 //
-SiStripDbParams::SiStripPartitions::iterator SiStripDbParams::partition(std::string partition_name) {
-  SiStripDbParams::SiStripPartitions::iterator ii = partitions().begin();
-  SiStripDbParams::SiStripPartitions::iterator jj = partitions().end();
+SiStripDbParams::SiStripPartitions::iterator SiStripDbParams::partition(const std::string& partition_name) {
+  auto ii = partitions().begin();
+  auto jj = partitions().end();
   for (; ii != jj; ++ii) {
     if (partition_name == ii->second.partitionName()) {
       return ii;
@@ -252,8 +252,8 @@ SiStripDbParams::SiStripPartitions::iterator SiStripDbParams::partition(std::str
 //
 std::vector<std::string> SiStripDbParams::partitionNames() const {
   std::vector<std::string> partitions;
-  SiStripPartitions::const_iterator ii = partitions_.begin();
-  SiStripPartitions::const_iterator jj = partitions_.end();
+  auto ii = partitions_.begin();
+  auto jj = partitions_.end();
   for (; ii != jj; ++ii) {
     if (std::find(partitions.begin(), partitions.end(), ii->second.partitionName()) == partitions.end()) {
       if (!ii->second.partitionName().empty()) {
@@ -270,7 +270,7 @@ std::vector<std::string> SiStripDbParams::partitionNames() const {
 
 // -----------------------------------------------------------------------------
 //
-std::vector<std::string> SiStripDbParams::partitionNames(std::string input) const {
+std::vector<std::string> SiStripDbParams::partitionNames(const std::string& input) const {
   std::istringstream ss(input);
   std::vector<std::string> partitions;
   std::string delimiter = ":";
@@ -287,8 +287,8 @@ std::vector<std::string> SiStripDbParams::partitionNames(std::string input) cons
 //
 std::string SiStripDbParams::partitionNames(const std::vector<std::string>& partitions) const {
   std::stringstream ss;
-  std::vector<std::string>::const_iterator ii = partitions.begin();
-  std::vector<std::string>::const_iterator jj = partitions.end();
+  auto ii = partitions.begin();
+  auto jj = partitions.end();
   bool first = true;
   for (; ii != jj; ++ii) {
     if (!ii->empty()) {
@@ -325,8 +325,8 @@ void SiStripDbParams::print(std::stringstream& ss) const {
     ss << std::endl;
 
     uint16_t cntr = 0;
-    SiStripPartitions::const_iterator ii = partitions_.begin();
-    SiStripPartitions::const_iterator jj = partitions_.end();
+    auto ii = partitions_.begin();
+    auto jj = partitions_.end();
     for (; ii != jj; ++ii) {
       cntr++;
       ss << " Partition #" << cntr << " (out of " << partitions_.size() << "):" << std::endl;
@@ -355,8 +355,8 @@ std::ostream& operator<<(std::ostream& os, const SiStripDbParams& params) {
 //
 std::vector<std::string> SiStripDbParams::inputModuleXmlFiles() const {
   std::vector<std::string> files;
-  SiStripPartitions::const_iterator ii = partitions_.begin();
-  SiStripPartitions::const_iterator jj = partitions_.end();
+  auto ii = partitions_.begin();
+  auto jj = partitions_.end();
   for (; ii != jj; ++ii) {
     files.insert(files.end(), ii->second.inputModuleXml());
   }
@@ -367,8 +367,8 @@ std::vector<std::string> SiStripDbParams::inputModuleXmlFiles() const {
 //
 std::vector<std::string> SiStripDbParams::inputDcuInfoXmlFiles() const {
   std::vector<std::string> files;
-  SiStripPartitions::const_iterator ii = partitions_.begin();
-  SiStripPartitions::const_iterator jj = partitions_.end();
+  auto ii = partitions_.begin();
+  auto jj = partitions_.end();
   for (; ii != jj; ++ii) {
     files.insert(files.end(), ii->second.inputDcuInfoXml());
   }
@@ -379,8 +379,8 @@ std::vector<std::string> SiStripDbParams::inputDcuInfoXmlFiles() const {
 //
 std::vector<std::string> SiStripDbParams::inputFecXmlFiles() const {
   std::vector<std::string> files;
-  SiStripPartitions::const_iterator ii = partitions_.begin();
-  SiStripPartitions::const_iterator jj = partitions_.end();
+  auto ii = partitions_.begin();
+  auto jj = partitions_.end();
   for (; ii != jj; ++ii) {
     files.insert(files.end(), ii->second.inputFecXml().begin(), ii->second.inputFecXml().end());
   }
@@ -391,8 +391,8 @@ std::vector<std::string> SiStripDbParams::inputFecXmlFiles() const {
 //
 std::vector<std::string> SiStripDbParams::inputFedXmlFiles() const {
   std::vector<std::string> files;
-  SiStripPartitions::const_iterator ii = partitions_.begin();
-  SiStripPartitions::const_iterator jj = partitions_.end();
+  auto ii = partitions_.begin();
+  auto jj = partitions_.end();
   for (; ii != jj; ++ii) {
     files.insert(files.end(), ii->second.inputFedXml().begin(), ii->second.inputFedXml().end());
   }

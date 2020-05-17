@@ -201,8 +201,8 @@ void OverlapProblemTPAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
       m_nassotk->Fill(trks.size());
 
       // loop on associated tracks and fill TrackingRecHit vector
-      for (reco::SimToRecoCollection::result_type::const_iterator trk = trks.begin(); trk != trks.end(); ++trk) {
-        for (trackingRecHit_iterator rh = trk->first->recHitsBegin(); rh != trk->first->recHitsEnd(); ++rh) {
+      for (const auto& trk : trks) {
+        for (auto rh = trk.first->recHitsBegin(); rh != trk.first->recHitsEnd(); ++rh) {
           rechits.push_back((*rh)->geographicalId());
         }
       }
@@ -219,8 +219,8 @@ void OverlapProblemTPAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
 
     LogDebug("RecHitDetId") << "List of " << rechits.size() << " rechits detid from muon with p = " << tp->p()
                             << "and eta = " << tp->eta();
-    for (unsigned int i = 0; i < rechits.size(); ++i) {
-      LogTrace("RecHitDetId") << rechits[i].rawId();
+    for (auto& rechit : rechits) {
+      LogTrace("RecHitDetId") << rechit.rawId();
     }
 
     // loop on sim hits

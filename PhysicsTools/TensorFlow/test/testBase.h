@@ -15,8 +15,8 @@ class testBase : public CppUnit::TestFixture {
 public:
   std::string dataPath_;
 
-  void setUp();
-  void tearDown();
+  void setUp() override;
+  void tearDown() override;
   std::string cmsswPath(std::string path);
 
   virtual void checkAll() = 0;
@@ -37,7 +37,7 @@ void testBase::setUp() {
     throw std::runtime_error("popen() failed!");
   }
   while (!feof(pipe.get())) {
-    if (fgets(buffer.data(), 128, pipe.get()) != NULL) {
+    if (fgets(buffer.data(), 128, pipe.get()) != nullptr) {
       result += buffer.data();
     }
   }
@@ -51,7 +51,7 @@ void testBase::tearDown() {
 }
 
 std::string testBase::cmsswPath(std::string path) {
-  if (path.size() > 0 && path.substr(0, 1) != "/") {
+  if (!path.empty() && path.substr(0, 1) != "/") {
     path = "/" + path;
   }
 

@@ -168,7 +168,7 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker& ibooker, const int fedMi
   }
 }
 
-void DTDataIntegrityTask::bookHistos(DQMStore::IBooker& ibooker, string folder, const int fed) {
+void DTDataIntegrityTask::bookHistos(DQMStore::IBooker& ibooker, const string& folder, const int fed) {
   string wheel = "ZERO";
   if (fed == FEDIDmin)
     wheel = "NEG";
@@ -786,18 +786,18 @@ void DTDataIntegrityTask::beginLuminosityBlock(const edm::LuminosityBlock& ls, c
 void DTDataIntegrityTask::endLuminosityBlock(const edm::LuminosityBlock& ls, const edm::EventSetup& es) {
   int lumiBlock = ls.luminosityBlock();
 
-  map<string, map<int, DTTimeEvolutionHisto*> >::iterator fedIt = fedTimeHistos.begin();
-  map<string, map<int, DTTimeEvolutionHisto*> >::iterator fedEnd = fedTimeHistos.end();
+  auto fedIt = fedTimeHistos.begin();
+  auto fedEnd = fedTimeHistos.end();
   for (; fedIt != fedEnd; ++fedIt) {
-    map<int, DTTimeEvolutionHisto*>::iterator histoIt = fedIt->second.begin();
-    map<int, DTTimeEvolutionHisto*>::iterator histoEnd = fedIt->second.end();
+    auto histoIt = fedIt->second.begin();
+    auto histoEnd = fedIt->second.end();
     for (; histoIt != histoEnd; ++histoIt) {
       histoIt->second->updateTimeSlot(lumiBlock, nEventsLS);
     }
   }
 
-  map<unsigned int, DTTimeEvolutionHisto*>::iterator urosIt = urosTimeHistos.begin();
-  map<unsigned int, DTTimeEvolutionHisto*>::iterator urosEnd = urosTimeHistos.end();
+  auto urosIt = urosTimeHistos.begin();
+  auto urosEnd = urosTimeHistos.end();
   for (; urosIt != urosEnd; ++urosIt) {
     urosIt->second->updateTimeSlot(lumiBlock, nEventsLS);
   }
@@ -818,8 +818,8 @@ void DTDataIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c)
   DTuROSROSData urosData;
 
   if (fedCol.isValid()) {
-    for (unsigned int j = 0; j < fedCol->size(); ++j) {
-      fedData = fedCol->at(j);
+    for (const auto& j : *fedCol) {
+      fedData = j;
       int fed = fedData.getfed();  //argument should be void
       if (fed > FEDIDmax || fed < FEDIDmin) {
         LogError("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")

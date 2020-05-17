@@ -202,7 +202,7 @@ SeedingLayerSetsBuilder::SeedingLayerSetsBuilder(const edm::ParameterSet& cfg, e
   else
     theNumberOfLayersInSet = layerNamesInSets[0].size();
 
-  for (IT it = layerNamesInSets.begin(); it != layerNamesInSets.end(); it++) {
+  for (auto it = layerNamesInSets.begin(); it != layerNamesInSets.end(); it++) {
     if (it->size() != theNumberOfLayersInSet)
       throw cms::Exception("Configuration")
           << "Assuming all SeedingLayerSets to have same number of layers. LayerSet " << (it - layerNamesInSets.begin())
@@ -271,12 +271,12 @@ edm::ParameterSet SeedingLayerSetsBuilder::layerConfig(const std::string& nameLa
 
 vector<vector<string> > SeedingLayerSetsBuilder::layerNamesInSets(const vector<string>& namesPSet) {
   std::vector<std::vector<std::string> > result;
-  for (std::vector<std::string>::const_iterator is = namesPSet.begin(); is < namesPSet.end(); ++is) {
+  for (auto is = namesPSet.begin(); is < namesPSet.end(); ++is) {
     vector<std::string> layersInSet;
     string line = *is;
     string::size_type pos = 0;
     while (pos != string::npos) {
-      pos = line.find("+");
+      pos = line.find('+');
       string layer = line.substr(0, pos);
       layersInSet.push_back(layer);
       line = line.substr(pos + 1, string::npos);

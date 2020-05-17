@@ -566,12 +566,12 @@ namespace hcaldqm {
     if (_hashmap.isDHash()) {
       //      for Detector Hashes
       std::vector<HcalGenericDetId> dids = emap->allPrecisionId();
-      for (std::vector<HcalGenericDetId>::const_iterator it = dids.begin(); it != dids.end(); ++it) {
+      for (auto it : dids) {
         //  skip trigger towers and calib
-        if (!it->isHcalDetId())
+        if (!it.isHcalDetId())
           continue;
 
-        HcalDetId did = HcalDetId(it->rawId());
+        HcalDetId did = HcalDetId(it.rawId());
         uint32_t hash = _hashmap.getHash(did);
         MEMap::iterator mit = _mes.find(hash);
         if (mit != _mes.end())
@@ -592,8 +592,8 @@ namespace hcaldqm {
     } else if (_hashmap.isEHash()) {
       //      for Electronics hashes
       std::vector<HcalElectronicsId> eids = emap->allElectronicsIdPrecision();
-      for (std::vector<HcalElectronicsId>::const_iterator it = eids.begin(); it != eids.end(); ++it) {
-        HcalElectronicsId eid = HcalElectronicsId(it->rawId());
+      for (auto it : eids) {
+        auto eid = HcalElectronicsId(it.rawId());
         uint32_t hash = _hashmap.getHash(eid);
         MEMap::iterator mit = _mes.find(hash);
         if (mit != _mes.end())
@@ -614,8 +614,8 @@ namespace hcaldqm {
     } else if (_hashmap.isTHash()) {
       //      for TrigTower hashes
       std::vector<HcalTrigTowerDetId> tids = emap->allTriggerId();
-      for (std::vector<HcalTrigTowerDetId>::const_iterator it = tids.begin(); it != tids.end(); ++it) {
-        HcalTrigTowerDetId tid = HcalTrigTowerDetId(it->rawId());
+      for (auto it : tids) {
+        auto tid = HcalTrigTowerDetId(it.rawId());
         _logger.debug(_hashmap.getName(tid));
         uint32_t hash = _hashmap.getHash(tid);
         MEMap::iterator mit = _mes.find(hash);
@@ -650,12 +650,12 @@ namespace hcaldqm {
     if (_hashmap.isDHash()) {
       //      for Detector Hashes
       std::vector<HcalGenericDetId> dids = emap->allPrecisionId();
-      for (std::vector<HcalGenericDetId>::const_iterator it = dids.begin(); it != dids.end(); ++it) {
+      for (auto it : dids) {
         //  skip trigger towers and calib
-        if (!it->isHcalDetId())
+        if (!it.isHcalDetId())
           continue;
 
-        HcalDetId did = HcalDetId(it->rawId());
+        HcalDetId did = HcalDetId(it.rawId());
         uint32_t hash = _hashmap.getHash(did);
         MEMap::iterator mit = _mes.find(hash);
         if (mit != _mes.end())
@@ -678,8 +678,8 @@ namespace hcaldqm {
     } else if (_hashmap.isEHash()) {
       //      for Electronics hashes
       std::vector<HcalElectronicsId> eids = emap->allElectronicsIdPrecision();
-      for (std::vector<HcalElectronicsId>::const_iterator it = eids.begin(); it != eids.end(); ++it) {
-        HcalElectronicsId eid = HcalElectronicsId(it->rawId());
+      for (auto it : eids) {
+        auto eid = HcalElectronicsId(it.rawId());
         uint32_t hash = _hashmap.getHash(eid);
         MEMap::iterator mit = _mes.find(hash);
         if (mit != _mes.end())
@@ -702,8 +702,8 @@ namespace hcaldqm {
     } else if (_hashmap.isTHash()) {
       //      for TrigTower hashes
       std::vector<HcalTrigTowerDetId> tids = emap->allTriggerId();
-      for (std::vector<HcalTrigTowerDetId>::const_iterator it = tids.begin(); it != tids.end(); ++it) {
-        HcalTrigTowerDetId tid = HcalTrigTowerDetId(it->rawId());
+      for (auto it : tids) {
+        auto tid = HcalTrigTowerDetId(it.rawId());
         _logger.debug(_hashmap.getName(tid));
         uint32_t hash = _hashmap.getHash(tid);
         MEMap::iterator mit = _mes.find(hash);

@@ -69,12 +69,12 @@ using namespace std;
 class BlockAnalyzer : public edm::EDAnalyzer {
 public:
   explicit BlockAnalyzer(const edm::ParameterSet&);
-  ~BlockAnalyzer();
+  ~BlockAnalyzer() override;
 
 private:
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& iSetup);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginRun(const edm::Run& run, const edm::EventSetup& iSetup) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
   double InvMass(const vector<TLorentzVector>& par);
 
   ParameterSet conf_;
@@ -159,11 +159,11 @@ void BlockAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   vector<reco::PFBlock> theBlocks = *(thePFBlockCollection.product());
 
-  if (theBlocks.size() > 0) {
+  if (!theBlocks.empty()) {
     // loop over the pfblocks (for each event you have > 1 blocks)
-    for (PFBlockCollection::const_iterator iBlock = theBlocks.begin(); iBlock != theBlocks.end(); iBlock++) {
-      PFBlock::LinkData linkData = iBlock->linkData();
-      const edm::OwnVector<reco::PFBlockElement>& elements = iBlock->elements();
+    for (const auto& theBlock : theBlocks) {
+      PFBlock::LinkData linkData = theBlock.linkData();
+      const edm::OwnVector<reco::PFBlockElement>& elements = theBlock.elements();
 
       // loop over the pfblock elements
       for (unsigned int iEle = 0; iEle < elements.size(); iEle++) {
@@ -171,48 +171,46 @@ void BlockAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
         // example access the element tracks:
         if (type == reco::PFBlockElement::SC) {
           cout << " Found a SuperCluster.  Energy ";
-          const reco::PFBlockElementSuperCluster* sc =
-              dynamic_cast<const reco::PFBlockElementSuperCluster*>(&elements[iEle]);
+          const auto* sc = dynamic_cast<const reco::PFBlockElementSuperCluster*>(&elements[iEle]);
           std::cout << sc->superClusterRef()->energy() << " Track/Ecal/Hcal Iso " << sc->trackIso() << " "
                     << sc->ecalIso();
           std::cout << " " << sc->hcalIso() << std::endl;
           // find the linked ECAL clusters
           std::multimap<double, unsigned int> ecalAssoPFClusters;
-          iBlock->associatedElements(
+          theBlock.associatedElements(
               iEle, linkData, ecalAssoPFClusters, reco::PFBlockElement::ECAL, reco::PFBlock::LINKTEST_ALL);
 
           // loop over the ECAL clusters linked to the iEle
-          if (ecalAssoPFClusters.size() > 0) {
+          if (!ecalAssoPFClusters.empty()) {
             // this just to get the first element (the closest)
             //	    unsigned int ecalTrack_index = ecalAssoPFClusters.begin()->second;
 
             // otherwise is possible to loop over all the elements associated
 
-            for (std::multimap<double, unsigned int>::iterator itecal = ecalAssoPFClusters.begin();
-                 itecal != ecalAssoPFClusters.end();
-                 ++itecal) {
+            for (auto& ecalAssoPFCluster : ecalAssoPFClusters) {
               // to get the reference to the PF clusters, this is needed.
-              reco::PFClusterRef clusterRef = elements[itecal->second].clusterRef();
+              reco::PFClusterRef clusterRef = elements[ecalAssoPFCluster.second].clusterRef();
 
               // from the clusterRef get the energy, direction, etc
               float ClustRawEnergy = clusterRef->energy();
               float ClustEta = clusterRef->position().eta();
               float ClustPhi = clusterRef->position().phi();
 
-              cout << " My cluster index " << itecal->second << " energy " << ClustRawEnergy << " eta " << ClustEta
-                   << " phi " << ClustPhi << endl;
+              cout << " My cluster index " << ecalAssoPFCluster.second << " energy " << ClustRawEnergy << " eta "
+                   << ClustEta << " phi " << ClustPhi << endl;
 
               // now retrieve the tracks associated to the PFClusters
               std::multimap<double, unsigned int> associatedTracks;
-              iBlock->associatedElements(
-                  itecal->second, linkData, associatedTracks, reco::PFBlockElement::TRACK, reco::PFBlock::LINKTEST_ALL);
-              if (associatedTracks.size() > 0) {
-                for (std::multimap<double, unsigned int>::iterator ittrack = associatedTracks.begin();
-                     ittrack != associatedTracks.end();
-                     ++ittrack) {
+              theBlock.associatedElements(ecalAssoPFCluster.second,
+                                          linkData,
+                                          associatedTracks,
+                                          reco::PFBlockElement::TRACK,
+                                          reco::PFBlock::LINKTEST_ALL);
+              if (!associatedTracks.empty()) {
+                for (auto& associatedTrack : associatedTracks) {
                   cout << " Found a track.  Eenergy ";
                   // no need to dynamic_cast, the trackRef() methods exists for all PFBlockElements
-                  std::cout << elements[ittrack->second].trackRef()->p() << std::endl;
+                  std::cout << elements[associatedTrack.second].trackRef()->p() << std::endl;
 
                 }  // loop on elements
               }    // associated tracks

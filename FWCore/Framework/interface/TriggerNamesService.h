@@ -96,7 +96,7 @@ namespace edm {
       }
 
       size_type find(PosMap const& posmap, std::string const& name) const {
-        PosMap::const_iterator const pos(posmap.find(name));
+        auto const pos(posmap.find(name));
         if (pos == posmap.end()) {
           return posmap.size();
         } else {

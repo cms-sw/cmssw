@@ -4,6 +4,7 @@
 #include <iostream>
 #include <cstdio>
 #include <cstring>
+#include <utility>
 
 #include "OnlineDB/Oracle/interface/Oracle.h"
 
@@ -27,7 +28,7 @@ MODCCSHFDat::MODCCSHFDat() {
 MODCCSHFDat::~MODCCSHFDat() {}
 
 void MODCCSHFDat::setFile(std::string x) {
-  m_file = x;
+  m_file = std::move(x);
   //try {
   std::cout << "file is " << m_file << endl;
   // }catch (Exception &e) {
@@ -185,8 +186,8 @@ void MODCCSHFDat::writeArrayDB(const std::map<EcalLogicID, MODCCSHFDat>* data, M
   //const MODCCSHFDat* dataitem;
   int count = 0;
   typedef map<EcalLogicID, MODCCSHFDat>::const_iterator CI;
-  for (CI p = data->begin(); p != data->end(); ++p) {
-    channel = &(p->first);
+  for (const auto& p : *data) {
+    channel = &(p.first);
     int logicID = channel->getLogicID();
     if (!logicID) {
       throw(std::runtime_error("MODCCSHFDat::writeArrayDB:  Bad EcalLogicID"));
@@ -231,7 +232,7 @@ void MODCCSHFDat::writeArrayDB(const std::map<EcalLogicID, MODCCSHFDat>* data, M
   }
 }
 
-void MODCCSHFDat::populateClob(Clob& clob, std::string fname, unsigned int clob_size) noexcept(false) {
+void MODCCSHFDat::populateClob(Clob& clob, const std::string& fname, unsigned int clob_size) noexcept(false) {
   try {
     // Uses stream here
     cout << "Populating the Clob using writeBuffer(Stream) method" << endl;

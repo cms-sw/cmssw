@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <memory>
 
 #include "DataFormats/Math/interface/Error.h"
 #include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
@@ -86,7 +87,7 @@ void RPixPlaneCombinatoryTracking::getPlaneCombinations(const std::vector<uint32
 //This allows to erase the points already used for the track fit
 void RPixPlaneCombinatoryTracking::getHitCombinations(const std::map<CTPPSPixelDetId, PointInPlaneList> &mapOfAllHits,
                                                       std::map<CTPPSPixelDetId, PointInPlaneList>::iterator mapIterator,
-                                                      HitReferences tmpHitPlaneMap,
+                                                      const HitReferences &tmpHitPlaneMap,
                                                       const PointInPlaneList &tmpHitVector,
                                                       PointAndReferenceMap &outputMap) {
   //At this point I selected one hit per plane
@@ -99,7 +100,7 @@ void RPixPlaneCombinatoryTracking::getHitCombinations(const std::map<CTPPSPixelD
     newHitPlaneMap[mapIterator->first] = i;
     PointInPlaneList newVector = tmpHitVector;
     newVector.push_back(mapIterator->second[i]);
-    std::map<CTPPSPixelDetId, PointInPlaneList>::iterator tmpMapIterator = mapIterator;
+    auto tmpMapIterator = mapIterator;
     getHitCombinations(mapOfAllHits, ++tmpMapIterator, newHitPlaneMap, newVector, outputMap);
   }
 }
@@ -107,7 +108,7 @@ void RPixPlaneCombinatoryTracking::getHitCombinations(const std::map<CTPPSPixelD
 //------------------------------------------------------------------------------------------------//
 
 RPixPlaneCombinatoryTracking::PointAndReferenceMap RPixPlaneCombinatoryTracking::produceAllHitCombination(
-    PlaneCombinations inputPlaneCombination) {
+    const PlaneCombinations &inputPlaneCombination) {
   PointAndReferenceMap mapOfAllPoints;
   CTPPSPixelDetId tmpRpId = romanPotId_;  //in order to avoid to modify the data member
 
@@ -277,7 +278,7 @@ void RPixPlaneCombinatoryTracking::findTracks(int run) {
     std::vector<uint32_t> listOfPlaneNotUsedForFit = listOfAllPlanes_;
     //remove the hits belonging to the tracks from the full list of hits
     for (const auto &hitToErase : pointMapWithMinChiSquared) {
-      std::map<CTPPSPixelDetId, PointInPlaneList>::iterator hitMapElement = hitMap_->find(hitToErase.first);
+      auto hitMapElement = hitMap_->find(hitToErase.first);
       if (hitMapElement == hitMap_->end()) {
         throw cms::Exception("RPixPlaneCombinatoryTracking")
             << "The found tracks has hit belonging to a plane which does not have hits";
@@ -338,7 +339,7 @@ void RPixPlaneCombinatoryTracking::findTracks(int run) {
             LocalPoint residuals(xResidual, yResidual, 0.);
             math::Error<3>::type globalError = hit.globalError;
             LocalPoint pulls(xResidual / std::sqrt(globalError[0][0]), yResidual / std::sqrt(globalError[1][1]), 0.);
-            fittedRecHit.reset(new CTPPSPixelFittedRecHit(hit.recHit, pointOnDet, residuals, pulls));
+            fittedRecHit = std::make_unique<CTPPSPixelFittedRecHit>(hit.recHit, pointOnDet, residuals, pulls);
             fittedRecHit->setIsRealHit(true);
           }
         }
@@ -346,7 +347,7 @@ void RPixPlaneCombinatoryTracking::findTracks(int run) {
         LocalPoint fakePoint;
         LocalError fakeError;
         CTPPSPixelRecHit fakeRecHit(fakePoint, fakeError);
-        fittedRecHit.reset(new CTPPSPixelFittedRecHit(fakeRecHit, pointOnDet, fakePoint, fakePoint));
+        fittedRecHit = std::make_unique<CTPPSPixelFittedRecHit>(fakeRecHit, pointOnDet, fakePoint, fakePoint);
       }
 
       bestTrack.addHit(tmpPlaneId, *fittedRecHit);

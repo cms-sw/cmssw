@@ -8,8 +8,8 @@ namespace hcaldqm {
 
     HashFilter::HashFilter(FilterType ftype, HashType htype, std::vector<uint32_t> const &v)
         : HashMapper(htype), _ftype(ftype) {
-      for (std::vector<uint32_t>::const_iterator it = v.begin(); it != v.end(); ++it)
-        _ids.insert(*it);
+      for (unsigned int it : v)
+        _ids.insert(it);
     }
 
     HashFilter::HashFilter(HashFilter const &hf) : HashMapper(hf._htype), _ftype(hf._ftype) { _ids = hf._ids; }
@@ -17,8 +17,8 @@ namespace hcaldqm {
     /* virtual */ void HashFilter::initialize(FilterType ftype, HashType htype, std::vector<uint32_t> const &v) {
       HashMapper::initialize(htype);
       _ftype = ftype;
-      for (std::vector<uint32_t>::const_iterator it = v.begin(); it != v.end(); ++it)
-        _ids.insert(*it);
+      for (unsigned int it : v)
+        _ids.insert(it);
     }
 
     /* virtual */ bool HashFilter::filter(HcalDetId const &did) const {

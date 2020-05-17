@@ -33,8 +33,8 @@ public:
 
   // Constructors
   L1TriggerKey() {
-    for (int i = 0; i < kNumberSubsystems; ++i) {
-      m_subsystemKeys[i] = kNullKey;
+    for (auto& m_subsystemKey : m_subsystemKeys) {
+      m_subsystemKey = kNullKey;
     }
   }
 
@@ -44,8 +44,8 @@ public:
   }
 
   void add(const RecordToKey& map) {
-    for (RecordToKey::const_iterator itr = map.begin(); itr != map.end(); ++itr) {
-      m_recordToKey.insert(std::make_pair(itr->first, itr->second.empty() ? kNullKey : itr->second));
+    for (const auto& itr : map) {
+      m_recordToKey.insert(std::make_pair(itr.first, itr.second.empty() ? kNullKey : itr.second));
     }
   }
 
@@ -59,7 +59,7 @@ public:
      * is returned.
      */
   std::string get(const std::string& record, const std::string& type) const {
-    RecordToKey::const_iterator it = m_recordToKey.find(record + "@" + type);
+    auto it = m_recordToKey.find(record + "@" + type);
     if (it == m_recordToKey.end())
       return std::string();
     else

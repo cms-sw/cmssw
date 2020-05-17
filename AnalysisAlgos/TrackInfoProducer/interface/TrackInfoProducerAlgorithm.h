@@ -30,11 +30,14 @@ public:
 
   ~TrackInfoProducerAlgorithm() {}
 
-  void run(const edm::Ref<std::vector<Trajectory> > traj_iterator,
-           reco::TrackRef track,
+  void run(const edm::Ref<std::vector<Trajectory> >& traj_iterator,
+           const reco::TrackRef& track,
            reco::TrackInfo& output,
            const TrackerGeometry* tracker);
-  LocalPoint project(const GeomDet* det, const GeomDet* projdet, LocalPoint position, LocalVector trackdirection) const;
+  LocalPoint project(const GeomDet* det,
+                     const GeomDet* projdet,
+                     const LocalPoint& position,
+                     const LocalVector& trackdirection) const;
 
 private:
   edm::ParameterSet conf_;

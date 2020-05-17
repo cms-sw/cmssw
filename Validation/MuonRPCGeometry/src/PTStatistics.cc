@@ -72,8 +72,8 @@ long int PTStatistics::sum() const {
   //unsigned int size = this->size();
   //for(unsigned int i=ptCut;i<size;++i) eqOrAbovePtCut += this->at(i);
   //for(unsigned int i=ptCut;i<size;++i) eqOrAbovePtCut += (*this)[i];
-  PTStatistics::const_iterator it = this->begin();
-  PTStatistics::const_iterator itend = this->end();
+  auto it = this->begin();
+  auto itend = this->end();
   for (; it != itend; ++it)
     eqOrAbovePtCut += *it;
 

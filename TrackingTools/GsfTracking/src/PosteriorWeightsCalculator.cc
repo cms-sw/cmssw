@@ -52,10 +52,10 @@ std::vector<double> PosteriorWeightsCalculator::weights(const TrackingRecHit& re
   //   minimum / maximum of chi2
   //
   double chi2Min(DBL_MAX);
-  for (unsigned int i = 0; i < predictedComponents.size(); i++) {
+  for (const auto& predictedComponent : predictedComponents) {
     KfComponentsHolder holder;
-    auto const& x = predictedComponents[i].localParameters().vector();
-    holder.template setup<D>(&r, &V, &p, &rMeas, &R, x, predictedComponents[i].localError().matrix());
+    auto const& x = predictedComponent.localParameters().vector();
+    holder.template setup<D>(&r, &V, &p, &rMeas, &R, x, predictedComponent.localError().matrix());
     recHit.getKfComponents(holder);
 
     r -= rMeas;

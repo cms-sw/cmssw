@@ -54,13 +54,13 @@ namespace hcaldqm {
     if (auto runInfoRec = es.tryToGet<RunInfoRcd>()) {
       const RunInfo &runInfo = es.getData(runInfoToken_);
       std::vector<int> vfeds = runInfo.m_fed_in;
-      for (std::vector<int>::const_iterator it = vfeds.begin(); it != vfeds.end(); ++it) {
-        if (*it >= constants::FED_VME_MIN && *it <= FED_VME_MAX)
+      for (int vfed : vfeds) {
+        if (vfed >= constants::FED_VME_MIN && vfed <= FED_VME_MAX)
           _vcdaqEids.push_back(
-              HcalElectronicsId(constants::FIBERCH_MIN, constants::FIBER_VME_MIN, SPIGOT_MIN, (*it) - FED_VME_MIN)
+              HcalElectronicsId(constants::FIBERCH_MIN, constants::FIBER_VME_MIN, SPIGOT_MIN, vfed - FED_VME_MIN)
                   .rawId());
-        else if (*it >= constants::FED_uTCA_MIN && *it <= FEDNumbering::MAXHCALuTCAFEDID) {
-          std::pair<uint16_t, uint16_t> cspair = utilities::fed2crate(*it);
+        else if (vfed >= constants::FED_uTCA_MIN && vfed <= FEDNumbering::MAXHCALuTCAFEDID) {
+          std::pair<uint16_t, uint16_t> cspair = utilities::fed2crate(vfed);
           _vcdaqEids.push_back(
               HcalElectronicsId(cspair.first, cspair.second, FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
         }
@@ -113,13 +113,13 @@ namespace hcaldqm {
     d->xQuality.reset();
     const HcalChannelQuality &cq = es.getData(hcalChannelQualityToken_);
     std::vector<DetId> detids = cq.getAllChannels();
-    for (std::vector<DetId>::const_iterator it = detids.begin(); it != detids.end(); ++it) {
+    for (auto detid : detids) {
       //	if unknown skip
-      if (HcalGenericDetId(*it).genericSubdet() == HcalGenericDetId::HcalGenUnknown)
+      if (HcalGenericDetId(detid).genericSubdet() == HcalGenericDetId::HcalGenUnknown)
         continue;
 
-      if (HcalGenericDetId(*it).isHcalDetId()) {
-        HcalDetId did(*it);
+      if (HcalGenericDetId(detid).isHcalDetId()) {
+        HcalDetId did(detid);
         uint32_t mask = (cq.getValues(did))->getValue();
         if (mask != 0) {
           d->xQuality.push(did, mask);

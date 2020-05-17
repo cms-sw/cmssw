@@ -141,9 +141,7 @@ CTPPSRPAlignmentCorrectionsDataSequence CTPPSRPAlignmentCorrectionsDataESSourceX
   // build correction sums per interval
   set<const CTPPSRPAlignmentCorrectionsData *> accumulator;
   CTPPSRPAlignmentCorrectionsDataSequence result;
-  for (map<EventID, vector<pair<bool, const CTPPSRPAlignmentCorrectionsData *> > >::const_iterator tit = bounds.begin();
-       tit != bounds.end();
-       ++tit) {
+  for (auto tit = bounds.begin(); tit != bounds.end(); ++tit) {
     for (const auto &cit : tit->second) {
       bool add = cit.first;
       const CTPPSRPAlignmentCorrectionsData *corr = cit.second;
@@ -189,6 +187,8 @@ void CTPPSRPAlignmentCorrectionsDataESSourceXML::PrepareSequence(const string &l
         << "CTPPSRPAlignmentCorrectionsDataESSourceXML::PrepareSequence(" << label << ")";
 
   vector<CTPPSRPAlignmentCorrectionsDataSequence> sequences;
+  sequences.reserve(files.size());
+
   for (const auto &file : files)
     sequences.emplace_back(CTPPSRPAlignmentCorrectionsMethods::loadFromXML(file));
 

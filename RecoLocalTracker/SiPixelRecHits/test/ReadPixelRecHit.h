@@ -34,11 +34,11 @@ class ReadPixelRecHit : public edm::EDAnalyzer {
 public:
   explicit ReadPixelRecHit(const edm::ParameterSet &conf);
 
-  virtual ~ReadPixelRecHit();
+  ~ReadPixelRecHit() override;
 
-  virtual void analyze(const edm::Event &e, const edm::EventSetup &c);
-  virtual void beginJob();
-  virtual void endJob();
+  void analyze(const edm::Event &e, const edm::EventSetup &c) override;
+  void beginJob() override;
+  void endJob() override;
 
 private:
   edm::ParameterSet conf_;

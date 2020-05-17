@@ -1,6 +1,8 @@
 #ifndef __ECAL2DPositionCalcWithDepthCorr_H__
 #define __ECAL2DPositionCalcWithDepthCorr_H__
 
+#include <memory>
+
 #include "RecoParticleFlow/PFClusterProducer/interface/PFCPositionCalculatorBase.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
@@ -32,7 +34,7 @@ public:
     _timeResolutionCalc.reset(nullptr);
     if (conf.exists("timeResolutionCalc")) {
       const edm::ParameterSet& timeResConf = conf.getParameterSet("timeResolutionCalc");
-      _timeResolutionCalc.reset(new CaloRecHitResolutionProvider(timeResConf));
+      _timeResolutionCalc = std::make_unique<CaloRecHitResolutionProvider>(timeResConf);
     }
   }
   ECAL2DPositionCalcWithDepthCorr(const ECAL2DPositionCalcWithDepthCorr&) = delete;

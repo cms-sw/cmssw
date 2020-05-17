@@ -56,7 +56,7 @@ namespace edm {
      * moved to another thread.
      * This method should only be called by WaitingTaskList
      */
-    void dependentTaskFailed(std::exception_ptr iPtr) {
+    void dependentTaskFailed(const std::exception_ptr& iPtr) {
       if (iPtr and not m_ptr) {
         auto temp = std::make_unique<std::exception_ptr>(iPtr);
         std::exception_ptr* expected = nullptr;

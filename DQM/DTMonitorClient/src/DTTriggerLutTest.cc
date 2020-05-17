@@ -25,6 +25,7 @@
 //C++ headers
 #include <iostream>
 #include <sstream>
+#include <utility>
 
 using namespace edm;
 using namespace std;
@@ -47,10 +48,10 @@ DTTriggerLutTest::~DTTriggerLutTest() {}
 void DTTriggerLutTest::Bookings(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
   bookingdone = true;
 
-  vector<string>::const_iterator iTr = trigSources.begin();
-  vector<string>::const_iterator trEnd = trigSources.end();
-  vector<string>::const_iterator iHw = hwSources.begin();
-  vector<string>::const_iterator hwEnd = hwSources.end();
+  auto iTr = trigSources.begin();
+  auto trEnd = trigSources.end();
+  auto iHw = hwSources.begin();
+  auto hwEnd = hwSources.end();
 
   //Booking
   if (parameters.getUntrackedParameter<bool>("staticBooking")) {
@@ -104,12 +105,12 @@ void DTTriggerLutTest::runClientDiagnostic(DQMStore::IBooker& ibooker, DQMStore:
   }
 
   // Loop over Trig & Hw sources
-  for (vector<string>::const_iterator iTr = trigSources.begin(); iTr != trigSources.end(); ++iTr) {
-    trigSource = (*iTr);
-    for (vector<string>::const_iterator iHw = hwSources.begin(); iHw != hwSources.end(); ++iHw) {
-      hwSource = (*iHw);
-      vector<const DTChamber*>::const_iterator chIt = muonGeom->chambers().begin();
-      vector<const DTChamber*>::const_iterator chEnd = muonGeom->chambers().end();
+  for (const auto& trigSource : trigSources) {
+    trigSource = trigSource;
+    for (const auto& hwSource : hwSources) {
+      hwSource = hwSource;
+      auto chIt = muonGeom->chambers().begin();
+      auto chEnd = muonGeom->chambers().end();
       for (; chIt != chEnd; ++chIt) {
         DTChamberId chId((*chIt)->id());
         int wh = chId.wheel();
@@ -231,10 +232,10 @@ void DTTriggerLutTest::runClientDiagnostic(DQMStore::IBooker& ibooker, DQMStore:
   }
 
   // Barrel Summary Plots
-  for (vector<string>::const_iterator iTr = trigSources.begin(); iTr != trigSources.end(); ++iTr) {
-    trigSource = (*iTr);
-    for (vector<string>::const_iterator iHw = hwSources.begin(); iHw != hwSources.end(); ++iHw) {
-      hwSource = (*iHw);
+  for (const auto& trigSource : trigSources) {
+    trigSource = trigSource;
+    for (const auto& hwSource : hwSources) {
+      hwSource = hwSource;
       for (int wh = -2; wh <= 2; ++wh) {
         std::map<std::string, MonitorElement*>* innerME = &(whME[wh]);
 
@@ -291,14 +292,14 @@ int DTTriggerLutTest::performLutTest(double perc, double thresholdWarn, double t
   return result;
 }
 
-void DTTriggerLutTest::bookCmsHistos1d(DQMStore::IBooker& ibooker, string hTag, string folder) {
+void DTTriggerLutTest::bookCmsHistos1d(DQMStore::IBooker& ibooker, string hTag, const string& folder) {
   string basedir = topFolder();
   if (!folder.empty()) {
     basedir += folder + "/";
   }
   ibooker.setCurrentFolder(basedir);
 
-  string hName = fullName(hTag);
+  string hName = fullName(std::move(hTag));
   LogTrace(category()) << "[" << testName << "Test]: booking " << basedir << hName;
 
   MonitorElement* me = ibooker.book1D(hName.c_str(), hName.c_str(), 101, -0.005, 1.005);

@@ -12,7 +12,7 @@ void BlobComplexData::fill(unsigned int &serial) {
 void BlobComplexData::print() const {
   std::cout << "        a = " << a << std::endl;
   std::cout << "        b = " << b << std::endl;
-  for (std::vector<unsigned int>::const_iterator iter = values.begin(); iter != values.end(); iter++)
+  for (auto iter = values.begin(); iter != values.end(); iter++)
     std::cout << "        value[" << (iter - values.begin()) << "] = " << *iter << std::endl;
 }
 
@@ -23,8 +23,8 @@ bool BlobComplexData::operator==(const BlobComplexData &rhs) const {
     return false;
   if (values.size() != rhs.values.size())
     return false;
-  std::vector<unsigned int>::const_iterator iter1 = values.begin();
-  std::vector<unsigned int>::const_iterator iter2 = rhs.values.begin();
+  auto iter1 = values.begin();
+  auto iter2 = rhs.values.begin();
   while (iter1 != values.end())
     if (*iter1++ != *iter2++)
       return false;
@@ -69,7 +69,7 @@ void BlobComplexObjects::fill(unsigned int &serial) {
   a = ++serial;
   b = ++serial;
   for (unsigned int i = 0; i < 3; i++) {
-    content.push_back(BlobComplexContent());
+    content.emplace_back();
     content.back().fill(serial);
   }
 }
@@ -77,7 +77,7 @@ void BlobComplexObjects::fill(unsigned int &serial) {
 void BlobComplexObjects::print() const {
   std::cout << "  a = " << a << std::endl;
   std::cout << "  b = " << b << std::endl;
-  for (std::vector<BlobComplexContent>::const_iterator iter = content.begin(); iter != content.end(); iter++) {
+  for (auto iter = content.begin(); iter != content.end(); iter++) {
     std::cout << "  content[" << (iter - content.begin()) << "] =" << std::endl;
     iter->print();
   }
@@ -90,8 +90,8 @@ bool BlobComplexObjects::operator==(const BlobComplexObjects &rhs) const {
     return false;
   if (content.size() != rhs.content.size())
     return false;
-  std::vector<BlobComplexContent>::const_iterator iter1 = content.begin();
-  std::vector<BlobComplexContent>::const_iterator iter2 = rhs.content.begin();
+  auto iter1 = content.begin();
+  auto iter2 = rhs.content.begin();
   while (iter1 != content.end())
     if (*iter1++ != *iter2++)
       return false;
@@ -100,13 +100,13 @@ bool BlobComplexObjects::operator==(const BlobComplexObjects &rhs) const {
 
 void BlobComplex::fill(unsigned int &serial) {
   for (unsigned int i = 0; i < 3; i++) {
-    objects.push_back(BlobComplexObjects());
+    objects.emplace_back();
     objects.back().fill(serial);
   }
 }
 
 void BlobComplex::print() const {
-  for (std::vector<BlobComplexObjects>::const_iterator iter = objects.begin(); iter != objects.end(); iter++) {
+  for (auto iter = objects.begin(); iter != objects.end(); iter++) {
     std::cout << "objects[" << (iter - objects.begin()) << "] =" << std::endl;
     iter->print();
   }
@@ -115,8 +115,8 @@ void BlobComplex::print() const {
 bool BlobComplex::operator==(const BlobComplex &rhs) const {
   if (objects.size() != rhs.objects.size())
     return false;
-  std::vector<BlobComplexObjects>::const_iterator iter1 = objects.begin();
-  std::vector<BlobComplexObjects>::const_iterator iter2 = rhs.objects.begin();
+  auto iter1 = objects.begin();
+  auto iter2 = rhs.objects.begin();
   while (iter1 != objects.end())
     if (*iter1++ != *iter2++)
       return false;

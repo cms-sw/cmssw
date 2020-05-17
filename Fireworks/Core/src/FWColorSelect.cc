@@ -112,7 +112,7 @@ void FWColorRow::ResetColor(Int_t iIndex, Color_t iColor) { fCc[iIndex]->SetColo
 Int_t FWColorRow::FindColorIndex(Color_t iColor) const {
   Int_t returnValue = -1;
   Int_t index = 0;
-  for (std::vector<FWColorFrame *>::const_iterator it = fCc.begin(), itEnd = fCc.end(); it != itEnd; ++it, ++index) {
+  for (auto it = fCc.begin(), itEnd = fCc.end(); it != itEnd; ++it, ++index) {
     if ((*it)->GetColor() == iColor)
       return index;
   }

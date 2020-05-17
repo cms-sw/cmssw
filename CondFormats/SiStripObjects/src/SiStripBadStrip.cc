@@ -6,7 +6,7 @@
 
 bool SiStripBadStrip::put(const uint32_t& DetId, Range input) {
   // put in SiStripBadStrip::v_badstrips of DetId
-  Registry::iterator p = std::lower_bound(indexes.begin(), indexes.end(), DetId, SiStripBadStrip::StrictWeakOrdering());
+  auto p = std::lower_bound(indexes.begin(), indexes.end(), DetId, SiStripBadStrip::StrictWeakOrdering());
   if (p != indexes.end() && p->detid == DetId) {
     edm::LogError("SiStripBadStrip") << "[" << __PRETTY_FUNCTION__ << "] SiStripBadStrip for DetID " << DetId
                                      << " is already stored. Skippig this put" << std::endl;
@@ -27,7 +27,7 @@ bool SiStripBadStrip::put(const uint32_t& DetId, Range input) {
 const SiStripBadStrip::Range SiStripBadStrip::getRange(const uint32_t DetId) const {
   // get SiStripBadStrip Range of DetId
 
-  RegistryIterator p = std::lower_bound(indexes.begin(), indexes.end(), DetId, SiStripBadStrip::StrictWeakOrdering());
+  auto p = std::lower_bound(indexes.begin(), indexes.end(), DetId, SiStripBadStrip::StrictWeakOrdering());
   if (p == indexes.end() || p->detid != DetId)
     return SiStripBadStrip::Range(v_badstrips.end(), v_badstrips.end());
   else {
@@ -50,9 +50,9 @@ SiStripBadStrip::Range SiStripBadStrip::getRangeByPos(unsigned short pos) const 
 
 void SiStripBadStrip::getDetIds(std::vector<uint32_t>& DetIds_) const {
   // returns vector of DetIds in map
-  SiStripBadStrip::RegistryIterator begin = indexes.begin();
-  SiStripBadStrip::RegistryIterator end = indexes.end();
-  for (SiStripBadStrip::RegistryIterator p = begin; p != end; ++p) {
+  auto begin = indexes.begin();
+  auto end = indexes.end();
+  for (auto p = begin; p != end; ++p) {
     DetIds_.push_back(p->detid);
   }
 }
@@ -62,7 +62,7 @@ void SiStripBadStrip::printSummary(std::stringstream& ss, const TrackerTopology*
   SiStripDetSummary summaryBadStrips{trackerTopo};
 
   // Loop on the vector<DetRegistry> and take the bad modules and bad strips
-  Registry::const_iterator it = indexes.begin();
+  auto it = indexes.begin();
   for (; it != indexes.end(); ++it) {
     summaryBadModules.add(it->detid);
     summaryBadStrips.add(it->iend - it->ibegin);
@@ -76,11 +76,11 @@ void SiStripBadStrip::printSummary(std::stringstream& ss, const TrackerTopology*
 void SiStripBadStrip::printDebug(std::stringstream& ss, const TrackerTopology* /*trackerTopo*/) const {
   ss << "Printing all bad strips for all DetIds" << std::endl;
   // Loop on the vector<DetRegistry> and take the bad modules and bad strips
-  Registry::const_iterator it = indexes.begin();
+  auto it = indexes.begin();
   for (; it != indexes.end(); ++it) {
     //    ss << "For DetId = " << it->detid << std::endl;
     SiStripBadStrip::Range range(getRange(it->detid));
-    for (std::vector<unsigned int>::const_iterator badStrip = range.first; badStrip != range.second; ++badStrip) {
+    for (auto badStrip = range.first; badStrip != range.second; ++badStrip) {
       ss << "DetId=" << it->detid << " Strip=" << decode(*badStrip).firstStrip << ":" << decode(*badStrip).range
          << " flag=" << decode(*badStrip).flag << std::endl;
     }

@@ -26,8 +26,8 @@ class testDTDetIds : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {}
-  void tearDown() {}
+  void setUp() override {}
+  void tearDown() override {}
 
   void testConstructors();
   void testFail();
@@ -54,7 +54,7 @@ void testDTDetIds::testConstructors() {
         CPPUNIT_ASSERT(newChamberId == chamberId);
 
         // Test DTChamberId copy constructor
-        DTChamberId copyChamberId(newChamberId);
+        const DTChamberId& copyChamberId(newChamberId);
         CPPUNIT_ASSERT(copyChamberId == newChamberId);
 
         for (int slayer = DTWireId::minSuperLayerId; slayer <= DTWireId::maxSuperLayerId; ++slayer) {
@@ -75,7 +75,7 @@ void testDTDetIds::testConstructors() {
           CPPUNIT_ASSERT(anotherSLId == slId);
 
           // Test DTChamberId copy constructor
-          DTChamberId copyChamberIdFromSl(slId);
+          const DTChamberId& copyChamberIdFromSl(slId);
           CPPUNIT_ASSERT(copyChamberIdFromSl == chamberId);
 
           // Test DTSuperLayerId constructor from raw SL Id
@@ -83,7 +83,7 @@ void testDTDetIds::testConstructors() {
           CPPUNIT_ASSERT(copyChamberIdFromRawSl == chamberId);
 
           // Test DTSuperLayerId copy constructor
-          DTSuperLayerId copySlId(slId);
+          const DTSuperLayerId& copySlId(slId);
           CPPUNIT_ASSERT(slId == copySlId);
 
           for (int layer = DTWireId::minLayerId; layer <= DTWireId::maxLayerId; ++layer) {
@@ -109,7 +109,7 @@ void testDTDetIds::testConstructors() {
             CPPUNIT_ASSERT(anotherLayerId1 == layerId);
 
             // Test DTChamberId copy constructor
-            DTChamberId copyChamberIdFromLayer(layerId);
+            const DTChamberId& copyChamberIdFromLayer(layerId);
             CPPUNIT_ASSERT(copyChamberIdFromLayer == chamberId);
 
             // Test DTSuperLayerId constructor from raw layer Id
@@ -117,7 +117,7 @@ void testDTDetIds::testConstructors() {
             CPPUNIT_ASSERT(copyChamberIdFromRawLayer == chamberId);
 
             // Test DTSuperLayerId copy constructor
-            DTSuperLayerId copySlIdFromLayer(layerId);
+            const DTSuperLayerId& copySlIdFromLayer(layerId);
             CPPUNIT_ASSERT(copySlIdFromLayer == slId);
 
             // Test DTSuperLayerId constructor from raw layer Id
@@ -125,7 +125,7 @@ void testDTDetIds::testConstructors() {
             CPPUNIT_ASSERT(copySlIdFromRawLayer == slId);
 
             // Test DTLayerId copy constructor
-            DTLayerId copyLayerId(layerId);
+            const DTLayerId& copyLayerId(layerId);
             CPPUNIT_ASSERT(copyLayerId == layerId);
 
             for (int wire = DTWireId::minWireId; wire <= DTWireId::maxWireId; ++wire) {
@@ -156,7 +156,7 @@ void testDTDetIds::testConstructors() {
               CPPUNIT_ASSERT(anotherWireId2 == wireId);
 
               // Test DTChamberId copy constructor
-              DTChamberId copyChamberIdFromWire(wireId);
+              const DTChamberId& copyChamberIdFromWire(wireId);
               CPPUNIT_ASSERT(copyChamberIdFromWire == chamberId);
 
               // Test DTChamberId constructor from raw wireId
@@ -164,7 +164,7 @@ void testDTDetIds::testConstructors() {
               CPPUNIT_ASSERT(copyChamberIdFromRawWire == chamberId);
 
               // Test DTSuperLayerId copy constructor
-              DTSuperLayerId copySlIdFromWire(wireId);
+              const DTSuperLayerId& copySlIdFromWire(wireId);
               CPPUNIT_ASSERT(copySlIdFromWire == slId);
 
               // Test DTSuperLayerId constructor from raw wireId
@@ -172,7 +172,7 @@ void testDTDetIds::testConstructors() {
               CPPUNIT_ASSERT(copySlIdFromRawWire == slId);
 
               // Test DTLayerId copy constructor
-              DTLayerId copyLayerIdFromWire(wireId);
+              const DTLayerId& copyLayerIdFromWire(wireId);
               CPPUNIT_ASSERT(copyLayerIdFromWire == layerId);
 
               // Test DTLayerId constructor from raw wireId
@@ -180,7 +180,7 @@ void testDTDetIds::testConstructors() {
               CPPUNIT_ASSERT(copyLayerIdFromRawWire == layerId);
 
               // Test DTWireId copy constructor
-              DTWireId copyWireId(wireId);
+              const DTWireId& copyWireId(wireId);
               CPPUNIT_ASSERT(copyWireId == wireId);
             }
           }
@@ -195,92 +195,92 @@ void testDTDetIds::testFail() {
   try {
     // Invalid sector
     DTChamberId detid(0, 1, 15);
-    CPPUNIT_ASSERT("Failed to throw required exception" == 0);
+    CPPUNIT_ASSERT("Failed to throw required exception" == nullptr);
     detid.rawId();  // avoid compiler warning
   } catch (cms::Exception& e) {
     // OK
   } catch (...) {
-    CPPUNIT_ASSERT("Threw wrong kind of exception" == 0);
+    CPPUNIT_ASSERT("Threw wrong kind of exception" == nullptr);
   }
 
   // Contruct a DTChamberId using an invalid input id
   try {
     DTChamberId detid(3211);
-    CPPUNIT_ASSERT("Failed to throw required exception" == 0);
+    CPPUNIT_ASSERT("Failed to throw required exception" == nullptr);
     detid.rawId();  // avoid compiler warning
   } catch (cms::Exception& e) {
     // OK
   } catch (...) {
-    CPPUNIT_ASSERT("Threw wrong kind of exception" == 0);
+    CPPUNIT_ASSERT("Threw wrong kind of exception" == nullptr);
   }
 
   // Contruct a DTSuperLayerId using an invalid input index
   try {
     // Invalid superlayer
     DTSuperLayerId detid(0, 1, 1, 5);
-    CPPUNIT_ASSERT("Failed to throw required exception" == 0);
+    CPPUNIT_ASSERT("Failed to throw required exception" == nullptr);
     detid.rawId();  // avoid compiler warning
   } catch (cms::Exception& e) {
     // OK
   } catch (...) {
-    CPPUNIT_ASSERT("Threw wrong kind of exception" == 0);
+    CPPUNIT_ASSERT("Threw wrong kind of exception" == nullptr);
   }
 
   // Contruct a DTSuperLayerId using an invalid input id
   try {
     DTSuperLayerId detid(3211);
-    CPPUNIT_ASSERT("Failed to throw required exception" == 0);
+    CPPUNIT_ASSERT("Failed to throw required exception" == nullptr);
     detid.rawId();  // avoid compiler warning
   } catch (cms::Exception& e) {
     // OK
   } catch (...) {
-    CPPUNIT_ASSERT("Threw wrong kind of exception" == 0);
+    CPPUNIT_ASSERT("Threw wrong kind of exception" == nullptr);
   }
 
   // Contruct a DTLayerId using an invalid input index
   try {
     // Invalid layer
     DTLayerId detid(0, 1, 1, 1, 7);
-    CPPUNIT_ASSERT("Failed to throw required exception" == 0);
+    CPPUNIT_ASSERT("Failed to throw required exception" == nullptr);
     detid.rawId();  // avoid compiler warning
   } catch (cms::Exception& e) {
     // OK
   } catch (...) {
-    CPPUNIT_ASSERT("Threw wrong kind of exception" == 0);
+    CPPUNIT_ASSERT("Threw wrong kind of exception" == nullptr);
   }
 
   // Contruct a DTLayerId using an invalid input id
   try {
     DTLayerId detid(3211);
-    CPPUNIT_ASSERT("Failed to throw required exception" == 0);
+    CPPUNIT_ASSERT("Failed to throw required exception" == nullptr);
     detid.rawId();  // avoid compiler warning
   } catch (cms::Exception& e) {
     // OK
   } catch (...) {
-    CPPUNIT_ASSERT("Threw wrong kind of exception" == 0);
+    CPPUNIT_ASSERT("Threw wrong kind of exception" == nullptr);
   }
 
   // Contruct a DTWireId using an invalid input index
   try {
     // Invalid wire
     DTWireId wireId(0, 1, 1, 1, 1, 1000);
-    CPPUNIT_ASSERT("Failed to throw required exception" == 0);
+    CPPUNIT_ASSERT("Failed to throw required exception" == nullptr);
     wireId.rawId();  // avoid compiler warning
   } catch (cms::Exception& e) {
     // OK
   } catch (...) {
-    CPPUNIT_ASSERT("Threw wrong kind of exception" == 0);
+    CPPUNIT_ASSERT("Threw wrong kind of exception" == nullptr);
   }
 
   // Contruct a DTWireId using an invalid input id
   try {
     DTWireId wireId(3211);
-    CPPUNIT_ASSERT("Failed to throw required exception" == 0);
+    CPPUNIT_ASSERT("Failed to throw required exception" == nullptr);
     wireId.rawId();  // avoid compiler warning
   } catch (cms::Exception& e) {
     // OK
   } catch (...) {
-    CPPUNIT_ASSERT("Threw wrong kind of exception" == 0);
+    CPPUNIT_ASSERT("Threw wrong kind of exception" == nullptr);
   }
 }
 
@@ -333,13 +333,13 @@ void testDTDetIds::testMemberOperators() {
   CPPUNIT_ASSERT(layer3 == layer1);
 
   // Test assignement operators from derived objects
-  DTChamberId chamber6 = superlayer1;
+  const DTChamberId& chamber6 = superlayer1;
   CPPUNIT_ASSERT(chamber6 == chamber3);
 
-  DTSuperLayerId superlayer6 = layer1;
+  const DTSuperLayerId& superlayer6 = layer1;
   CPPUNIT_ASSERT(superlayer6 == superlayer3);
 
-  DTLayerId layer6 = wire1;
+  const DTLayerId& layer6 = wire1;
   CPPUNIT_ASSERT(layer6 == layer3);
 
 #ifdef TEST_FORBIDDEN_CTORS

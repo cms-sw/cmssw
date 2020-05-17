@@ -48,7 +48,7 @@ template <class T>
 void BaseFunction::convertToArrays(T**& function_, const std::vector<T*>& functionVec_) {
   // Check for consistency of number of passed parameters and number of required parameters.
   int totParNums = 0;
-  typename std::vector<T*>::const_iterator funcIt = functionVec_.begin();
+  auto funcIt = functionVec_.begin();
   for (; funcIt != functionVec_.end(); ++funcIt) {
     totParNums += (*funcIt)->parNum();
   }
@@ -78,8 +78,8 @@ void BaseFunction::convertToArrays(T**& function_, const std::vector<T*>& functi
   //  std::vector<double>::const_iterator parVec = parVecVec_.begin();
   // iterationNum_ starts from 0.
   function_ = new T*[functionVecSize];
-  typename std::vector<T*>::const_iterator func = functionVec_.begin();
-  std::vector<double>::const_iterator parVec = parVecVec_.begin();
+  auto func = functionVec_.begin();
+  auto parVec = parVecVec_.begin();
 
   int iterationCounter = 0;
   for (; func != functionVec_.end(); ++func, ++iterationCounter) {

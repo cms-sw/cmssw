@@ -58,9 +58,7 @@ void L1TStage2OMTF::analyze(const edm::Event& eve, const edm::EventSetup& eveSet
   eve.getByToken(omtfToken, omtfMuon);
 
   for (int itBX = omtfMuon->getFirstBX(); itBX <= omtfMuon->getLastBX(); ++itBX) {
-    for (l1t::RegionalMuonCandBxCollection::const_iterator itMuon = omtfMuon->begin(itBX);
-         itMuon != omtfMuon->end(itBX);
-         ++itMuon) {
+    for (auto itMuon = omtfMuon->begin(itBX); itMuon != omtfMuon->end(itBX); ++itMuon) {
       omtf_hwEta->Fill(itMuon->hwEta());
       omtf_hwLocalPhi->Fill(itMuon->hwPhi());
       omtf_hwPt->Fill(itMuon->hwPt());

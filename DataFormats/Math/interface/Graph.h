@@ -62,7 +62,7 @@ namespace math {
           vt_.e_ = 0;
           ++vt_.a_;
           while (vt_.gr_.size() > vt_.a_) {
-            if (vt_.gr_.adjl_[vt_.a_].size()) {
+            if (!vt_.gr_.adjl_[vt_.a_].empty()) {
               return;
             }
             ++vt_.a_;
@@ -217,7 +217,7 @@ namespace math {
 
   template <class N, class E>
   typename Graph<N, E>::index_result Graph<N, E>::nodeIndex(const N &node) const {
-    typename indexer_type::const_iterator result = indexer_.find(node);
+    auto result = indexer_.find(node);
     index_type idx = 0;
     bool flag = false;
     if (result != indexer_.end()) {
@@ -287,8 +287,8 @@ namespace math {
   void Graph<N, E>::findRoots(edge_list &result) const {
     result.clear();
 
-    const_adj_iterator it = begin();
-    const_adj_iterator ed = end();
+    auto it = begin();
+    auto ed = end();
     std::vector<bool> rootCandidate(size(), true);
 
     for (; it != ed; ++it) {
@@ -308,7 +308,7 @@ namespace math {
 
   template <class N, class E>
   bool Graph<N, E>::replace(const N &oldNode, const N &newNode) {
-    typename indexer_type::iterator it = indexer_.find(oldNode);
+    auto it = indexer_.find(oldNode);
     if (it != indexer_.end()) {
       index_type oldIndex = it->second;
       nodes_[oldIndex] = newNode;

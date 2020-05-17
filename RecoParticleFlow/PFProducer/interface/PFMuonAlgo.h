@@ -50,7 +50,7 @@ public:
   //PF Post cleaning algorithm
   void setInputsForCleaning(reco::VertexCollection const&);
   void postClean(reco::PFCandidateCollection*);
-  void addMissingMuons(edm::Handle<reco::MuonCollection>, reco::PFCandidateCollection* cands);
+  void addMissingMuons(const edm::Handle<reco::MuonCollection>&, reco::PFCandidateCollection* cands);
 
   std::unique_ptr<reco::PFCandidateCollection> transferCleanedCosmicCandidates() {
     return std::move(pfCosmicsMuonCleanedCandidates_);

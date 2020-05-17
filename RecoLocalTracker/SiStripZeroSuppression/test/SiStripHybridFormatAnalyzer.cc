@@ -193,7 +193,7 @@ void SiStripHybridFormatAnalyzer::analyze(const edm::Event& e, const edm::EventS
   edm::Handle<edm::DetSetVector<SiStripDigi>> moduleDigis;
   e.getByToken(srcDigis_, moduleDigis);
 
-  edm::DetSetVector<SiStripDigi>::const_iterator itDigiDetSetV = moduleDigis->begin();
+  auto itDigiDetSetV = moduleDigis->begin();
   for (; itDigiDetSetV != moduleDigis->end(); ++itDigiDetSetV) {
     uint32_t detId = itDigiDetSetV->id;
     edm::RunNumber_t const run = e.id().run();
@@ -227,8 +227,8 @@ void SiStripHybridFormatAnalyzer::analyze(const edm::Event& e, const edm::EventS
     }
 
     uint16_t nBadAPVmodule = 0;
-    for (uint16_t apvN = 0; apvN < 6; apvN++) {
-      if (stripsPerAPV[apvN] > 64) {
+    for (unsigned short apvN : stripsPerAPV) {
+      if (apvN > 64) {
         nBadAPVevent++;
         nBadAPVmodule++;
       }

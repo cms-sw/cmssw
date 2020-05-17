@@ -52,7 +52,7 @@ public:
 
 protected:
   inline bool isEqual(const AbsHcalFunctor& other) const override {
-    const HcalPiecewiseLinearFunctor& r = static_cast<const HcalPiecewiseLinearFunctor&>(other);
+    const auto& r = static_cast<const HcalPiecewiseLinearFunctor&>(other);
     return abscissae_ == r.abscissae_ && values_ == r.values_ &&
            leftExtrapolationLinear_ == r.leftExtrapolationLinear_ &&
            rightExtrapolationLinear_ == r.rightExtrapolationLinear_;

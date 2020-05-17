@@ -27,11 +27,11 @@
 class EcalPnGraphDumperModule : public edm::EDAnalyzer {
 public:
   EcalPnGraphDumperModule(const edm::ParameterSet& ps);
-  ~EcalPnGraphDumperModule();
+  ~EcalPnGraphDumperModule() override;
 
   std::string intToString(int num);
 
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
 protected:
   int verbosity;
@@ -142,10 +142,10 @@ void EcalPnGraphDumperModule::analyze(const edm::Event& e, const edm::EventSetup
   }
 
   // loop over all the available PN digis and make graphs for those which have been chosen by the user
-  for (EcalPnDiodeDigiCollection::const_iterator pnItr = PNs->begin(); pnItr != PNs->end(); ++pnItr) {
+  for (const auto& pnItr : *PNs) {
     {
-      int ipn = (*pnItr).id().iPnId();
-      int ieb = EcalPnDiodeDetId((*pnItr).id()).iDCCId();
+      int ipn = pnItr.id().iPnId();
+      int ieb = EcalPnDiodeDetId(pnItr.id()).iDCCId();
 
       // selecting based on DCCId
       if (ieb != ieb_id)
@@ -158,8 +158,8 @@ void EcalPnGraphDumperModule::analyze(const edm::Event& e, const edm::EventSetup
         continue;
       }
 
-      for (int i = 0; i < (*pnItr).size() && i < 50; ++i) {
-        ordinate[i] = (*pnItr).sample(i).adc();
+      for (int i = 0; i < pnItr.size() && i < 50; ++i) {
+        ordinate[i] = pnItr.sample(i).adc();
       }
 
       TGraph oneGraph(50, abscissa, ordinate);

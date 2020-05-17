@@ -21,7 +21,7 @@ bool VolumeGridTester::testInside() const {
   //   else lastName = volume_->name;
 
   const MFGrid* grid = dynamic_cast<const MFGrid*>(magProvider_);
-  if (grid == 0) {
+  if (grid == nullptr) {
     cout << "VolumeGridTester: magProvider is not a MFGrid3D, cannot test it..." << endl << "expected ";
     return false;
   }
@@ -76,20 +76,20 @@ void VolumeGridTester::dumpProblem(const MFGrid::LocalPoint& lp, double toleranc
        << gp.phi() << " (R,phi global) is not in its own volume!" << endl;
 
   const vector<VolumeSide>& faces = volume_->faces();
-  for (vector<VolumeSide>::const_iterator v = faces.begin(); v != faces.end(); v++) {
-    cout << " Volume face has position " << v->surface().position() << " side " << (int)v->surfaceSide() << " rotation "
-         << endl
-         << v->surface().rotation() << endl;
+  for (const auto& face : faces) {
+    cout << " Volume face has position " << face.surface().position() << " side " << (int)face.surfaceSide()
+         << " rotation " << endl
+         << face.surface().rotation() << endl;
 
-    Surface::Side side = v->surface().side(gp, tolerance);
-    if (side != v->surfaceSide() && side != SurfaceOrientation::onSurface) {
-      cout << " Wrong side: " << (int)side << " local position in surface frame " << v->surface().toLocal(gp) << endl;
+    Surface::Side side = face.surface().side(gp, tolerance);
+    if (side != face.surfaceSide() && side != SurfaceOrientation::onSurface) {
+      cout << " Wrong side: " << (int)side << " local position in surface frame " << face.surface().toLocal(gp) << endl;
     } else
       cout << " Correct side: " << (int)side << endl;
   }
 }
 
-bool VolumeGridTester::testFind(GlobalPoint gp) const {
+bool VolumeGridTester::testFind(const GlobalPoint& gp) const {
   if (field_->isDefined(gp)) {
     MagVolume const* vol = field_->findVolume(gp);
     if (vol == nullptr) {

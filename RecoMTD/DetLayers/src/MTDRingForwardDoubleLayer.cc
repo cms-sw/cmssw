@@ -33,8 +33,8 @@ MTDRingForwardDoubleLayer::MTDRingForwardDoubleLayer(const vector<const ForwardD
 
   // Cache chamber pointers (the basic components_)
   // and find extension in R and Z
-  for (vector<const ForwardDetRing*>::const_iterator it = theRings.begin(); it != theRings.end(); it++) {
-    vector<const GeomDet*> tmp2 = (*it)->basicComponents();
+  for (auto theRing : theRings) {
+    vector<const GeomDet*> tmp2 = theRing->basicComponents();
     theBasicComponents.insert(theBasicComponents.end(), tmp2.begin(), tmp2.end());
   }
 
@@ -121,9 +121,9 @@ vector<GeometricSearchDet::DetWithState> MTDRingForwardDoubleLayer::compatibleDe
   // This code should be moved in a common place intead of being
   // copied many times.
   vector<DetGroup> vectorGroups = groupedCompatibleDets(tsos, prop, est);
-  for (vector<DetGroup>::const_iterator itDG = vectorGroups.begin(); itDG != vectorGroups.end(); itDG++) {
-    for (vector<DetGroupElement>::const_iterator itDGE = itDG->begin(); itDGE != itDG->end(); itDGE++) {
-      result.push_back(DetWithState(itDGE->det(), itDGE->trajectoryState()));
+  for (const auto& vectorGroup : vectorGroups) {
+    for (auto itDGE = vectorGroup.begin(); itDGE != vectorGroup.end(); itDGE++) {
+      result.emplace_back(itDGE->det(), itDGE->trajectoryState());
     }
   }
   return result;
@@ -144,9 +144,9 @@ vector<DetGroup> MTDRingForwardDoubleLayer::groupedCompatibleDets(const Trajecto
 
   vector<DetGroup> result;
   if (!detWithStates1.empty())
-    result.push_back(DetGroup(detWithStates1));
+    result.emplace_back(detWithStates1);
   if (!detWithStates2.empty())
-    result.push_back(DetGroup(detWithStates2));
+    result.emplace_back(detWithStates2);
   LogTrace(metname) << "DoubleLayer Compatible dets: " << result.size();
   return result;
 }
@@ -175,8 +175,7 @@ void MTDRingForwardDoubleLayer::selfTest() const {
   const std::vector<const GeomDet*>& frontDets = theFrontLayer.basicComponents();
   const std::vector<const GeomDet*>& backDets = theBackLayer.basicComponents();
 
-  std::vector<const GeomDet*>::const_iterator frontItr = frontDets.begin(), lastFront = frontDets.end(),
-                                              backItr = backDets.begin(), lastBack = backDets.end();
+  auto frontItr = frontDets.begin(), lastFront = frontDets.end(), backItr = backDets.begin(), lastBack = backDets.end();
 
   // test that each front z is less than each back z
   for (; frontItr != lastFront; ++frontItr) {

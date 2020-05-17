@@ -18,9 +18,9 @@ void test(const std::vector<DetIdAndApvs>& detIdAndApvs,
   int i = 0;
   int flip = 0;
   int modeFlip = 0;
-  std::vector<DetIdAndApvs>::const_iterator detIdAndApv = detIdAndApvs.begin();
+  auto detIdAndApv = detIdAndApvs.begin();
   for (; detIdAndApv != detIdAndApvs.end(); ++detIdAndApv) {
-    std::vector<uint16_t>::const_iterator apv = detIdAndApv->apvs.begin();
+    auto apv = detIdAndApv->apvs.begin();
     for (; apv != detIdAndApv->apvs.end(); ++apv, ++i) {
       // std::cout << "detId = " << detIdAndApv->detId << ", apv = " << *apv << ", detIdAndApv = " << compactValue << std::endl;
 
@@ -66,14 +66,14 @@ void check(const std::vector<uint16_t>& latencies,
               << std::endl;
     exit(1);
   }
-  std::vector<DetIdAndApvs>::const_iterator detIdAndApv = detIdAndApvs.begin();
-  std::vector<uint16_t>::const_iterator it = latencies.begin();
-  std::vector<uint16_t>::const_iterator modeIt = modes.begin();
+  auto detIdAndApv = detIdAndApvs.begin();
+  auto it = latencies.begin();
+  auto modeIt = modes.begin();
   detIdAndApv = detIdAndApvs.begin();
   int latencyErrorCount = 0;
   int modeErrorCount = 0;
   for (; detIdAndApv != detIdAndApvs.end(); ++detIdAndApv) {
-    std::vector<uint16_t>::const_iterator apv = detIdAndApv->apvs.begin();
+    auto apv = detIdAndApv->apvs.begin();
     for (; apv != detIdAndApv->apvs.end(); ++apv, ++it, ++modeIt) {
       uint32_t detId = detIdAndApv->detId;
       uint32_t detIdAndApvValue = (detId << 2) | (*apv);
@@ -211,7 +211,7 @@ int main() {
   std::cout << "Stored three combinations of latency and mode: (14, 37), (15, 37) and (15, 47)" << std::endl;
 
   std::vector<SiStripLatency::Latency> uniqueLatenciesAndModes(latency3.allUniqueLatencyAndModes());
-  std::vector<SiStripLatency::Latency>::const_iterator it = uniqueLatenciesAndModes.begin();
+  auto it = uniqueLatenciesAndModes.begin();
   std::cout << "Reading back what is returned by the allUniqueLatencyAndModes method" << std::endl;
   for (; it != uniqueLatenciesAndModes.end(); ++it) {
     std::cout << "latency = " << int(it->latency) << ", mode = " << int(it->mode) << std::endl;

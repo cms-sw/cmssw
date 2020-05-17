@@ -45,14 +45,14 @@ TSOSHistogramMaker::TSOSHistogramMaker(const edm::ParameterSet& iConfig)
 
   std::cout << "selections found: " << wantedsubds.size() << std::endl;
 
-  for (std::vector<edm::ParameterSet>::iterator ps = wantedsubds.begin(); ps != wantedsubds.end(); ++ps) {
-    m_selnames.push_back(ps->getParameter<std::string>("detLabel"));
-    if (ps->existsAs<std::string>("title")) {
-      m_seltitles.push_back(ps->getParameter<std::string>("title"));
+  for (auto& wantedsubd : wantedsubds) {
+    m_selnames.push_back(wantedsubd.getParameter<std::string>("detLabel"));
+    if (wantedsubd.existsAs<std::string>("title")) {
+      m_seltitles.push_back(wantedsubd.getParameter<std::string>("title"));
     } else {
-      m_seltitles.push_back(ps->getParameter<std::string>("detLabel"));
+      m_seltitles.push_back(wantedsubd.getParameter<std::string>("detLabel"));
     }
-    m_detsels.push_back(DetIdSelector(ps->getUntrackedParameter<std::vector<std::string> >("selection")));
+    m_detsels.emplace_back(wantedsubd.getUntrackedParameter<std::vector<std::string> >("selection"));
   }
 
   for (unsigned int isel = 0; isel < m_detsels.size(); ++isel) {
@@ -108,7 +108,7 @@ TSOSHistogramMaker::TSOSHistogramMaker(const edm::ParameterSet& iConfig)
 }
 
 void TSOSHistogramMaker::fill(const TrajectoryStateOnSurface& tsos,
-                              TransientTrackingRecHit::ConstRecHitPointer hit) const {
+                              const TransientTrackingRecHit::ConstRecHitPointer& hit) const {
   if (hit == nullptr || !hit->isValid())
     return;
 

@@ -53,12 +53,11 @@ vector<TrajectoryMeasurement> GroupedDAFHitCollector::recHits(const Trajectory& 
   LogDebug("MultiRecHitCollector") << "Layer " << mol.back().first << " has " << mol.back().second.size()
                                    << " measurements";
   LogTrace("MultiRecHitCollector") << "Original measurements are:";
-  for (unsigned int iLay = 0; iLay < mol.size(); iLay++) {
-    LogTrace("MultiRecHitCollector") << "  Layer " << mol.at(iLay).first << " has " << mol.at(iLay).second.size()
-                                     << " measurements:";
-    vector<TrajectoryMeasurement>::const_iterator ibeg = (mol.at(iLay)).second.begin();
-    vector<TrajectoryMeasurement>::const_iterator iend = (mol.at(iLay)).second.end();
-    for (vector<TrajectoryMeasurement>::const_iterator imeas = ibeg; imeas != iend; ++imeas) {
+  for (auto& iLay : mol) {
+    LogTrace("MultiRecHitCollector") << "  Layer " << iLay.first << " has " << iLay.second.size() << " measurements:";
+    auto ibeg = iLay.second.begin();
+    auto iend = iLay.second.end();
+    for (auto imeas = ibeg; imeas != iend; ++imeas) {
       if (imeas->recHit()->isValid()) {
         LogTrace("MultiRecHitCollector") << "   Valid Hit with DetId " << imeas->recHit()->geographicalId().rawId()
                                          << " local position " << imeas->recHit()->hit()->localPosition()
@@ -77,8 +76,7 @@ vector<TrajectoryMeasurement> GroupedDAFHitCollector::recHits(const Trajectory& 
   //Since we have passed the backwardPropagator, we have to sort the detGroups in the opposite way
   //(according the forward propagator, not the backward one)
   vector<TrajectoryMeasurementGroup> sortedgroupedMeas;
-  for (vector<TrajectoryMeasurementGroup>::reverse_iterator iter = groupedMeas.rbegin(); iter != groupedMeas.rend();
-       iter++) {
+  for (auto iter = groupedMeas.rbegin(); iter != groupedMeas.rend(); iter++) {
     sortedgroupedMeas.push_back(*iter);
   }
 
@@ -89,9 +87,7 @@ vector<TrajectoryMeasurement> GroupedDAFHitCollector::recHits(const Trajectory& 
   current = mol.back().second.front().updatedState();
   //if (current.isValid()) current.rescaleError(10);
 
-  for (vector<pair<const DetLayer*, vector<TrajectoryMeasurement> > >::reverse_iterator imol = mol.rbegin() + 1;
-       imol != mol.rend();
-       imol++) {
+  for (auto imol = mol.rbegin() + 1; imol != mol.rend(); imol++) {
     const DetLayer* lay = (*imol).first;
     LogDebug("MultiRecHitCollector") << "Layer " << lay << " has " << (*imol).second.size() << " measurements";
     //debug
@@ -115,8 +111,8 @@ vector<TrajectoryMeasurement> GroupedDAFHitCollector::recHits(const Trajectory& 
   if (result.size() > 2) {
     int hitcounter = 0;
     //check if the vector result has more than 3 valid hits
-    for (vector<TrajectoryMeasurement>::const_iterator iimeas = result.begin(); iimeas != result.end(); ++iimeas) {
-      if (iimeas->recHit()->isValid())
+    for (const auto& iimeas : result) {
+      if (iimeas.recHit()->isValid())
         hitcounter++;
     }
 
@@ -153,26 +149,23 @@ void GroupedDAFHitCollector::buildMultiRecHits(const vector<TrajectoryMeasuremen
 
   //trajectory state to store the last valid TrajectoryState (if present) to be used
   //to add an invalid Measurement in case no valid state or no valid hits are found in any group
-  for (vector<TrajectoryMeasurementGroup>::const_iterator igroup = measgroup.begin(); igroup != measgroup.end();
-       igroup++) {
+  for (const auto& igroup : measgroup) {
     //the TrajectoryState is the first one
-    TrajectoryStateOnSurface state = igroup->measurements().front().predictedState();
+    TrajectoryStateOnSurface state = igroup.measurements().front().predictedState();
     if (!state.isValid()) {
       LogTrace("MultiRecHitCollector") << "Something wrong! no valid TSOS found in current group ";
       continue;
     }
 
-    LogTrace("MultiRecHitCollector") << "This group has " << igroup->measurements().size() << " measurements";
-    LogTrace("MultiRecHitCollector") << "This group has the following " << igroup->detGroup().size()
+    LogTrace("MultiRecHitCollector") << "This group has " << igroup.measurements().size() << " measurements";
+    LogTrace("MultiRecHitCollector") << "This group has the following " << igroup.detGroup().size()
                                      << " detector ids: " << endl;
-    for (DetGroup::const_iterator idet = igroup->detGroup().begin(); idet != igroup->detGroup().end(); ++idet) {
+    for (auto idet = igroup.detGroup().begin(); idet != igroup.detGroup().end(); ++idet) {
       LogTrace("MultiRecHitCollector") << idet->det()->geographicalId().rawId();
     }
 
     vector<const TrackingRecHit*> hits;
-    for (vector<TrajectoryMeasurement>::const_iterator imeas = igroup->measurements().begin();
-         imeas != igroup->measurements().end();
-         imeas++) {
+    for (auto imeas = igroup.measurements().begin(); imeas != igroup.measurements().end(); imeas++) {
       //should be fixed!!
       //DetId id = imeas->recHit()->geographicalId();
       //MeasurementDetWithData measDet = theMTE->idToDet(id);
@@ -196,18 +189,18 @@ void GroupedDAFHitCollector::buildMultiRecHits(const vector<TrajectoryMeasuremen
                                      << state.surface().position();
 
     LogTrace("MultiRecHitCollector") << "For the MRH on this group the following hits will be used";
-    for (vector<const TrackingRecHit*>::iterator iter = hits.begin(); iter != hits.end(); iter++) {
+    for (auto& hit : hits) {
       string validity = "valid";
-      if ((*iter)->getType() == TrackingRecHit::missing)
+      if (hit->getType() == TrackingRecHit::missing)
         validity = "missing !should not happen!";
-      else if ((*iter)->getType() == TrackingRecHit::inactive)
+      else if (hit->getType() == TrackingRecHit::inactive)
         validity = "inactive";
-      else if ((*iter)->getType() == TrackingRecHit::bad)
+      else if (hit->getType() == TrackingRecHit::bad)
         validity = "bad";
       LogTrace("MultiRecHitCollector")
-          << "DetId " << (*iter)->geographicalId().rawId() << " validity: " << validity << " surface position "
-          << getMeasurementTracker()->geomTracker()->idToDet((*iter)->geographicalId())->position()
-          << " hit local position " << (*iter)->localPosition();
+          << "DetId " << hit->geographicalId().rawId() << " validity: " << validity << " surface position "
+          << getMeasurementTracker()->geomTracker()->idToDet(hit->geographicalId())->position()
+          << " hit local position " << hit->localPosition();
     }
     //should be fixed!!
     //result.push_back(TrajectoryMeasurement(state,theUpdator->buildMultiRecHit(hits, state, *MeasurementDetWithData())));

@@ -22,8 +22,8 @@ public:
 
   ~DigiInvestigatorHistogramMaker();
 
-  void book(const std::string dirname, const std::map<unsigned int, std::string>& labels);
-  void book(const std::string dirname);
+  void book(const std::string& dirname, const std::map<unsigned int, std::string>& labels);
+  void book(const std::string& dirname);
   void beginRun(const edm::Run& iRun);
   void fill(const edm::Event& iEvent, const std::map<unsigned int, int>& ndigi);
 

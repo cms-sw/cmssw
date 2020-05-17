@@ -8,7 +8,7 @@
 #include <iomanip>
 #include <sstream>
 #include <string>
-#include <time.h>
+#include <ctime>
 
 using namespace sistrip;
 

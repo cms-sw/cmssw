@@ -38,6 +38,6 @@ private:
   COND_SERIALIZABLE;
 };
 
-std::ostream& operator<<(std::ostream&, SiPixelQualityProbabilities theProbabilities);
+std::ostream& operator<<(std::ostream&, const SiPixelQualityProbabilities& theProbabilities);
 
 #endif  //CondFormats_SiPixelObjects_SiPixelQualityProbabilities_h

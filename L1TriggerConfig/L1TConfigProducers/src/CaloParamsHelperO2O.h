@@ -1,4 +1,5 @@
 #include <iostream>
+#include <utility>
 
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
 
@@ -84,13 +85,13 @@ namespace l1t {
     bool isValidForStage2() { return (version_ >= 2); }
 
     L1CaloEtScale emScale() { return emScale_; }
-    void setEmScale(L1CaloEtScale emScale) { emScale_ = emScale; }
+    void setEmScale(const L1CaloEtScale& emScale) { emScale_ = emScale; }
     L1CaloEtScale jetScale() { return jetScale_; }
-    void setJetScale(L1CaloEtScale jetScale) { jetScale_ = jetScale; }
+    void setJetScale(const L1CaloEtScale& jetScale) { jetScale_ = jetScale; }
     L1CaloEtScale HtMissScale() { return HtMissScale_; }
     L1CaloEtScale HfRingScale() { return HfRingScale_; }
-    void setHtMissScale(L1CaloEtScale HtMissScale) { HtMissScale_ = HtMissScale; }
-    void setHfRingScale(L1CaloEtScale HfRingScale) { HfRingScale_ = HfRingScale; }
+    void setHtMissScale(const L1CaloEtScale& HtMissScale) { HtMissScale_ = HtMissScale; }
+    void setHfRingScale(const L1CaloEtScale& HfRingScale) { HfRingScale_ = HfRingScale; }
 
     // towers
     double towerLsbH() const { return towerp_.lsbH_; }
@@ -139,7 +140,7 @@ namespace l1t {
     }
 
     void setRegionLsb(double lsb) { regionLsb_ = lsb; }
-    void setRegionPUSType(std::string type) { pnode_[regionPUS].type_ = type; }
+    void setRegionPUSType(std::string type) { pnode_[regionPUS].type_ = std::move(type); }
     void setRegionPUSParams(const std::vector<double>& params) { pnode_[regionPUS].dparams_ = params; }
     void setRegionPUSLUT(const l1t::LUT& lut) { pnode_[regionPUS].LUT_ = lut; }
 
@@ -254,18 +255,18 @@ namespace l1t {
     void setEgIsoAreaNrTowersEta(unsigned iEgIsoAreaNrTowersEta) { egp_.isoAreaNrTowersEta_ = iEgIsoAreaNrTowersEta; }
     void setEgIsoAreaNrTowersPhi(unsigned iEgIsoAreaNrTowersPhi) { egp_.isoAreaNrTowersPhi_ = iEgIsoAreaNrTowersPhi; }
     void setEgIsoVetoNrTowersPhi(unsigned iEgIsoVetoNrTowersPhi) { egp_.isoVetoNrTowersPhi_ = iEgIsoVetoNrTowersPhi; }
-    void setEgPUSType(std::string type) { pnode_[egPUS].type_ = type; }
+    void setEgPUSType(std::string type) { pnode_[egPUS].type_ = std::move(type); }
     void setEgPUSParams(const std::vector<double>& params) { pnode_[egPUS].dparams_ = params; }
-    void setEgIsolationType(std::string type) { pnode_[egIsolation].type_ = type; }
+    void setEgIsolationType(std::string type) { pnode_[egIsolation].type_ = std::move(type); }
     void setEgIsolationLUT(const l1t::LUT& lut) { pnode_[egIsolation].LUT_ = lut; }
     void setEgIsolationLUT2(const l1t::LUT& lut) { pnode_[egIsolation2].LUT_ = lut; }
-    void setEgCalibrationType(std::string type) { pnode_[egCalibration].type_ = type; }
-    void setEgCalibrationParams(std::vector<double> params) { pnode_[egCalibration].dparams_ = params; }
+    void setEgCalibrationType(std::string type) { pnode_[egCalibration].type_ = std::move(type); }
+    void setEgCalibrationParams(std::vector<double> params) { pnode_[egCalibration].dparams_ = std::move(params); }
     void setEgCalibrationLUT(const l1t::LUT& lut) { pnode_[egCalibration].LUT_ = lut; }
 
     // - recently imported:
     std::string egShapeIdType() const { return pnode_[egShapeId].type_; }
-    void setEgShapeIdType(std::string type) { pnode_[egShapeId].type_ = type; }
+    void setEgShapeIdType(std::string type) { pnode_[egShapeId].type_ = std::move(type); }
     unsigned egShapeIdVersion() const { return pnode_[egShapeId].version_; }
     void setEgShapeIdVersion(unsigned version) { pnode_[egShapeId].version_ = version; }
     unsigned egCalibrationVersion() const { return pnode_[egCalibration].version_; }
@@ -319,12 +320,12 @@ namespace l1t {
     void setTauMaxJetIsolationA(double cutValue) { taup_.maxJetIsolationA_ = cutValue; }
     void setIsoTauEtaMin(int value) { taup_.isoEtaMin_ = value; }
     void setIsoTauEtaMax(int value) { taup_.isoEtaMax_ = value; }
-    void setTauPUSType(std::string type) { pnode_[tauPUS].type_ = type; }
+    void setTauPUSType(std::string type) { pnode_[tauPUS].type_ = std::move(type); }
     void setTauIsolationLUT(const l1t::LUT& lut) { pnode_[tauIsolation].LUT_ = lut; }
     void setTauIsolationLUT2(const l1t::LUT& lut) { pnode_[tauIsolation2].LUT_ = lut; }
     void setTauTrimmingShapeVetoLUT(const l1t::LUT& lut) { pnode_[tauTrimmingShapeVeto].LUT_ = lut; }
 
-    void setTauCalibrationType(std::string type) { pnode_[tauCalibration].type_ = type; }
+    void setTauCalibrationType(std::string type) { pnode_[tauCalibration].type_ = std::move(type); }
     void setTauIsoAreaNrTowersEta(unsigned iTauIsoAreaNrTowersEta) {
       taup_.isoAreaNrTowersEta_ = iTauIsoAreaNrTowersEta;
     }
@@ -335,7 +336,7 @@ namespace l1t {
       taup_.isoVetoNrTowersPhi_ = iTauIsoVetoNrTowersPhi;
     }
 
-    void setTauCalibrationParams(std::vector<double> params) { pnode_[tauCalibration].dparams_ = params; }
+    void setTauCalibrationParams(std::vector<double> params) { pnode_[tauCalibration].dparams_ = std::move(params); }
     void setTauCalibrationLUT(const l1t::LUT& lut) { pnode_[tauCalibration].LUT_ = lut; }
     void setTauCompressLUT(const l1t::LUT& lut) { pnode_[tauCompress].LUT_ = lut; }
     void setTauPUSParams(const std::vector<double>& params) { pnode_[tauPUS].dparams_ = params; }
@@ -377,10 +378,10 @@ namespace l1t {
       pnode_[jetPUS].iparams_.resize(1);
       pnode_[jetPUS].iparams_[0] = mask;
     }
-    void setJetPUSType(std::string type) { pnode_[jetPUS].type_ = type; }
-    void setJetPUSParams(std::vector<double> params) { pnode_[jetPUS].dparams_ = params; }
-    void setJetCalibrationType(std::string type) { pnode_[jetCalibration].type_ = type; }
-    void setJetCalibrationParams(std::vector<double> params) { pnode_[jetCalibration].dparams_ = params; }
+    void setJetPUSType(std::string type) { pnode_[jetPUS].type_ = std::move(type); }
+    void setJetPUSParams(std::vector<double> params) { pnode_[jetPUS].dparams_ = std::move(params); }
+    void setJetCalibrationType(std::string type) { pnode_[jetCalibration].type_ = std::move(type); }
+    void setJetCalibrationParams(std::vector<double> params) { pnode_[jetCalibration].dparams_ = std::move(params); }
     void setJetCalibrationLUT(const l1t::LUT& lut) { pnode_[jetCalibration].LUT_ = lut; }
     void setJetCompressEtaLUT(const l1t::LUT& lut) { pnode_[jetCompressEta].LUT_ = lut; }
     void setJetCompressPtLUT(const l1t::LUT& lut) { pnode_[jetCompressPt].LUT_ = lut; }
@@ -450,13 +451,13 @@ namespace l1t {
         etSumEtThreshold_.resize(isum + 1);
       etSumEtThreshold_.at(isum) = thresh;
     }
-    void setEtSumMetPUSType(std::string type) { pnode_[etSumMetPUS].type_ = type; }
-    void setEtSumEttPUSType(std::string type) { pnode_[etSumEttPUS].type_ = type; }
-    void setEtSumEcalSumPUSType(std::string type) { pnode_[etSumEcalSumPUS].type_ = type; }
-    void setMetCalibrationType(std::string type) { pnode_[metCalibration].type_ = type; }
-    void setMetHFCalibrationType(std::string type) { pnode_[metHFCalibration].type_ = type; }
-    void setEtSumEttCalibrationType(std::string type) { pnode_[etSumEttCalibration].type_ = type; }
-    void setEtSumEcalSumCalibrationType(std::string type) { pnode_[etSumEcalSumCalibration].type_ = type; }
+    void setEtSumMetPUSType(std::string type) { pnode_[etSumMetPUS].type_ = std::move(type); }
+    void setEtSumEttPUSType(std::string type) { pnode_[etSumEttPUS].type_ = std::move(type); }
+    void setEtSumEcalSumPUSType(std::string type) { pnode_[etSumEcalSumPUS].type_ = std::move(type); }
+    void setMetCalibrationType(std::string type) { pnode_[metCalibration].type_ = std::move(type); }
+    void setMetHFCalibrationType(std::string type) { pnode_[metHFCalibration].type_ = std::move(type); }
+    void setEtSumEttCalibrationType(std::string type) { pnode_[etSumEttCalibration].type_ = std::move(type); }
+    void setEtSumEcalSumCalibrationType(std::string type) { pnode_[etSumEcalSumCalibration].type_ = std::move(type); }
     void setEtSumBypassMetPUS(unsigned flag) {
       pnode_[etSumBypassMetPUSFlag].uparams_.resize(1);
       pnode_[etSumBypassMetPUSFlag].uparams_[0] = flag;
@@ -516,6 +517,8 @@ namespace l1t {
     std::vector<int> minimumBiasThresholds() const {
       if (pnode_[hiCentrality].version_ == 1 && pnode_[hiCentrality].iparams_.size() == 5) {
         std::vector<int> newVec;
+        newVec.reserve(4);
+
         for (int i = 0; i < 4; i++) {
           newVec.push_back(pnode_[hiCentrality].iparams_.at(i + 1));
         }
@@ -554,15 +557,15 @@ namespace l1t {
     std::vector<unsigned> layer1ECalScalePhiBins() { return pnode_[layer1ECal].uparams_; }
     std::vector<unsigned> layer1HCalScalePhiBins() { return pnode_[layer1HCal].uparams_; }
     std::vector<unsigned> layer1HFScalePhiBins() { return pnode_[layer1HF].uparams_; }
-    void setLayer1ECalScaleFactors(const std::vector<double> params) { pnode_[layer1ECal].dparams_ = params; }
-    void setLayer1HCalScaleFactors(const std::vector<double> params) { pnode_[layer1HCal].dparams_ = params; }
-    void setLayer1HFScaleFactors(const std::vector<double> params) { pnode_[layer1HF].dparams_ = params; }
-    void setLayer1ECalScaleETBins(const std::vector<int> params) { pnode_[layer1ECal].iparams_ = params; }
-    void setLayer1HCalScaleETBins(const std::vector<int> params) { pnode_[layer1HCal].iparams_ = params; }
-    void setLayer1HFScaleETBins(const std::vector<int> params) { pnode_[layer1HF].iparams_ = params; }
-    void setLayer1ECalScalePhiBins(const std::vector<unsigned> params) { pnode_[layer1ECal].uparams_ = params; }
-    void setLayer1HCalScalePhiBins(const std::vector<unsigned> params) { pnode_[layer1HCal].uparams_ = params; }
-    void setLayer1HFScalePhiBins(const std::vector<unsigned> params) { pnode_[layer1HF].uparams_ = params; }
+    void setLayer1ECalScaleFactors(const std::vector<double>& params) { pnode_[layer1ECal].dparams_ = params; }
+    void setLayer1HCalScaleFactors(const std::vector<double>& params) { pnode_[layer1HCal].dparams_ = params; }
+    void setLayer1HFScaleFactors(const std::vector<double>& params) { pnode_[layer1HF].dparams_ = params; }
+    void setLayer1ECalScaleETBins(const std::vector<int>& params) { pnode_[layer1ECal].iparams_ = params; }
+    void setLayer1HCalScaleETBins(const std::vector<int>& params) { pnode_[layer1HCal].iparams_ = params; }
+    void setLayer1HFScaleETBins(const std::vector<int>& params) { pnode_[layer1HF].iparams_ = params; }
+    void setLayer1ECalScalePhiBins(const std::vector<unsigned>& params) { pnode_[layer1ECal].uparams_ = params; }
+    void setLayer1HCalScalePhiBins(const std::vector<unsigned>& params) { pnode_[layer1HCal].uparams_ = params; }
+    void setLayer1HFScalePhiBins(const std::vector<unsigned>& params) { pnode_[layer1HF].uparams_ = params; }
 
     std::vector<unsigned> layer1SecondStageLUT() { return pnode_[layer1HOverE].uparams_; }
     void setLayer1SecondStageLUT(const std::vector<unsigned>& lut) { pnode_[layer1HOverE].uparams_ = lut; }

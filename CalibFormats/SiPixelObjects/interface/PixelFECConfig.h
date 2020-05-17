@@ -24,7 +24,7 @@ namespace pos {
   class PixelFECConfig : public PixelConfigBase {
   public:
     PixelFECConfig(
-        std::string
+        const std::string &
             filename);  //  <---- Modified for the conversion from parallel vectors to object that contain the configuration
 
     PixelFECConfig(std::vector<std::vector<std::string> > &tableMat);

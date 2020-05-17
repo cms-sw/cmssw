@@ -335,18 +335,16 @@ void SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
 
   LogDebug("") << " Start loop over " << clusterHandle->end() - clusterHandle->begin() << "  superClusters ";
 
-  for (reco::SuperClusterCollection::const_iterator clusterIter = clusterHandle->begin();
-       clusterIter != clusterHandle->end();
-       ++clusterIter) {
-    double energy = clusterIter->energy();
-    math::XYZPoint position = clusterIter->position();
+  for (const auto& clusterIter : *clusterHandle) {
+    double energy = clusterIter.energy();
+    math::XYZPoint position = clusterIter.position();
     std::ostringstream str;
 
     str << " SuperCluster " << energy << " GeV, position " << position << " cm"
         << "\n";
 
     energySuperClusters_->Fill(energy);
-    sizeSuperClusters_->Fill(clusterIter->clustersSize());
+    sizeSuperClusters_->Fill(clusterIter.clustersSize());
     // this only makes sense for hybrid superclusters
 
     // try to point to the constituent clusters for this SuperCluster
@@ -359,8 +357,8 @@ void SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
     double phi2bar = 0.;
     double eTotSuperCluster = 0.;
 
-    for (reco::CaloCluster_iterator basicClusterIter = clusterIter->clustersBegin();
-         basicClusterIter != clusterIter->clustersEnd();
+    for (reco::CaloCluster_iterator basicClusterIter = clusterIter.clustersBegin();
+         basicClusterIter != clusterIter.clustersEnd();
          ++basicClusterIter) {
       //std::vector<DetId> theIds= (*basicClusterIter)->getHitsByDetId();
 
@@ -433,23 +431,21 @@ void SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
   // need to check if fit succeeded
   LogDebug("") << " Number of SiStripElectrons  " << siStripElectronHandle->size();
 
-  for (reco::SiStripElectronCollection::const_iterator electronIter = siStripElectronHandle->begin();
-       electronIter != siStripElectronHandle->end();
-       ++electronIter) {
+  for (const auto& electronIter : *siStripElectronHandle) {
     LogDebug("") << "about to get stuff from electroncandidate " << numberOfElectrons << "\n"
-                 << "supercluster energy = " << electronIter->superCluster()->energy() << "\n"
-                 << "fit results are phi(r) = " << electronIter->phiAtOrigin() << " + " << electronIter->phiVsRSlope()
+                 << "supercluster energy = " << electronIter.superCluster()->energy() << "\n"
+                 << "fit results are phi(r) = " << electronIter.phiAtOrigin() << " + " << electronIter.phiVsRSlope()
                  << "*r"
                  << "\n"
-                 << " chi2 " << electronIter->chi2() << " ndof " << electronIter->ndof() << "\n"
-                 << " Pt " << electronIter->pt() << "\n"
-                 << "P, Px, Py, Pz  " << electronIter->p() << " " << electronIter->px() << " " << electronIter->py()
-                 << " " << electronIter->pz() << "\n"
+                 << " chi2 " << electronIter.chi2() << " ndof " << electronIter.ndof() << "\n"
+                 << " Pt " << electronIter.pt() << "\n"
+                 << "P, Px, Py, Pz  " << electronIter.p() << " " << electronIter.px() << " " << electronIter.py() << " "
+                 << electronIter.pz() << "\n"
                  << "you get the idea...";
 
     // make plots for supercluster that an electron has been associ w/. here
-    energySuperClustersEl_->Fill(electronIter->superCluster()->energy());
-    sizeSuperClustersEl_->Fill(electronIter->superCluster()->clustersSize());
+    energySuperClustersEl_->Fill(electronIter.superCluster()->energy());
+    sizeSuperClustersEl_->Fill(electronIter.superCluster()->clustersSize());
 
     // loop over basicClusters to get energy
     double emaxSuperCluster = 0.;
@@ -457,8 +453,8 @@ void SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
     double phi2bar = 0.;
     double eTotSuperCluster = 0.;
 
-    for (reco::CaloCluster_iterator basicClusterIter = electronIter->superCluster()->clustersBegin();
-         basicClusterIter != electronIter->superCluster()->clustersEnd();
+    for (reco::CaloCluster_iterator basicClusterIter = electronIter.superCluster()->clustersBegin();
+         basicClusterIter != electronIter.superCluster()->clustersEnd();
          ++basicClusterIter) {
       //std::vector<DetId> theIds= (*basicClusterIter)->getHitsByDetId();
 
@@ -518,37 +514,30 @@ void SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
   }
 
   unsigned int ecount = 0;
-  for (reco::ElectronCollection::const_iterator electronIter = electrons->begin(); electronIter != electrons->end();
-       ++electronIter) {
+  for (const auto& electronIter : *electrons) {
     LogDebug("") << " Associating Electrons to Strippies ";
-    LogDebug("") << " PT is " << electronIter->track()->pt();
+    LogDebug("") << " PT is " << electronIter.track()->pt();
 
-    reco::TrackRef tr = (*electronIter).track();
-    uint32_t id = (*electronIter->track()->recHitsBegin())->geographicalId().rawId();
-    LocalPoint pos = (*electronIter->track()->recHitsBegin())->localPosition();
+    reco::TrackRef tr = electronIter.track();
+    uint32_t id = (*electronIter.track()->recHitsBegin())->geographicalId().rawId();
+    LocalPoint pos = (*electronIter.track()->recHitsBegin())->localPosition();
 
     unsigned int icount = 0;
     LogDebug("") << " About to loop over Strippies "
                  << " \n "
                  << " icount " << icount << " max " << siStripElectronHandle->end() - siStripElectronHandle->begin();
 
-    for (reco::SiStripElectronCollection::const_iterator strippyiter = siStripElectronHandle->begin();
-         strippyiter != siStripElectronHandle->end();
-         ++strippyiter) {
+    for (const auto& strippyiter : *siStripElectronHandle) {
       bool hitInCommon = false;
       // loop over rphi hits
-      for (std::vector<SiStripRecHit2D>::const_iterator hiter = strippyiter->rphiRecHits().begin();
-           hiter != strippyiter->rphiRecHits().end();
-           ++hiter) {
+      for (auto hiter = strippyiter.rphiRecHits().begin(); hiter != strippyiter.rphiRecHits().end(); ++hiter) {
         if (hiter->geographicalId().rawId() == id && (hiter->localPosition() - pos).mag() < 1e-10) {
           hitInCommon = true;
           break;
         }
       }
 
-      for (std::vector<SiStripRecHit2D>::const_iterator hiter = strippyiter->stereoRecHits().begin();
-           hiter != strippyiter->stereoRecHits().end();
-           ++hiter) {
+      for (auto hiter = strippyiter.stereoRecHits().begin(); hiter != strippyiter.stereoRecHits().end(); ++hiter) {
         if (hiter->geographicalId().rawId() == id && (hiter->localPosition() - pos).mag() < 1e-10) {
           hitInCommon = true;
           break;
@@ -557,8 +546,8 @@ void SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
       if (hitInCommon) {  //this Electron belongs to this SiStripElectron.
         hasElectron_[icount] = true;
         Electron_to_strippy[ecount] = icount;
-        ptDiff->Fill(std::abs(electronIter->track()->pt()) - std::abs(strippyiter->pt()));
-        pDiff->Fill(std::abs(electronIter->track()->p()) - std::abs(strippyiter->p()));
+        ptDiff->Fill(std::abs(electronIter.track()->pt()) - std::abs(strippyiter.pt()));
+        pDiff->Fill(std::abs(electronIter.track()->p()) - std::abs(strippyiter.p()));
       }
       icount++;
     }  // Sistrip loop
@@ -568,22 +557,20 @@ void SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
   LogDebug("") << " Done looping over Electrons ";
 
   unsigned int counter = 0;
-  for (reco::SiStripElectronCollection::const_iterator strippyIter = siStripElectronHandle->begin();
-       strippyIter != siStripElectronHandle->end();
-       ++strippyIter) {
+  for (const auto& strippyIter : *siStripElectronHandle) {
     bool skipThis = !hasElectron_[counter];
     if (skipThis) {
       // plot stuff for SIStripElectrons that don't have fits associated
 
       LogDebug("") << " SiStrip Failed Electron "
                    << " \n "
-                   << " p " << strippyIter->p() << " \n "
-                   << " pt " << strippyIter->pt() << " \n "
-                   << " SuperClust size " << strippyIter->superCluster()->clustersSize();
+                   << " p " << strippyIter.p() << " \n "
+                   << " pt " << strippyIter.pt() << " \n "
+                   << " SuperClust size " << strippyIter.superCluster()->clustersSize();
 
-      pElectronFailed->Fill(std::abs(strippyIter->p()));
-      ptElectronFailed->Fill(std::abs(strippyIter->pt()));
-      sizeSuperClustersFailed->Fill(strippyIter->superCluster()->clustersSize());
+      pElectronFailed->Fill(std::abs(strippyIter.p()));
+      ptElectronFailed->Fill(std::abs(strippyIter.pt()));
+      sizeSuperClustersFailed->Fill(strippyIter.superCluster()->clustersSize());
       LogDebug("") << " done filling Failed histos ";
       //      energySuperClustersFailed->Fill(strippyIter->superCluster()->energy());
       //       if(strippyIter->p()>0.) {
@@ -595,12 +582,12 @@ void SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
     } else {
       LogDebug("") << " SiStrip Passed Electron "
                    << " \n "
-                   << " p " << strippyIter->p() << " \n "
-                   << " pt " << strippyIter->pt() << " \n "
-                   << " SuperClust size " << strippyIter->superCluster()->clustersSize();
-      pElectronPassed->Fill(std::abs(strippyIter->p()));
-      ptElectronPassed->Fill(std::abs(strippyIter->pt()));
-      sizeSuperClustersPassed->Fill(strippyIter->superCluster()->clustersSize());
+                   << " p " << strippyIter.p() << " \n "
+                   << " pt " << strippyIter.pt() << " \n "
+                   << " SuperClust size " << strippyIter.superCluster()->clustersSize();
+      pElectronPassed->Fill(std::abs(strippyIter.p()));
+      ptElectronPassed->Fill(std::abs(strippyIter.pt()));
+      sizeSuperClustersPassed->Fill(strippyIter.superCluster()->clustersSize());
       LogDebug("") << " done filling passed histos ";
       //      energySuperClustersPassed->Fill(strippyIter->superCluster()->energy());
       //       if(strippyIter->p()>0.) {
@@ -615,15 +602,13 @@ void SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
 
   LogDebug("") << "Dump info for all electrons ";
 
-  for (reco::ElectronCollection::const_iterator electronIter1 = electrons->begin(); electronIter1 != electrons->end();
-       ++electronIter1) {
+  for (auto electronIter1 = electrons->begin(); electronIter1 != electrons->end(); ++electronIter1) {
     reco::TrackRef tr1 = (*electronIter1).track();
     // let's find its associated SiStripElectron and SuperCluster
     unsigned int ecount1 = electronIter1 - electrons->begin();
     unsigned int stripCount1 = 0;
     reco::SiStripElectronCollection::const_iterator strippyIter1;
-    for (reco::SiStripElectronCollection::const_iterator strippyIter = siStripElectronHandle->begin();
-         strippyIter != siStripElectronHandle->end();
+    for (auto strippyIter = siStripElectronHandle->begin(); strippyIter != siStripElectronHandle->end();
          ++strippyIter) {
       if (Electron_to_strippy[ecount1] == stripCount1) {
         strippyIter1 = strippyIter;
@@ -672,9 +657,7 @@ void SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
   /// For events w/ more than 1 electron candidate, try to plot m(e,e)
   if (electrons->end() - electrons->begin() > 1) {
     edm::LogInfo("") << " Two electrons in this event " << std::endl;
-    for (reco::ElectronCollection::const_iterator electronIter1 = electrons->begin();
-         electronIter1 != electrons->end() - 1;
-         ++electronIter1) {
+    for (auto electronIter1 = electrons->begin(); electronIter1 != electrons->end() - 1; ++electronIter1) {
       reco::TrackRef tr1 = (*electronIter1).track();
 
       // let's find its associated SiStripElectron and SuperCluster
@@ -683,8 +666,7 @@ void SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
       // loop over strippies to find the corresponding one
       unsigned int stripCount1 = 0;
       reco::SiStripElectronCollection::const_iterator strippyIter1;
-      for (reco::SiStripElectronCollection::const_iterator strippyIter = siStripElectronHandle->begin();
-           strippyIter != siStripElectronHandle->end();
+      for (auto strippyIter = siStripElectronHandle->begin(); strippyIter != siStripElectronHandle->end();
            ++strippyIter) {
         if (Electron_to_strippy[ecount1] == stripCount1) {
           strippyIter1 = strippyIter;
@@ -698,16 +680,13 @@ void SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
       double YClust1 = strippyIter1->superCluster()->y();
       double ZClust1 = strippyIter1->superCluster()->z();
 
-      for (reco::ElectronCollection::const_iterator electronIter2 = electronIter1 + 1;
-           electronIter2 != electrons->end();
-           ++electronIter2) {
+      for (auto electronIter2 = electronIter1 + 1; electronIter2 != electrons->end(); ++electronIter2) {
         reco::TrackRef tr2 = (*electronIter2).track();
 
         unsigned int ecount2 = electronIter2 - electrons->begin();
         unsigned int stripCount2 = 0;
         reco::SiStripElectronCollection::const_iterator strippyIter2;
-        for (reco::SiStripElectronCollection::const_iterator strippyIter = siStripElectronHandle->begin();
-             strippyIter != siStripElectronHandle->end();
+        for (auto strippyIter = siStripElectronHandle->begin(); strippyIter != siStripElectronHandle->end();
              ++strippyIter) {
           if (Electron_to_strippy[ecount2] == stripCount2) {
             strippyIter2 = strippyIter;
@@ -800,11 +779,9 @@ void SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
 
   ////// get cluster
   NShowers_ = 0;
-  for (reco::SuperClusterCollection::const_iterator clusterIter = clusterHandle->begin();
-       clusterIter != clusterHandle->end();
-       ++clusterIter) {
-    double energy = clusterIter->energy();
-    math::XYZPoint position = clusterIter->position();
+  for (const auto& clusterIter : *clusterHandle) {
+    double energy = clusterIter.energy();
+    math::XYZPoint position = clusterIter.position();
     if (NShowers_ < myMaxHits) {
       EShower_[NShowers_] = energy;
       XShower_[NShowers_] = position.x();
@@ -823,17 +800,14 @@ void SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
 
   /////// Loop over Stereo Hits
   int myHits = 0;
-  for (SiStripRecHit2DCollection::DataContainer::const_iterator hit = stereoHitsHandle->data().begin(),
-                                                                hitend = stereoHitsHandle->data().end();
-       hit != hitend;
-       ++hit) {
-    DetId id(hit->geographicalId());
-    if ((hit->geographicalId()).subdetId() == StripSubdetector::TIB ||
-        (hit->geographicalId()).subdetId() == StripSubdetector::TOB) {
-      GlobalPoint position = trackerHandle->idToDet(hit->geographicalId())->surface().toGlobal(hit->localPosition());
+  for (const auto& hit : stereoHitsHandle->data()) {
+    DetId id(hit.geographicalId());
+    if ((hit.geographicalId()).subdetId() == StripSubdetector::TIB ||
+        (hit.geographicalId()).subdetId() == StripSubdetector::TOB) {
+      GlobalPoint position = trackerHandle->idToDet(hit.geographicalId())->surface().toGlobal(hit.localPosition());
       //from RecoLocalTracker/SiStripClusterizer/test/TestCluster.cc
       // cf also TrackHitAssociator.cc SiStripRecHitMatcher.cc SiStrip1DMeasurementTransformator.cc (KalmanUpdators)
-      SiStripRecHit2D const rechit = *hit;
+      SiStripRecHit2D const rechit = hit;
       //	LocalPoint myposition = rechit.localPosition() ;
       LocalError myerror = rechit.localPositionError();
 
@@ -842,12 +816,12 @@ void SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
       Int_t siLayerNum = 0;
       Int_t siDetNum = 0;
       string siDetName = "";
-      if ((hit->geographicalId()).subdetId() == StripSubdetector::TIB) {
+      if ((hit.geographicalId()).subdetId() == StripSubdetector::TIB) {
         //	   siLayerNum = tTopo->tibLayer(rechit->geographicalID());
         siLayerNum = tTopo->tibLayer(id);
         siDetNum = 1;
         siDetName = "TIB";
-      } else if ((hit->geographicalId()).subdetId() == StripSubdetector::TOB) {
+      } else if ((hit.geographicalId()).subdetId() == StripSubdetector::TOB) {
         siLayerNum = tTopo->tobLayer(id);
         siDetNum = 2;
         siDetName = "TOB";
@@ -876,8 +850,8 @@ void SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
         //	  LogDebug("") << " barycenter " << clust->barycenter() ;
         //	  const std::vector<uint16_t> amplitudes=clust->amplitudes();
         const auto& amplitudes = clust->amplitudes();
-        for (size_t i = 0; i < amplitudes.size(); i++) {
-          Signal += amplitudes[i];
+        for (unsigned char amplitude : amplitudes) {
+          Signal += amplitude;
           //ignore for now	     Noise2 +=SiStripNoiseService_.getNoise(detid,clust->firstStrip()+i)*SiStripNoiseService_.getNoise(detid,clust->firstStrip()+i);
           StripCount++;
         }
@@ -930,18 +904,15 @@ void SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
   LogDebug("") << " Looping over Mono Hits ";
   /////// Loop over Mono Hits
   myHits = 0;
-  for (SiStripRecHit2DCollection::DataContainer::const_iterator hit = rphiHitsHandle->data().begin(),
-                                                                hitend = rphiHitsHandle->data().end();
-       hit != hitend;
-       ++hit) {
-    DetId id(hit->geographicalId());
+  for (const auto& hit : rphiHitsHandle->data()) {
+    DetId id(hit.geographicalId());
 
-    if ((hit->geographicalId()).subdetId() == StripSubdetector::TIB ||
-        (hit->geographicalId()).subdetId() == StripSubdetector::TOB) {
-      GlobalPoint position = trackerHandle->idToDet(hit->geographicalId())->surface().toGlobal(hit->localPosition());
+    if ((hit.geographicalId()).subdetId() == StripSubdetector::TIB ||
+        (hit.geographicalId()).subdetId() == StripSubdetector::TOB) {
+      GlobalPoint position = trackerHandle->idToDet(hit.geographicalId())->surface().toGlobal(hit.localPosition());
       //from RecoLocalTracker/SiStripClusterizer/test/TestCluster.cc
       // cf also TrackHitAssociator.cc SiStripRecHitMatcher.cc SiStrip1DMeasurementTransformator.cc (KalmanUpdators)
-      SiStripRecHit2D const rechit = *hit;
+      SiStripRecHit2D const rechit = hit;
       //	LocalPoint myposition = rechit.localPosition() ;
       LocalError myerror = rechit.localPositionError();
 
@@ -950,12 +921,12 @@ void SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
       Int_t siLayerNum = 0;
       Int_t siDetNum = 0;
       string siDetName = "";
-      if ((hit->geographicalId()).subdetId() == StripSubdetector::TIB) {
+      if ((hit.geographicalId()).subdetId() == StripSubdetector::TIB) {
         //	   siLayerNum = tTopo->tibLayer(rechit->geographicalID());
         siLayerNum = tTopo->tibLayer(id);
         siDetNum = 1;
         siDetName = "TIB";
-      } else if ((hit->geographicalId()).subdetId() == StripSubdetector::TOB) {
+      } else if ((hit.geographicalId()).subdetId() == StripSubdetector::TOB) {
         siLayerNum = tTopo->tobLayer(id);
         siDetNum = 2;
         siDetName = "TOB";
@@ -984,8 +955,8 @@ void SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
         //	  LogDebug("") << " barycenter " << clust->barycenter() ;
         //	  const std::vector<uint16_t> amplitudes=clust->amplitudes();
         const auto& amplitudes = clust->amplitudes();
-        for (size_t i = 0; i < amplitudes.size(); i++) {
-          Signal += amplitudes[i];
+        for (unsigned char amplitude : amplitudes) {
+          Signal += amplitude;
           //ignore for now	     Noise2 +=SiStripNoiseService_.getNoise(detid,clust->firstStrip()+i)*SiStripNoiseService_.getNoise(detid,clust->firstStrip()+i);
           StripCount++;
         }
@@ -1043,15 +1014,12 @@ void SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
 
   /////// Loop over Matched Hits
   myHits = 0;
-  for (SiStripMatchedRecHit2DCollection::DataContainer::const_iterator hit = matchedHitsHandle->data().begin(),
-                                                                       hitend = matchedHitsHandle->data().end();
-       hit != hitend;
-       ++hit) {
-    DetId id(hit->geographicalId());
-    if ((hit->geographicalId()).subdetId() == StripSubdetector::TIB ||
-        (hit->geographicalId()).subdetId() == StripSubdetector::TOB) {
-      GlobalPoint position = trackerHandle->idToDet(hit->geographicalId())->surface().toGlobal(hit->localPosition());
-      SiStripMatchedRecHit2D const rechit = *hit;
+  for (const auto& hit : matchedHitsHandle->data()) {
+    DetId id(hit.geographicalId());
+    if ((hit.geographicalId()).subdetId() == StripSubdetector::TIB ||
+        (hit.geographicalId()).subdetId() == StripSubdetector::TOB) {
+      GlobalPoint position = trackerHandle->idToDet(hit.geographicalId())->surface().toGlobal(hit.localPosition());
+      SiStripMatchedRecHit2D const rechit = hit;
       //	LocalPoint myposition = rechit.localPosition() ;
       LocalError myerror = rechit.localPositionError();
 
@@ -1060,11 +1028,11 @@ void SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
       Int_t siLayerNum = 0;
       Int_t siDetNum = 0;
       string siDetName = "";
-      if ((hit->geographicalId()).subdetId() == StripSubdetector::TIB) {
+      if ((hit.geographicalId()).subdetId() == StripSubdetector::TIB) {
         siLayerNum = tTopo->tibLayer(id);
         siDetNum = 1;
         siDetName = "TIB";
-      } else if ((hit->geographicalId()).subdetId() == StripSubdetector::TOB) {
+      } else if ((hit.geographicalId()).subdetId() == StripSubdetector::TOB) {
         siLayerNum = tTopo->tobLayer(id);
         siDetNum = 2;
         siDetName = "TOB";

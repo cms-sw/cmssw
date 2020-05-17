@@ -23,7 +23,7 @@ namespace edm {
     ~ModelFilter() override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-    std::vector<std::string> split(std::string fstring, std::string splitter);
+    std::vector<std::string> split(const std::string& fstring, const std::string& splitter);
     typedef std::vector<std::string>::const_iterator comments_const_iterator;
 
   private:

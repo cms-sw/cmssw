@@ -8,7 +8,7 @@ EcalTimeBiasCorrections::EcalTimeBiasCorrections(const EcalTimeBiasCorrections& 
 template <typename T>
 static inline void print_vector(std::ostream& o, const std::vector<T>& vect) {
   o << "[";
-  for (std::vector<float>::const_iterator i = vect.begin(); i != vect.end(); ++i) {
+  for (auto i = vect.begin(); i != vect.end(); ++i) {
     std::cout << *i << ", ";
   }
   o << "]";

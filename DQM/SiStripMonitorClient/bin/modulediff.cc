@@ -25,9 +25,9 @@ using namespace std;
 
 int  read_badmodlist     ( int            , string         , vector < int >& );
 void get_difference      ( vector < int > , vector < int > , vector < int >& );
-int  get_filename        ( int            , string         , string& );
-int  search_closest_run  ( int , string );
-void modulediff ( int run_2 , string repro_run2 );
+int get_filename(int, const string&, string&);
+int search_closest_run(int, const string&);
+void modulediff(int run_2, const string& repro_run2);
 
 int main(int argc , char *argv[]) {
 
@@ -48,8 +48,7 @@ int main(int argc , char *argv[]) {
 
 }
 
-void modulediff ( int run_2 , string repro_run2 )
-{
+void modulediff(int run_2, const string& repro_run2) {
   vector < int > badmodlist_run1;
   vector < int > badmodlist_run2;
   vector < int > modules_recovered;
@@ -94,14 +93,14 @@ void modulediff ( int run_2 , string repro_run2 )
   outfile << "Recovered modules in run " << run_2 << ":" << endl;
   if ( modules_recovered.empty() ) 
     outfile << " -" << endl;
-  for ( unsigned int i = 0; i < modules_recovered.size() ; i++ )
-    outfile << " " << modules_recovered[ i ] << endl;
-  
+  for (int i : modules_recovered)
+    outfile << " " << i << endl;
+
   outfile << "New bad modules that appeared in run " << run_2 << ":" << endl;
   if ( modules_malformed.empty() ) 
     outfile << " -" << endl;
-  for ( unsigned int i = 0; i < modules_malformed.size() ; i++ )
-    outfile << " " << modules_malformed[ i ] << endl;
+  for (int i : modules_malformed)
+    outfile << " " << i << endl;
 
   outfile.close();
 
@@ -111,8 +110,8 @@ void modulediff ( int run_2 , string repro_run2 )
     {
       std::ofstream outfile_good;
       outfile_good.open("modulediff_good.txt");
-      for ( unsigned int i = 0; i < modules_recovered.size() ; i++ )
-	outfile_good << " " << modules_recovered[ i ] << endl;
+      for (int i : modules_recovered)
+        outfile_good << " " << i << endl;
       outfile_good.close();
     }
 
@@ -120,8 +119,8 @@ void modulediff ( int run_2 , string repro_run2 )
     {
       std::ofstream outfile_bad;
       outfile_bad.open("modulediff_bad.txt");
-      for ( unsigned int i = 0; i < modules_malformed.size() ; i++ )
-	outfile_bad << " " << modules_malformed[ i ] << endl;
+      for (int i : modules_malformed)
+        outfile_bad << " " << i << endl;
       outfile_bad.close();
     }
 }
@@ -129,26 +128,24 @@ void modulediff ( int run_2 , string repro_run2 )
 void get_difference  ( vector < int > badlist1 , vector < int > badlist2 , vector < int > &difflist )
 {
   //check if any element of badlist1 is in badlist2
-  for ( unsigned int i1 = 0; i1 < badlist1.size() ; i1++ )
-    {
-      bool thisrecovered = true;
-      for ( unsigned int i2 = 0; i2 < badlist2.size() ; i2++ )
-	if ( badlist1[ i1 ] == badlist2[ i2 ] )
-	  {
-	    thisrecovered = false;
-	    break;
-	  }
-      if ( thisrecovered )
-	difflist.push_back ( badlist1[ i1 ] );
-    }
+  for (int i1 : badlist1) {
+    bool thisrecovered = true;
+    for (int i2 : badlist2)
+      if (i1 == i2) {
+        thisrecovered = false;
+        break;
+      }
+    if (thisrecovered)
+      difflist.push_back(i1);
+  }
 }
 
 
 int read_badmodlist ( int run , string repro_type , vector < int >& badlist )
 {
   string filename;
-  int flag = get_filename ( run , repro_type , filename );
-  
+  int flag = get_filename(run, std::move(repro_type), filename);
+
   if ( flag < 0 )
     {
       cout << "reading problem" << endl;
@@ -156,12 +153,12 @@ int read_badmodlist ( int run , string repro_type , vector < int >& badlist )
     }
 
   vector<string> subdet;
-  subdet.push_back("TIB");
-  subdet.push_back("TID/MINUS"); 
-  subdet.push_back("TID/PLUS");
-  subdet.push_back("TOB");
-  subdet.push_back("TEC/MINUS");
-  subdet.push_back("TEC/PLUS");
+  subdet.emplace_back("TIB");
+  subdet.emplace_back("TID/MINUS");
+  subdet.emplace_back("TID/PLUS");
+  subdet.emplace_back("TOB");
+  subdet.emplace_back("TEC/MINUS");
+  subdet.emplace_back("TEC/PLUS");
 
   string nrun = filename.substr ( filename.find( "_R000" ) + 5 , 6 );
 
@@ -170,36 +167,30 @@ int read_badmodlist ( int run , string repro_type , vector < int >& badlist )
   gDirectory->cd(topdir.c_str());
   TDirectory* mec1 = gDirectory;
 
-  for ( unsigned int i=0; i < subdet.size(); i++ )
-    {
-      string badmodule_dir = subdet[ i ] + "/BadModuleList";
-      if ( gDirectory->cd ( badmodule_dir.c_str() ) ) 
-	{
-	  TIter next ( gDirectory->GetListOfKeys() );
-	  TKey *key;
+  for (const auto& i : subdet) {
+    string badmodule_dir = i + "/BadModuleList";
+    if (gDirectory->cd(badmodule_dir.c_str())) {
+      TIter next(gDirectory->GetListOfKeys());
+      TKey* key;
 
-	  while  ( ( key = dynamic_cast<TKey*> ( next() ) ) ) 
-	    {
-	      string sflag = key->GetName();
-	      if ( sflag.empty() ) continue;
-	      
-	      string detid = sflag.substr ( sflag.find ( "<" ) + 1 , 9 ); 
-	      badlist.push_back ( atoi ( detid.c_str() ) );
-	    }
-	}
-      else
-	{
-	  //cout << "no dir " << badmodule_dir << " in filename " << filename << endl;
-	}
-      mec1->cd();
+      while ((key = dynamic_cast<TKey*>(next()))) {
+        string sflag = key->GetName();
+        if (sflag.empty())
+          continue;
+
+        string detid = sflag.substr(sflag.find('<') + 1, 9);
+        badlist.push_back(atoi(detid.c_str()));
+      }
+    } else {
+      //cout << "no dir " << badmodule_dir << " in filename " << filename << endl;
     }
+    mec1->cd();
+  }
   dqmfile->Close();
   return 0;
 }
 
-
-int get_filename  ( int run , string repro_type , string& filename )
-{
+int get_filename(int run, const string& repro_type, string& filename) {
   stringstream runstr;
   runstr << run;
   
@@ -249,9 +240,7 @@ int get_filename  ( int run , string repro_type , string& filename )
   return 0;
 }
 
-
-int  search_closest_run  ( int thisrun , string repro_type )
-{
+int search_closest_run(int thisrun, const string& repro_type) {
   string filename;
 
   for ( int test_run = thisrun - 1; test_run > thisrun - 1000; test_run-- )

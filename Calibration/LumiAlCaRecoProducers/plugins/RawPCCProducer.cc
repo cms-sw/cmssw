@@ -116,8 +116,8 @@ void RawPCCProducer::globalEndLuminosityBlockProduce(edm::LuminosityBlock& lumiS
 
   //summing over good modules only
   for (int bx = 0; bx < int(LumiConstants::numBX); bx++) {
-    for (unsigned int i = 0; i < goodMods.size(); i++) {
-      clustersPerBXOutput.at(bx) += clustersPerBXInput.at(goodMods.at(i) * int(LumiConstants::numBX) + bx);
+    for (int goodMod : goodMods) {
+      clustersPerBXOutput.at(bx) += clustersPerBXInput.at(goodMod * int(LumiConstants::numBX) + bx);
     }
   }
 

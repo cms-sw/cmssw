@@ -29,15 +29,15 @@ public:
   LMFDefFabric(EcalDBConnection* c);
   ~LMFDefFabric() override;
 
-  LMFColor getColor(std::string name) const;
+  LMFColor getColor(const std::string& name) const;
   LMFColor getColor(int color_index) const;
   LMFColor getColorFromID(int color_id) const;
   int getColorID(std::string name) const;
   int getColorID(int color_index) const;
-  LMFTrigType getTrigType(std::string sname) const;
+  LMFTrigType getTrigType(const std::string& sname) const;
   LMFTrigType getTrigTypeFromID(int trigType_id) const;
   int getTrigTypeID(std::string sname) const;
-  LMFRunTag getRunTag(std::string tag, int version) const;
+  LMFRunTag getRunTag(const std::string& tag, int version) const;
   LMFRunTag getRunTagFromID(int runTag_id) const;
   int getRunTagID(std::string tag, int version) const;
 

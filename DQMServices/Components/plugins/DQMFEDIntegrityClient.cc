@@ -171,13 +171,13 @@ void DQMFEDIntegrityClient::fillHistograms() {
   entries.push_back("RPC/" + fedFolderName + "/FEDEntries");
   entries.push_back("SiStrip/" + fedFolderName + "/FEDEntries");
 
-  for (auto ent = entries.begin(); ent != entries.end(); ++ent) {
-    if (!(dbe_->get(*ent))) {
+  for (auto& entrie : entries) {
+    if (!(dbe_->get(entrie))) {
       //      cout << ">> Endluminosity No histogram! <<" << endl;
       continue;
     }
 
-    MonitorElement* me = dbe_->get(*ent);
+    MonitorElement* me = dbe_->get(entrie);
 
     if (TH1F* rootHisto = me->getTH1F()) {
       int xmin = 0;
@@ -186,7 +186,7 @@ void DQMFEDIntegrityClient::fillHistograms() {
       float entry = 0.;
 
       xmin = (int)rootHisto->GetXaxis()->GetXmin();
-      if (*ent == "L1T/" + fedFolderName + "/FEDEntries")
+      if (entrie == "L1T/" + fedFolderName + "/FEDEntries")
         xmin = xmin + 800;
 
       for (int bin = 1; bin <= Nbins; ++bin) {
@@ -219,8 +219,8 @@ void DQMFEDIntegrityClient::fillHistograms() {
   float sum = 0.;
 
   auto ent = entries.begin();
-  for (auto fat = fatal.begin(); fat != fatal.end(); ++fat) {
-    if (!(dbe_->get(*fat))) {
+  for (auto& fat : fatal) {
+    if (!(dbe_->get(fat))) {
       //      cout << ">> No histogram! <<" << endl;
       reportSummaryContent[k]->Fill(-1);
       reportSummaryMap->setBinContent(1, nSubsystems - k, -1);
@@ -229,7 +229,7 @@ void DQMFEDIntegrityClient::fillHistograms() {
       continue;
     }
 
-    MonitorElement* me = dbe_->get(*fat);
+    MonitorElement* me = dbe_->get(fat);
     MonitorElement* meNorm = dbe_->get(*ent);
     //      cout << "Path : " << me->getFullname() << endl;
 
@@ -244,11 +244,11 @@ void DQMFEDIntegrityClient::fillHistograms() {
         int xmax = 0;
 
         xmin = (int)rootHisto->GetXaxis()->GetXmin();
-        if (*fat == "L1T/" + fedFolderName + "/FEDFatal")
+        if (fat == "L1T/" + fedFolderName + "/FEDFatal")
           xmin = xmin + 800;
 
         xmax = (int)rootHisto->GetXaxis()->GetXmax();
-        if (*fat == "L1T/" + fedFolderName + "/FEDFatal")
+        if (fat == "L1T/" + fedFolderName + "/FEDFatal")
           xmax = xmax + 800;
 
         //      cout << "FED ID range : " << xmin << " - " << xmax << endl;
@@ -298,13 +298,13 @@ void DQMFEDIntegrityClient::fillHistograms() {
   nonfatal.push_back("RPC/" + fedFolderName + "/FEDNonFatal");
   nonfatal.push_back("SiStrip/" + fedFolderName + "/FEDNonFatal");
 
-  for (auto non = nonfatal.begin(); non != nonfatal.end(); ++non) {
-    if (!(dbe_->get(*non))) {
+  for (auto& non : nonfatal) {
+    if (!(dbe_->get(non))) {
       //      cout << ">> No histogram! <<" << endl;
       continue;
     }
 
-    MonitorElement* me = dbe_->get(*non);
+    MonitorElement* me = dbe_->get(non);
 
     if (TH1F* rootHisto = me->getTH1F()) {
       int xmin = 0;
@@ -313,7 +313,7 @@ void DQMFEDIntegrityClient::fillHistograms() {
       float entry = 0.;
 
       xmin = (int)rootHisto->GetXaxis()->GetXmin();
-      if (*non == "L1T/" + fedFolderName + "/FEDNonFatal")
+      if (non == "L1T/" + fedFolderName + "/FEDNonFatal")
         xmin = xmin + 800;
 
       for (int bin = 1; bin <= Nbins; ++bin) {

@@ -17,13 +17,13 @@ L1TUtmTriggerMenuObjectKeysOnlineProd::L1TUtmTriggerMenuObjectKeysOnlineProd(con
 void L1TUtmTriggerMenuObjectKeysOnlineProd::fillObjectKeys(L1TriggerKeyExt* pL1TriggerKey) {
   std::string uGTKey = pL1TriggerKey->subsystemKey(L1TriggerKeyExt::kuGT);
 
-  uGTKey = uGTKey.substr(0, uGTKey.find(":"));
+  uGTKey = uGTKey.substr(0, uGTKey.find(':'));
 
   std::string stage2Schema = "CMS_TRG_L1_CONF";
 
   std::string l1_menu_key;
   std::vector<std::string> queryStrings;
-  queryStrings.push_back("L1_MENU");
+  queryStrings.emplace_back("L1_MENU");
 
   std::string l1_menu_name, ugt_key;
 

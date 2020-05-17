@@ -90,7 +90,7 @@ private:
   // Book a set of histograms for a give chamber
   void bookHistos(DTSuperLayerId slId, int step);
   // Fill a set of histograms for a give chamber
-  void fillHistos(DTSuperLayerId slId,
+  void fillHistos(const DTSuperLayerId& slId,
                   float distance,
                   float residualOnDistance,
                   float position,

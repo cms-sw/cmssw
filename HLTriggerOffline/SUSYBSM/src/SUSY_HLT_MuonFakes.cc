@@ -29,8 +29,8 @@ void SUSY_HLT_MuonFakes::dqmBeginRun(edm::Run const &run, edm::EventSetup const 
 
   bool pathFound = false;
   const std::vector<std::string> allTrigNames = fHltConfig.triggerNames();
-  for (size_t j = 0; j < allTrigNames.size(); ++j) {
-    if (allTrigNames[j].find(triggerPath_) != std::string::npos) {
+  for (const auto &allTrigName : allTrigNames) {
+    if (allTrigName.find(triggerPath_) != std::string::npos) {
       pathFound = true;
     }
   }
@@ -76,8 +76,8 @@ void SUSY_HLT_MuonFakes::analyze(edm::Event const &e, edm::EventSetup const &eSe
   trigger::TriggerObjectCollection triggerObjects = triggerSummary->getObjects();
   if (!(filterIndex >= triggerSummary->sizeFilters())) {
     const trigger::Keys &keys = triggerSummary->filterKeys(filterIndex);
-    for (size_t j = 0; j < keys.size(); ++j) {
-      trigger::TriggerObject foundObject = triggerObjects[keys[j]];
+    for (unsigned short key : keys) {
+      trigger::TriggerObject foundObject = triggerObjects[key];
       if (foundObject.id() == 13) {  // Muons check number
         h_triggerMuPt->Fill(foundObject.pt());
         h_triggerMuEta->Fill(foundObject.eta());

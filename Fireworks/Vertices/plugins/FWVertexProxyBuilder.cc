@@ -120,7 +120,7 @@ void FWVertexProxyBuilder::build(const reco::Vertex& iData,
 
   // tracks
   if (item()->getConfig()->value<bool>("Draw Tracks")) {
-    for (reco::Vertex::trackRef_iterator it = v.tracks_begin(); it != v.tracks_end(); ++it) {
+    for (auto it = v.tracks_begin(); it != v.tracks_end(); ++it) {
       float w = v.trackWeight(*it);
       if (w < 0.5)
         continue;

@@ -55,12 +55,11 @@ void DTEfficiencyTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
                                              DQMStore::IGetter& igetter,
                                              edm::LuminosityBlock const& lumiSeg,
                                              edm::EventSetup const& context) {
-  for (map<int, MonitorElement*>::const_iterator histo = wheelHistos.begin(); histo != wheelHistos.end(); histo++) {
+  for (auto histo = wheelHistos.begin(); histo != wheelHistos.end(); histo++) {
     (*histo).second->Reset();
   }
 
-  for (map<int, MonitorElement*>::const_iterator histo = wheelUnassHistos.begin(); histo != wheelUnassHistos.end();
-       histo++) {
+  for (auto histo = wheelUnassHistos.begin(); histo != wheelUnassHistos.end(); histo++) {
     (*histo).second->Reset();
   }
 
@@ -75,8 +74,8 @@ void DTEfficiencyTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
 
   edm::LogVerbatim("efficiency") << "[DTEfficiencyTest]: " << nLumiSegs << " updates";
 
-  vector<const DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
-  vector<const DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
+  auto ch_it = muonGeom->chambers().begin();
+  auto ch_end = muonGeom->chambers().end();
 
   edm::LogVerbatim("efficiency") << "[DTEfficiencyTest]: Efficiency tests results";
 
@@ -108,14 +107,14 @@ void DTEfficiencyTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
   // Loop over the chambers
   for (; ch_it != ch_end; ++ch_it) {
     DTChamberId chID = (*ch_it)->id();
-    vector<const DTSuperLayer*>::const_iterator sl_it = (*ch_it)->superLayers().begin();
-    vector<const DTSuperLayer*>::const_iterator sl_end = (*ch_it)->superLayers().end();
+    auto sl_it = (*ch_it)->superLayers().begin();
+    auto sl_end = (*ch_it)->superLayers().end();
 
     // Loop over the SuperLayers
     for (; sl_it != sl_end; ++sl_it) {
       DTSuperLayerId slID = (*sl_it)->id();
-      vector<const DTLayer*>::const_iterator l_it = (*sl_it)->layers().begin();
-      vector<const DTLayer*>::const_iterator l_end = (*sl_it)->layers().end();
+      auto l_it = (*sl_it)->layers().begin();
+      auto l_end = (*sl_it)->layers().end();
 
       // Loop over the layers
       for (; l_it != l_end; ++l_it) {
@@ -178,17 +177,15 @@ void DTEfficiencyTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
   // Efficiency test
   //cout<<"[DTEfficiencyTest]: Efficiency Tests results"<<endl;
   string EfficiencyCriterionName = parameters.getUntrackedParameter<string>("EfficiencyTestName", "EfficiencyInRange");
-  for (map<DTLayerId, MonitorElement*>::const_iterator hEff = EfficiencyHistos.begin(); hEff != EfficiencyHistos.end();
-       hEff++) {
+  for (auto hEff = EfficiencyHistos.begin(); hEff != EfficiencyHistos.end(); hEff++) {
     const QReport* theEfficiencyQReport = (*hEff).second->getQReport(EfficiencyCriterionName);
     double counter = 0;
     if (theEfficiencyQReport) {
       vector<dqm::me_util::Channel> badChannels = theEfficiencyQReport->getBadChannels();
-      for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); channel != badChannels.end();
-           channel++) {
+      for (auto& badChannel : badChannels) {
         edm::LogError("efficiency") << "LayerID : " << getMEName("hEffOccupancy", (*hEff).first)
-                                    << " Bad efficiency channels: " << (*channel).getBin()
-                                    << "  Contents : " << (*channel).getContents();
+                                    << " Bad efficiency channels: " << badChannel.getBin()
+                                    << "  Contents : " << badChannel.getContents();
         counter++;
       }
       LayerBadCells[(*hEff).first].push_back(counter);
@@ -202,17 +199,14 @@ void DTEfficiencyTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
   //cout<<"[DTEfficiencyTest]: UnassEfficiency Tests results"<<endl;
   string UnassEfficiencyCriterionName =
       parameters.getUntrackedParameter<string>("UnassEfficiencyTestName", "UnassEfficiencyInRange");
-  for (map<DTLayerId, MonitorElement*>::const_iterator hUnassEff = UnassEfficiencyHistos.begin();
-       hUnassEff != UnassEfficiencyHistos.end();
-       hUnassEff++) {
+  for (auto hUnassEff = UnassEfficiencyHistos.begin(); hUnassEff != UnassEfficiencyHistos.end(); hUnassEff++) {
     const QReport* theUnassEfficiencyQReport = (*hUnassEff).second->getQReport(UnassEfficiencyCriterionName);
     double counter = 0;
     if (theUnassEfficiencyQReport) {
       vector<dqm::me_util::Channel> badChannels = theUnassEfficiencyQReport->getBadChannels();
-      for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); channel != badChannels.end();
-           channel++) {
-        edm::LogError("efficiency") << "Bad unassEfficiency channels: " << (*channel).getBin() << " "
-                                    << (*channel).getContents();
+      for (auto& badChannel : badChannels) {
+        edm::LogError("efficiency") << "Bad unassEfficiency channels: " << badChannel.getBin() << " "
+                                    << badChannel.getContents();
         counter++;
       }
       LayerUnassBadCells[(*hUnassEff).first].push_back(counter);
@@ -223,11 +217,11 @@ void DTEfficiencyTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
     }
   }
 
-  vector<const DTChamber*>::const_iterator ch2_it = muonGeom->chambers().begin();
-  vector<const DTChamber*>::const_iterator ch2_end = muonGeom->chambers().end();
+  auto ch2_it = muonGeom->chambers().begin();
+  auto ch2_end = muonGeom->chambers().end();
   for (; ch2_it != ch2_end; ++ch2_it) {
-    vector<const DTSuperLayer*>::const_iterator sl2_it = (*ch2_it)->superLayers().begin();
-    vector<const DTSuperLayer*>::const_iterator sl2_end = (*ch2_it)->superLayers().end();
+    auto sl2_it = (*ch2_it)->superLayers().begin();
+    auto sl2_end = (*ch2_it)->superLayers().end();
     // Loop over the SLs
     for (; sl2_it != sl2_end; ++sl2_it) {
       DTSuperLayerId sl = (*sl2_it)->id();
@@ -236,8 +230,8 @@ void DTEfficiencyTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
       double superLayerUnassBadC = 0;
       double superLayerUnassTotC = 0;
       bool fill = false;
-      vector<const DTLayer*>::const_iterator l2_it = (*sl2_it)->layers().begin();
-      vector<const DTLayer*>::const_iterator l2_end = (*sl2_it)->layers().end();
+      auto l2_it = (*sl2_it)->layers().begin();
+      auto l2_end = (*sl2_it)->layers().end();
       // Loop over the Ls
       for (; l2_it != l2_end; ++l2_it) {
         DTLayerId layerId = (*l2_it)->id();
@@ -259,9 +253,7 @@ void DTEfficiencyTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
     }
   }
 
-  for (map<DTSuperLayerId, vector<double> >::const_iterator SLBCells = SuperLayerBadCells.begin();
-       SLBCells != SuperLayerBadCells.end();
-       SLBCells++) {
+  for (auto SLBCells = SuperLayerBadCells.begin(); SLBCells != SuperLayerBadCells.end(); SLBCells++) {
     if ((*SLBCells).second[0] / (*SLBCells).second[1] > double(percentual / 100)) {
       if (wheelHistos.find((*SLBCells).first.wheel()) == wheelHistos.end())
         bookHistos(ibooker, (*SLBCells).first.wheel());
@@ -288,9 +280,7 @@ void DTEfficiencyTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
     }
   }
 
-  for (map<DTSuperLayerId, vector<double> >::const_iterator SLUBCells = SuperLayerUnassBadCells.begin();
-       SLUBCells != SuperLayerUnassBadCells.end();
-       SLUBCells++) {
+  for (auto SLUBCells = SuperLayerUnassBadCells.begin(); SLUBCells != SuperLayerUnassBadCells.end(); SLUBCells++) {
     if ((*SLUBCells).second[0] / (*SLUBCells).second[1] > double(percentual / 100)) {
       if (wheelUnassHistos.find((*SLUBCells).first.wheel()) == wheelUnassHistos.end())
         bookHistos(ibooker, (*SLUBCells).first.wheel());
@@ -322,7 +312,7 @@ void DTEfficiencyTest::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& 
   edm::LogVerbatim("efficiency") << "[DTEfficiencyTest] endjob called!";
 }
 
-string DTEfficiencyTest::getMEName(string histoTag, const DTLayerId& lID) {
+string DTEfficiencyTest::getMEName(const string& histoTag, const DTLayerId& lID) {
   stringstream wheel;
   wheel << lID.superlayerId().wheel();
   stringstream station;

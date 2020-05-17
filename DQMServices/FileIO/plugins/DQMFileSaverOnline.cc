@@ -111,7 +111,7 @@ void DQMFileSaverOnline::makeSnapshot(const FileParameters& fp, bool final) cons
   }
 }
 
-void DQMFileSaverOnline::appendSnapshot(SnapshotFiles f) const {
+void DQMFileSaverOnline::appendSnapshot(const SnapshotFiles& f) const {
   std::lock_guard<std::mutex> lock(snapshots_lock_);
 
   if (!keepBackupLumi_) {

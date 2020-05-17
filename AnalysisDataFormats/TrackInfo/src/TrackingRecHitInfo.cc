@@ -4,7 +4,7 @@
 using namespace reco;
 
 const LocalVector TrackingRecHitInfo::localTrackMomentumOnMono(StateType statetype) const {
-  TrackingStates::const_iterator state = states_.find(statetype);
+  auto state = states_.find(statetype);
   if (state != states_.end())
     return state->second.localTrackMomentumOnMono();
   else
@@ -13,7 +13,7 @@ const LocalVector TrackingRecHitInfo::localTrackMomentumOnMono(StateType statety
 }
 
 const LocalVector TrackingRecHitInfo::localTrackMomentumOnStereo(StateType statetype) const {
-  TrackingStates::const_iterator state = states_.find(statetype);
+  auto state = states_.find(statetype);
   if (state != states_.end())
     return state->second.localTrackMomentumOnStereo();
   else
@@ -22,7 +22,7 @@ const LocalVector TrackingRecHitInfo::localTrackMomentumOnStereo(StateType state
 }
 
 const LocalPoint TrackingRecHitInfo::localTrackPositionOnMono(StateType statetype) const {
-  TrackingStates::const_iterator state = states_.find(statetype);
+  auto state = states_.find(statetype);
   if (state != states_.end())
     return state->second.localTrackPositionOnMono();
   else
@@ -31,7 +31,7 @@ const LocalPoint TrackingRecHitInfo::localTrackPositionOnMono(StateType statetyp
 }
 
 const LocalPoint TrackingRecHitInfo::localTrackPositionOnStereo(StateType statetype) const {
-  TrackingStates::const_iterator state = states_.find(statetype);
+  auto state = states_.find(statetype);
   if (state != states_.end())
     return state->second.localTrackPositionOnStereo();
   else
@@ -40,7 +40,7 @@ const LocalPoint TrackingRecHitInfo::localTrackPositionOnStereo(StateType statet
 }
 
 const PTrajectoryStateOnDet* TrackingRecHitInfo::stateOnDet(StateType statetype) const {
-  TrackingStates::const_iterator state = states_.find(statetype);
+  auto state = states_.find(statetype);
   if (state != states_.end())
     return state->second.stateOnDet();
   else

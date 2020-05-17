@@ -82,9 +82,9 @@ PrescalerFHN::PrescalerFHN(const edm::ParameterSet& iConfig) {
   //now do what ever initialization is needed
   std::vector<edm::ParameterSet> prescales_in(iConfig.getParameter<std::vector<edm::ParameterSet> >("Prescales"));
 
-  for (std::vector<edm::ParameterSet>::const_iterator cit = prescales_in.begin(); cit != prescales_in.end(); cit++) {
-    std::string name(cit->getParameter<std::string>("HLTName"));
-    unsigned int factor(cit->getParameter<unsigned int>("PrescaleFactor"));
+  for (const auto& cit : prescales_in) {
+    std::string name(cit.getParameter<std::string>("HLTName"));
+    unsigned int factor(cit.getParameter<unsigned int>("PrescaleFactor"));
 
     // does some exception get thrown if parameters aren't available? should test...
 
@@ -105,7 +105,7 @@ PrescalerFHN::~PrescalerFHN() {
 void PrescalerFHN::init(const edm::TriggerResults& result, const edm::TriggerNames& triggerNames) {
   trigger_indices.clear();
 
-  for (std::map<std::string, unsigned int>::const_iterator cit = prescales.begin(); cit != prescales.end(); cit++) {
+  for (auto cit = prescales.begin(); cit != prescales.end(); cit++) {
     trigger_indices[cit->first] = triggerNames.triggerIndex(cit->first);
 
     if (trigger_indices[cit->first] >= result.size()) {
@@ -148,8 +148,7 @@ bool PrescalerFHN::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // - Begin checking for HLT bits
 
   bool accept_event = false;
-  for (std::map<std::string, unsigned int>::const_iterator cit = trigger_indices.begin(); cit != trigger_indices.end();
-       cit++) {
+  for (auto cit = trigger_indices.begin(); cit != trigger_indices.end(); cit++) {
     if (trh->accept(cit->second)) {
       prescale_counter[cit->first]++;
       if (prescale_counter[cit->first] >= prescales[cit->first]) {

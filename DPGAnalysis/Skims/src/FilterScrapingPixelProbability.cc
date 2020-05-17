@@ -43,7 +43,7 @@ bool FilterScrapingPixelProbability::filter(edm::Event& iEvent, const edm::Event
     // Loop on tracks
     for (tciter = tracks->begin(); tciter != tracks->end(); ++tciter) {
       // First loop on hits: find pixel hits
-      for (trackingRecHit_iterator it = tciter->recHitsBegin(); it != tciter->recHitsEnd(); ++it) {
+      for (auto it = tciter->recHitsBegin(); it != tciter->recHitsEnd(); ++it) {
         const TrackingRecHit& thit = **it;
 
         const SiPixelRecHit* matchedhit = dynamic_cast<const SiPixelRecHit*>(&thit);

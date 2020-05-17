@@ -139,7 +139,7 @@ public:
 
   // Helper method to find all of the sections in a given
   // parameters file
-  void getSections(std::string inputFile, std::vector<std::string>& outputs);
+  void getSections(const std::string& inputFile, std::vector<std::string>& outputs);
 
   key_type getShiftMcFlavBin(std::string const& Flav);
   key_type getShiftDyFlavBin(std::string const& Flav);

@@ -47,8 +47,8 @@ void FastFedCablingTask::fill(const SiStripEventSummary& summary, const edm::Det
   }
 
   uint32_t bin = summary.binNumber();
-  for (uint16_t ibin = 0; ibin < digis.data.size(); ibin++) {
-    updateHistoSet(histo_, bin, digis.data[ibin].adc());
+  for (auto ibin : digis.data) {
+    updateHistoSet(histo_, bin, ibin.adc());
   }
 }
 

@@ -54,7 +54,7 @@ void CMSG4RegionReporter::ReportRegions(const std::string& ss) {
     G4String lengthUnitName = "mm";
     unsigned int pmax = 4;  // g, e-, e+, proton
 
-    std::vector<G4LogicalVolume*>::iterator rootLVItr = region->GetRootLogicalVolumeIterator();
+    auto rootLVItr = region->GetRootLogicalVolumeIterator();
     size_t numRootLV = region->GetNumberOfRootVolumes();
 
     for (size_t iLV = 0; iLV < numRootLV; ++iLV, ++rootLVItr) {

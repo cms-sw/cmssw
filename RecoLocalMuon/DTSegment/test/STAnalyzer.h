@@ -55,13 +55,13 @@ public:
   STAnalyzer(const edm::ParameterSet& pset);
 
   /* Destructor */
-  ~STAnalyzer();
+  ~STAnalyzer() override;
 
   /* Operations */
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
 
-  virtual void beginJob();
-  void beginRun(const edm::Run& run, const edm::EventSetup& setup);
+  void beginJob() override;
+  void beginRun(const edm::Run& run, const edm::EventSetup& setup) override;
 
 private:
   void analyzeSATrack(const edm::Event& event, const edm::EventSetup& eventSetup);

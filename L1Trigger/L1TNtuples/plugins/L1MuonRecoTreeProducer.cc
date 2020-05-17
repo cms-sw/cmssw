@@ -103,8 +103,8 @@ class L1MuonRecoTreeProducer : public edm::EDAnalyzer {
 public:
   explicit L1MuonRecoTreeProducer(const edm::ParameterSet &);
   ~L1MuonRecoTreeProducer() override;
-  TrajectoryStateOnSurface cylExtrapTrkSam(reco::TrackRef track, double rho);
-  TrajectoryStateOnSurface surfExtrapTrkSam(reco::TrackRef track, double z);
+  TrajectoryStateOnSurface cylExtrapTrkSam(const reco::TrackRef &track, double rho);
+  TrajectoryStateOnSurface surfExtrapTrkSam(const reco::TrackRef &track, double z);
   void empty_global();
   void empty_tracker();
   void empty_standalone();
@@ -170,7 +170,7 @@ private:
   edm::ESHandle<Propagator> propagatorAlong;
   edm::ESHandle<Propagator> propagatorOpposite;
 
-  FreeTrajectoryState freeTrajStateMuon(reco::TrackRef track);
+  FreeTrajectoryState freeTrajStateMuon(const reco::TrackRef &track);
 
   // output file
   edm::Service<TFileService> fs_;
@@ -229,8 +229,7 @@ double L1MuonRecoTreeProducer::match_trigger(std::vector<int> &trigIndices,
                                              const reco::Muon &mu) {
   double matchDeltaR = 9999;
 
-  for (size_t iTrigIndex = 0; iTrigIndex < trigIndices.size(); ++iTrigIndex) {
-    int triggerIndex = trigIndices[iTrigIndex];
+  for (int triggerIndex : trigIndices) {
     const std::vector<std::string> moduleLabels(hltConfig_.moduleLabels(triggerIndex));
     // find index of the last module:
     const unsigned moduleIndex = hltConfig_.size(triggerIndex) - 2;
@@ -493,7 +492,7 @@ void L1MuonRecoTreeProducer::analyze(const edm::Event &iEvent, const edm::EventS
   iSetup.get<TrackingComponentsRecord>().get("SmartPropagatorAny", propagatorAlong);
   iSetup.get<TrackingComponentsRecord>().get("SmartPropagatorAnyOpposite", propagatorOpposite);
 
-  for (reco::MuonCollection::const_iterator imu = mucand->begin();
+  for (auto imu = mucand->begin();
        // for(pat::MuonCollection::const_iterator imu = mucand->begin();
        imu != mucand->end() && (unsigned)muonData->nMuons < maxMuon_;
        imu++) {
@@ -613,8 +612,8 @@ void L1MuonRecoTreeProducer::analyze(const edm::Event &iEvent, const edm::EventS
       float globalPhiRCH = -999999;
 
       if (isSA || isGL) {
-        trackingRecHit_iterator hit = imu->outerTrack()->recHitsBegin();
-        trackingRecHit_iterator hitEnd = imu->outerTrack()->recHitsEnd();
+        auto hit = imu->outerTrack()->recHitsBegin();
+        auto hitEnd = imu->outerTrack()->recHitsEnd();
 
         for (; hit != hitEnd; ++hit) {
           if (!((*hit)->isValid()))
@@ -1241,7 +1240,7 @@ void L1MuonRecoTreeProducer::analyze(const edm::Event &iEvent, const edm::EventS
 }
 
 // to get the track position info at a particular rho
-TrajectoryStateOnSurface L1MuonRecoTreeProducer::cylExtrapTrkSam(reco::TrackRef track, double rho) {
+TrajectoryStateOnSurface L1MuonRecoTreeProducer::cylExtrapTrkSam(const reco::TrackRef &track, double rho) {
   Cylinder::PositionType pos(0, 0, 0);
   Cylinder::RotationType rot;
   Cylinder::CylinderPointer myCylinder = Cylinder::build(pos, rot, rho);
@@ -1256,7 +1255,7 @@ TrajectoryStateOnSurface L1MuonRecoTreeProducer::cylExtrapTrkSam(reco::TrackRef 
 }
 
 // to get track position at a particular (xy) plane given its z
-TrajectoryStateOnSurface L1MuonRecoTreeProducer::surfExtrapTrkSam(reco::TrackRef track, double z) {
+TrajectoryStateOnSurface L1MuonRecoTreeProducer::surfExtrapTrkSam(const reco::TrackRef &track, double z) {
   Plane::PositionType pos(0, 0, z);
   Plane::RotationType rot;
   Plane::PlanePointer myPlane = Plane::build(pos, rot);
@@ -1270,7 +1269,7 @@ TrajectoryStateOnSurface L1MuonRecoTreeProducer::surfExtrapTrkSam(reco::TrackRef
   return recoProp;
 }
 
-FreeTrajectoryState L1MuonRecoTreeProducer::freeTrajStateMuon(reco::TrackRef track) {
+FreeTrajectoryState L1MuonRecoTreeProducer::freeTrajStateMuon(const reco::TrackRef &track) {
   GlobalPoint innerPoint(track->innerPosition().x(), track->innerPosition().y(), track->innerPosition().z());
   GlobalVector innerVec(track->innerMomentum().x(), track->innerMomentum().y(), track->innerMomentum().z());
 
@@ -1291,9 +1290,9 @@ void L1MuonRecoTreeProducer::beginRun(const edm::Run &run, const edm::EventSetup
     }
 
     bool enableWildcard = true;
-    for (size_t iTrig = 0; iTrig < triggerNames_.size(); ++iTrig) {
+    for (const auto &triggerName : triggerNames_) {
       // prepare for regular expression (with wildcards) functionality:
-      TString tNameTmp = TString(triggerNames_[iTrig]);
+      TString tNameTmp = TString(triggerName);
       TRegexp tNamePattern = TRegexp(tNameTmp, enableWildcard);
       int tIndex = -1;
       // find the trigger index:
@@ -1306,13 +1305,13 @@ void L1MuonRecoTreeProducer::beginRun(const edm::Run &run, const edm::EventSetup
         }
       }
       if (tIndex < 0) {  // if can't find trigger path at all, give warning:
-        std::cout << "Warning: Could not find trigger" << triggerNames_[iTrig] << std::endl;
+        std::cout << "Warning: Could not find trigger" << triggerName << std::endl;
         //assert(false);
       }
     }  // end for triggerNames
-    for (size_t iTrig = 0; iTrig < isoTriggerNames_.size(); ++iTrig) {
+    for (const auto &isoTriggerName : isoTriggerNames_) {
       // prepare for regular expression functionality:
-      TString tNameTmp = TString(isoTriggerNames_[iTrig]);
+      TString tNameTmp = TString(isoTriggerName);
       TRegexp tNamePattern = TRegexp(tNameTmp, enableWildcard);
       int tIndex = -1;
       // find the trigger index:
@@ -1325,7 +1324,7 @@ void L1MuonRecoTreeProducer::beginRun(const edm::Run &run, const edm::EventSetup
         }
       }
       if (tIndex < 0) {  // if can't find trigger path at all, give warning:
-        std::cout << "Warning: Could not find trigger" << isoTriggerNames_[iTrig] << std::endl;
+        std::cout << "Warning: Could not find trigger" << isoTriggerName << std::endl;
         //assert(false);
       }
     }  // end for isoTriggerNames

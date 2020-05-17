@@ -44,7 +44,7 @@ public:
 
   Skipped skipped_;
 
-  void setUp() {
+  void setUp() override {
     // Make some fake processHistoryID's to work with
     nullPHID = ProcessHistoryID();
 
@@ -68,7 +68,7 @@ public:
     fakePHID3 = ph3.id();
   }
 
-  void tearDown() {}
+  void tearDown() override {}
 
   void testIterEndWithLumi();
   void testIterEndWithRun();

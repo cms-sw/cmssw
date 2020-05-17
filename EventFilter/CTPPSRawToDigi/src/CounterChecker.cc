@@ -11,7 +11,7 @@
 
 using namespace std;
 
-void CounterChecker::Fill(word counter, TotemFramePosition fr) {
+void CounterChecker::Fill(word counter, const TotemFramePosition& fr) {
   pair<CounterMap::iterator, bool> ret;
 
   vector<TotemFramePosition> list;

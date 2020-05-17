@@ -434,17 +434,17 @@ public:
   }
 
   /// dtor
-  virtual ~findHotPixels() {}
+  ~findHotPixels() override {}
 
-  void beginJob();
+  void beginJob() override;
 
   //void beginRun( const edm::EventSetup& ) {}
 
   // end of job
-  void endJob();
+  void endJob() override;
 
   /// get data, convert to digis attach againe to Event
-  virtual void analyze(const edm::Event &, const edm::EventSetup &);
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
 
 private:
   edm::ParameterSet theConfig;
@@ -456,8 +456,8 @@ private:
 void findHotPixels::endJob() {
   if (countEvents > 0) {
     sumPixels /= float(countEvents);
-    for (int i = 0; i < 40; ++i)
-      sumFedPixels[i] /= float(countEvents);
+    for (float &sumFedPixel : sumFedPixels)
+      sumFedPixel /= float(countEvents);
   }
 
   cout << " Total/non-empty events " << countAllEvents << " / " << countEvents << " average number of pixels "
@@ -476,8 +476,8 @@ void findHotPixels::beginJob() {
   countEvents = 0;
   countAllEvents = 0;
   sumPixels = 0.;
-  for (int i = 0; i < 40; ++i)
-    sumFedPixels[i] = 0;
+  for (float &sumFedPixel : sumFedPixels)
+    sumFedPixel = 0;
 }
 
 void findHotPixels::analyze(const edm::Event &ev, const edm::EventSetup &es) {

@@ -24,6 +24,7 @@
 #include "SimGeneral/HepPDTRecord/interface/PdtEntry.h"
 
 #include <ext/algorithm>
+#include <memory>
 
 namespace pat {
   class PATGenCandsFromSimTracksProducer : public edm::stream::EDProducer<> {
@@ -151,7 +152,7 @@ const SimTrack *PATGenCandsFromSimTracksProducer::findGeantMother(const SimTrack
     const SimVertex &vtx = g.simvtxs[tk.vertIndex()];
     if (!vtx.noParent()) {
       unsigned int idx = vtx.parentIndex();
-      SimTrackContainer::const_iterator it = std::lower_bound(g.simtks.begin(), g.simtks.end(), idx, LessById());
+      auto it = std::lower_bound(g.simtks.begin(), g.simtks.end(), idx, LessById());
       if ((it != g.simtks.end()) && (it->trackId() == idx)) {
         return &*it;
       }
@@ -173,7 +174,7 @@ edm::Ref<reco::GenParticleCollection> PATGenCandsFromSimTracksProducer::findRef(
   if (writeAncestors_) {
     // If writing ancestors, I need to serialize myself, and then to return a ref to me
     // But first check if I've already been serialized
-    std::map<unsigned int, int>::const_iterator it = g.simTksProcessed.find(tk.trackId());
+    auto it = g.simTksProcessed.find(tk.trackId());
     if (it != g.simTksProcessed.end()) {
       // just return a ref to it
       assert(it->second > 0);
@@ -229,17 +230,17 @@ void PATGenCandsFromSimTracksProducer::produce(Event &event, const EventSetup &i
   if (firstEvent_) {
     if (!pdts_.empty()) {
       pdgIds_.clear();
-      for (vector<PdtEntry>::iterator itp = pdts_.begin(), edp = pdts_.end(); itp != edp; ++itp) {
-        itp->setup(iSetup);  // decode string->pdgId and vice-versa
-        pdgIds_.insert(std::abs(itp->pdgId()));
+      for (auto &pdt : pdts_) {
+        pdt.setup(iSetup);  // decode string->pdgId and vice-versa
+        pdgIds_.insert(std::abs(pdt.pdgId()));
       }
       pdts_.clear();
     }
     if (!motherPdts_.empty()) {
       motherPdgIds_.clear();
-      for (vector<PdtEntry>::iterator itp = motherPdts_.begin(), edp = motherPdts_.end(); itp != edp; ++itp) {
-        itp->setup(iSetup);  // decode string->pdgId and vice-versa
-        motherPdgIds_.insert(std::abs(itp->pdgId()));
+      for (auto &motherPdt : motherPdts_) {
+        motherPdt.setup(iSetup);  // decode string->pdgId and vice-versa
+        motherPdgIds_.insert(std::abs(motherPdt.pdgId()));
       }
       motherPdts_.clear();
     }
@@ -255,7 +256,7 @@ void PATGenCandsFromSimTracksProducer::produce(Event &event, const EventSetup &i
   const SimTrackContainer *simtracksSorted = &*simtracks;
   if (makeMotherLink_ || writeAncestors_) {
     if (!__gnu_cxx::is_sorted(simtracks->begin(), simtracks->end(), LessById())) {
-      simtracksTmp.reset(new SimTrackContainer(*simtracks));
+      simtracksTmp = std::make_unique<SimTrackContainer>(*simtracks);
       std::sort(simtracksTmp->begin(), simtracksTmp->end(), LessById());
       simtracksSorted = &*simtracksTmp;
     }
@@ -283,25 +284,25 @@ void PATGenCandsFromSimTracksProducer::produce(Event &event, const EventSetup &i
 
   GlobalContext globals(*simtracksSorted, *simvertices, gens, genBarcodes, barcodesAreSorted, *cands, refprod);
 
-  for (SimTrackContainer::const_iterator isimtrk = simtracks->begin(); isimtrk != simtracks->end(); ++isimtrk) {
+  for (const auto &isimtrk : *simtracks) {
     // Skip PYTHIA tracks.
-    if (isimtrk->genpartIndex() != -1)
+    if (isimtrk.genpartIndex() != -1)
       continue;
 
     // Maybe apply the PdgId filter
     if (!pdgIds_.empty()) {  // if we have a filter on pdg ids
-      if (pdgIds_.find(std::abs(isimtrk->type())) == pdgIds_.end())
+      if (pdgIds_.find(std::abs(isimtrk.type())) == pdgIds_.end())
         continue;
     }
 
-    GenParticle genp = makeGenParticle_(*isimtrk, Ref<GenParticleCollection>(), globals);
+    GenParticle genp = makeGenParticle_(isimtrk, Ref<GenParticleCollection>(), globals);
 
     // Maybe apply filter on the particle
     if (!(filter_(genp)))
       continue;
 
     if (!motherPdgIds_.empty()) {
-      const SimTrack *motherSimTk = findGeantMother(*isimtrk, globals);
+      const SimTrack *motherSimTk = findGeantMother(isimtrk, globals);
       if (motherSimTk == nullptr)
         continue;
       if (motherPdgIds_.find(std::abs(motherSimTk->type())) == motherPdgIds_.end())
@@ -310,7 +311,7 @@ void PATGenCandsFromSimTracksProducer::produce(Event &event, const EventSetup &i
 
     if (makeMotherLink_ || writeAncestors_) {
       Ref<GenParticleCollection> motherRef;
-      const SimTrack *mother = findGeantMother(*isimtrk, globals);
+      const SimTrack *mother = findGeantMother(isimtrk, globals);
       if (mother != nullptr)
         motherRef = findRef(*mother, globals);
       if (motherRef.isNonnull())

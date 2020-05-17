@@ -52,7 +52,7 @@ JetCorrectorImplMakerBase::~JetCorrectorImplMakerBase() {}
 //
 
 std::shared_ptr<FactorizedJetCorrectorCalculator const> JetCorrectorImplMakerBase::getCalculator(
-    edm::EventSetup const& iSetup, std::function<void(std::string const&)> iLevelCheck) {
+    edm::EventSetup const& iSetup, const std::function<void(std::string const&)>& iLevelCheck) {
   auto const& rec = iSetup.get<JetCorrectionsRecord>();
   if (cacheId_ != rec.cacheIdentifier()) {
     edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;

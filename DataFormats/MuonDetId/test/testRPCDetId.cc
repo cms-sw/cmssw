@@ -25,8 +25,8 @@ class testRPCDetId : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp();
-  void tearDown() {}
+  void setUp() override;
+  void tearDown() override {}
 
   void testOne();
   void testGasId();
@@ -100,23 +100,23 @@ void testRPCDetId::testFail() {
   try {
     // Station number too high
     RPCDetId detid(0, 1, 7, 2, 2, 1, 1);
-    CPPUNIT_ASSERT("Failed to throw required exception" == 0);
+    CPPUNIT_ASSERT("Failed to throw required exception" == nullptr);
     detid.rawId();  // avoid compiler warning
   } catch (cms::Exception& e) {
     // OK
   } catch (...) {
-    CPPUNIT_ASSERT("Threw wrong kind of exception" == 0);
+    CPPUNIT_ASSERT("Threw wrong kind of exception" == nullptr);
   }
 
   // contruct using an invalid input id
   try {
     RPCDetId detid(100);
-    CPPUNIT_ASSERT("Failed to throw required exception" == 0);
+    CPPUNIT_ASSERT("Failed to throw required exception" == nullptr);
     detid.rawId();  // avoid compiler warning
   } catch (cms::Exception& e) {
     // OK
   } catch (...) {
-    CPPUNIT_ASSERT("Threw wrong kind of exception" == 0);
+    CPPUNIT_ASSERT("Threw wrong kind of exception" == nullptr);
   }
 }
 

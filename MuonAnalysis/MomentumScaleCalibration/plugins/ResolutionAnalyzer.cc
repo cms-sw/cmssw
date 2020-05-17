@@ -75,8 +75,8 @@ void ResolutionAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   std::vector<std::pair<unsigned int, unsigned long long> > evtRun;
   rootTreeHandler.readTree(maxEvents_, treeFileName_, &savedPairVector, 0, &evtRun, &genPairVector);
-  MuonPairVector::iterator savedPair = savedPairVector.begin();
-  MuonPairVector::iterator genPair = genPairVector.begin();
+  auto savedPair = savedPairVector.begin();
+  auto genPair = genPairVector.begin();
   std::cout << "Starting loop on " << savedPairVector.size() << " muons" << std::endl;
   for (; savedPair != savedPairVector.end(); ++savedPair, ++genPair) {
     ++eventCounter_;
@@ -563,8 +563,7 @@ void ResolutionAnalyzer::fillHistoMap() {
 }
 
 void ResolutionAnalyzer::writeHistoMap() {
-  for (std::map<std::string, Histograms*>::const_iterator histo = mapHisto_.begin(); histo != mapHisto_.end();
-       histo++) {
+  for (auto histo = mapHisto_.begin(); histo != mapHisto_.end(); histo++) {
     (*histo).second->Write();
   }
   outputFile_->cd();

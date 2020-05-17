@@ -235,7 +235,7 @@ void TrackAnalyzer::initHisto(DQMStore::IBooker& ibooker,
 
 void TrackAnalyzer::bookHistosForEfficiencyFromHitPatter(DQMStore::IBooker& ibooker,
                                                          const edm::EventSetup& iSetup,
-                                                         const std::string suffix,
+                                                         const std::string& suffix,
                                                          bool useInac) {
   ibooker.setCurrentFolder(TopFolder_ + "/HitEffFromHitPattern" + (useInac ? "All" : "") + suffix);
 
@@ -1109,7 +1109,7 @@ void TrackAnalyzer::setNumberOfGoodVertices(const edm::Event& iEvent) {
   iEvent.getByToken(pvToken_, recoPrimaryVerticesHandle);
   if (recoPrimaryVerticesHandle.isValid())
     if (!recoPrimaryVerticesHandle->empty())
-      for (auto v : *recoPrimaryVerticesHandle)
+      for (const auto& v : *recoPrimaryVerticesHandle)
         if (v.ndof() >= pvNDOF_ && !v.isFake())
           ++good_vertices_;
 }
@@ -1123,7 +1123,7 @@ void TrackAnalyzer::setLumi(const edm::Event& iEvent, const edm::EventSetup& iSe
     edm::Handle<LumiScalersCollection> lumiScalers;
     iEvent.getByToken(lumiscalersToken_, lumiScalers);
     if (lumiScalers.isValid() && !lumiScalers->empty()) {
-      LumiScalersCollection::const_iterator scalit = lumiScalers->begin();
+      auto scalit = lumiScalers->begin();
       scal_lumi_ = scalit->instantLumi();
     } else
       scal_lumi_ = -1;
@@ -1411,7 +1411,7 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 }
 
 void TrackAnalyzer::fillHistosForEfficiencyFromHitPatter(const reco::Track& track,
-                                                         const std::string suffix,
+                                                         const std::string& suffix,
                                                          const float monitoring,
                                                          bool useInac) {
   int mon = -1;
@@ -1466,7 +1466,7 @@ void TrackAnalyzer::fillHistosForEfficiencyFromHitPatter(const reco::Track& trac
 
 // book histograms at differnt measurement points
 // ---------------------------------------------------------------------------------//
-void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore::IBooker& ibooker) {
+void TrackAnalyzer::bookHistosForState(const std::string& sname, DQMStore::IBooker& ibooker) {
   // parameters from the configuration
   std::string QualName = conf_->getParameter<std::string>("Quality");
   std::string AlgoName = conf_->getParameter<std::string>("AlgoName");
@@ -1939,7 +1939,9 @@ void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore::IBooker& ibo
 
 // fill histograms at differnt measurement points
 // ---------------------------------------------------------------------------------//
-void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco::Track& track, std::string sname) {
+void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup,
+                                       const reco::Track& track,
+                                       const std::string& sname) {
   //get the kinematic parameters
   double p, px, py, pz, pt, theta, phi, eta, q;
   double pxerror, pyerror, pzerror, pterror, perror, phierror, etaerror;
@@ -2006,7 +2008,7 @@ void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco
     etaerror = sqrt(TSOS.curvilinearError().matrix()(1, 1)) * fabs(sin(TSOS.globalMomentum().theta()));
   }
 
-  std::map<std::string, TkParameterMEs>::iterator iPos = TkParameterMEMap.find(sname);
+  auto iPos = TkParameterMEMap.find(sname);
   if (iPos != TkParameterMEMap.end()) {
     TkParameterMEs tkmes = iPos->second;
 
@@ -2271,7 +2273,7 @@ void TrackAnalyzer::bookHistosForTrackerSpecific(DQMStore::IBooker& ibooker) {
   std::vector<std::string> subdetectors = conf_->getParameter<std::vector<std::string> >("subdetectors");
   int detBin = conf_->getParameter<int>("subdetectorBin");
 
-  for (auto det : subdetectors) {
+  for (const auto& det : subdetectors) {
     // hits properties
     ibooker.setCurrentFolder(TopFolder_ + "/HitProperties/" + det);
 
@@ -2361,12 +2363,10 @@ void TrackAnalyzer::fillHistosForTrackerSpecific(const reco::Track& track) {
   double eta = track.eta();
   double pt = track.pt();
 
-  for (std::map<std::string, TkRecHitsPerSubDetMEs>::iterator it = TkRecHitsPerSubDetMEMap.begin();
-       it != TkRecHitsPerSubDetMEMap.end();
-       it++) {
+  for (auto& it : TkRecHitsPerSubDetMEMap) {
     int nValidLayers = 0;
     int nValidRecHits = 0;
-    int substr = it->second.detectorId;
+    int substr = it.second.detectorId;
     switch (substr) {
       case 0:
         nValidLayers = track.hitPattern().pixelBarrelLayersWithMeasurement() +
@@ -2412,14 +2412,14 @@ void TrackAnalyzer::fillHistosForTrackerSpecific(const reco::Track& track) {
     }
 
     //Fill Layers and RecHits
-    it->second.NumberOfRecHitsPerTrack->Fill(nValidRecHits);
-    it->second.NumberOfRecHitsPerTrackVsPhi->Fill(phi, nValidRecHits);
-    it->second.NumberOfRecHitsPerTrackVsEta->Fill(eta, nValidRecHits);
-    it->second.NumberOfRecHitsPerTrackVsPt->Fill(pt, nValidRecHits);
+    it.second.NumberOfRecHitsPerTrack->Fill(nValidRecHits);
+    it.second.NumberOfRecHitsPerTrackVsPhi->Fill(phi, nValidRecHits);
+    it.second.NumberOfRecHitsPerTrackVsEta->Fill(eta, nValidRecHits);
+    it.second.NumberOfRecHitsPerTrackVsPt->Fill(pt, nValidRecHits);
 
-    it->second.NumberOfLayersPerTrack->Fill(nValidLayers);
-    it->second.NumberOfLayersPerTrackVsPhi->Fill(phi, nValidLayers);
-    it->second.NumberOfLayersPerTrackVsEta->Fill(eta, nValidLayers);
-    it->second.NumberOfLayersPerTrackVsPt->Fill(pt, nValidLayers);
+    it.second.NumberOfLayersPerTrack->Fill(nValidLayers);
+    it.second.NumberOfLayersPerTrackVsPhi->Fill(phi, nValidLayers);
+    it.second.NumberOfLayersPerTrackVsEta->Fill(eta, nValidLayers);
+    it.second.NumberOfLayersPerTrackVsPt->Fill(pt, nValidLayers);
   }
 }

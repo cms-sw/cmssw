@@ -13,7 +13,7 @@ public:
 
   void printAnalyses() override;  // override
 
-  void save(std::string& filename, uint32_t run_number = 0, std::string partitionName = "");
+  void save(std::string& filename, uint32_t run_number = 0, const std::string& partitionName = "");
 
 private:
   // Needed for the calibration-scan analysis

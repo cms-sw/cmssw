@@ -19,8 +19,8 @@ std::unique_ptr<FEDRawDataCollection> RawDataFEDSelector::select(const Handle<FE
 
   // if vector of FED indexes is defined, loop over it
   if (!fedList.empty()) {
-    vector<int>::const_iterator it = fedList.begin();
-    vector<int>::const_iterator itEnd = fedList.end();
+    auto it = fedList.begin();
+    auto itEnd = fedList.end();
     for (; it != itEnd; ++it) {
       const FEDRawData& fedData = rawData->FEDData(*it);
       size_t size = fedData.size();

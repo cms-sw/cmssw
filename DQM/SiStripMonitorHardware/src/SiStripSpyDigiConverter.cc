@@ -1,3 +1,5 @@
+#include <memory>
+
 #include <vector>
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -45,8 +47,8 @@ namespace sistrip {
     lFedScopeDigis.reserve(sistrip::FEDCH_PER_FED);
 
     // Loop over channels in input collection
-    DSVRawDigis::const_iterator inputChannel = inputScopeDigis->begin();
-    const DSVRawDigis::const_iterator endChannels = inputScopeDigis->end();
+    auto inputChannel = inputScopeDigis->begin();
+    const auto endChannels = inputScopeDigis->end();
     bool hasBeenProcessed = false;
 
     for (; inputChannel != endChannels; ++inputChannel) {
@@ -110,7 +112,7 @@ namespace sistrip {
     }
 
     //return DSV of output
-    return std::unique_ptr<DSVRawDigis>(new DSVRawDigis(outputData, true));
+    return std::make_unique<DSVRawDigis>(outputData, true);
 
   }  // end of SpyDigiConverter::extractPayloadDigis method
 
@@ -138,26 +140,26 @@ namespace sistrip {
         continue;
       }
 
-      DetSetRawDigis::const_iterator iDigi = (*lIter)->begin();
-      const DetSetRawDigis::const_iterator endOfChannel = (*lIter)->end();
+      auto iDigi = (*lIter)->begin();
+      const auto endOfChannel = (*lIter)->end();
 
       if (iDigi == endOfChannel) {
         continue;
       }
 
       //header starts in sample firstHeaderBit and is 18+6 samples long
-      const DetSetRawDigis::const_iterator payloadBegin = iDigi + aHeaderBitVec[lCh] + 24;
-      const DetSetRawDigis::const_iterator payloadEnd = payloadBegin + STRIPS_PER_FEDCH;
+      const auto payloadBegin = iDigi + aHeaderBitVec[lCh] + 24;
+      const auto payloadEnd = payloadBegin + STRIPS_PER_FEDCH;
 
       if (payloadEnd - iDigi >= endOfChannel - iDigi)
         continue;  // few-cases where this is possible, i.e. nothing above frame-threhsold
 
       // Copy data into output collection
       // Create new detSet with same key (in this case it is the fedKey, not detId)
-      outputData.push_back(DetSetRawDigis((*lIter)->detId()));
+      outputData.emplace_back((*lIter)->detId());
       std::vector<SiStripRawDigi>& outputDetSetData = outputData.back().data;
       outputDetSetData.resize(STRIPS_PER_FEDCH);
-      std::vector<SiStripRawDigi>::iterator outputBegin = outputDetSetData.begin();
+      auto outputBegin = outputDetSetData.begin();
       std::copy(payloadBegin, payloadEnd, outputBegin);
     }
 
@@ -178,11 +180,9 @@ namespace sistrip {
     outputData.reserve(inputPayloadDigis->size());
 
     // Loop over channels in input collection
-    for (DSVRawDigis::const_iterator inputChannel = inputPayloadDigis->begin();
-         inputChannel != inputPayloadDigis->end();
-         ++inputChannel) {
-      const std::vector<SiStripRawDigi>& inputDetSetData = inputChannel->data;
-      outputData.push_back(DetSetRawDigis(inputChannel->detId()));
+    for (const auto& inputPayloadDigi : *inputPayloadDigis) {
+      const std::vector<SiStripRawDigi>& inputDetSetData = inputPayloadDigi.data;
+      outputData.emplace_back(inputPayloadDigi.detId());
       std::vector<SiStripRawDigi>& outputDetSetData = outputData.back().data;
       outputDetSetData.resize(STRIPS_PER_FEDCH);
       // Copy the data into the output vector reordering
@@ -195,7 +195,7 @@ namespace sistrip {
     }
 
     //return DSV of output
-    return std::unique_ptr<DSVRawDigis>(new DSVRawDigis(outputData, true));
+    return std::make_unique<DSVRawDigis>(outputData, true);
   }  // end of SpyDigiConverter::reorderDigis method.
 
   std::unique_ptr<SpyDigiConverter::DSVRawDigis> SpyDigiConverter::mergeModuleChannels(
@@ -221,7 +221,7 @@ namespace sistrip {
 
         // Find the data from the input collection
         const uint32_t fedIndex = ((iConn->fedId() & sistrip::invalid_) << 16) | (iConn->fedCh() & sistrip::invalid_);
-        const DSVRawDigis::const_iterator iDetSet = inputPhysicalOrderChannelDigis->find(fedIndex);
+        const auto iDetSet = inputPhysicalOrderChannelDigis->find(fedIndex);
         if (iDetSet == inputPhysicalOrderChannelDigis->end()) {
           // NOTE: It will display this warning if channel hasn't been unpacked...
           // Will comment out for now.
@@ -233,8 +233,8 @@ namespace sistrip {
         dsvFiller.newChannel(iConn->detId(), iConn->apvPairNumber() * STRIPS_PER_FEDCH);
 
         // Add the data
-        DetSetRawDigis::const_iterator iDigi = iDetSet->begin();
-        const DetSetRawDigis::const_iterator endDetSetDigis = iDetSet->end();
+        auto iDigi = iDetSet->begin();
+        const auto endDetSetDigis = iDetSet->end();
         for (; iDigi != endDetSetDigis; ++iDigi) {
           dsvFiller.addItem(*iDigi);
         }  // end of loop over the digis.

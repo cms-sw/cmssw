@@ -50,7 +50,7 @@ namespace {
     ~CondGetterFromESSource() override {}
 
     cond::persistency::IOVProxy get(std::string name) const override {
-      CondDBESSource::ProxyMap::const_iterator p = m_proxies.find(name);
+      auto p = m_proxies.find(name);
       if (p != m_proxies.end())
         return (*p).second->iovProxy();
       return cond::persistency::IOVProxy();
@@ -79,7 +79,7 @@ namespace {
     //if ( proxy.proxy()->stats.nLoad>0) {
     out << "Time look up, payloadIds:" << std::endl;
     const auto& pids = *proxy.requests();
-    for (auto id : pids)
+    for (const auto& id : pids)
       out << "   " << id.since << " - " << id.till << " : " << id.payloadId << std::endl;
   }
 
@@ -147,26 +147,26 @@ CondDBESSource::CondDBESSource(const edm::ParameterSet& iConfig)
   if (iConfig.exists("toGet")) {
     typedef std::vector<edm::ParameterSet> Parameters;
     Parameters toGet = iConfig.getParameter<Parameters>("toGet");
-    for (Parameters::iterator itToGet = toGet.begin(); itToGet != toGet.end(); ++itToGet) {
-      std::string recordname = itToGet->getParameter<std::string>("record");
+    for (auto& itToGet : toGet) {
+      std::string recordname = itToGet.getParameter<std::string>("record");
       if (recordname.empty())
         throw cond::Exception("ESSource: The record name has not been provided in a \"toGet\" entry.");
-      std::string labelname = itToGet->getUntrackedParameter<std::string>("label", "");
+      std::string labelname = itToGet.getUntrackedParameter<std::string>("label", "");
       std::string pfn("");
-      if (m_connectionString.empty() || itToGet->exists("connect"))
-        pfn = itToGet->getParameter<std::string>("connect");
+      if (m_connectionString.empty() || itToGet.exists("connect"))
+        pfn = itToGet.getParameter<std::string>("connect");
       std::string tag("");
       std::string fqTag("");
-      if (itToGet->exists("tag")) {
-        tag = itToGet->getParameter<std::string>("tag");
+      if (itToGet.exists("tag")) {
+        tag = itToGet.getParameter<std::string>("tag");
         fqTag = cond::persistency::fullyQualifiedTag(tag, pfn);
       }
       boost::posix_time::ptime tagSnapshotTime =
           boost::posix_time::time_from_string(std::string(cond::time::MAX_TIMESTAMP));
-      if (itToGet->exists("snapshotTime"))
-        tagSnapshotTime = boost::posix_time::time_from_string(itToGet->getParameter<std::string>("snapshotTime"));
-      if (itToGet->exists("refreshTime")) {
-        cond::Time_t refreshTime = itToGet->getParameter<unsigned long long>("refreshTime");
+      if (itToGet.exists("snapshotTime"))
+        tagSnapshotTime = boost::posix_time::time_from_string(itToGet.getParameter<std::string>("snapshotTime"));
+      if (itToGet.exists("refreshTime")) {
+        cond::Time_t refreshTime = itToGet.getParameter<unsigned long long>("refreshTime");
         m_refreshTimeForRecord.insert(std::make_pair(recordname, refreshTime));
       }
 
@@ -198,8 +198,8 @@ CondDBESSource::CondDBESSource(const edm::ParameterSet& iConfig)
     snapshotTime = gtMetadata.snapshotTime;
 
   TagCollection::iterator it;
-  TagCollection::iterator itBeg = m_tagCollection.begin();
-  TagCollection::iterator itEnd = m_tagCollection.end();
+  auto itBeg = m_tagCollection.begin();
+  auto itEnd = m_tagCollection.end();
 
   std::map<std::string, cond::persistency::Session> sessions;
 
@@ -229,7 +229,7 @@ CondDBESSource::CondDBESSource(const edm::ParameterSet& iConfig)
       connStr = tagParams.second;
       tag = tagParams.first;
     }
-    std::map<std::string, cond::persistency::Session>::iterator p = sessions.find(connStr);
+    auto p = sessions.find(connStr);
     cond::persistency::Session nsess;
     if (p == sessions.end()) {
       std::string oracleConnStr = cond::persistency::convertoToOracleConnection(connStr);
@@ -265,8 +265,8 @@ CondDBESSource::CondDBESSource(const edm::ParameterSet& iConfig)
 
   // one loaded expose all other tags to the Proxy!
   CondGetterFromESSource visitor(m_proxies);
-  ProxyMap::iterator b = m_proxies.begin();
-  ProxyMap::iterator e = m_proxies.end();
+  auto b = m_proxies.begin();
+  auto e = m_proxies.end();
   for (; b != e; b++) {
     (*b).second->proxy(0)->loadMore(visitor);
 
@@ -309,8 +309,8 @@ CondDBESSource::~CondDBESSource() {
               << m_stats.nActualReconnect;
     std::cout << std::endl;
 
-    ProxyMap::iterator b = m_proxies.begin();
-    ProxyMap::iterator e = m_proxies.end();
+    auto b = m_proxies.begin();
+    auto e = m_proxies.end();
     for (; b != e; b++) {
       dumpInfo(std::cout, (*b).first, *(*b).second);
       std::cout << "\n" << std::endl;
@@ -362,7 +362,7 @@ void CondDBESSource::setIntervalFor(const EventSetupRecordKey& iKey,
   bool doRefresh = false;
   if (m_policy == REFRESH_EACH_RUN || m_policy == RECONNECT_EACH_RUN || refreshThisRecord) {
     // find out the last run number for the proxy of the specified record
-    std::map<std::string, cond::Time_t>::iterator iRec = m_lastRecordRuns.find(recordname);
+    auto iRec = m_lastRecordRuns.find(recordname);
     if (iRec != m_lastRecordRuns.end()) {
       cond::Time_t lastRecordRun = iRec->second;
       cond::Time_t diffTime = lastTime - lastRecordRun;
@@ -402,15 +402,15 @@ void CondDBESSource::setIntervalFor(const EventSetupRecordKey& iKey,
   bool userTime = true;
 
   //FIXME use equal_range
-  ProxyMap::const_iterator pmBegin = m_proxies.lower_bound(recordname);
-  ProxyMap::const_iterator pmEnd = m_proxies.upper_bound(recordname);
+  auto pmBegin = m_proxies.lower_bound(recordname);
+  auto pmEnd = m_proxies.upper_bound(recordname);
   if (pmBegin == pmEnd) {
     edm::LogInfo("CondDBESSource") << "No DataProxy (Pluging) found for record \"" << recordname
                                    << "\"; from CondDBESSource::setIntervalFor";
     return;
   }
 
-  for (ProxyMap::const_iterator pmIter = pmBegin; pmIter != pmEnd; ++pmIter) {
+  for (auto pmIter = pmBegin; pmIter != pmEnd; ++pmIter) {
     edm::LogInfo("CondDBESSource") << "Processing record \"" << recordname << "\" and label \""
                                    << pmIter->second->label() << "\" for " << iTime.eventID()
                                    << ", timestamp: " << iTime.time().value()
@@ -426,7 +426,7 @@ void CondDBESSource::setIntervalFor(const EventSetupRecordKey& iKey,
 
     if (doRefresh) {
       std::string recKey = joinRecordAndLabel(recordname, pmIter->second->label());
-      TagCollection::const_iterator tcIter = m_tagCollection.find(recKey);
+      auto tcIter = m_tagCollection.find(recKey);
       if (tcIter == m_tagCollection.end()) {
         edm::LogInfo("CondDBESSource") << "No Tag found for record \"" << recordname << "\" and label \""
                                        << pmIter->second->label() << "\"; from CondDBESSource::setIntervalFor";
@@ -556,15 +556,15 @@ edm::eventsetup::DataProxyProvider::KeyedProxiesVector CondDBESSource::registerP
 
   std::string recordname = iRecordKey.name();
 
-  ProxyMap::const_iterator b = m_proxies.lower_bound(recordname);
-  ProxyMap::const_iterator e = m_proxies.upper_bound(recordname);
+  auto b = m_proxies.lower_bound(recordname);
+  auto e = m_proxies.upper_bound(recordname);
   if (b == e) {
     edm::LogInfo("CondDBESSource") << "No DataProxy (Pluging) found for record \"" << recordname
                                    << "\"; from CondDBESSource::registerProxies";
     return keyedProxiesVector;
   }
 
-  for (ProxyMap::const_iterator p = b; p != e; ++p) {
+  for (auto p = b; p != e; ++p) {
     if (nullptr != (*p).second.get()) {
       edm::eventsetup::TypeTag type = (*p).second->type();
       DataKey key(type, edm::eventsetup::IdTags((*p).second->label().c_str()));
@@ -576,9 +576,9 @@ edm::eventsetup::DataProxyProvider::KeyedProxiesVector CondDBESSource::registerP
 
 void CondDBESSource::initConcurrentIOVs(const EventSetupRecordKey& key, unsigned int nConcurrentIOVs) {
   std::string recordname = key.name();
-  ProxyMap::const_iterator b = m_proxies.lower_bound(recordname);
-  ProxyMap::const_iterator e = m_proxies.upper_bound(recordname);
-  for (ProxyMap::const_iterator p = b; p != e; ++p) {
+  auto b = m_proxies.lower_bound(recordname);
+  auto e = m_proxies.upper_bound(recordname);
+  for (auto p = b; p != e; ++p) {
     if (p->second) {
       p->second->initConcurrentIOVs(nConcurrentIOVs);
     }
@@ -637,13 +637,13 @@ void CondDBESSource::fillTagCollectionFromDB(const std::vector<std::string>& con
   }
 
   std::set<cond::GTEntry_t>::iterator tagCollIter;
-  std::set<cond::GTEntry_t>::iterator tagCollBegin = tagcoll.begin();
-  std::set<cond::GTEntry_t>::iterator tagCollEnd = tagcoll.end();
+  auto tagCollBegin = tagcoll.begin();
+  auto tagCollEnd = tagcoll.end();
 
   // FIXME the logic is a bit perverse: can be surely linearized (at least simplified!) ....
   for (tagCollIter = tagCollBegin; tagCollIter != tagCollEnd; ++tagCollIter) {
     std::string recordLabelKey = joinRecordAndLabel(tagCollIter->recordName(), tagCollIter->recordLabel());
-    std::map<std::string, cond::GTEntry_t>::iterator fid = replacement.find(recordLabelKey);
+    auto fid = replacement.find(recordLabelKey);
     if (fid != replacement.end()) {
       if (!fid->second.tagName().empty()) {
         cond::GTEntry_t tagMetadata(
@@ -662,8 +662,8 @@ void CondDBESSource::fillTagCollectionFromDB(const std::vector<std::string>& con
     }
   }
   std::map<std::string, cond::GTEntry_t>::iterator replacementIter;
-  std::map<std::string, cond::GTEntry_t>::iterator replacementBegin = replacement.begin();
-  std::map<std::string, cond::GTEntry_t>::iterator replacementEnd = replacement.end();
+  auto replacementBegin = replacement.begin();
+  auto replacementEnd = replacement.end();
   for (replacementIter = replacementBegin; replacementIter != replacementEnd; ++replacementIter) {
     if (replacementIter->second.tagName().empty()) {
       std::stringstream msg;

@@ -245,10 +245,7 @@ namespace pat {
     };
     /// unpack path names of matched trigger objects (if they were packed before embedding, which is not normally the case)
     void unpackTriggerObjectPathNames(const edm::TriggerNames &names) {
-      for (std::vector<TriggerObjectStandAlone>::iterator it = triggerObjectMatchesEmbedded_.begin(),
-                                                          ed = triggerObjectMatchesEmbedded_.end();
-           it != ed;
-           ++it)
+      for (auto it = triggerObjectMatchesEmbedded_.begin(), ed = triggerObjectMatchesEmbedded_.end(); it != ed; ++it)
         it->unpackPathNames(names);
     }
 
@@ -720,8 +717,8 @@ namespace pat {
   template <class ObjectType>
   std::vector<std::pair<std::string, pat::LookupTableRecord> > PATObject<ObjectType>::efficiencies() const {
     std::vector<std::pair<std::string, pat::LookupTableRecord> > ret;
-    std::vector<std::string>::const_iterator itn = efficiencyNames_.begin(), edn = efficiencyNames_.end();
-    std::vector<pat::LookupTableRecord>::const_iterator itv = efficiencyValues_.begin();
+    auto itn = efficiencyNames_.begin(), edn = efficiencyNames_.end();
+    auto itv = efficiencyValues_.begin();
     for (; itn != edn; ++itn, ++itv) {
       ret.emplace_back(*itn, *itv);
     }
@@ -772,8 +769,7 @@ namespace pat {
   template <class ObjectType>
   void PATObject<ObjectType>::embedGenParticle() {
     genParticleEmbedded_.clear();
-    for (std::vector<reco::GenParticleRef>::const_iterator it = genParticleRef_.begin(); it != genParticleRef_.end();
-         ++it) {
+    for (auto it = genParticleRef_.begin(); it != genParticleRef_.end(); ++it) {
       if (it->isNonnull())
         genParticleEmbedded_.push_back(**it);
     }
@@ -795,24 +791,24 @@ namespace pat {
   reco::GenParticleRef PATObject<ObjectType>::genParticleById(int pdgId, int status, uint8_t autoCharge) const {
     // get a vector, avoiding an unneeded copy if there is no embedding
     const std::vector<reco::GenParticleRef> &vec = (genParticleEmbedded_.empty() ? genParticleRef_ : genParticleRefs());
-    for (std::vector<reco::GenParticleRef>::const_iterator ref = vec.begin(), end = vec.end(); ref != end; ++ref) {
-      if (ref->isNonnull()) {
-        const reco::GenParticle &g = **ref;
+    for (const auto &ref : vec) {
+      if (ref.isNonnull()) {
+        const reco::GenParticle &g = *ref;
         if ((status != 0) && (g.status() != status))
           continue;
         if (pdgId == 0) {
-          return *ref;
+          return ref;
         } else if (!autoCharge) {
           if (pdgId == g.pdgId())
-            return *ref;
+            return ref;
         } else if (abs(pdgId) == abs(g.pdgId())) {
           // I want pdgId > 0 to match "correct charge" (for charged particles)
           if (g.charge() == 0)
-            return *ref;
+            return ref;
           else if ((this->charge() == 0) && (pdgId == g.pdgId()))
-            return *ref;
+            return ref;
           else if (g.charge() * this->charge() * pdgId > 0)
-            return *ref;
+            return ref;
         }
       }
     }
@@ -989,9 +985,7 @@ namespace pat {
         cms::Exception ex("Missing Data");
         ex << "This object does not contain a kinematic resolution with name '" << label << "'.\n";
         ex << "The known labels are: ";
-        for (std::vector<std::string>::const_iterator it = kinResolutionLabels_.cbegin();
-             it != kinResolutionLabels_.cend();
-             ++it) {
+        for (auto it = kinResolutionLabels_.cbegin(); it != kinResolutionLabels_.cend(); ++it) {
           ex << "'" << *it << "' ";
         }
         ex << "\n";

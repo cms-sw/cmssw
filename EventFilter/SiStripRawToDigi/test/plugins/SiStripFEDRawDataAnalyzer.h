@@ -21,11 +21,11 @@ public:
   typedef std::map<uint16_t, Channels> ChannelsMap;
 
   SiStripFEDRawDataAnalyzer(const edm::ParameterSet&);
-  ~SiStripFEDRawDataAnalyzer();
+  ~SiStripFEDRawDataAnalyzer() override;
 
-  void beginJob();
-  void analyze(const edm::Event&, const edm::EventSetup&);
-  void endJob();
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
 private:
   edm::InputTag label_;

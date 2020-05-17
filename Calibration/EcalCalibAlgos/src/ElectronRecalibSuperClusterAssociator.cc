@@ -85,7 +85,7 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
   GsfElectronCoreRefProd rEleCore = e.getRefBeforePut<GsfElectronCoreCollection>();
   edm::Ref<GsfElectronCoreCollection>::key_type idxEleCore = 0;
 
-  for (reco::GsfElectronCollection::const_iterator eleIt = eleHandle->begin(); eleIt != eleHandle->end(); eleIt++) {
+  for (const auto& eleIt : *eleHandle) {
     float DeltaRMineleSCbarrel(0.15);  //initial minDeltaR
     float DeltaRMineleSCendcap(0.15);
     const reco::SuperCluster* nearestSCbarrel = nullptr;
@@ -93,16 +93,14 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
     int iscRef = -1, iscRefendcap = -1;
     int iSC = 0;
 
-    if (eleIt->trackerDrivenSeed()) {
+    if (eleIt.trackerDrivenSeed()) {
       edm::LogError("trackerDriven") << "skipping trackerDriven electrons";
       continue;
     }
     // first loop is on EB superClusters
     iSC = 0;
-    for (reco::SuperClusterCollection::const_iterator scIt = superClusterEBHandle->begin();
-         scIt != superClusterEBHandle->end();
-         scIt++, iSC++) {
-      double DeltaReleSC = sqrt(reco::deltaR2(eleIt->eta(), eleIt->phi(), scIt->eta(), scIt->phi()));
+    for (auto scIt = superClusterEBHandle->begin(); scIt != superClusterEBHandle->end(); scIt++, iSC++) {
+      double DeltaReleSC = sqrt(reco::deltaR2(eleIt.eta(), eleIt.phi(), scIt->eta(), scIt->phi()));
 
       if (DeltaReleSC < DeltaRMineleSCbarrel)  //save the nearest SC
       {
@@ -120,9 +118,7 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
 
     // second loop is on EE superClusters
     iSC = 0;
-    for (reco::SuperClusterCollection::const_iterator scIt = superClusterEEHandle->begin();
-         scIt != superClusterEEHandle->end();
-         scIt++, iSC++) {
+    for (auto scIt = superClusterEEHandle->begin(); scIt != superClusterEEHandle->end(); scIt++, iSC++) {
 #ifdef DEBUG
       std::cout << "EE: " << scIt - superClusterEEHandle->begin() << " " << iSC << " " << iscRef << "\t"
                 << std::setprecision(4) << scIt->energy() << " " << scIt->eta() << " " << scIt->phi() << "\t--\t "
@@ -130,7 +126,7 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
                 << std::endl;
 #endif
 
-      double DeltaReleSC = sqrt(reco::deltaR2(eleIt->eta(), eleIt->phi(), scIt->eta(), scIt->phi()));
+      double DeltaReleSC = sqrt(reco::deltaR2(eleIt.eta(), eleIt.phi(), scIt->eta(), scIt->phi()));
 
       if (DeltaReleSC < DeltaRMineleSCendcap) {
         DeltaRMineleSCendcap = DeltaReleSC;
@@ -141,14 +137,14 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
     ////////////////////////
     //      if(eleIt->isEB()) assert(DeltaRMineleSCbarrel < DeltaRMineleSCendcap);
     //else assert(DeltaRMineleSCbarrel > DeltaRMineleSCendcap);
-    if (eleIt->isEB() && DeltaRMineleSCbarrel > DeltaRMineleSCendcap) {
+    if (eleIt.isEB() && DeltaRMineleSCbarrel > DeltaRMineleSCendcap) {
       edm::LogError("ElectronRecalibAssociator") << "EB electron, but nearest SC is in EE";
       ;
       continue;
     }
 
-    if (eleIt->isEB() && nearestSCbarrel) {
-      pOutEleCore->push_back(*eleIt->core());  // clone the old core and add to the collection of new cores
+    if (eleIt.isEB() && nearestSCbarrel) {
+      pOutEleCore->push_back(*eleIt.core());  // clone the old core and add to the collection of new cores
       reco::GsfElectronCoreRef newEleCoreRef(rEleCore,
                                              idxEleCore++);  // reference to the new electron core in the new collection
       reco::GsfElectronCore& newEleCore = pOutEleCore->back();  // pick the clone
@@ -159,25 +155,25 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
 #endif
       newEleCore.setSuperCluster(scRef);  // let's check this! if it is possible to recreate the pfSC
 
-      pOutEle->push_back(reco::GsfElectron(*eleIt, newEleCoreRef));
+      pOutEle->push_back(reco::GsfElectron(eleIt, newEleCoreRef));
       reco::GsfElectron& newEle = pOutEle->back();
 
       //-- first possibility: set the new p4SC using refined SC
       newEle.setP4(reco::GsfElectron::P4_FROM_SUPER_CLUSTER,
-                   eleIt->p4(reco::GsfElectron::P4_FROM_SUPER_CLUSTER),
-                   eleIt->p4Error(reco::GsfElectron::P4_FROM_SUPER_CLUSTER),
+                   eleIt.p4(reco::GsfElectron::P4_FROM_SUPER_CLUSTER),
+                   eleIt.p4Error(reco::GsfElectron::P4_FROM_SUPER_CLUSTER),
                    false);  //*newEle.superCluster()->energy()/eleIt->superCluster()->energy());
 
       //-- second possibility: set the new p4SC using mustache SC
       //newEle.setP4(reco::GsfElectron::P4_FROM_SUPER_CLUSTER, eleIt->p4(reco::GsfElectron::P4_FROM_SUPER_CLUSTER)*newEle.parentSuperCluster()->energy()/eleIt->parentSuperCluster()->energy(), eleIt->p4Error(reco::GsfElectron::P4_FROM_SUPER_CLUSTER), false);
 
       //-- update the correctedEcalEnergy
-      newEle.setCorrectedEcalEnergy(eleIt->ecalEnergy() *
-                                    (scRef->energy() / eleIt->p4(reco::GsfElectron::P4_FROM_SUPER_CLUSTER).energy()));
-      newEle.setCorrectedEcalEnergyError(eleIt->ecalEnergyError() * (scRef->energy() / eleIt->ecalEnergy()));
+      newEle.setCorrectedEcalEnergy(eleIt.ecalEnergy() *
+                                    (scRef->energy() / eleIt.p4(reco::GsfElectron::P4_FROM_SUPER_CLUSTER).energy()));
+      newEle.setCorrectedEcalEnergyError(eleIt.ecalEnergyError() * (scRef->energy() / eleIt.ecalEnergy()));
 
-    } else if (!(eleIt->isEB()) && nearestSCendcap) {
-      pOutEleCore->push_back(*eleIt->core());  // clone the old core and add to the collection of new cores
+    } else if (!(eleIt.isEB()) && nearestSCendcap) {
+      pOutEleCore->push_back(*eleIt.core());  // clone the old core and add to the collection of new cores
       reco::GsfElectronCoreRef newEleCoreRef(rEleCore,
                                              idxEleCore++);  // reference to the new electron core in the new collection
       reco::GsfElectronCore& newEleCore = pOutEleCore->back();  // pick the clone
@@ -189,22 +185,22 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
 #endif
       newEleCore.setSuperCluster(scRef);  // let's check this! if it is possible to recreate the pfSC
 
-      pOutEle->push_back(reco::GsfElectron(*eleIt, newEleCoreRef));
+      pOutEle->push_back(reco::GsfElectron(eleIt, newEleCoreRef));
       reco::GsfElectron& newEle = pOutEle->back();
 
       //-- first possibility: set the new p4SC using refined SC
       newEle.setP4(reco::GsfElectron::P4_FROM_SUPER_CLUSTER,
-                   eleIt->p4(reco::GsfElectron::P4_FROM_SUPER_CLUSTER),
-                   eleIt->p4Error(reco::GsfElectron::P4_FROM_SUPER_CLUSTER),
+                   eleIt.p4(reco::GsfElectron::P4_FROM_SUPER_CLUSTER),
+                   eleIt.p4Error(reco::GsfElectron::P4_FROM_SUPER_CLUSTER),
                    false);  //*newEle.superCluster()->energy()/eleIt->superCluster()->energy());
 
       //-- second possibility: set the new p4SC using mustache SC
       //newEle.setP4(reco::GsfElectron::P4_FROM_SUPER_CLUSTER, eleIt->p4(reco::GsfElectron::P4_FROM_SUPER_CLUSTER)*newEle.parentSuperCluster()->energy()/eleIt->parentSuperCluster()->energy(), eleIt->p4Error(reco::GsfElectron::P4_FROM_SUPER_CLUSTER), false);
 
       //-- update the correctedEcalEnergy
-      newEle.setCorrectedEcalEnergy(eleIt->ecalEnergy() *
-                                    (scRef->energy() / eleIt->p4(reco::GsfElectron::P4_FROM_SUPER_CLUSTER).energy()));
-      newEle.setCorrectedEcalEnergyError(eleIt->ecalEnergyError() * (scRef->energy() / eleIt->ecalEnergy()));
+      newEle.setCorrectedEcalEnergy(eleIt.ecalEnergy() *
+                                    (scRef->energy() / eleIt.p4(reco::GsfElectron::P4_FROM_SUPER_CLUSTER).energy()));
+      newEle.setCorrectedEcalEnergyError(eleIt.ecalEnergyError() * (scRef->energy() / eleIt.ecalEnergy()));
     } else {
       edm::LogError("Failed SC association") << "No SC to be associated to the electron";
     }

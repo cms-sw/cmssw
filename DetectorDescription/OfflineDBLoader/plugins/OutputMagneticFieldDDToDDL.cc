@@ -137,8 +137,8 @@ void OutputMagneticFieldDDToDDL::beginRun(const edm::Run&, edm::EventSetup const
   using Graph = DDCompactView::Graph;
   using adjl_iterator = Graph::const_adj_iterator;
 
-  adjl_iterator git = gra.begin();
-  adjl_iterator gend = gra.end();
+  auto git = gra.begin();
+  auto gend = gra.end();
 
   Graph::index_type i = 0;
   (*m_xos) << "<PosPartSection label=\"" << ns_ << "\">\n";
@@ -173,7 +173,7 @@ void OutputMagneticFieldDDToDDL::beginRun(const edm::Run&, edm::EventSetup const
   (*m_xos) << "</PosPartSection>\n";
 
   (*m_xos) << std::scientific << std::setprecision(18);
-  std::set<DDMaterial>::const_iterator it(matStore.begin()), ed(matStore.end());
+  auto it(matStore.begin()), ed(matStore.end());
   (*m_xos) << "<MaterialSection label=\"" << ns_ << "\">\n";
   for (; it != ed; ++it) {
     if (!it->isDefined().second)
@@ -184,7 +184,7 @@ void OutputMagneticFieldDDToDDL::beginRun(const edm::Run&, edm::EventSetup const
 
   (*m_xos) << "<RotationSection label=\"" << ns_ << "\">\n";
   (*m_xos) << std::fixed << std::setprecision(18);
-  std::set<DDRotation>::iterator rit(rotStore.begin()), red(rotStore.end());
+  auto rit(rotStore.begin()), red(rotStore.end());
   for (; rit != red; ++rit) {
     if (!rit->isDefined().second)
       continue;
@@ -196,7 +196,7 @@ void OutputMagneticFieldDDToDDL::beginRun(const edm::Run&, edm::EventSetup const
   (*m_xos) << "</RotationSection>\n";
 
   (*m_xos) << std::fixed << std::setprecision(18);
-  std::set<DDSolid>::const_iterator sit(solStore.begin()), sed(solStore.end());
+  auto sit(solStore.begin()), sed(solStore.end());
   (*m_xos) << "<SolidSection label=\"" << ns_ << "\">\n";
   for (; sit != sed; ++sit) {
     if (!sit->isDefined().second)
@@ -205,7 +205,7 @@ void OutputMagneticFieldDDToDDL::beginRun(const edm::Run&, edm::EventSetup const
   }
   (*m_xos) << "</SolidSection>\n";
 
-  std::set<DDLogicalPart>::iterator lpit(lpStore.begin()), lped(lpStore.end());
+  auto lpit(lpStore.begin()), lped(lpStore.end());
   (*m_xos) << "<LogicalPartSection label=\"" << ns_ << "\">\n";
   for (; lpit != lped; ++lpit) {
     if (!lpit->isDefined().first)
@@ -259,9 +259,7 @@ void OutputMagneticFieldDDToDDL::addToSolStore(const DDSolid& sol,
 void OutputMagneticFieldDDToDDL::addToSpecStore(
     const DDLogicalPart& lp,
     std::map<const DDsvalues_type, std::set<const DDPartSelection*>, ddsvaluesCmp>& specStore) {
-  std::vector<std::pair<const DDPartSelection*, const DDsvalues_type*> >::const_iterator spit(
-      lp.attachedSpecifics().begin()),
-      spend(lp.attachedSpecifics().end());
+  auto spit(lp.attachedSpecifics().begin()), spend(lp.attachedSpecifics().end());
   for (; spit != spend; ++spit) {
     specStore[*spit->second].insert(spit->first);
   }

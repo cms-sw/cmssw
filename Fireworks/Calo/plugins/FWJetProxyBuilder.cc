@@ -122,7 +122,7 @@ void FWJetProxyBuilder::buildViewType(const reco::Jet& iData,
                                       const FWViewContext* vc) {
   // add cone from shared pool
   TEveElementList* cones = requestCommon();
-  TEveElement::List_i coneIt = cones->BeginChildren();
+  auto coneIt = cones->BeginChildren();
   std::advance(coneIt, iIndex);
 
   const FWDisplayProperties& dp = item()->defaultDisplayProperties();
@@ -191,8 +191,8 @@ void FWJetProxyBuilder::localModelChanges(const FWModelId& iId,
                                           const FWViewContext* vc) {
   increaseComponentTransparency(iId.index(), iCompound, "TEveJetCone", 80);
 
-  for (Lines_t::iterator i = m_lines.begin(); i != m_lines.end(); ++i) {
-    TEveStraightLineSetProjected* projLineSet = (TEveStraightLineSetProjected*)(*(*i).m_ls->BeginProjecteds());
+  for (auto& m_line : m_lines) {
+    TEveStraightLineSetProjected* projLineSet = (TEveStraightLineSetProjected*)(*m_line.m_ls->BeginProjecteds());
     if (projLineSet)
       projLineSet->UpdateProjection();
   }
@@ -204,16 +204,16 @@ void FWJetProxyBuilder::cleanLocal() {
 }
 
 void FWJetProxyBuilder::scaleProduct(TEveElementList* parent, FWViewType::EType type, const FWViewContext* vc) {
-  for (Lines_t::iterator i = m_lines.begin(); i != m_lines.end(); ++i) {
-    if (vc == (*i).m_vc) {
-      float value = vc->getEnergyScale()->getPlotEt() ? (*i).m_et : (*i).m_energy;
+  for (auto& m_line : m_lines) {
+    if (vc == m_line.m_vc) {
+      float value = vc->getEnergyScale()->getPlotEt() ? m_line.m_et : m_line.m_energy;
 
-      (*i).m_ls->SetScale(vc->getEnergyScale()->getScaleFactor3D() * value);
-      if ((*i).m_text) {
-        (*i).m_text->SetText(Form("%.1f", value));
-        setTextPos(*i, vc, type);
+      m_line.m_ls->SetScale(vc->getEnergyScale()->getScaleFactor3D() * value);
+      if (m_line.m_text) {
+        m_line.m_text->SetText(Form("%.1f", value));
+        setTextPos(m_line, vc, type);
       }
-      TEveStraightLineSetProjected* projLineSet = (TEveStraightLineSetProjected*)(*(*i).m_ls->BeginProjecteds());
+      TEveStraightLineSetProjected* projLineSet = (TEveStraightLineSetProjected*)(*m_line.m_ls->BeginProjecteds());
       projLineSet->UpdateProjection();
     }
   }
@@ -222,7 +222,7 @@ void FWJetProxyBuilder::scaleProduct(TEveElementList* parent, FWViewType::EType 
   fireworks::Context* contextGl = fireworks::Context::getInstance();
   TEveVector cv;
   contextGl->commonPrefs()->getEventCenter(cv.Arr());
-  for (TEveElement::List_i i = m_common->BeginChildren(); i != m_common->EndChildren(); ++i) {
+  for (auto i = m_common->BeginChildren(); i != m_common->EndChildren(); ++i) {
     TEveJetCone* cone = dynamic_cast<TEveJetCone*>(*i);
     if (cone) {
       cone->SetApex(cv);

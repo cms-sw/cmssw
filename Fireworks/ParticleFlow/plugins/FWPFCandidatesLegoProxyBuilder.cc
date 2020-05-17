@@ -77,7 +77,7 @@ void FWPFCandidatesLegoProxyBuilder::build(const reco::PFCandidate& iData,
 void FWPFCandidatesLegoProxyBuilder::scaleProduct(TEveElementList* parent,
                                                   FWViewType::EType type,
                                                   const FWViewContext* vc) {
-  for (TEveElement::List_i i = parent->BeginChildren(); i != parent->EndChildren(); ++i) {
+  for (auto i = parent->BeginChildren(); i != parent->EndChildren(); ++i) {
     if ((*i)->HasChildren()) {
       TEveElement* el = (*i)->FirstChild();  // there is only one child added in this proxy builder
       FWLegoCandidate* candidate = dynamic_cast<FWLegoCandidate*>(el);

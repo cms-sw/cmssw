@@ -72,7 +72,7 @@ namespace reco {
         return flavor == right.flavor && flavorSource == right.flavorSource && dR == right.dR;
       }
 
-      friend std::ostream& operator<<(std::ostream& out, FlavorHistoryEventHelper helper) {
+      friend std::ostream& operator<<(std::ostream& out, const FlavorHistoryEventHelper& helper) {
         char buff[1000];
         sprintf(buff, "Flavor = %2d, type = %2d, dR = %6f", helper.flavor, helper.flavorSource, helper.dR);
         out << buff << std::endl;

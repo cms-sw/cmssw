@@ -39,18 +39,18 @@ Phase1PixelBlade::Phase1PixelBlade(vector<const GeomDet*>& frontDets, vector<con
                           << theFrontDiskSector->outerRadius() << "), (" << theBackDiskSector->innerRadius() << " , "
                           << theBackDiskSector->outerRadius() << ")" << std::endl;
 
-  for (vector<const GeomDet*>::const_iterator it = theFrontDets.begin(); it != theFrontDets.end(); it++) {
-    LogDebug("TkDetLayers") << "frontDet phi,z,r: " << (*it)->position().phi() << " , " << (*it)->position().z()
-                            << " , " << (*it)->position().perp() << " , "
-                            << " rmin: " << (*it)->surface().rSpan().first
-                            << " rmax: " << (*it)->surface().rSpan().second << std::endl;
+  for (auto theFrontDet : theFrontDets) {
+    LogDebug("TkDetLayers") << "frontDet phi,z,r: " << theFrontDet->position().phi() << " , "
+                            << theFrontDet->position().z() << " , " << theFrontDet->position().perp() << " , "
+                            << " rmin: " << theFrontDet->surface().rSpan().first
+                            << " rmax: " << theFrontDet->surface().rSpan().second << std::endl;
   }
 
-  for (vector<const GeomDet*>::const_iterator it = theBackDets.begin(); it != theBackDets.end(); it++) {
-    LogDebug("TkDetLayers") << "backDet phi,z,r: " << (*it)->position().phi() << " , " << (*it)->position().z() << " , "
-                            << (*it)->position().perp() << " , "
-                            << " rmin: " << (*it)->surface().rSpan().first
-                            << " rmax: " << (*it)->surface().rSpan().second << std::endl;
+  for (auto theBackDet : theBackDets) {
+    LogDebug("TkDetLayers") << "backDet phi,z,r: " << theBackDet->position().phi() << " , "
+                            << theBackDet->position().z() << " , " << theBackDet->position().perp() << " , "
+                            << " rmin: " << theBackDet->surface().rSpan().first
+                            << " rmax: " << theBackDet->surface().rSpan().second << std::endl;
   }
 }
 
@@ -242,7 +242,7 @@ int Phase1PixelBlade::findBin(float R, int diskSectorIndex) const {
 
   int theBin = 0;
   float rDiff = std::abs(R - localDets.front()->surface().position().perp());
-  for (vector<const GeomDet*>::const_iterator i = localDets.begin(); i != localDets.end(); i++) {
+  for (auto i = localDets.begin(); i != localDets.end(); i++) {
     float testDiff = std::abs(R - (**i).surface().position().perp());
     if (testDiff < rDiff) {
       rDiff = testDiff;
@@ -252,13 +252,13 @@ int Phase1PixelBlade::findBin(float R, int diskSectorIndex) const {
   return theBin;
 }
 
-int Phase1PixelBlade::findBin2(GlobalPoint thispoint, int diskSectorIndex) const {
+int Phase1PixelBlade::findBin2(const GlobalPoint& thispoint, int diskSectorIndex) const {
   const vector<const GeomDet*>& localDets = diskSectorIndex == 0 ? theFrontDets : theBackDets;
 
   int theBin = 0;
   float sDiff = (thispoint - localDets.front()->surface().position()).mag();
 
-  for (vector<const GeomDet*>::const_iterator i = localDets.begin(); i != localDets.end(); i++) {
+  for (auto i = localDets.begin(); i != localDets.end(); i++) {
     float testDiff = (thispoint - (**i).surface().position()).mag();
     if (testDiff < sDiff) {
       sDiff = testDiff;
@@ -316,7 +316,7 @@ std::pair<float, float> Phase1PixelBlade::computeRadiusRanges(const std::vector<
 
   for (auto it : current_dets) {
     vector<GlobalPoint> corners = BoundingBox().corners(it->specificSurface());
-    for (auto i : corners) {
+    for (const auto& i : corners) {
       float r = plane.toLocal(i).perp();
       rmin = min(rmin, r);
       rmax = max(rmax, r);

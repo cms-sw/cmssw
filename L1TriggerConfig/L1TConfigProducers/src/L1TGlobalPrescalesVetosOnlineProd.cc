@@ -62,14 +62,14 @@ std::unique_ptr<const L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd
   // dictionary that maps algorithm name to it's index
   std::unordered_map<std::string, int, std::hash<std::string>> algoName2bit;
 
-  std::string uGTtscKey = objectKey.substr(0, objectKey.find(":"));
-  std::string uGTrsKey = objectKey.substr(objectKey.find(":") + 1, std::string::npos);
+  std::string uGTtscKey = objectKey.substr(0, objectKey.find(':'));
+  std::string uGTrsKey = objectKey.substr(objectKey.find(':') + 1, std::string::npos);
 
   std::string stage2Schema = "CMS_TRG_L1_CONF";
 
   std::string l1_menu_key;
   std::vector<std::string> queryStrings;
-  queryStrings.push_back("L1_MENU");
+  queryStrings.emplace_back("L1_MENU");
 
   // select L1_MENU from CMS_TRG_L1_CONF.UGT_KEYS where ID = objectKey ;
   l1t::OMDSReader::QueryResults queryResult = m_omdsReader.basicQuery(
@@ -101,7 +101,7 @@ std::unique_ptr<const L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd
   }
 
   std::vector<std::string> queryColumns;
-  queryColumns.push_back("CONF");
+  queryColumns.emplace_back("CONF");
 
   queryResult = m_omdsReader.basicQuery(
       queryColumns, stage2Schema, "UGT_L1_MENU", "UGT_L1_MENU.ID", m_omdsReader.singleAttribute(l1_menu_key));
@@ -125,15 +125,15 @@ std::unique_ptr<const L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd
   std::shared_ptr<L1TUtmTriggerMenu> pMenu(
       const_cast<L1TUtmTriggerMenu *>(reinterpret_cast<const L1TUtmTriggerMenu *>(tmeventsetup::getTriggerMenu(iss))));
 
-  for (auto algo : pMenu->getAlgorithmMap())
+  for (const auto &algo : pMenu->getAlgorithmMap())
     algoName2bit[algo.first] = algo.second.getIndex();
 
   ///std::vector< std::string > queryColumns;
   queryColumns.clear();
-  queryColumns.push_back("ALGOBX_MASK");
-  queryColumns.push_back("ALGO_FINOR_MASK");
-  queryColumns.push_back("ALGO_FINOR_VETO");
-  queryColumns.push_back("ALGO_PRESCALE");
+  queryColumns.emplace_back("ALGOBX_MASK");
+  queryColumns.emplace_back("ALGO_FINOR_MASK");
+  queryColumns.emplace_back("ALGO_FINOR_VETO");
+  queryColumns.emplace_back("ALGO_PRESCALE");
 
   std::string prescale_key, bxmask_key, mask_key, vetomask_key;
   std::string xmlPayload_prescale, xmlPayload_mask_algobx, xmlPayload_mask_finor, xmlPayload_mask_veto;
@@ -161,16 +161,16 @@ std::unique_ptr<const L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd
   }
 
   // for debugging purposes dump the payloads to /tmp
-  std::ofstream output1(std::string("/tmp/").append(prescale_key.substr(0, prescale_key.find("/"))).append(".xml"));
+  std::ofstream output1(std::string("/tmp/").append(prescale_key.substr(0, prescale_key.find('/'))).append(".xml"));
   output1 << xmlPayload_prescale;
   output1.close();
-  std::ofstream output2(std::string("/tmp/").append(mask_key.substr(0, mask_key.find("/"))).append(".xml"));
+  std::ofstream output2(std::string("/tmp/").append(mask_key.substr(0, mask_key.find('/'))).append(".xml"));
   output2 << xmlPayload_mask_finor;
   output2.close();
-  std::ofstream output3(std::string("/tmp/").append(bxmask_key.substr(0, bxmask_key.find("/"))).append(".xml"));
+  std::ofstream output3(std::string("/tmp/").append(bxmask_key.substr(0, bxmask_key.find('/'))).append(".xml"));
   output3 << xmlPayload_mask_algobx;
   output3.close();
-  std::ofstream output4(std::string("/tmp/").append(vetomask_key.substr(0, vetomask_key.find("/"))).append(".xml"));
+  std::ofstream output4(std::string("/tmp/").append(vetomask_key.substr(0, vetomask_key.find('/'))).append(".xml"));
   output4 << xmlPayload_mask_veto;
   output4.close();
 
@@ -203,7 +203,7 @@ std::unique_ptr<const L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd
     if (nPrescaleSets > 0) {
       // Fill default prescale set
       for (int iSet = 0; iSet < nPrescaleSets; iSet++) {
-        prescales.push_back(std::vector<int>());
+        prescales.emplace_back();
         for (unsigned int iBit = 0; iBit < m_numberPhysTriggers; ++iBit) {
           int inputDefaultPrescale = 0;  // only prescales that are set in the block below are used
           prescales[iSet].push_back(inputDefaultPrescale);
@@ -447,25 +447,25 @@ std::unique_ptr<const L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd
     if (first <= last) {
       if (!broadcastAlgo) {
         algos.push_back(bx_algo_name[row]);
-        orderedRanges.push_back(std::make_pair(first, last));
+        orderedRanges.emplace_back(first, last);
       } else {
         for (const auto &i : non_default_bx_ranges) {
           algos.push_back(i.first);
-          orderedRanges.push_back(std::make_pair(first, last));
+          orderedRanges.emplace_back(first, last);
         }
       }
     } else {
       if (!broadcastAlgo) {
         algos.push_back(bx_algo_name[row]);
         algos.push_back(bx_algo_name[row]);
-        orderedRanges.push_back(std::make_pair(0, last));
-        orderedRanges.push_back(std::make_pair(first, 3563));
+        orderedRanges.emplace_back(0, last);
+        orderedRanges.emplace_back(first, 3563);
       } else {
         for (const auto &i : non_default_bx_ranges) {
           algos.push_back(i.first);
           algos.push_back(i.first);
-          orderedRanges.push_back(std::make_pair(0, last));
-          orderedRanges.push_back(std::make_pair(first, 3563));
+          orderedRanges.emplace_back(0, last);
+          orderedRanges.emplace_back(first, 3563);
         }
       }
     }
@@ -489,10 +489,9 @@ std::unique_ptr<const L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd
       //  of the successor starts after end of the current range there is no overlap
       //  and I save this range only if it has mask different from the default
       //  otherwise modify predecessor/successor ranges accordingly
-      std::set<Range_t>::iterator curr = ranges.end();  // inserted range
-      std::set<Range_t>::iterator succ =
-          ranges.lower_bound(std::make_pair(first, last));  // successor starts at current or later
-      std::set<Range_t>::iterator pred = succ;
+      auto curr = ranges.end();                                     // inserted range
+      auto succ = ranges.lower_bound(std::make_pair(first, last));  // successor starts at current or later
+      auto pred = succ;
       if (pred != ranges.begin())
         pred--;
       else
@@ -589,7 +588,7 @@ std::unique_ptr<const L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd
       //  remove those from the consideration up until the last covered range
       //  that may or may not extend beyond the current range end
       if (curr != ranges.end()) {  // insertion took place
-        std::set<Range_t, RangeComp_t>::iterator last_covered = ranges.upper_bound(std::make_pair(curr->second, 0));
+        auto last_covered = ranges.upper_bound(std::make_pair(curr->second, 0));
         if (last_covered != ranges.begin())
           last_covered--;
         else
@@ -624,15 +623,15 @@ std::unique_ptr<const L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd
   }
 
   // Set prescales to zero if masked
-  for (unsigned int iSet = 0; iSet < prescales.size(); iSet++) {
-    for (unsigned int iBit = 0; iBit < prescales[iSet].size(); iBit++) {
+  for (auto &prescale : prescales) {
+    for (unsigned int iBit = 0; iBit < prescale.size(); iBit++) {
       // Add protection in case prescale table larger than trigger mask size
       if (iBit >= triggerMasks.size()) {
         edm::LogError("L1-O2O: L1TGlobalPrescalesVetosOnlineProd")
             << "\nWarning: algoBit in prescale table >= triggerMasks.size() "
             << "\nWarning: no information on masking bit or not, setting as unmasked " << std::endl;
       } else {
-        prescales[iSet][iBit] *= triggerMasks[iBit];
+        prescale[iBit] *= triggerMasks[iBit];
       }
     }
   }

@@ -28,7 +28,7 @@ void L1GlobalTriggerObjectMaps::swap(L1GlobalTriggerObjectMaps& rh) {
 }
 
 bool L1GlobalTriggerObjectMaps::algorithmExists(int algorithmBitNumber) const {
-  std::vector<AlgorithmResult>::const_iterator i = std::lower_bound(
+  auto i = std::lower_bound(
       m_algorithmResults.begin(), m_algorithmResults.end(), AlgorithmResult(0, algorithmBitNumber, false));
   if (i == m_algorithmResults.end() || i->algorithmBitNumber() != algorithmBitNumber) {
     return false;
@@ -37,7 +37,7 @@ bool L1GlobalTriggerObjectMaps::algorithmExists(int algorithmBitNumber) const {
 }
 
 bool L1GlobalTriggerObjectMaps::algorithmResult(int algorithmBitNumber) const {
-  std::vector<AlgorithmResult>::const_iterator i = std::lower_bound(
+  auto i = std::lower_bound(
       m_algorithmResults.begin(), m_algorithmResults.end(), AlgorithmResult(0, algorithmBitNumber, false));
   if (i == m_algorithmResults.end() || i->algorithmBitNumber() != algorithmBitNumber) {
     cms::Exception ex("L1GlobalTrigger");
@@ -69,10 +69,8 @@ void L1GlobalTriggerObjectMaps::updateOperandTokenVector(
 
 void L1GlobalTriggerObjectMaps::getAlgorithmBitNumbers(std::vector<int>& algorithmBitNumbers) const {
   algorithmBitNumbers.clear();
-  for (std::vector<AlgorithmResult>::const_iterator i = m_algorithmResults.begin(), iEnd = m_algorithmResults.end();
-       i != iEnd;
-       ++i) {
-    algorithmBitNumbers.push_back(i->algorithmBitNumber());
+  for (auto m_algorithmResult : m_algorithmResults) {
+    algorithmBitNumbers.push_back(m_algorithmResult.algorithmBitNumber());
   }
 }
 
@@ -132,16 +130,14 @@ void L1GlobalTriggerObjectMaps::reserveForAlgorithms(unsigned n) { m_algorithmRe
 void L1GlobalTriggerObjectMaps::pushBackAlgorithm(unsigned startIndexOfConditions,
                                                   int algorithmBitNumber,
                                                   bool algorithmResult) {
-  m_algorithmResults.push_back(AlgorithmResult(startIndexOfConditions, algorithmBitNumber, algorithmResult));
+  m_algorithmResults.emplace_back(startIndexOfConditions, algorithmBitNumber, algorithmResult);
 }
 
 void L1GlobalTriggerObjectMaps::consistencyCheck() const {
   // None of these checks should ever fail unless there
   // is a bug in the code filling this object
-  for (std::vector<AlgorithmResult>::const_iterator i = m_algorithmResults.begin(), iEnd = m_algorithmResults.end();
-       i != iEnd;
-       ++i) {
-    std::vector<AlgorithmResult>::const_iterator j = i;
+  for (auto i = m_algorithmResults.begin(), iEnd = m_algorithmResults.end(); i != iEnd; ++i) {
+    auto j = i;
     ++j;
     if (j != iEnd && !(*i < *j)) {
       cms::Exception ex("L1GlobalTrigger");
@@ -158,10 +154,8 @@ void L1GlobalTriggerObjectMaps::consistencyCheck() const {
       throw ex;
     }
   }
-  for (std::vector<ConditionResult>::const_iterator i = m_conditionResults.begin(), iEnd = m_conditionResults.end();
-       i != iEnd;
-       ++i) {
-    std::vector<ConditionResult>::const_iterator j = i;
+  for (auto i = m_conditionResults.begin(), iEnd = m_conditionResults.end(); i != iEnd; ++i) {
+    auto j = i;
     ++j;
     unsigned endIndex = (j != iEnd) ? j->startIndexOfCombinations() : m_combinations.size();
 
@@ -195,7 +189,7 @@ void L1GlobalTriggerObjectMaps::reserveForConditions(unsigned n) { m_conditionRe
 void L1GlobalTriggerObjectMaps::pushBackCondition(unsigned startIndexOfCombinations,
                                                   unsigned short nObjectsPerCombination,
                                                   bool conditionResult) {
-  m_conditionResults.push_back(ConditionResult(startIndexOfCombinations, nObjectsPerCombination, conditionResult));
+  m_conditionResults.emplace_back(startIndexOfCombinations, nObjectsPerCombination, conditionResult);
 }
 
 void L1GlobalTriggerObjectMaps::reserveForObjectIndexes(unsigned n) { m_combinations.reserve(n); }
@@ -279,7 +273,7 @@ unsigned char L1GlobalTriggerObjectMaps::CombinationsInCondition::getObjectIndex
 void L1GlobalTriggerObjectMaps::getStartEndIndex(int algorithmBitNumber,
                                                  unsigned& startIndex,
                                                  unsigned& endIndex) const {
-  std::vector<AlgorithmResult>::const_iterator iAlgo = std::lower_bound(
+  auto iAlgo = std::lower_bound(
       m_algorithmResults.begin(), m_algorithmResults.end(), AlgorithmResult(0, algorithmBitNumber, false));
 
   if (iAlgo == m_algorithmResults.end() || iAlgo->algorithmBitNumber() != algorithmBitNumber) {

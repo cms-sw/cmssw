@@ -57,7 +57,7 @@ void FWPhotonDetailView::build(const FWModelId& id, const reco::Photon* iPhoton)
     addSceneInfo(iPhoton, m_eveScene);
 
   // draw axis at the window corners
-  TEveCaloLegoOverlay* overlay = new TEveCaloLegoOverlay();
+  auto* overlay = new TEveCaloLegoOverlay();
   overlay->SetShowPlane(kFALSE);
   overlay->SetShowPerspective(kFALSE);
   overlay->SetCaloLego(lego);
@@ -66,7 +66,7 @@ void FWPhotonDetailView::build(const FWModelId& id, const reco::Photon* iPhoton)
 
   // set event handler and flip camera to top view at beginning
   viewerGL()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
-  FWGLEventHandler* eh = new FWGLEventHandler((TGWindow*)viewerGL()->GetGLWidget(), (TObject*)viewerGL(), lego);
+  auto* eh = new FWGLEventHandler((TGWindow*)viewerGL()->GetGLWidget(), (TObject*)viewerGL(), lego);
   viewerGL()->SetEventHandler(eh);
   viewerGL()->UpdateScene();
   viewerGL()->CurrentCamera().Reset();

@@ -133,8 +133,8 @@ void FEConfigFgrEEStripDat::writeArrayDB(const std::map<EcalLogicID, FEConfigFgr
   const FEConfigFgrEEStripDat* dataitem;
   int count = 0;
   typedef map<EcalLogicID, FEConfigFgrEEStripDat>::const_iterator CI;
-  for (CI p = data->begin(); p != data->end(); ++p) {
-    channel = &(p->first);
+  for (const auto& p : *data) {
+    channel = &(p.first);
     int logicID = channel->getLogicID();
     if (!logicID) {
       throw(std::runtime_error("FEConfigFgrEEStripDat::writeArrayDB:  Bad EcalLogicID"));
@@ -142,7 +142,7 @@ void FEConfigFgrEEStripDat::writeArrayDB(const std::map<EcalLogicID, FEConfigFgr
     ids[count] = logicID;
     iconfid_vec[count] = iconfID;
 
-    dataitem = &(p->second);
+    dataitem = &(p.second);
     // dataIface.writeDB( channel, dataitem, iconf);
     unsigned int x = dataitem->getThreshold();
     unsigned int y = dataitem->getLutFg();

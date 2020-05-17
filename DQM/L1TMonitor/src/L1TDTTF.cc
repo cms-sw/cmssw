@@ -561,8 +561,8 @@ void L1TDTTF::analyze(const edm::Event& event, const edm::EventSetup& eventSetup
       event.getByToken(muonCollectionToken_, muons);
       accept = false;
       if (muons.isValid()) {
-        for (reco::MuonCollection::const_iterator recoMu = muons->begin(); recoMu != muons->end(); ++recoMu) {
-          if (fabs(recoMu->eta()) < 1.4) {
+        for (const auto& recoMu : *muons) {
+          if (fabs(recoMu.eta()) < 1.4) {
             if (verbose_) {
               edm::LogInfo("L1TDTTFClient::Analyze:GM") << "Found a global muon!";
             }
@@ -695,8 +695,8 @@ void L1TDTTF::analyze(const edm::Event& event, const edm::EventSetup& eventSetup
 
 //--------------------------------------------------------
 void L1TDTTF::fillMEs(std::vector<L1MuDTTrackCand> const* trackContainer, std::vector<L1MuRegionalCand>& gmtDttfCands) {
-  L1MuDTTrackContainer::TrackContainer::const_iterator track = trackContainer->begin();
-  L1MuDTTrackContainer::TrackContainer::const_iterator trackEnd = trackContainer->end();
+  auto track = trackContainer->begin();
+  auto trackEnd = trackContainer->end();
 
   for (; track != trackEnd; ++track) {
     if (verbose_) {

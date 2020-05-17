@@ -120,8 +120,8 @@ void L1GenTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   iEvent.getByToken(genJetToken_, genJets);
 
   if (genJets.isValid()) {
-    reco::GenJetCollection::const_iterator jetItr = genJets->begin();
-    reco::GenJetCollection::const_iterator jetEnd = genJets->end();
+    auto jetItr = genJets->begin();
+    auto jetEnd = genJets->end();
     for (; jetItr != jetEnd; ++jetItr) {
       l1GenData_->jetPt.push_back(jetItr->pt());
       l1GenData_->jetEta.push_back(jetItr->eta());
@@ -185,8 +185,8 @@ void L1GenTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   }
 
   // Loop over vector, find in-time entry, then store the relevant info
-  std::vector<PileupSummaryInfo>::const_iterator puItr = puInfoCollection->begin();
-  std::vector<PileupSummaryInfo>::const_iterator puEnd = puInfoCollection->end();
+  auto puItr = puInfoCollection->begin();
+  auto puEnd = puInfoCollection->end();
   for (; puItr != puEnd; ++puItr) {
     int bx = puItr->getBunchCrossing();
     if (bx == 0) {

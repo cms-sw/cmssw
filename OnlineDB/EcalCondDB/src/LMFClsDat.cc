@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "OnlineDB/EcalCondDB/interface/LMFClsDat.h"
 
 LMFClsDat::LMFClsDat() : LMFColoredTable() { init(); }
@@ -10,7 +12,7 @@ LMFClsDat::LMFClsDat(EcalDBConnection *c) : LMFColoredTable(c) { init(); }
 
 LMFClsDat::LMFClsDat(std::string color) : LMFColoredTable() {
   init();
-  setColor(color);
+  setColor(std::move(color));
 }
 
 LMFClsDat::LMFClsDat(int color) : LMFColoredTable() {
@@ -21,7 +23,7 @@ LMFClsDat::LMFClsDat(int color) : LMFColoredTable() {
 LMFClsDat::LMFClsDat(oracle::occi::Environment *env, oracle::occi::Connection *conn, std::string color)
     : LMFColoredTable(env, conn) {
   init();
-  setColor(color);
+  setColor(std::move(color));
 }
 
 LMFClsDat::LMFClsDat(oracle::occi::Environment *env, oracle::occi::Connection *conn, int color)
@@ -32,7 +34,7 @@ LMFClsDat::LMFClsDat(oracle::occi::Environment *env, oracle::occi::Connection *c
 
 LMFClsDat::LMFClsDat(EcalDBConnection *c, std::string color) : LMFColoredTable(c) {
   init();
-  setColor(color);
+  setColor(std::move(color));
 }
 
 LMFClsDat::LMFClsDat(EcalDBConnection *c, int color) : LMFColoredTable(c) {
@@ -53,7 +55,7 @@ void LMFClsDat::init() {
   m_keys["VMIN"] = 8;
   m_keys["VMAX"] = 9;
   for (unsigned int i = 0; i < m_keys.size(); i++) {
-    m_type.push_back("NUMBER");
+    m_type.emplace_back("NUMBER");
   }
   m_system = 0;
   m_color = 0;

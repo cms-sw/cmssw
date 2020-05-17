@@ -69,7 +69,7 @@ namespace edm {
         } else {
           switchValue = pset.getUntrackedParameter<T>(switch_.label());
         }
-        typename CaseMap::const_iterator selectedCase = cases_.find(switchValue);
+        auto selectedCase = cases_.find(switchValue);
         if (selectedCase != cases_.end()) {
           selectedCase->second->validate(pset, validatedLabels, false);
         } else {
@@ -78,7 +78,7 @@ namespace edm {
              << "The value from the configuration is \"" << switchValue << "\".\n"
              << "The allowed values are:\n";
 
-          for (CaseMapConstIter iter = cases_.begin(), iEnd = cases_.end(); iter != iEnd; ++iter) {
+          for (auto iter = cases_.begin(), iEnd = cases_.end(); iter != iEnd; ++iter) {
             ss << "  " << iter->first << "\n";
           }
           throwNoCaseForSwitchValue(ss.str());
@@ -90,7 +90,7 @@ namespace edm {
         std::ostream& os, bool optional, bool& startWithComma, int indentation, bool& wroteSomething) const override {
       switch_.writeCfi(os, optional, startWithComma, indentation, wroteSomething);
 
-      typename CaseMap::const_iterator selectedCase = cases_.find(switch_.getDefaultValue());
+      auto selectedCase = cases_.find(switch_.getDefaultValue());
       if (selectedCase != cases_.end()) {
         selectedCase->second->writeCfi(os, optional, startWithComma, indentation, wroteSomething);
       }

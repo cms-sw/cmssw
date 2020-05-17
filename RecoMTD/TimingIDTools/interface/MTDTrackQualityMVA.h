@@ -31,7 +31,7 @@
 class MTDTrackQualityMVA {
 public:
   //---ctors---
-  MTDTrackQualityMVA(std::string weights_file);
+  MTDTrackQualityMVA(const std::string& weights_file);
 
   enum class VarID { MTDTRACKQUALITYMVA_VARS(MTDBDTVAR_ENUM) };
 

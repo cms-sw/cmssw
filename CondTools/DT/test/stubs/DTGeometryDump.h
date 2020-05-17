@@ -18,8 +18,8 @@ namespace edmtest {
   public:
     explicit DTGeometryDump(edm::ParameterSet const& p);
     explicit DTGeometryDump(int i);
-    virtual ~DTGeometryDump();
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    ~DTGeometryDump() override;
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   private:
   };

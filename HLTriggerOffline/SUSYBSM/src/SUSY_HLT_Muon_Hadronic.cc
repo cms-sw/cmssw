@@ -43,8 +43,8 @@ void SUSY_HLT_Muon_Hadronic::dqmBeginRun(edm::Run const &run, edm::EventSetup co
 
   bool pathFound = false;
   const std::vector<std::string> allTrigNames = fHltConfig.triggerNames();
-  for (size_t j = 0; j < allTrigNames.size(); ++j) {
-    if (allTrigNames[j].find(triggerPath_) != std::string::npos) {
+  for (const auto &allTrigName : allTrigNames) {
+    if (allTrigName.find(triggerPath_) != std::string::npos) {
       pathFound = true;
     }
   }
@@ -135,8 +135,8 @@ void SUSY_HLT_Muon_Hadronic::analyze(edm::Event const &e, edm::EventSetup const 
   trigger::TriggerObjectCollection triggerObjects = triggerSummary->getObjects();
   if (!(filterIndex >= triggerSummary->sizeFilters())) {
     const trigger::Keys &keys = triggerSummary->filterKeys(filterIndex);
-    for (size_t j = 0; j < keys.size(); ++j) {
-      trigger::TriggerObject foundObject = triggerObjects[keys[j]];
+    for (unsigned short key : keys) {
+      trigger::TriggerObject foundObject = triggerObjects[key];
       if (fabs(foundObject.id()) == 13) {  // It's a muon
         h_triggerMuPt->Fill(foundObject.pt());
         h_triggerMuEta->Fill(foundObject.eta());
@@ -169,13 +169,13 @@ void SUSY_HLT_Muon_Hadronic::analyze(edm::Event const &e, edm::EventSetup const 
 
   if (hasFiredAuxiliaryForMuonLeg || hasFiredAuxiliaryForHadronicLeg || !e.isRealData()) {
     std::vector<Lepton> offlineMuons;
-    for (reco::MuonCollection::const_iterator muon = MuonCollection->begin(); muon != MuonCollection->end(); ++muon) {
-      if (fabs(muon->eta()) > etaMuonOffline_)
+    for (const auto &muon : *MuonCollection) {
+      if (fabs(muon.eta()) > etaMuonOffline_)
         continue;
       Lepton theMuon;
-      theMuon.pt = muon->pt();
-      theMuon.phi = muon->phi();
-      theMuon.eta = muon->eta();
+      theMuon.pt = muon.pt();
+      theMuon.phi = muon.phi();
+      theMuon.eta = muon.eta();
       offlineMuons.push_back(theMuon);
     }
 
@@ -196,13 +196,11 @@ void SUSY_HLT_Muon_Hadronic::analyze(edm::Event const &e, edm::EventSetup const 
     // Matching the muon
     int indexOfMatchedMuon = -1;
     int offlineCounter = 0;
-    for (std::vector<Lepton>::iterator offline_muon = offlineMuons.begin();
-         (offline_muon != offlineMuons.end() && indexOfMatchedMuon == -1);
+    for (auto offline_muon = offlineMuons.begin(); (offline_muon != offlineMuons.end() && indexOfMatchedMuon == -1);
          offline_muon++) {
-      for (std::vector<Lepton>::iterator online_muon = onlineMuons.begin(); online_muon != onlineMuons.end();
-           online_muon++) {
-        if (sqrt((offline_muon->phi - online_muon->phi) * (offline_muon->phi - online_muon->phi) +
-                 (offline_muon->eta - online_muon->eta) * (offline_muon->eta - online_muon->eta)) < 0.5) {
+      for (auto &onlineMuon : onlineMuons) {
+        if (sqrt((offline_muon->phi - onlineMuon.phi) * (offline_muon->phi - onlineMuon.phi) +
+                 (offline_muon->eta - onlineMuon.eta) * (offline_muon->eta - onlineMuon.eta)) < 0.5) {
           indexOfMatchedMuon = offlineCounter;
           // std::cout << "Offline " << offline_muon->pt << " " << "Online " <<
           // online_muon->pt << std::endl;
@@ -213,22 +211,19 @@ void SUSY_HLT_Muon_Hadronic::analyze(edm::Event const &e, edm::EventSetup const 
     }
     float caloHT = 0.0;
     float pfHT = 0.0;
-    for (reco::PFJetCollection::const_iterator i_pfjet = pfJetCollection->begin(); i_pfjet != pfJetCollection->end();
-         ++i_pfjet) {
-      if (i_pfjet->pt() < ptThrJet_)
+    for (const auto &i_pfjet : *pfJetCollection) {
+      if (i_pfjet.pt() < ptThrJet_)
         continue;
-      if (fabs(i_pfjet->eta()) > etaThrJet_)
+      if (fabs(i_pfjet.eta()) > etaThrJet_)
         continue;
-      pfHT += i_pfjet->pt();
+      pfHT += i_pfjet.pt();
     }
-    for (reco::CaloJetCollection::const_iterator i_calojet = caloJetCollection->begin();
-         i_calojet != caloJetCollection->end();
-         ++i_calojet) {
-      if (i_calojet->pt() < ptThrJet_)
+    for (const auto &i_calojet : *caloJetCollection) {
+      if (i_calojet.pt() < ptThrJet_)
         continue;
-      if (fabs(i_calojet->eta()) > etaThrJet_)
+      if (fabs(i_calojet.eta()) > etaThrJet_)
         continue;
-      caloHT += i_calojet->pt();
+      caloHT += i_calojet.pt();
     }
     // Need to apply the MET offline cut to be in the MET plateau
     if ((hasFiredAuxiliaryForMuonLeg || !e.isRealData()) && !offlineMuons.empty() &&

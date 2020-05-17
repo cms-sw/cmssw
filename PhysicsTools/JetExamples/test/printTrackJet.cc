@@ -23,8 +23,8 @@ using namespace edm;
 class printTrackJet : public edm::EDAnalyzer {
 public:
   explicit printTrackJet(const edm::ParameterSet&);
-  ~printTrackJet(){};
-  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  ~printTrackJet() override{};
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
 private:
   edm::EDGetTokenT<reco::CandidateView> sourceToken_;
@@ -51,8 +51,8 @@ void printTrackJet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   for (CandidateView::const_iterator f = trackJets->begin(); f != trackJets->end(); f++) {
     printf("[printTrackJet] (pt,eta,phi) = %7.3f %6.3f %6.3f |\n", f->et(), f->eta(), f->phi());
 
-    for (Candidate::const_iterator c = f->begin(); c != f->end(); c++) {
-      printf("        [Constituents] (pt,eta,phi) = %6.2f %5.2f %5.2f|\n", c->et(), c->eta(), c->phi());
+    for (const auto& c : *f) {
+      printf("        [Constituents] (pt,eta,phi) = %6.2f %5.2f %5.2f|\n", c.et(), c.eta(), c.phi());
     }
   }
 }

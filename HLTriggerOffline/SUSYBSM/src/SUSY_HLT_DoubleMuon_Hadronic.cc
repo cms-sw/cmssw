@@ -41,8 +41,8 @@ void SUSY_HLT_DoubleMuon_Hadronic::dqmBeginRun(edm::Run const &run, edm::EventSe
 
   bool pathFound = false;
   const std::vector<std::string> allTrigNames = fHltConfig.triggerNames();
-  for (size_t j = 0; j < allTrigNames.size(); ++j) {
-    if (allTrigNames[j].find(triggerPath_) != std::string::npos) {
+  for (const auto &allTrigName : allTrigNames) {
+    if (allTrigName.find(triggerPath_) != std::string::npos) {
       pathFound = true;
     }
   }
@@ -125,8 +125,8 @@ void SUSY_HLT_DoubleMuon_Hadronic::analyze(edm::Event const &e, edm::EventSetup 
   trigger::TriggerObjectCollection triggerObjects = triggerSummary->getObjects();
   if (!(filterIndex >= triggerSummary->sizeFilters())) {
     const trigger::Keys &keys = triggerSummary->filterKeys(filterIndex);
-    for (size_t j = 0; j < keys.size(); ++j) {
-      trigger::TriggerObject foundObject = triggerObjects[keys[j]];
+    for (unsigned short key : keys) {
+      trigger::TriggerObject foundObject = triggerObjects[key];
       if (fabs(foundObject.id()) == 13) {  // It's a muon
         h_triggerMuPt->Fill(foundObject.pt());
         h_triggerMuEta->Fill(foundObject.eta());
@@ -137,8 +137,8 @@ void SUSY_HLT_DoubleMuon_Hadronic::analyze(edm::Event const &e, edm::EventSetup 
       }
     }
     if (ptMuon.size() >= 2) {
-      math::PtEtaPhiMLorentzVectorD *mu1 = new math::PtEtaPhiMLorentzVectorD(ptMuon[0], etaMuon[0], phiMuon[0], 0.106);
-      math::PtEtaPhiMLorentzVectorD *mu2 = new math::PtEtaPhiMLorentzVectorD(ptMuon[1], etaMuon[1], phiMuon[1], 0.106);
+      auto *mu1 = new math::PtEtaPhiMLorentzVectorD(ptMuon[0], etaMuon[0], phiMuon[0], 0.106);
+      auto *mu2 = new math::PtEtaPhiMLorentzVectorD(ptMuon[1], etaMuon[1], phiMuon[1], 0.106);
       (*mu1) += (*mu2);
       h_triggerDoubleMuMass->Fill(mu1->M());
       delete mu1;
@@ -170,9 +170,7 @@ void SUSY_HLT_DoubleMuon_Hadronic::analyze(edm::Event const &e, edm::EventSetup 
     int indexOfMatchedMuon[2] = {-1};
     int matchedCounter = 0;
     int offlineCounter = 0;
-    for (reco::MuonCollection::const_iterator muon = MuonCollection->begin();
-         (muon != MuonCollection->end() && matchedCounter < 2);
-         ++muon) {
+    for (auto muon = MuonCollection->begin(); (muon != MuonCollection->end() && matchedCounter < 2); ++muon) {
       for (size_t off_i = 0; off_i < ptMuon.size(); ++off_i) {
         if (sqrt((muon->phi() - phiMuon[off_i]) * (muon->phi() - phiMuon[off_i]) +
                  (muon->eta() - etaMuon[off_i]) * (muon->eta() - etaMuon[off_i])) < 0.5) {
@@ -186,22 +184,19 @@ void SUSY_HLT_DoubleMuon_Hadronic::analyze(edm::Event const &e, edm::EventSetup 
 
     float caloHT = 0.0;
     float pfHT = 0.0;
-    for (reco::PFJetCollection::const_iterator i_pfjet = pfJetCollection->begin(); i_pfjet != pfJetCollection->end();
-         ++i_pfjet) {
-      if (i_pfjet->pt() < ptThrJet_)
+    for (const auto &i_pfjet : *pfJetCollection) {
+      if (i_pfjet.pt() < ptThrJet_)
         continue;
-      if (fabs(i_pfjet->eta()) > etaThrJet_)
+      if (fabs(i_pfjet.eta()) > etaThrJet_)
         continue;
-      pfHT += i_pfjet->pt();
+      pfHT += i_pfjet.pt();
     }
-    for (reco::CaloJetCollection::const_iterator i_calojet = caloJetCollection->begin();
-         i_calojet != caloJetCollection->end();
-         ++i_calojet) {
-      if (i_calojet->pt() < ptThrJet_)
+    for (const auto &i_calojet : *caloJetCollection) {
+      if (i_calojet.pt() < ptThrJet_)
         continue;
-      if (fabs(i_calojet->eta()) > etaThrJet_)
+      if (fabs(i_calojet.eta()) > etaThrJet_)
         continue;
-      caloHT += i_calojet->pt();
+      caloHT += i_calojet.pt();
     }
 
     if (hasFiredAuxiliaryForMuonLeg && MuonCollection->size() > 1) {

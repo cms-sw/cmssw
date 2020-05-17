@@ -3,6 +3,8 @@
 //         Created:  2012-03-07
 //
 
+#include <memory>
+
 #include "RecoTauTag/HLTProducers/interface/L2TauPixelIsoTagProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -50,9 +52,9 @@ void L2TauPixelIsoTagProducer::produce(edm::StreamID sid, edm::Event& ev, const 
   // define the product to store
   unique_ptr<JetTagCollection> jetTagCollection;
   if (jets.empty()) {
-    jetTagCollection.reset(new JetTagCollection());
+    jetTagCollection = std::make_unique<JetTagCollection>();
   } else {
-    jetTagCollection.reset(new JetTagCollection(RefToBaseProd<Jet>(jets_h)));
+    jetTagCollection = std::make_unique<JetTagCollection>(RefToBaseProd<Jet>(jets_h));
   }
   // by default, initialize all the jets as isolated:
   for (const auto& jet : jets)
@@ -80,7 +82,7 @@ void L2TauPixelIsoTagProducer::produce(edm::StreamID sid, edm::Event& ev, const 
 
       // to calculate isolation, use only tracks that were assigned to the vertex
       float iso = 0.f;
-      for (vector<TrackBaseRef>::const_iterator tr = pv->tracks_begin(); tr != pv->tracks_end(); ++tr) {
+      for (auto tr = pv->tracks_begin(); tr != pv->tracks_end(); ++tr) {
         if ((*tr)->pt() < m_trackMinPt)
           continue;
         if ((*tr)->numberOfValidHits() < m_trackMinNHits)

@@ -80,7 +80,7 @@ protected:
                   int selIndex,
                   std::vector<float> &mvaVals_,
                   bool writeIt = false) const;
-  Point getBestVertex(const reco::TrackBaseRef, const reco::VertexCollection) const;
+  Point getBestVertex(const reco::TrackBaseRef &, const reco::VertexCollection &) const;
 
   /// source collection label
   edm::EDGetTokenT<reco::TrackCollection> src_;

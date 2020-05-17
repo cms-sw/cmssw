@@ -126,7 +126,7 @@ bool HCALHighEnergyFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
    }
    */
 
-  for (reco::CaloJetCollection::const_iterator cit = Jets->begin(); cit != Jets->end(); cit++) {
+  for (auto cit = Jets->begin(); cit != Jets->end(); cit++) {
     if (jetGood(cit))
       return true;
   }

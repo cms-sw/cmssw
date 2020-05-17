@@ -56,7 +56,7 @@ public:
 
 public:
   /// constructor with explicit filename and correction flag
-  GsfBetheHeitlerUpdator(const std::string fileName, const int correctionFlag);
+  GsfBetheHeitlerUpdator(const std::string &fileName, const int correctionFlag);
 
 private:
   struct GSContainer {
@@ -68,7 +68,7 @@ private:
 
 private:
   /// Read parametrization from file
-  void readParameters(const std::string);
+  void readParameters(const std::string &);
   /// Read coefficients of one polynomial from file
   Polynomial readPolynomial(std::ifstream &, const unsigned int);
 

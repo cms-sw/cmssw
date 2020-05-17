@@ -86,10 +86,9 @@ void SMPDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::vector<TLorentzVector> selected_lep;
   selected_lep.clear();
 
-  for (std::vector<edm::EDGetTokenT<edm::View<reco::MET>>>::const_iterator met_ = mets_.begin(); met_ != mets_.end();
-       ++met_) {
+  for (auto met_ : mets_) {
     edm::Handle<edm::View<reco::MET>> met;
-    if (!iEvent.getByToken(*met_, met))
+    if (!iEvent.getByToken(met_, met))
       continue;
     if (met->begin() != met->end()) {
       MET->Fill(met->begin()->et());
@@ -197,10 +196,10 @@ void SMPDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::sort(recoPFJets.begin(), recoPFJets.end(), SortByPt());
   std::sort(selected_lep.begin(), selected_lep.end(), SortByPt());
 
-  for (unsigned int i = 0; i < recoPFJets.size(); i++) {
+  for (auto& recoPFJet : recoPFJets) {
     bool goodjet = false;
-    for (unsigned int j = 0; j < selected_lep.size(); j++) {
-      if (recoPFJets[i].DeltaR(selected_lep[j]) > 0.4) {
+    for (const auto& j : selected_lep) {
+      if (recoPFJet.DeltaR(j) > 0.4) {
         goodjet = true;
         continue;
       } else {
@@ -211,7 +210,7 @@ void SMPDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     if (goodjet) {
       TLorentzVector temp;
       temp.Clear();
-      temp.SetPtEtaPhiM(recoPFJets[i].Pt(), recoPFJets[i].Eta(), recoPFJets[i].Phi(), recoPFJets[i].M());
+      temp.SetPtEtaPhiM(recoPFJet.Pt(), recoPFJet.Eta(), recoPFJet.Phi(), recoPFJet.M());
       selected_recoPFJets.push_back(temp);
     }
   }

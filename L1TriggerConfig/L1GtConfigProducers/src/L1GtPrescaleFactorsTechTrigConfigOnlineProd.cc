@@ -59,8 +59,8 @@ std::unique_ptr<L1GtPrescaleFactors> L1GtPrescaleFactorsTechTrigConfigOnlineProd
   //     where GT_RUN_SETTINGS_PRESC_VIEW.ID = objectKey
 
   std::vector<std::string> columnsView;
-  columnsView.push_back("PRESCALE_INDEX");
-  columnsView.push_back("PRESCALE_FACTORS_TT_FK");
+  columnsView.emplace_back("PRESCALE_INDEX");
+  columnsView.emplace_back("PRESCALE_FACTORS_TT_FK");
 
   l1t::OMDSReader::QueryResults resultsView = m_omdsReader.basicQueryView(columnsView,
                                                                           gtSchema,
@@ -95,15 +95,14 @@ std::unique_ptr<L1GtPrescaleFactors> L1GtPrescaleFactorsTechTrigConfigOnlineProd
   int countSet = -1;
 
   for (int iRow = 0; iRow < resultsViewRows; ++iRow) {
-    for (std::vector<std::string>::const_iterator constIt = columnsView.begin(); constIt != columnsView.end();
-         ++constIt) {
-      if ((*constIt) == "PRESCALE_INDEX") {
-        resultsView.fillVariableFromRow(*constIt, iRow, prescaleFactorsSetIndex);
-      } else if ((*constIt) == "PRESCALE_FACTORS_TT_FK") {
-        resultsView.fillVariableFromRow(*constIt, iRow, objectKeyPrescaleFactorsSet);
+    for (const auto& constIt : columnsView) {
+      if (constIt == "PRESCALE_INDEX") {
+        resultsView.fillVariableFromRow(constIt, iRow, prescaleFactorsSetIndex);
+      } else if (constIt == "PRESCALE_FACTORS_TT_FK") {
+        resultsView.fillVariableFromRow(constIt, iRow, objectKeyPrescaleFactorsSet);
       } else {
         LogTrace("L1GtPrescaleFactorsTechTrigConfigOnlineProd")
-            << "\nUnknown field " << (*constIt) << " requested for columns in GT_RUN_SETTINGS_PRESC_VIEW" << std::endl;
+            << "\nUnknown field " << constIt << " requested for columns in GT_RUN_SETTINGS_PRESC_VIEW" << std::endl;
       }
     }
 
@@ -126,8 +125,8 @@ std::unique_ptr<L1GtPrescaleFactors> L1GtPrescaleFactorsTechTrigConfigOnlineProd
       LogTrace("L1GtPrescaleFactorsTechTrigConfigOnlineProd")
           << "\nColumn names for GT_FDL_PRESCALE_FACTORS_TT" << std::endl;
 
-      for (std::vector<std::string>::const_iterator iter = columns.begin(); iter != columns.end(); iter++) {
-        LogTrace("L1GtPrescaleFactorsTechTrigConfigOnlineProd") << (*iter) << std::endl;
+      for (const auto& column : columns) {
+        LogTrace("L1GtPrescaleFactorsTechTrigConfigOnlineProd") << column << std::endl;
       }
     }
 

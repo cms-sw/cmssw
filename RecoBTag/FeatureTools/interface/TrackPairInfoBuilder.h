@@ -16,7 +16,7 @@ namespace btagbtvdeep {
                             const reco::TransientTrack* tt,
                             const reco::Vertex& pv,
                             float mass,
-                            GlobalVector jetdirection,
+                            const GlobalVector& jetdirection,
                             const std::pair<bool, Measurement1D>& t_ip,
                             const std::pair<bool, Measurement1D>& t_ip2d);
 

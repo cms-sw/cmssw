@@ -26,9 +26,9 @@
 namespace L1Analysis {
   class L1AnalysisEvent {
   public:
-    L1AnalysisEvent(std::string puMCFile,
+    L1AnalysisEvent(const std::string& puMCFile,
                     std::string puMCHist,
-                    std::string puDataFile,
+                    const std::string& puDataFile,
                     std::string puDataHist,
                     bool useAvgVtx,
                     double maxWeight,

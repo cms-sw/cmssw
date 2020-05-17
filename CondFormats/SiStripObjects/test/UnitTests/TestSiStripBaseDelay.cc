@@ -13,7 +13,7 @@ class TestSiStripBaseDelay : public CppUnit::TestFixture {
 public:
   TestSiStripBaseDelay() {}
 
-  void setUp() {
+  void setUp() override {
     totDelays = 4;
 
     detId.push_back(0);
@@ -33,7 +33,7 @@ public:
     }
   }
 
-  void tearDown() {}
+  void tearDown() override {}
 
   void testDelays() {
     std::vector<SiStripBaseDelay::Delay> delays;

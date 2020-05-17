@@ -197,58 +197,58 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c) {
     brlAndFwdCands.push_back(RRItr->getFwdRPCCands());
 
     int beIndex = 0;
-    vector<vector<L1MuRegionalCand> >::iterator RPCTFCands = brlAndFwdCands.begin();
+    auto RPCTFCands = brlAndFwdCands.begin();
     for (; RPCTFCands != brlAndFwdCands.end(); ++RPCTFCands) {
-      for (vector<L1MuRegionalCand>::const_iterator ECItr = RPCTFCands->begin(); ECItr != RPCTFCands->end(); ++ECItr) {
+      for (const auto& ECItr : *RPCTFCands) {
         int bxindex = 1;  // bx == 0
-        if (ECItr->bx() > 0)
+        if (ECItr.bx() > 0)
           bxindex = 2;
-        if (ECItr->bx() < 0)
+        if (ECItr.bx() < 0)
           bxindex = 0;
 
-        if (!ECItr->empty()) {
+        if (!ECItr.empty()) {
           if (beIndex == 0)
             ++nrpctftrack_b[bxindex];
           if (beIndex == 1)
             ++nrpctftrack_e[bxindex];
 
           if (verbose_)
-            cout << "RPCTFCand bx " << ECItr->bx() << endl;
+            cout << "RPCTFCand bx " << ECItr.bx() << endl;
 
-          int tower = ECItr->eta_packed();
+          int tower = ECItr.eta_packed();
           if (tower > 16) {
             tower = -((~tower & 63) + 1);
           }
 
-          rpctfbx->Fill(ECItr->bx());
+          rpctfbx->Fill(ECItr.bx());
 
           rpctfetavalue[bxindex]->Fill(tower);
           if (verbose_)
-            cout << "\tRPCTFCand eta value " << ECItr->etaValue() << endl;
+            cout << "\tRPCTFCand eta value " << ECItr.etaValue() << endl;
 
-          rpctfphivalue[bxindex]->Fill(ECItr->phi_packed());
+          rpctfphivalue[bxindex]->Fill(ECItr.phi_packed());
           if (verbose_)
-            cout << "\tRPCTFCand phi value " << ECItr->phiValue() << endl;
+            cout << "\tRPCTFCand phi value " << ECItr.phiValue() << endl;
 
-          rpctfptvalue[bxindex]->Fill(ECItr->ptValue());
+          rpctfptvalue[bxindex]->Fill(ECItr.ptValue());
           if (verbose_)
-            cout << "\tRPCTFCand pt value " << ECItr->ptValue() << endl;
+            cout << "\tRPCTFCand pt value " << ECItr.ptValue() << endl;
 
-          rpctfchargevalue[bxindex]->Fill(ECItr->chargeValue());
+          rpctfchargevalue[bxindex]->Fill(ECItr.chargeValue());
           if (verbose_)
-            cout << "\tRPCTFCand charge value " << ECItr->chargeValue() << endl;
+            cout << "\tRPCTFCand charge value " << ECItr.chargeValue() << endl;
 
-          rpctfquality[bxindex]->Fill(ECItr->quality());
+          rpctfquality[bxindex]->Fill(ECItr.quality());
           if (verbose_)
-            cout << "\tRPCTFCand quality " << ECItr->quality() << endl;
+            cout << "\tRPCTFCand quality " << ECItr.quality() << endl;
 
-          m_qualVsEta[bxindex]->Fill(tower, ECItr->quality());
-          m_muonsEtaPhi[bxindex]->Fill(tower, ECItr->phi_packed());
+          m_qualVsEta[bxindex]->Fill(tower, ECItr.quality());
+          m_muonsEtaPhi[bxindex]->Fill(tower, ECItr.phi_packed());
 
           BxDelays bx_del;
-          bx_del.bx = ECItr->bx();
+          bx_del.bx = ECItr.bx();
           bx_del.eta_t = tower;
-          bx_del.phi_p = ECItr->phi_packed();
+          bx_del.phi_p = ECItr.phi_packed();
           all_bxdelays.push_back(bx_del);
 
         }  // if !empty

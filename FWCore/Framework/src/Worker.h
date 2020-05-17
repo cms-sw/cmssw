@@ -58,6 +58,8 @@ the worker is reset().
 #include <memory>
 #include <sstream>
 #include <string>
+#include <utility>
+
 #include <vector>
 #include <exception>
 #include <unordered_map>
@@ -364,7 +366,7 @@ namespace edm {
       if (IS_EVENT) {
         timesExcept_.fetch_add(1, std::memory_order_relaxed);
       }
-      cached_exception_ = iException;  // propagate_const<T> has no reset() function
+      cached_exception_ = std::move(iException);  // propagate_const<T> has no reset() function
       state_ = Exception;
       return cached_exception_;
     }
@@ -514,7 +516,7 @@ namespace edm {
                   EventSetupImpl const& es,
                   ServiceToken const& token,
                   ParentContext const& parentContext,
-                  WaitingTaskWithArenaHolder holder) {}
+                  const WaitingTaskWithArenaHolder& holder) {}
       tbb::task* execute() override { return nullptr; }
     };
 

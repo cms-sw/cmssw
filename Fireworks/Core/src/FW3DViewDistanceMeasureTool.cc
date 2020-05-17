@@ -32,11 +32,11 @@ void FW3DViewDistanceMeasureTool::resetAction() {
   m_ldist->SetText(Form("%.2f", d.Mag()));
 
   {
-    TGCompositeFrame* p = (TGCompositeFrame*)(m_ldist->GetParent());
+    auto* p = (TGCompositeFrame*)(m_ldist->GetParent());
     p->Resize(p->GetDefaultSize());
   }
   {
-    TGCompositeFrame* p = (TGCompositeFrame*)(m_ldist->GetParent()->GetParent());
+    auto* p = (TGCompositeFrame*)(m_ldist->GetParent()->GetParent());
     p->Layout();
   }
 }
@@ -71,7 +71,7 @@ TGCompositeFrame* FW3DViewDistanceMeasureTool::buildGUI(TGCompositeFrame* p) {
   TGVerticalFrame* vf = new TGVerticalFrame(p);
 
   {
-    TGHorizontalFrame* hf = new TGHorizontalFrame(vf);
+    auto* hf = new TGHorizontalFrame(vf);
     TGLabel* lb = new TGLabel(hf, "Distance: ");
     hf->AddFrame(lb);
     m_ldist = new TGLabel(hf, " --- ");
@@ -79,7 +79,7 @@ TGCompositeFrame* FW3DViewDistanceMeasureTool::buildGUI(TGCompositeFrame* p) {
     vf->AddFrame(hf);
   }
   {
-    TGHorizontalFrame* hf = new TGHorizontalFrame(vf);
+    auto* hf = new TGHorizontalFrame(vf);
 
     m_bp1 = new TGTextButton(hf, "Pick Point1");
     m_bp1->Connect("Clicked()", "FW3DViewDistanceMeasureTool", this, "setActionPnt1()");
@@ -93,7 +93,7 @@ TGCompositeFrame* FW3DViewDistanceMeasureTool::buildGUI(TGCompositeFrame* p) {
   }
 
   {
-    TGHorizontalFrame* hf = new TGHorizontalFrame(vf);
+    auto* hf = new TGHorizontalFrame(vf);
 
     m_bp2 = new TGTextButton(hf, "Pick Point2");
     m_bp2->Connect("Clicked()", "FW3DViewDistanceMeasureTool", this, "setActionPnt2()");
@@ -107,7 +107,7 @@ TGCompositeFrame* FW3DViewDistanceMeasureTool::buildGUI(TGCompositeFrame* p) {
   }
 
   {
-    TGHorizontalFrame* hf = new TGHorizontalFrame(vf);
+    auto* hf = new TGHorizontalFrame(vf);
     TGTextButton* b = new TGTextButton(hf, "Print distance to terminal");
     b->Connect("Clicked()", "FW3DViewDistanceMeasureTool", this, "Print()");
     hf->AddFrame(b, new TGLayoutHints(kLHintsNormal, 0, 5, 4, 4));

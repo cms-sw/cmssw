@@ -21,7 +21,7 @@ namespace {
       }
 
       HGCalStringToEnumParser<HGCalGeometryMode::GeometryMode> eparser;
-      HGCalGeometryMode::GeometryMode result = (HGCalGeometryMode::GeometryMode)eparser.parseString(fvec[0]);
+      auto result = (HGCalGeometryMode::GeometryMode)eparser.parseString(fvec[0]);
       return result;
     } else {
       throw cms::Exception("HGCalGeom") << "Failed to get " << s << " tag";
@@ -29,7 +29,7 @@ namespace {
   }
   HGCalGeometryMode::GeometryMode getGeometryMode(const std::string& s) {
     HGCalStringToEnumParser<HGCalGeometryMode::GeometryMode> eparser;
-    HGCalGeometryMode::GeometryMode result = (HGCalGeometryMode::GeometryMode)eparser.parseString(s);
+    auto result = (HGCalGeometryMode::GeometryMode)eparser.parseString(s);
     return result;
   }
   HGCalGeometryMode::WaferMode getGeometryWaferMode(const char* s, const DDsvalues_type& sv) {
@@ -41,7 +41,7 @@ namespace {
       }
 
       HGCalStringToEnumParser<HGCalGeometryMode::WaferMode> eparser;
-      HGCalGeometryMode::WaferMode result = (HGCalGeometryMode::WaferMode)eparser.parseString(fvec[0]);
+      auto result = (HGCalGeometryMode::WaferMode)eparser.parseString(fvec[0]);
       return result;
     } else {
       throw cms::Exception("HGCalGeom") << "Failed to get " << s << " tag";
@@ -49,7 +49,7 @@ namespace {
   }
   HGCalGeometryMode::WaferMode getGeometryWaferMode(std::string& s) {
     HGCalStringToEnumParser<HGCalGeometryMode::WaferMode> eparser;
-    HGCalGeometryMode::WaferMode result = (HGCalGeometryMode::WaferMode)eparser.parseString(s);
+    auto result = (HGCalGeometryMode::WaferMode)eparser.parseString(s);
     return result;
   }
 }  // namespace

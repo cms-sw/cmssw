@@ -29,8 +29,8 @@ namespace std {
 class testMuonAssociator : public edm::EDAnalyzer {
 public:
   explicit testMuonAssociator(const edm::ParameterSet& iConfig);
-  virtual ~testMuonAssociator();
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
+  ~testMuonAssociator() override;
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
 
 private:
   edm::EDGetTokenT<edm::View<reco::Track> > token_recoTracks;
@@ -45,7 +45,7 @@ private:
   double m_ptcut;
 };
 
-std::ostream& operator<<(std::ostream& out, edm::RefToBase<reco::Track> ref) {
+std::ostream& operator<<(std::ostream& out, const edm::RefToBase<reco::Track>& ref) {
   out << std::fixed << " {" << std::setw(2) << ref->found() << "}    "
       << " [" << std::setw(4) << ref.key() << "]"
       << "            "
@@ -54,7 +54,7 @@ std::ostream& operator<<(std::ostream& out, edm::RefToBase<reco::Track> ref) {
   return out;
 }
 
-std::ostream& operator<<(std::ostream& out, reco::MuonRef ref) {
+std::ostream& operator<<(std::ostream& out, const reco::MuonRef& ref) {
   out << std::fixed;
   if (ref->isGlobalMuon()) {
     out << " {" << std::setw(2) << ref->innerTrack()->found() << "+" << std::setw(2) << ref->outerTrack()->found()
@@ -84,7 +84,7 @@ std::ostream& operator<<(std::ostream& out, reco::MuonRef ref) {
   return out;
 }
 
-std::ostream& operator<<(std::ostream& out, TrackingParticleRef ref) {
+std::ostream& operator<<(std::ostream& out, const TrackingParticleRef& ref) {
   out << std::fixed;
   out << " [" << std::setw(4) << ref.key() << "]"
       << " type:" << std::setw(6) << ref->pdgId() << " pT: " << std::setw(6) << std::setprecision(3) << ref->pt()
@@ -121,7 +121,7 @@ public:
   }
 
   void fillByHits(const association_type& found) {
-    for (typename association_type::const_iterator it = found.begin(); it != found.end(); ++it) {
+    for (auto it = found.begin(); it != found.end(); ++it) {
       const Ref& ref = it->first;
       m_map.insert(std::make_pair(ref, Quality()));
       m_map[ref].byHits = it->second;
@@ -129,7 +129,7 @@ public:
   }
 
   void fillByChi2(const association_type& found) {
-    for (typename association_type::const_iterator it = found.begin(); it != found.end(); ++it) {
+    for (auto it = found.begin(); it != found.end(); ++it) {
       const Ref& ref = it->first;
       m_map.insert(std::make_pair(ref, Quality()));
       m_map[ref].byChi2 = -it->second;
@@ -137,7 +137,7 @@ public:
   }
 
   void fillByPosition(const association_type& found) {
-    for (typename association_type::const_iterator it = found.begin(); it != found.end(); ++it) {
+    for (auto it = found.begin(); it != found.end(); ++it) {
       const Ref& ref = it->first;
       m_map.insert(std::make_pair(ref, Quality()));
       m_map[ref].byPosition = -it->second;
@@ -148,7 +148,7 @@ public:
 
   void dump(std::ostream& out) const {
     std::stringstream buffer;
-    for (typename map_type::const_iterator it = m_map.begin(); it != m_map.end(); ++it) {
+    for (auto it = m_map.begin(); it != m_map.end(); ++it) {
       buffer << "    " << std::setw(7) << std::left << m_label << std::right << it->first;
       if (it->second.byHits)
         buffer << " [" << std::setw(6) << std::setprecision(3) << it->second.byHits << "]";
@@ -237,9 +237,8 @@ void testMuonAssociator::analyze(const edm::Event& event, const edm::EventSetup&
   std::cout << std::endl;
   std::cout << "Found " << std::setw(6) << trackingParticleCollection.size() << " TrackingParticles" << std::flush;
   unsigned int count = 0;
-  for (TrackingParticleCollection::size_type i = 0; i < trackingParticleCollection.size(); ++i)
-    if ((std::abs(trackingParticleCollection[i].pdgId()) == (int)m_flavour) and
-        (trackingParticleCollection[i].pt() >= m_ptcut))
+  for (const auto& i : trackingParticleCollection)
+    if ((std::abs(i.pdgId()) == (int)m_flavour) and (i.pt() >= m_ptcut))
       ++count;
 
   std::cout << " ( " << std::setw(2) << count << " leptons with pT above " << m_ptcut << " GeV)" << std::endl;

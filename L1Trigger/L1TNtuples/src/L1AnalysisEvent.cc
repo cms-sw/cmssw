@@ -5,11 +5,13 @@
 
 #include <string>
 #include <iostream>
+#include <utility>
+
 #include <sys/stat.h>
 
-L1Analysis::L1AnalysisEvent::L1AnalysisEvent(std::string puMCFile,
+L1Analysis::L1AnalysisEvent::L1AnalysisEvent(const std::string& puMCFile,
                                              std::string puMCHist,
-                                             std::string puDataFile,
+                                             const std::string& puDataFile,
                                              std::string puDataHist,
                                              bool useAvgVtx,
                                              double maxWeight,
@@ -19,7 +21,7 @@ L1Analysis::L1AnalysisEvent::L1AnalysisEvent(std::string puMCFile,
   // check PU files exists, and reweight if they do
   struct stat buf;
   if ((stat(puMCFile.c_str(), &buf) != -1) && (stat(puDataFile.c_str(), &buf) != -1)) {
-    lumiWeights_ = edm::LumiReWeighting(puMCFile, puDataFile, puMCHist, puDataHist);
+    lumiWeights_ = edm::LumiReWeighting(puMCFile, puDataFile, std::move(puMCHist), std::move(puDataHist));
     doPUWeights_ = true;
   } else {
     edm::LogWarning("L1Prompt") << "No PU reweighting inputs - not going to calculate weights" << std::endl;
@@ -80,11 +82,11 @@ void L1Analysis::L1AnalysisEvent::Set(const edm::Event& e, const edm::EDGetToken
     edm::Handle<std::vector<PileupSummaryInfo>> puInfo;
     e.getByToken(pileupSummaryInfoToken_, puInfo);
     if (puInfo.isValid()) {
-      for (std::vector<PileupSummaryInfo>::const_iterator pvi = puInfo->begin(); pvi != puInfo->end(); pvi++) {
-        int bx = pvi->getBunchCrossing();
+      for (const auto& pvi : *puInfo) {
+        int bx = pvi.getBunchCrossing();
         if (bx == 0) {
-          event_.nPV = pvi->getPU_NumInteractions();
-          event_.nPV_True = pvi->getTrueNumInteractions();
+          event_.nPV = pvi.getPU_NumInteractions();
+          event_.nPV_True = pvi.getTrueNumInteractions();
         }
       }
     }

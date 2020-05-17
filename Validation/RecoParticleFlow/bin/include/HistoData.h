@@ -5,11 +5,17 @@
 #include <TH1.h>
 #include <cstring>
 #include <string>
+#include <utility>
 
 class HistoData {
 public:
-  HistoData(
-      std::string Name, int PlotType, int Bin, std::string NewPath, TFile *NewFile, std::string RefPath, TFile *RefFile);
+  HistoData(std::string Name,
+            int PlotType,
+            int Bin,
+            const std::string &NewPath,
+            TFile *NewFile,
+            const std::string &RefPath,
+            TFile *RefFile);
   HistoData(std::string Name, int PlotType, int Bin, TH1 *NewHisto, TH1 *RefHisto);
   virtual ~HistoData() {}
 
@@ -52,12 +58,12 @@ public:
   int getShadedFillStyle() const { return shadedFillStyle; }
 
   // Set General Information
-  void setName(std::string Name) { name = Name; }
+  void setName(std::string Name) { name = std::move(Name); }
   // void setType(PlotType Type) { type = Type; }
   void setType(int PlotType) { type = PlotType; }
   void setBin(int Bin) { bin = Bin; }
-  void setResultImage(std::string Image) { resultImage = Image; }
-  void setResultTarget(std::string Target) { resultTarget = Target; }
+  void setResultImage(std::string Image) { resultImage = std::move(Image); }
+  void setResultTarget(std::string Target) { resultTarget = std::move(Target); }
 
   // Projections/Rebinning Setters
   void setDoDrawErrorBars(bool Toggle) { doDrawErrorBars = Toggle; }

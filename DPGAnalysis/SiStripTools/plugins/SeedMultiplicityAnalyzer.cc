@@ -148,43 +148,40 @@ SeedMultiplicityAnalyzer::SeedMultiplicityAnalyzer(const edm::ParameterSet& iCon
   std::vector<edm::ParameterSet> seedCollectionConfigs =
       iConfig.getParameter<std::vector<edm::ParameterSet>>("seedCollections");
 
-  for (std::vector<edm::ParameterSet>::const_iterator scps = seedCollectionConfigs.begin();
-       scps != seedCollectionConfigs.end();
-       ++scps) {
-    _seedcollTokens.push_back(consumes<TrajectorySeedCollection>(scps->getParameter<edm::InputTag>("src")));
-    _seedbins.push_back(scps->getUntrackedParameter<unsigned int>("nBins", 1000));
-    _seedmax.push_back(scps->getUntrackedParameter<double>("maxValue", 100000.));
+  for (const auto& seedCollectionConfig : seedCollectionConfigs) {
+    _seedcollTokens.push_back(
+        consumes<TrajectorySeedCollection>(seedCollectionConfig.getParameter<edm::InputTag>("src")));
+    _seedbins.push_back(seedCollectionConfig.getUntrackedParameter<unsigned int>("nBins", 1000));
+    _seedmax.push_back(seedCollectionConfig.getUntrackedParameter<double>("maxValue", 100000.));
 
-    if (scps->exists("trackFilter")) {
-      _seedfilters.push_back(
-          FromTrackRefSeedFilter(consumesCollector(), scps->getParameter<edm::ParameterSet>("trackFilter")));
+    if (seedCollectionConfig.exists("trackFilter")) {
+      _seedfilters.emplace_back(consumesCollector(),
+                                seedCollectionConfig.getParameter<edm::ParameterSet>("trackFilter"));
     } else {
-      _seedfilters.push_back(FromTrackRefSeedFilter());
+      _seedfilters.emplace_back();
     }
   }
 
   std::vector<edm::ParameterSet> correlationConfigs =
       iConfig.getParameter<std::vector<edm::ParameterSet>>("multiplicityCorrelations");
 
-  for (std::vector<edm::ParameterSet>::const_iterator ps = correlationConfigs.begin(); ps != correlationConfigs.end();
-       ++ps) {
+  for (const auto& correlationConfig : correlationConfigs) {
     _multiplicityMapTokens.push_back(
-        consumes<std::map<unsigned int, int>>(ps->getParameter<edm::InputTag>("multiplicityMap")));
-    _labels.push_back(ps->getParameter<std::string>("detLabel"));
-    _selections.push_back(ps->getParameter<unsigned int>("detSelection"));
-    _binsmult.push_back(ps->getParameter<unsigned int>("nBins"));
-    _binseta.push_back(ps->getParameter<unsigned int>("nBinsEta"));
-    _maxs.push_back(ps->getParameter<double>("maxValue"));
+        consumes<std::map<unsigned int, int>>(correlationConfig.getParameter<edm::InputTag>("multiplicityMap")));
+    _labels.push_back(correlationConfig.getParameter<std::string>("detLabel"));
+    _selections.push_back(correlationConfig.getParameter<unsigned int>("detSelection"));
+    _binsmult.push_back(correlationConfig.getParameter<unsigned int>("nBins"));
+    _binseta.push_back(correlationConfig.getParameter<unsigned int>("nBinsEta"));
+    _maxs.push_back(correlationConfig.getParameter<double>("maxValue"));
   }
 
   edm::Service<TFileService> tfserv;
 
-  std::vector<unsigned int>::const_iterator nseedbins = _seedbins.begin();
-  std::vector<double>::const_iterator seedmax = _seedmax.begin();
-  std::vector<FromTrackRefSeedFilter>::const_iterator filter = _seedfilters.begin();
+  auto nseedbins = _seedbins.begin();
+  auto seedmax = _seedmax.begin();
+  auto filter = _seedfilters.begin();
 
-  for (std::vector<edm::ParameterSet>::const_iterator scps = seedCollectionConfigs.begin();
-       scps != seedCollectionConfigs.end();
+  for (auto scps = seedCollectionConfigs.begin(); scps != seedCollectionConfigs.end();
        ++scps, ++nseedbins, ++seedmax, ++filter) {
     std::string extendedlabel = std::string(scps->getParameter<edm::InputTag>("src").encode()) + filter->suffix();
 
@@ -207,8 +204,8 @@ SeedMultiplicityAnalyzer::SeedMultiplicityAnalyzer(const edm::ParameterSet& iCon
     _hseedphieta[_hseedphieta.size() - 1]->GetXaxis()->SetTitle("#eta");
     _hseedphieta[_hseedphieta.size() - 1]->GetYaxis()->SetTitle("#phi");
 
-    _hseedmult2D.push_back(std::vector<TH2F*>());
-    _hseedeta2D.push_back(std::vector<TH2F*>());
+    _hseedmult2D.emplace_back();
+    _hseedeta2D.emplace_back();
 
     hname = extendedlabel + std::string("_npixelrh");
     htitle = extendedlabel + std::string(" seed SiPixelRecHit multiplicity");
@@ -296,7 +293,7 @@ void SeedMultiplicityAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
 
     // check if the selection exists
 
-    std::map<unsigned int, int>::const_iterator mult = mults->find(_selections[i]);
+    auto mult = mults->find(_selections[i]);
 
     if (mult != mults->end()) {
       tmpmult[i] = mult->second;
@@ -319,38 +316,38 @@ void SeedMultiplicityAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
   // I need:
   // - beamspot bs POSTPONED
 
-  std::vector<TH1F*>::iterator histomult = _hseedmult.begin();
-  std::vector<std::vector<TH2F*>>::iterator histomult2D = _hseedmult2D.begin();
-  std::vector<TH1F*>::iterator histoeta = _hseedeta.begin();
-  std::vector<TH2F*>::iterator histophieta = _hseedphieta.begin();
-  std::vector<std::vector<TH2F*>>::iterator histoeta2D = _hseedeta2D.begin();
-  std::vector<TH1F*>::iterator hpixelrhmult = _hpixelrhmult.begin();
-  std::vector<TH2F*>::iterator histobpixleneta = _hbpixclusleneta.begin();
-  std::vector<TH2F*>::iterator histofpixleneta = _hfpixclusleneta.begin();
-  std::vector<TH2F*>::iterator histobpixlenangle = _hbpixcluslenangle.begin();
-  std::vector<TH2F*>::iterator histofpixlenangle = _hfpixcluslenangle.begin();
-  std::vector<FromTrackRefSeedFilter>::iterator filter = _seedfilters.begin();
+  auto histomult = _hseedmult.begin();
+  auto histomult2D = _hseedmult2D.begin();
+  auto histoeta = _hseedeta.begin();
+  auto histophieta = _hseedphieta.begin();
+  auto histoeta2D = _hseedeta2D.begin();
+  auto hpixelrhmult = _hpixelrhmult.begin();
+  auto histobpixleneta = _hbpixclusleneta.begin();
+  auto histofpixleneta = _hfpixclusleneta.begin();
+  auto histobpixlenangle = _hbpixcluslenangle.begin();
+  auto histofpixlenangle = _hfpixcluslenangle.begin();
+  auto filter = _seedfilters.begin();
 
   // loop on seed collections
 
-  for (std::vector<edm::EDGetTokenT<TrajectorySeedCollection>>::const_iterator coll = _seedcollTokens.begin();
+  for (auto coll = _seedcollTokens.begin();
        coll != _seedcollTokens.end() && histomult != _hseedmult.end() && histomult2D != _hseedmult2D.end() &&
        histoeta != _hseedeta.end() && histoeta2D != _hseedeta2D.end() && histophieta != _hseedphieta.end() &&
        hpixelrhmult != _hpixelrhmult.end() && histobpixleneta != _hbpixclusleneta.end() &&
        histofpixleneta != _hfpixclusleneta.end() && histobpixlenangle != _hbpixcluslenangle.end() &&
        histofpixlenangle != _hfpixcluslenangle.end();
        ++coll,
-                                                                               ++histomult,
-                                                                               ++histomult2D,
-                                                                               ++histoeta,
-                                                                               ++histophieta,
-                                                                               ++histoeta2D,
-                                                                               ++hpixelrhmult,
-                                                                               ++histobpixleneta,
-                                                                               ++histofpixleneta,
-                                                                               ++histobpixlenangle,
-                                                                               ++histofpixlenangle,
-                                                                               ++filter) {
+            ++histomult,
+            ++histomult2D,
+            ++histoeta,
+            ++histophieta,
+            ++histoeta2D,
+            ++hpixelrhmult,
+            ++histobpixleneta,
+            ++histofpixleneta,
+            ++histobpixlenangle,
+            ++histofpixlenangle,
+            ++filter) {
     filter->prepareEvent(iEvent);
 
     Handle<TrajectorySeedCollection> seeds;
@@ -368,7 +365,7 @@ void SeedMultiplicityAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
 
     unsigned int nseeds = 0;
     unsigned int iseed = 0;
-    for (TrajectorySeedCollection::const_iterator seed = seeds->begin(); seed != seeds->end(); ++seed, ++iseed) {
+    for (auto seed = seeds->begin(); seed != seeds->end(); ++seed, ++iseed) {
       if (filter->isSelected(iseed)) {
         ++nseeds;
 
@@ -470,9 +467,8 @@ bool SeedMultiplicityAnalyzer::FromTrackRefSeedFilter::isSelected(const unsigned
     const reco::TrackRef trkref(m_tracks, iseed);
 
     // loop on the selected trackref to check if there is the same track
-    for (reco::TrackRefVector::const_iterator seltrkref = m_seltrackrefs->begin(); seltrkref != m_seltrackrefs->end();
-         ++seltrkref) {
-      if (trkref == *seltrkref)
+    for (auto&& seltrkref : *m_seltrackrefs) {
+      if (trkref == seltrkref)
         return true;
     }
   }

@@ -15,9 +15,9 @@ class DTDeadFlagValidateDBRead : public edm::EDAnalyzer {
 public:
   explicit DTDeadFlagValidateDBRead(edm::ParameterSet const& p);
   explicit DTDeadFlagValidateDBRead(int i);
-  virtual ~DTDeadFlagValidateDBRead();
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-  virtual void endJob();
+  ~DTDeadFlagValidateDBRead() override;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void endJob() override;
 
 private:
   std::string dataFileName;

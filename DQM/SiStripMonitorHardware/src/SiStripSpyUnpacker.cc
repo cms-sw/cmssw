@@ -65,8 +65,8 @@ namespace sistrip {
     }
 
     //retrieve FED ids from cabling map and iterate through
-    std::vector<uint32_t>::const_iterator ifed = ids.begin();
-    std::vector<uint32_t>::const_iterator endfed = ids.end();
+    auto ifed = ids.begin();
+    auto endfed = ids.end();
 
     //reference value for run number
     //encoded per fed but should be the same for all feds
@@ -148,8 +148,8 @@ namespace sistrip {
       (*pTotalEventCounts)[lFedId] = totalEvCount;
 
       //iterate through FED channels, extract payload and create Digis
-      std::vector<FedChannelConnection>::const_iterator iconn = conns.begin();
-      std::vector<FedChannelConnection>::const_iterator endconn = conns.end();
+      auto iconn = conns.begin();
+      auto endconn = conns.end();
       for (; iconn != endconn; ++iconn) {
         //check if fed connection is valid
         if (!iconn->isConnected()) {
@@ -186,7 +186,7 @@ namespace sistrip {
         // Start a new channel in the filler
         dsvFiller.newChannel(key);
         // Create the unpacker object
-        sistrip::FEDSpyChannelUnpacker unpacker = sistrip::FEDSpyChannelUnpacker(buffer.channel(chan));
+        auto unpacker = sistrip::FEDSpyChannelUnpacker(buffer.channel(chan));
 
         // Unpack the data into dsv filler
         while (unpacker.hasData()) {

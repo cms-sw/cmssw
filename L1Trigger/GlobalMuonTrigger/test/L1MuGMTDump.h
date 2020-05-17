@@ -57,9 +57,9 @@ public:
   explicit L1MuGMTDump(const edm::ParameterSet&);
 
   // fill tree
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  virtual void endJob();
+  void endJob() override;
 
 public:
   //GENERAL block

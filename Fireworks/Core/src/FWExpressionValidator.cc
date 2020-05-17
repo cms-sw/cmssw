@@ -50,7 +50,7 @@ namespace fireworks {
         fillOptionForType(m_type, m_subOptions);
         std::sort(
             m_subOptions.begin(), m_subOptions.end(), fireworks::OptionNodePtrCompare<std::shared_ptr<OptionNode> >());
-        std::vector<std::shared_ptr<OptionNode> >::iterator it = std::unique(
+        auto it = std::unique(
             m_subOptions.begin(), m_subOptions.end(), fireworks::OptionNodePtrEqual<std::shared_ptr<OptionNode> >());
         m_subOptions.erase(it, m_subOptions.end());
 
@@ -85,7 +85,7 @@ namespace fireworks {
   namespace {
     std::string descriptionFromMember(const edm::FunctionWithDict& iMember) {
       std::string typeString = iMember.typeName();
-      std::string::size_type index = typeString.find_first_of("(");
+      std::string::size_type index = typeString.find_first_of('(');
       if (index == std::string::npos) {
         return iMember.name() + ":" + typeString;
       } else {
@@ -195,7 +195,7 @@ void FWExpressionValidator::setType(const edm::TypeWithDict& iType) {
   m_options = m_builtins;
   OptionNode::fillOptionForType(iType, m_options);
   std::sort(m_options.begin(), m_options.end(), fireworks::OptionNodePtrCompare<std::shared_ptr<OptionNode> >());
-  std::vector<std::shared_ptr<OptionNode> >::iterator it =
+  auto it =
       std::unique(m_options.begin(), m_options.end(), fireworks::OptionNodePtrEqual<std::shared_ptr<OptionNode> >());
   m_options.erase(it, m_options.end());
 }
@@ -247,11 +247,11 @@ void FWExpressionValidator::fillOptions(
   //must find correct OptionNode
   const Options* nodes = &m_options;
   const char* begin = iBegin;
-  for (std::vector<const char*>::iterator it = delimeters.begin(), itEnd = delimeters.end(); it != itEnd; ++it) {
-    OptionNode temp(std::string(begin, *it), *it - begin, edm::TypeWithDict());
+  for (auto& delimeter : delimeters) {
+    OptionNode temp(std::string(begin, delimeter), delimeter - begin, edm::TypeWithDict());
 
     std::shared_ptr<OptionNode> comp(&temp, dummyDelete);
-    Options::const_iterator itFind = std::lower_bound(
+    auto itFind = std::lower_bound(
         nodes->begin(), nodes->end(), comp, fireworks::OptionNodePtrCompare<std::shared_ptr<OptionNode> >());
 
     if (itFind == nodes->end() || *comp < *(*itFind)) {
@@ -259,17 +259,16 @@ void FWExpressionValidator::fillOptions(
       return;
     }
     nodes = &((*itFind)->options());
-    begin = (*it) + 1;
+    begin = delimeter + 1;
   }
 
   //only use add items which begin with the part of the member we are trying to match
   std::string part(begin, iEnd);
   unsigned int part_size = part.size();
-  for (Options::const_iterator it = nodes->begin(), itEnd = nodes->end(); it != itEnd; ++it) {
-    if (part == (*it)->description().substr(0, part_size)) {
-      oOptions.push_back(
-          std::make_pair(std::shared_ptr<std::string>(const_cast<std::string*>(&((*it)->description())), dummyDelete),
-                         (*it)->description().substr(part_size, (*it)->substitutionEnd() - part_size)));
+  for (const auto& node : *nodes) {
+    if (part == node->description().substr(0, part_size)) {
+      oOptions.emplace_back(std::shared_ptr<std::string>(const_cast<std::string*>(&(node->description())), dummyDelete),
+                            node->description().substr(part_size, node->substitutionEnd() - part_size));
     }
   }
 }

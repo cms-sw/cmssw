@@ -32,7 +32,7 @@ using namespace std;
 //----------------
 // Constructors --
 //----------------
-DTTracoTrigData::DTTracoTrigData(DTTracoId tracoid, int step) : _tracoid(tracoid), _step(step) { clear(); }
+DTTracoTrigData::DTTracoTrigData(const DTTracoId& tracoid, int step) : _tracoid(tracoid), _step(step) { clear(); }
 
 //--------------
 // Operations --

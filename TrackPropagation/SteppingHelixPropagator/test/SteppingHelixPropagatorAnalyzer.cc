@@ -85,11 +85,11 @@
 class SteppingHelixPropagatorAnalyzer : public edm::EDAnalyzer {
 public:
   explicit SteppingHelixPropagatorAnalyzer(const edm::ParameterSet&);
-  ~SteppingHelixPropagatorAnalyzer();
+  ~SteppingHelixPropagatorAnalyzer() override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
-  void beginJob();
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
+  void beginJob() override;
 
 protected:
   struct GlobalSimHit {
@@ -123,7 +123,7 @@ protected:
                   AlgebraicSymMatrix66& cov);
 
   void addPSimHits(const edm::Event& iEvent,
-                   const std::string instanceName,
+                   const std::string& instanceName,
                    const edm::ESHandle<GlobalTrackingGeometry>& geom,
                    std::vector<SteppingHelixPropagatorAnalyzer::GlobalSimHit>& hits) const;
 
@@ -307,7 +307,7 @@ void SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const ed
   addPSimHits(iEvent, "TrackerHitsTOBLowTof", geomESH, allSimHits);
   addPSimHits(iEvent, "TrackerHitsTECLowTof", geomESH, allSimHits);
 
-  SimTrackContainer::const_iterator tracksCI = simTracks->begin();
+  auto tracksCI = simTracks->begin();
   for (; tracksCI != simTracks->end(); tracksCI++) {
     int trkPDG = tracksCI->type();
     if (abs(trkPDG) != 13) {
@@ -349,19 +349,18 @@ void SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const ed
 
     std::map<double, const GlobalSimHit*> simHitsByDistance;
     std::map<double, const GlobalSimHit*> simHitsByTof;
-    for (std::vector<GlobalSimHit>::const_iterator allHitsCI = allSimHits.begin(); allHitsCI != allSimHits.end();
-         allHitsCI++) {
-      if (allHitsCI->hit->trackId() != trkInd)
+    for (const auto& allSimHit : allSimHits) {
+      if (allSimHit.hit->trackId() != trkInd)
         continue;
-      if (abs(allHitsCI->hit->particleType()) != 13)
+      if (abs(allSimHit.hit->particleType()) != 13)
         continue;
-      if (allHitsCI->p3.mag() < 0.5)
+      if (allSimHit.p3.mag() < 0.5)
         continue;
 
-      double distance = (allHitsCI->r3 - r3T).mag();
-      double tof = allHitsCI->hit->timeOfFlight();
-      simHitsByDistance[distance] = &*allHitsCI;
-      simHitsByTof[tof] = &*allHitsCI;
+      double distance = (allSimHit.r3 - r3T).mag();
+      double tof = allSimHit.hit->timeOfFlight();
+      simHitsByDistance[distance] = &allSimHit;
+      simHitsByTof[tof] = &allSimHit;
     }
 
     {  //new scope for timing purposes only
@@ -369,7 +368,7 @@ void SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const ed
         FreeTrajectoryState ftsDest;
         GlobalPoint pDest1(10., 10., 0.);
         GlobalPoint pDest2(10., 10., 10.);
-        const SteppingHelixPropagator* shPropAnyCPtr = dynamic_cast<const SteppingHelixPropagator*>(&*shPropAny);
+        const auto* shPropAnyCPtr = dynamic_cast<const SteppingHelixPropagator*>(&*shPropAny);
 
         ftsDest = shPropAnyCPtr->propagate(ftsStart, pDest1);
         std::cout << "----------------------------------------------" << std::endl;
@@ -378,7 +377,7 @@ void SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const ed
       }
 
       //now we are supposed to have a sorted list of hits
-      std::map<double, const GlobalSimHit*>::const_iterator simHitsCI = simHitsByDistance.begin();
+      auto simHitsCI = simHitsByDistance.begin();
       for (; simHitsCI != simHitsByDistance.end(); simHitsCI++) {
         const GlobalSimHit* igHit = simHitsCI->second;
         const PSimHit* iHit = simHitsCI->second->hit;
@@ -396,7 +395,7 @@ void SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const ed
         pStatus = 0;
         if (startFromPrevHit_) {
           if (simHitsCI != simHitsByDistance.begin()) {
-            std::map<double, const GlobalSimHit*>::const_iterator simHitPrevCI = simHitsCI;
+            auto simHitPrevCI = simHitsCI;
             simHitPrevCI--;
             const GlobalSimHit* gpHit = simHitPrevCI->second;
             ftsStart = getFromCLHEP(gpHit->p3, gpHit->r3, charge, covT, &*bField);
@@ -405,7 +404,7 @@ void SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const ed
         }
 
         if (radX0CorrectionMode_) {
-          const SteppingHelixPropagator* shPropCPtr = dynamic_cast<const SteppingHelixPropagator*>(&*shProp);
+          const auto* shPropCPtr = dynamic_cast<const SteppingHelixPropagator*>(&*shProp);
           shPropCPtr->propagate(siStart, *igHit->surf, siDest);
           if (siDest.isValid()) {
             siStart = siDest;
@@ -455,7 +454,7 @@ void SteppingHelixPropagatorAnalyzer::endJob() {
   ntFile_->cd();
   tr_->Write();
   delete ntFile_;
-  ntFile_ = 0;
+  ntFile_ = nullptr;
 }
 
 void SteppingHelixPropagatorAnalyzer::loadNtVars(int ind,
@@ -523,7 +522,7 @@ void SteppingHelixPropagatorAnalyzer::getFromFTS(const FreeTrajectoryState& fts,
 
 void SteppingHelixPropagatorAnalyzer ::addPSimHits(
     const edm::Event& iEvent,
-    const std::string instanceName,
+    const std::string& instanceName,
     const edm::ESHandle<GlobalTrackingGeometry>& geom,
     std::vector<SteppingHelixPropagatorAnalyzer::GlobalSimHit>& hits) const {
   static std::string metname = "SteppingHelixPropagatorAnalyzer";
@@ -537,7 +536,7 @@ void SteppingHelixPropagatorAnalyzer ::addPSimHits(
     LogTrace(metname) << "Got " << instanceName << " of size " << handle->size() << std::endl;
   }
 
-  edm::PSimHitContainer::const_iterator pHits_CI = handle->begin();
+  auto pHits_CI = handle->begin();
   for (; pHits_CI != handle->end(); pHits_CI++) {
     int dtId = pHits_CI->detUnitId();
     DetId wId(dtId);

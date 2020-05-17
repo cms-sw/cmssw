@@ -95,7 +95,7 @@ namespace cscdqm {
   private:
     static const bool checkHistoValue(const CoHistoProps& h, const std::string& name, std::string& value);
     static const bool checkHistoValue(const CoHistoProps& h, const std::string& name, int& value);
-    static const bool checkHistoValue(const CoHistoProps& h, const std::string name, double& value);
+    static const bool checkHistoValue(const CoHistoProps& h, const std::string& name, double& value);
 
     static std::string& getHistoValue(const CoHistoProps& h,
                                       const std::string& name,
@@ -103,7 +103,7 @@ namespace cscdqm {
                                       const std::string& def_value = "");
     static int& getHistoValue(const CoHistoProps& h, const std::string& name, int& value, const int& def_value = 0);
     static double& getHistoValue(const CoHistoProps& h,
-                                 const std::string name,
+                                 const std::string& name,
                                  double& value,
                                  const int def_value = 0.0);
 

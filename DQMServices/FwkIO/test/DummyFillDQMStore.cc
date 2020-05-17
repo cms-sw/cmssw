@@ -59,10 +59,10 @@ namespace {
       m_valueToFill = iPSet.getUntrackedParameter<double>("value");
     }
 
-    virtual ~TH1FFiller(){};
+    ~TH1FFiller() override{};
 
-    void reset() { m_element->Reset(); }
-    void fill() { m_element->Fill(m_valueToFill); }
+    void reset() override { m_element->Reset(); }
+    void fill() override { m_element->Fill(m_valueToFill); }
 
   private:
     double m_valueToFill;
@@ -90,10 +90,10 @@ namespace {
       m_valueToFill = iPSet.getUntrackedParameter<double>("value");
     }
 
-    virtual ~TH2FFiller(){};
+    ~TH2FFiller() override{};
 
-    void reset() { m_element->Reset(); }
-    void fill() { m_element->Fill(m_valueToFill, m_valueToFill); }
+    void reset() override { m_element->Reset(); }
+    void fill() override { m_element->Fill(m_valueToFill, m_valueToFill); }
 
   private:
     double m_valueToFill;
@@ -107,15 +107,15 @@ namespace {
 class DummyFillDQMStore : public DQMOneLumiEDAnalyzer<> {
 public:
   explicit DummyFillDQMStore(const edm::ParameterSet&);
-  ~DummyFillDQMStore();
+  ~DummyFillDQMStore() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  virtual void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-  virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
-  virtual void dqmEndRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void dqmBeginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  virtual void dqmEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void dqmEndRun(edm::Run const&, edm::EventSetup const&) override;
+  void dqmBeginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  void dqmEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
 private:
   // ----------member data ---------------------------
@@ -153,13 +153,13 @@ void DummyFillDQMStore::bookHistograms(DQMStore::IBooker&, edm::Run const&, edm:
     dstore->setScope(MonitorElementData::Scope::RUN);
     m_runFillers.clear();
     m_runFillers.reserve(elements.size());
-    for (PSets::const_iterator it = elements.begin(), itEnd = elements.end(); it != itEnd; ++it) {
-      switch (it->getUntrackedParameter<unsigned int>("type", 1)) {
+    for (const auto& element : elements) {
+      switch (element.getUntrackedParameter<unsigned int>("type", 1)) {
         case 1:
-          m_runFillers.push_back(std::shared_ptr<FillerBase>(new TH1FFiller(*it, *dstore, false)));
+          m_runFillers.push_back(std::shared_ptr<FillerBase>(new TH1FFiller(element, *dstore, false)));
           break;
         case 2:
-          m_runFillers.push_back(std::shared_ptr<FillerBase>(new TH2FFiller(*it, *dstore, false)));
+          m_runFillers.push_back(std::shared_ptr<FillerBase>(new TH2FFiller(element, *dstore, false)));
           break;
       }
     }
@@ -169,13 +169,13 @@ void DummyFillDQMStore::bookHistograms(DQMStore::IBooker&, edm::Run const&, edm:
     dstore->setScope(MonitorElementData::Scope::LUMI);
     m_lumiFillers.clear();
     m_lumiFillers.reserve(elements.size());
-    for (PSets::const_iterator it = elements.begin(), itEnd = elements.end(); it != itEnd; ++it) {
-      switch (it->getUntrackedParameter<unsigned int>("type", 1)) {
+    for (const auto& element : elements) {
+      switch (element.getUntrackedParameter<unsigned int>("type", 1)) {
         case 1:
-          m_lumiFillers.push_back(std::shared_ptr<FillerBase>(new TH1FFiller(*it, *dstore, true)));
+          m_lumiFillers.push_back(std::shared_ptr<FillerBase>(new TH1FFiller(element, *dstore, true)));
           break;
         case 2:
-          m_lumiFillers.push_back(std::shared_ptr<FillerBase>(new TH2FFiller(*it, *dstore, true)));
+          m_lumiFillers.push_back(std::shared_ptr<FillerBase>(new TH2FFiller(element, *dstore, true)));
           break;
       }
     }
@@ -214,28 +214,22 @@ void DummyFillDQMStore::analyze(edm::Event const& iEvent, edm::EventSetup const&
 
 // ------------ method called when ending the processing of a run  ------------
 void DummyFillDQMStore::dqmEndRun(edm::Run const&, edm::EventSetup const&) {
-  for (std::vector<std::shared_ptr<FillerBase> >::iterator it = m_runFillers.begin(), itEnd = m_runFillers.end();
-       it != itEnd;
-       ++it) {
-    (*it)->fill();
+  for (auto& m_runFiller : m_runFillers) {
+    m_runFiller->fill();
   }
 }
 
 // ------------ method called when starting to processes a luminosity block  ------------
 void DummyFillDQMStore::dqmBeginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
-  for (std::vector<std::shared_ptr<FillerBase> >::iterator it = m_lumiFillers.begin(), itEnd = m_lumiFillers.end();
-       it != itEnd;
-       ++it) {
-    (*it)->reset();
+  for (auto& m_lumiFiller : m_lumiFillers) {
+    m_lumiFiller->reset();
   }
 }
 
 // ------------ method called when ending the processing of a luminosity block  ------------
 void DummyFillDQMStore::dqmEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
-  for (std::vector<std::shared_ptr<FillerBase> >::iterator it = m_lumiFillers.begin(), itEnd = m_lumiFillers.end();
-       it != itEnd;
-       ++it) {
-    (*it)->fill();
+  for (auto& m_lumiFiller : m_lumiFillers) {
+    m_lumiFiller->fill();
   }
 }
 

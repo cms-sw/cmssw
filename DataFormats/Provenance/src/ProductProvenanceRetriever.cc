@@ -137,7 +137,7 @@ namespace edm {
     itFound->threadsafe_set(entryInfo.moveParentageID());
   }
 
-  void ProductProvenanceRetriever::mergeProvenanceRetrievers(std::shared_ptr<ProductProvenanceRetriever> other) {
+  void ProductProvenanceRetriever::mergeProvenanceRetrievers(const std::shared_ptr<ProductProvenanceRetriever>& other) {
     nextRetriever_ = other;
   }
 

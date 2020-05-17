@@ -18,8 +18,8 @@ PFV0Producer::PFV0Producer(const ParameterSet& iConfig) : pfTransformer_(nullptr
 
   std::vector<edm::InputTag> tags = iConfig.getParameter<vector<InputTag> >("V0List");
 
-  for (unsigned int i = 0; i < tags.size(); ++i)
-    V0list_.push_back(consumes<reco::VertexCompositeCandidateCollection>(tags[i]));
+  for (const auto& tag : tags)
+    V0list_.push_back(consumes<reco::VertexCompositeCandidateCollection>(tag));
 }
 
 PFV0Producer::~PFV0Producer() { delete pfTransformer_; }
@@ -51,7 +51,7 @@ void PFV0Producer::produce(Event& iEvent, const EventSetup& iSetup) {
         Trajectory FakeTraj;
         bool valid = pfTransformer_->addPoints(pfRecTrack, *trackRef, FakeTraj);
         if (valid) {
-          PFTracks.push_back(reco::PFRecTrackRef(pfTrackRefProd, idx++));
+          PFTracks.emplace_back(pfTrackRefProd, idx++);
           pfV0RecTrackColl->push_back(pfRecTrack);
         }
       }

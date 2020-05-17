@@ -43,15 +43,15 @@
 class TestPerformanceFW_ES : public edm::EDAnalyzer {
 public:
   explicit TestPerformanceFW_ES(const edm::ParameterSet&);
-  ~TestPerformanceFW_ES();
+  ~TestPerformanceFW_ES() override;
 
 private:
   std::string name;
   std::vector<std::string> measureName;
   std::vector<std::string> measureType;
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   // ----------member data ---------------------------
 };

@@ -40,10 +40,10 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 protected:
-  virtual void beginJob() override;
-  virtual void beginRun(edm::Run const &, edm::EventSetup const &) override;
-  virtual void analyze(edm::Event const &, edm::EventSetup const &) override;
-  virtual void endRun(edm::Run const &, edm::EventSetup const &) override {}
+  void beginJob() override;
+  void beginRun(edm::Run const &, edm::EventSetup const &) override;
+  void analyze(edm::Event const &, edm::EventSetup const &) override;
+  void endRun(edm::Run const &, edm::EventSetup const &) override {}
   virtual void beginLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) {}
   virtual void endLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) {}
 
@@ -63,7 +63,7 @@ private:
   static constexpr double mmTocm_ = 0.1;
 };
 
-HGCGeometryCheck::HGCGeometryCheck(const edm::ParameterSet &cfg) : hcons_(0) {
+HGCGeometryCheck::HGCGeometryCheck(const edm::ParameterSet &cfg) : hcons_(nullptr) {
   usesResource(TFileService::kSharedResource);
 
   g4Token_ = consumes<PHGCalValidInfo>(cfg.getParameter<edm::InputTag>("g4Source"));
@@ -104,25 +104,25 @@ void HGCGeometryCheck::beginJob() {
 
 void HGCGeometryCheck::beginRun(const edm::Run &, const edm::EventSetup &iSetup) {
   //initiating hgc geometry
-  for (size_t i = 0; i < geometrySource_.size(); i++) {
-    if (geometrySource_[i].find("Hcal") != std::string::npos) {
+  for (auto &i : geometrySource_) {
+    if (i.find("Hcal") != std::string::npos) {
       edm::ESHandle<HcalDDDSimConstants> pHRNDC;
       iSetup.get<HcalSimNumberingRecord>().get(pHRNDC);
       if (pHRNDC.isValid()) {
         hcons_ = &(*pHRNDC);
-        hgcGeometry_.push_back(0);
-        edm::LogVerbatim("HGCalValid") << "Initialize geometry for " << geometrySource_[i];
+        hgcGeometry_.push_back(nullptr);
+        edm::LogVerbatim("HGCalValid") << "Initialize geometry for " << i;
       } else {
-        edm::LogWarning("HGCalValid") << "Cannot initiate HcalGeometry for " << geometrySource_[i];
+        edm::LogWarning("HGCalValid") << "Cannot initiate HcalGeometry for " << i;
       }
     } else {
       edm::ESHandle<HGCalDDDConstants> hgcGeom;
-      iSetup.get<IdealGeometryRecord>().get(geometrySource_[i], hgcGeom);
+      iSetup.get<IdealGeometryRecord>().get(i, hgcGeom);
       if (hgcGeom.isValid()) {
         hgcGeometry_.push_back(hgcGeom.product());
-        edm::LogVerbatim("HGCalValid") << "Initialize geometry for " << geometrySource_[i];
+        edm::LogVerbatim("HGCalValid") << "Initialize geometry for " << i;
       } else {
-        edm::LogWarning("HGCalValid") << "Cannot initiate HGCalGeometry for " << geometrySource_[i];
+        edm::LogWarning("HGCalValid") << "Cannot initiate HGCalGeometry for " << i;
       }
     }
   }

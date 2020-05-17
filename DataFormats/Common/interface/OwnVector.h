@@ -360,7 +360,7 @@ namespace edm {
       return;
     delete data_[i];
     data_[i] = d;
-    d = 0;
+    d = nullptr;
   }
 
   template <typename T, typename P>
@@ -394,7 +394,7 @@ namespace edm {
   template <typename D>
   inline void OwnVector<T, P>::insert(const_iterator it, D*& d) {
     data_.insert(it.base_iter(), d);
-    d = 0;
+    d = nullptr;
   }
 
   template <typename T, typename P>
@@ -467,8 +467,8 @@ namespace edm {
 
   template <typename T, typename P>
   inline void OwnVector<T, P>::destroy() noexcept {
-    typename base::const_iterator b = data_.begin(), e = data_.end();
-    for (typename base::const_iterator i = b; i != e; ++i)
+    auto b = data_.begin(), e = data_.end();
+    for (auto i = b; i != e; ++i)
       delete *i;
   }
 
@@ -491,8 +491,8 @@ namespace edm {
 
   template <typename T, typename P>
   typename OwnVector<T, P>::iterator OwnVector<T, P>::erase(iterator first, iterator last) {
-    typename base::iterator b = first.i, e = last.i;
-    for (typename base::iterator i = b; i != e; ++i)
+    auto b = first.i, e = last.i;
+    for (auto i = b; i != e; ++i)
       delete *i;
     return iterator(data_.erase(b, e));
   }
@@ -522,7 +522,7 @@ namespace edm {
     pointers.reserve(numElements);
     helpers.reserve(numElements);
     size_type key = 0;
-    for (typename base::const_iterator i = data_.begin(), e = data_.end(); i != e; ++i, ++key) {
+    for (auto i = data_.begin(), e = data_.end(); i != e; ++i, ++key) {
       if (*i == nullptr) {
         Exception::throwThis(errors::NullPointerError,
                              "In OwnVector::fillView() we have intercepted an attempt to put a null pointer\n"

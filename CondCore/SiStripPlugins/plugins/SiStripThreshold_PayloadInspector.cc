@@ -100,7 +100,7 @@ namespace {
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
       edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      auto* reader = new SiStripDetInfoFileReader(fp_.fullPath());
 
       for (auto const& iov : tag.iovs) {
         std::shared_ptr<SiStripThreshold> payload = Base::fetchPayload(std::get<1>(iov));
@@ -146,7 +146,7 @@ namespace {
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
       edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      auto* reader = new SiStripDetInfoFileReader(fp_.fullPath());
 
       for (auto const& iov : tag.iovs) {
         std::shared_ptr<SiStripThreshold> payload = Base::fetchPayload(std::get<1>(iov));

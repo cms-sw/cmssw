@@ -58,7 +58,7 @@ void FWSiStripClusterProxyBuilder::build(const FWEventItem* iItem, TEveElementLi
     return;
   int cntEl = 0;
 
-  for (TEveElement::List_i ei = product->BeginChildren(); ei != product->EndChildren(); ++ei) {
+  for (auto ei = product->BeginChildren(); ei != product->EndChildren(); ++ei) {
     TEveElement* holder = *ei;
     if (holder->HasChildren()) {
       holder->SetRnrSelfChildren(false, false);
@@ -71,7 +71,7 @@ void FWSiStripClusterProxyBuilder::build(const FWEventItem* iItem, TEveElementLi
   for (int i = 0; i <= sdiff; ++i)
     m_shapeList->AddElement(new TEveGeoShape("Det"));
 
-  TEveElement::List_i shapeIt = m_shapeList->BeginChildren();
+  auto shapeIt = m_shapeList->BeginChildren();
   for (edmNew::DetSetVector<SiStripCluster>::const_iterator set = clusters->begin(), setEnd = clusters->end();
        set != setEnd;
        ++set) {
@@ -102,12 +102,12 @@ void FWSiStripClusterProxyBuilder::build(const FWEventItem* iItem, TEveElementLi
     shape->SetRnrSelf(true);
     shapeIt++;
 
-    for (edmNew::DetSet<SiStripCluster>::const_iterator ic = set->begin(), icEnd = set->end(); ic != icEnd; ++ic) {
+    for (const auto& ic : *set) {
       TEveCompound* itemHolder = nullptr;
       TEveLine* line = nullptr;
 
       if (cntEl < product->NumChildren()) {
-        TEveElement::List_i pit = product->BeginChildren();
+        auto pit = product->BeginChildren();
         std::advance(pit, cntEl);
         itemHolder = (TEveCompound*)*pit;
         itemHolder->SetRnrSelfChildren(true, true);
@@ -126,7 +126,7 @@ void FWSiStripClusterProxyBuilder::build(const FWEventItem* iItem, TEveElementLi
       // setup line pnts
       float localTop[3] = {0.0, 0.0, 0.0};
       float localBottom[3] = {0.0, 0.0, 0.0};
-      fireworks::localSiStrip((*ic).firstStrip(), localTop, localBottom, iItem->getGeom()->getParameters(id), id);
+      fireworks::localSiStrip(ic.firstStrip(), localTop, localBottom, iItem->getGeom()->getParameters(id), id);
       float globalTop[3];
       float globalBottom[3];
       iItem->getGeom()->localToGlobal(id, localTop, globalTop, localBottom, globalBottom);

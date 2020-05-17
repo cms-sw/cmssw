@@ -13,9 +13,9 @@
 class GEDValueMapAnalyzer : public edm::EDAnalyzer {
 public:
   GEDValueMapAnalyzer(const edm::ParameterSet&);
-  ~GEDValueMapAnalyzer();
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& c);
+  ~GEDValueMapAnalyzer() override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& c) override;
 
 private:
   edm::InputTag inputTagValueMapElectrons_;

@@ -33,8 +33,8 @@ namespace edmtest {
     context.get<DTReadOutMappingRcd>().get(ro_map);
     std::cout << ro_map->mapCellTdc() << " - " << ro_map->mapRobRos() << std::endl;
     std::cout << std::distance(ro_map->begin(), ro_map->end()) << " connections in the map" << std::endl;
-    DTReadOutMapping::const_iterator iter = ro_map->begin();
-    DTReadOutMapping::const_iterator iend = ro_map->end();
+    auto iter = ro_map->begin();
+    auto iend = ro_map->end();
     while (iter != iend) {
       const DTReadOutGeometryLink& link = *iter++;
       std::cout << link.dduId << " " << link.rosId << " " << link.robId << " " << link.tdcId << " " << link.channelId

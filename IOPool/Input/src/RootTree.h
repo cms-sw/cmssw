@@ -104,7 +104,7 @@ namespace edm {
   public:
     typedef roottree::BranchMap BranchMap;
     typedef roottree::EntryNumber EntryNumber;
-    RootTree(std::shared_ptr<InputFile> filePtr,
+    RootTree(const std::shared_ptr<InputFile>& filePtr,
              BranchType const& branchType,
              unsigned int nIndexes,
              unsigned int maxVirtualSize,

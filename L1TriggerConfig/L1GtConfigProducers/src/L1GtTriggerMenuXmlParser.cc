@@ -203,10 +203,10 @@ void L1GtTriggerMenuXmlParser::parseXmlFile(const std::string& defXmlFile, const
   // will be overwritten by the value read from the xml file, with a warning if
   // they are not the same
   m_triggerMenuName = defXmlFile;
-  size_t xmlPos = m_triggerMenuName.find_last_of("/");
+  size_t xmlPos = m_triggerMenuName.find_last_of('/');
   m_triggerMenuName.erase(m_triggerMenuName.begin(), m_triggerMenuName.begin() + xmlPos + 1);
 
-  xmlPos = m_triggerMenuName.find_last_of(".");
+  xmlPos = m_triggerMenuName.find_last_of('.');
   m_triggerMenuName.erase(m_triggerMenuName.begin() + xmlPos, m_triggerMenuName.end());
 
   // error handler for xml-parser
@@ -834,11 +834,10 @@ bool L1GtTriggerMenuXmlParser::parseVmeXML(XERCES_CPP_NAMESPACE::XercesDOMParser
 void L1GtTriggerMenuXmlParser::clearMaps() {
   // loop over condition maps (one map per condition chip)
   // then loop over conditions in the map
-  for (std::vector<ConditionMap>::iterator itCondOnChip = m_conditionMap.begin(); itCondOnChip != m_conditionMap.end();
-       itCondOnChip++) {
+  for (auto& itCondOnChip : m_conditionMap) {
     // the conditions in the maps are deleted in L1GtTriggerMenu, not here
 
-    itCondOnChip->clear();
+    itCondOnChip.clear();
   }
 
   // the algorithms in the maps are deleted in L1GtTriggerMenu, not here
@@ -923,7 +922,7 @@ bool L1GtTriggerMenuXmlParser::insertAlgorithmIntoMap(const L1GtAlgorithm& alg) 
   }
 
   // no two algorithms on the same chip can have the same output pin
-  for (CItAlgo itAlgo = m_algorithmMap.begin(); itAlgo != m_algorithmMap.end(); itAlgo++) {
+  for (auto itAlgo = m_algorithmMap.begin(); itAlgo != m_algorithmMap.end(); itAlgo++) {
     int iPin = (itAlgo->second)
                    .algoOutputPin(static_cast<int>(m_numberConditionChips),
                                   static_cast<int>(m_pinsOnConditionChip),
@@ -976,7 +975,7 @@ bool L1GtTriggerMenuXmlParser::insertTechTriggerIntoMap(const L1GtAlgorithm& alg
   }
 
   // no two technical triggers can have the same bit number
-  for (CItAlgo itAlgo = m_technicalTriggerMap.begin(); itAlgo != m_technicalTriggerMap.end(); itAlgo++) {
+  for (auto itAlgo = m_technicalTriggerMap.begin(); itAlgo != m_technicalTriggerMap.end(); itAlgo++) {
     int iBitNumber = (itAlgo->second).algoBitNumber();
     std::string iName = itAlgo->first;
 

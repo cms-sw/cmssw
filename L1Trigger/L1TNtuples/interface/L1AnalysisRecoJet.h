@@ -25,7 +25,7 @@ namespace L1Analysis {
     //void Print(std::ostream &os = std::cout) const;
     void SetCaloJet(const edm::Event& event,
                     const edm::EventSetup& setup,
-                    const edm::Handle<reco::CaloJetCollection> caloJets,
+                    const edm::Handle<reco::CaloJetCollection>& caloJets,
                     //edm::Handle<edm::ValueMap<reco::JetID> > jetsID,
                     //edm::Handle<reco::JetCorrector> jetCorrector,
                     unsigned maxJet);

@@ -292,18 +292,16 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   if (isoPixelTracks->empty())
     return;
 
-  for (reco::TrackCollection::const_iterator trit = isoProdTracks->begin(); trit != isoProdTracks->end(); trit++) {
-    reco::IsolatedPixelTrackCandidateCollection::const_iterator isoMatched = isoPixelTracks->begin();
+  for (const auto& trit : *isoProdTracks) {
+    auto isoMatched = isoPixelTracks->begin();
     //reco::TrackCollection::const_iterator isoMatched=isoPixelTracks->begin();
     bool matched = false;
 
     //for (reco::IsolatedPixelTrackCandidateCollection::const_iterator trit = isoPixelTracks->begin(); trit!=isoPixelTracks->end(); trit++)
-    for (reco::IsolatedPixelTrackCandidateCollection::const_iterator it = isoPixelTracks->begin();
-         it != isoPixelTracks->end();
-         it++)
+    for (auto it = isoPixelTracks->begin(); it != isoPixelTracks->end(); it++)
     //for (reco::TrackCollection::const_iterator it = isoPixelTracks->begin(); it!=isoPixelTracks->end(); it++)
     {
-      if (abs((trit->pt() - it->pt()) / it->pt()) < 0.005 && abs(trit->eta() - it->eta()) < 0.01) {
+      if (abs((trit.pt() - it->pt()) / it->pt()) < 0.005 && abs(trit.eta() - it->eta()) < 0.01) {
         isoMatched = it;
         matched = true;
         break;
@@ -320,21 +318,21 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     //cout<<"Point 0.1  isoMatch. ptnear: "<<ptNear<<endl;
 
     // CUT
-    if (trit->hitPattern().numberOfValidHits() < MinNTrackHitsBarrel)
+    if (trit.hitPattern().numberOfValidHits() < MinNTrackHitsBarrel)
       continue;
-    if (fabs(trit->eta()) > 1.47 && trit->hitPattern().numberOfValidStripTECHits() < MinNTECHitsEndcap)
+    if (fabs(trit.eta()) > 1.47 && trit.hitPattern().numberOfValidStripTECHits() < MinNTECHitsEndcap)
       continue;
 
     //cout<<"Point 0.2.1 after numofvalidhits HB: "<<trit->hitPattern().numberOfValidHits()<<endl;
     //cout<<"Point 0.2.2 after numofvalidstrips HE: "<<trit->hitPattern().numberOfValidStripTECHits()<<endl;
 
-    numVH = trit->hitPattern().numberOfValidHits();
-    numVS = trit->hitPattern().numberOfValidStripTECHits();
+    numVH = trit.hitPattern().numberOfValidHits();
+    numVS = trit.hitPattern().numberOfValidStripTECHits();
 
-    trackE = sqrt(trit->px() * trit->px() + trit->py() * trit->py() + trit->pz() * trit->pz() + 0.14 * 0.14);
-    trackPt = trit->pt();
-    trackEta = trit->eta();
-    trackPhi = trit->phi();
+    trackE = sqrt(trit.px() * trit.px() + trit.py() * trit.py() + trit.pz() * trit.pz() + 0.14 * 0.14);
+    trackPt = trit.pt();
+    trackEta = trit.eta();
+    trackPhi = trit.phi();
 
     emEnergy = isoMatched->energyIn();
 
@@ -342,7 +340,7 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     //cout<<"Point 0.4.  EM energy in cone: "<<emEnergy<<"  EtaHcal: "<<etahcal<<"  PhiHcal: "<<phihcal<<endl;
 
     TrackDetMatchInfo info =
-        trackAssociator_.associate(iEvent, iSetup, trackAssociator_.getFreeTrajectoryState(iSetup, *trit), parameters_);
+        trackAssociator_.associate(iEvent, iSetup, trackAssociator_.getFreeTrajectoryState(iSetup, trit), parameters_);
 
     //float etaecal=info.trkGlobPosAtEcal.eta();
     //float phiecal=info.trkGlobPosAtEcal.phi();
@@ -400,11 +398,11 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     GlobalPoint gPhot;
 
-    for (HBHERecHitCollection::const_iterator hhit = Hithbhe.begin(); hhit != Hithbhe.end(); hhit++) {
+    for (auto hhit = Hithbhe.begin(); hhit != Hithbhe.end(); hhit++) {
       //check that this hit was not considered before and push it into usedHits
       bool hitIsUsed = false;
-      for (uint32_t i = 0; i < usedHits.size(); i++) {
-        if (usedHits[i] == hhit->id())
+      for (auto& usedHit : usedHits) {
+        if (usedHit == hhit->id())
           hitIsUsed = true;
       }
       if (hitIsUsed)
@@ -439,11 +437,11 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       double distAtHcal = getDistInPlaneSimple(gPointHcal, pos);
 
       if (distAtHcal < associationConeSize_) {
-        for (HBHERecHitCollection::const_iterator hhit2 = Hithbhe.begin(); hhit2 != Hithbhe.end(); hhit2++) {
-          int iphihitm2 = (hhit2->id()).iphi();
-          int ietahitm2 = (hhit2->id()).ieta();
-          int depthhit2 = (hhit2->id()).depth();
-          float enehit2 = hhit2->energy() * recal;
+        for (const auto& hhit2 : Hithbhe) {
+          int iphihitm2 = (hhit2.id()).iphi();
+          int ietahitm2 = (hhit2.id()).ieta();
+          int depthhit2 = (hhit2.id()).depth();
+          float enehit2 = hhit2.energy() * recal;
 
           if (iphihitm == iphihitm2 && ietahitm == ietahitm2 && depthhit != depthhit2)
             enehit = enehit + enehit2;
@@ -494,27 +492,27 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     e5x5After = 0.0;
     e5x5Before = 0.0;
 
-    for (HBHERecHitCollection::const_iterator hhit = Hithbhe.begin(); hhit != Hithbhe.end(); hhit++) {
+    for (const auto& hhit : Hithbhe) {
       //check that this hit was not considered before and push it into usedHits
       bool hitIsUsed = false;
-      for (uint32_t i = 0; i < usedHits.size(); i++) {
-        if (usedHits[i] == hhit->id())
+      for (auto& usedHit : usedHits) {
+        if (usedHit == hhit.id())
           hitIsUsed = true;
       }
       if (hitIsUsed)
         continue;
-      usedHits.push_back(hhit->id());
+      usedHits.push_back(hhit.id());
 
       int DIETA = 100;
-      if (MaxHit.ietahitm * (hhit->id()).ieta() > 0) {
-        DIETA = MaxHit.ietahitm - (hhit->id()).ieta();
+      if (MaxHit.ietahitm * (hhit.id()).ieta() > 0) {
+        DIETA = MaxHit.ietahitm - (hhit.id()).ieta();
       }
-      if (MaxHit.ietahitm * (hhit->id()).ieta() < 0) {
-        DIETA = MaxHit.ietahitm - (hhit->id()).ieta();
+      if (MaxHit.ietahitm * (hhit.id()).ieta() < 0) {
+        DIETA = MaxHit.ietahitm - (hhit.id()).ieta();
         DIETA = DIETA > 0 ? DIETA - 1 : DIETA + 1;
       }
 
-      int DIPHI = abs(MaxHit.iphihitm - (hhit->id()).iphi());
+      int DIPHI = abs(MaxHit.iphihitm - (hhit.id()).iphi());
       DIPHI = DIPHI > 36 ? 72 - DIPHI : DIPHI;
 
       int numbercell = 100;  //always collect Wide clastor!
@@ -527,93 +525,93 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
       if (abs(DIETA) <= numbercell &&
           (abs(DIPHI) <= numbercell || (abs(MaxHit.ietahitm) >= 20 && abs(DIPHI) <= numbercell + 1))) {
-        const GlobalPoint pos2 = geo->getPosition(hhit->detid());
+        const GlobalPoint pos2 = geo->getPosition(hhit.detid());
 
-        if (passCuts && hhit->energy() > 0) {
+        if (passCuts && hhit.energy() > 0) {
           float factor = 0.0;
           // factor = CalibFactors[hhit->id()];
-          factor = respRecalib->getValues(hhit->id())->getValue();
+          factor = respRecalib->getValues(hhit.id())->getValue();
 
           //if(i<5){cout<<" calib factors: "<<factor<<"  ij "<<100*i+j<<endl;}
 
-          if (hhit->id().ieta() == MaxHit.ietahitm && hhit->id().iphi() == MaxHit.iphihitm)
+          if (hhit.id().ieta() == MaxHit.ietahitm && hhit.id().iphi() == MaxHit.iphihitm)
             CentHitFactor = factor;
 
-          if (hhit->id().ieta() == MaxHit.ietahitm && hhit->id().iphi() == MaxHit.iphihitm)
-            iTime = hhit->time();
+          if (hhit.id().ieta() == MaxHit.ietahitm && hhit.id().iphi() == MaxHit.iphihitm)
+            iTime = hhit.time();
 
           if (AxB_ != "3x3" && AxB_ != "5x5" && AxB_ != "Cone")
             LogWarning(" AxB ") << "   Not supported: " << AxB_;
 
           if (abs(DIETA) <= 2 && (abs(DIPHI) <= 2 || ((abs(MaxHit.ietahitm) > 20 && abs(DIPHI) <= 4) &&
                                                       !((abs(MaxHit.ietahitm) == 21 || abs(MaxHit.ietahitm) == 22) &&
-                                                        abs((hhit->id()).ieta()) <= 20 && abs(DIPHI) > 2)))) {
-            e5x5Before += hhit->energy();
-            e5x5After += hhit->energy() * factor;
+                                                        abs((hhit.id()).ieta()) <= 20 && abs(DIPHI) > 2)))) {
+            e5x5Before += hhit.energy();
+            e5x5After += hhit.energy() * factor;
           }
 
-          if (abs(DIETA) <= 1 && (abs(DIPHI) <= 1 || ((abs(MaxHit.ietahitm) > 20 && abs(DIPHI) <= 2) &&
-                                                      !(abs(MaxHit.ietahitm) == 21 && abs((hhit->id()).ieta()) <= 20 &&
-                                                        abs(DIPHI) > 1)))) {
-            e3x3Before += hhit->energy();
-            e3x3After += hhit->energy() * factor;
+          if (abs(DIETA) <= 1 &&
+              (abs(DIPHI) <= 1 || ((abs(MaxHit.ietahitm) > 20 && abs(DIPHI) <= 2) &&
+                                   !(abs(MaxHit.ietahitm) == 21 && abs((hhit.id()).ieta()) <= 20 && abs(DIPHI) > 1)))) {
+            e3x3Before += hhit.energy();
+            e3x3After += hhit.energy() * factor;
           }
 
           if (AxB_ == "5x5") {
             if (abs(DIETA) <= 2 && (abs(DIPHI) <= 2 || (abs(MaxHit.ietahitm) > 20 && abs(DIPHI) <= 4))) {
-              if (abs(MaxHit.ietahitm) == 21 && abs((hhit->id()).ieta()) <= 20 && abs(DIPHI) > 3)
+              if (abs(MaxHit.ietahitm) == 21 && abs((hhit.id()).ieta()) <= 20 && abs(DIPHI) > 3)
                 continue;
 
-              HTime[numHits] = hhit->time();
+              HTime[numHits] = hhit.time();
               numHits++;
 
-              eClustBefore += hhit->energy();
-              eClustAfter += hhit->energy() * factor;
+              eClustBefore += hhit.energy();
+              eClustAfter += hhit.energy() * factor;
 
-              if ((hhit->id().depth() == 1) && (abs(hhit->id().ieta()) > 17) && (abs(hhit->id().ieta()) < 29)) {
-                eBeforeDepth1 += hhit->energy();
-                eAfterDepth1 += hhit->energy() * factor;
-              } else if ((hhit->id().depth() == 2) && (abs(hhit->id().ieta()) > 17) && (abs(hhit->id().ieta()) < 29)) {
-                eBeforeDepth2 += hhit->energy();
-                eAfterDepth2 += hhit->energy() * factor;
+              if ((hhit.id().depth() == 1) && (abs(hhit.id().ieta()) > 17) && (abs(hhit.id().ieta()) < 29)) {
+                eBeforeDepth1 += hhit.energy();
+                eAfterDepth1 += hhit.energy() * factor;
+              } else if ((hhit.id().depth() == 2) && (abs(hhit.id().ieta()) > 17) && (abs(hhit.id().ieta()) < 29)) {
+                eBeforeDepth2 += hhit.energy();
+                eAfterDepth2 += hhit.energy() * factor;
               }
             }
           }  //end of 5x5
 
           if (AxB_ == "3x3") {
             if (abs(DIETA) <= 1 && (abs(DIPHI) <= 1 || (abs(MaxHit.ietahitm) > 20 && abs(DIPHI) <= 2))) {
-              if (abs(MaxHit.ietahitm) == 21 && abs((hhit->id()).ieta()) <= 20 && abs(DIPHI) > 2)
+              if (abs(MaxHit.ietahitm) == 21 && abs((hhit.id()).ieta()) <= 20 && abs(DIPHI) > 2)
                 continue;
 
-              HTime[numHits] = hhit->time();
+              HTime[numHits] = hhit.time();
               numHits++;
 
-              eClustBefore += hhit->energy();
-              eClustAfter += hhit->energy() * factor;
+              eClustBefore += hhit.energy();
+              eClustAfter += hhit.energy() * factor;
 
-              if ((hhit->id().depth() == 1) && (abs(hhit->id().ieta()) > 17) && (abs(hhit->id().ieta()) < 29)) {
-                eBeforeDepth1 += hhit->energy();
-                eAfterDepth1 += hhit->energy() * factor;
-              } else if ((hhit->id().depth() == 2) && (abs(hhit->id().ieta()) > 17) && (abs(hhit->id().ieta()) < 29)) {
-                eBeforeDepth2 += hhit->energy();
-                eAfterDepth2 += hhit->energy() * factor;
+              if ((hhit.id().depth() == 1) && (abs(hhit.id().ieta()) > 17) && (abs(hhit.id().ieta()) < 29)) {
+                eBeforeDepth1 += hhit.energy();
+                eAfterDepth1 += hhit.energy() * factor;
+              } else if ((hhit.id().depth() == 2) && (abs(hhit.id().ieta()) > 17) && (abs(hhit.id().ieta()) < 29)) {
+                eBeforeDepth2 += hhit.energy();
+                eAfterDepth2 += hhit.energy() * factor;
               }
             }
           }  //end of 3x3
 
           if (AxB_ == "Cone" && getDistInPlaneSimple(gPointHcal, pos2) < calibrationConeSize_) {
-            HTime[numHits] = hhit->time();
+            HTime[numHits] = hhit.time();
             numHits++;
 
-            eClustBefore += hhit->energy();
-            eClustAfter += hhit->energy() * factor;
+            eClustBefore += hhit.energy();
+            eClustAfter += hhit.energy() * factor;
 
-            if ((hhit->id().depth() == 1) && (abs(hhit->id().ieta()) > 17) && (abs(hhit->id().ieta()) < 29)) {
-              eBeforeDepth1 += hhit->energy();
-              eAfterDepth1 += hhit->energy() * factor;
-            } else if ((hhit->id().depth() == 2) && (abs(hhit->id().ieta()) > 17) && (abs(hhit->id().ieta()) < 29)) {
-              eBeforeDepth2 += hhit->energy();
-              eAfterDepth2 += hhit->energy() * factor;
+            if ((hhit.id().depth() == 1) && (abs(hhit.id().ieta()) > 17) && (abs(hhit.id().ieta()) < 29)) {
+              eBeforeDepth1 += hhit.energy();
+              eAfterDepth1 += hhit.energy() * factor;
+            } else if ((hhit.id().depth() == 2) && (abs(hhit.id().ieta()) > 17) && (abs(hhit.id().ieta()) < 29)) {
+              eBeforeDepth2 += hhit.energy();
+              eAfterDepth2 += hhit.energy() * factor;
             }
 
           }  //end of Cone
@@ -690,26 +688,24 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     pixEta[0] = -33;
 
     Int_t gencount = 0, isocount = 0, pixcount = 0;
-    for (reco::TrackCollection::const_iterator gentr = generalTracks->begin(); gentr != generalTracks->end(); gentr++) {
-      genPt[gencount] = gentr->pt();
-      genPhi[gencount] = gentr->phi();
-      genEta[gencount] = gentr->eta();
+    for (const auto& gentr : *generalTracks) {
+      genPt[gencount] = gentr.pt();
+      genPhi[gencount] = gentr.phi();
+      genEta[gencount] = gentr.eta();
       gencount++;
     }
 
-    for (reco::TrackCollection::const_iterator isotr = isoProdTracks->begin(); isotr != isoProdTracks->end(); isotr++) {
-      isoPt[isocount] = isotr->pt();
-      isoPhi[isocount] = isotr->phi();
-      isoEta[isocount] = isotr->eta();
+    for (const auto& isotr : *isoProdTracks) {
+      isoPt[isocount] = isotr.pt();
+      isoPhi[isocount] = isotr.phi();
+      isoEta[isocount] = isotr.eta();
       isocount++;
     }
 
-    for (reco::IsolatedPixelTrackCandidateCollection::const_iterator pixtr = isoPixelTracks->begin();
-         pixtr != isoPixelTracks->end();
-         pixtr++) {
-      pixPt[pixcount] = pixtr->pt();
-      pixPhi[pixcount] = pixtr->phi();
-      pixEta[pixcount] = pixtr->eta();
+    for (const auto& pixtr : *isoPixelTracks) {
+      pixPt[pixcount] = pixtr.pt();
+      pixPhi[pixcount] = pixtr.phi();
+      pixEta[pixcount] = pixtr.eta();
       pixcount++;
     }
   }

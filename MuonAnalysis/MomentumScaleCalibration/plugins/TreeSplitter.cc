@@ -27,7 +27,7 @@ void TreeSplitter::endJob() {
   // MuonPairVector newSavedPair;
   unsigned int i = 0;
   // MuonPairVector::iterator it = savedPair.begin();
-  std::vector<MuonPair>::iterator it = savedPair.begin();
+  auto it = savedPair.begin();
   std::cout << "Starting loop on " << savedPair.size() << " muons" << std::endl;
   uint32_t lastEvent = subSampleFirstEvent_ + subSampleMaxEvents_;
   for (; it != savedPair.end(); ++it, ++i) {

@@ -137,12 +137,11 @@ void SiStripMeanCMExtractor::CMExtractorFromPedestals(const edm::DetSetVector<Si
   meancm.clear();
   meancm.reserve(15000);
 
-  for (edm::DetSetVector<SiStripRawDigi>::const_iterator rawDigis = input.begin(); rawDigis != input.end();
-       rawDigis++) {
-    SiStripPedestals::Range detPedestalRange = pedestalHandle_->getRange(rawDigis->id);
-    edm::DetSet<SiStripProcessedRawDigi> MeanCMDetSet(rawDigis->id);
+  for (const auto& rawDigis : input) {
+    SiStripPedestals::Range detPedestalRange = pedestalHandle_->getRange(rawDigis.id);
+    edm::DetSet<SiStripProcessedRawDigi> MeanCMDetSet(rawDigis.id);
 
-    for (uint16_t APV = 0; APV < rawDigis->size() / 128; ++APV) {
+    for (uint16_t APV = 0; APV < rawDigis.size() / 128; ++APV) {
       uint16_t MinPed = 0;
       for (uint16_t strip = APV * 128; strip < (APV + 1) * 128; ++strip) {
         uint16_t ped = (uint16_t)pedestalHandle_->getPed(strip, detPedestalRange);
@@ -171,7 +170,7 @@ void SiStripMeanCMExtractor::StoreMean(const edm::DetSetVector<SiStripProcessedR
     MeanCMNValue.clear();
     if (itMap != _cmMap.end()) {  //the detId was already found
       std::vector<float>& MapContent = itMap->second;
-      std::vector<float>::iterator itMapVector = MapContent.begin();
+      auto itMapVector = MapContent.begin();
       for (itCM = itInput->begin(); itCM != itInput->end(); ++itCM, ++itMapVector) {
         MeanCMNValue.push_back(itCM->adc() + *itMapVector);
       }

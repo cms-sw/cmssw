@@ -6,13 +6,14 @@
 
 #include <iostream>
 #include <string>
+#include <utility>
 
 class ECALTBParserException {
 public:
   /**
 			 * Constructor
 			 */
-  ECALTBParserException(std::string exceptionInfo_) { info_ = exceptionInfo_; }
+  ECALTBParserException(std::string exceptionInfo_) { info_ = std::move(exceptionInfo_); }
 
   /**
 			 * Exception's discription

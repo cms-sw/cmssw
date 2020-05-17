@@ -5,7 +5,7 @@ namespace l1t {
   namespace stage2 {
     namespace emtf {
 
-      void ImportME(EMTFHit& _hit, const l1t::emtf::ME _ME, const int _endcap, const int _evt_sector) {
+      void ImportME(EMTFHit& _hit, const l1t::emtf::ME& _ME, const int _endcap, const int _evt_sector) {
         _hit.set_endcap(_endcap == 1 ? 1 : -1);
         _hit.set_sector_idx(_endcap == 1 ? _evt_sector - 1 : _evt_sector + 5);
 
@@ -36,7 +36,7 @@ namespace l1t {
 
       }  // End ImportME
 
-      void ImportRPC(EMTFHit& _hit, const l1t::emtf::RPC _RPC, const int _endcap, const int _evt_sector) {
+      void ImportRPC(EMTFHit& _hit, const l1t::emtf::RPC& _RPC, const int _endcap, const int _evt_sector) {
         _hit.set_endcap(_endcap == 1 ? 1 : -1);
         _hit.set_sector_idx(_endcap == 1 ? _evt_sector - 1 : _evt_sector + 5);
 
@@ -64,7 +64,7 @@ namespace l1t {
 
       }  // End ImportRPC
 
-      void ImportSP(EMTFTrack& _track, const l1t::emtf::SP _SP, const int _endcap, const int _evt_sector) {
+      void ImportSP(EMTFTrack& _track, const l1t::emtf::SP& _SP, const int _endcap, const int _evt_sector) {
         _track.set_endcap((_endcap == 1) ? 1 : -1);
         _track.set_sector(_evt_sector);
         _track.set_sector_idx((_endcap == 1) ? _evt_sector - 1 : _evt_sector + 5);

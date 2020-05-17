@@ -28,7 +28,7 @@ void RPixDetClusterizer::buildClusters(unsigned int detId,
                                        const CTPPSPixelGainCalibrations *pcalibrations,
                                        const CTPPSPixelAnalysisMask *maskera) {
   std::map<uint32_t, CTPPSPixelROCAnalysisMask> const &mask = maskera->analysisMask;
-  std::map<uint32_t, CTPPSPixelROCAnalysisMask>::const_iterator mask_it = mask.find(detId);
+  auto mask_it = mask.find(detId);
 
   std::set<std::pair<unsigned char, unsigned char> > maskedPixels;
   if (mask_it != mask.end())

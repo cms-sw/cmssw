@@ -19,8 +19,8 @@ reco::CastorTower::CastorTower(const double energy,
   fem_ = fem;
   depth_ = depth;
   fhot_ = fhot;
-  for (CastorRecHitRefs::const_iterator rechitit = usedRecHits.begin(); rechitit != usedRecHits.end(); ++rechitit) {
-    usedRecHits_.push_back((*rechitit));
+  for (auto&& usedRecHit : usedRecHits) {
+    usedRecHits_.push_back((usedRecHit));
   }
 }
 

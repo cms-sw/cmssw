@@ -7,6 +7,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TProfile.h"
 #include <iostream>
+#include <memory>
+
 #include <sstream>
 #include <iomanip>
 
@@ -17,7 +19,7 @@ using namespace sistrip;
 /** */
 OptoScanHistograms::OptoScanHistograms(const edm::ParameterSet& pset, DQMStore* bei)
     : CommissioningHistograms(pset.getParameter<edm::ParameterSet>("OptoScanParameters"), bei, sistrip::OPTO_SCAN) {
-  factory_ = unique_ptr<OptoScanSummaryFactory>(new OptoScanSummaryFactory);
+  factory_ = std::make_unique<OptoScanSummaryFactory>();
   LogTrace(mlDqmClient_) << "[OptoScanHistograms::" << __func__ << "]"
                          << " Constructing object...";
 }
@@ -59,7 +61,7 @@ void OptoScanHistograms::histoAnalysis(bool debug) {
 
     // Retrieve pointers to histos
     std::vector<TH1*> profs;
-    Histos::const_iterator ihis = iter->second.begin();
+    auto ihis = iter->second.begin();
     for (; ihis != iter->second.end(); ihis++) {
       TProfile* prof = ExtractTObject<TProfile>().extract((*ihis)->me_);
       if (prof) {
@@ -68,7 +70,7 @@ void OptoScanHistograms::histoAnalysis(bool debug) {
     }
 
     // Perform histo analysis
-    OptoScanAnalysis* anal = new OptoScanAnalysis(iter->first);
+    auto* anal = new OptoScanAnalysis(iter->first);
     OptoScanAlgorithm algo(this->pset(), anal);
     algo.analysis(profs);
     data()[iter->first] = anal;
@@ -115,8 +117,8 @@ void OptoScanHistograms::histoAnalysis(bool debug) {
 // -----------------------------------------------------------------------------
 /** */
 void OptoScanHistograms::printAnalyses() {
-  Analyses::iterator ianal = data().begin();
-  Analyses::iterator janal = data().end();
+  auto ianal = data().begin();
+  auto janal = data().end();
   for (; ianal != janal; ++ianal) {
     if (ianal->second) {
       std::stringstream ss;

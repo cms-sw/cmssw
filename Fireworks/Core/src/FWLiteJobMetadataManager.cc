@@ -13,8 +13,8 @@ FWLiteJobMetadataManager::FWLiteJobMetadataManager(void) : FWJobMetadataManager(
 
 bool FWLiteJobMetadataManager::hasModuleLabel(std::string& moduleLabel) {
   if (m_event) {
-    for (auto bit = m_event->getBranchDescriptions().begin(); bit != m_event->getBranchDescriptions().end(); ++bit) {
-      if (bit->moduleLabel() == moduleLabel) {
+    for (const auto& bit : m_event->getBranchDescriptions()) {
+      if (bit.moduleLabel() == moduleLabel) {
         return true;
       }
     }
@@ -28,7 +28,7 @@ bool FWLiteJobMetadataManager::hasModuleLabel(std::string& moduleLabel) {
     item.
  */
 bool FWLiteJobMetadataManager::doUpdate(FWJobMetadataUpdateRequest* request) {
-  FWLiteJobMetadataUpdateRequest* liteRequest = dynamic_cast<FWLiteJobMetadataUpdateRequest*>(request);
+  auto* liteRequest = dynamic_cast<FWLiteJobMetadataUpdateRequest*>(request);
   // There is no way we are going to get a non-FWLite updated request for
   // this class.
   assert(liteRequest);
@@ -110,8 +110,7 @@ bool FWLiteJobMetadataManager::doUpdate(FWJobMetadataUpdateRequest* request) {
     if (purposes.empty())
       purposes.insert("Table");
 
-    for (Purposes::const_iterator itPurpose = purposes.begin(), itEnd = purposes.end(); itPurpose != itEnd;
-         ++itPurpose) {
+    for (const auto& purpose : purposes) {
       // Determine whether or not the class can be iterated
       // either by using a TVirtualCollectionProxy (of the class
       // itself or on one of its members), or by using a
@@ -133,7 +132,7 @@ bool FWLiteJobMetadataManager::doUpdate(FWJobMetadataUpdateRequest* request) {
         continue;
       }
       d.type_ = desc.fullClassName();
-      d.purpose_ = *itPurpose;
+      d.purpose_ = purpose;
       d.moduleLabel_ = desc.moduleLabel();
       d.productInstanceLabel_ = desc.productInstanceName();
       d.processName_ = desc.processName();

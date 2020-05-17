@@ -30,21 +30,21 @@ public:
   typedef dqm::legacy::DQMStore DQMStore;
   typedef dqm::legacy::MonitorElement MonitorElement;
 
-  FlavourHistograms2D(TString baseNameTitle_,
-                      TString baseNameDescription_,
+  FlavourHistograms2D(const TString &baseNameTitle_,
+                      const TString &baseNameDescription_,
                       int nBinsX_,
                       double lowerBoundX_,
                       double upperBoundX_,
                       int nBinsY_,
                       double lowerBoundY_,
                       double upperBoundY_,
-                      std::string folder,
+                      const std::string &folder,
                       unsigned int mc,
                       bool createProfile,
                       DQMStore::IGetter &iget);
 
-  FlavourHistograms2D(TString baseNameTitle_,
-                      TString baseNameDescription_,
+  FlavourHistograms2D(const TString &baseNameTitle_,
+                      const TString &baseNameDescription_,
                       int nBinsX_,
                       double lowerBoundX_,
                       double upperBoundX_,
@@ -52,7 +52,7 @@ public:
                       double lowerBoundY_,
                       double upperBoundY_,
                       bool statistics_,
-                      std::string folder,
+                      const std::string &folder,
                       unsigned int mc,
                       bool createProfile,
                       DQMStore::IBooker &ibook);
@@ -186,15 +186,15 @@ private:
 };
 
 template <class T, class G>
-FlavourHistograms2D<T, G>::FlavourHistograms2D(TString baseNameTitle_,
-                                               TString baseNameDescription_,
+FlavourHistograms2D<T, G>::FlavourHistograms2D(const TString &baseNameTitle_,
+                                               const TString &baseNameDescription_,
                                                int nBinsX_,
                                                double lowerBoundX_,
                                                double upperBoundX_,
                                                int nBinsY_,
                                                double lowerBoundY_,
                                                double upperBoundY_,
-                                               std::string folder,
+                                               const std::string &folder,
                                                unsigned int mc,
                                                bool createProfile,
                                                DQMStore::IGetter &iget)
@@ -305,8 +305,8 @@ FlavourHistograms2D<T, G>::FlavourHistograms2D(TString baseNameTitle_,
 }
 
 template <class T, class G>
-FlavourHistograms2D<T, G>::FlavourHistograms2D(TString baseNameTitle_,
-                                               TString baseNameDescription_,
+FlavourHistograms2D<T, G>::FlavourHistograms2D(const TString &baseNameTitle_,
+                                               const TString &baseNameDescription_,
                                                int nBinsX_,
                                                double lowerBoundX_,
                                                double upperBoundX_,
@@ -314,7 +314,7 @@ FlavourHistograms2D<T, G>::FlavourHistograms2D(TString baseNameTitle_,
                                                double lowerBoundY_,
                                                double upperBoundY_,
                                                bool statistics_,
-                                               std::string folder,
+                                               const std::string &folder,
                                                unsigned int mc,
                                                bool createProfile,
                                                DQMStore::IBooker &ibook)

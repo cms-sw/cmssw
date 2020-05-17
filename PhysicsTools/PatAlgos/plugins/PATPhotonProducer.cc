@@ -91,7 +91,7 @@ PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet &iConfig)
   if (addPhotonID_) {
     // it might be a single photon ID
     if (iConfig.existsAs<edm::InputTag>("photonIDSource")) {
-      photIDSrcs_.push_back(NameTag("", iConfig.getParameter<edm::InputTag>("photonIDSource")));
+      photIDSrcs_.emplace_back("", iConfig.getParameter<edm::InputTag>("photonIDSource"));
     }
     // or there might be many of them
     if (iConfig.existsAs<edm::ParameterSet>("photonIDSources")) {
@@ -103,8 +103,8 @@ PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet &iConfig)
       // read the different photon ID names
       edm::ParameterSet idps = iConfig.getParameter<edm::ParameterSet>("photonIDSources");
       std::vector<std::string> names = idps.getParameterNamesForType<edm::InputTag>();
-      for (std::vector<std::string>::const_iterator it = names.begin(), ed = names.end(); it != ed; ++it) {
-        photIDSrcs_.push_back(NameTag(*it, idps.getParameter<edm::InputTag>(*it)));
+      for (const auto &name : names) {
+        photIDSrcs_.emplace_back(name, idps.getParameter<edm::InputTag>(name));
       }
     }
     // but in any case at least once
@@ -224,7 +224,7 @@ void PATPhotonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
   }
 
   // loop over photons
-  std::vector<Photon> *PATPhotons = new std::vector<Photon>();
+  auto *PATPhotons = new std::vector<Photon>();
   for (edm::View<reco::Photon>::const_iterator itPhoton = photons->begin(); itPhoton != photons->end(); itPhoton++) {
     // construct the Photon from the ref -> save ref to original object
     unsigned int idx = itPhoton - photons->begin();
@@ -286,7 +286,7 @@ void PATPhotonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
 
     unsigned nSelectedCells = selectedCells.size();
     for (unsigned icell = 0; icell < nSelectedCells; ++icell) {
-      EcalRecHitCollection::const_iterator it = recHits->find(selectedCells[icell]);
+      auto it = recHits->find(selectedCells[icell]);
       if (it != recHits->end()) {
         selectedRecHits.push_back(*it);
       }
@@ -297,8 +297,8 @@ void PATPhotonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
 
     // store the match to the generated final state muons
     if (addGenMatch_) {
-      for (size_t i = 0, n = genMatches.size(); i < n; ++i) {
-        reco::GenParticleRef genPhoton = (*genMatches[i])[photonRef];
+      for (auto &genMatche : genMatches) {
+        reco::GenParticleRef genPhoton = (*genMatche)[photonRef];
         aPhoton.addGenParticleRef(genPhoton);
       }
       if (embedGenMatch_)
@@ -318,10 +318,7 @@ void PATPhotonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
       isolator_.fill(*photons, idx, isolatorTmpStorage_);
       typedef pat::helper::MultiIsolator::IsolationValuePairs IsolationValuePairs;
       // better to loop backwards, so the vector is resized less times
-      for (IsolationValuePairs::const_reverse_iterator it = isolatorTmpStorage_.rbegin(),
-                                                       ed = isolatorTmpStorage_.rend();
-           it != ed;
-           ++it) {
+      for (auto it = isolatorTmpStorage_.rbegin(), ed = isolatorTmpStorage_.rend(); it != ed; ++it) {
         aPhoton.setIsolation(it->first, it->second);
       }
     }

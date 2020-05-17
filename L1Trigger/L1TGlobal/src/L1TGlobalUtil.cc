@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <memory>
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -43,7 +44,7 @@ l1t::L1TGlobalUtil::L1TGlobalUtil(edm::ParameterSet const& pset,
                                   edm::ConsumesCollector& iC,
                                   UseEventSetupIn useEventSetupIn)
     : L1TGlobalUtil() {
-  m_l1tGlobalUtilHelper.reset(new L1TGlobalUtilHelper(pset, iC));
+  m_l1tGlobalUtilHelper = std::make_unique<L1TGlobalUtilHelper>(pset, iC);
   m_readPrescalesFromFile = m_l1tGlobalUtilHelper->readPrescalesFromFile();
   eventSetupConsumes(iC, useEventSetupIn);
 }
@@ -56,7 +57,7 @@ l1t::L1TGlobalUtil::~L1TGlobalUtil() {
 /// check that the L1TGlobalUtil has been properly initialised
 bool l1t::L1TGlobalUtil::valid() const { return m_l1GtMenuCacheID != 0ULL and m_l1GtMenu != nullptr; }
 
-void l1t::L1TGlobalUtil::OverridePrescalesAndMasks(std::string filename, unsigned int psColumn) {
+void l1t::L1TGlobalUtil::OverridePrescalesAndMasks(const std::string& filename, unsigned int psColumn) {
   edm::FileInPath f1("L1Trigger/L1TGlobal/data/Luminosity/startup/" + filename);
   m_preScaleFileName = f1.fullPath();
   m_PreScaleColumn = psColumn;
@@ -164,12 +165,10 @@ void l1t::L1TGlobalUtil::retrieveL1Setup(const edm::EventSetup& evSetup, bool is
   //std::cout << "Using prescale column: " << m_PreScaleColumn << std::endl;
   const std::vector<int>& prescaleSet = (*m_prescaleFactorsAlgoTrig)[m_PreScaleColumn];
 
-  for (std::map<std::string, L1TUtmAlgorithm>::const_iterator itAlgo = m_algorithmMap->begin();
-       itAlgo != m_algorithmMap->end();
-       itAlgo++) {
+  for (const auto& itAlgo : *m_algorithmMap) {
     // Get the algorithm name
-    std::string algName = itAlgo->first;
-    int algBit = (itAlgo->second).getIndex();  //algoBitNumber();
+    std::string algName = itAlgo.first;
+    int algBit = (itAlgo.second).getIndex();  //algoBitNumber();
 
     (m_prescales[algBit]).first = algName;
     if (size_t(algBit) < prescaleSet.size()) {
@@ -178,7 +177,7 @@ void l1t::L1TGlobalUtil::retrieveL1Setup(const edm::EventSetup& evSetup, bool is
     LogDebug("l1t|Global") << "Number of bunch crossings stored: " << (*m_triggerMaskAlgoTrig).size() << endl;
 
     const std::map<int, std::vector<int> >* triggerAlgoMaskAlgoTrig = m_triggerMaskAlgoTrig;
-    std::map<int, std::vector<int> >::const_iterator it = triggerAlgoMaskAlgoTrig->begin();
+    auto it = triggerAlgoMaskAlgoTrig->begin();
 
     std::vector<int> maskedBxs;
     (m_masks[algBit]).first = algName;
@@ -187,8 +186,8 @@ void l1t::L1TGlobalUtil::retrieveL1Setup(const edm::EventSetup& evSetup, bool is
       std::vector<int> masks = it->second;
       //std::cout<< "BX: " << it->first<<" VecSize: "<< masks.size();
       //std::cout << "\tMasked algos: ";
-      for (unsigned int imask = 0; imask < masks.size(); imask++) {
-        if (masks.at(imask) == algBit)
+      for (int mask : masks) {
+        if (mask == algBit)
           maskedBxs.push_back(it->first);
         // std::cout << "\t" << masks.at(imask);
       }
@@ -220,7 +219,7 @@ void l1t::L1TGlobalUtil::retrieveL1Event(const edm::Event& iEvent,
   //Make sure we have a valid AlgBlk
   if (m_uGtAlgBlk.isValid()) {
     // get the GlabalAlgBlk (Stupid find better way) of BX=0
-    std::vector<GlobalAlgBlk>::const_iterator algBlk = m_uGtAlgBlk->begin(0);
+    auto algBlk = m_uGtAlgBlk->begin(0);
     if (algBlk != m_uGtAlgBlk->end(0)) {
       if (!m_readPrescalesFromFile) {
         m_PreScaleColumn = static_cast<unsigned int>(algBlk->getPreScColumn());
@@ -246,12 +245,10 @@ void l1t::L1TGlobalUtil::retrieveL1Event(const edm::Event& iEvent,
 
       // Make a map of the trigger name and whether it passed various stages (initial,prescale,final)
       // Note: might be able to improve performance by not full remaking map with names each time
-      for (std::map<std::string, L1TUtmAlgorithm>::const_iterator itAlgo = m_algorithmMap->begin();
-           itAlgo != m_algorithmMap->end();
-           itAlgo++) {
+      for (const auto& itAlgo : *m_algorithmMap) {
         // Get the algorithm name
-        std::string algName = itAlgo->first;
-        int algBit = (itAlgo->second).getIndex();  //algoBitNumber();
+        std::string algName = itAlgo.first;
+        int algBit = (itAlgo.second).getIndex();  //algoBitNumber();
 
         bool decisionInitial = algBlk->getAlgoDecisionInitial(algBit);
         (m_decisionsInitial[algBit]).first = algName;
@@ -307,7 +304,7 @@ void l1t::L1TGlobalUtil::loadPrescalesAndMasks() {
       while (split >> value) {
         if (first) {
           // Each new value read on line 1 should create a new inner vector
-          vec.push_back(std::vector<int>());
+          vec.emplace_back();
         }
 
         vec[col].push_back(value);
@@ -323,9 +320,9 @@ void l1t::L1TGlobalUtil::loadPrescalesAndMasks() {
     }
 
     int NumPrescaleSets = 0;
-    for (int iCol = 0; iCol < int(vec.size()); iCol++) {
-      if (!vec[iCol].empty()) {
-        int firstRow = vec[iCol][0];
+    for (auto& iCol : vec) {
+      if (!iCol.empty()) {
+        int firstRow = iCol[0];
 
         if (firstRow >= 0)
           NumPrescaleSets++;
@@ -338,7 +335,7 @@ void l1t::L1TGlobalUtil::loadPrescalesAndMasks() {
     if (NumPrescaleSets > 0) {
       // Fill default prescale set
       for (int iSet = 0; iSet < NumPrescaleSets; iSet++) {
-        prescale_vec.push_back(std::vector<int>());
+        prescale_vec.emplace_back();
         for (unsigned int iBit = 0; iBit < m_numberPhysTriggers; ++iBit) {
           int inputDefaultPrescale = 1;
           prescale_vec[iSet].push_back(inputDefaultPrescale);
@@ -350,17 +347,17 @@ void l1t::L1TGlobalUtil::loadPrescalesAndMasks() {
         unsigned int algoBit = vec[0][iBit];
         // algoBit must be less than the number of triggers
         if (algoBit < m_numberPhysTriggers) {
-          for (int iSet = 0; iSet < int(vec.size()); iSet++) {
+          for (auto& iSet : vec) {
             int useSet = -1;
-            if (!vec[iSet].empty()) {
-              useSet = vec[iSet][0];
+            if (!iSet.empty()) {
+              useSet = iSet[0];
             }
             useSet -= 1;
 
             if (useSet < 0)
               continue;
 
-            int prescale = vec[iSet][iBit];
+            int prescale = iSet[iBit];
             prescale_vec[useSet][algoBit] = prescale;
           }
         } else {
@@ -379,7 +376,7 @@ void l1t::L1TGlobalUtil::loadPrescalesAndMasks() {
     m_PreScaleColumn = 0;
 
     for (int col = 0; col < 1; col++) {
-      prescale_vec.push_back(std::vector<int>());
+      prescale_vec.emplace_back();
       for (unsigned int iBit = 0; iBit < m_numberPhysTriggers; ++iBit) {
         int inputDefaultPrescale = 0;
         prescale_vec[col].push_back(inputDefaultPrescale);
@@ -454,7 +451,7 @@ void l1t::L1TGlobalUtil::resetMaskVectors() {
 }
 
 const bool l1t::L1TGlobalUtil::getAlgBitFromName(const std::string& algName, int& bit) const {
-  std::map<std::string, L1TUtmAlgorithm>::const_iterator itAlgo = m_algorithmMap->find(algName);
+  auto itAlgo = m_algorithmMap->find(algName);
   if (itAlgo != m_algorithmMap->end()) {
     bit = (itAlgo->second).getIndex();  //algoBitNumber();
     return true;

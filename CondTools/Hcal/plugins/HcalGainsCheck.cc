@@ -80,27 +80,27 @@ void HcalGainsCheck::analyze(const edm::Event& ev, const edm::EventSetup& es) {
   std::vector<DetId>::const_iterator cell;
 
   //plots: occupancy map, value map, difference, ratio, gains:
-  for (std::vector<DetId>::const_iterator it = listRefChan.begin(); it != listRefChan.end(); it++) {
-    HcalGenericDetId myId(*it);
+  for (auto it : listRefChan) {
+    HcalGenericDetId myId(it);
     //	ocMapRef->Fill(myId->);
 
-    float valCap0 = myRefGains->getValues(*it)->getValue(0);
-    float valCap1 = myRefGains->getValues(*it)->getValue(1);
-    float valCap2 = myRefGains->getValues(*it)->getValue(2);
-    float valCap3 = myRefGains->getValues(*it)->getValue(3);
+    float valCap0 = myRefGains->getValues(it)->getValue(0);
+    float valCap1 = myRefGains->getValues(it)->getValue(1);
+    float valCap2 = myRefGains->getValues(it)->getValue(2);
+    float valCap3 = myRefGains->getValues(it)->getValue(3);
 
     gainsRefCap0->Fill(valCap0);
     gainsRefCap1->Fill(valCap1);
     gainsRefCap2->Fill(valCap2);
     gainsRefCap3->Fill(valCap3);
 
-    cell = std::find(listNewChan.begin(), listNewChan.end(), (*it));
+    cell = std::find(listNewChan.begin(), listNewChan.end(), it);
     if (cell != listNewChan.end())  //found
     {
-      float valCap0up = myNewGains->getValues(*it)->getValue(0);
-      float valCap1up = myNewGains->getValues(*it)->getValue(1);
-      float valCap2up = myNewGains->getValues(*it)->getValue(2);
-      float valCap3up = myNewGains->getValues(*it)->getValue(3);
+      float valCap0up = myNewGains->getValues(it)->getValue(0);
+      float valCap1up = myNewGains->getValues(it)->getValue(1);
+      float valCap2up = myNewGains->getValues(it)->getValue(2);
+      float valCap3up = myNewGains->getValues(it)->getValue(3);
 
       diffUpRefCap0->Fill(valCap0up - valCap0);
       diffUpRefCap1->Fill(valCap1up - valCap1);
@@ -131,11 +131,11 @@ void HcalGainsCheck::analyze(const edm::Event& ev, const edm::EventSetup& es) {
       ratioUpRefCap3->Fill(valCap3up / valCap3);
     }
   }
-  for (std::vector<DetId>::const_iterator it = listNewChan.begin(); it != listNewChan.end(); it++) {
-    float valCap0 = myNewGains->getValues(*it)->getValue(0);
-    float valCap1 = myNewGains->getValues(*it)->getValue(1);
-    float valCap2 = myNewGains->getValues(*it)->getValue(2);
-    float valCap3 = myNewGains->getValues(*it)->getValue(3);
+  for (auto it : listNewChan) {
+    float valCap0 = myNewGains->getValues(it)->getValue(0);
+    float valCap1 = myNewGains->getValues(it)->getValue(1);
+    float valCap2 = myNewGains->getValues(it)->getValue(2);
+    float valCap3 = myNewGains->getValues(it)->getValue(3);
 
     gainsUpCap0->Fill(valCap0);
     gainsUpCap1->Fill(valCap1);
@@ -163,9 +163,9 @@ void HcalGainsCheck::analyze(const edm::Event& ev, const edm::EventSetup& es) {
 
   if (outfile != "null") {
     HcalGains* resultGains = new HcalGains(refGains->topo());
-    for (std::vector<DetId>::const_iterator it = listRefChan.begin(); it != listRefChan.end(); it++) {
-      DetId mydetid = *it;
-      HcalGenericDetId myId(*it);
+    for (auto it : listRefChan) {
+      DetId mydetid = it;
+      HcalGenericDetId myId(it);
       cell = std::find(listNewChan.begin(), listNewChan.end(), mydetid);
       if (cell == listNewChan.end())  // not present in new list, take old conditions
       {
@@ -186,10 +186,10 @@ void HcalGainsCheck::analyze(const edm::Event& ev, const edm::EventSetup& es) {
     if (emapflag) {
       std::vector<HcalGenericDetId> listEMap = myRefEMap->allPrecisionId();
       // look up if emap channels are all present in pedestals, if not then cerr
-      for (std::vector<HcalGenericDetId>::const_iterator it = listEMap.begin(); it != listEMap.end(); it++) {
-        DetId mydetid = DetId(it->rawId());
+      for (auto it : listEMap) {
+        DetId mydetid = DetId(it.rawId());
         if (std::find(listResult.begin(), listResult.end(), mydetid) == listResult.end()) {
-          std::cout << "Conditions not found for DetId = " << HcalGenericDetId(it->rawId()) << std::endl;
+          std::cout << "Conditions not found for DetId = " << HcalGenericDetId(it.rawId()) << std::endl;
         }
       }
     }

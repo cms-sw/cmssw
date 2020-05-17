@@ -20,14 +20,14 @@ public:
   ProduceDropBoxMetadata(const edm::ParameterSet&);
 
   /// Destructor
-  virtual ~ProduceDropBoxMetadata();
+  ~ProduceDropBoxMetadata() override;
 
   // Operations
   // virtual void beginJob();
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& eSetup);
+  void beginRun(const edm::Run& run, const edm::EventSetup& eSetup) override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) {}
-  virtual void endJob() {}
+  void analyze(const edm::Event&, const edm::EventSetup&) override {}
+  void endJob() override {}
 
 protected:
 private:

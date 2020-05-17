@@ -18,7 +18,7 @@ public:
   // Constructor
   SiStripLayoutParser();
 
-  void getDocument(std::string filepath);
+  void getDocument(const std::string& filepath);
 
   // Get list of Layouts for ME groups
   bool getAllLayouts(std::map<std::string, std::vector<std::string> >& me_names);

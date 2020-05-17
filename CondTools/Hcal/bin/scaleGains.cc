@@ -49,8 +49,7 @@ void scaleGains::analyze(edm::Event const&, edm::EventSetup const& iSetup) {
   HcalGains gainsOut(&topo);
   ;
   std::vector<DetId> channels = gainsIn.getAllChannels();
-  for (unsigned i = 0; i < channels.size(); i++) {
-    DetId id = channels[i];
+  for (auto id : channels) {
     HcalGain item(id,
                   gainsIn.getValues(id)->getValue(0) * scale,
                   gainsIn.getValues(id)->getValue(1) * scale,

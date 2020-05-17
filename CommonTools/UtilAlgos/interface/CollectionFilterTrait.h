@@ -25,7 +25,7 @@ namespace helper {
   struct CollectionFilter<C, S, MinNumberSelector> {
     static bool filter(const C& source, const S& select, const MinNumberSelector& sizeSelect) {
       size_t n = 0;
-      for (typename C::const_iterator i = source.begin(); i != source.end(); ++i) {
+      for (auto i = source.begin(); i != source.end(); ++i) {
         if (select(*i))
           n++;
         if (sizeSelect(n))

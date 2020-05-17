@@ -97,10 +97,10 @@ void BPhysicsOniaDQM::analyze(const Event &iEvent, const EventSetup &iSetup) {
   }
 
   if (muons.isValid()) {
-    for (MuonCollection::const_iterator recoMu1 = muons->begin(); recoMu1 != muons->end(); ++recoMu1) {
+    for (auto recoMu1 = muons->begin(); recoMu1 != muons->end(); ++recoMu1) {
       // only loop over the remaining muons if recoMu1 is one of the following
       if (recoMu1->isGlobalMuon() || recoMu1->isTrackerMuon() || recoMu1->isStandAloneMuon()) {
-        for (MuonCollection::const_iterator recoMu2 = recoMu1 + 1; recoMu2 != muons->end(); ++recoMu2) {
+        for (auto recoMu2 = recoMu1 + 1; recoMu2 != muons->end(); ++recoMu2) {
           // fill the relevant histograms if recoMu2 satisfies one of the
           // following
           if (recoMu1->isGlobalMuon() && recoMu2->isGlobalMuon()) {

@@ -39,8 +39,7 @@ SiPixelGainCalibration::SiPixelGainCalibration(float minPed, float maxPed, float
 bool SiPixelGainCalibration::put(const uint32_t& DetId, Range input, const int& nCols) {
   // put in SiPixelGainCalibration of DetId
 
-  Registry::iterator p =
-      std::lower_bound(indexes.begin(), indexes.end(), DetId, SiPixelGainCalibration::StrictWeakOrdering());
+  auto p = std::lower_bound(indexes.begin(), indexes.end(), DetId, SiPixelGainCalibration::StrictWeakOrdering());
   if (p != indexes.end() && p->detid == DetId)
     return false;
 
@@ -58,8 +57,7 @@ bool SiPixelGainCalibration::put(const uint32_t& DetId, Range input, const int& 
 
 const int SiPixelGainCalibration::getNCols(const uint32_t& DetId) const {
   // get number of columns of DetId
-  RegistryIterator p =
-      std::lower_bound(indexes.begin(), indexes.end(), DetId, SiPixelGainCalibration::StrictWeakOrdering());
+  auto p = std::lower_bound(indexes.begin(), indexes.end(), DetId, SiPixelGainCalibration::StrictWeakOrdering());
   if (p == indexes.end() || p->detid != DetId)
     return 0;
   else
@@ -69,8 +67,7 @@ const int SiPixelGainCalibration::getNCols(const uint32_t& DetId) const {
 const SiPixelGainCalibration::Range SiPixelGainCalibration::getRange(const uint32_t& DetId) const {
   // get SiPixelGainCalibration Range of DetId
 
-  RegistryIterator p =
-      std::lower_bound(indexes.begin(), indexes.end(), DetId, SiPixelGainCalibration::StrictWeakOrdering());
+  auto p = std::lower_bound(indexes.begin(), indexes.end(), DetId, SiPixelGainCalibration::StrictWeakOrdering());
   if (p == indexes.end() || p->detid != DetId)
     return SiPixelGainCalibration::Range(v_pedestals.end(), v_pedestals.end());
   else
@@ -79,8 +76,7 @@ const SiPixelGainCalibration::Range SiPixelGainCalibration::getRange(const uint3
 
 const std::pair<const SiPixelGainCalibration::Range, const int> SiPixelGainCalibration::getRangeAndNCols(
     const uint32_t& DetId) const {
-  RegistryIterator p =
-      std::lower_bound(indexes.begin(), indexes.end(), DetId, SiPixelGainCalibration::StrictWeakOrdering());
+  auto p = std::lower_bound(indexes.begin(), indexes.end(), DetId, SiPixelGainCalibration::StrictWeakOrdering());
   if (p == indexes.end() || p->detid != DetId)
     return std::make_pair(SiPixelGainCalibration::Range(v_pedestals.end(), v_pedestals.end()), 0);
   else
@@ -90,9 +86,9 @@ const std::pair<const SiPixelGainCalibration::Range, const int> SiPixelGainCalib
 
 void SiPixelGainCalibration::getDetIds(std::vector<uint32_t>& DetIds_) const {
   // returns vector of DetIds in map
-  SiPixelGainCalibration::RegistryIterator begin = indexes.begin();
-  SiPixelGainCalibration::RegistryIterator end = indexes.end();
-  for (SiPixelGainCalibration::RegistryIterator p = begin; p != end; ++p) {
+  auto begin = indexes.begin();
+  auto end = indexes.end();
+  for (auto p = begin; p != end; ++p) {
     DetIds_.push_back(p->detid);
   }
 }

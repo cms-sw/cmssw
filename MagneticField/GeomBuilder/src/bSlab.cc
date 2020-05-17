@@ -26,7 +26,7 @@ bSlab::bSlab(handles::const_iterator begin, handles::const_iterator end, bool de
       cout << "        Slab has " << volumes.size() << " volumes" << endl;
 
     // Check that all volumes have the same dZ
-    handles::const_iterator i = volumes.begin();
+    auto i = volumes.begin();
     float Zmax = (*i)->surface(zplus).position().z();
     float Zmin = (*i)->surface(zminus).position().z();
     for (++i; i != volumes.end(); ++i) {
@@ -49,8 +49,8 @@ Geom::Phi<float> bSlab::maxPhi() const { return volumes.back()->maxPhi(); }
 MagBSlab* bSlab::buildMagBSlab() const {
   if (mslab == nullptr) {
     vector<MagVolume*> mVols;
-    for (handles::const_iterator vol = volumes.begin(); vol != volumes.end(); ++vol) {
-      mVols.push_back((*vol)->magVolume);
+    for (auto volume : volumes) {
+      mVols.push_back(volume->magVolume);
     }
     mslab = new MagBSlab(mVols, volumes.front()->surface(zminus).position().z());  //FIXME
   }

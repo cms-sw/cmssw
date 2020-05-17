@@ -485,7 +485,7 @@ namespace evf {
 
   std::string EvFDaqDirector::getFFFParamsFilePathOnBU() const { return bu_run_dir_ + "/hlt/fffParameters.jsn"; }
 
-  void EvFDaqDirector::removeFile(std::string filename) {
+  void EvFDaqDirector::removeFile(const std::string& filename) {
     int retval = remove(filename.c_str());
     if (retval != 0)
       edm::LogError("EvFDaqDirector") << "Could not remove used file -: " << filename
@@ -1030,7 +1030,7 @@ namespace evf {
     //take only first three tokens delimited by "_" in the renamed raw file name
     std::string jsonStem = boost::filesystem::path(rawSourcePath).stem().string();
     size_t pos = 0, n_tokens = 0;
-    while (n_tokens++ < 3 && (pos = jsonStem.find("_", pos + 1)) != std::string::npos) {
+    while (n_tokens++ < 3 && (pos = jsonStem.find('_', pos + 1)) != std::string::npos) {
     }
     std::string reducedJsonStem = jsonStem.substr(0, pos);
 
@@ -1462,7 +1462,7 @@ namespace evf {
         std::string fileInfo;
         std::map<std::string, std::string> serverMap;
         while (std::getline(response_stream, fileInfo) && fileInfo != "\r") {
-          auto pos = fileInfo.find("=");
+          auto pos = fileInfo.find('=');
           if (pos == std::string::npos)
             continue;
           auto stitle = fileInfo.substr(0, pos);
@@ -1899,10 +1899,10 @@ namespace evf {
 
     //flatten string json::Array into CSV std::string
     std::string ret;
-    for (Json::Value::iterator it = destsVec.begin(); it != destsVec.end(); it++) {
+    for (auto& it : destsVec) {
       if (!ret.empty())
         ret += ",";
-      ret += (*it).asString();
+      ret += it.asString();
     }
     return ret;
   }
@@ -1915,7 +1915,7 @@ namespace evf {
     edm::ParameterSet const& topPset = edm::getParameterSet(pc.parameterSetID());
     if (topPset.existsAs<edm::ParameterSet>(mergeTypePset_, true)) {
       const edm::ParameterSet& tsPset(topPset.getParameterSet(mergeTypePset_));
-      for (std::string pname : tsPset.getParameterNames()) {
+      for (const std::string& pname : tsPset.getParameterNames()) {
         std::string streamType = tsPset.getParameter<std::string>(pname);
         tbb::concurrent_hash_map<std::string, std::string>::accessor ac;
         mergeTypeMap_.insert(ac, pname);

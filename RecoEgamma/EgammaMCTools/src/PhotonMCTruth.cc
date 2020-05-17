@@ -5,14 +5,14 @@
 #include <iostream>
 
 PhotonMCTruth::PhotonMCTruth(int isAConversion,
-                             CLHEP::HepLorentzVector phoMom,
+                             const CLHEP::HepLorentzVector& phoMom,
                              int vertIndex,
                              int trackId,
                              int motherId,
-                             CLHEP::HepLorentzVector mothMom,
-                             CLHEP::HepLorentzVector mothVtx,
-                             CLHEP::HepLorentzVector convVertex,
-                             CLHEP::HepLorentzVector pV,
+                             const CLHEP::HepLorentzVector& mothMom,
+                             const CLHEP::HepLorentzVector& mothVtx,
+                             const CLHEP::HepLorentzVector& convVertex,
+                             const CLHEP::HepLorentzVector& pV,
                              std::vector<ElectronMCTruth>& electrons)
     : isAConversion_(isAConversion),
       thePhoton_(phoMom),

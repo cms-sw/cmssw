@@ -13,7 +13,7 @@ namespace {
     if (pt == nullptr)
       return 0;
     int size = 0;
-    typename Coll::const_iterator i = pt->find(DetIdClass(did));
+    auto i = pt->find(DetIdClass(did));
     if (i != pt->end()) {
       presamples = i->presamples();
       size = i->size();
@@ -113,8 +113,8 @@ void CastorPacker::pack(int fedid,
   }
   // calculate the total length, and resize the FEDRawData
   int theSize = 0;
-  for (int spigot = 0; spigot < 15; spigot++) {
-    theSize += spigots[spigot].getRawLength() * sizeof(unsigned short);
+  for (const auto& spigot : spigots) {
+    theSize += spigot.getRawLength() * sizeof(unsigned short);
   }
   theSize += sizeof(HcalDCCHeader) + 8;  // 8 for trailer
   theSize += (8 - (theSize % 8)) % 8;    // even number of 64-bit words.

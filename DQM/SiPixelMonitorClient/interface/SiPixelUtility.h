@@ -21,9 +21,9 @@ public:
   typedef dqm::legacy::MonitorElement MonitorElement;
   typedef dqm::legacy::DQMStore DQMStore;
 
-  static int getMEList(std::string name, std::vector<std::string> &values);
-  static bool checkME(std::string element, std::string name, std::string &full_path);
-  static int getMEList(std::string name, std::string &dir_path, std::vector<std::string> &me_names);
+  static int getMEList(const std::string &name, std::vector<std::string> &values);
+  static bool checkME(const std::string &element, const std::string &name, std::string &full_path);
+  static int getMEList(const std::string &name, std::string &dir_path, std::vector<std::string> &me_names);
 
   static void split(const std::string &str, std::vector<std::string> &tokens, const std::string &delimiters = " ");
   static void getStatusColor(int status, int &rval, int &gval, int &bval);

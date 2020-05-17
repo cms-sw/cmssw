@@ -11,6 +11,8 @@
 //
 
 // system include files
+#include <memory>
+
 #include <vector>
 #include <string>
 #include <map>
@@ -474,7 +476,7 @@ std::unique_ptr<edm::FileBlock> DQMRootSource::readFile_() {
     bool isGoodFile(true);
     //get all names of a file, each of them corresponds to a data catalog
     const std::vector<std::string>& fNames = fileitem.fileNames();
-    for (std::vector<std::string>::const_iterator it = fNames.begin(); it != fNames.end(); ++it) {
+    for (auto it = fNames.begin(); it != fNames.end(); ++it) {
       // Try to open a file
       try {
         file = TFile::Open(it->c_str());
@@ -599,7 +601,7 @@ std::unique_ptr<edm::FileBlock> DQMRootSource::readFile_() {
     m_nextItemType = edm::InputSource::IsRun;
 
   // We have to return something but not sure why
-  return std::unique_ptr<edm::FileBlock>(new edm::FileBlock);
+  return std::make_unique<edm::FileBlock>();
 }
 
 std::shared_ptr<edm::RunAuxiliary> DQMRootSource::readRunAuxiliary_() {

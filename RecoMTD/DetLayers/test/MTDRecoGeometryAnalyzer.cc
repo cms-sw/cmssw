@@ -39,7 +39,7 @@ class MTDRecoGeometryAnalyzer : public EDAnalyzer {
 public:
   MTDRecoGeometryAnalyzer(const ParameterSet& pset);
 
-  virtual void analyze(const Event& ev, const EventSetup& es);
+  void analyze(const Event& ev, const EventSetup& es) override;
 
   void testBTLLayers(const MTDDetLayerGeometry*, const MagneticField* field);
   void testETLLayers(const MTDDetLayerGeometry*, const MagneticField* field);
@@ -89,8 +89,8 @@ void MTDRecoGeometryAnalyzer::analyze(const Event& ev, const EventSetup& es) {
 void MTDRecoGeometryAnalyzer::testBTLLayers(const MTDDetLayerGeometry* geo, const MagneticField* field) {
   const vector<const DetLayer*>& layers = geo->allBTLLayers();
 
-  for (auto ilay = layers.begin(); ilay != layers.end(); ++ilay) {
-    const MTDTrayBarrelLayer* layer = (const MTDTrayBarrelLayer*)(*ilay);
+  for (auto ilay : layers) {
+    const auto* layer = (const MTDTrayBarrelLayer*)ilay;
 
     const BoundCylinder& cyl = layer->specificSurface();
 
@@ -120,7 +120,7 @@ void MTDRecoGeometryAnalyzer::testBTLLayers(const MTDDetLayerGeometry* geo, cons
          << " phi=" << comp.second.globalPosition().phi() << " Z=" << comp.second.globalPosition().z() << endl;
 
     vector<DetLayer::DetWithState> compDets = layer->compatibleDets(tsos, prop, *theEstimator);
-    if (compDets.size()) {
+    if (!compDets.empty()) {
       cout << "compatibleDets: " << compDets.size() << endl
 
            << "  final state pos: " << compDets.front().second.globalPosition() << endl
@@ -139,8 +139,8 @@ void MTDRecoGeometryAnalyzer::testBTLLayers(const MTDDetLayerGeometry* geo, cons
 void MTDRecoGeometryAnalyzer::testETLLayers(const MTDDetLayerGeometry* geo, const MagneticField* field) {
   const vector<const DetLayer*>& layers = geo->allETLLayers();
 
-  for (auto ilay = layers.begin(); ilay != layers.end(); ++ilay) {
-    const MTDRingForwardDoubleLayer* layer = (const MTDRingForwardDoubleLayer*)(*ilay);
+  for (auto ilay : layers) {
+    const auto* layer = (const MTDRingForwardDoubleLayer*)ilay;
 
     const BoundDisk& disk = layer->specificSurface();
 
@@ -168,7 +168,7 @@ void MTDRecoGeometryAnalyzer::testETLLayers(const MTDDetLayerGeometry* geo, cons
          << " phi=" << comp.second.globalPosition().phi() << " Z=" << comp.second.globalPosition().z() << endl;
 
     vector<DetLayer::DetWithState> compDets = layer->compatibleDets(tsos, prop, *theEstimator);
-    if (compDets.size()) {
+    if (!compDets.empty()) {
       cout << "compatibleDets: " << compDets.size() << endl
 
            << "  final state pos: " << compDets.front().second.globalPosition() << endl
@@ -192,9 +192,9 @@ void MTDRecoGeometryAnalyzer::testETLLayers(const MTDDetLayerGeometry* geo, cons
 string MTDRecoGeometryAnalyzer::dumpLayer(const DetLayer* layer) const {
   stringstream output;
 
-  const BoundSurface* sur = 0;
-  const BoundCylinder* bc = 0;
-  const BoundDisk* bd = 0;
+  const BoundSurface* sur = nullptr;
+  const BoundCylinder* bc = nullptr;
+  const BoundDisk* bd = nullptr;
 
   sur = &(layer->surface());
   if ((bc = dynamic_cast<const BoundCylinder*>(sur))) {

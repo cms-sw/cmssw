@@ -23,23 +23,23 @@ namespace hcaldqm {
 
     if (_ptype != fOffline) {  // hidefed2crate
       _vFEDs = utilities::getFEDList(_emap);
-      for (std::vector<int>::const_iterator it = _vFEDs.begin(); it != _vFEDs.end(); ++it) {
+      for (int _vFED : _vFEDs) {
         //
         //	FIXME
         //	until there exists a map of FED2Crate and Crate2FED,
         //	all the unknown Crates will be mapped to 0...
         //
-        if (*it == 0) {
+        if (_vFED == 0) {
           _vhashFEDs.push_back(HcalElectronicsId(0, SLOT_uTCA_MIN, FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
           continue;
         }
 
-        if (*it > FED_VME_MAX) {
-          std::pair<uint16_t, uint16_t> cspair = utilities::fed2crate(*it);
+        if (_vFED > FED_VME_MAX) {
+          std::pair<uint16_t, uint16_t> cspair = utilities::fed2crate(_vFED);
           _vhashFEDs.push_back(
               HcalElectronicsId(cspair.first, cspair.second, FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
         } else
-          _vhashFEDs.push_back(HcalElectronicsId(FIBERCH_MIN, FIBER_VME_MIN, SPIGOT_MIN, (*it) - FED_VME_MIN).rawId());
+          _vhashFEDs.push_back(HcalElectronicsId(FIBERCH_MIN, FIBER_VME_MIN, SPIGOT_MIN, _vFED - FED_VME_MIN).rawId());
       }
 
       //	get FEDs registered @cDAQ
@@ -47,13 +47,13 @@ namespace hcaldqm {
         edm::ESHandle<RunInfo> ri;
         runInfoRec->get(ri);
         std::vector<int> vfeds = ri->m_fed_in;
-        for (std::vector<int>::const_iterator it = vfeds.begin(); it != vfeds.end(); ++it) {
-          if (*it >= constants::FED_VME_MIN && *it <= FED_VME_MAX)
+        for (int vfed : vfeds) {
+          if (vfed >= constants::FED_VME_MIN && vfed <= FED_VME_MAX)
             _vcdaqEids.push_back(
-                HcalElectronicsId(constants::FIBERCH_MIN, constants::FIBER_VME_MIN, SPIGOT_MIN, (*it) - FED_VME_MIN)
+                HcalElectronicsId(constants::FIBERCH_MIN, constants::FIBER_VME_MIN, SPIGOT_MIN, vfed - FED_VME_MIN)
                     .rawId());
-          else if (*it >= constants::FED_uTCA_MIN && *it <= FEDNumbering::MAXHCALuTCAFEDID) {
-            std::pair<uint16_t, uint16_t> cspair = utilities::fed2crate(*it);
+          else if (vfed >= constants::FED_uTCA_MIN && vfed <= FEDNumbering::MAXHCALuTCAFEDID) {
+            std::pair<uint16_t, uint16_t> cspair = utilities::fed2crate(vfed);
             _vcdaqEids.push_back(
                 HcalElectronicsId(cspair.first, cspair.second, FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
           }
@@ -82,12 +82,12 @@ namespace hcaldqm {
     es.get<HcalChannelQualityRcd>().get("withTopo", hcq);
     const HcalChannelQuality *cq = hcq.product();
     std::vector<DetId> detids = cq->getAllChannels();
-    for (std::vector<DetId>::const_iterator it = detids.begin(); it != detids.end(); ++it) {
-      if (HcalGenericDetId(*it).genericSubdet() == HcalGenericDetId::HcalGenUnknown)
+    for (auto detid : detids) {
+      if (HcalGenericDetId(detid).genericSubdet() == HcalGenericDetId::HcalGenUnknown)
         continue;
 
-      if (HcalGenericDetId(*it).isHcalDetId()) {
-        HcalDetId did(*it);
+      if (HcalGenericDetId(detid).isHcalDetId()) {
+        HcalDetId did(detid);
         uint32_t mask = (cq->getValues(did))->getValue();
         if (mask != 0)
           _xQuality.push(did, mask);

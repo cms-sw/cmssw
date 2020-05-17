@@ -16,15 +16,15 @@ LMFCorrCoefDat::LMFCorrCoefDat(oracle::occi::Environment *env, oracle::occi::Con
 }
 
 LMFCorrCoefDat::~LMFCorrCoefDat() {
-  std::map<int, LMFCorrCoefDatComponent *>::iterator i = m_data.begin();
-  std::map<int, LMFCorrCoefDatComponent *>::iterator e = m_data.end();
+  auto i = m_data.begin();
+  auto e = m_data.end();
   while (i != e) {
     delete i->second;
     i++;
   }
   m_data.clear();
-  std::map<int, LMFLmrSubIOV *>::iterator si = m_subiov.begin();
-  std::map<int, LMFLmrSubIOV *>::iterator se = m_subiov.end();
+  auto si = m_subiov.begin();
+  auto se = m_subiov.end();
   while (si != se) {
     delete si->second;
     si++;
@@ -43,8 +43,8 @@ void LMFCorrCoefDat::init() {
 LMFCorrCoefDat &LMFCorrCoefDat::setConnection(oracle::occi::Environment *env, oracle::occi::Connection *conn) {
   m_env = env;
   m_conn = conn;
-  std::map<int, LMFCorrCoefDatComponent *>::iterator i = m_data.begin();
-  std::map<int, LMFCorrCoefDatComponent *>::iterator e = m_data.end();
+  auto i = m_data.begin();
+  auto e = m_data.end();
   while (i != e) {
     i->second->setConnection(m_env, m_conn);
     i++;
@@ -88,7 +88,7 @@ LMFCorrCoefDatComponent *LMFCorrCoefDat::find(const LMFLmrSubIOV &iov) {
   if (m_data.find(iov.getID()) != m_data.end()) {
     return m_data[iov.getID()];
   } else {
-    LMFCorrCoefDatComponent *c = new LMFCorrCoefDatComponent();
+    auto *c = new LMFCorrCoefDatComponent();
     LMFLmrSubIOV *subiov = new LMFLmrSubIOV();
     if (m_conn != nullptr) {
       c->setConnection(m_env, m_conn);
@@ -106,8 +106,8 @@ void LMFCorrCoefDat::dump() {
   std::cout << std::endl;
   std::cout << "##################### LMF_CORR_COEF_DAT ########################" << std::endl;
   std::cout << "This structure contains " << m_data.size() << " LMR_SUB_IOV_ID" << std::endl;
-  std::map<int, LMFCorrCoefDatComponent *>::const_iterator i = m_data.begin();
-  std::map<int, LMFCorrCoefDatComponent *>::const_iterator e = m_data.end();
+  auto i = m_data.begin();
+  auto e = m_data.end();
   int count = 0;
   while (i != e) {
     std::cout << "### SUB IOV ID: " << i->second->getLMFLmrSubIOVID() << std::endl;
@@ -121,8 +121,8 @@ void LMFCorrCoefDat::dump() {
 }
 
 void LMFCorrCoefDat::writeDB() {
-  std::map<int, LMFCorrCoefDatComponent *>::iterator i = m_data.begin();
-  std::map<int, LMFCorrCoefDatComponent *>::iterator e = m_data.end();
+  auto i = m_data.begin();
+  auto e = m_data.end();
   while (i != e) {
     if (m_debug) {
       std::cout << "Writing data for LMR_SUB_IOV_ID " << i->first << std::endl;
@@ -221,8 +221,8 @@ void LMFCorrCoefDat::fetchBetween(const Tm &tmin, const Tm &tmax, int maxNumberO
 }
 
 void LMFCorrCoefDat::fetch(std::list<int> subiov_ids) {
-  std::list<int>::const_iterator i = subiov_ids.begin();
-  std::list<int>::const_iterator e = subiov_ids.end();
+  auto i = subiov_ids.begin();
+  auto e = subiov_ids.end();
   int c = 0;
   while (i != e) {
     if (m_debug) {
@@ -265,7 +265,7 @@ void LMFCorrCoefDat::fetch(const LMFLmrSubIOV &iov) {
                 << "Getting it from DB " << std::endl
                 << std::flush;
     }
-    LMFCorrCoefDatComponent *comp = new LMFCorrCoefDatComponent(m_env, m_conn);
+    auto *comp = new LMFCorrCoefDatComponent(m_env, m_conn);
     if (m_debug) {
       comp->debug();
     }
@@ -450,8 +450,8 @@ std::map<int, std::map<int, LMFSextuple> > LMFCorrCoefDat::getCorrections(const 
     std::cout << "[LMFCorrCoefDat::getCorrections] Map built" << std::endl
               << "                                 Contains " << ret.size()
               << " sequences. These are the size of all sequences" << std::endl;
-    std::map<int, std::map<int, LMFSextuple> >::const_iterator i = ret.begin();
-    std::map<int, std::map<int, LMFSextuple> >::const_iterator e = ret.end();
+    auto i = ret.begin();
+    auto e = ret.end();
     while (i != e) {
       std::cout << "                                 SEQ " << i->first << " Size " << i->second.size() << std::endl;
       i++;
@@ -465,12 +465,12 @@ std::list<std::vector<float> > LMFCorrCoefDat::getParameters(const EcalLogicID &
 }
 
 std::list<std::vector<float> > LMFCorrCoefDat::getParameters(int id) {
-  std::map<int, LMFCorrCoefDatComponent *>::const_iterator i = m_data.begin();
-  std::map<int, LMFCorrCoefDatComponent *>::const_iterator e = m_data.end();
+  auto i = m_data.begin();
+  auto e = m_data.end();
   std::list<std::vector<float> > ret;
   while (i != e) {
     std::list<int> logic_ids = i->second->getLogicIds();
-    std::list<int>::iterator p = std::find(logic_ids.begin(), logic_ids.end(), id);
+    auto p = std::find(logic_ids.begin(), logic_ids.end(), id);
     if (p != logic_ids.end()) {
       // the given logic id is contained in at least an element of this map
       std::vector<float> ppar;
@@ -540,8 +540,8 @@ LMFSeqDat LMFCorrCoefDat::getSequence(const LMFLmrSubIOV &iov, const EcalLogicID
 
 int LMFCorrCoefDat::size() const {
   int c = 0;
-  std::map<int, LMFCorrCoefDatComponent *>::const_iterator i = m_data.begin();
-  std::map<int, LMFCorrCoefDatComponent *>::const_iterator e = m_data.end();
+  auto i = m_data.begin();
+  auto e = m_data.end();
   while (i != e) {
     c += i->second->size();
     i++;
@@ -551,8 +551,8 @@ int LMFCorrCoefDat::size() const {
 
 std::list<int> LMFCorrCoefDat::getSubIOVIDs() {
   std::list<int> ret;
-  std::map<int, LMFCorrCoefDatComponent *>::const_iterator i = m_data.begin();
-  std::map<int, LMFCorrCoefDatComponent *>::const_iterator e = m_data.end();
+  auto i = m_data.begin();
+  auto e = m_data.end();
   while (i != e) {
     ret.push_back(i->first);
     i++;

@@ -26,9 +26,9 @@ class TrackAnalyzer : public edm::EDAnalyzer {
 public:
   TrackAnalyzer(const edm::ParameterSet& pset) {}
 
-  ~TrackAnalyzer() {}
+  ~TrackAnalyzer() override {}
 
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) {
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override {
     //
     // extract tracker geometry
     //
@@ -48,26 +48,26 @@ public:
     std::cout << "Reconstructed " << tC.size() << " tracks" << std::endl;
 
     int i = 1;
-    for (reco::TrackCollection::const_iterator track = tC.begin(); track != tC.end(); track++) {
+    for (const auto& track : tC) {
       std::cout << "Track number " << i << std::endl;
-      std::cout << "\tmomentum: " << track->momentum() << std::endl;
-      std::cout << "\tPT: " << track->pt() << std::endl;
-      std::cout << "\tvertex: " << track->vertex() << std::endl;
-      std::cout << "\timpact parameter: " << track->d0() << std::endl;
-      std::cout << "\tcharge: " << track->charge() << std::endl;
-      std::cout << "\tnormalizedChi2: " << track->normalizedChi2() << std::endl;
+      std::cout << "\tmomentum: " << track.momentum() << std::endl;
+      std::cout << "\tPT: " << track.pt() << std::endl;
+      std::cout << "\tvertex: " << track.vertex() << std::endl;
+      std::cout << "\timpact parameter: " << track.d0() << std::endl;
+      std::cout << "\tcharge: " << track.charge() << std::endl;
+      std::cout << "\tnormalizedChi2: " << track.normalizedChi2() << std::endl;
 
       i++;
       cout << "\tFrom EXTRA : " << endl;
-      cout << "\t\touter PT " << track->outerPt() << endl;
-      std::cout << "\t direction: " << track->seedDirection() << std::endl;
-      if (!track->seedRef().isNull())
-        std::cout << "\t direction from seedRef: " << track->seedRef()->direction() << std::endl;
+      cout << "\t\touter PT " << track.outerPt() << endl;
+      std::cout << "\t direction: " << track.seedDirection() << std::endl;
+      if (!track.seedRef().isNull())
+        std::cout << "\t direction from seedRef: " << track.seedRef()->direction() << std::endl;
       //
       // try and access Hits
       //
-      cout << "\t\tNumber of RecHits " << track->recHitsSize() << endl;
-      for (trackingRecHit_iterator it = track->recHitsBegin(); it != track->recHitsEnd(); it++) {
+      cout << "\t\tNumber of RecHits " << track.recHitsSize() << endl;
+      for (auto it = track.recHitsBegin(); it != track.recHitsEnd(); it++) {
         if ((*it)->isValid()) {
           cout << "\t\t\tRecHit on det " << (*it)->geographicalId().rawId() << endl;
           cout << "\t\t\tRecHit in LP " << (*it)->localPosition() << endl;

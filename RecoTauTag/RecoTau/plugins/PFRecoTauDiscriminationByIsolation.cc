@@ -1,4 +1,6 @@
 #include <functional>
+#include <memory>
+
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
@@ -104,11 +106,9 @@ public:
     applyFootprintCorrection_ = pset.getParameter<bool>("applyFootprintCorrection");
     if (applyFootprintCorrection_ || storeRawFootprintCorrection_) {
       edm::VParameterSet cfgFootprintCorrections = pset.getParameter<edm::VParameterSet>("footprintCorrections");
-      for (edm::VParameterSet::const_iterator cfgFootprintCorrection = cfgFootprintCorrections.begin();
-           cfgFootprintCorrection != cfgFootprintCorrections.end();
-           ++cfgFootprintCorrection) {
-        std::string selection = cfgFootprintCorrection->getParameter<std::string>("selection");
-        std::string offset = cfgFootprintCorrection->getParameter<std::string>("offset");
+      for (const auto& cfgFootprintCorrection : cfgFootprintCorrections) {
+        std::string selection = cfgFootprintCorrection.getParameter<std::string>("selection");
+        std::string offset = cfgFootprintCorrection.getParameter<std::string>("offset");
         std::unique_ptr<FootprintCorrection> footprintCorrection(new FootprintCorrection(selection, offset));
         footprintCorrections_.push_back(std::move(footprintCorrection));
       }
@@ -117,9 +117,9 @@ public:
     // Get the quality cuts specific to the isolation region
     edm::ParameterSet isolationQCuts = qualityCutsPSet_.getParameterSet("isolationQualityCuts");
 
-    qcuts_.reset(new tau::RecoTauQualityCuts(isolationQCuts));
+    qcuts_ = std::make_unique<tau::RecoTauQualityCuts>(isolationQCuts);
 
-    vertexAssociator_.reset(new tau::RecoTauVertexAssociator(qualityCutsPSet_, consumesCollector()));
+    vertexAssociator_ = std::make_unique<tau::RecoTauVertexAssociator>(qualityCutsPSet_, consumesCollector());
 
     applyDeltaBeta_ = pset.getParameter<bool>("applyDeltaBetaCorrection");
 
@@ -142,9 +142,9 @@ public:
                                                          isolationQCuts.getParameter<double>("minGammaEt"));
       }
 
-      pileupQcutsPUTrackSelection_.reset(new tau::RecoTauQualityCuts(puFactorizedIsoQCuts.first));
+      pileupQcutsPUTrackSelection_ = std::make_unique<tau::RecoTauQualityCuts>(puFactorizedIsoQCuts.first);
 
-      pileupQcutsGeneralQCuts_.reset(new tau::RecoTauQualityCuts(puFactorizedIsoQCuts.second));
+      pileupQcutsGeneralQCuts_ = std::make_unique<tau::RecoTauQualityCuts>(puFactorizedIsoQCuts.second);
 
       pfCandSrc_ = pset.getParameter<edm::InputTag>("particleFlowSrc");
       pfCand_token = consumes<edm::View<reco::Candidate> >(pfCandSrc_);
@@ -152,7 +152,7 @@ public:
       vertex_token = consumes<reco::VertexCollection>(vertexSrc_);
       deltaBetaCollectionCone_ = pset.getParameter<double>("isoConeSizeForDeltaBeta");
       std::string deltaBetaFactorFormula = pset.getParameter<string>("deltaBetaFactor");
-      deltaBetaFormula_.reset(new TFormula("DB_corr", deltaBetaFactorFormula.c_str()));
+      deltaBetaFormula_ = std::make_unique<TFormula>("DB_corr", deltaBetaFactorFormula.c_str());
     }
 
     applyRhoCorrection_ = pset.getParameter<bool>("applyRhoCorrection");
@@ -480,12 +480,9 @@ double PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) c
 
   double footprintCorrection_value = 0.;
   if (applyFootprintCorrection_ || storeRawFootprintCorrection_) {
-    for (std::vector<std::unique_ptr<FootprintCorrection> >::const_iterator footprintCorrection =
-             footprintCorrections_.begin();
-         footprintCorrection != footprintCorrections_.end();
-         ++footprintCorrection) {
-      if ((*footprintCorrection)->selection_(*pfTau)) {
-        footprintCorrection_value = (*footprintCorrection)->offset_(*pfTau);
+    for (const auto& footprintCorrection : footprintCorrections_) {
+      if (footprintCorrection->selection_(*pfTau)) {
+        footprintCorrection_value = footprintCorrection->offset_(*pfTau);
       }
     }
   }
@@ -551,12 +548,10 @@ double PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) c
   double photonSumPt_outsideSignalCone = 0.;
   if (applyPhotonPtSumOutsideSignalConeCut_ || storeRawPhotonSumPt_outsideSignalCone_) {
     const std::vector<reco::CandidatePtr>& signalGammas = pfTau->signalGammaCands();
-    for (std::vector<reco::CandidatePtr>::const_iterator signalGamma = signalGammas.begin();
-         signalGamma != signalGammas.end();
-         ++signalGamma) {
-      double dR = deltaR(pfTau->eta(), pfTau->phi(), (*signalGamma)->eta(), (*signalGamma)->phi());
+    for (const auto& signalGamma : signalGammas) {
+      double dR = deltaR(pfTau->eta(), pfTau->phi(), signalGamma->eta(), signalGamma->phi());
       if (dR > pfTau->signalConeSize())
-        photonSumPt_outsideSignalCone += (*signalGamma)->pt();
+        photonSumPt_outsideSignalCone += signalGamma->pt();
     }
     if (photonSumPt_outsideSignalCone > maxAbsPhotonSumPt_outsideSignalCone_ ||
         photonSumPt_outsideSignalCone > (maxRelPhotonSumPt_outsideSignalCone_ * pfTau->pt())) {

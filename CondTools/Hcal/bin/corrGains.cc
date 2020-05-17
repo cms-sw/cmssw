@@ -56,8 +56,7 @@ void corrGains::analyze(edm::Event const&, edm::EventSetup const& iSetup) {
   HcalGains gainsOut(&topo);
   ;
   std::vector<DetId> channels = gainsIn.getAllChannels();
-  for (unsigned int i = 0; i < channels.size(); i++) {
-    DetId id = channels[i];
+  for (auto id : channels) {
     float scale = 1.;
     if (corrsIn.exists(id))
       scale = corrsIn.getValues(id)->getValue();

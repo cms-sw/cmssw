@@ -70,8 +70,8 @@ private:
 TPGCheck::TPGCheck(const edm::ParameterSet &iConfig) {
   // now do what ever initialization is needed
 
-  ecal_parts_.push_back("Barrel");
-  ecal_parts_.push_back("Endcap");
+  ecal_parts_.emplace_back("Barrel");
+  ecal_parts_.emplace_back("Endcap");
 
   histFile_ = new TFile("histos.root", "RECREATE");
   for (unsigned int i = 0; i < 2; ++i) {

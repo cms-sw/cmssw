@@ -14,7 +14,7 @@ public:
   HGCalStringToEnumParser(void);
 
   T parseString(const std::string &value) {
-    typename std::map<std::string, T>::const_iterator itr = enumMap.find(value);
+    auto itr = enumMap.find(value);
     if (itr == enumMap.end())
       throw cms::Exception("Configuration") << "the value " << value << " is not defined.";
     return itr->second;

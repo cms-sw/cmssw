@@ -63,17 +63,17 @@ void SiStripTrivialDigiSource::produce(edm::Event& event, const edm::EventSetup&
   auto fed_ids = cabling->fedIds();
 
   // Iterate through fed ids and channels
-  for (auto ifed = fed_ids.begin(); ifed != fed_ids.end(); ifed++) {
-    auto conns = cabling->fedConnections(*ifed);
-    for (auto iconn = conns.begin(); iconn != conns.end(); iconn++) {
+  for (unsigned short fed_id : fed_ids) {
+    auto conns = cabling->fedConnections(fed_id);
+    for (const auto& conn : conns) {
       // Build FED key
-      uint32_t fed_key = ((iconn->fedId() & sistrip::invalid_) << 16) | (iconn->fedCh() & sistrip::invalid_);
+      uint32_t fed_key = ((conn.fedId() & sistrip::invalid_) << 16) | (conn.fedCh() & sistrip::invalid_);
 
       // Determine key (FED key or DetId) to index DSV
-      uint32_t key = useFedKey_ ? fed_key : iconn->detId();
+      uint32_t key = useFedKey_ ? fed_key : conn.detId();
 
       // Determine APV pair number
-      uint16_t ipair = useFedKey_ ? 0 : iconn->apvPairNumber();
+      uint16_t ipair = useFedKey_ ? 0 : conn.apvPairNumber();
 
       // Check key is non-zero and valid
       if (!key || (key == sistrip::invalid32_)) {
@@ -106,14 +106,14 @@ void SiStripTrivialDigiSource::produce(edm::Event& event, const edm::EventSetup&
         uint16_t adc = static_cast<uint16_t>(256. * CLHEP::RandFlat::shoot());
 
         // Generate and check strip number
-        uint16_t nstrips = iconn->nDetStrips();
+        uint16_t nstrips = conn.nDetStrips();
         uint16_t strip = str + 256 * ipair;
         if (strip >= nstrips) {
           continue;
         }
 
         // Create digi object
-        std::vector<uint16_t>::iterator iter = find(used_strips.begin(), used_strips.end(), strip);
+        auto iter = find(used_strips.begin(), used_strips.end(), strip);
         if (iter == used_strips.end() && adc) {  // require non-zero adc!
           uint16_t level = raw_ ? ped_ + adc : adc;
           zs.data.push_back(SiStripDigi(strip, level));
@@ -144,8 +144,8 @@ void SiStripTrivialDigiSource::produce(edm::Event& event, const edm::EventSetup&
     sorted_and_merged.reserve(zero_suppr_vector.size());
 
     edm::det_id_type old_id = 0;
-    std::vector<edm::DetSet<SiStripDigi>>::iterator ii = zero_suppr_vector.begin();
-    std::vector<edm::DetSet<SiStripDigi>>::iterator jj = zero_suppr_vector.end();
+    auto ii = zero_suppr_vector.begin();
+    auto jj = zero_suppr_vector.end();
     for (; ii != jj; ++ii) {
       if (old_id == ii->detId()) {
         sorted_and_merged.back().data.insert(sorted_and_merged.back().end(), ii->begin(), ii->end());
@@ -155,8 +155,8 @@ void SiStripTrivialDigiSource::produce(edm::Event& event, const edm::EventSetup&
       }
     }
 
-    std::vector<edm::DetSet<SiStripDigi>>::iterator iii = sorted_and_merged.begin();
-    std::vector<edm::DetSet<SiStripDigi>>::iterator jjj = sorted_and_merged.end();
+    auto iii = sorted_and_merged.begin();
+    auto jjj = sorted_and_merged.end();
     for (; iii != jjj; ++iii) {
       std::sort(iii->begin(), iii->end());
     }

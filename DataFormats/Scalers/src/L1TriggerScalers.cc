@@ -41,7 +41,7 @@ L1TriggerScalers::L1TriggerScalers()
 L1TriggerScalers::L1TriggerScalers(const unsigned char* rawData) {
   L1TriggerScalers();
 
-  struct ScalersEventRecordRaw_v1 const* raw = reinterpret_cast<struct ScalersEventRecordRaw_v1 const*>(rawData);
+  auto const* raw = reinterpret_cast<struct ScalersEventRecordRaw_v1 const*>(rawData);
 
   trigType_ = (raw->header >> 56) & 0xFULL;
   eventID_ = (raw->header >> 32) & 0x00FFFFFFULL;
@@ -83,12 +83,12 @@ L1TriggerScalers::L1TriggerScalers(const unsigned char* rawData) {
     collectionTimeDetails_.set_tv_sec(static_cast<long>(raw->trig.collectionTimeDetails_sec));
     collectionTimeDetails_.set_tv_nsec(raw->trig.collectionTimeDetails_nsec);
 
-    for (int i = 0; i < ScalersRaw::N_L1_TRIGGERS_v1; i++) {
-      triggers_.push_back(raw->trig.ALGO_RATE[i]);
+    for (unsigned int i : raw->trig.ALGO_RATE) {
+      triggers_.push_back(i);
     }
 
-    for (int i = 0; i < ScalersRaw::N_L1_TEST_TRIGGERS_v1; i++) {
-      testTriggers_.push_back(raw->trig.TEST_RATE[i]);
+    for (unsigned int i : raw->trig.TEST_RATE) {
+      testTriggers_.push_back(i);
     }
   }
 }

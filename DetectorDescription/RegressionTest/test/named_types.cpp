@@ -32,7 +32,7 @@ int main() {
   m["first"] = 1.1;
   m["second"] = 0.9;
   m["third"] = 0.001;
-  dd_map_type::iterator it(m.begin()), ed(m.end());
+  auto it(m.begin()), ed(m.end());
   for (; it != ed; ++it) {
     cout << it->first << ':' << it->second << ' ';
   }

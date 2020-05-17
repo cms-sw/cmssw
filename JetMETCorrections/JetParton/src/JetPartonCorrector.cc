@@ -99,7 +99,7 @@ namespace JetPartonNamespace {
 
   class JetPartonCalibrationParameterSet {
   public:
-    JetPartonCalibrationParameterSet(string tag);
+    JetPartonCalibrationParameterSet(const string& tag);
     int neta() { return etavector.size(); }
     double eta(int ieta) { return etavector[ieta]; }
     int type(int ieta) { return typevector[ieta]; }
@@ -112,7 +112,7 @@ namespace JetPartonNamespace {
     vector<vector<double> > pars;
   };
 
-  JetPartonCalibrationParameterSet::JetPartonCalibrationParameterSet(string tag) {
+  JetPartonCalibrationParameterSet::JetPartonCalibrationParameterSet(const string& tag) {
     std::string file = "JetMETCorrections/JetParton/data/" + tag + ".txt";
 
     edm::FileInPath f1(file);
@@ -130,7 +130,7 @@ namespace JetPartonNamespace {
       linestream >> par >> type;
       etavector.push_back(par);
       typevector.push_back(type);
-      pars.push_back(vector<double>());
+      pars.emplace_back();
       while (linestream >> par)
         pars.back().push_back(par);
     }
@@ -147,11 +147,13 @@ JetPartonCorrector::JetPartonCorrector(const edm::ParameterSet& fConfig) {
 }
 
 JetPartonCorrector::~JetPartonCorrector() {
-  for (ParametersMap::iterator ip = parametrization.begin(); ip != parametrization.end(); ip++)
-    delete ip->second;
+  for (auto& ip : parametrization)
+    delete ip.second;
 }
 
-void JetPartonCorrector::setParameters(std::string aCalibrationType, double aJetFinderRadius, int aPartonMixture) {
+void JetPartonCorrector::setParameters(const std::string& aCalibrationType,
+                                       double aJetFinderRadius,
+                                       int aPartonMixture) {
   theJetFinderRadius = aJetFinderRadius;
   thePartonMixture = aPartonMixture;
 
@@ -205,7 +207,7 @@ double JetPartonCorrector::correction(const LorentzVector& fJet) const {
   //if(eta<10) { eta=abs(fJet.getY()); }
 
   double etnew;
-  std::map<double, JetPartonNamespace::ParametrizationJetParton*>::const_iterator ip = parametrization.upper_bound(eta);
+  auto ip = parametrization.upper_bound(eta);
   if (ip == parametrization.begin()) {
     etnew = ip->second->value(et, eta);
   } else if (ip == parametrization.end()) {

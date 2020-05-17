@@ -89,7 +89,8 @@ private:
   std::pair<TrajectoryStateOnSurface, double> convoluteWithMaterial(
       const std::pair<TrajectoryStateOnSurface, double>&) const;
   /// Convolution of state with material effects
-  TrajectoryStateOnSurface convoluteStateWithMaterial(const TrajectoryStateOnSurface, const PropagationDirection) const;
+  TrajectoryStateOnSurface convoluteStateWithMaterial(const TrajectoryStateOnSurface&,
+                                                      const PropagationDirection) const;
   /// Inclusion of material at the source?
   bool materialAtSource() const;
 

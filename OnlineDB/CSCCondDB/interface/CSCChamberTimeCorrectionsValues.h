@@ -62,7 +62,7 @@ inline CSCChamberTimeCorrections *CSCChamberTimeCorrectionsValues::prefill(bool 
   const int MAX_SIZE = 540;
   //const int MAX_SHORT= 32767;
 
-  CSCChamberTimeCorrections *chamberObj = new CSCChamberTimeCorrections();
+  auto *chamberObj = new CSCChamberTimeCorrections();
 
   int i;  //i - chamber index.
   int count = 0;

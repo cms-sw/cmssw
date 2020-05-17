@@ -9,7 +9,7 @@
 #include <iomanip>
 #include <sstream>
 #include <string>
-#include <time.h>
+#include <ctime>
 #include <algorithm>
 
 using namespace sistrip;
@@ -62,8 +62,8 @@ void perfSiStripFecKey::analyze(const edm::Event& event, const edm::EventSetup& 
 // -----------------------------------------------------------------------------
 //
 void perfSiStripFecKey::build(const std::vector<Value>& input) const {
-  std::vector<Value>::const_iterator iter = input.begin();
-  std::vector<Value>::const_iterator jter = input.end();
+  auto iter = input.begin();
+  auto jter = input.end();
   for (; iter != jter; ++iter) {
     SiStripFecKey(iter->crate_, iter->slot_, iter->ring_, iter->ccu_, iter->module_, iter->lld_, iter->i2c_);
   }
@@ -72,8 +72,8 @@ void perfSiStripFecKey::build(const std::vector<Value>& input) const {
 // -----------------------------------------------------------------------------
 //
 void perfSiStripFecKey::build(const std::vector<uint32_t>& input) const {
-  std::vector<uint32_t>::const_iterator iter = input.begin();
-  std::vector<uint32_t>::const_iterator jter = input.end();
+  auto iter = input.begin();
+  auto jter = input.end();
   for (; iter != jter; ++iter) {
     SiStripFecKey key(*iter);
   }
@@ -82,8 +82,8 @@ void perfSiStripFecKey::build(const std::vector<uint32_t>& input) const {
 // -----------------------------------------------------------------------------
 //
 void perfSiStripFecKey::build(const std::vector<std::string>& input) const {
-  std::vector<std::string>::const_iterator iter = input.begin();
-  std::vector<std::string>::const_iterator jter = input.end();
+  auto iter = input.begin();
+  auto jter = input.end();
   for (; iter != jter; ++iter) {
     SiStripFecKey key(*iter);
   }
@@ -92,8 +92,8 @@ void perfSiStripFecKey::build(const std::vector<std::string>& input) const {
 // -----------------------------------------------------------------------------
 //
 void perfSiStripFecKey::build(const std::vector<SiStripFecKey>& input) const {
-  std::vector<SiStripFecKey>::const_iterator iter = input.begin();
-  std::vector<SiStripFecKey>::const_iterator jter = input.end();
+  auto iter = input.begin();
+  auto jter = input.end();
   for (; iter != jter; ++iter) {
     SiStripFecKey key(*iter);
   }
@@ -102,8 +102,8 @@ void perfSiStripFecKey::build(const std::vector<SiStripFecKey>& input) const {
 // -----------------------------------------------------------------------------
 //
 void perfSiStripFecKey::build(const std::vector<SiStripKey>& input) const {
-  std::vector<SiStripKey>::const_iterator iter = input.begin();
-  std::vector<SiStripKey>::const_iterator jter = input.end();
+  auto iter = input.begin();
+  auto jter = input.end();
   for (; iter != jter; ++iter) {
     SiStripFecKey key(*iter);
   }
@@ -112,8 +112,8 @@ void perfSiStripFecKey::build(const std::vector<SiStripKey>& input) const {
 // -----------------------------------------------------------------------------
 //
 void perfSiStripFecKey::test(const std::vector<SiStripFecKey>& input) const {
-  std::vector<SiStripFecKey>::const_iterator iter = input.begin();
-  std::vector<SiStripFecKey>::const_iterator jter = input.end();
+  auto iter = input.begin();
+  auto jter = input.end();
   for (; iter != jter; ++iter) {
     iter->fecCrate();
     iter->fecSlot();
@@ -179,17 +179,17 @@ void perfSiStripFecKey::build(std::vector<Value>& values,
                   }
 
                   SiStripFecKey key(icrate, ifec, iring, iccu, ichan, illd, iapv);
-                  values.push_back(Value(key.fecCrate(),
-                                         key.fecSlot(),
-                                         key.fecRing(),
-                                         key.ccuAddr(),
-                                         key.ccuChan(),
-                                         key.lldChan(),
-                                         key.i2cAddr()));
+                  values.emplace_back(key.fecCrate(),
+                                      key.fecSlot(),
+                                      key.fecRing(),
+                                      key.ccuAddr(),
+                                      key.ccuChan(),
+                                      key.lldChan(),
+                                      key.i2cAddr());
                   keys.push_back(key.key());
                   paths.push_back(key.path());
                   derived.push_back(key);
-                  base.push_back(SiStripKey(key.key()));
+                  base.emplace_back(key.key());
                 }
               }
             }

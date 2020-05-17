@@ -36,7 +36,7 @@ private:
   const CheckSecondary &operator=(const CheckSecondary &) = delete;
 
   // observer classes
-  TTree *bookTree(std::string);
+  TTree *bookTree(const std::string &);
   void endTree();
   void update(const BeginOfEvent *evt) override;
   void update(const BeginOfTrack *trk) override;

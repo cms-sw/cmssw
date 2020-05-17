@@ -138,7 +138,7 @@ private:
       return latencies_.end();
     }
     uint32_t detIdAndApv = (detId << 3) | apv;
-    latConstIt pos = lower_bound(latencies_.begin(), latencies_.end(), detIdAndApv, OrderByDetIdAndApv());
+    auto pos = lower_bound(latencies_.begin(), latencies_.end(), detIdAndApv, OrderByDetIdAndApv());
     return pos;
   }
   std::vector<Latency> latencies_;

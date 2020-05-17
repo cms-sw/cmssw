@@ -28,7 +28,7 @@ public:
   L1ValidatorHists();
   ~L1ValidatorHists();
 
-  void Book(DQMStore::IBooker &, std::string dirname);
+  void Book(DQMStore::IBooker &, const std::string &dirname);
   void Write();
 
   int NEvents;

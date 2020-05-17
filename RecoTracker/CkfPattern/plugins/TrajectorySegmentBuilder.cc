@@ -62,7 +62,7 @@ namespace {
 
 using namespace std;
 
-TrajectorySegmentBuilder::TempTrajectoryContainer TrajectorySegmentBuilder::segments(const TSOS startingState) {
+TrajectorySegmentBuilder::TempTrajectoryContainer TrajectorySegmentBuilder::segments(const TSOS& startingState) {
   //
   // create empty trajectory
   //
@@ -188,13 +188,13 @@ TrajectorySegmentBuilder::TempTrajectoryContainer TrajectorySegmentBuilder::segm
   return candidates;
 }
 
-void TrajectorySegmentBuilder::updateTrajectory(TempTrajectory& traj, TM tm) const {
+void TrajectorySegmentBuilder::updateTrajectory(TempTrajectory& traj, const TM& tm) const {
   auto&& predictedState = tm.predictedState();
   auto&& hit = tm.recHit();
 
   if (hit->isValid()) {
     auto&& upState = theUpdator.update(predictedState, *hit);
-    traj.emplace(std::move(predictedState), std::move(upState), std::move(hit), tm.estimate(), tm.layer());
+    traj.emplace(predictedState, std::move(upState), hit, tm.estimate(), tm.layer());
 
     //     TrajectoryMeasurement tm(traj.lastMeasurement());
     //     if ( tm.updatedState().isValid() ) {
@@ -209,7 +209,7 @@ void TrajectorySegmentBuilder::updateTrajectory(TempTrajectory& traj, TM tm) con
     //       }
     //     }
   } else {
-    traj.emplace(std::move(predictedState), std::move(hit), 0, tm.layer());
+    traj.emplace(predictedState, hit, 0, tm.layer());
   }
 }
 
@@ -252,7 +252,7 @@ TrajectorySegmentBuilder::TempTrajectoryContainer TrajectorySegmentBuilder::addG
       if (theBestHitOnly) {
         updateCandidatesWithBestHit(traj, std::move(meas.front()), updatedTrajectories);
       } else {
-        updateCandidates(traj, std::move(meas), updatedTrajectories);
+        updateCandidates(traj, meas, updatedTrajectories);
       }
       if
         UNLIKELY(theDbgFlg)
@@ -314,12 +314,12 @@ void TrajectorySegmentBuilder::updateCandidates(TempTrajectory const& traj,
   //
   // generate updated candidates with all valid hits
   //
-  for (auto im = measurements.begin(); im != measurements.end(); ++im) {
-    if (im->recHit()->isValid()) {
+  for (const auto& measurement : measurements) {
+    if (measurement.recHit()->isValid()) {
       candidates.push_back(traj);
-      updateTrajectory(candidates.back(), *im);
+      updateTrajectory(candidates.back(), measurement);
       if (theLockHits)
-        lockMeasurement(*im);
+        lockMeasurement(measurement);
     }
   }
 }

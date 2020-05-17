@@ -9,7 +9,7 @@
 #include <iomanip>
 #include <sstream>
 #include <string>
-#include <time.h>
+#include <ctime>
 
 using namespace sistrip;
 
@@ -31,7 +31,7 @@ testSiStripFedKey::~testSiStripFedKey() {
 //
 void testSiStripFedKey::beginJob() {
   uint32_t cntr = 0;
-  uint32_t start = time(NULL);
+  uint32_t start = time(nullptr);
 
   edm::LogInfo(mlDqmCommon_) << "[SiStripFedKey::" << __func__ << "]"
                              << " Tests the generation of keys...";
@@ -106,8 +106,8 @@ void testSiStripFedKey::beginJob() {
   }
 
   edm::LogVerbatim(mlDqmCommon_) << "[SiStripFedKey::" << __func__ << "]"
-                                 << " Processed " << cntr << " FedKeys in " << (time(NULL) - start)
-                                 << " seconds at an average rate of " << (cntr * 1.) / ((time(NULL) - start) * 1.)
+                                 << " Processed " << cntr << " FedKeys in " << (time(nullptr) - start)
+                                 << " seconds at an average rate of " << (cntr * 1.) / ((time(nullptr) - start) * 1.)
                                  << " per second...";
 
   // Tests for utility methods
@@ -116,8 +116,8 @@ void testSiStripFedKey::beginJob() {
   SiStripFedKey inv(sistrip::invalid_, sistrip::invalid_, sistrip::invalid_, sistrip::invalid_);
   SiStripFedKey valid(51, 1, 1, 1);
   SiStripFedKey all(0, 0, 0, 0);
-  SiStripFedKey same(valid);
-  SiStripFedKey equal = valid;
+  const SiStripFedKey& same(valid);
+  const SiStripFedKey& equal = valid;
   SiStripFedKey equals;
   equals = valid;
 

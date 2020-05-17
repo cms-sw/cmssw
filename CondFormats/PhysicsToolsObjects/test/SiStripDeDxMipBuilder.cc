@@ -16,8 +16,7 @@ void SiStripDeDxMipBuilder::analyze(const edm::Event& evt, const edm::EventSetup
       << "... creating dummy PhysicsToolsObjects::Calibration::HistogramD2D Data for Run " << run << "\n " << std::endl;
 
   //  PhysicsToolsObjects::Calibration::HistogramD2D* obj = new PhysicsTools::Calibration::HistogramD2D(300, 0., 3., 1000,0.,1000.);
-  PhysicsTools::Calibration::HistogramD2D* obj =
-      new PhysicsTools::Calibration::HistogramD2D(300, 0., 3., 1000, 0., 1000.);
+  auto* obj = new PhysicsTools::Calibration::HistogramD2D(300, 0., 3., 1000, 0., 1000.);
 
   for (int ix = 0; ix < 300; ix++) {
     for (int iy = 0; iy < 1000; iy++) {

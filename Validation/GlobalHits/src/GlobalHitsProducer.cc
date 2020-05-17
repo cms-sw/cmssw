@@ -177,18 +177,18 @@ void GlobalHitsProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSet
     if (printProvenanceInfo && (verbosity >= 0)) {
       TString eventout("\nProvenance info:\n");
 
-      for (unsigned int i = 0; i < AllProv.size(); ++i) {
+      for (auto &i : AllProv) {
         eventout += "\n       ******************************";
         eventout += "\n       Module       : ";
-        eventout += AllProv[i]->moduleLabel();
+        eventout += i->moduleLabel();
         eventout += "\n       ProductID    : ";
-        eventout += AllProv[i]->productID().id();
+        eventout += i->productID().id();
         eventout += "\n       ClassName    : ";
-        eventout += AllProv[i]->className();
+        eventout += i->className();
         eventout += "\n       InstanceName : ";
-        eventout += AllProv[i]->productInstanceName();
+        eventout += i->productInstanceName();
         eventout += "\n       BranchName   : ";
-        eventout += AllProv[i]->branchName();
+        eventout += i->branchName();
       }
       eventout += "\n       ******************************\n";
       edm::LogInfo(MsgLoggerCat) << eventout << "\n";
@@ -253,8 +253,8 @@ void GlobalHitsProducer::fillG4MC(edm::Event &iEvent) {
 
   // loop through products and extract VtxSmearing if available. Any of them
   // should have the information needed
-  for (unsigned int i = 0; i < AllHepMCEvt.size(); ++i) {
-    HepMCEvt = AllHepMCEvt[i];
+  for (const auto &i : AllHepMCEvt) {
+    HepMCEvt = i;
     if ((HepMCEvt.provenance()->branchDescription()).moduleLabel() == "generatorSmeared")
       break;
   }

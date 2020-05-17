@@ -84,7 +84,7 @@ public:
   /*
    *  Set to string of format YYYY-MM-DD HH:MM:SS
    */
-  void setToString(const std::string s) noexcept(false);
+  void setToString(const std::string &s) noexcept(false);
 
   void dumpTm();
 

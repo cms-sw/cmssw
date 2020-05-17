@@ -122,7 +122,7 @@ void EgammaEcalRecHitIsolationProducer::produce(edm::Event& iEvent, const edm::E
     //then we either get the isolation Et or isolation Energy depending on user selection
     double isoValue = 0.;
 
-    reco::SuperClusterRef superClus = emObjectHandle->at(i).get<reco::SuperClusterRef>();
+    auto superClus = emObjectHandle->at(i).get<reco::SuperClusterRef>();
 
     if (tryBoth_) {  //barrel + endcap
       if (useIsolEt_)

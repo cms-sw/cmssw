@@ -46,34 +46,33 @@ PixelTBMSettings::PixelTBMSettings(std::vector<std::vector<std::string> > &table
      N.B.: Here we should (MUST) get a single row referring to a particula module for a particula version.
   */
 
-  colNames.push_back("CONFIG_KEY");
-  colNames.push_back("KEY_TYPE");
-  colNames.push_back("KEY_ALIAS");
-  colNames.push_back("VERSION");
-  colNames.push_back("KIND_OF_COND");
-  colNames.push_back("TBM_NAME");
-  colNames.push_back("MODULE_NAME");
-  colNames.push_back("HUB_ADDRS");
-  colNames.push_back("TBM_MODE");
-  colNames.push_back("ANLG_INBIAS_ADDR");
-  colNames.push_back("ANLG_INBIAS_VAL");
-  colNames.push_back("ANLG_OUTBIAS_ADDR");
-  colNames.push_back("ANLG_OUTBIAS_VAL");
-  colNames.push_back("ANLG_OUTGAIN_ADDR");
-  colNames.push_back("ANLG_OUTGAIN_VAL");
+  colNames.emplace_back("CONFIG_KEY");
+  colNames.emplace_back("KEY_TYPE");
+  colNames.emplace_back("KEY_ALIAS");
+  colNames.emplace_back("VERSION");
+  colNames.emplace_back("KIND_OF_COND");
+  colNames.emplace_back("TBM_NAME");
+  colNames.emplace_back("MODULE_NAME");
+  colNames.emplace_back("HUB_ADDRS");
+  colNames.emplace_back("TBM_MODE");
+  colNames.emplace_back("ANLG_INBIAS_ADDR");
+  colNames.emplace_back("ANLG_INBIAS_VAL");
+  colNames.emplace_back("ANLG_OUTBIAS_ADDR");
+  colNames.emplace_back("ANLG_OUTBIAS_VAL");
+  colNames.emplace_back("ANLG_OUTGAIN_ADDR");
+  colNames.emplace_back("ANLG_OUTGAIN_VAL");
 
   for (unsigned int c = 0; c < ins.size(); c++) {
-    for (unsigned int n = 0; n < colNames.size(); n++) {
-      if (tableMat[0][c] == colNames[n]) {
-        colM[colNames[n]] = c;
+    for (const auto &colName : colNames) {
+      if (tableMat[0][c] == colName) {
+        colM[colName] = c;
         break;
       }
     }
   }  //end for
-  for (unsigned int n = 0; n < colNames.size(); n++) {
-    if (colM.find(colNames[n]) == colM.end()) {
-      std::cerr << __LINE__ << mthn << "Couldn't find in the database the column with name " << colNames[n]
-                << std::endl;
+  for (const auto &colName : colNames) {
+    if (colM.find(colName) == colM.end()) {
+      std::cerr << __LINE__ << mthn << "Couldn't find in the database the column with name " << colName << std::endl;
       assert(0);
     }
   }
@@ -186,7 +185,7 @@ PixelTBMSettings::PixelTBMSettings(std::string filename) : PixelConfigBase("", "
   }
 }
 
-void PixelTBMSettings::setTBMGenericValue(std::string what, int value) {
+void PixelTBMSettings::setTBMGenericValue(const std::string &what, int value) {
   if (what == "analogInputBias") {
     analogInputBias_ = (unsigned char)value;
   } else if (what == "analogOutputBias") {
@@ -202,7 +201,7 @@ void PixelTBMSettings::setTBMGenericValue(std::string what, int value) {
   }
 }
 
-void PixelTBMSettings::writeBinary(std::string filename) const {
+void PixelTBMSettings::writeBinary(const std::string &filename) const {
   std::ofstream out(filename.c_str(), std::ios::binary);
 
   out << (char)rocid_.rocname().size();

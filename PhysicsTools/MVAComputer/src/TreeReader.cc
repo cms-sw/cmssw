@@ -57,7 +57,7 @@ namespace PhysicsTools {
     upToDate = false;
   }
 
-  void TreeReader::addBranch(const std::string &expression, AtomicId name, bool opt) {
+  void TreeReader::addBranch(const std::string &expression, const AtomicId &name, bool opt) {
     if (!tree)
       throw cms::Exception("NoTreeAvailable") << "No TTree set in TreeReader::addBranch." << std::endl;
 
@@ -114,8 +114,8 @@ namespace PhysicsTools {
     valueMap[name].setBranchName(branch->GetName());
   }
 
-  void TreeReader::setOptional(AtomicId name, bool opt, double optVal) {
-    std::map<AtomicId, Value>::iterator pos = valueMap.find(name);
+  void TreeReader::setOptional(const AtomicId &name, bool opt, double optVal) {
+    auto pos = valueMap.find(name);
     if (pos == valueMap.end())
       throw cms::Exception("UnknownVariable") << "Variable \"" << name
                                               << "\" is not known to the "
@@ -125,8 +125,8 @@ namespace PhysicsTools {
     pos->second.setOpt(opt, optVal);
   }
 
-  void TreeReader::addTypeSingle(AtomicId name, const void *value, char type, bool opt) {
-    std::map<AtomicId, Value>::const_iterator pos = valueMap.find(name);
+  void TreeReader::addTypeSingle(const AtomicId &name, const void *value, char type, bool opt) {
+    auto pos = valueMap.find(name);
     if (pos != valueMap.end())
       throw cms::Exception("DuplicateVariable") << "Duplicate Variable \"" << name << "\"." << std::endl;
 
@@ -153,7 +153,7 @@ namespace PhysicsTools {
           break;
         case 'B':
           index = (int)singleBool.size();
-          singleBool.push_back(Bool());
+          singleBool.emplace_back();
           break;
       }
     }
@@ -170,8 +170,8 @@ namespace PhysicsTools {
     return std::pair<void *, std::vector<T> >(nullptr, std::vector<T>());
   }
 
-  void TreeReader::addTypeMulti(AtomicId name, const void *value, char type) {
-    std::map<AtomicId, Value>::const_iterator pos = valueMap.find(name);
+  void TreeReader::addTypeMulti(const AtomicId &name, const void *value, char type) {
+    auto pos = valueMap.find(name);
     if (pos != valueMap.end())
       throw cms::Exception("DuplicateVariable") << "Duplicate Variable \"" << name << "\"." << std::endl;
 
@@ -251,8 +251,8 @@ namespace PhysicsTools {
     if (!tree)
       throw cms::Exception("NoTreeAvailable") << "No TTree set in TreeReader::automaticAdd." << std::endl;
 
-    for (std::map<AtomicId, Value>::iterator iter = valueMap.begin(); iter != valueMap.end(); iter++)
-      iter->second.update(this);
+    for (auto &iter : valueMap)
+      iter.second.update(this);
 
     upToDate = true;
   }
@@ -274,7 +274,7 @@ namespace PhysicsTools {
   }
 
   double TreeReader::fill(const MVAComputer *mva) {
-    for (std::map<AtomicId, Value>::const_iterator iter = valueMap.begin(); iter != valueMap.end(); iter++)
+    for (auto iter = valueMap.begin(); iter != valueMap.end(); iter++)
       iter->second.fill(iter->first, this);
 
     double result = mva->eval(values);
@@ -284,7 +284,7 @@ namespace PhysicsTools {
   }
 
   Variable::ValueList TreeReader::fill() {
-    for (std::map<AtomicId, Value>::const_iterator iter = valueMap.begin(); iter != valueMap.end(); iter++)
+    for (auto iter = valueMap.begin(); iter != valueMap.end(); iter++)
       iter->second.fill(iter->first, this);
 
     Variable::ValueList result = values;
@@ -295,8 +295,8 @@ namespace PhysicsTools {
 
   std::vector<AtomicId> TreeReader::variables() const {
     std::vector<AtomicId> result;
-    for (std::map<AtomicId, Value>::const_iterator iter = valueMap.begin(); iter != valueMap.end(); iter++)
-      result.push_back(iter->first);
+    for (const auto &iter : valueMap)
+      result.push_back(iter.first);
 
     return result;
   }
@@ -345,39 +345,39 @@ namespace PhysicsTools {
     reader->tree->SetBranchAddress(name, value);
   }
 
-  void TreeReader::Value::fill(AtomicId name, TreeReader *reader) const {
+  void TreeReader::Value::fill(const AtomicId &name, TreeReader *reader) const {
     if (multiple) {
       switch (type) {
         case 'D': {
-          const std::vector<Double_t> *values = static_cast<const std::vector<Double_t> *>(ptr);
+          const auto *values = static_cast<const std::vector<Double_t> *>(ptr);
           if (!values)
             values = &reader->multiDouble[index].second;
-          for (std::vector<Double_t>::const_iterator iter = values->begin(); iter != values->end(); iter++)
-            reader->values.add(name, *iter);
+          for (double value : *values)
+            reader->values.add(name, value);
           break;
         }
         case 'F': {
-          const std::vector<Float_t> *values = static_cast<const std::vector<Float_t> *>(ptr);
+          const auto *values = static_cast<const std::vector<Float_t> *>(ptr);
           if (!values)
             values = &reader->multiFloat[index].second;
-          for (std::vector<Float_t>::const_iterator iter = values->begin(); iter != values->end(); iter++)
-            reader->values.add(name, *iter);
+          for (float value : *values)
+            reader->values.add(name, value);
           break;
         }
         case 'I': {
-          const std::vector<Int_t> *values = static_cast<const std::vector<Int_t> *>(ptr);
+          const auto *values = static_cast<const std::vector<Int_t> *>(ptr);
           if (!values)
             values = &reader->multiInt[index].second;
-          for (std::vector<Int_t>::const_iterator iter = values->begin(); iter != values->end(); iter++)
-            reader->values.add(name, *iter);
+          for (int value : *values)
+            reader->values.add(name, value);
           break;
         }
         case 'B': {
-          const std::vector<Bool_t> *values = static_cast<const std::vector<Bool_t> *>(ptr);
+          const auto *values = static_cast<const std::vector<Bool_t> *>(ptr);
           if (!values)
             values = &reader->multiBool[index].second;
-          for (std::vector<Bool_t>::const_iterator iter = values->begin(); iter != values->end(); iter++)
-            reader->values.add(name, *iter);
+          for (std::_Bit_const_iterator::const_reference value : *values)
+            reader->values.add(name, value);
           break;
         }
       }

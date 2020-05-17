@@ -89,7 +89,8 @@ GlobalLogicParser::GlobalLogicParser(std::string& logicalExpressionVal) {
 }
 
 //   from a logical and a numerical expression
-GlobalLogicParser::GlobalLogicParser(const std::string logicalExpressionVal, const std::string numericalExpressionVal) {
+GlobalLogicParser::GlobalLogicParser(const std::string& logicalExpressionVal,
+                                     const std::string& numericalExpressionVal) {
   // checks also for correctness
 
   if (!setLogicalExpression(logicalExpressionVal)) {
@@ -342,10 +343,10 @@ bool GlobalLogicParser::buildRpnVector(const std::string& logicalExpressionVal) 
 
   // count all operations and check if the result is 1
   int counter = 0;
-  for (RpnVector::iterator it = m_rpnVector.begin(); it != m_rpnVector.end(); it++) {
-    if (it->operation == OP_OPERAND)
+  for (auto& it : m_rpnVector) {
+    if (it.operation == OP_OPERAND)
       counter++;
-    if (it->operation == OP_OR || it->operation == OP_AND || it->operation == OP_XOR)
+    if (it.operation == OP_OR || it.operation == OP_AND || it.operation == OP_XOR)
       counter--;
     if (counter < 1) {
       edm::LogError("L1TGlobal") << "\nLogical expression = '" << logicalExpressionVal << "'"
@@ -386,16 +387,16 @@ void GlobalLogicParser::buildOperandTokenVector() {
 
   int opNumber = 0;
 
-  for (RpnVector::const_iterator it = m_rpnVector.begin(); it != m_rpnVector.end(); it++) {
+  for (const auto& it : m_rpnVector) {
     //LogTrace("L1TGlobal")
     //<< "\nit->operation = " << it->operation
     //<< "\nit->operand =   '" << it->operand << "'\n"
     //<< std::endl;
 
-    switch (it->operation) {
+    switch (it.operation) {
       case OP_OPERAND: {
         OperandToken opToken;
-        opToken.tokenName = it->operand;
+        opToken.tokenName = it.operand;
         opToken.tokenNumber = opNumber;
         opToken.tokenResult = false;
 
@@ -558,9 +559,9 @@ std::string GlobalLogicParser::operandName(const int iOperand) const {
 // return the result for an operand with name operandNameVal
 // in the logical expression using the operand token vector
 bool GlobalLogicParser::operandResult(const std::string& operandNameVal) const {
-  for (size_t i = 0; i < m_operandTokenVector.size(); ++i) {
-    if ((m_operandTokenVector[i]).tokenName == operandNameVal) {
-      return (m_operandTokenVector[i]).tokenResult;
+  for (const auto& i : m_operandTokenVector) {
+    if (i.tokenName == operandNameVal) {
+      return i.tokenResult;
     }
   }
 
@@ -574,9 +575,9 @@ bool GlobalLogicParser::operandResult(const std::string& operandNameVal) const {
 // return the result for an operand with tokenNumberVal
 // using the operand token vector
 bool GlobalLogicParser::operandResult(const int tokenNumberVal) const {
-  for (size_t i = 0; i < m_operandTokenVector.size(); ++i) {
-    if ((m_operandTokenVector[i]).tokenNumber == tokenNumberVal) {
-      return (m_operandTokenVector[i]).tokenResult;
+  for (const auto& i : m_operandTokenVector) {
+    if (i.tokenNumber == tokenNumberVal) {
+      return i.tokenResult;
     }
   }
 
@@ -606,15 +607,15 @@ const bool GlobalLogicParser::expressionResult() const {
   std::stack<bool> resultStack;
   bool b1, b2;
 
-  for (RpnVector::const_iterator it = m_rpnVector.begin(); it != m_rpnVector.end(); it++) {
+  for (const auto& it : m_rpnVector) {
     //LogTrace("L1TGlobal")
     //<< "\nit->operation = " << it->operation
     //<< "\nit->operand =   '" << it->operand << "'\n"
     //<< std::endl;
 
-    switch (it->operation) {
+    switch (it.operation) {
       case OP_OPERAND: {
-        resultStack.push(operandResult(it->operand));
+        resultStack.push(operandResult(it.operand));
       }
 
       break;
@@ -778,18 +779,18 @@ void GlobalLogicParser::buildOperandTokenVectorNumExp() {
 
   int opNumber = 0;
 
-  for (RpnVector::const_iterator it = m_rpnVector.begin(); it != m_rpnVector.end(); it++) {
+  for (const auto& it : m_rpnVector) {
     //LogTrace("L1TGlobal")
     //<< "\nit->operation = " << it->operation
     //<< "\nit->operand =   '" << it->operand << "'\n"
     //<< std::endl;
 
-    switch (it->operation) {
+    switch (it.operation) {
       case OP_OPERAND: {
         OperandToken opToken;
-        opToken.tokenName = it->operand;
+        opToken.tokenName = it.operand;
         opToken.tokenNumber = opNumber;
-        opToken.tokenResult = operandResultNumExp(it->operand);
+        opToken.tokenResult = operandResultNumExp(it.operand);
 
         m_operandTokenVector.push_back(opToken);
 
@@ -844,15 +845,15 @@ const bool GlobalLogicParser::expressionResultNumExp() const {
   std::stack<bool> resultStack;
   bool b1, b2;
 
-  for (RpnVector::const_iterator it = m_rpnVector.begin(); it != m_rpnVector.end(); it++) {
+  for (const auto& it : m_rpnVector) {
     //LogTrace("L1TGlobal")
     //<< "\nit->operation = " << it->operation
     //<< "\nit->operand =   '" << it->operand << "'\n"
     //<< std::endl;
 
-    switch (it->operation) {
+    switch (it.operation) {
       case OP_OPERAND: {
-        resultStack.push(operandResultNumExp(it->operand));
+        resultStack.push(operandResultNumExp(it.operand));
       }
 
       break;
@@ -953,7 +954,7 @@ void GlobalLogicParser::convertNameToIntLogicalExpression(const std::map<std::st
     } else {
       typedef std::map<std::string, int>::const_iterator CIter;
 
-      CIter it = nameToIntMap.find(rpnToken.operand);
+      auto it = nameToIntMap.find(rpnToken.operand);
       if (it != nameToIntMap.end()) {
         intValue = it->second;
         std::stringstream intStr;
@@ -1037,7 +1038,7 @@ void GlobalLogicParser::convertIntToNameLogicalExpression(const std::map<int, st
       std::istringstream iss(rpnToken.operand);
       iss >> std::dec >> indexInt;
 
-      CIter it = intToNameMap.find(indexInt);
+      auto it = intToNameMap.find(indexInt);
       if (it != intToNameMap.end()) {
         convertedLogicalExpression.append(it->second);
 
@@ -1106,21 +1107,20 @@ std::vector<GlobalLogicParser::OperandToken> GlobalLogicParser::expressionSeedsO
   dummyToken.tokenNumber = -1;
   dummyToken.tokenResult = false;
 
-  for (RpnVector::const_iterator it = m_rpnVector.begin(); it != m_rpnVector.end(); it++) {
+  for (const auto& it : m_rpnVector) {
     //LogTrace("L1TGlobal")
     //<< "\nit->operation = " << it->operation
     //<< "\nit->operand =   '" << it->operand << "'\n"
     //<< std::endl;
 
-    switch (it->operation) {
+    switch (it.operation) {
       // RPN always start a block with an operand
       case OP_OPERAND: {
         // more blocks with operations
         // push operands from previous block, if any in the tmpVector
         // (reverse order to compensate the stack push/top/pop)
         if ((!newOperandBlock)) {
-          for (std::vector<OperandToken>::reverse_iterator itOp = tmpVector.rbegin(); itOp != tmpVector.rend();
-               itOp++) {
+          for (auto itOp = tmpVector.rbegin(); itOp != tmpVector.rend(); itOp++) {
             opVector.push_back(*itOp);
 
             //LogTrace("L1TGlobal")
@@ -1278,7 +1278,7 @@ std::vector<GlobalLogicParser::OperandToken> GlobalLogicParser::expressionSeedsO
     }
 
     //
-    for (std::vector<OperandToken>::reverse_iterator itOp = tmpVector.rbegin(); itOp != tmpVector.rend(); itOp++) {
+    for (auto itOp = tmpVector.rbegin(); itOp != tmpVector.rend(); itOp++) {
       opVector.push_back(*itOp);
 
       //LogTrace("L1TGlobal")
@@ -1291,7 +1291,7 @@ std::vector<GlobalLogicParser::OperandToken> GlobalLogicParser::expressionSeedsO
     //LogTrace("L1TGlobal")
     //        << "  More blocks:  push the last block on the seed operand list" << std::endl;
 
-    for (std::vector<OperandToken>::reverse_iterator itOp = tmpVector.rbegin(); itOp != tmpVector.rend(); itOp++) {
+    for (auto itOp = tmpVector.rbegin(); itOp != tmpVector.rend(); itOp++) {
       opVector.push_back(*itOp);
 
       //LogTrace("L1TGlobal")
@@ -1306,18 +1306,18 @@ std::vector<GlobalLogicParser::OperandToken> GlobalLogicParser::expressionSeedsO
   std::vector<OperandToken> opVectorU;
   opVectorU.reserve(opVector.size());
 
-  for (std::vector<OperandToken>::const_iterator constIt = opVector.begin(); constIt != opVector.end(); constIt++) {
+  for (const auto& constIt : opVector) {
     bool tokenIncluded = false;
 
-    for (std::vector<OperandToken>::iterator itOpU = opVectorU.begin(); itOpU != opVectorU.end(); itOpU++) {
-      if ((*itOpU).tokenName == (*constIt).tokenName) {
+    for (auto& itOpU : opVectorU) {
+      if (itOpU.tokenName == constIt.tokenName) {
         tokenIncluded = true;
         break;
       }
     }
 
     if (!tokenIncluded) {
-      opVectorU.push_back(*constIt);
+      opVectorU.push_back(constIt);
     }
   }
 

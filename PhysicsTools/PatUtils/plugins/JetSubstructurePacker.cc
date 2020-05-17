@@ -65,7 +65,7 @@ void JetSubstructurePacker::produce(edm::Event& iEvent, const edm::EventSetup&) 
           }
           for (size_t ida = 0; ida < jjet.numberOfDaughters(); ++ida) {
             reco::CandidatePtr candPtr = jjet.daughterPtr(ida);
-            nextSubjets.push_back(edm::Ptr<pat::Jet>(candPtr));
+            nextSubjets.emplace_back(candPtr);
           }
           break;
         }
@@ -83,7 +83,7 @@ void JetSubstructurePacker::produce(edm::Event& iEvent, const edm::EventSetup&) 
       jdaus.reserve(jdausPF.size());
       // Convert the daughters to packed candidates. This is easier than ref-navigating through PUPPI or CHS to particleFlow.
       for (auto const& jdau : jdausPF) {
-        jdaus.push_back(edm::refToPtr((*pf2pc)[jdau]));
+        jdaus.emplace_back(edm::refToPtr((*pf2pc)[jdau]));
       }
 
       for (const edm::Ptr<pat::Jet>& subjet : outputs->back().subjets()) {
@@ -100,7 +100,7 @@ void JetSubstructurePacker::produce(edm::Event& iEvent, const edm::EventSetup&) 
           continue;
 
         daughtersInSubjets.insert(daughtersInSubjets.end(), sjdaus.begin(), sjdaus.end());
-        daughtersNew.push_back(reco::CandidatePtr(subjet));
+        daughtersNew.emplace_back(subjet);
       }
       for (const reco::CandidatePtr& dau : jdaus) {
         if (std::find(daughtersInSubjets.begin(), daughtersInSubjets.end(), dau) == daughtersInSubjets.end()) {

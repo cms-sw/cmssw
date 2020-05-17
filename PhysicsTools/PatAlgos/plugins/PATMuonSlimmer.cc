@@ -119,8 +119,8 @@ void pat::PATMuonSlimmer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
     }
   }
 
-  for (vector<pat::Muon>::const_iterator it = src->begin(), ed = src->end(); it != ed; ++it) {
-    out->push_back(*it);
+  for (const auto &it : *src) {
+    out->push_back(it);
     pat::Muon &mu = out->back();
 
     if (modifyMuon_) {

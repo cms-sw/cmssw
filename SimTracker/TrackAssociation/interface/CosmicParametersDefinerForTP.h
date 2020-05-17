@@ -10,6 +10,8 @@
 #include "SimTracker/TrackAssociation/interface/ParametersDefinerForTP.h"
 #include <SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h>
 
+#include <memory>
+
 class CosmicParametersDefinerForTP : public ParametersDefinerForTP {
 public:
   CosmicParametersDefinerForTP(){};
@@ -43,7 +45,7 @@ public:
   }
 
   std::unique_ptr<ParametersDefinerForTP> clone() const override {
-    return std::unique_ptr<CosmicParametersDefinerForTP>(new CosmicParametersDefinerForTP(*this));
+    return std::make_unique<CosmicParametersDefinerForTP>(*this);
   }
 
 private:

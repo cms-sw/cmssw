@@ -9,6 +9,8 @@
 #ifndef DataFormats_CTPPSReco_CTPPSPixelRecHit_H
 #define DataFormats_CTPPSReco_CTPPSPixelRecHit_H
 
+#include <utility>
+
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
@@ -28,7 +30,7 @@ public:
                    int size = 0,
                    int rowsize = 0,
                    int colsize = 0)
-      : thePoint_(lp),
+      : thePoint_(std::move(lp)),
         theError_(le),
         isOnEdge_(edge),
         hasBadPixels_(bad),

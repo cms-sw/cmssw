@@ -28,9 +28,9 @@ inline void SiStripPedestalsSubtractor::subtract_(uint32_t id,
     SiStripPedestals::Range pedestalsRange = pedestalsHandle->getRange(id);
     pedestalsHandle->allPeds(pedestals, pedestalsRange);
 
-    typename input_t::const_iterator inDigi = input.begin();
-    std::vector<int>::const_iterator ped = pedestals.begin() + firstStrip;
-    std::vector<int16_t>::iterator outDigi = output.begin();
+    auto inDigi = input.begin();
+    auto ped = pedestals.begin() + firstStrip;
+    auto outDigi = output.begin();
 
     while (inDigi != input.end()) {
       *outDigi = eval(*inDigi) - *ped + ((*ped > 895) ? 1024 : 0);

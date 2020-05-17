@@ -18,8 +18,8 @@ namespace edmtest {
   public:
     explicit DTTimeUtility(edm::ParameterSet const& p);
     explicit DTTimeUtility(int i);
-    virtual ~DTTimeUtility();
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    ~DTTimeUtility() override;
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   private:
     int year;

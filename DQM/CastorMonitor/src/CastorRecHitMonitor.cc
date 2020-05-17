@@ -140,11 +140,10 @@ void CastorRecHitMonitor::processEventTowers(const reco::CastorTowerCollection &
     return;
   int nTowers = 0;
 
-  for (reco::CastorTowerCollection::const_iterator iTower = castorTowers.begin(); iTower != castorTowers.end();
-       iTower++) {
-    hTowerE->Fill(iTower->energy() * 0.001);
-    h2TowerEMhad->Fill(iTower->hadEnergy() * 0.001, iTower->emEnergy() * 0.001);
-    hTowerDepth->Fill(iTower->depth());
+  for (const auto &castorTower : castorTowers) {
+    hTowerE->Fill(castorTower.energy() * 0.001);
+    h2TowerEMhad->Fill(castorTower.hadEnergy() * 0.001, castorTower.emEnergy() * 0.001);
+    hTowerDepth->Fill(castorTower.depth());
     nTowers++;
   }
   hTowerMultipl->Fill(nTowers);
@@ -154,9 +153,9 @@ void CastorRecHitMonitor::processEvent(const CastorRecHitCollection &castorHits)
   if (fVerbosity > 0)
     std::cout << "CastorRecHitMonitor::processEvent (begin)" << std::endl;
   ievt_++;
-  for (int z = 0; z < 14; z++)
+  for (auto &z : energyInEachChannel)
     for (int phi = 0; phi < 16; phi++)
-      energyInEachChannel[z][phi] = 0.;
+      z[phi] = 0.;
 
   CastorRecHitCollection::const_iterator CASTORiter;
   // if (showTiming)  { cpu_timer.reset(); cpu_timer.start(); }
@@ -207,8 +206,7 @@ void CastorRecHitMonitor::processEvent(const CastorRecHitCollection &castorHits)
 
 void CastorRecHitMonitor::processEventJets(const reco::BasicJetCollection &Jets) {
   int nJets = 0;
-  for (reco::BasicJetCollection::const_iterator ibegin = Jets.begin(), iend = Jets.end(), ijet = ibegin; ijet != iend;
-       ++ijet) {
+  for (auto ibegin = Jets.begin(), iend = Jets.end(), ijet = ibegin; ijet != iend; ++ijet) {
     nJets++;
     float energy = ijet->energy() * 0.001;
     hJetEnergy->Fill(energy);

@@ -28,11 +28,11 @@ ESPedestalTask::ESPedestalTask(const edm::ParameterSet& ps) {
   outputFile_ = ps.getUntrackedParameter<string>("OutputFile", "");
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "EcalPreshower");
 
-  for (int i = 0; i < 2; ++i)
+  for (auto& i : senCount_)
     for (int j = 0; j < 2; ++j)
       for (int k = 0; k < 40; ++k)
         for (int l = 0; l < 40; ++l)
-          senCount_[i][j][k][l] = -1;
+          i[j][k][l] = -1;
 
   ievt_ = 0;
 }

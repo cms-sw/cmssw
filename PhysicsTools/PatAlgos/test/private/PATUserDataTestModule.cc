@@ -66,10 +66,10 @@ namespace edm {
 class PATUserDataTestModule : public edm::EDProducer {
 public:
   explicit PATUserDataTestModule(const edm::ParameterSet&);
-  ~PATUserDataTestModule();
+  ~PATUserDataTestModule() override;
 
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
   edm::EDGetTokenT<edm::View<pat::Muon>> muonsToken_;
@@ -192,7 +192,7 @@ void PATUserDataTestModule::produce(edm::Event& iEvent, const edm::EventSetup& i
     vector<Ptr<pat::UserData>> halfp4sPtr;
     for (size_t i = 0; i < recoMuons->size(); ++i) {
       // It is crucial to use the OrphanHandle here and not a RefProd from GetRefBeforePut
-      halfp4sPtr.push_back(Ptr<pat::UserData>(handle, i));
+      halfp4sPtr.emplace_back(handle, i);
     }
     std::cout << "   Made edm::Ptr<> to those useless objects" << std::endl;
     auto vmhalfp4s = std::make_unique<ValueMap<Ptr<pat::UserData>>>();

@@ -35,10 +35,10 @@ reco::Muon::MuonTrackTypePair muon::tevOptimized(const reco::TrackRef& combinedT
   double dptmin = 1.;
 
   if (dptcut > 0) {
-    for (unsigned int i = 0; i < nAlgo; ++i)
-      if (refit[i].first.isNonnull())
-        if (refit[i].first->ptError() / refit[i].first->pt() < dptmin)
-          dptmin = refit[i].first->ptError() / refit[i].first->pt();
+    for (const auto& i : refit)
+      if (i.first.isNonnull())
+        if (i.first->ptError() / i.first->pt() < dptmin)
+          dptmin = i.first->ptError() / i.first->pt();
 
     if (dptmin > dptcut)
       dptcut = dptmin + 0.15;
@@ -119,7 +119,7 @@ reco::Muon::MuonTrackTypePair muon::tevOptimized(const reco::TrackRef& combinedT
 //
 // calculate the tail probability (-ln(P)) of a fit
 //
-double muon::trackProbability(const reco::TrackRef track) {
+double muon::trackProbability(const reco::TrackRef& track) {
   int nDOF = (int)track->ndof();
   if (nDOF > 0 && track->chi2() > 0) {
     return -log(TMath::Prob(track->chi2(), nDOF));

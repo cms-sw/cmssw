@@ -802,13 +802,13 @@ std::vector<PrimaryVertexAnalyzer4PUSlimmed::simPrimaryVertex> PrimaryVertexAnal
     std::cout << "getSimPVs TrackingVertexCollection " << std::endl;
   }
 
-  for (TrackingVertexCollection::const_iterator v = tVC->begin(); v != tVC->end(); ++v) {
+  for (auto v = tVC->begin(); v != tVC->end(); ++v) {
     if (verbose_) {
       std::cout << "BunchX.EventId: " << v->eventId().bunchCrossing() << "." << (v->eventId()).event()
                 << " Position: " << v->position() << " G4/HepMC Vertices: " << v->g4Vertices().size() << "/"
                 << v->genVertices().size() << "   t = " << v->position().t() * 1.e12
                 << "    == 0:" << (v->position().t() > 0) << std::endl;
-      for (TrackingVertex::g4v_iterator gv = v->g4Vertices_begin(); gv != v->g4Vertices_end(); gv++) {
+      for (auto gv = v->g4Vertices_begin(); gv != v->g4Vertices_end(); gv++) {
         std::cout << *gv << std::endl;
       }
       std::cout << "----------" << std::endl;
@@ -845,10 +845,10 @@ std::vector<PrimaryVertexAnalyzer4PUSlimmed::simPrimaryVertex> PrimaryVertexAnal
     // TODO(rovere) maybe get rid of this old logic completely ... ?
     simPrimaryVertex* vp = nullptr;  // will become non-NULL if a vertex
                                      // is found and then point to it
-    for (std::vector<simPrimaryVertex>::iterator v0 = simpv.begin(); v0 != simpv.end(); v0++) {
-      if ((sv.eventId == v0->eventId) && (fabs(sv.x - v0->x) < 1e-5) && (fabs(sv.y - v0->y) < 1e-5) &&
-          (fabs(sv.z - v0->z) < 1e-5)) {
-        vp = &(*v0);
+    for (auto& v0 : simpv) {
+      if ((sv.eventId == v0.eventId) && (fabs(sv.x - v0.x) < 1e-5) && (fabs(sv.y - v0.y) < 1e-5) &&
+          (fabs(sv.z - v0.z) < 1e-5)) {
+        vp = &v0;
         break;
       }
     }
@@ -917,8 +917,8 @@ std::vector<PrimaryVertexAnalyzer4PUSlimmed::simPrimaryVertex> PrimaryVertexAnal
                  "TrackingVertices "
                  "-------"
               << std::endl;
-    for (std::vector<simPrimaryVertex>::iterator v0 = simpv.begin(); v0 != simpv.end(); v0++) {
-      std::cout << "z=" << v0->z << "  event=" << v0->eventId.event() << std::endl;
+    for (auto& v0 : simpv) {
+      std::cout << "z=" << v0.z << "  event=" << v0.eventId.event() << std::endl;
     }
     std::cout << "-----------------------------------------------" << std::endl;
   }  // End of for summary on discovered simulated primary vertices.
@@ -935,8 +935,8 @@ std::vector<PrimaryVertexAnalyzer4PUSlimmed::simPrimaryVertex> PrimaryVertexAnal
     prev_z = vsim.z;
   }
   // then calculate
-  for (std::vector<simPrimaryVertex>::iterator vsim = simpv.begin(); vsim != simpv.end(); vsim++) {
-    std::vector<simPrimaryVertex>::iterator vsim2 = vsim;
+  for (auto vsim = simpv.begin(); vsim != simpv.end(); vsim++) {
+    auto vsim2 = vsim;
     vsim2++;
     for (; vsim2 != simpv.end(); vsim2++) {
       double distance = std::abs(vsim->z - vsim2->z);
@@ -1005,8 +1005,8 @@ std::vector<PrimaryVertexAnalyzer4PUSlimmed::recoPrimaryVertex> PrimaryVertexAna
                  "VertexCollection "
                  "-------"
               << std::endl;
-    for (std::vector<recoPrimaryVertex>::iterator v0 = recopv.begin(); v0 != recopv.end(); v0++) {
-      std::cout << "z=" << v0->z << std::endl;
+    for (auto& v0 : recopv) {
+      std::cout << "z=" << v0.z << std::endl;
     }
     std::cout << "-----------------------------------------------" << std::endl;
   }  // End of for summary on reconstructed primary vertices.
@@ -1022,8 +1022,8 @@ std::vector<PrimaryVertexAnalyzer4PUSlimmed::recoPrimaryVertex> PrimaryVertexAna
     vreco.closest_vertex_distance_z = std::abs(vreco.z - prev_z);
     prev_z = vreco.z;
   }
-  for (std::vector<recoPrimaryVertex>::iterator vreco = recopv.begin(); vreco != recopv.end(); vreco++) {
-    std::vector<recoPrimaryVertex>::iterator vreco2 = vreco;
+  for (auto vreco = recopv.begin(); vreco != recopv.end(); vreco++) {
+    auto vreco2 = vreco;
     vreco2++;
     for (; vreco2 != recopv.end(); vreco2++) {
       double distance = std::abs(vreco->z - vreco2->z);
@@ -1047,22 +1047,22 @@ void PrimaryVertexAnalyzer4PUSlimmed::matchSim2RecoVertices(std::vector<simPrima
   if (verbose_) {
     std::cout << "PrimaryVertexAnalyzer4PUSlimmed::matchSim2RecoVertices " << std::endl;
   }
-  for (std::vector<simPrimaryVertex>::iterator vsim = simpv.begin(); vsim != simpv.end(); vsim++) {
-    auto matched = vertex_s2r.find(vsim->sim_vertex);
+  for (auto& vsim : simpv) {
+    auto matched = vertex_s2r.find(vsim.sim_vertex);
     if (matched != vertex_s2r.end()) {
       for (const auto& vertexRefQuality : matched->val) {
-        vsim->rec_vertices.push_back(&(*(vertexRefQuality.first)));
+        vsim.rec_vertices.push_back(&(*(vertexRefQuality.first)));
       }
     }
 
     if (verbose_) {
-      if (!vsim->rec_vertices.empty()) {
-        for (auto const& v : vsim->rec_vertices) {
-          std::cout << "Found a matching vertex for genVtx " << vsim->z << " at " << v->z()
-                    << " with sign: " << fabs(v->z() - vsim->z) / v->zError() << std::endl;
+      if (!vsim.rec_vertices.empty()) {
+        for (auto const& v : vsim.rec_vertices) {
+          std::cout << "Found a matching vertex for genVtx " << vsim.z << " at " << v->z()
+                    << " with sign: " << fabs(v->z() - vsim.z) / v->zError() << std::endl;
         }
       } else {
-        std::cout << "No matching vertex for " << vsim->z << std::endl;
+        std::cout << "No matching vertex for " << vsim.z << std::endl;
       }
     }
   }  // end for loop on simulated vertices
@@ -1074,32 +1074,32 @@ void PrimaryVertexAnalyzer4PUSlimmed::matchSim2RecoVertices(std::vector<simPrima
 void PrimaryVertexAnalyzer4PUSlimmed::matchReco2SimVertices(std::vector<recoPrimaryVertex>& recopv,
                                                             const reco::VertexRecoToSimCollection& vertex_r2s,
                                                             const std::vector<simPrimaryVertex>& simpv) {
-  for (std::vector<recoPrimaryVertex>::iterator vrec = recopv.begin(); vrec != recopv.end(); vrec++) {
-    auto matched = vertex_r2s.find(vrec->recVtxRef);
+  for (auto& vrec : recopv) {
+    auto matched = vertex_r2s.find(vrec.recVtxRef);
     if (matched != vertex_r2s.end()) {
       for (const auto& vertexRefQuality : matched->val) {
         const auto tvPtr = &(*(vertexRefQuality.first));
-        vrec->sim_vertices.push_back(tvPtr);
+        vrec.sim_vertices.push_back(tvPtr);
       }
 
-      for (const TrackingVertex* tv : vrec->sim_vertices) {
+      for (const TrackingVertex* tv : vrec.sim_vertices) {
         // Set pointers to internal simVertex objects
         for (const auto& vv : simpv) {
           if (&(*(vv.sim_vertex)) == tv) {
-            vrec->sim_vertices_internal.push_back(&vv);
+            vrec.sim_vertices_internal.push_back(&vv);
             continue;
           }
         }
 
         // Calculate number of shared tracks
-        vrec->sim_vertices_num_shared_tracks.push_back(calculateVertexSharedTracks(*(vrec->recVtx), *tv, *r2s_));
+        vrec.sim_vertices_num_shared_tracks.push_back(calculateVertexSharedTracks(*(vrec.recVtx), *tv, *r2s_));
       }
     }
 
     if (verbose_) {
-      for (auto v : vrec->sim_vertices) {
-        std::cout << "Found a matching vertex for reco: " << vrec->z << " at gen:" << v->position().z()
-                  << " with sign: " << fabs(vrec->z - v->position().z()) / vrec->recVtx->zError() << std::endl;
+      for (auto v : vrec.sim_vertices) {
+        std::cout << "Found a matching vertex for reco: " << vrec.z << " at gen:" << v->position().z()
+                  << " with sign: " << fabs(vrec.z - v->position().z()) / vrec.recVtx->zError() << std::endl;
       }
     }
   }  // end for loop on reconstructed vertices

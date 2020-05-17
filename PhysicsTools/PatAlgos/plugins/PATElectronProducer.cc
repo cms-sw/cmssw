@@ -142,7 +142,7 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet& iConfig)
   if (addElecID_) {
     // it might be a single electron ID
     if (iConfig.existsAs<edm::InputTag>("electronIDSource")) {
-      elecIDSrcs_.push_back(NameTag("", iConfig.getParameter<edm::InputTag>("electronIDSource")));
+      elecIDSrcs_.emplace_back("", iConfig.getParameter<edm::InputTag>("electronIDSource"));
     }
     // or there might be many of them
     if (iConfig.existsAs<edm::ParameterSet>("electronIDSources")) {
@@ -154,8 +154,8 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet& iConfig)
       // read the different electron ID names
       edm::ParameterSet idps = iConfig.getParameter<edm::ParameterSet>("electronIDSources");
       std::vector<std::string> names = idps.getParameterNamesForType<edm::InputTag>();
-      for (std::vector<std::string>::const_iterator it = names.begin(), ed = names.end(); it != ed; ++it) {
-        elecIDSrcs_.push_back(NameTag(*it, idps.getParameter<edm::InputTag>(*it)));
+      for (const auto& name : names) {
+        elecIDSrcs_.emplace_back(name, idps.getParameter<edm::InputTag>(name));
       }
     }
     // but in any case at least once
@@ -352,14 +352,14 @@ void PATElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     iEvent.getByToken(PUPPINoLeptonsIsolation_photons_, PUPPINoLeptonsIsolation_photons);
   }
 
-  std::vector<Electron>* patElectrons = new std::vector<Electron>();
+  auto* patElectrons = new std::vector<Electron>();
 
   if (useParticleFlow_) {
     edm::Handle<reco::PFCandidateCollection> pfElectrons;
     iEvent.getByToken(pfElecToken_, pfElectrons);
     unsigned index = 0;
 
-    for (reco::PFCandidateConstIterator i = pfElectrons->begin(); i != pfElectrons->end(); ++i, ++index) {
+    for (auto i = pfElectrons->begin(); i != pfElectrons->end(); ++i, ++index) {
       reco::PFCandidateRef pfRef(pfElectrons, index);
       reco::PFCandidatePtr ptrToPFElectron(pfElectrons, index);
       //       reco::CandidateBaseRef pfBaseRef( pfRef );
@@ -442,8 +442,8 @@ void PATElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
               ids[i].second = (*idhandles[i])[elecsRef];
             }
             //SPECIFIC PF ID
-            ids.push_back(std::make_pair("pf_evspi", pfRef->mva_e_pi()));
-            ids.push_back(std::make_pair("pf_evsmu", pfRef->mva_e_mu()));
+            ids.emplace_back("pf_evspi", pfRef->mva_e_pi());
+            ids.emplace_back("pf_evsmu", pfRef->mva_e_mu());
             anElectron.setElectronIDs(ids);
           }
 
@@ -523,7 +523,7 @@ void PATElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
           unsigned nSelectedCells = selectedCells.size();
           for (unsigned icell = 0; icell < nSelectedCells; ++icell) {
-            EcalRecHitCollection::const_iterator it = recHits->find(selectedCells[icell]);
+            auto it = recHits->find(selectedCells[icell]);
             if (it != recHits->end()) {
               selectedRecHits.push_back(*it);
             }
@@ -609,7 +609,7 @@ void PATElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
         // PF electron collection not available.
         const reco::GsfTrackRef& trkRef = itElectron->gsfTrack();
         int index = 0;
-        for (reco::PFCandidateConstIterator ie = pfElectrons->begin(); ie != pfElectrons->end(); ++ie, ++index) {
+        for (auto ie = pfElectrons->begin(); ie != pfElectrons->end(); ++ie, ++index) {
           if (ie->particleId() != reco::PFCandidate::e)
             continue;
           const reco::GsfTrackRef& pfTrkRef = ie->gsfTrackRef();
@@ -637,10 +637,7 @@ void PATElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
         isolator_.fill(*electrons, idx, isolatorTmpStorage_);
         typedef pat::helper::MultiIsolator::IsolationValuePairs IsolationValuePairs;
         // better to loop backwards, so the vector is resized less times
-        for (IsolationValuePairs::const_reverse_iterator it = isolatorTmpStorage_.rbegin(),
-                                                         ed = isolatorTmpStorage_.rend();
-             it != ed;
-             ++it) {
+        for (auto it = isolatorTmpStorage_.rbegin(), ed = isolatorTmpStorage_.rend(); it != ed; ++it) {
           anElectron.setIsolation(it->first, it->second);
         }
       }
@@ -767,7 +764,7 @@ void PATElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
       unsigned nSelectedCells = selectedCells.size();
       for (unsigned icell = 0; icell < nSelectedCells; ++icell) {
-        EcalRecHitCollection::const_iterator it = recHits->find(selectedCells[icell]);
+        auto it = recHits->find(selectedCells[icell]);
         if (it != recHits->end()) {
           selectedRecHits.push_back(*it);
         }
@@ -860,12 +857,12 @@ void PATElectronProducer::fillElectron(Electron& anElectron,
 
   // store the match to the generated final state muons
   if (addGenMatch_) {
-    for (size_t i = 0, n = genMatches.size(); i < n; ++i) {
+    for (const auto& genMatche : genMatches) {
       if (useParticleFlow_) {
-        reco::GenParticleRef genElectron = (*genMatches[i])[anElectron.pfCandidateRef()];
+        reco::GenParticleRef genElectron = (*genMatche)[anElectron.pfCandidateRef()];
         anElectron.addGenParticleRef(genElectron);
       } else {
-        reco::GenParticleRef genElectron = (*genMatches[i])[elecRef];
+        reco::GenParticleRef genElectron = (*genMatche)[elecRef];
         anElectron.addGenParticleRef(genElectron);
       }
     }
@@ -946,8 +943,8 @@ void PATElectronProducer::fillElectron2(Electron& anElectron,
   // store the match to the generated final state muons
 
   if (addGenMatch_) {
-    for (size_t i = 0, n = genMatches.size(); i < n; ++i) {
-      reco::GenParticleRef genElectron = (*genMatches[i])[candPtrForGenMatch];
+    for (const auto& genMatche : genMatches) {
+      reco::GenParticleRef genElectron = (*genMatche)[candPtrForGenMatch];
       anElectron.addGenParticleRef(genElectron);
     }
     if (embedGenMatch_)
@@ -1194,7 +1191,7 @@ void PATElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
 // embed various impact parameters with errors
 // embed high level selection
 void PATElectronProducer::embedHighLevel(pat::Electron& anElectron,
-                                         reco::GsfTrackRef track,
+                                         const reco::GsfTrackRef& track,
                                          reco::TransientTrack& tt,
                                          reco::Vertex& primaryVertex,
                                          bool primaryVertexIsValid,

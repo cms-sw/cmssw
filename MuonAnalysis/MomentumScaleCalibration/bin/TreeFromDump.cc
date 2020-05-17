@@ -66,18 +66,18 @@ int main(int argc, char* argv[]) {
     if (!line.empty()) {
       // std::cout << "line = " << line << std::endl;
       std::stringstream ss(line);
-      for (int i = 0; i < 6; ++i) {
-        ss >> value[i];
+      for (double& i : value) {
+        ss >> i;
         // std::cout << "value["<<i<<"] = " << value[i] << std::endl;
       }
-      pairVector.push_back(
-          MuonPair(fromPtEtaPhiToPxPyPz(value), fromPtEtaPhiToPxPyPz(&(value[3])), MuScleFitEvent(0, 0, 0, 0, 0, 0)));
+      pairVector.emplace_back(
+          fromPtEtaPhiToPxPyPz(value), fromPtEtaPhiToPxPyPz(&(value[3])), MuScleFitEvent(0, 0, 0, 0, 0, 0));
       if (genInfo) {
-        for (int i = 0; i < 6; ++i) {
-          ss >> genValue[i];
+        for (double& i : genValue) {
+          ss >> i;
           // std::cout << "genValue["<<i<<"] = " << genValue[i] << std::endl;
         }
-        genPairVector.push_back(GenMuonPair(fromPtEtaPhiToPxPyPz(genValue), fromPtEtaPhiToPxPyPz(&(genValue[3])), 0));
+        genPairVector.emplace_back(fromPtEtaPhiToPxPyPz(genValue), fromPtEtaPhiToPxPyPz(&(genValue[3])), 0);
       }
     }
   }

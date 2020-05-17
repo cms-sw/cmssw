@@ -303,24 +303,24 @@ HLTObjectMonitorProtonLead::HLTObjectMonitorProtonLead(const edm::ParameterSet& 
   wallTime_pset = iConfig.getParameter<edm::ParameterSet>("wallTime");
   plotMap[&wallTime_] = &wallTime_pset;
 
-  for (auto item = plotMap.begin(); item != plotMap.end(); item++) {
-    (*item->first).pathName = (*item->second).getParameter<string>("pathName");
-    (*item->first).moduleName = (*item->second).getParameter<string>("moduleName");
-    (*item->first).nBins = (*item->second).getParameter<int>("NbinsX");
-    (*item->first).xMin = (*item->second).getParameter<double>("Xmin");
-    (*item->first).xMax = (*item->second).getParameter<double>("Xmax");
-    (*item->first).xAxisLabel = (*item->second).getParameter<string>("axisLabel");
-    (*item->first).plotLabel = (*item->second).getParameter<string>("plotLabel");
-    (*item->first).displayInPrimary = (*item->second).getParameter<bool>("mainWorkspace");
+  for (auto& item : plotMap) {
+    (*item.first).pathName = (*item.second).getParameter<string>("pathName");
+    (*item.first).moduleName = (*item.second).getParameter<string>("moduleName");
+    (*item.first).nBins = (*item.second).getParameter<int>("NbinsX");
+    (*item.first).xMin = (*item.second).getParameter<double>("Xmin");
+    (*item.first).xMax = (*item.second).getParameter<double>("Xmax");
+    (*item.first).xAxisLabel = (*item.second).getParameter<string>("axisLabel");
+    (*item.first).plotLabel = (*item.second).getParameter<string>("plotLabel");
+    (*item.first).displayInPrimary = (*item.second).getParameter<bool>("mainWorkspace");
 
-    if ((*item->second).exists("pathName_OR")) {
-      (*item->first).pathNameOR = (*item->second).getParameter<string>("pathName_OR");
+    if ((*item.second).exists("pathName_OR")) {
+      (*item.first).pathNameOR = (*item.second).getParameter<string>("pathName_OR");
     }
-    if ((*item->second).exists("moduleName_OR")) {
-      (*item->first).moduleNameOR = (*item->second).getParameter<string>("moduleName_OR");
+    if ((*item.second).exists("moduleName_OR")) {
+      (*item.first).moduleNameOR = (*item.second).getParameter<string>("moduleName_OR");
     }
 
-    plotList.push_back(item->first);
+    plotList.push_back(item.first);
   }
   plotMap.clear();
 

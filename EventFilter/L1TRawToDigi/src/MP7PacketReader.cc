@@ -27,7 +27,7 @@ MP7PacketReader::~MP7PacketReader() {}
 
 void MP7PacketReader::load() {
   buffers_.reserve(reader_.size());
-  MP7FileReader::const_iterator it = reader_.begin();
+  auto it = reader_.begin();
   for (; it != reader_.end(); ++it) {
     const FileData& raw = *it;
 
@@ -60,7 +60,7 @@ void MP7PacketReader::load() {
       }
 
       Packet pkt;
-      FileData::const_iterator lIt = raw.begin();
+      auto lIt = raw.begin();
       for (; lIt != raw.end(); ++lIt) {
         // Here the 64 bit uint is converted into a 32 bit uint, the data valid bit is stripped in the 64->32 bit conversion.
         pkt.links_[lIt->first] = std::vector<uint32_t>(lIt->second.begin() + p.first + header_,
@@ -92,7 +92,7 @@ std::vector<PacketRange> MP7PacketReader::findPackets(std::vector<uint64_t> data
       if (not((x >> 32) & 1)) {
         v = false;
         end = i - 1;
-        ranges.push_back(std::make_pair(begin, end));
+        ranges.emplace_back(begin, end);
       }
       continue;
     }
@@ -100,7 +100,7 @@ std::vector<PacketRange> MP7PacketReader::findPackets(std::vector<uint64_t> data
 
   if (v && (begin != -1)) {
     end = data.size() - 1;
-    ranges.push_back(std::make_pair(begin, end));
+    ranges.emplace_back(begin, end);
   }
 
   return ranges;

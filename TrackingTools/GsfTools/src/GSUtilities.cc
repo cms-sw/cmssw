@@ -94,7 +94,7 @@ float GSUtilities::mode() const {
   //
   typedef std::multimap<double, double, std::greater<double> > ResultMap;
   ResultMap xFound;
-  for (StartMap::const_iterator i = xStart.begin(); i != xStart.end(); i++) {
+  for (auto i = xStart.begin(); i != xStart.end(); i++) {
     double x = findMode((*i).second);
     xFound.insert(std::pair<double, double>(pdf(x), x));
     //     std::cout << "Started at " << (*i).second

@@ -3,6 +3,8 @@
 #ifndef __l1t_EMTF_output_h__
 #define __l1t_EMTF_output_h__
 
+#include <utility>
+
 #include <vector>
 
 #include "EMTF/AMC13Header.h"
@@ -46,55 +48,55 @@ namespace l1t {
 
     virtual ~EMTFDaqOut(){};
 
-    void set_AMC13Header(emtf::AMC13Header bits) {
+    void set_AMC13Header(const emtf::AMC13Header& bits) {
       AMC13Header = bits;
       hasAMC13Header = true;
     }
-    void set_MTF7Header(emtf::MTF7Header bits) {
+    void set_MTF7Header(const emtf::MTF7Header& bits) {
       MTF7Header = bits;
       hasMTF7Header = true;
     }
-    void set_EventHeader(emtf::EventHeader bits) {
+    void set_EventHeader(const emtf::EventHeader& bits) {
       EventHeader = bits;
       hasEventHeader = true;
     }
-    void set_Counters(emtf::Counters bits) {
+    void set_Counters(const emtf::Counters& bits) {
       Counters = bits;
       hasCounters = true;
     }
     void set_MECollection(emtf::MECollection bits) {
-      MECollection = bits;
+      MECollection = std::move(bits);
       numME = MECollection.size();
     }
-    void push_ME(emtf::ME bits) {
+    void push_ME(const emtf::ME& bits) {
       MECollection.push_back(bits);
       numME += 1;
     }
     void set_RPCCollection(emtf::RPCCollection bits) {
-      RPCCollection = bits;
+      RPCCollection = std::move(bits);
       numRPC = RPCCollection.size();
     }
-    void push_RPC(emtf::RPC bits) {
+    void push_RPC(const emtf::RPC& bits) {
       RPCCollection.push_back(bits);
       numRPC += 1;
     }
     void set_SPCollection(emtf::SPCollection bits) {
-      SPCollection = bits;
+      SPCollection = std::move(bits);
       numSP = SPCollection.size();
     }
-    void push_SP(emtf::SP bits) {
+    void push_SP(const emtf::SP& bits) {
       SPCollection.push_back(bits);
       numSP += 1;
     }
-    void set_EventTrailer(emtf::EventTrailer bits) {
+    void set_EventTrailer(const emtf::EventTrailer& bits) {
       EventTrailer = bits;
       hasEventTrailer = true;
     }
-    void set_MTF7Trailer(emtf::MTF7Trailer bits) {
+    void set_MTF7Trailer(const emtf::MTF7Trailer& bits) {
       MTF7Trailer = bits;
       hasMTF7Trailer = true;
     }
-    void set_AMC13Trailer(emtf::AMC13Trailer bits) {
+    void set_AMC13Trailer(const emtf::AMC13Trailer& bits) {
       AMC13Trailer = bits;
       hasAMC13Trailer = true;
     }

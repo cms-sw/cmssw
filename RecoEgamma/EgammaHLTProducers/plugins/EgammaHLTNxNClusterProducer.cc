@@ -216,12 +216,12 @@ void EgammaHLTNxNClusterProducer::makeNxNClusters(edm::Event &evt,
     clusterSeedThreshold = clusSeedThrEndCap_;
   }
 
-  for (EcalRecHitCollection::const_iterator itt = hits->begin(); itt != hits->end(); itt++) {
-    double energy = itt->energy();
-    if (!checkStatusOfEcalRecHit(channelStatus, *itt))
+  for (const auto &hit : *hits) {
+    double energy = hit.energy();
+    if (!checkStatusOfEcalRecHit(channelStatus, hit))
       continue;
     if (energy > clusterSeedThreshold)
-      seeds.push_back(*itt);
+      seeds.push_back(hit);
 
     if (int(seeds.size()) > maxNumberofSeeds_) {  //too many seeds, like beam splash events
       seeds.clear();                              //// empty seeds vector, don't do clustering anymore
@@ -252,10 +252,10 @@ void EgammaHLTNxNClusterProducer::makeNxNClusters(edm::Event &evt,
   // sort seed according to Energy
   sort(seeds.begin(), seeds.end(), [](auto const &x, auto const &y) { return (x.energy() > y.energy()); });
 
-  for (std::vector<EcalRecHit>::iterator itseed = seeds.begin(); itseed != seeds.end(); itseed++) {
-    DetId seed_id = itseed->id();
+  for (auto &seed : seeds) {
+    DetId seed_id = seed.id();
 
-    std::vector<DetId>::iterator itdet = find(usedXtals.begin(), usedXtals.end(), seed_id);
+    auto itdet = find(usedXtals.begin(), usedXtals.end(), seed_id);
     if (itdet != usedXtals.end())
       continue;
 
@@ -264,15 +264,13 @@ void EgammaHLTNxNClusterProducer::makeNxNClusters(edm::Event &evt,
 
     float clus_energy = 0;
 
-    for (std::vector<DetId>::iterator det = clus_v.begin(); det != clus_v.end(); det++) {
-      DetId detid = *det;
-
+    for (auto detid : clus_v) {
       //not yet used
-      std::vector<DetId>::iterator itdet = find(usedXtals.begin(), usedXtals.end(), detid);
+      auto itdet = find(usedXtals.begin(), usedXtals.end(), detid);
       if (itdet != usedXtals.end())
         continue;
       //inside the collection
-      EcalRecHitCollection::const_iterator hit = hits->find(detid);
+      auto hit = hits->find(detid);
       if (hit == hits->end())
         continue;
 
@@ -280,7 +278,7 @@ void EgammaHLTNxNClusterProducer::makeNxNClusters(edm::Event &evt,
         continue;
 
       usedXtals.push_back(detid);
-      clus_used.push_back(std::pair<DetId, float>(detid, 1.));
+      clus_used.emplace_back(detid, 1.);
       clus_energy += hit->energy();
 
     }  //// end of making one nxn simple cluster
@@ -295,8 +293,7 @@ void EgammaHLTNxNClusterProducer::makeNxNClusters(edm::Event &evt,
                    << " energy: " << clus_energy << " eta: " << clus_pos.Eta() << " phi: " << clus_pos.Phi()
                    << " nRecHits: " << clus_used.size() << std::endl;
 
-    clusters.push_back(reco::BasicCluster(
-        clus_energy, clus_pos, reco::CaloID(detector), clus_used, reco::CaloCluster::island, seed_id));
+    clusters.emplace_back(clus_energy, clus_pos, reco::CaloID(detector), clus_used, reco::CaloCluster::island, seed_id);
     if (int(clusters.size()) > maxNumberofClusters_) {  ///if too much clusters made, then return 0 also
       clusters.clear();
       break;

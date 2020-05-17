@@ -22,11 +22,11 @@ public:
   typedef std::map<uint16_t, Channels> ChannelsMap;
 
   Phase2TrackerFEDTestAnalyzer(const edm::ParameterSet&);
-  ~Phase2TrackerFEDTestAnalyzer();
+  ~Phase2TrackerFEDTestAnalyzer() override;
 
-  void beginJob();
-  void analyze(const edm::Event&, const edm::EventSetup&);
-  void endJob();
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
 private:
   edm::InputTag label_;

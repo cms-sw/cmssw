@@ -31,13 +31,13 @@
 //
 namespace {
   struct Listener {
-    Listener() : nMessages_(0), item_(0) {}
+    Listener() : nMessages_(0), item_(nullptr) {}
     int nMessages_;
     const FWEventItem* item_;
 
     void reset() {
       nMessages_ = 0;
-      item_ = 0;
+      item_ = nullptr;
     }
     void newItem(const FWEventItem* iItem) {
       ++nMessages_;
@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE(eventitemmanager) {
   colm.initialize();
 
   // !!!! Passing 0 for FWJobMetadataManager
-  fireworks::Context context(&cm, &sm, &eim, &colm, 0);
+  fireworks::Context context(&cm, &sm, &eim, &colm, nullptr);
   eim.setContext(&context);
 
   Listener listener;
@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE(eventitemmanager) {
   eim.newItem_.connect(boost::bind(&Listener::newItem, &listener, _1));
 
   TClass* cls = TClass::GetClass("std::vector<reco::Track>");
-  assert(0 != cls);
+  assert(nullptr != cls);
 
   Color_t color1 = FWColorManager::getDefaultStartColorIndex() + 1;
   FWPhysicsObjectDesc tracks(
@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE(eventitemmanager) {
   BOOST_CHECK(listener.nMessages_ == 1);
   BOOST_CHECK(eim.end() - eim.begin() == 1);
   const FWEventItem* item = *(eim.begin());
-  BOOST_REQUIRE(item != 0);
+  BOOST_REQUIRE(item != nullptr);
   BOOST_CHECK(item == listener.item_);
   BOOST_CHECK(item->name() == "Tracks");
   BOOST_CHECK(item->type() == cls);
@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE(eventitemmanager) {
   BOOST_CHECK(listener.nMessages_ == 1);
   BOOST_CHECK(eim.end() - eim.begin() == 1);
   item = *(eim.begin());
-  BOOST_REQUIRE(item != 0);
+  BOOST_REQUIRE(item != nullptr);
   BOOST_CHECK(item == listener.item_);
   BOOST_CHECK(item->name() == "Tracks");
   BOOST_CHECK(item->type() == cls);

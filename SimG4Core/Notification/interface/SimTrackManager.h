@@ -73,8 +73,7 @@ public:
   }
 
   void addTkCaloStateInfo(uint32_t t, const std::pair<math::XYZVectorD, math::XYZTLorentzVectorD>& p) {
-    std::map<uint32_t, std::pair<math::XYZVectorD, math::XYZTLorentzVectorD> >::const_iterator it =
-        mapTkCaloStateInfo.find(t);
+    auto it = mapTkCaloStateInfo.find(t);
 
     if (it == mapTkCaloStateInfo.end()) {
       mapTkCaloStateInfo.insert(std::pair<uint32_t, std::pair<math::XYZVectorD, math::XYZTLorentzVectorD> >(t, p));
@@ -83,9 +82,9 @@ public:
   void setCollapsePrimaryVertices(bool iSet) { m_collapsePrimaryVertices = iSet; }
   int giveMotherNeeded(int i) const {
     int theResult = 0;
-    for (unsigned int itr = 0; itr < idsave.size(); itr++) {
-      if ((idsave[itr]).first == i) {
-        theResult = (idsave[itr]).second;
+    for (const auto& itr : idsave) {
+      if (itr.first == i) {
+        theResult = itr.second;
         break;
       }
     }
@@ -93,8 +92,8 @@ public:
   }
   bool trackExists(unsigned int i) const {
     bool flag = false;
-    for (unsigned int itr = 0; itr < (*m_trksForThisEvent).size(); ++itr) {
-      if ((*m_trksForThisEvent)[itr]->trackID() == i) {
+    for (auto& itr : (*m_trksForThisEvent)) {
+      if (itr->trackID() == i) {
         flag = true;
         break;
       }

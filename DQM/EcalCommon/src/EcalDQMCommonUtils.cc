@@ -46,7 +46,7 @@ namespace ecaldqm {
   }
 
   unsigned memDCCIndex(unsigned _dccid) {
-    std::vector<unsigned>::const_iterator itr(std::find(memDCC.begin(), memDCC.end(), _dccid - 1));
+    auto itr(std::find(memDCC.begin(), memDCC.end(), _dccid - 1));
     if (itr == memDCC.end())
       return -1;
 

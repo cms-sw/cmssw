@@ -66,7 +66,7 @@ std::ostream& operator<<(std::ostream& s, const TrackingVertex& v) {
       << (*(*genV)).position().z() << endl;
   }
 
-  for (g4v_iterator g4V = v.g4Vertices_begin(); g4V != v.g4Vertices_end(); ++g4V) {
+  for (auto g4V = v.g4Vertices_begin(); g4V != v.g4Vertices_end(); ++g4V) {
     s << " Geant vertex position " << (*g4V).position() << endl;
     // Probably empty all the time, currently
   }
@@ -74,7 +74,7 @@ std::ostream& operator<<(std::ostream& s, const TrackingVertex& v) {
   // Loop over daughter track(s)
   for (tp_iterator iTP = v.daughterTracks_begin(); iTP != v.daughterTracks_end(); ++iTP) {
     s << " Daughter starts:      " << (*(*iTP)).vertex();
-    for (g4t_iterator g4T = (*(*iTP)).g4Track_begin(); g4T != (*(*iTP)).g4Track_end(); ++g4T) {
+    for (auto g4T = (*(*iTP)).g4Track_begin(); g4T != (*(*iTP)).g4Track_end(); ++g4T) {
       s << " p " << g4T->momentum();
     }
     s << endl;
@@ -83,7 +83,7 @@ std::ostream& operator<<(std::ostream& s, const TrackingVertex& v) {
   // Loop over source track(s) (can be multiple since vertices are collapsed)
   for (tp_iterator iTP = v.sourceTracks_begin(); iTP != v.sourceTracks_end(); ++iTP) {
     s << " Source   starts: " << (*(*iTP)).vertex();
-    for (g4t_iterator g4T = (*iTP)->g4Track_begin(); g4T != (*iTP)->g4Track_end(); ++g4T) {
+    for (auto g4T = (*iTP)->g4Track_begin(); g4T != (*iTP)->g4Track_end(); ++g4T) {
       s << ", p " << g4T->momentum();
     }
     s << endl;

@@ -167,10 +167,10 @@ void SimHitsValidationHcal::analyze(const edm::Event &e, const edm::EventSetup &
     edm::LogVerbatim("HitsValidationHcal") << "testNumber_:" << testNumber_;
 #endif
     if (testNumber_) {
-      for (unsigned int i = 0; i < caloHits.size(); ++i) {
-        unsigned int id_ = caloHits[i].id();
+      for (auto &caloHit : caloHits) {
+        unsigned int id_ = caloHit.id();
         HcalDetId hid = HcalHitRelabeller::relabel(id_, hcons);
-        caloHits[i].setID(hid.rawId());
+        caloHit.setID(hid.rawId());
 #ifdef DebugLog
         edm::LogVerbatim("HitsValidationHcal") << "Hit[" << i << "] " << hid;
 #endif

@@ -26,8 +26,8 @@ namespace edmtest {
   public:
     explicit CSCPedestalReadAnalyzer(edm::ParameterSet const& p) {}
     explicit CSCPedestalReadAnalyzer(int i) {}
-    virtual ~CSCPedestalReadAnalyzer() {}
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    ~CSCPedestalReadAnalyzer() override {}
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   private:
   };

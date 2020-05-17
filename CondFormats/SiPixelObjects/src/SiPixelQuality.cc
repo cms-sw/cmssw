@@ -52,8 +52,8 @@ void SiPixelQuality::add(const SiStripDetVOff* Voff) {
   std::vector<uint32_t> vdets;
   Voff->getDetIds(vdets);
 
-  std::vector<uint32_t>::const_iterator iter = vdets.begin();
-  std::vector<uint32_t>::const_iterator iterEnd = vdets.end();
+  auto iter = vdets.begin();
+  auto iterEnd = vdets.end();
 
   for (; iter != iterEnd; ++iter) {
     SiPixelQuality::disabledModuleType BadModule;
@@ -80,7 +80,7 @@ bool SiPixelQuality::IsModuleUsable(const uint32_t& detid) const {
     return true;
   std::vector<SiPixelQuality::disabledModuleType> disabledModules = theDisabledModules;
   std::sort(disabledModules.begin(), disabledModules.end(), SiPixelQuality::BadComponentStrictWeakOrdering());
-  std::vector<disabledModuleType>::const_iterator iter = std::lower_bound(
+  auto iter = std::lower_bound(
       disabledModules.begin(), disabledModules.end(), detid, SiPixelQuality::BadComponentStrictWeakOrdering());
   if (iter != disabledModules.end() && iter->DetID == detid && iter->errorType == 0)
     return false;
@@ -99,7 +99,7 @@ bool SiPixelQuality::IsModuleBad(const uint32_t& detid) const {
     return true;
   std::vector<SiPixelQuality::disabledModuleType> disabledModules = theDisabledModules;
   std::sort(disabledModules.begin(), disabledModules.end(), SiPixelQuality::BadComponentStrictWeakOrdering());
-  std::vector<disabledModuleType>::const_iterator iter = std::lower_bound(
+  auto iter = std::lower_bound(
       disabledModules.begin(), disabledModules.end(), detid, SiPixelQuality::BadComponentStrictWeakOrdering());
   //errorType 0 corresponds to "whole" dead module
   if (iter != disabledModules.end() && iter->DetID == detid && iter->errorType == 0)
@@ -113,7 +113,7 @@ bool SiPixelQuality::IsRocBad(const uint32_t& detid, const short& rocNb) const {
     return true;
   std::vector<SiPixelQuality::disabledModuleType> disabledModules = theDisabledModules;
   std::sort(disabledModules.begin(), disabledModules.end(), SiPixelQuality::BadComponentStrictWeakOrdering());
-  std::vector<disabledModuleType>::const_iterator iter = std::lower_bound(
+  auto iter = std::lower_bound(
       disabledModules.begin(), disabledModules.end(), detid, SiPixelQuality::BadComponentStrictWeakOrdering());
   if (iter != disabledModules.end() && iter->DetID == detid) {
     return ((iter->BadRocs >> rocNb) & 0x1);
@@ -126,7 +126,7 @@ bool SiPixelQuality::IsRocBad(const uint32_t& detid, const short& rocNb) const {
 short SiPixelQuality::getBadRocs(const uint32_t& detid) const {
   std::vector<SiPixelQuality::disabledModuleType> disabledModules = theDisabledModules;
   std::sort(disabledModules.begin(), disabledModules.end(), SiPixelQuality::BadComponentStrictWeakOrdering());
-  std::vector<disabledModuleType>::const_iterator iter = std::lower_bound(
+  auto iter = std::lower_bound(
       disabledModules.begin(), disabledModules.end(), detid, SiPixelQuality::BadComponentStrictWeakOrdering());
   if (iter != disabledModules.end() && iter->DetID == detid)
     return iter->BadRocs;
@@ -141,15 +141,15 @@ const std::vector<LocalPoint> SiPixelQuality::getBadRocPositions(const uint32_t&
     if (IsRocBad(detid, i) == true) {
       std::vector<CablingPathToDetUnit> path = map->pathToDetUnit(detid);
       typedef std::vector<CablingPathToDetUnit>::const_iterator IT;
-      for (IT it = path.begin(); it != path.end(); ++it) {
-        const PixelROC* myroc = map->findItem(*it);
+      for (auto it : path) {
+        const PixelROC* myroc = map->findItem(it);
         if (myroc->idInDetUnit() == i) {
           LocalPixel::RocRowCol local = {39, 25};  //corresponding to center of ROC row, col
           GlobalPixel global = myroc->toGlobal(LocalPixel(local));
           //       edm::ESHandle<TrackerGeometry> geom;
           //     es.get<TrackerDigiGeometryRecord>().get( geom );
           //    const TrackerGeometry& theTracker(*geom);
-          const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>(theTracker.idToDet(detid));
+          const auto* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>(theTracker.idToDet(detid));
 
           PixelTopology const* topology = &(theGeomDet->specificTopology());
 

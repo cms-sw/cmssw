@@ -359,34 +359,34 @@ void DTAnalyzerDetailed::analyzeDTHits(const Event& event, const EventSetup& eve
   histo("hnHitDT")->Fill(nHitDT);
 
   //float ttrigg = 1895.; // should get this from CondDB...
-  for (DTRecHitCollection::const_iterator hit = dtRecHits->begin(); hit != dtRecHits->end(); ++hit) {
+  for (const auto& hit : *dtRecHits) {
     // Get the wireId of the rechit
-    DTWireId wireId = (*hit).wireId();
+    DTWireId wireId = hit.wireId();
 
     float ttrig = theSync->offset(wireId);
     //cout << "TTrig " << ttrig << endl;
 
-    float time = (*hit).digiTime() - ttrig;
-    double xLeft = (*hit).localPosition(DTEnums::Left).x();
-    double xRight = (*hit).localPosition(DTEnums::Right).x();
+    float time = hit.digiTime() - ttrig;
+    double xLeft = hit.localPosition(DTEnums::Left).x();
+    double xRight = hit.localPosition(DTEnums::Right).x();
 
     histo("hDigiTime")->Fill(time);
     {  // per layer
-      const DTLayerId& id((*hit).wireId().layerId());
+      const DTLayerId& id(hit.wireId().layerId());
       histo(hName("hDigiTime", id))->Fill(time);
       histo(hName("hPosLeft", id))->Fill(xLeft);
       histo(hName("hPosRight", id))->Fill(xRight);
     }
 
     {  // per SL
-      const DTSuperLayerId& id((*hit).wireId().superlayerId());
+      const DTSuperLayerId& id(hit.wireId().superlayerId());
       histo(hName("hDigiTime", id))->Fill(time);
       histo(hName("hPosLeft", id))->Fill(xLeft);
       histo(hName("hPosRight", id))->Fill(xRight);
     }
 
     {  // per Chamber
-      const DTChamberId& id((*hit).wireId().chamberId());
+      const DTChamberId& id(hit.wireId().chamberId());
       histo(hName("hDigiTime", id))->Fill(time);
       histo(hName("hPosLeft", id))->Fill(xLeft);
       histo(hName("hPosRight", id))->Fill(xRight);
@@ -397,14 +397,14 @@ void DTAnalyzerDetailed::analyzeDTHits(const Event& event, const EventSetup& eve
   // loop on SL
   //cout << "MeanTimer analysis" << endl;
   const std::vector<const DTSuperLayer*>& sls = dtGeom->superLayers();
-  for (auto sl = sls.begin(); sl != sls.end(); ++sl) {
-    DTSuperLayerId slid = (*sl)->id();
+  for (auto sl : sls) {
+    DTSuperLayerId slid = sl->id();
 
     DTMeanTimer meanTimer(dtGeom->superLayer(slid), dtRecHits, eventSetup, theSync.get());
     vector<double> tMaxs = meanTimer.run();
-    for (vector<double>::const_iterator tMax = tMaxs.begin(); tMax != tMaxs.end(); ++tMax) {
+    for (double tMax : tMaxs) {
       //cout << "Filling " << hName("hMeanTimer", slid) << " with " << *tMax << endl;
-      histo(hName("hMeanTimer", slid))->Fill(*tMax);
+      histo(hName("hMeanTimer", slid))->Fill(tMax);
     }
   }
 }
@@ -438,8 +438,8 @@ void DTAnalyzerDetailed::analyzeDTSegments(const Event& event, const EventSetup&
   histo("hnSegDT")->Fill(nsegs);
   const std::vector<const DTChamber*>& chs = dtGeom->chambers();
 
-  for (auto ch = chs.begin(); ch != chs.end(); ++ch) {
-    DTChamberId chid((*ch)->id());
+  for (auto ch : chs) {
+    DTChamberId chid(ch->id());
     //cout << "chid " << chid << endl;
     //int w= chid.wheel();
     //int se= chid.sector();
@@ -469,12 +469,12 @@ void DTAnalyzerDetailed::analyzeDTSegments(const Event& event, const EventSetup&
         /// Mean timer analysis
         DTMeanTimer meanTimer1(dtGeom->superLayer(slid1), phiHits, eventSetup, theSync.get());
         vector<double> tMaxs1 = meanTimer1.run();
-        for (vector<double>::const_iterator tMax = tMaxs1.begin(); tMax != tMaxs1.end(); ++tMax) {
-          histo(hName("hMeanTimerSeg", slid1))->Fill(*tMax);
-          histo2d(hName("hMeanTimerSegVsNHits", slid1))->Fill(phiHits.size(), *tMax);
+        for (double tMax : tMaxs1) {
+          histo(hName("hMeanTimerSeg", slid1))->Fill(tMax);
+          histo2d(hName("hMeanTimerSegVsNHits", slid1))->Fill(phiHits.size(), tMax);
           if ((*seg).hasZed()) {
-            histo2d(hName("hMeanTimerSegAlongWire", slid1))->Fill((*seg).localPosition().y(), *tMax);
-            histo2d(hName("hMeanTimerSegVsAngle", slid1))->Fill(M_PI - (*seg).localDirection().theta(), *tMax);
+            histo2d(hName("hMeanTimerSegAlongWire", slid1))->Fill((*seg).localPosition().y(), tMax);
+            histo2d(hName("hMeanTimerSegVsAngle", slid1))->Fill(M_PI - (*seg).localDirection().theta(), tMax);
           }
         }
 
@@ -482,12 +482,12 @@ void DTAnalyzerDetailed::analyzeDTSegments(const Event& event, const EventSetup&
         /// Mean timer analysis
         DTMeanTimer meanTimer3(dtGeom->superLayer(slid3), phiHits, eventSetup, theSync.get());
         vector<double> tMaxs3 = meanTimer3.run();
-        for (vector<double>::const_iterator tMax = tMaxs3.begin(); tMax != tMaxs3.end(); ++tMax) {
-          histo(hName("hMeanTimerSeg", slid3))->Fill(*tMax);
-          histo2d(hName("hMeanTimerSegVsNHits", slid1))->Fill(phiHits.size(), *tMax);
+        for (double tMax : tMaxs3) {
+          histo(hName("hMeanTimerSeg", slid3))->Fill(tMax);
+          histo2d(hName("hMeanTimerSegVsNHits", slid1))->Fill(phiHits.size(), tMax);
           if ((*seg).hasZed()) {
-            histo2d(hName("hMeanTimerSegAlongWire", slid1))->Fill((*seg).localPosition().y(), *tMax);
-            histo2d(hName("hMeanTimerSegVsAngle", slid1))->Fill(M_PI - (*seg).localDirection().theta(), *tMax);
+            histo2d(hName("hMeanTimerSegAlongWire", slid1))->Fill((*seg).localPosition().y(), tMax);
+            histo2d(hName("hMeanTimerSegVsAngle", slid1))->Fill(M_PI - (*seg).localDirection().theta(), tMax);
           }
         }
       }
@@ -503,12 +503,12 @@ void DTAnalyzerDetailed::analyzeDTSegments(const Event& event, const EventSetup&
         /// Mean timer analysis
         DTMeanTimer meanTimer(dtGeom->superLayer(slid), zedHits, eventSetup, theSync.get());
         vector<double> tMaxs = meanTimer.run();
-        for (vector<double>::const_iterator tMax = tMaxs.begin(); tMax != tMaxs.end(); ++tMax) {
-          histo(hName("hMeanTimerSeg", slid))->Fill(*tMax);
-          histo2d(hName("hMeanTimerSegVsNHits", slid))->Fill(zedHits.size(), *tMax);
+        for (double tMax : tMaxs) {
+          histo(hName("hMeanTimerSeg", slid))->Fill(tMax);
+          histo2d(hName("hMeanTimerSegVsNHits", slid))->Fill(zedHits.size(), tMax);
           if ((*seg).hasPhi()) {
-            histo2d(hName("hMeanTimerSegAlongWire", slid))->Fill((*seg).localPosition().x(), *tMax);
-            histo2d(hName("hMeanTimerSegVsAngle", slid))->Fill(M_PI - (*seg).localDirection().theta(), *tMax);
+            histo2d(hName("hMeanTimerSegAlongWire", slid))->Fill((*seg).localPosition().x(), tMax);
+            histo2d(hName("hMeanTimerSegVsAngle", slid))->Fill(M_PI - (*seg).localDirection().theta(), tMax);
           }
         }
       }
@@ -548,49 +548,47 @@ void DTAnalyzerDetailed::analyzeDTSegments(const Event& event, const EventSetup&
 
       // residual analysis
       if (phiSeg) {
-        DTSegmentResidual res(phiSeg, *ch);
+        DTSegmentResidual res(phiSeg, ch);
         res.run();
         vector<DTSegmentResidual::DTResidual> deltas = res.residuals();
-        for (vector<DTSegmentResidual::DTResidual>::const_iterator delta = deltas.begin(); delta != deltas.end();
-             ++delta) {
-          histo(hName("hHitResidualSeg", (*ch)->id()))->Fill((*delta).value);
-          if ((*delta).side == DTEnums::Right)
-            histo(hName("hHitResidualSegCellDX", (*ch)->id()))->Fill((*delta).value);
-          else if ((*delta).side == DTEnums::Left)
-            histo(hName("hHitResidualSegCellSX", (*ch)->id()))->Fill((*delta).value);
+        for (const auto& delta : deltas) {
+          histo(hName("hHitResidualSeg", ch->id()))->Fill(delta.value);
+          if (delta.side == DTEnums::Right)
+            histo(hName("hHitResidualSegCellDX", ch->id()))->Fill(delta.value);
+          else if (delta.side == DTEnums::Left)
+            histo(hName("hHitResidualSegCellSX", ch->id()))->Fill(delta.value);
 
-          histo2d(hName("hHitResidualSegVsWireDis", (*ch)->id()))->Fill((*delta).wireDistance, (*delta).value);
+          histo2d(hName("hHitResidualSegVsWireDis", ch->id()))->Fill(delta.wireDistance, delta.value);
 
-          histo2d(hName("hHitResidualSegVsAngle", (*ch)->id()))->Fill((*delta).angle, (*delta).value);
-          histo2d(hName("hHitResidualSegVsNHits", (*ch)->id()))->Fill(phiSeg->recHits().size(), (*delta).value);
-          histo2d(hName("hHitResidualSegVsChi2", (*ch)->id()))->Fill(phiSeg->chi2(), (*delta).value);
+          histo2d(hName("hHitResidualSegVsAngle", ch->id()))->Fill(delta.angle, delta.value);
+          histo2d(hName("hHitResidualSegVsNHits", ch->id()))->Fill(phiSeg->recHits().size(), delta.value);
+          histo2d(hName("hHitResidualSegVsChi2", ch->id()))->Fill(phiSeg->chi2(), delta.value);
 
           if ((*seg).hasPhi())
-            histo2d(hName("hHitResidualSegAlongWire", (*ch)->id()))->Fill((*seg).localPosition().x(), (*delta).value);
+            histo2d(hName("hHitResidualSegAlongWire", ch->id()))->Fill((*seg).localPosition().x(), delta.value);
         }
       }
 
       if (zedSeg) {
-        const DTSuperLayer* sl = (*ch)->superLayer(2);
+        const DTSuperLayer* sl = ch->superLayer(2);
         DTSegmentResidual res(zedSeg, sl);
         res.run();
         vector<DTSegmentResidual::DTResidual> deltas = res.residuals();
-        for (vector<DTSegmentResidual::DTResidual>::const_iterator delta = deltas.begin(); delta != deltas.end();
-             ++delta) {
-          histo(hName("hHitResidualSeg", sl->id()))->Fill((*delta).value);
-          if ((*delta).side == DTEnums::Right)
-            histo(hName("hHitResidualSegCellDX", sl->id()))->Fill((*delta).value);
-          else if ((*delta).side == DTEnums::Left)
-            histo(hName("hHitResidualSegCellSX", sl->id()))->Fill((*delta).value);
+        for (const auto& delta : deltas) {
+          histo(hName("hHitResidualSeg", sl->id()))->Fill(delta.value);
+          if (delta.side == DTEnums::Right)
+            histo(hName("hHitResidualSegCellDX", sl->id()))->Fill(delta.value);
+          else if (delta.side == DTEnums::Left)
+            histo(hName("hHitResidualSegCellSX", sl->id()))->Fill(delta.value);
 
-          histo2d(hName("hHitResidualSegVsWireDis", sl->id()))->Fill((*delta).wireDistance, (*delta).value);
+          histo2d(hName("hHitResidualSegVsWireDis", sl->id()))->Fill(delta.wireDistance, delta.value);
 
-          histo2d(hName("hHitResidualSegVsAngle", sl->id()))->Fill((*delta).angle, (*delta).value);
-          histo2d(hName("hHitResidualSegVsNHits", sl->id()))->Fill(zedSeg->recHits().size(), (*delta).value);
-          histo2d(hName("hHitResidualSegVsChi2", sl->id()))->Fill(zedSeg->chi2(), (*delta).value);
+          histo2d(hName("hHitResidualSegVsAngle", sl->id()))->Fill(delta.angle, delta.value);
+          histo2d(hName("hHitResidualSegVsNHits", sl->id()))->Fill(zedSeg->recHits().size(), delta.value);
+          histo2d(hName("hHitResidualSegVsChi2", sl->id()))->Fill(zedSeg->chi2(), delta.value);
 
           if ((*seg).hasPhi())
-            histo2d(hName("hHitResidualSegAlongWire", sl->id()))->Fill((*seg).localPosition().x(), (*delta).value);
+            histo2d(hName("hHitResidualSegAlongWire", sl->id()))->Fill((*seg).localPosition().x(), delta.value);
         }
       }  // if ZedSeg
 

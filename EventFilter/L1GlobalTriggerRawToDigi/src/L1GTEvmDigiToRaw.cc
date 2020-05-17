@@ -100,9 +100,9 @@ void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetu
   gtRecordMap.reserve(boardMapsSize);
 
   for (int iPos = 0; iPos < boardMapsSize; ++iPos) {
-    for (CItBoardMaps itBoard = boardMaps.begin(); itBoard != boardMaps.end(); ++itBoard) {
-      if (itBoard->gtPositionEvmRecord() == iPos) {
-        gtRecordMap.push_back(*itBoard);
+    for (const auto& boardMap : boardMaps) {
+      if (boardMap.gtPositionEvmRecord() == iPos) {
+        gtRecordMap.push_back(boardMap);
         break;
       }
     }
@@ -172,13 +172,13 @@ void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetu
   unsigned int headerSize = 8;
   gtDataSize += headerSize;
 
-  for (CItBoardMaps itBoard = boardMaps.begin(); itBoard != boardMaps.end(); ++itBoard) {
-    if (itBoard->gtBoardType() == GTFE) {
+  for (const auto& boardMap : boardMaps) {
+    if (boardMap.gtBoardType() == GTFE) {
       gtDataSize += gtfeBlock.getSize();
       continue;
     }
 
-    int iActiveBit = itBoard->gtBitEvmActiveBoards();
+    int iActiveBit = boardMap.gtBitEvmActiveBoards();
     bool activeBoardToPack = false;
 
     int altNrBxBoardVal = -1;
@@ -196,7 +196,7 @@ void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetu
         if (m_verbosity) {
           edm::LogWarning("L1GTEvmDigiToRaw")
               << "\n\nWARNING: Wrong value altNrBxBoardVal = " << altNrBxBoardVal << " for board " << std::hex
-              << (itBoard->gtBoardId()) << std::dec << "\n  iActiveBit =            " << iActiveBit
+              << (boardMap.gtBoardId()) << std::dec << "\n  iActiveBit =            " << iActiveBit
               << "\n  altNrBxBoardInitial = 0x" << std::hex << altNrBxBoardInitial << std::dec
               << "\n  activeBoardsGt =      0x" << std::hex << activeBoardsGt << std::dec
               << "\n  activeBoardToPack =   " << activeBoardToPack << "\n Set altNrBxBoardVal tentatively to "
@@ -212,7 +212,7 @@ void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetu
     }
 
     if (activeBoardToPack) {
-      switch (itBoard->gtBoardType()) {
+      switch (boardMap.gtBoardType()) {
         case GTFE: {
           // size already added;
         }
@@ -268,8 +268,8 @@ void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetu
 
   // loop over other blocks in the raw record, if they are active
 
-  for (CItBoardMaps itBoard = gtRecordMap.begin(); itBoard != gtRecordMap.end(); ++itBoard) {
-    if (itBoard->gtBoardType() == GTFE) {
+  for (const auto& itBoard : gtRecordMap) {
+    if (itBoard.gtBoardType() == GTFE) {
       packGTFE(evSetup, ptrGt, gtfeBlock, activeBoardsGt);
 
       if (m_verbosity && m_isDebugEnabled) {
@@ -285,7 +285,7 @@ void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetu
 
     // pack modules other than GTFE if they are active
 
-    int iActiveBit = itBoard->gtBitEvmActiveBoards();
+    int iActiveBit = itBoard.gtBitEvmActiveBoards();
     bool activeBoardToPack = false;
 
     int altNrBxBoardVal = -1;
@@ -303,7 +303,7 @@ void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetu
         if (m_verbosity) {
           edm::LogWarning("L1GTEvmDigiToRaw")
               << "\n\nWARNING: Wrong value altNrBxBoardVal = " << altNrBxBoardVal << " for board " << std::hex
-              << (itBoard->gtBoardId()) << std::dec << "\n  iActiveBit =            " << iActiveBit
+              << (itBoard.gtBoardId()) << std::dec << "\n  iActiveBit =            " << iActiveBit
               << "\n  altNrBxBoardInitial = 0x" << std::hex << altNrBxBoardInitial << std::dec
               << "\n  activeBoardsGt =      0x" << std::hex << activeBoardsGt << std::dec
               << "\n  activeBoardToPack =   " << activeBoardToPack << "\n Set altNrBxBoardVal tentatively to "
@@ -324,14 +324,14 @@ void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetu
 
     if (activeBoardToPack) {
       if (m_verbosity && m_isDebugEnabled) {
-        LogDebug("L1GTEvmDigiToRaw") << "\nBoard " << std::hex << "0x" << (itBoard->gtBoardId()) << std::dec
+        LogDebug("L1GTEvmDigiToRaw") << "\nBoard " << std::hex << "0x" << (itBoard.gtBoardId()) << std::dec
                                      << "\n  Number of bunch crosses in the record: " << m_totalBxInEvent << " = "
                                      << "[" << m_minBxInEvent << ", " << m_maxBxInEvent << "] BX\n"
                                      << std::endl;
       }
 
       // active board, pack it
-      switch (itBoard->gtBoardType()) {
+      switch (itBoard.gtBoardType()) {
         case TCS: {
           L1TcsWord tcsBlock = gtReadoutRecord->tcsWord();
           packTCS(evSetup, ptrGt, tcsBlock);

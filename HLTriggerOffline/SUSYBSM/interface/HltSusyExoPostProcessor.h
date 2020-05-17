@@ -15,7 +15,7 @@ protected:
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
 private:
-  MonitorElement *bookEffMEProfileFromTH1(TH1F *, std::string, DQMStore::IBooker &);
+  MonitorElement *bookEffMEProfileFromTH1(TH1F *, const std::string &, DQMStore::IBooker &);
   std::string subDir_;
   bool mcFlag;
   std::vector<edm::ParameterSet> reco_parametersets;

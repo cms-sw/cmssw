@@ -21,7 +21,7 @@ void LMFCorrCoefDatComponent::init() {
   m_keys["FLAG"] = 6;
   m_keys["SEQ_ID"] = 7;
   for (unsigned int i = 0; i < m_keys.size(); i++) {
-    m_type.push_back("NUMBER");
+    m_type.emplace_back("NUMBER");
   }
 }
 

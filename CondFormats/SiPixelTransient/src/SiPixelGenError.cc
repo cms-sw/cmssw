@@ -52,7 +52,7 @@ using namespace edm;
 //! digits of filenum.
 //! \param filenum - an integer NNNN used in the filename generror_summary_zpNNNN
 //****************************************************************
-bool SiPixelGenError::pushfile(int filenum, std::vector<SiPixelGenErrorStore>& pixelTemp, std::string dir) {
+bool SiPixelGenError::pushfile(int filenum, std::vector<SiPixelGenErrorStore>& pixelTemp, const std::string& dir) {
   // Add info stored in external file numbered filenum to theGenErrorStore
 
   // Local variables

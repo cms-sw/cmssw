@@ -173,7 +173,7 @@ void FSQDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       PV_d0->Fill(sqrt(pvtx.x() * pvtx.x() + pvtx.y() * pvtx.y()));
       PV_numTrks->Fill(pvtx.tracksSize());
       double vertex_sumTrks = 0.0;
-      for (reco::Vertex::trackRef_iterator iTrack = pvtx.tracks_begin(); iTrack != pvtx.tracks_end(); iTrack++) {
+      for (auto iTrack = pvtx.tracks_begin(); iTrack != pvtx.tracks_end(); iTrack++) {
         vertex_sumTrks += (*iTrack)->pt();
       }
       PV_sumTrks->Fill(vertex_sumTrks);
@@ -188,7 +188,7 @@ void FSQDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.getByToken(tok_pfjet_, pfjetchscoll);
   if (pfjetchscoll.isValid()) {
     const reco::PFJetCollection* pfchsjets = pfjetchscoll.product();
-    reco::PFJetCollection::const_iterator pfjetchsclus = pfchsjets->begin();
+    auto pfjetchsclus = pfchsjets->begin();
     for (pfjetchsclus = pfchsjets->begin(); pfjetchsclus != pfchsjets->end(); ++pfjetchsclus) {
       PFJetpt->Fill(pfjetchsclus->pt());
       PFJeteta->Fill(pfjetchsclus->eta());
@@ -233,21 +233,21 @@ void FSQDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     float ptsum_away = 0;
 
     T_trackRec_P4.clear();
-    for (reco::TrackCollection::const_iterator iT = itracks->begin(); iT != itracks->end(); ++iT) {
-      if (iT->quality(hiPurity)) {
+    for (const auto& iT : *itracks) {
+      if (iT.quality(hiPurity)) {
         math::XYZPoint bestvtx(bestvx, bestvy, bestvz);
-        double dzvtx = iT->dz(bestvtx);
-        double dxyvtx = iT->dxy(bestvtx);
-        double dzerror = sqrt(iT->dzError() * iT->dzError() + bestvzError * bestvzError);
-        double dxyerror = sqrt(iT->d0Error() * iT->d0Error() + bestvxError * bestvyError);
-        if ((iT->ptError()) / iT->pt() < 0.05 && dzvtx < 3.0 && dxyvtx < 3.0) {
+        double dzvtx = iT.dz(bestvtx);
+        double dxyvtx = iT.dxy(bestvtx);
+        double dzerror = sqrt(iT.dzError() * iT.dzError() + bestvzError * bestvzError);
+        double dxyerror = sqrt(iT.d0Error() * iT.d0Error() + bestvxError * bestvyError);
+        if ((iT.ptError()) / iT.pt() < 0.05 && dzvtx < 3.0 && dxyvtx < 3.0) {
           TLorentzVector trk;
-          trk.SetPtEtaPhiE(iT->pt(), iT->eta(), iT->phi(), iT->p());
+          trk.SetPtEtaPhiE(iT.pt(), iT.eta(), iT.phi(), iT.p());
           T_trackRec_P4.push_back(trk);
-          Track_HP_Eta->Fill(iT->eta());
-          Track_HP_Phi->Fill(iT->phi());
-          Track_HP_Pt->Fill(iT->pt());
-          Track_HP_ptErr_over_pt->Fill((iT->ptError()) / iT->pt());
+          Track_HP_Eta->Fill(iT.eta());
+          Track_HP_Phi->Fill(iT.phi());
+          Track_HP_Pt->Fill(iT.pt());
+          Track_HP_ptErr_over_pt->Fill((iT.ptError()) / iT.pt());
           Track_HP_dzvtx_over_dzerr->Fill(dzvtx / dzerror);
           Track_HP_dxyvtx_over_dxyerror->Fill(dxyvtx / dxyerror);
         }

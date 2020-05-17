@@ -59,8 +59,8 @@ DTUserKeyedConfigHandler::DTUserKeyedConfigHandler(const edm::ParameterSet& ps)
   std::cout << " PopCon application for DT configuration export " << onlineAuthentication << std::endl;
 
   std::vector<edm::ParameterSet> dtConfigKeys(ps.getParameter<std::vector<edm::ParameterSet> >("DTConfigKeys"));
-  std::vector<edm::ParameterSet>::const_iterator iter = dtConfigKeys.begin();
-  std::vector<edm::ParameterSet>::const_iterator iend = dtConfigKeys.end();
+  auto iter = dtConfigKeys.begin();
+  auto iend = dtConfigKeys.end();
   while (iter != iend) {
     const edm::ParameterSet& cp = *iter++;
     int configType = cp.getUntrackedParameter<int>("configType");
@@ -102,8 +102,8 @@ void DTUserKeyedConfigHandler::getNewObjects() {
     std::cout << "get last full key" << std::endl;
     lastKey = payload->fullKey();
     std::cout << "last key: " << std::endl;
-    std::vector<DTConfigKey>::const_iterator keyIter = lastKey.begin();
-    std::vector<DTConfigKey>::const_iterator keyIend = lastKey.end();
+    auto keyIter = lastKey.begin();
+    auto keyIend = lastKey.end();
     while (keyIter != keyIend) {
       const DTConfigKey& keyList = *keyIter++;
       std::cout << keyList.confType << " : " << keyList.confKey << std::endl;
@@ -185,8 +185,8 @@ void DTUserKeyedConfigHandler::getNewObjects() {
     //    if ( cfgMap.find( cfg ) == cfgMap.end() ) continue;
     if (userDiscardedKey(cfg))
       continue;
-    std::map<int, std::map<int, int>*>::const_iterator keyIter = keyMap.find(cfg);
-    std::map<int, std::map<int, int>*>::const_iterator keyIend = keyMap.end();
+    auto keyIter = keyMap.find(cfg);
+    auto keyIend = keyMap.end();
     std::map<int, int>* mapPtr = nullptr;
     // check for new full configuration
     if (keyIter != keyIend)
@@ -217,8 +217,8 @@ void DTUserKeyedConfigHandler::getNewObjects() {
     // check for used ccb config key
     if (cckMap.find(key) == cckMap.end())
       continue;
-    std::map<int, std::vector<int>*>::const_iterator brkIter = brkMap.find(key);
-    std::map<int, std::vector<int>*>::const_iterator brkIend = brkMap.end();
+    auto brkIter = brkMap.find(key);
+    auto brkIend = brkMap.end();
     // check for new ccb config key
     std::vector<int>* brkPtr = nullptr;
     if (brkIter != brkIend)
@@ -234,38 +234,38 @@ void DTUserKeyedConfigHandler::getNewObjects() {
   fullConf->setStamp(1);
   fullConf->setFullKey(userConf);
   std::map<int, bool> userBricks;
-  std::map<int, bool>::const_iterator uBrkIter = userBricks.begin();
-  std::map<int, bool>::const_iterator uBrkIend = userBricks.end();
-  std::vector<DTConfigKey>::const_iterator cfgIter = userConf.begin();
-  std::vector<DTConfigKey>::const_iterator cfgIend = userConf.end();
+  auto uBrkIter = userBricks.begin();
+  auto uBrkIend = userBricks.end();
+  auto cfgIter = userConf.begin();
+  auto cfgIend = userConf.end();
   while (cfgIter != cfgIend) {
     const DTConfigKey& cfgEntry = *cfgIter++;
     int cft = cfgEntry.confType;
     int cfg = cfgEntry.confKey;
     // retrieve ccb config map
-    std::map<int, std::map<int, int>*>::const_iterator keyIter = keyMap.find(cfg);
-    std::map<int, std::map<int, int>*>::const_iterator keyIend = keyMap.end();
+    auto keyIter = keyMap.find(cfg);
+    auto keyIend = keyMap.end();
     std::map<int, int>* mapPtr = nullptr;
     if (keyIter != keyIend)
       mapPtr = keyIter->second;
     if (mapPtr == nullptr)
       continue;
-    std::map<int, int>::const_iterator ccbIter = mapPtr->begin();
-    std::map<int, int>::const_iterator ccbIend = mapPtr->end();
+    auto ccbIter = mapPtr->begin();
+    auto ccbIend = mapPtr->end();
     while (ccbIter != ccbIend) {
       const std::pair<int, int>& ccbEntry = *ccbIter++;
       // get ccb config key
       int ccb = ccbEntry.first;
       int key = ccbEntry.second;
       // retrieve chamber id
-      std::map<int, DTCCBId>::const_iterator ccbIter = ccbMap.find(ccb);
-      std::map<int, DTCCBId>::const_iterator ccbIend = ccbMap.end();
+      auto ccbIter = ccbMap.find(ccb);
+      auto ccbIend = ccbMap.end();
       if (ccbIter == ccbIend)
         continue;
       const DTCCBId& chaId = ccbIter->second;
       // retrieve brick id list
-      std::map<int, std::vector<int>*>::const_iterator brkIter = brkMap.find(key);
-      std::map<int, std::vector<int>*>::const_iterator brkIend = brkMap.end();
+      auto brkIter = brkMap.find(key);
+      auto brkIend = brkMap.end();
       if (brkIter == brkIend)
         continue;
       std::vector<int>* brkPtr = brkIter->second;
@@ -274,10 +274,10 @@ void DTUserKeyedConfigHandler::getNewObjects() {
       // brick id lists in payload
       std::vector<int> bkList;
       bkList.reserve(20);
-      std::map<int, int>::const_iterator bktIter = bktMap.begin();
-      std::map<int, int>::const_iterator bktIend = bktMap.end();
-      std::vector<int>::const_iterator bkiIter = brkPtr->begin();
-      std::vector<int>::const_iterator bkiIend = brkPtr->end();
+      auto bktIter = bktMap.begin();
+      auto bktIend = bktMap.end();
+      auto bkiIter = brkPtr->begin();
+      auto bkiIend = brkPtr->end();
       while (bkiIter != bkiIend) {
         int brickId = *bkiIter++;
         bktIter = bktMap.find(brickId);
@@ -310,8 +310,8 @@ void DTUserKeyedConfigHandler::chkConfigList(const std::map<int, bool>& userBric
   std::cout << "open POOL out db " << std::endl;
   edm::Service<cond::service::PoolDBOutputService> outdb;
 
-  std::map<int, bool>::const_iterator uBrkIter = userBricks.begin();
-  std::map<int, bool>::const_iterator uBrkIend = userBricks.end();
+  auto uBrkIter = userBricks.begin();
+  auto uBrkIend = userBricks.end();
 
   coral::ITable& brickConfigTable = isession->nominalSchema().tableHandle("CFGBRICKS");
   std::unique_ptr<coral::IQuery> brickConfigQuery(brickConfigTable.newQuery());
@@ -348,8 +348,8 @@ void DTUserKeyedConfigHandler::chkConfigList(const std::map<int, bool>& userBric
     }
   }
 
-  std::vector<int>::const_iterator brickIter = missingList.begin();
-  std::vector<int>::const_iterator brickIend = missingList.end();
+  auto brickIter = missingList.begin();
+  auto brickIend = missingList.end();
   while (brickIter != brickIend) {
     int brickConfigId = *brickIter++;
     coral::AttributeList bindVariableList;
@@ -385,23 +385,23 @@ bool DTUserKeyedConfigHandler::sameConfigList(const std::vector<DTConfigKey>& cf
   if (cfgl.size() != cfgr.size())
     return false;
   std::map<int, int> lmap;
-  std::vector<DTConfigKey>::const_iterator lIter = cfgl.begin();
-  std::vector<DTConfigKey>::const_iterator lIend = cfgl.end();
+  auto lIter = cfgl.begin();
+  auto lIend = cfgl.end();
   while (lIter != lIend) {
     const DTConfigKey& entry = *lIter++;
     lmap.insert(std::pair<int, int>(entry.confType, entry.confKey));
   }
   std::map<int, int> rmap;
-  std::vector<DTConfigKey>::const_iterator rIter = cfgr.begin();
-  std::vector<DTConfigKey>::const_iterator rIend = cfgr.end();
+  auto rIter = cfgr.begin();
+  auto rIend = cfgr.end();
   while (rIter != rIend) {
     const DTConfigKey& entry = *rIter++;
     rmap.insert(std::pair<int, int>(entry.confType, entry.confKey));
   }
-  std::map<int, int>::const_iterator lmIter = lmap.begin();
-  std::map<int, int>::const_iterator lmIend = lmap.end();
-  std::map<int, int>::const_iterator rmIter = rmap.begin();
-  std::map<int, int>::const_iterator rmIend = rmap.end();
+  auto lmIter = lmap.begin();
+  auto lmIend = lmap.end();
+  auto rmIter = rmap.begin();
+  auto rmIend = rmap.end();
   while ((lmIter != lmIend) && (rmIter != rmIend)) {
     const std::pair<int, int>& lEntry = *lmIter++;
     const std::pair<int, int>& rEntry = *rmIter++;
@@ -414,8 +414,8 @@ bool DTUserKeyedConfigHandler::sameConfigList(const std::vector<DTConfigKey>& cf
 }
 
 bool DTUserKeyedConfigHandler::userDiscardedKey(int key) {
-  std::vector<DTConfigKey>::const_iterator iter = userConf.begin();
-  std::vector<DTConfigKey>::const_iterator iend = userConf.end();
+  auto iter = userConf.begin();
+  auto iend = userConf.end();
   while (iter != iend) {
     const DTConfigKey& entry = *iter++;
     if (entry.confKey == key)

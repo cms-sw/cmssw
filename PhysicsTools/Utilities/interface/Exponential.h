@@ -3,12 +3,13 @@
 #include "PhysicsTools/Utilities/interface/Parameter.h"
 
 #include <cmath>
+#include <utility>
 
 namespace funct {
 
   struct Exponential {
     Exponential(const Parameter& l) : lambda(l.ptr()) {}
-    Exponential(std::shared_ptr<double> l) : lambda(l) {}
+    Exponential(std::shared_ptr<double> l) : lambda(std::move(l)) {}
     Exponential(double l) : lambda(new double(l)) {}
     double operator()(double x) const { return std::exp((*lambda) * x); }
     std::shared_ptr<double> lambda;

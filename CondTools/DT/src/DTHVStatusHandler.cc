@@ -139,8 +139,8 @@ void DTHVStatusHandler::getNewObjects() {
     std::cout << "no old data... " << last << std::endl;
   } else {
     Ref payload = lastPayload();
-    DTHVStatus::const_iterator paylIter = payload->begin();
-    DTHVStatus::const_iterator paylIend = payload->end();
+    auto paylIter = payload->begin();
+    auto paylIend = payload->end();
     while (paylIter != paylIend) {
       const std::pair<DTHVStatusId, DTHVStatusData>& entry = *paylIter++;
       const DTHVStatusId& chan = entry.first;
@@ -202,16 +202,16 @@ void DTHVStatusHandler::checkNewData() {
             << coralTime(procUntil).second() << std::endl;
 
   std::set<std::string> omds_lt(omds_session.nominalSchema().listTables());
-  std::set<std::string>::const_iterator omds_iter = omds_lt.begin();
-  std::set<std::string>::const_iterator omds_iend = omds_lt.end();
+  auto omds_iter = omds_lt.begin();
+  auto omds_iend = omds_lt.end();
   while (omds_iter != omds_iend) {
     const std::string& istr = *omds_iter++;
     std::cout << "TABLE: " << istr << std::endl;
   }
 
   std::set<std::string> util_lt(util_session.nominalSchema().listTables());
-  std::set<std::string>::const_iterator util_iter = util_lt.begin();
-  std::set<std::string>::const_iterator util_iend = util_lt.end();
+  auto util_iter = util_lt.begin();
+  auto util_iend = util_lt.end();
   while (util_iter != util_iend) {
     const std::string& istr = *util_iter++;
     std::cout << "TABLE: " << istr << std::endl;
@@ -350,8 +350,8 @@ void DTHVStatusHandler::getChannelSplit() {
     int pRaw = pId.rawId();
     int sRaw = sId.rawId();
     std::vector<int>* splitList = nullptr;
-    std::map<int, std::vector<int>*>::iterator iter = channelSplit.find(pRaw);
-    std::map<int, std::vector<int>*>::iterator iend = channelSplit.end();
+    auto iter = channelSplit.find(pRaw);
+    auto iend = channelSplit.end();
     if (iter == iend) {
       channelSplit.insert(std::pair<int, std::vector<int>*>(pRaw, splitList = new std::vector<int>));
     } else {
@@ -405,8 +405,8 @@ void DTHVStatusHandler::dumpHVAliases() {
   }
   std::cout << "ALIASES table read... " << cnMap.size() << std::endl;
 
-  std::map<int, std::string>::const_iterator idIter = idMap.begin();
-  std::map<int, std::string>::const_iterator idIend = idMap.end();
+  auto idIter = idMap.begin();
+  auto idIend = idMap.end();
   std::string outChk("/outputChannel");
   while (idIter != idIend) {
     const std::pair<int, std::string>& ientry = *idIter++;
@@ -422,7 +422,7 @@ void DTHVStatusHandler::dumpHVAliases() {
     std::string chName(dp.substr(0, ldp - 17));
     chName += ".actual.OvC";
     int chCode = subOut.c_str()[16] - '0';
-    std::map<std::string, std::string>::const_iterator jter = cnMap.find(chName);
+    auto jter = cnMap.find(chName);
     if (jter == cnMap.end())
       continue;
     const std::pair<std::string, std::string>& jentry = *jter;
@@ -437,11 +437,11 @@ void DTHVStatusHandler::dumpHVAliases() {
     if ((iofw == al) || (iofc == al) || (iofs == al) || (iofq == al) || (iofl == al)) {
       break;
     }
-    int ioew = an.find("_", iofw);
-    int ioec = an.find("_", iofc);
-    int ioes = an.find("_", iofs);
-    int ioeq = an.find("_", iofq);
-    int ioel = an.find("_", iofl);
+    int ioew = an.find('_', iofw);
+    int ioec = an.find('_', iofc);
+    int ioes = an.find('_', iofs);
+    int ioeq = an.find('_', iofq);
+    int ioel = an.find('_', iofl);
     std::string swhe(an.substr(iofw, ioew - iofw));
     const char* cwhe = swhe.c_str();
     int whe = cwhe[1] - '0';
@@ -515,8 +515,8 @@ void DTHVStatusHandler::createSnapshot() {
   newMeas["TIME"].data<coral::TimeStamp>() = coral::TimeStamp(zeroTime);
   newMeas["VALUE"].data<float>() = -999999.0;
 
-  std::map<int, int>::const_iterator iter = aliasMap.begin();
-  std::map<int, int>::const_iterator iend = aliasMap.end();
+  auto iter = aliasMap.begin();
+  auto iend = aliasMap.end();
   while (iter != iend) {
     const std::pair<int, int>& entry = *iter++;
     int detId = entry.second;
@@ -598,8 +598,8 @@ void DTHVStatusHandler::updateHVStatus() {
 
 int DTHVStatusHandler::recoverSnapshot() {
   int missingChannels = 0;
-  std::map<int, int>::const_iterator layIter = layerMap.begin();
-  std::map<int, int>::const_iterator layIend = layerMap.end();
+  auto layIter = layerMap.begin();
+  auto layIend = layerMap.end();
   std::cout << "retrieve snapshot table..." << std::endl;
   coral::ITable& hvssTable = buff_session.nominalSchema().tableHandle("HVSNAPSHOT");
   std::unique_ptr<coral::IQuery> hvssQuery(hvssTable.newQuery());
@@ -640,8 +640,8 @@ int DTHVStatusHandler::recoverSnapshot() {
 cond::Time_t DTHVStatusHandler::recoverLastTime() {
   long long int lastTime = 0LL;
   long long int chanTime = 0LL;
-  std::map<int, timedMeasurement>::iterator mapIter = snapshotValues.begin();
-  std::map<int, timedMeasurement>::iterator mapIend = snapshotValues.end();
+  auto mapIter = snapshotValues.begin();
+  auto mapIend = snapshotValues.end();
   while (mapIter != mapIend) {
     const std::pair<int, timedMeasurement>& entry = *mapIter++;
     chanTime = entry.second.first;
@@ -667,8 +667,8 @@ void DTHVStatusHandler::dumpSnapshot(const coral::TimeStamp& time) {
   std::cout << "dump snapshot to buffer db..." << std::endl;
   std::string emptyCondition("");
   coral::AttributeList emptyBindVariableList;
-  std::map<int, int>::const_iterator mapIter = aliasMap.begin();
-  std::map<int, int>::const_iterator mapIend = aliasMap.end();
+  auto mapIter = aliasMap.begin();
+  auto mapIend = aliasMap.end();
   coral::ITable& hvssTable = buff_session.nominalSchema().tableHandle("HVSNAPSHOT");
   coral::ITableDataEditor& hvssEditor(hvssTable.dataEditor());
   long nRows = hvssEditor.deleteRows(emptyCondition, emptyBindVariableList);
@@ -686,8 +686,8 @@ void DTHVStatusHandler::dumpSnapshot(const coral::TimeStamp& time) {
   newMeas.extend("VALUE", typeid(float));
 
   nRows = 0;
-  std::map<int, timedMeasurement>::const_iterator ssvIter = snapshotValues.begin();
-  std::map<int, timedMeasurement>::const_iterator ssvIend = snapshotValues.end();
+  auto ssvIter = snapshotValues.begin();
+  auto ssvIend = snapshotValues.end();
   while (ssvIter != ssvIend) {
     const std::pair<int, timedMeasurement>& entry = *ssvIter++;
     int dpty = entry.first;
@@ -736,8 +736,8 @@ int DTHVStatusHandler::checkForPeriod(cond::Time_t condSince,
                                       cond::Time_t condUntil,
                                       int& missingChannels,
                                       bool copyOffline) {
-  std::map<int, timedMeasurement>::iterator mapIter = snapshotValues.begin();
-  std::map<int, timedMeasurement>::iterator mapIend = snapshotValues.end();
+  auto mapIter = snapshotValues.begin();
+  auto mapIend = snapshotValues.end();
 
   std::map<long long int, channelValue> periodBuffer;
 
@@ -796,8 +796,8 @@ int DTHVStatusHandler::checkForPeriod(cond::Time_t condSince,
   long long int dTime = minTime;
   dTime <<= 32;
   std::cout << "data found in period: " << periodBuffer.size() << std::endl;
-  std::map<long long int, channelValue>::const_iterator bufIter = periodBuffer.begin();
-  std::map<long long int, channelValue>::const_iterator bufIend = periodBuffer.end();
+  auto bufIter = periodBuffer.begin();
+  auto bufIend = periodBuffer.end();
 
   bool changedStatus = false;
   while (bufIter != bufIend) {
@@ -815,7 +815,7 @@ int DTHVStatusHandler::checkForPeriod(cond::Time_t condSince,
         if (nextFound > timeLimit) {
           DTHVStatus* hvStatus = offlineList();
           std::cout << "new payload " << hvStatus->end() - hvStatus->begin() << std::endl;
-          tmpContainer.push_back(std::make_pair(hvStatus, lastFound));
+          tmpContainer.emplace_back(hvStatus, lastFound);
           changedStatus = false;
           if (!(--maxPayload)) {
             procUntil = lastFound;
@@ -876,8 +876,8 @@ DTHVStatus* DTHVStatusHandler::offlineList() {
   float valueR = 0.0;
   float valueS = 0.0;
   float valueC = 0.0;
-  std::map<int, int>::const_iterator layerIter = layerMap.begin();
-  std::map<int, int>::const_iterator layerIend = layerMap.end();
+  auto layerIter = layerMap.begin();
+  auto layerIend = layerMap.end();
   while (layerIter != layerIend) {
     const std::pair<int, int>& chanEntry = *layerIter++;
     int rawId = chanEntry.first;
@@ -912,12 +912,12 @@ DTHVStatus* DTHVStatusHandler::offlineList() {
         if (!flag.a && !flag.c && !flag.s)
           continue;
         setChannelFlag(hv, whe, sta, sec, qua, lay, l_p, flag);
-        std::map<int, std::vector<int>*>::const_iterator m_iter = channelSplit.find(rPart);
-        std::map<int, std::vector<int>*>::const_iterator m_iend = channelSplit.end();
+        auto m_iter = channelSplit.find(rPart);
+        auto m_iend = channelSplit.end();
         if (m_iter != m_iend) {
           std::vector<int>* cList = m_iter->second;
-          std::vector<int>::const_iterator l_iter = cList->begin();
-          std::vector<int>::const_iterator l_iend = cList->end();
+          auto l_iter = cList->begin();
+          auto l_iend = cList->end();
           while (l_iter != l_iend) {
             DTWireId chlId(*l_iter++);
             int wh2 = chlId.wheel();
@@ -943,14 +943,14 @@ DTHVStatus* DTHVStatusHandler::offlineList() {
 void DTHVStatusHandler::getLayerValues(int rawId, int type, float& valueL, float& valueR, float& valueS, float& valueC) {
   valueL = valueR = valueS = valueC = 0.0;
   DTWireId chlId(rawId);
-  std::map<int, timedMeasurement>::const_iterator snapIter = snapshotValues.begin();
-  std::map<int, timedMeasurement>::const_iterator snapIend = snapshotValues.end();
+  auto snapIter = snapshotValues.begin();
+  auto snapIend = snapshotValues.end();
   int rawL = layerId(rawId, 0).rawId();
   int rawR = layerId(rawId, 1).rawId();
   int rawS = layerId(rawId, 2).rawId();
   int rawC = layerId(rawId, 3).rawId();
   std::map<int, int>::const_iterator layerIter;
-  std::map<int, int>::const_iterator layerIend = layerMap.end();
+  auto layerIend = layerMap.end();
   if ((layerIter = layerMap.find(rawL)) != layerIend) {
     const std::pair<int, int>& layerEntry = *layerIter;
     int dpId = layerEntry.second;
@@ -1012,8 +1012,8 @@ void DTHVStatusHandler::setChannelFlag(
   int searchStatus = hv->get(whe, sta, sec, qua, lay, l_p, fCell, lCell, flagA, flagC, flagS);
   if (searchStatus) {
     DTWireId wireId(whe, sta, sec, qua, lay, 10 + l_p);
-    std::map<int, int>::const_iterator splitIter = laySplit.find(wireId.rawId());
-    std::map<int, int>::const_iterator splitIend = laySplit.end();
+    auto splitIter = laySplit.find(wireId.rawId());
+    auto splitIend = laySplit.end();
     if (splitIter != splitIend) {
       int code = splitIter->second;
       fCell = code / 10000;
@@ -1030,8 +1030,8 @@ void DTHVStatusHandler::setChannelFlag(
 int DTHVStatusHandler::checkStatusChange(int chan, float oldValue, float newValue) {
   int dpId = chan / 10;
   int type = chan % 10;
-  std::map<int, int>::const_iterator aliasIter = aliasMap.find(dpId);
-  std::map<int, int>::const_iterator aliasIend = aliasMap.end();
+  auto aliasIter = aliasMap.find(dpId);
+  auto aliasIend = aliasMap.end();
   if (aliasIter == aliasIend)
     return false;
   int rawId = aliasIter->second;
@@ -1101,8 +1101,8 @@ void DTHVStatusHandler::filterData() {
   int pSize;
   int nSize;
 
-  std::vector<std::pair<DTHVStatus*, cond::Time_t> >::const_iterator iter = tmpContainer.begin();
-  std::vector<std::pair<DTHVStatus*, cond::Time_t> >::const_iterator iend = tmpContainer.end();
+  auto iter = tmpContainer.begin();
+  auto iend = tmpContainer.end();
   std::vector<std::pair<DTHVStatus*, cond::Time_t> >::const_iterator prev;
   std::vector<std::pair<DTHVStatus*, cond::Time_t> >::const_iterator next;
 

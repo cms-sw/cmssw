@@ -408,7 +408,7 @@ namespace dqmstorepb {
   void ROOTFilePB_Histo::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
     // @@protoc_insertion_point(generalized_merge_from_start:dqmstorepb.ROOTFilePB.Histo)
     GOOGLE_DCHECK_NE(&from, this);
-    const ROOTFilePB_Histo* source = ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<ROOTFilePB_Histo>(&from);
+    const auto* source = ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<ROOTFilePB_Histo>(&from);
     if (source == nullptr) {
       // @@protoc_insertion_point(generalized_merge_from_cast_fail:dqmstorepb.ROOTFilePB.Histo)
       ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);

@@ -42,7 +42,7 @@ void SiStripDetSummary::add(DetId detid, float value) {
 
 void SiStripDetSummary::print(std::stringstream& ss, const bool mean) const {
   // Compute the mean for each detector and for each layer.
-  std::map<unsigned int, Values>::const_iterator valueMapIt = valueMap_.begin();
+  auto valueMapIt = valueMap_.begin();
 
   ss << "subDet" << std::setw(15) << "layer" << std::setw(16) << "mono/stereo" << std::setw(20);
   if (mean)

@@ -138,8 +138,8 @@ void OutputDDToDDL::beginRun(const edm::Run&, edm::EventSetup const& es) {
 
   (*m_xos) << std::fixed << std::setprecision(18);
 
-  adjl_iterator git = gra.begin();
-  adjl_iterator gend = gra.end();
+  auto git = gra.begin();
+  auto gend = gra.end();
 
   Graph::index_type i = 0;
   (*m_xos) << "<PosPartSection label=\"" << ns_ << "\">" << std::endl;
@@ -176,7 +176,7 @@ void OutputDDToDDL::beginRun(const edm::Run&, edm::EventSetup const& es) {
   (*m_xos) << std::scientific << std::setprecision(18);
 
   (*m_xos) << "<MaterialSection label=\"" << ns_ << "\">" << std::endl;
-  for (auto it : matStore) {
+  for (const auto& it : matStore) {
     if (!it.isDefined().second)
       continue;
     out.material(it, *m_xos);
@@ -184,7 +184,7 @@ void OutputDDToDDL::beginRun(const edm::Run&, edm::EventSetup const& es) {
   (*m_xos) << "</MaterialSection>" << std::endl;
   (*m_xos) << "<RotationSection label=\"" << ns_ << "\">" << std::endl;
   (*m_xos) << std::fixed << std::setprecision(18);
-  std::set<DDRotation>::iterator rit(rotStore.begin()), red(rotStore.end());
+  auto rit(rotStore.begin()), red(rotStore.end());
   for (; rit != red; ++rit) {
     if (!rit->isDefined().second)
       continue;
@@ -196,7 +196,7 @@ void OutputDDToDDL::beginRun(const edm::Run&, edm::EventSetup const& es) {
   (*m_xos) << "</RotationSection>" << std::endl;
 
   (*m_xos) << std::fixed << std::setprecision(18);
-  std::set<DDSolid>::const_iterator sit(solStore.begin()), sed(solStore.end());
+  auto sit(solStore.begin()), sed(solStore.end());
   (*m_xos) << "<SolidSection label=\"" << ns_ << "\">" << std::endl;
   for (; sit != sed; ++sit) {
     if (!sit->isDefined().second)
@@ -205,7 +205,7 @@ void OutputDDToDDL::beginRun(const edm::Run&, edm::EventSetup const& es) {
   }
   (*m_xos) << "</SolidSection>" << std::endl;
 
-  std::set<DDLogicalPart>::iterator lpit(lpStore.begin()), lped(lpStore.end());
+  auto lpit(lpStore.begin()), lped(lpStore.end());
   (*m_xos) << "<LogicalPartSection label=\"" << ns_ << "\">" << std::endl;
   for (; lpit != lped; ++lpit) {
     if (!lpit->isDefined().first)

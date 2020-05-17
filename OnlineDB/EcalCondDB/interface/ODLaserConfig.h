@@ -3,6 +3,8 @@
 
 #include <map>
 #include <stdexcept>
+#include <utility>
+
 #include "OnlineDB/Oracle/interface/Oracle.h"
 #include "OnlineDB/EcalCondDB/interface/IODConfig.h"
 #define USE_NORM 1
@@ -35,15 +37,15 @@ public:
   inline int getMatacqBaseAddress() const { return m_mq_base; }
   inline void setMatacqNone(int x) { m_mq_none = x; }
   inline int getMatacqNone() const { return m_mq_none; }
-  inline void setMatacqMode(std::string x) { m_mode = x; }
+  inline void setMatacqMode(std::string x) { m_mode = std::move(x); }
   inline std::string getMatacqMode() const { return m_mode; }
   inline void setChannelMask(int x) { m_chan_mask = x; }
   inline int getChannelMask() const { return m_chan_mask; }
-  inline void setMaxSamplesForDaq(std::string x) { m_samples = x; }
+  inline void setMaxSamplesForDaq(std::string x) { m_samples = std::move(x); }
   inline std::string getMaxSamplesForDaq() const { return m_samples; }
   inline void setMatacqFedId(int x) { m_mq_fed = x; }
   inline int getMatacqFedId() const { return m_mq_fed; }
-  inline void setPedestalFile(std::string x) { m_ped_file = x; }
+  inline void setPedestalFile(std::string x) { m_ped_file = std::move(x); }
   inline std::string getPedestalFile() const { return m_ped_file; }
   inline void setUseBuffer(int x) { m_use_buffer = x; }
   inline int getUseBuffer() const { return m_use_buffer; }
@@ -51,20 +53,20 @@ public:
   inline int getPostTrig() const { return m_post_trig; }
   inline void setFPMode(int x) { m_fp_mode = x; }
   inline int getFPMode() const { return m_fp_mode; }
-  inline void setHalModuleFile(std::string x) { m_hal_mod_file = x; }
+  inline void setHalModuleFile(std::string x) { m_hal_mod_file = std::move(x); }
   inline std::string getHalModuleFile() const { return m_hal_mod_file; }
   inline void setMatacqVernierMax(int x) { m_matacq_vernier_max = x; }
   inline int getMatacqVernierMax() { return m_matacq_vernier_max; }
   inline void setMatacqVernierMin(int x) { m_matacq_vernier_min = x; }
   inline int getMatacqVernierMin() { return m_matacq_vernier_min; }
 
-  inline void setHalAddressTableFile(std::string x) { m_hal_add_file = x; }
+  inline void setHalAddressTableFile(std::string x) { m_hal_add_file = std::move(x); }
   inline std::string getHalAddressTableFile() const { return m_hal_add_file; }
 
-  inline void setHalStaticTableFile(std::string x) { m_hal_tab_file = x; }
+  inline void setHalStaticTableFile(std::string x) { m_hal_tab_file = std::move(x); }
   inline std::string getHalStaticTableFile() const { return m_hal_tab_file; }
 
-  inline void setMatacqSerialNumber(std::string x) { m_serial = x; }
+  inline void setMatacqSerialNumber(std::string x) { m_serial = std::move(x); }
   inline std::string getMatacqSerialNumber() const { return m_serial; }
 
   inline void setPedestalRunEventCount(int x) { m_ped_count = x; }
@@ -73,10 +75,10 @@ public:
   inline void setRawDataMode(int x) { m_raw_mode = x; }
   inline int getRawDataMode() const { return m_raw_mode; }
 
-  inline void setMatacqAcquisitionMode(std::string x) { m_aqmode = x; }
+  inline void setMatacqAcquisitionMode(std::string x) { m_aqmode = std::move(x); }
   inline std::string getMatacqAcquisitionMode() const { return m_aqmode; }
 
-  inline void setLocalOutputFile(std::string x) { m_mq_file = x; }
+  inline void setLocalOutputFile(std::string x) { m_mq_file = std::move(x); }
   inline std::string getLocalOutputFile() const { return m_mq_file; }
 
   // emtc
@@ -110,13 +112,13 @@ public:
   inline void setLaserControlOn(int x) { m_on = x; }
   inline int getLaserControlOn() const { return m_on; }
 
-  inline void setLaserControlHost(std::string x) { m_laserhost = x; }
+  inline void setLaserControlHost(std::string x) { m_laserhost = std::move(x); }
   inline std::string getLaserControlHost() const { return m_laserhost; }
 
   inline void setLaserControlPort(int x) { m_laserport = x; }
   inline int getLaserControlPort() const { return m_laserport; }
 
-  inline void setLaserTag(std::string x) { m_laser_tag = x; }
+  inline void setLaserTag(std::string x) { m_laser_tag = std::move(x); }
   inline std::string getLaserTag() const { return m_laser_tag; }
 
   // new parameters
@@ -145,13 +147,13 @@ public:
   inline void setBlueLedMonAmpl(int x) { m_blue_led_mon_ampl = x; }
   inline int getBlueLedMonAmpl() const { return m_blue_led_mon_ampl; }
 
-  inline void setTrigLogFile(std::string x) { m_trig_log_file = x; }
+  inline void setTrigLogFile(std::string x) { m_trig_log_file = std::move(x); }
   inline std::string getTrigLogFile() const { return m_trig_log_file; }
 
   inline void setLedControlON(int x) { m_led_control_on = x; }
   inline int getLedControlON() const { return m_led_control_on; }
 
-  inline void setLedControlHost(std::string x) { m_led_control_host = x; }
+  inline void setLedControlHost(std::string x) { m_led_control_host = std::move(x); }
   inline std::string getLedControlHost() const { return m_led_control_host; }
 
   inline void setLedControlPort(int x) { m_led_control_port = x; }
@@ -178,7 +180,7 @@ public:
   inline void setRedLaserLogAttenuator(int x) { m_red_laser_log_attenuator = x; }
   inline int getRedLaserLogAttenuator() const { return m_red_laser_log_attenuator; }
 
-  inline void setLaserConfigFile(std::string x) { m_laser_config_file = x; }
+  inline void setLaserConfigFile(std::string x) { m_laser_config_file = std::move(x); }
   inline std::string getLaserConfigFile() const { return m_laser_config_file; }
 
   inline void setLaserClob(unsigned char* x) { m_laser_clob = x; }

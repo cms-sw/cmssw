@@ -215,7 +215,7 @@ FWTableView::FWTableView(TEveWindowSlot *iParent, FWTableViewManager *manager)
   //      m_collection = new TGComboBox(buttons);
   m_vert = new TGVerticalFrame(frame);
   frame->AddFrame(m_vert, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
-  TGHorizontalFrame *header = new TGHorizontalFrame(m_vert);
+  auto *header = new TGHorizontalFrame(m_vert);
   m_vert->AddFrame(header, new TGLayoutHints(kLHintsTop | kLHintsExpandX));
   const bool bgIsBlack = m_manager->colorManager().background() == kBlack;
   m_columnUIButton = new FWCustomIconsButton(
@@ -240,7 +240,7 @@ FWTableView::FWTableView(TEveWindowSlot *iParent, FWTableViewManager *manager)
   //      column_control_label->SetForegroundColor(bgIsBlack ? kWhite : kBlack);
   //      column_control_label->SetTextColor(bgIsBlack ? kWhite : kBlack);
   m_column_control->AddFrame(column_control_label, new TGLayoutHints(kLHintsExpandX));
-  TGHorizontalFrame *column_control_fields = new TGHorizontalFrame(m_column_control);
+  auto *column_control_fields = new TGHorizontalFrame(m_column_control);
   m_column_control->AddFrame(column_control_fields, new TGLayoutHints(kLHintsExpandX));
   m_column_name_field = new TGTextEntry(column_control_fields);
   m_column_name_field->SetMaxWidth(10);
@@ -378,10 +378,7 @@ void FWTableView::setFrom(const FWConfiguration &iFrom) {
     const FWConfiguration *collection = main->valueForKey(kCollection);
     const std::string &collectionName = collection->value();
     // find item
-    for (std::vector<const FWEventItem *>::const_iterator it = m_manager->items().begin(),
-                                                          itEnd = m_manager->items().end();
-         it != itEnd;
-         ++it) {
+    for (auto it = m_manager->items().begin(), itEnd = m_manager->items().end(); it != itEnd; ++it) {
       if (*it && (*it)->name() == collectionName) {
         m_collection->Select(it - m_manager->items().begin(), true);
         break;

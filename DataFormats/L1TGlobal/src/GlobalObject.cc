@@ -55,7 +55,7 @@ l1t::GlobalObject l1TGtObjectStringToEnum(const std::string& label) {
                                                                             {"ObjNull", ObjNull},
                                                                             {nullptr, (GlobalObject)-1}};
 
-  l1t::GlobalObject value = (GlobalObject)-1;
+  auto value = (GlobalObject)-1;
 
   bool found = false;
   for (int i = 0; l1TGtObjectStringToEnumMap[i].label && (!found); ++i)

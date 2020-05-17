@@ -5,7 +5,7 @@ Toy EDAnalyzer for testing purposes only.
 
 ----------------------------------------------------------------------*/
 
-#include <math.h>
+#include <cmath>
 #include <stdexcept>
 #include <string>
 #include <iostream>
@@ -62,8 +62,8 @@ void DTHVStatusValidateDBRead::analyze(const edm::Event& e, const edm::EventSetu
   int ckflagC;
   int ckflagS;
 
-  DTHVStatus::const_iterator iter = hv->begin();
-  DTHVStatus::const_iterator iend = hv->end();
+  auto iter = hv->begin();
+  auto iend = hv->end();
   while (iter != iend) {
     const DTHVStatusId& hvId = iter->first;
     const DTHVStatusData& hvData = iter->second;

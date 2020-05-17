@@ -342,18 +342,17 @@ void HcalSimHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
 
   c.get<CaloGeometryRecord>().get(geometry);
 
-  for (std::vector<PCaloHit>::const_iterator SimHits = SimHitResult->begin(); SimHits != SimHitResult->end();
-       ++SimHits) {
+  for (const auto &SimHits : *SimHitResult) {
     HcalDetId cell;
     if (testNumber_)
-      cell = HcalHitRelabeller::relabel(SimHits->id(), hcons);
+      cell = HcalHitRelabeller::relabel(SimHits.id(), hcons);
     else
-      cell = HcalDetId(SimHits->id());
+      cell = HcalDetId(SimHits.id());
 
     auto cellGeometry = geometry->getSubdetectorGeometry(cell)->getGeometry(cell);
     double etaS = cellGeometry->getPosition().eta();
     double phiS = cellGeometry->getPosition().phi();
-    double en = SimHits->energy();
+    double en = SimHits.energy();
 
     int sub = cell.subdet();
     int depth = cell.depth();
@@ -434,14 +433,13 @@ void HcalSimHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
     ev.getByToken(tok_ecalEB_, ecalEBHits);
     const PCaloHitContainer *SimHitResultEB = ecalEBHits.product();
 
-    for (std::vector<PCaloHit>::const_iterator SimHits = SimHitResultEB->begin(); SimHits != SimHitResultEB->end();
-         ++SimHits) {
-      EBDetId EBid = EBDetId(SimHits->id());
+    for (const auto &SimHits : *SimHitResultEB) {
+      EBDetId EBid = EBDetId(SimHits.id());
 
       auto cellGeometry = geometry->getSubdetectorGeometry(EBid)->getGeometry(EBid);
       double etaS = cellGeometry->getPosition().eta();
       double phiS = cellGeometry->getPosition().phi();
-      double en = SimHits->energy();
+      double en = SimHits.energy();
 
       double r = dR(eta_MC, phi_MC, etaS, phiS);
 
@@ -456,14 +454,13 @@ void HcalSimHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
     ev.getByToken(tok_ecalEE_, ecalEEHits);
     const PCaloHitContainer *SimHitResultEE = ecalEEHits.product();
 
-    for (std::vector<PCaloHit>::const_iterator SimHits = SimHitResultEE->begin(); SimHits != SimHitResultEE->end();
-         ++SimHits) {
-      EEDetId EEid = EEDetId(SimHits->id());
+    for (const auto &SimHits : *SimHitResultEE) {
+      EEDetId EEid = EEDetId(SimHits.id());
 
       auto cellGeometry = geometry->getSubdetectorGeometry(EEid)->getGeometry(EEid);
       double etaS = cellGeometry->getPosition().eta();
       double phiS = cellGeometry->getPosition().phi();
-      double en = SimHits->energy();
+      double en = SimHits.energy();
 
       double r = dR(eta_MC, phi_MC, etaS, phiS);
 

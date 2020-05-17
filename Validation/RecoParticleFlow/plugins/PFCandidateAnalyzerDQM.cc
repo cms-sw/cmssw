@@ -121,26 +121,26 @@ void PFCandidateAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventS
     //Analyze
     // Loop Over Particle Flow Candidates
 
-    for (unsigned int i = 0; i < pfHandle->size(); i++) {
+    for (const auto& i : *pfHandle) {
       // Fill Histograms for Candidate Methods
       // all candidates
-      me["AllCandidateLog10Pt"]->Fill(log10(pfHandle->at(i).pt()));
-      me["AllCandidateEta"]->Fill(pfHandle->at(i).eta());
-      me["AllCandidatePhi"]->Fill(pfHandle->at(i).phi());
-      me["AllCandidateCharge"]->Fill(pfHandle->at(i).charge());
-      me["AllCandidatePtLow"]->Fill(pfHandle->at(i).pt());
-      me["AllCandidatePtMid"]->Fill(pfHandle->at(i).pt());
-      me["AllCandidatePtHigh"]->Fill(pfHandle->at(i).pt());
+      me["AllCandidateLog10Pt"]->Fill(log10(i.pt()));
+      me["AllCandidateEta"]->Fill(i.eta());
+      me["AllCandidatePhi"]->Fill(i.phi());
+      me["AllCandidateCharge"]->Fill(i.charge());
+      me["AllCandidatePtLow"]->Fill(i.pt());
+      me["AllCandidatePtMid"]->Fill(i.pt());
+      me["AllCandidatePtHigh"]->Fill(i.pt());
 
-      int pdgId = abs(pfHandle->at(i).pdgId());
+      int pdgId = abs(i.pdgId());
       if (pdgMap.find(pdgId) != pdgMap.end()) {
-        me[pdgMap[pdgId] + "Log10Pt"]->Fill(log10(pfHandle->at(i).pt()));
-        me[pdgMap[pdgId] + "Eta"]->Fill(pfHandle->at(i).eta());
-        me[pdgMap[pdgId] + "Phi"]->Fill(pfHandle->at(i).phi());
-        me[pdgMap[pdgId] + "Charge"]->Fill(pfHandle->at(i).charge());
-        me[pdgMap[pdgId] + "PtLow"]->Fill(pfHandle->at(i).pt());
-        me[pdgMap[pdgId] + "PtMid"]->Fill(pfHandle->at(i).pt());
-        me[pdgMap[pdgId] + "PtHigh"]->Fill(pfHandle->at(i).pt());
+        me[pdgMap[pdgId] + "Log10Pt"]->Fill(log10(i.pt()));
+        me[pdgMap[pdgId] + "Eta"]->Fill(i.eta());
+        me[pdgMap[pdgId] + "Phi"]->Fill(i.phi());
+        me[pdgMap[pdgId] + "Charge"]->Fill(i.charge());
+        me[pdgMap[pdgId] + "PtLow"]->Fill(i.pt());
+        me[pdgMap[pdgId] + "PtMid"]->Fill(i.pt());
+        me[pdgMap[pdgId] + "PtHigh"]->Fill(i.pt());
       }
     }
   }

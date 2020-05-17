@@ -120,9 +120,8 @@ void DTOccupancyTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
   // Get all the DT chambers
   vector<const DTChamber*> chambers = muonGeom->chambers();
 
-  for (vector<const DTChamber*>::const_iterator chamber = chambers.begin(); chamber != chambers.end();
-       ++chamber) {  // Loop over all chambers
-    DTChamberId chId = (*chamber)->id();
+  for (auto chamber : chambers) {  // Loop over all chambers
+    DTChamberId chId = chamber->id();
 
     MonitorElement* chamberOccupancyHisto = igetter.get(getMEName(nameMonitoredHisto, chId));
 
@@ -197,7 +196,10 @@ void DTOccupancyTest::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& i
 
 // --------------------------------------------------
 
-void DTOccupancyTest::bookHistos(DQMStore::IBooker& ibooker, const int wheelId, string folder, string histoTag) {
+void DTOccupancyTest::bookHistos(DQMStore::IBooker& ibooker,
+                                 const int wheelId,
+                                 const string& folder,
+                                 const string& histoTag) {
   // Set the current folder
   stringstream wheel;
   wheel << wheelId;
@@ -224,7 +226,7 @@ void DTOccupancyTest::bookHistos(DQMStore::IBooker& ibooker, const int wheelId, 
   wheelHistos[wheelId]->setAxisTitle("sector", 1);
 }
 
-string DTOccupancyTest::getMEName(string histoTag, const DTChamberId& chId) {
+string DTOccupancyTest::getMEName(const string& histoTag, const DTChamberId& chId) {
   stringstream wheel;
   wheel << chId.wheel();
   stringstream station;

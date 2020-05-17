@@ -17,9 +17,9 @@ static long algorithm(dd4hep::Detector& /* description */,
   int numberY = args.value<int>("NumberY");      //Slices along Y
   double deltaX = args.value<double>("DeltaX");  //Step along X
   double deltaY = args.value<double>("DeltaY");  //Step along Y
-  std::vector<double> centre = args.value<std::vector<double> >("Center");
+  auto centre = args.value<std::vector<double> >("Center");
   dd4hep::Volume parent = ns.volume(args.parentName());
-  std::vector<std::string> childName = args.value<std::vector<std::string> >("Child");
+  auto childName = args.value<std::vector<std::string> >("Child");
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "DDHCalLinearXY: Parent " << parent.name() << " \twith " << childName.size()

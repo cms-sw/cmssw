@@ -67,7 +67,7 @@ void CompareClusters::analyze(const edm::Event& event, const edm::EventSetup& es
 void CompareClusters::show(uint32_t id) {
   message << std::endl << "detId: " << id << std::endl;
   message << "Digis:\n" << printDigis(id);
-  edmNew::DetSet<SiStripCluster>::const_iterator c1(0), c2(0), end1(0), end2(0);
+  edmNew::DetSet<SiStripCluster>::const_iterator c1(nullptr), c2(nullptr), end1(nullptr), end2(nullptr);
   if (clusterHandle1->find(id) != clusterHandle1->end()) {
     c1 = clusterHandle1->find(id)->begin();
     end1 = clusterHandle1->find(id)->end();
@@ -87,8 +87,8 @@ void CompareClusters::show(uint32_t id) {
 std::string CompareClusters::printCluster(const SiStripCluster& cluster) {
   std::stringstream s;
   s << "\t" << cluster.firstStrip() << " [ ";
-  for (unsigned i = 0; i < cluster.amplitudes().size(); i++) {
-    s << static_cast<int>(cluster.amplitudes()[i]) << " ";
+  for (unsigned char i : cluster.amplitudes()) {
+    s << static_cast<int>(i) << " ";
   }
   s << "]" << std::endl;
   return s.str();
@@ -99,12 +99,12 @@ std::string CompareClusters::printDigis(uint32_t id) {
   SiStripApvGain::Range gainRange = gainHandle->getRange(id);
   SiStripNoises::Range noiseRange = noiseHandle->getRange(id);
   SiStripQuality::Range qualityRange = qualityHandle->getRange(id);
-  edm::DetSetVector<SiStripDigi>::const_iterator set = digiHandle->find(id);
+  auto set = digiHandle->find(id);
   if (set != digiHandle->end()) {
-    for (edm::DetSet<SiStripDigi>::const_iterator digi = set->begin(); digi != set->end(); digi++) {
-      s << "( " << digi->strip() << ", " << digi->adc() << ", " << noiseHandle->getNoise(digi->strip(), noiseRange)
-        << ", " << gainHandle->getStripGain(digi->strip(), gainRange) << ", "
-        << (qualityHandle->IsStripBad(qualityRange, digi->strip()) ? "bad" : "good") << ")\n";
+    for (auto digi : *set) {
+      s << "( " << digi.strip() << ", " << digi.adc() << ", " << noiseHandle->getNoise(digi.strip(), noiseRange) << ", "
+        << gainHandle->getStripGain(digi.strip(), gainRange) << ", "
+        << (qualityHandle->IsStripBad(qualityRange, digi.strip()) ? "bad" : "good") << ")\n";
     }
   }
   return s.str();

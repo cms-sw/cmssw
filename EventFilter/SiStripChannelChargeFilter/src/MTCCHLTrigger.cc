@@ -25,21 +25,20 @@ namespace cms {
 
     if (selOnDigiCharge) {
       unsigned int digiadc = 0;
-      for (std::vector<edm::Handle<edm::DetSetVector<SiStripDigi> > >::const_iterator mi = di.begin(); mi != di.end();
-           mi++) {
-        for (edm::DetSetVector<SiStripDigi>::const_iterator it = (*mi)->begin(); it != (*mi)->end(); it++) {
-          for (std::vector<SiStripDigi>::const_iterator vit = (it->data).begin(); vit != (it->data).end(); vit++)
-            digiadc += vit->adc();
+      for (const auto& mi : di) {
+        for (auto it = mi->begin(); it != mi->end(); it++) {
+          for (auto vit : (it->data))
+            digiadc += vit.adc();
         }
       }
       return (digiadc > ChargeThreshold) ? true : false;
     } else {
       unsigned int amplclus = 0;
-      for (edm::DetSetVector<SiStripCluster>::const_iterator it = h->begin(); it != h->end(); it++) {
-        for (std::vector<SiStripCluster>::const_iterator vit = (it->data).begin(); vit != (it->data).end(); vit++) {
-          for (auto ia = vit->amplitudes().begin(); ia != vit->amplitudes().end(); ia++) {
-            if ((*ia) > 0) {
-              amplclus += (*ia);
+      for (const auto& it : *h) {
+        for (auto vit = (it.data).begin(); vit != (it.data).end(); vit++) {
+          for (unsigned char ia : vit->amplitudes()) {
+            if (ia > 0) {
+              amplclus += ia;
             }
           }
         }

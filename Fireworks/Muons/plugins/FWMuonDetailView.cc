@@ -68,7 +68,7 @@ void FWMuonDetailView::build(const FWModelId& id, const reco::Muon* iMuon) {
   addSceneInfo(iMuon, m_eveScene);
 
   // draw axis at the window corners
-  TEveCaloLegoOverlay* overlay = new TEveCaloLegoOverlay();
+  auto* overlay = new TEveCaloLegoOverlay();
   overlay->SetShowPlane(kFALSE);
   overlay->SetShowPerspective(kFALSE);
   overlay->SetCaloLego(lego);
@@ -77,7 +77,7 @@ void FWMuonDetailView::build(const FWModelId& id, const reco::Muon* iMuon) {
 
   // set event handler and flip camera to top view at beginning
   viewerGL()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
-  FWGLEventHandler* eh = new FWGLEventHandler((TGWindow*)viewerGL()->GetGLWidget(), (TObject*)viewerGL(), lego);
+  auto* eh = new FWGLEventHandler((TGWindow*)viewerGL()->GetGLWidget(), (TObject*)viewerGL(), lego);
   viewerGL()->SetEventHandler(eh);
 
   viewerGL()->ResetCamerasAfterNextUpdate();
@@ -137,7 +137,7 @@ void FWMuonDetailView::addSceneInfo(const reco::Muon* i, TEveElementList* tList)
 
   Double_t x(0), y(0);
   Double_t delta(0.01);
-  TEveStraightLineSet* direction = new TEveStraightLineSet("Direction at vertex");
+  auto* direction = new TEveStraightLineSet("Direction at vertex");
   direction->SetPickable(kTRUE);
   direction->SetTitle("Muon direction at vertex");
   direction->SetPickable(kTRUE);
@@ -158,7 +158,7 @@ void FWMuonDetailView::addSceneInfo(const reco::Muon* i, TEveElementList* tList)
     return;
 
   // ecal position
-  TEveStraightLineSet* ecalposition = new TEveStraightLineSet("ecal position");
+  auto* ecalposition = new TEveStraightLineSet("ecal position");
   ecalposition->SetPickable(kTRUE);
   ecalposition->SetTitle("Muon position at ECAL surface");
   if (barrel) {
@@ -177,7 +177,7 @@ void FWMuonDetailView::addSceneInfo(const reco::Muon* i, TEveElementList* tList)
   tList->AddElement(ecalposition);
 
   // hcal position
-  TEveStraightLineSet* hcalposition = new TEveStraightLineSet("hcal position");
+  auto* hcalposition = new TEveStraightLineSet("hcal position");
   hcalposition->SetPickable(kTRUE);
   hcalposition->SetTitle("Muon position at HCAL surface");
   if (barrel) {
@@ -196,7 +196,7 @@ void FWMuonDetailView::addSceneInfo(const reco::Muon* i, TEveElementList* tList)
   tList->AddElement(hcalposition);
 
   // draw a line connecting the two positions
-  TEveStraightLineSet* lines = new TEveStraightLineSet("Muon trajectory in ECAL", "Muon trajectory in ECAL");
+  auto* lines = new TEveStraightLineSet("Muon trajectory in ECAL", "Muon trajectory in ECAL");
   lines->SetPickable(kTRUE);
   if (barrel) {
     lines->AddLine(i->calEnergy().ecal_position.eta(),

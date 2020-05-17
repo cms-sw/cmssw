@@ -155,11 +155,14 @@ TestCorrection::TestCorrection(const edm::ParameterSet& iConfig)
   correctedPtVsEta_ = new TProfile("correctedPtVsEta", "corrected pt vs eta", 1000, 0, 100, -3., 3.);
   eventCounter_ = 0;
   // Create the corrector and set the parameters
-  corrector_.reset(new MomentumScaleCorrector(iConfig.getUntrackedParameter<std::string>("CorrectionsIdentifier")));
+  corrector_ =
+      std::make_unique<MomentumScaleCorrector>(iConfig.getUntrackedParameter<std::string>("CorrectionsIdentifier"));
   std::cout << "corrector_ = " << &*corrector_ << std::endl;
-  resolution_.reset(new ResolutionFunction(iConfig.getUntrackedParameter<std::string>("ResolutionsIdentifier")));
+  resolution_ =
+      std::make_unique<ResolutionFunction>(iConfig.getUntrackedParameter<std::string>("ResolutionsIdentifier"));
   std::cout << "resolution_ = " << &*resolution_ << std::endl;
-  background_.reset(new BackgroundFunction(iConfig.getUntrackedParameter<std::string>("BackgroundIdentifier")));
+  background_ =
+      std::make_unique<BackgroundFunction>(iConfig.getUntrackedParameter<std::string>("BackgroundIdentifier"));
 
   // Initialize the parameters of MuScleFitUtils from those saved in the functions.
   // MuScleFitUtils::parScale = corrector_.getFunction(0)->parameters();
@@ -234,9 +237,9 @@ void TestCorrection::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   // ------------------------------------------------------------
   std::pair<MuScleFitMuon, MuScleFitMuon> recMuFromBestRes = MuScleFitUtils::findBestRecoRes(muons);
   if (MuScleFitUtils::ResFound) {
-    MuScleFitUtils::SavedPair.push_back(std::make_pair(recMuFromBestRes.first.p4(), recMuFromBestRes.second.p4()));
+    MuScleFitUtils::SavedPair.emplace_back(recMuFromBestRes.first.p4(), recMuFromBestRes.second.p4());
   } else {
-    MuScleFitUtils::SavedPair.push_back(std::make_pair(lorentzVector(0., 0., 0., 0.), lorentzVector(0., 0., 0., 0.)));
+    MuScleFitUtils::SavedPair.emplace_back(lorentzVector(0., 0., 0., 0.), lorentzVector(0., 0., 0., 0.));
   }
 
   // If resonance found, do the hard work
@@ -278,7 +281,7 @@ void TestCorrection::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   }
 
   // Loop on the recMuons
-  std::vector<MuScleFitMuon>::const_iterator recMuon = muons.begin();
+  auto recMuon = muons.begin();
   int muonCount = 0;
   for (; recMuon != muons.end(); ++recMuon, ++muonCount) {
     // Fill the histogram with uncorrected pt values

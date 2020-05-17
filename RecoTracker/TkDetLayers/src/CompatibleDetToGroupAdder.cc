@@ -26,14 +26,14 @@ bool CompatibleDetToGroupAdder::add(const GeometricSearchDet& det,
       return false;
 
     if (result.empty())
-      result.push_back(DetGroup(0, 1));  // empty group for insertion
+      result.emplace_back(0, 1);  // empty group for insertion
 
     if (result.size() != 1)
       edm::LogError("TkDetLayers")
           << "CompatibleDetToGroupAdder: det is not grouped but result has more than one group!";
     result.front().reserve(result.front().size() + compatDets.size());
-    for (vector<GeometricSearchDet::DetWithState>::const_iterator i = compatDets.begin(); i != compatDets.end(); i++)
-      result.front().push_back(std::move(*i));
+    for (const auto& compatDet : compatDets)
+      result.front().push_back(compatDet);
   }
   return true;
 }
@@ -54,7 +54,7 @@ bool CompatibleDetToGroupAdder::add(const GeomDet& det,
     return false;
 
   if (result.empty())
-    result.push_back(DetGroup(0, 1));  // empty group for ge insertion
+    result.emplace_back(0, 1);  // empty group for ge insertion
 
   if (result.size() != 1)
     edm::LogError("TkDetLayers") << "CompatibleDetToGroupAdder: det is not grouped but result has more than one group!";

@@ -90,14 +90,14 @@ void RHStopTracer::update(const EndOfTrack* fTrack) {
                                        << "   4vec " << track->GetMomentum();
     if (track->GetMomentum().mag() < 0.001) {
       LogDebug("SimG4CoreCustomPhysics") << "RHStopTracer:: track has stopped, so making StopPoint";
-      mStopPoints.push_back(StopPoint(track->GetDefinition()->GetParticleName(),
-                                      track->GetPosition().x(),
-                                      track->GetPosition().y(),
-                                      track->GetPosition().z(),
-                                      track->GetGlobalTime(),
-                                      track->GetDefinition()->GetPDGEncoding(),
-                                      track->GetDefinition()->GetPDGMass() / GeV,
-                                      track->GetDefinition()->GetPDGCharge()));
+      mStopPoints.emplace_back(track->GetDefinition()->GetParticleName(),
+                               track->GetPosition().x(),
+                               track->GetPosition().y(),
+                               track->GetPosition().z(),
+                               track->GetGlobalTime(),
+                               track->GetDefinition()->GetPDGEncoding(),
+                               track->GetDefinition()->GetPDGMass() / GeV,
+                               track->GetDefinition()->GetPDGCharge());
     }
   }
 }
@@ -114,7 +114,7 @@ void RHStopTracer::produce(edm::Event& fEvent, const edm::EventSetup&) {
   std::unique_ptr<std::vector<float> > masses(new std::vector<float>);
   std::unique_ptr<std::vector<float> > charges(new std::vector<float>);
 
-  std::vector<StopPoint>::const_iterator stopPoint = mStopPoints.begin();
+  auto stopPoint = mStopPoints.begin();
   for (; stopPoint != mStopPoints.end(); ++stopPoint) {
     names->push_back(stopPoint->name);
     xs->push_back(stopPoint->x);

@@ -41,7 +41,7 @@ void testSiStripHistoTitle::beginJob() {
   {
     bool first = true;
     for (uint32_t cntr = 0; cntr <= sistrip::invalid_; cntr++) {
-      sistrip::HistoType in = static_cast<sistrip::HistoType>(cntr);
+      auto in = static_cast<sistrip::HistoType>(cntr);
       std::string str = SiStripEnumsAndStrings::histoType(in);
       sistrip::HistoType out = SiStripEnumsAndStrings::histoType(str);
       if (out != sistrip::UNKNOWN_HISTO_TYPE || (out == sistrip::UNKNOWN_HISTO_TYPE && first)) {
@@ -57,7 +57,7 @@ void testSiStripHistoTitle::beginJob() {
   {
     bool first = true;
     for (uint32_t cntr = 0; cntr <= sistrip::invalid_; cntr++) {
-      sistrip::RunType in = static_cast<sistrip::RunType>(cntr);
+      auto in = static_cast<sistrip::RunType>(cntr);
       std::string str = SiStripEnumsAndStrings::runType(in);
       sistrip::RunType out = SiStripEnumsAndStrings::runType(str);
       if (out != sistrip::UNKNOWN_RUN_TYPE || (out == sistrip::UNKNOWN_RUN_TYPE && first)) {
@@ -73,7 +73,7 @@ void testSiStripHistoTitle::beginJob() {
   {
     bool first = true;
     for (uint32_t cntr = 0; cntr <= sistrip::invalid_; cntr++) {
-      sistrip::KeyType in = static_cast<sistrip::KeyType>(cntr);
+      auto in = static_cast<sistrip::KeyType>(cntr);
       std::string str = SiStripEnumsAndStrings::keyType(in);
       sistrip::KeyType out = SiStripEnumsAndStrings::keyType(str);
       if (out != sistrip::UNKNOWN_KEY || (out == sistrip::UNKNOWN_KEY && first)) {
@@ -89,7 +89,7 @@ void testSiStripHistoTitle::beginJob() {
   {
     bool first = true;
     for (uint32_t cntr = 0; cntr <= sistrip::invalid_; cntr++) {
-      sistrip::Granularity in = static_cast<sistrip::Granularity>(cntr);
+      auto in = static_cast<sistrip::Granularity>(cntr);
       std::string str = SiStripEnumsAndStrings::granularity(in);
       sistrip::Granularity out = SiStripEnumsAndStrings::granularity(str);
       if (out != sistrip::UNKNOWN_GRAN || (out == sistrip::UNKNOWN_GRAN && first)) {
@@ -103,11 +103,11 @@ void testSiStripHistoTitle::beginJob() {
 
   // Test SiStripHistoTitle class
 
-  std::vector<sistrip::HistoType>::const_iterator ihisto = histo_types.begin();
+  auto ihisto = histo_types.begin();
   for (; ihisto != histo_types.end(); ihisto++) {
-    std::vector<sistrip::RunType>::const_iterator irun = run_types.begin();
+    auto irun = run_types.begin();
     for (; irun != run_types.end(); irun++) {
-      std::vector<sistrip::KeyType>::const_iterator ikey = key_types.begin();
+      auto ikey = key_types.begin();
       for (; ikey != key_types.end(); ikey++) {
         if (*ikey != sistrip::FED_KEY) {
           continue;
@@ -175,7 +175,7 @@ void testSiStripHistoTitle::beginJob() {
                   ss << "[testSiStripHistoTitle::" << __func__ << "]"
                      << " Gran/Channel: " << SiStripEnumsAndStrings::granularity(key.granularity()) << "/"
                      << key.channel() << " ExtraInfo: ";
-                  if (extra == "") {
+                  if (extra.empty()) {
                     ss << "(none)" << std::endl;
                   } else {
                     ss << extra << std::endl;

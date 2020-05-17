@@ -59,10 +59,10 @@ void Merger<InputCollection, OutputCollection, P>::produce(edm::StreamID,
                                                            edm::Event& evt,
                                                            const edm::EventSetup&) const {
   std::unique_ptr<OutputCollection> coll(new OutputCollection);
-  for (typename vtoken::const_iterator s = srcToken_.begin(); s != srcToken_.end(); ++s) {
+  for (auto s = srcToken_.begin(); s != srcToken_.end(); ++s) {
     edm::Handle<InputCollection> h;
     evt.getByToken(*s, h);
-    for (typename InputCollection::const_iterator c = h->begin(); c != h->end(); ++c) {
+    for (auto c = h->begin(); c != h->end(); ++c) {
       coll->push_back(P::clone(*c));
     }
   }

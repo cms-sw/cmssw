@@ -52,27 +52,27 @@ namespace TopSingleLepton_miniAOD {
     std::string selectionPath(const std::string& label) const { return label.substr(0, label.find(':')); };
 
     /// set configurable labels for trigger monitoring histograms
-    void triggerBinLabels(std::string channel, const std::vector<std::string> labels);
+    void triggerBinLabels(const std::string& channel, const std::vector<std::string>& labels);
     /// fill trigger monitoring histograms
     void fill(const edm::Event& event,
               const edm::TriggerResults& triggerTable,
-              std::string channel,
-              const std::vector<std::string> labels) const;
+              const std::string& channel,
+              const std::vector<std::string>& labels) const;
 
     /// check if histogram was booked
-    bool booked(const std::string histName) const { return hists_.find(histName) != hists_.end(); };
+    bool booked(const std::string& histName) const { return hists_.find(histName) != hists_.end(); };
     /// fill histogram if it had been booked before
-    void fill(const std::string histName, double value) const {
+    void fill(const std::string& histName, double value) const {
       if (booked(histName))
         hists_.find(histName)->second->Fill(value);
     };
     /// fill histogram if it had been booked before (2-dim version)
-    void fill(const std::string histName, double xValue, double yValue) const {
+    void fill(const std::string& histName, double xValue, double yValue) const {
       if (booked(histName))
         hists_.find(histName)->second->Fill(xValue, yValue);
     };
     /// fill histogram if it had been booked before (2-dim version)
-    void fill(const std::string histName, double xValue, double yValue, double zValue) const {
+    void fill(const std::string& histName, double xValue, double yValue, double zValue) const {
       if (booked(histName))
         hists_.find(histName)->second->Fill(xValue, yValue, zValue);
     };
@@ -145,7 +145,7 @@ namespace TopSingleLepton_miniAOD {
     std::string directory_;
   };
 
-  inline void MonitorEnsemble::triggerBinLabels(std::string channel, const std::vector<std::string> labels) {
+  inline void MonitorEnsemble::triggerBinLabels(const std::string& channel, const std::vector<std::string>& labels) {
     for (unsigned int idx = 0; idx < labels.size(); ++idx) {
       hists_[channel + "Mon_"]->setBinLabel(idx + 1, "[" + monitorPath(labels[idx]) + "]", 1);
       hists_[channel + "Eff_"]->setBinLabel(
@@ -155,8 +155,8 @@ namespace TopSingleLepton_miniAOD {
 
   inline void MonitorEnsemble::fill(const edm::Event& event,
                                     const edm::TriggerResults& triggerTable,
-                                    std::string channel,
-                                    const std::vector<std::string> labels) const {
+                                    const std::string& channel,
+                                    const std::vector<std::string>& labels) const {
     for (unsigned int idx = 0; idx < labels.size(); ++idx) {
       if (accept(event, triggerTable, monitorPath(labels[idx]))) {
         fill(channel + "Mon_", idx + 0.5);

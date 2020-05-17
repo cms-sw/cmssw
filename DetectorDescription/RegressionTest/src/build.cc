@@ -166,7 +166,7 @@ void regressionTest_first(ClhepEvaluator& eval) {
   cpv.position(part, ws, std::string("1"), t0, rw);
 }
 
-void output(string filename) {
+void output(const string& filename) {
   ostream& os(cout);
 
   os << "Starting Regressiontest Output" << endl;
@@ -200,7 +200,7 @@ void output(string filename) {
     loop = exv.next();
   }
 
-  vector<DDTranslation>::iterator it = tvec.begin();
+  auto it = tvec.begin();
   os << endl << "center points of all solids" << endl;
   for (; it != tvec.end(); ++it) {
     os << (*it).x() << " " << (*it).y() << " " << (*it).z() << endl;

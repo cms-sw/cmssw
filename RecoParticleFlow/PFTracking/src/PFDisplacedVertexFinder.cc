@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "RecoParticleFlow/PFTracking/interface/PFDisplacedVertexFinder.h"
 #include "RecoParticleFlow/PFTracking/interface/PFTrackAlgoTools.h"
 
@@ -58,7 +60,7 @@ void PFDisplacedVertexFinder::findDisplacedVertices() {
   if (displacedVertices_.get())
     displacedVertices_->clear();
   else
-    displacedVertices_.reset(new PFDisplacedVertexCollection);
+    displacedVertices_ = std::make_unique<PFDisplacedVertexCollection>();
 
   if (displacedVertexCandidates_ == nullptr) {
     edm::LogInfo("EmptyVertexInput")
@@ -145,12 +147,12 @@ void PFDisplacedVertexFinder::findSeedsFromCandidate(const PFDisplacedVertexCand
 
   IDVS idvc_current;
 
-  for (PFDisplacedVertexCandidate::DistMap::const_iterator imap = r2Map.begin(); imap != r2Map.end(); imap++) {
-    unsigned ie1 = (*imap).second.first;
-    unsigned ie2 = (*imap).second.second;
+  for (const auto& imap : r2Map) {
+    unsigned ie1 = imap.second.first;
+    unsigned ie2 = imap.second.second;
 
     if (debug_)
-      cout << "ie1 = " << ie1 << " ie2 = " << ie2 << " radius = " << sqrt((*imap).first) << endl;
+      cout << "ie1 = " << ie1 << " ie2 = " << ie2 << " radius = " << sqrt(imap.first) << endl;
 
     GlobalPoint dcaPoint = vertexCandidate.dcaPoint(ie1, ie2);
     if (fabs(dcaPoint.x()) > 1e9)
@@ -662,11 +664,11 @@ unsigned PFDisplacedVertexFinder::commonTracks(const PFDisplacedVertex& v1, cons
 
   unsigned commonTracks = 0;
 
-  for (unsigned il1 = 0; il1 < vt1.size(); il1++) {
-    unsigned il1_idx = v1.originalTrack(vt1[il1]).key();
+  for (const auto& il1 : vt1) {
+    unsigned il1_idx = v1.originalTrack(il1).key();
 
-    for (unsigned il2 = 0; il2 < vt2.size(); il2++)
-      if (il1_idx == v2.originalTrack(vt2[il2]).key()) {
+    for (const auto& il2 : vt2)
+      if (il1_idx == v2.originalTrack(il2).key()) {
         commonTracks++;
         break;
       }
@@ -700,10 +702,10 @@ std::ostream& operator<<(std::ostream& out, const PFDisplacedVertexFinder& a) {
 
     int i = -1;
 
-    for (PFDisplacedVertexFinder::IDV idv = displacedVertices_->begin(); idv != displacedVertices_->end(); idv++) {
+    for (auto& idv : *displacedVertices_) {
       i++;
       out << i << " ";
-      idv->Dump();
+      idv.Dump();
       out << "" << endl;
     }
   }

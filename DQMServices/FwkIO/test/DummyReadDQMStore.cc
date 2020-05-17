@@ -48,7 +48,7 @@ namespace {
   public:
     TH1Reader(const edm::ParameterSet& iPSet, DQMStore& iStore, bool iSetLumiFlag)
         : m_store(&iStore),
-          m_element(0),
+          m_element(nullptr),
           m_runs(iPSet.getUntrackedParameter<std::vector<int> >("runs")),
           m_lumis(iPSet.getUntrackedParameter<std::vector<int> >("lumis")),
           m_means(iPSet.getUntrackedParameter<std::vector<double> >("means")),
@@ -61,9 +61,9 @@ namespace {
       m_name = iPSet.getUntrackedParameter<std::string>("name") + extension;
     }
 
-    virtual ~TH1Reader(){};
+    ~TH1Reader() override{};
 
-    void read(int run, int lumi) {
+    void read(int run, int lumi) override {
       double expected_mean = -1, expected_entries = -1;
       for (unsigned int i = 0; i < m_runs.size(); i++) {
         if (m_runs[i] == run && m_lumis[i] == lumi) {
@@ -74,7 +74,7 @@ namespace {
       assert(expected_entries != -1 || !"Unexpected run/lumi!");
 
       m_element = m_store->get(m_name);
-      if (0 == m_element) {
+      if (nullptr == m_element) {
         throw cms::Exception("MissingElement") << "The element: " << m_name << " was not found";
       }
       TH1* hist = m_element->getTH1();
@@ -107,19 +107,19 @@ namespace {
 class DummyReadDQMStore : public edm::EDAnalyzer {
 public:
   explicit DummyReadDQMStore(const edm::ParameterSet&);
-  ~DummyReadDQMStore();
+  ~DummyReadDQMStore() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-  virtual void endRun(edm::Run const&, edm::EventSetup const&);
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
   // ----------member data ---------------------------
   std::vector<std::shared_ptr<ReaderBase> > m_runReaders;
@@ -143,26 +143,26 @@ DummyReadDQMStore::DummyReadDQMStore(const edm::ParameterSet& iConfig) {
   typedef std::vector<edm::ParameterSet> PSets;
   const PSets& runElements = iConfig.getUntrackedParameter<std::vector<edm::ParameterSet> >("runElements");
   m_runReaders.reserve(runElements.size());
-  for (PSets::const_iterator it = runElements.begin(), itEnd = runElements.end(); it != itEnd; ++it) {
-    switch (it->getUntrackedParameter<unsigned int>("type", 1)) {
+  for (const auto& runElement : runElements) {
+    switch (runElement.getUntrackedParameter<unsigned int>("type", 1)) {
       case 1:
-        m_runReaders.push_back(std::shared_ptr<ReaderBase>(new TH1Reader(*it, *dstore, false)));
+        m_runReaders.push_back(std::shared_ptr<ReaderBase>(new TH1Reader(runElement, *dstore, false)));
         break;
       case 2:
-        m_runReaders.push_back(std::shared_ptr<ReaderBase>(new TH1Reader(*it, *dstore, false)));
+        m_runReaders.push_back(std::shared_ptr<ReaderBase>(new TH1Reader(runElement, *dstore, false)));
         break;
     }
   }
 
   const PSets& lumiElements = iConfig.getUntrackedParameter<std::vector<edm::ParameterSet> >("lumiElements");
   m_lumiReaders.reserve(lumiElements.size());
-  for (PSets::const_iterator it = lumiElements.begin(), itEnd = lumiElements.end(); it != itEnd; ++it) {
-    switch (it->getUntrackedParameter<unsigned int>("type", 1)) {
+  for (const auto& lumiElement : lumiElements) {
+    switch (lumiElement.getUntrackedParameter<unsigned int>("type", 1)) {
       case 1:
-        m_lumiReaders.push_back(std::shared_ptr<ReaderBase>(new TH1Reader(*it, *dstore, true)));
+        m_lumiReaders.push_back(std::shared_ptr<ReaderBase>(new TH1Reader(lumiElement, *dstore, true)));
         break;
       case 2:
-        m_lumiReaders.push_back(std::shared_ptr<ReaderBase>(new TH1Reader(*it, *dstore, true)));
+        m_lumiReaders.push_back(std::shared_ptr<ReaderBase>(new TH1Reader(lumiElement, *dstore, true)));
         break;
     }
   }
@@ -209,10 +209,8 @@ void DummyReadDQMStore::beginRun(edm::Run const&, edm::EventSetup const&) {}
 
 // ------------ method called when ending the processing of a run  ------------
 void DummyReadDQMStore::endRun(edm::Run const& run, edm::EventSetup const&) {
-  for (std::vector<std::shared_ptr<ReaderBase> >::iterator it = m_runReaders.begin(), itEnd = m_runReaders.end();
-       it != itEnd;
-       ++it) {
-    (*it)->read(run.run(), 0);
+  for (auto& m_runReader : m_runReaders) {
+    m_runReader->read(run.run(), 0);
   }
 }
 
@@ -221,10 +219,8 @@ void DummyReadDQMStore::beginLuminosityBlock(edm::LuminosityBlock const&, edm::E
 
 // ------------ method called when ending the processing of a luminosity block  ------------
 void DummyReadDQMStore::endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const&) {
-  for (std::vector<std::shared_ptr<ReaderBase> >::iterator it = m_lumiReaders.begin(), itEnd = m_lumiReaders.end();
-       it != itEnd;
-       ++it) {
-    (*it)->read(lumi.run(), lumi.luminosityBlock());
+  for (auto& m_lumiReader : m_lumiReaders) {
+    m_lumiReader->read(lumi.run(), lumi.luminosityBlock());
   }
 }
 

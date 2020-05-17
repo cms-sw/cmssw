@@ -51,8 +51,8 @@ GlobalTest::GlobalTest(const edm::ParameterSet &iConfig)
 }
 
 GlobalTest::~GlobalTest() {
-  for (int i = 0; i < 6; i++)
-    delete[] labels[i];
+  for (auto &label : labels)
+    delete[] label;
 }
 
 void GlobalTest::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &, edm::EventSetup const &) {

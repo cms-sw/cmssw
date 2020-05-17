@@ -103,10 +103,10 @@ void SiPixelHLTSource::analyze(const edm::Event &iEvent, const edm::EventSetup &
 
   edm::DetSet<SiPixelRawDataError>::const_iterator di;
 
-  for (TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++) {
-    if (GeomDetEnumerators::isTrackerPixel((*it)->subDetector())) {
-      uint32_t detId = (*it)->geographicalId();
-      edm::DetSetVector<SiPixelRawDataError>::const_iterator isearch = errorinput->find(detId);
+  for (auto it : pDD->dets()) {
+    if (GeomDetEnumerators::isTrackerPixel(it->subDetector())) {
+      uint32_t detId = it->geographicalId();
+      auto isearch = errorinput->find(detId);
       if (isearch != errorinput->end()) {
         for (di = isearch->data.begin(); di != isearch->data.end(); di++) {
           fedId = di->getFedId();         // FED the error came from
@@ -132,7 +132,7 @@ void SiPixelHLTSource::analyze(const edm::Event &iEvent, const edm::EventSetup &
     }         // end if( ((*it)->subDetector()
   }           // for(TrackerGeometry
 
-  edm::DetSetVector<SiPixelRawDataError>::const_iterator isearch = errorinput->find(0xffffffff);
+  auto isearch = errorinput->find(0xffffffff);
 
   if (isearch != errorinput->end()) {  // Not at empty iterator
     for (di = isearch->data.begin(); di != isearch->data.end(); di++) {
@@ -175,9 +175,9 @@ void SiPixelHLTSource::bookMEs(DQMStore::IBooker &iBooker) {
   std::string errhid;
   // Get collection name and instantiate Histo Id builder
   edm::InputTag rawin = conf_.getParameter<edm::InputTag>("RawInput");
-  SiPixelHistogramId *RawHistogramId = new SiPixelHistogramId(rawin.label());
+  auto *RawHistogramId = new SiPixelHistogramId(rawin.label());
   edm::InputTag errin = conf_.getParameter<edm::InputTag>("ErrorInput");
-  SiPixelHistogramId *ErrorHistogramId = new SiPixelHistogramId(errin.label());
+  auto *ErrorHistogramId = new SiPixelHistogramId(errin.label());
 
   // Is a FED sending raw data
   meRawWords_ = iBooker.book1D("FEDEntries", "Number of raw words", 40, -0.5, 39.5);

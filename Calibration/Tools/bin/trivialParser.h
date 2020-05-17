@@ -14,7 +14,7 @@ public:
   //!ctor
   explicit trivialParser(std::string configFile);
   //! return the value for that parameter
-  double getVal(std::string name);
+  double getVal(const std::string& name);
 
 private:
   //! container for the output
@@ -22,9 +22,9 @@ private:
 
 private:
   //! parse the cfg file
-  void parse(std::string configFile);
+  void parse(const std::string& configFile);
   //! print the read params
-  void print(std::string prefix = "");
+  void print(const std::string& prefix = "");
   //! returns the next not commented line
   std::string getNextLine(std::ifstream& input);
   //! get rid of spaces

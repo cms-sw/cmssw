@@ -37,8 +37,8 @@ PixelROC const* SiPixelFrameConverter::toRoc(int link, int roc) const {
 int SiPixelFrameConverter::toCabling(ElectronicIndex& cabling, const DetectorIndex& detector) const {
   std::vector<CablingPathToDetUnit> path = theMap->pathToDetUnit(detector.rawId);
   typedef std::vector<CablingPathToDetUnit>::const_iterator IT;
-  for (IT it = path.begin(); it != path.end(); ++it) {
-    const PixelROC* roc = theMap->findItem(*it);
+  for (auto it : path) {
+    const PixelROC* roc = theMap->findItem(it);
     if (!roc)
       return 2;
     if (roc->rawId() != detector.rawId)
@@ -53,7 +53,7 @@ int SiPixelFrameConverter::toCabling(ElectronicIndex& cabling, const DetectorInd
 
     if (!local.valid())
       continue;
-    ElectronicIndex cabIdx = {static_cast<int>(it->link), static_cast<int>(it->roc), local.dcol(), local.pxid()};
+    ElectronicIndex cabIdx = {static_cast<int>(it.link), static_cast<int>(it.roc), local.dcol(), local.pxid()};
     cabling = cabIdx;
     return 0;
   }

@@ -80,6 +80,8 @@
 #include "G4SystemOfUnits.hh"
 
 #include <iostream>
+#include <memory>
+
 #include <sstream>
 #include <fstream>
 #include <memory>
@@ -95,16 +97,16 @@ static void createWatchers(const edm::ParameterSet& iP,
 
   vector<ParameterSet> watchers = iP.getParameter<vector<ParameterSet> >("Watchers");
 
-  for (vector<ParameterSet>::iterator itWatcher = watchers.begin(); itWatcher != watchers.end(); ++itWatcher) {
+  for (auto& watcher : watchers) {
     std::shared_ptr<SimWatcherMakerBase> maker(
-        SimWatcherFactory::get()->create(itWatcher->getParameter<std::string>("type")));
+        SimWatcherFactory::get()->create(watcher.getParameter<std::string>("type")));
     if (maker.get() == nullptr) {
       throw edm::Exception(edm::errors::Configuration) << "Unable to find the requested Watcher";
     }
 
     std::shared_ptr<SimWatcher> watcherTemp;
     std::shared_ptr<SimProducer> producerTemp;
-    maker->make(*itWatcher, iReg, watcherTemp, producerTemp);
+    maker->make(watcher, iReg, watcherTemp, producerTemp);
     oWatchers.push_back(watcherTemp);
     if (producerTemp) {
       oProds.push_back(producerTemp);
@@ -261,7 +263,7 @@ void RunManager::initG4(const edm::EventSetup& es) {
   }
 
   // we need the track manager now
-  m_trackManager = std::unique_ptr<SimTrackManager>(new SimTrackManager);
+  m_trackManager = std::make_unique<SimTrackManager>();
 
   // attach sensitive detector
   AttachSD attach;
@@ -345,15 +347,15 @@ void RunManager::initG4(const edm::EventSetup& es) {
   std::vector<int> vt = m_p.getUntrackedParameter<std::vector<int> >("VerboseTracks");
 
   if (sv > 0) {
-    m_sVerbose.reset(new CMSSteppingVerbose(sv, elim, ve, vn, vt));
+    m_sVerbose = std::make_unique<CMSSteppingVerbose>(sv, elim, ve, vn, vt);
   }
   initializeUserActions();
 
   if (!m_G4Commands.empty()) {
     G4cout << "RunManager: Requested UI commands: " << G4endl;
-    for (unsigned it = 0; it < m_G4Commands.size(); ++it) {
-      G4cout << "    " << m_G4Commands[it] << G4endl;
-      G4UImanager::GetUIpointer()->ApplyCommand(m_G4Commands[it]);
+    for (const auto& m_G4Command : m_G4Commands) {
+      G4cout << "    " << m_G4Command << G4endl;
+      G4UImanager::GetUIpointer()->ApplyCommand(m_G4Command);
     }
   }
   G4StateManager::GetStateManager()->SetNewState(G4State_Init);

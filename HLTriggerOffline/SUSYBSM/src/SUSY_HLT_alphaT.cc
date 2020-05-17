@@ -44,8 +44,8 @@ void SUSY_HLT_alphaT::dqmBeginRun(edm::Run const &run, edm::EventSetup const &e)
 
   bool pathFound = false;
   const std::vector<std::string> allTrigNames = fHltConfig.triggerNames();
-  for (size_t j = 0; j < allTrigNames.size(); ++j) {
-    if (allTrigNames[j].find(triggerPath_) != std::string::npos) {
+  for (const auto &allTrigName : allTrigNames) {
+    if (allTrigName.find(triggerPath_) != std::string::npos) {
       pathFound = true;
     }
   }
@@ -120,8 +120,8 @@ void SUSY_HLT_alphaT::analyze(edm::Event const &e, edm::EventSetup const &eSetup
   if (!(filterIndex >= triggerSummary->sizeFilters())) {
     const trigger::Keys &keys = triggerSummary->filterKeys(filterIndex);
 
-    for (size_t j = 0; j < keys.size(); ++j) {
-      trigger::TriggerObject foundObject = triggerObjects[keys[j]];
+    for (unsigned short key : keys) {
+      trigger::TriggerObject foundObject = triggerObjects[key];
 
       //  if(foundObject.id() == 85){ //It's a jet
       if (foundObject.pt() > ptThrJet_ && fabs(foundObject.eta()) < etaThrJet_) {
@@ -186,14 +186,13 @@ void SUSY_HLT_alphaT::analyze(edm::Event const &e, edm::EventSetup const &eSetup
   if (hasFiredAuxiliaryForHadronicLeg) {
     float pfHT = 0.0;
     std::vector<LorentzV> pfJets;
-    for (reco::PFJetCollection::const_iterator i_pfjet = pfJetCollection->begin(); i_pfjet != pfJetCollection->end();
-         ++i_pfjet) {
-      if (i_pfjet->pt() < ptThrJet_)
+    for (const auto &i_pfjet : *pfJetCollection) {
+      if (i_pfjet.pt() < ptThrJet_)
         continue;
-      if (fabs(i_pfjet->eta()) > etaThrJet_)
+      if (fabs(i_pfjet.eta()) > etaThrJet_)
         continue;
-      pfHT += i_pfjet->pt();
-      LorentzV JetLVec(i_pfjet->pt(), i_pfjet->eta(), i_pfjet->phi(), i_pfjet->mass());
+      pfHT += i_pfjet.pt();
+      LorentzV JetLVec(i_pfjet.pt(), i_pfjet.eta(), i_pfjet.phi(), i_pfjet.mass());
       pfJets.push_back(JetLVec);
     }
 

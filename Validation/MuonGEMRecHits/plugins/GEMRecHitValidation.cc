@@ -205,8 +205,8 @@ void GEMRecHitValidation::analyze(const edm::Event& event, const edm::EventSetup
     return;
   }
 
-  for (auto rechit = rechit_collection->begin(); rechit != rechit_collection->end(); rechit++) {
-    GEMDetId gem_id{rechit->gemId()};
+  for (const auto& rechit : *rechit_collection) {
+    GEMDetId gem_id{rechit.gemId()};
     Int_t region_id = gem_id.region();
     Int_t station_id = gem_id.station();
     Int_t layer_id = gem_id.layer();
@@ -215,7 +215,7 @@ void GEMRecHitValidation::analyze(const edm::Event& event, const edm::EventSetup
     ME3IdsKey key3{region_id, station_id, layer_id};
 
     const BoundPlane& surface = gem->idToDet(gem_id)->surface();
-    GlobalPoint&& rechit_global_pos = surface.toGlobal(rechit->localPosition());
+    GlobalPoint&& rechit_global_pos = surface.toGlobal(rechit.localPosition());
 
     Float_t rechit_g_x = rechit_global_pos.x();
     Float_t rechit_g_y = rechit_global_pos.y();
@@ -223,7 +223,7 @@ void GEMRecHitValidation::analyze(const edm::Event& event, const edm::EventSetup
     Float_t rechit_g_r = rechit_global_pos.perp();
     Float_t rechit_g_phi = rechit_global_pos.phi();
 
-    Int_t cls = rechit->clusterSize();
+    Int_t cls = rechit.clusterSize();
 
     me_cls_->Fill(cls);
     me_occ_zr_[region_id]->Fill(rechit_g_abs_z, rechit_g_r);

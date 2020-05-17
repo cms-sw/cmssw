@@ -19,8 +19,8 @@ namespace L1Analysis {
     L1AnalysisRCT(int maxRCTREG);
     ~L1AnalysisRCT();
 
-    void SetEmRCT(const edm::Handle<L1CaloEmCollection> em);
-    void SetHdRCT(const edm::Handle<L1CaloRegionCollection> rgn);
+    void SetEmRCT(const edm::Handle<L1CaloEmCollection>& em);
+    void SetHdRCT(const edm::Handle<L1CaloRegionCollection>& rgn);
     void Reset() { rct_.Reset(); }
     L1AnalysisRCTDataFormat* getData() { return &rct_; }
 

@@ -38,8 +38,8 @@ TransientTrackingRecHit::RecHitPointer SiTrackerMultiRecHitUpdator::buildMultiRe
       << "Calling SiTrackerMultiRecHitUpdator::buildMultiRecHit with AnnealingFactor: " << annealing;
 
   TransientTrackingRecHit::ConstRecHitContainer tcomponents;
-  for (std::vector<const TrackingRecHit*>::const_iterator iter = rhv.begin(); iter != rhv.end(); iter++) {
-    TransientTrackingRecHit::RecHitPointer transient = theBuilder->build(*iter);
+  for (auto iter : rhv) {
+    TransientTrackingRecHit::RecHitPointer transient = theBuilder->build(iter);
     if (transient->isValid())
       tcomponents.push_back(transient);
   }
@@ -94,9 +94,7 @@ TransientTrackingRecHit::RecHitPointer SiTrackerMultiRecHitUpdator::update(
   const GeomDet* geomdet = nullptr;
 
   //running on all over the MRH components
-  for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator iter = tcomponents.begin();
-       iter != tcomponents.end();
-       iter++) {
+  for (auto iter = tcomponents.begin(); iter != tcomponents.end(); iter++) {
     //the first rechit must belong to the same surface of TSOS
     if (iter == tcomponents.begin()) {
       if (&((*iter)->det()->surface()) != &(tsos.surface())) {
@@ -132,14 +130,12 @@ TransientTrackingRecHit::RecHitPointer SiTrackerMultiRecHitUpdator::update(
 
   double a_sum = 0, c_sum = 0;
 
-  for (std::vector<TransientTrackingRecHit::RecHitPointer>::iterator ihit = updatedcomponents.begin();
-       ihit != updatedcomponents.end();
-       ihit++) {
+  for (auto ihit = updatedcomponents.begin(); ihit != updatedcomponents.end(); ihit++) {
     double a_i = ComputeWeight(tsos, *(*ihit), false, annealing);  //exp(-0.5*Chi2)
     LogTrace("SiTrackerMultiRecHitUpdator") << "\t\t a_i:" << a_i;
     //double c_i = ComputeWeight(tsos, *(*ihit), true, annealing);  //exp(-0.5*theChi2Cut/annealing)/(2.*M_PI*sqrt(det));
     //LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t c_i:" << c_i ;
-    mymap.push_back(std::pair<const TrackingRecHit*, float>((*ihit)->hit(), a_i));
+    mymap.emplace_back((*ihit)->hit(), a_i);
 
     a_sum += a_i;
     //with the new definition, the cut weight is computed only once
@@ -152,9 +148,7 @@ TransientTrackingRecHit::RecHitPointer SiTrackerMultiRecHitUpdator::update(
 
   unsigned int counter = 0;
   bool invalid = true;
-  for (std::vector<TransientTrackingRecHit::RecHitPointer>::iterator ihit = updatedcomponents.begin();
-       ihit != updatedcomponents.end();
-       ihit++) {
+  for (auto ihit = updatedcomponents.begin(); ihit != updatedcomponents.end(); ihit++) {
     double p = ((mymap[counter].second) / total_sum > 1.e-12 ? (mymap[counter].second) / total_sum : 1.e-12);
     //ORCA: float p = ((mymap[counter].second)/total_sum > 0.01 ? (mymap[counter].second)/total_sum : 1.e-6);
 
@@ -167,7 +161,7 @@ TransientTrackingRecHit::RecHitPointer SiTrackerMultiRecHitUpdator::update(
 
     if (p > 10e-6) {
       invalid = false;
-      normmap.push_back(std::pair<const TrackingRecHit*, float>(mymap[counter].first, p));
+      normmap.emplace_back(mymap[counter].first, p);
     }
 
     counter++;
@@ -326,9 +320,7 @@ SiTrackerMultiRecHitUpdator::LocalParameters SiTrackerMultiRecHitUpdator::calcPa
   //for TID and TEC the correlation is really high -> need to be scorrelated and then correlated again
   float s = 0.1;
 
-  for (std::vector<std::pair<const TrackingRecHit*, float> >::const_iterator ihit = aHitMap.begin();
-       ihit != aHitMap.end();
-       ihit++) {
+  for (const auto& ihit : aHitMap) {
     // define variables that will be used to setup the KfComponentsHolder
     ProjectMatrix<double, 5, N> pf;
     typename AlgebraicROOTObject<N>::Vector r, rMeas;
@@ -339,13 +331,13 @@ SiTrackerMultiRecHitUpdator::LocalParameters SiTrackerMultiRecHitUpdator::calcPa
     // setup the holder with the correct dimensions and get the values
     KfComponentsHolder holder;
     holder.template setup<N>(&r, &V, &pf, &rMeas, &VMeas, x, C);
-    (ihit->first)->getKfComponents(holder);
+    (ihit.first)->getKfComponents(holder);
 
     LogTrace("SiTrackerMultiRecHitUpdator") << "\t position: " << r;
     LogTrace("SiTrackerMultiRecHitUpdator") << "\t error: " << V;
 
     //scorrelation  in TID and TEC
-    if (N == 2 && TIDorTEChit(ihit->first)) {
+    if (N == 2 && TIDorTEChit(ihit.first)) {
       V(0, 1) = V(1, 0) = V(0, 1) * s;
       //      V(1,0) = V(1,0)*s;
       LogTrace("SiTrackerMultiRecHitUpdator") << "\t error scorr: " << V;
@@ -358,8 +350,8 @@ SiTrackerMultiRecHitUpdator::LocalParameters SiTrackerMultiRecHitUpdator::calcPa
     LogTrace("SiTrackerMultiRecHitUpdator") << "\t inverse error: " << V;
 
     //compute m_sum and W_sum
-    m_sum += (ihit->second * V * r);
-    W_sum += (ihit->second * V);
+    m_sum += (ihit.second * V * r);
+    W_sum += (ihit.second * V);
   }
 
   bool ierr_sum = invertPosDefMatrix(W_sum);

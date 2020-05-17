@@ -39,11 +39,7 @@ public:
   bool operator()(edm::EventBase const& ev, pat::strbitset& ret) override {
     if (!ignoreCut("RunLumi")) {
       bool goodLumi = false;
-      for (std::vector<edm::LuminosityBlockRange>::const_iterator lumisBegin = lumis_.begin(),
-                                                                  lumisEnd = lumis_.end(),
-                                                                  ilumi = lumisBegin;
-           ilumi != lumisEnd;
-           ++ilumi) {
+      for (auto lumisBegin = lumis_.begin(), lumisEnd = lumis_.end(), ilumi = lumisBegin; ilumi != lumisEnd; ++ilumi) {
         if (ev.id().run() >= ilumi->startRun() && ev.id().run() <= ilumi->endRun() &&
             ev.id().luminosityBlock() >= ilumi->startLumi() && ev.id().luminosityBlock() <= ilumi->endLumi()) {
           goodLumi = true;

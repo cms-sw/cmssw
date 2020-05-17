@@ -84,50 +84,46 @@ void DQMHistNormalizer::endRun(const edm::Run& r, const edm::EventSetup& c) {
   vector<MonitorElement*> allOurMEs = dqmStore.getAllContents("RecoTauV/");
   lat::Regexp* refregex = buildRegex("*RecoTauV/*/" + reference_);
   vector<lat::Regexp*> toNormRegex;
-  for (std::vector<string>::const_iterator toNorm = plotNamesToNormalize_.begin();
-       toNorm != plotNamesToNormalize_.end();
-       ++toNorm)
-    toNormRegex.push_back(buildRegex("*RecoTauV/*/" + *toNorm));
+  for (const auto& toNorm : plotNamesToNormalize_)
+    toNormRegex.push_back(buildRegex("*RecoTauV/*/" + toNorm));
 
   map<string, MonitorElement*> refsMap;
   vector<MonitorElement*> toNormElements;
 
-  for (vector<MonitorElement*>::const_iterator element = allOurMEs.begin(); element != allOurMEs.end(); ++element) {
-    string pathname = (*element)->getFullname();
+  for (auto allOurME : allOurMEs) {
+    string pathname = allOurME->getFullname();
     //cout << pathname << endl;
     //Matches reference
     if (refregex->match(pathname)) {
       //cout << "Matched to ref" << endl;
-      string dir = pathname.substr(0, pathname.rfind("/"));
+      string dir = pathname.substr(0, pathname.rfind('/'));
       if (refsMap.find(dir) != refsMap.end()) {
         edm::LogInfo("DQMHistNormalizer")
             << "DQMHistNormalizer::endRun: Warning! found multiple normalizing references for dir: " << dir << "!";
         edm::LogInfo("DQMHistNormalizer") << "     " << (refsMap[dir])->getFullname();
         edm::LogInfo("DQMHistNormalizer") << "     " << pathname;
       } else {
-        refsMap[dir] = *element;
+        refsMap[dir] = allOurME;
       }
     }
 
     //Matches targets
-    for (vector<lat::Regexp*>::const_iterator reg = toNormRegex.begin(); reg != toNormRegex.end(); ++reg) {
-      if ((*reg)->match(pathname)) {
+    for (auto reg : toNormRegex) {
+      if (reg->match(pathname)) {
         //cout << "Matched to target" << endl;
-        toNormElements.push_back(*element);
+        toNormElements.push_back(allOurME);
         //cout << "Filled the collection" << endl;
       }
     }
   }
 
   delete refregex;
-  for (vector<lat::Regexp*>::const_iterator reg = toNormRegex.begin(); reg != toNormRegex.end(); ++reg)
-    delete *reg;
+  for (auto reg : toNormRegex)
+    delete reg;
 
-  for (vector<MonitorElement*>::const_iterator matchingElement = toNormElements.begin();
-       matchingElement != toNormElements.end();
-       ++matchingElement) {
-    string meName = (*matchingElement)->getFullname();
-    string dir = meName.substr(0, meName.rfind("/"));
+  for (auto toNormElement : toNormElements) {
+    string meName = toNormElement->getFullname();
+    string dir = meName.substr(0, meName.rfind('/'));
 
     if (refsMap.find(dir) == refsMap.end()) {
       edm::LogInfo("DQMHistNormalizer") << "DQMHistNormalizer::endRun: Error! normalizing references for " << meName
@@ -136,7 +132,7 @@ void DQMHistNormalizer::endRun(const edm::Run& r, const edm::EventSetup& c) {
     }
 
     float norm = refsMap[dir]->getTH1()->GetEntries();
-    TH1* hist = (*matchingElement)->getTH1();
+    TH1* hist = toNormElement->getTH1();
     if (norm != 0.) {
       if (!hist->GetSumw2N())
         hist->Sumw2();

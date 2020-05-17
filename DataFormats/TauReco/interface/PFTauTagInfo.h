@@ -33,7 +33,7 @@ namespace reco {
 
     //the reference to the PFJet
     const JetBaseRef& pfjetRef() const;
-    void setpfjetRef(const JetBaseRef);
+    void setpfjetRef(const JetBaseRef&);
 
   private:
     JetBaseRef PFJetRef_;

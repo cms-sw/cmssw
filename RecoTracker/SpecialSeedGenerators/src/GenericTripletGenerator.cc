@@ -31,9 +31,9 @@ const OrderedSeedingHits& GenericTripletGenerator::run(const TrackingRegion& reg
     auto outerHits = region.hits(es, ls[2]);
     //std::cout << "outerHits.size()=" << outerHits.size() << std::endl;
     //std::cout << "trying " << innerHits.size()*middleHits.size()*outerHits.size() << " combinations "<<std::endl;
-    for (auto iOuterHit = outerHits.begin(); iOuterHit != outerHits.end(); iOuterHit++) {
-      for (auto iMiddleHit = middleHits.begin(); iMiddleHit != middleHits.end(); iMiddleHit++) {
-        for (auto iInnerHit = innerHits.begin(); iInnerHit != innerHits.end(); iInnerHit++) {
+    for (auto& outerHit : outerHits) {
+      for (auto& middleHit : middleHits) {
+        for (auto& innerHit : innerHits) {
           //GlobalPoint innerpos  = ls[0].hitBuilder()->build(&(**iInnerHit))->globalPosition();
           //GlobalPoint middlepos = ls[1].hitBuilder()->build(&(**iMiddleHit))->globalPosition();
           //GlobalPoint outerpos  = ls[2].hitBuilder()->build(&(**iOuterHit))->globalPosition();
@@ -41,7 +41,7 @@ const OrderedSeedingHits& GenericTripletGenerator::run(const TrackingRegion& reg
           //  		  middlepos,
           //                  outerpos);
           //do a first check on the radius of curvature to reduce the combinatorics
-          OrderedHitTriplet oht(&(**iInnerHit), &(**iMiddleHit), &(**iOuterHit));
+          OrderedHitTriplet oht(&(*innerHit), &(*middleHit), &(*outerHit));
           std::pair<bool, float> val_radius = qualityFilter(oht, radius_triplet_map, ls);
           if (val_radius.first) {
             //if (circle.rho() > 200 || circle.rho() == 0) { //0 radius means straight line
@@ -109,8 +109,8 @@ std::pair<bool, float> GenericTripletGenerator::qualityFilter(const OrderedHitTr
     return std::make_pair(false, circle.rho());  //to small radius
   //now check if at least 2 hits are shared with an existing triplet
   //look for similar radii in the map
-  std::map<float, OrderedHitTriplet>::const_iterator lower_bound = map.lower_bound((1 - 0.01) * circle.rho());
-  std::map<float, OrderedHitTriplet>::const_iterator upper_bound = map.upper_bound((1 + 0.01) * circle.rho());
+  auto lower_bound = map.lower_bound((1 - 0.01) * circle.rho());
+  auto upper_bound = map.upper_bound((1 + 0.01) * circle.rho());
   std::map<float, OrderedHitTriplet>::const_iterator iter;
   for (iter = lower_bound; iter != upper_bound && iter->first <= upper_bound->first; iter++) {
     int shared = 0;

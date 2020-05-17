@@ -518,12 +518,12 @@ void doCutTubs(const std::string &name,
 //                    std::vector<ZSection> zsections)
 //
 void doExtrudedPgon(const std::string &name,
-                    const std::vector<double> x,
-                    const std::vector<double> y,
-                    const std::vector<double> z,
-                    const std::vector<double> zx,
-                    const std::vector<double> zy,
-                    const std::vector<double> zscale) {
+                    const std::vector<double> &x,
+                    const std::vector<double> &y,
+                    const std::vector<double> &z,
+                    const std::vector<double> &zx,
+                    const std::vector<double> &zy,
+                    const std::vector<double> &zscale) {
   std::vector<G4TwoVector> polygon;
   std::vector<G4ExtrudedSolid::ZSection> zsections;
   for (unsigned int it = 0; it < x.size(); ++it)

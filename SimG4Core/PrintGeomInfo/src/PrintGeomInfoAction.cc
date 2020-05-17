@@ -45,7 +45,7 @@ PrintGeomInfoAction::PrintGeomInfoAction(const edm::ParameterSet &p) {
   dumpSense_ = p.getUntrackedParameter<bool>("DumpSense", false);
   dd4hep_ = p.getUntrackedParameter<bool>("DD4Hep", false);
   name_ = p.getUntrackedParameter<std::string>("Name", "*");
-  nchar_ = name_.find("*");
+  nchar_ = name_.find('*');
   name_.assign(name_, 0, nchar_);
   names_ = p.getUntrackedParameter<std::vector<std::string> >("Names");
   G4cout << "PrintGeomInfoAction:: initialised for dd4hep " << dd4hep_ << " with verbosity levels:"
@@ -58,8 +58,8 @@ PrintGeomInfoAction::PrintGeomInfoAction(const edm::ParameterSet &p) {
          << " Touchable " << dumpTouch_ << " for names (0-" << nchar_ << ") = " << name_
          << "\n                                                        "
          << " Sensitive " << dumpSense_ << " for " << names_.size() << " names:";
-  for (unsigned int i = 0; i < names_.size(); i++)
-    G4cout << " " << names_[i];
+  for (const auto &name : names_)
+    G4cout << " " << name;
   G4cout << G4endl;
 }
 
@@ -73,8 +73,7 @@ void PrintGeomInfoAction::update(const BeginOfJob *job) {
 
       G4cout << "PrintGeomInfoAction::Get Printout of Sensitive Volumes "
              << "for " << names_.size() << " Readout Units" << G4endl;
-      for (unsigned int i = 0; i < names_.size(); i++) {
-        std::string sd = names_[i];
+      for (auto sd : names_) {
         const cms::DDFilter filter("ReadOutName", sd);
         cms::DDFilteredView fv(*pDD, filter);
         G4cout << "PrintGeomInfoAction:: Get Filtered view for ReadOutName = " << sd << G4endl;
@@ -99,9 +98,8 @@ void PrintGeomInfoAction::update(const BeginOfJob *job) {
 
       G4cout << "PrintGeomInfoAction::Get Printout of Sensitive Volumes "
              << "for " << names_.size() << " Readout Units" << G4endl;
-      for (unsigned int i = 0; i < names_.size(); i++) {
+      for (auto sd : names_) {
         std::string attribute = "ReadOutName";
-        std::string sd = names_[i];
         DDSpecificsMatchesValueFilter filter{DDValue(attribute, sd, 0)};
         DDFilteredView fv(*pDD, filter);
         G4cout << "PrintGeomInfoAction:: Get Filtered view for " << attribute << " = " << sd << G4endl;

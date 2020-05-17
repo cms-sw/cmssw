@@ -2,7 +2,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 bool SiPixelLorentzAngle::putLorentzAngle(const uint32_t& detid, float& value) {
-  std::map<unsigned int, float>::const_iterator id = m_LA.find(detid);
+  auto id = m_LA.find(detid);
   if (id != m_LA.end()) {
     edm::LogError("SiPixelLorentzAngle") << "SiPixelLorentzAngle for DetID " << detid
                                          << " is already stored. Skippig this put" << std::endl;
@@ -12,7 +12,7 @@ bool SiPixelLorentzAngle::putLorentzAngle(const uint32_t& detid, float& value) {
   return true;
 }
 float SiPixelLorentzAngle::getLorentzAngle(const uint32_t& detid) const {
-  std::map<unsigned int, float>::const_iterator id = m_LA.find(detid);
+  auto id = m_LA.find(detid);
   if (id != m_LA.end())
     return id->second;
   else {

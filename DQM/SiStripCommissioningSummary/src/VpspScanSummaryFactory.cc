@@ -10,7 +10,7 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 //
 void VpspScanSummaryFactory::extract(Iterator iter) {
-  VpspScanAnalysis* anal = dynamic_cast<VpspScanAnalysis*>(iter->second);
+  auto* anal = dynamic_cast<VpspScanAnalysis*>(iter->second);
   if (!anal) {
     return;
   }

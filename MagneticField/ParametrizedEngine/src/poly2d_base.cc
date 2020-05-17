@@ -162,8 +162,8 @@ void poly2d_base::SetPoint(const double r, const double z) {
 //_______________________________________________________________________________
 double poly2d_base::Eval() {
   double S = 0.;
-  for (unsigned j = 0; j < data.size(); ++j)
-    S += data[j].coeff * rz_pow[data[j].np[0]][data[j].np[1]];
+  for (auto &j : data)
+    S += j.coeff * rz_pow[j.np[0]][j.np[1]];
   return S;
 }
 
@@ -235,8 +235,8 @@ void poly2d_base::Diff(int nvar) {
   std::vector<poly2d_term> newdata;
   newdata.reserve(data.size());
   unsigned cur_pwr = 0, maxp = 0, oldp = max_pwr;
-  for (unsigned it = 0; it < data.size(); ++it) {
-    v3 = data[it];
+  for (auto it : data) {
+    v3 = it;
     v3.coeff *= v3.np[nvar];
     if (v3.coeff != 0.) {
       --v3.np[nvar];
@@ -258,8 +258,8 @@ void poly2d_base::Int(int nvar) {
   //with zero coefficients; if you suspect they can appear, use Compress()
   //after the integration.
   //
-  for (unsigned it = 0; it < data.size(); ++it) {
-    data[it].coeff /= ++data[it].np[nvar];
+  for (auto &it : data) {
+    it.coeff /= ++it.np[nvar];
   }
   ++max_pwr;
   if (max_pwr > NPwr)
@@ -270,8 +270,8 @@ void poly2d_base::Int(int nvar) {
 void poly2d_base::IncPow(int nvar) {
   //Multiply the polynomial by variable# nvar
   //
-  for (unsigned it = 0; it < data.size(); ++it) {
-    ++data[it].np[nvar];
+  for (auto &it : data) {
+    ++it.np[nvar];
   }
   ++max_pwr;
   if (max_pwr > NPwr)
@@ -287,8 +287,8 @@ void poly2d_base::DecPow(int nvar) {
   std::vector<poly2d_term> newdata;
   newdata.reserve(data.size());
   unsigned cur_pwr = 0, maxp = 0, oldp = max_pwr;
-  for (unsigned it = 0; it < data.size(); ++it) {
-    v3 = data[it];
+  for (auto it : data) {
+    v3 = it;
     if ((v3.coeff != 0.) && (v3.np[nvar] > 0)) {
       --v3.np[nvar];
       newdata.push_back(v3);
@@ -308,8 +308,8 @@ void poly2d_base::Scale(const double C) {
   //Multiply the polynomial by a constant.
   //
   if (C != 0.) {
-    for (unsigned it = 0; it < data.size(); ++it) {
-      data[it].coeff *= C;
+    for (auto &it : data) {
+      it.coeff *= C;
     }
   } else
     data.resize(0);

@@ -1755,8 +1755,7 @@ void GsfElectronMCFakeAnalyzer::analyze(const edm::Event &iEvent, const edm::Eve
   histNum_->Fill((*gsfElectrons).size());
 
   // all rec electrons
-  for (reco::GsfElectronCollection::const_iterator gsfIter = gsfElectrons->begin(); gsfIter != gsfElectrons->end();
-       gsfIter++) {
+  for (auto gsfIter = gsfElectrons->begin(); gsfIter != gsfElectrons->end(); gsfIter++) {
     // preselect electrons
     if (gsfIter->pt() > maxPt_ || std::abs(gsfIter->eta()) > maxAbsEta_)
       continue;
@@ -1775,8 +1774,7 @@ void GsfElectronMCFakeAnalyzer::analyze(const edm::Event &iEvent, const edm::Eve
     h_ele_vertexPt_all->Fill(gsfIter->pt());
     float enrj1 = gsfIter->superCluster()->energy();
     // mee
-    for (reco::GsfElectronCollection::const_iterator gsfIter2 = gsfIter + 1; gsfIter2 != gsfElectrons->end();
-         gsfIter2++) {
+    for (auto gsfIter2 = gsfIter + 1; gsfIter2 != gsfElectrons->end(); gsfIter2++) {
       math::XYZTLorentzVector p12 = (*gsfIter).p4() + (*gsfIter2).p4();
       float mee2 = p12.Dot(p12);
       h_ele_mee_all->Fill(sqrt(mee2));
@@ -1792,11 +1790,11 @@ void GsfElectronMCFakeAnalyzer::analyze(const edm::Event &iEvent, const edm::Eve
   // association matching object-reco electrons
   int matchingObjectNum = 0;
 
-  for (reco::GenJetCollection::const_iterator moIter = genJets->begin(); moIter != genJets->end(); ++moIter) {
+  for (const auto &moIter : *genJets) {
     // number of matching objects
     matchingObjectNum++;
 
-    if (moIter->energy() / cosh(moIter->eta()) > maxPt_ || std::abs(moIter->eta()) > maxAbsEta_)
+    if (moIter.energy() / cosh(moIter.eta()) > maxPt_ || std::abs(moIter.eta()) > maxAbsEta_)
       continue;
 
     // suppress the endcaps
@@ -1804,12 +1802,12 @@ void GsfElectronMCFakeAnalyzer::analyze(const edm::Event &iEvent, const edm::Eve
     // select central z
     //if ( std::abs((*mcIter)->production_vertex()->position().z())>50.) continue;
 
-    h_matchingObjectEta->Fill(moIter->eta());
-    h_matchingObjectAbsEta->Fill(std::abs(moIter->eta()));
-    h_matchingObjectP->Fill(moIter->energy());
-    h_matchingObjectPt->Fill(moIter->energy() / cosh(moIter->eta()));
-    h_matchingObjectPhi->Fill(moIter->phi());
-    h_matchingObjectZ->Fill(moIter->vz());
+    h_matchingObjectEta->Fill(moIter.eta());
+    h_matchingObjectAbsEta->Fill(std::abs(moIter.eta()));
+    h_matchingObjectP->Fill(moIter.energy());
+    h_matchingObjectPt->Fill(moIter.energy() / cosh(moIter.eta()));
+    h_matchingObjectPhi->Fill(moIter.phi());
+    h_matchingObjectZ->Fill(moIter.vz());
 
     // looking for the best matching gsf electron
     bool okGsfFound = false;
@@ -1817,19 +1815,18 @@ void GsfElectronMCFakeAnalyzer::analyze(const edm::Event &iEvent, const edm::Eve
 
     // find best matched electron
     reco::GsfElectron bestGsfElectron;
-    for (reco::GsfElectronCollection::const_iterator gsfIter = gsfElectrons->begin(); gsfIter != gsfElectrons->end();
-         gsfIter++) {
-      double dphi = gsfIter->phi() - moIter->phi();
+    for (const auto &gsfIter : *gsfElectrons) {
+      double dphi = gsfIter.phi() - moIter.phi();
       if (std::abs(dphi) > CLHEP::pi)
         dphi = dphi < 0 ? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
-      double deltaR = sqrt(std::pow((gsfIter->eta() - moIter->eta()), 2) + std::pow(dphi, 2));
+      double deltaR = sqrt(std::pow((gsfIter.eta() - moIter.eta()), 2) + std::pow(dphi, 2));
       if (deltaR < deltaR_) {
         //if ( (genPc->pdg_id() == 11) && (gsfIter->charge() < 0.) || (genPc->pdg_id() == -11) &&
         //(gsfIter->charge() > 0.) ){
-        double tmpGsfRatio = gsfIter->p() / moIter->energy();
+        double tmpGsfRatio = gsfIter.p() / moIter.energy();
         if (std::abs(tmpGsfRatio - 1) < std::abs(gsfOkRatio - 1)) {
           gsfOkRatio = tmpGsfRatio;
-          bestGsfElectron = *gsfIter;
+          bestGsfElectron = gsfIter;
           okGsfFound = true;
         }
         //}
@@ -1849,16 +1846,16 @@ void GsfElectronMCFakeAnalyzer::analyze(const edm::Event &iEvent, const edm::Eve
       h_ele_vertexPtVsPhi->Fill(bestGsfElectron.phi(), bestGsfElectron.pt());
       h_ele_vertexEta->Fill(bestGsfElectron.eta());
       // generated distributions for matched electrons
-      h_ele_matchingObjectPt_matched->Fill(moIter->energy() / cosh(moIter->eta()));
-      h_ele_matchingObjectPhi_matched->Fill(moIter->phi());
-      h_ele_matchingObjectAbsEta_matched->Fill(std::abs(moIter->eta()));
-      h_ele_matchingObjectEta_matched->Fill(moIter->eta());
+      h_ele_matchingObjectPt_matched->Fill(moIter.energy() / cosh(moIter.eta()));
+      h_ele_matchingObjectPhi_matched->Fill(moIter.phi());
+      h_ele_matchingObjectAbsEta_matched->Fill(std::abs(moIter.eta()));
+      h_ele_matchingObjectEta_matched->Fill(moIter.eta());
       h_ele_vertexEtaVsPhi->Fill(bestGsfElectron.phi(), bestGsfElectron.eta());
       h_ele_vertexPhi->Fill(bestGsfElectron.phi());
       h_ele_vertexX->Fill(bestGsfElectron.vertex().x());
       h_ele_vertexY->Fill(bestGsfElectron.vertex().y());
       h_ele_vertexZ->Fill(bestGsfElectron.vertex().z());
-      h_ele_matchingObjectZ_matched->Fill(moIter->vz());
+      h_ele_matchingObjectZ_matched->Fill(moIter.vz());
       double d =
           (bestGsfElectron.vertex().x() - bs.position().x()) * (bestGsfElectron.vertex().x() - bs.position().x()) +
           (bestGsfElectron.vertex().y() - bs.position().y()) * (bestGsfElectron.vertex().y() - bs.position().y());
@@ -1867,23 +1864,23 @@ void GsfElectronMCFakeAnalyzer::analyze(const edm::Event &iEvent, const edm::Eve
       h_ele_vertexTIPVsEta->Fill(bestGsfElectron.eta(), d);
       h_ele_vertexTIPVsPhi->Fill(bestGsfElectron.phi(), d);
       h_ele_vertexTIPVsPt->Fill(bestGsfElectron.pt(), d);
-      h_ele_EtaMnEtamatchingObject->Fill(bestGsfElectron.eta() - moIter->eta());
-      h_ele_EtaMnEtamatchingObjectVsEta->Fill(bestGsfElectron.eta(), bestGsfElectron.eta() - moIter->eta());
-      h_ele_EtaMnEtamatchingObjectVsPhi->Fill(bestGsfElectron.phi(), bestGsfElectron.eta() - moIter->eta());
-      h_ele_EtaMnEtamatchingObjectVsPt->Fill(bestGsfElectron.pt(), bestGsfElectron.eta() - moIter->eta());
-      h_ele_PhiMnPhimatchingObject->Fill(bestGsfElectron.phi() - moIter->phi());
-      h_ele_PhiMnPhimatchingObject2->Fill(bestGsfElectron.phi() - moIter->phi());
-      h_ele_PhiMnPhimatchingObjectVsEta->Fill(bestGsfElectron.eta(), bestGsfElectron.phi() - moIter->phi());
-      h_ele_PhiMnPhimatchingObjectVsPhi->Fill(bestGsfElectron.phi(), bestGsfElectron.phi() - moIter->phi());
-      h_ele_PhiMnPhimatchingObjectVsPt->Fill(bestGsfElectron.pt(), bestGsfElectron.phi() - moIter->phi());
-      h_ele_PoPmatchingObject->Fill(bestGsfElectron.p() / moIter->energy());
-      h_ele_PoPmatchingObjectVsEta->Fill(bestGsfElectron.eta(), bestGsfElectron.p() / moIter->energy());
-      h_ele_PoPmatchingObjectVsPhi->Fill(bestGsfElectron.phi(), bestGsfElectron.p() / moIter->energy());
-      h_ele_PoPmatchingObjectVsPt->Fill(bestGsfElectron.py(), bestGsfElectron.p() / moIter->energy());
+      h_ele_EtaMnEtamatchingObject->Fill(bestGsfElectron.eta() - moIter.eta());
+      h_ele_EtaMnEtamatchingObjectVsEta->Fill(bestGsfElectron.eta(), bestGsfElectron.eta() - moIter.eta());
+      h_ele_EtaMnEtamatchingObjectVsPhi->Fill(bestGsfElectron.phi(), bestGsfElectron.eta() - moIter.eta());
+      h_ele_EtaMnEtamatchingObjectVsPt->Fill(bestGsfElectron.pt(), bestGsfElectron.eta() - moIter.eta());
+      h_ele_PhiMnPhimatchingObject->Fill(bestGsfElectron.phi() - moIter.phi());
+      h_ele_PhiMnPhimatchingObject2->Fill(bestGsfElectron.phi() - moIter.phi());
+      h_ele_PhiMnPhimatchingObjectVsEta->Fill(bestGsfElectron.eta(), bestGsfElectron.phi() - moIter.phi());
+      h_ele_PhiMnPhimatchingObjectVsPhi->Fill(bestGsfElectron.phi(), bestGsfElectron.phi() - moIter.phi());
+      h_ele_PhiMnPhimatchingObjectVsPt->Fill(bestGsfElectron.pt(), bestGsfElectron.phi() - moIter.phi());
+      h_ele_PoPmatchingObject->Fill(bestGsfElectron.p() / moIter.energy());
+      h_ele_PoPmatchingObjectVsEta->Fill(bestGsfElectron.eta(), bestGsfElectron.p() / moIter.energy());
+      h_ele_PoPmatchingObjectVsPhi->Fill(bestGsfElectron.phi(), bestGsfElectron.p() / moIter.energy());
+      h_ele_PoPmatchingObjectVsPt->Fill(bestGsfElectron.py(), bestGsfElectron.p() / moIter.energy());
       if (bestGsfElectron.isEB())
-        h_ele_PoPmatchingObject_barrel->Fill(bestGsfElectron.p() / moIter->energy());
+        h_ele_PoPmatchingObject_barrel->Fill(bestGsfElectron.p() / moIter.energy());
       if (bestGsfElectron.isEE())
-        h_ele_PoPmatchingObject_endcaps->Fill(bestGsfElectron.p() / moIter->energy());
+        h_ele_PoPmatchingObject_endcaps->Fill(bestGsfElectron.p() / moIter.energy());
 
       // supercluster related distributions
       reco::SuperClusterRef sclRef = bestGsfElectron.superCluster();
@@ -1896,9 +1893,9 @@ void GsfElectronMCFakeAnalyzer::analyze(const edm::Event &iEvent, const edm::Eve
       histSclEtVsEta_->Fill(sclRef->eta(), sclRef->energy() * (Rt / R));
       histSclEtVsPhi_->Fill(sclRef->phi(), sclRef->energy() * (Rt / R));
       if (bestGsfElectron.isEB())
-        histSclEoEmatchingObject_barrel->Fill(sclRef->energy() / moIter->energy());
+        histSclEoEmatchingObject_barrel->Fill(sclRef->energy() / moIter.energy());
       if (bestGsfElectron.isEE())
-        histSclEoEmatchingObject_endcaps->Fill(sclRef->energy() / moIter->energy());
+        histSclEoEmatchingObject_endcaps->Fill(sclRef->energy() / moIter.energy());
       histSclEta_->Fill(sclRef->eta());
       histSclEtaVsPhi_->Fill(sclRef->phi(), sclRef->eta());
       histSclPhi_->Fill(sclRef->phi());

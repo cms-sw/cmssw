@@ -79,7 +79,7 @@ TkMSParameterizationBuilder::ReturnType TkMSParameterizationBuilder::produce(TkM
   auto& msParam = *product;
 
   //
-  TkNavigationSchool const& navSchool = dynamic_cast<TkNavigationSchool const&>(iRecord.get(theNavSchoolToken_));
+  auto const& navSchool = dynamic_cast<TkNavigationSchool const&>(iRecord.get(theNavSchoolToken_));
   auto const& searchGeom = navSchool.searchTracker();
   auto const& magfield = navSchool.field();
 

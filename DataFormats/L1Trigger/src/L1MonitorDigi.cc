@@ -11,8 +11,8 @@ unsigned L1MonitorDigi::reset() {
   m_null = 999;
   m_sid = m_null;
   m_cid = m_null;
-  for (int i = 0; i < 3; i++)
-    m_location[i] = m_null;
+  for (unsigned int& i : m_location)
+    i = m_null;
   m_data = 0;
   m_value = m_null;
   return m_null;

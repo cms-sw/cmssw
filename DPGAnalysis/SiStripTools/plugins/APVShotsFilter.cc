@@ -155,15 +155,15 @@ bool APVShotsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   APVShotFinder apvsf(*digis, _zs);
   const std::vector<APVShot>& shots = apvsf.getShots();
 
-  for (std::vector<APVShot>::const_iterator shot = shots.begin(); shot != shots.end(); ++shot) {
-    if (!shot->isGenuine())
+  for (const auto& shot : shots) {
+    if (!shot.isGenuine())
       continue;
     ++nshots;
 
     //get the fedid from the detid
-    uint32_t det = shot->detId();
+    uint32_t det = shot.detId();
     if (_useCabling) {
-      int apvPair = shot->apvNumber() / 2;
+      int apvPair = shot.apvNumber() / 2;
       LogDebug("APVShotsFilter") << apvPair;
 
       const FedChannelConnection& theConn = _detCabling->getConnection(det, apvPair);

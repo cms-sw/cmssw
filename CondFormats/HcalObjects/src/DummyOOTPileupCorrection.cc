@@ -38,7 +38,7 @@ void DummyOOTPileupCorrection::apply(const HcalDetId& /* id */,
 bool DummyOOTPileupCorrection::isEqual(const AbsOOTPileupCorrection& otherBase) const {
   // Note the use of static_cast rather than dynamic_cast below.
   // static_cast works faster and it is guaranteed to succeed here.
-  const DummyOOTPileupCorrection& r = static_cast<const DummyOOTPileupCorrection&>(otherBase);
+  const auto& r = static_cast<const DummyOOTPileupCorrection&>(otherBase);
   return descr_ == r.descr_ && scale_ == r.scale_;
 }
 

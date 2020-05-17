@@ -6,6 +6,8 @@
 //=============================================================================
 //*****************************************************************************
 //C++ includes
+#include <utility>
+
 #include <vector>
 #include <functional>
 //ROOT includes
@@ -42,7 +44,7 @@ ElectronTkIsolation::ElectronTkIsolation(double extRadius,
       lip_(lip),
       drb_(drb),
       trackCollection_(trackCollection),
-      beamPoint_(beamPoint) {
+      beamPoint_(std::move(beamPoint)) {
   setAlgosToReject();
   setDzOption(dzOptionString);
 }
@@ -62,40 +64,39 @@ std::pair<int, double> ElectronTkIsolation::getIso(const reco::Track* tmpTrack) 
   math::XYZVector tmpElectronMomentumAtVtx = (*tmpTrack).momentum();
   double tmpElectronEtaAtVertex = (*tmpTrack).eta();
 
-  for (reco::TrackCollection::const_iterator itrTr = (*trackCollection_).begin(); itrTr != (*trackCollection_).end();
-       ++itrTr) {
-    double this_pt = (*itrTr).pt();
+  for (const auto& itrTr : (*trackCollection_)) {
+    double this_pt = itrTr.pt();
     if (this_pt < ptLow_)
       continue;
 
     double dzCut = 0;
     switch (dzOption_) {
       case egammaisolation::EgammaTrackSelector::dz:
-        dzCut = fabs((*itrTr).dz() - (*tmpTrack).dz());
+        dzCut = fabs(itrTr.dz() - (*tmpTrack).dz());
         break;
       case egammaisolation::EgammaTrackSelector::vz:
-        dzCut = fabs((*itrTr).vz() - (*tmpTrack).vz());
+        dzCut = fabs(itrTr.vz() - (*tmpTrack).vz());
         break;
       case egammaisolation::EgammaTrackSelector::bs:
-        dzCut = fabs((*itrTr).dz(beamPoint_) - (*tmpTrack).dz(beamPoint_));
+        dzCut = fabs(itrTr.dz(beamPoint_) - (*tmpTrack).dz(beamPoint_));
         break;
       case egammaisolation::EgammaTrackSelector::vtx:
-        dzCut = fabs((*itrTr).dz(tmpTrack->vertex()));
+        dzCut = fabs(itrTr.dz(tmpTrack->vertex()));
         break;
       default:
-        dzCut = fabs((*itrTr).vz() - (*tmpTrack).vz());
+        dzCut = fabs(itrTr.vz() - (*tmpTrack).vz());
         break;
     }
     if (dzCut > lip_)
       continue;
-    if (fabs((*itrTr).dxy(beamPoint_)) > drb_)
+    if (fabs(itrTr.dxy(beamPoint_)) > drb_)
       continue;
-    double dr = ROOT::Math::VectorUtil::DeltaR(itrTr->momentum(), tmpElectronMomentumAtVtx);
-    double deta = (*itrTr).eta() - tmpElectronEtaAtVertex;
+    double dr = ROOT::Math::VectorUtil::DeltaR(itrTr.momentum(), tmpElectronMomentumAtVtx);
+    double deta = itrTr.eta() - tmpElectronEtaAtVertex;
     bool isBarrel = std::abs(tmpElectronEtaAtVertex) < 1.479;
     double intRadius = isBarrel ? intRadiusBarrel_ : intRadiusEndcap_;
     double strip = isBarrel ? stripBarrel_ : stripEndcap_;
-    if (dr < extRadius_ && dr >= intRadius && std::abs(deta) >= strip && passAlgo(*itrTr)) {
+    if (dr < extRadius_ && dr >= intRadius && std::abs(deta) >= strip && passAlgo(itrTr)) {
       ++counter;
       ptSum += this_pt;
     }

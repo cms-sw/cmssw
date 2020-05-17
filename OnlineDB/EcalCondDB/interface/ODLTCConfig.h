@@ -3,6 +3,8 @@
 
 #include <map>
 #include <stdexcept>
+#include <utility>
+
 #include "OnlineDB/Oracle/interface/Oracle.h"
 #include "OnlineDB/EcalCondDB/interface/IODConfig.h"
 #define USE_NORM 1
@@ -27,7 +29,7 @@ public:
   inline void setSize(unsigned int id) { m_size = id; }
   inline unsigned int getSize() const { return m_size; }
 
-  inline void setLTCConfigurationFile(std::string x) { m_ltc_file = x; }
+  inline void setLTCConfigurationFile(std::string x) { m_ltc_file = std::move(x); }
   inline std::string getLTCConfigurationFile() const { return m_ltc_file; }
 
   inline void setLTCClob(unsigned char* x) { m_ltc_clob = x; }

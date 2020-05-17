@@ -18,9 +18,9 @@ namespace edmtest {
   public:
     explicit DTDeadWrite(edm::ParameterSet const& p);
     explicit DTDeadWrite(int i);
-    virtual ~DTDeadWrite();
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-    virtual void endJob();
+    ~DTDeadWrite() override;
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+    void endJob() override;
 
   private:
     void fill_dead_HV(const char* file, DTDeadFlag* deadList);

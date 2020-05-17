@@ -127,6 +127,6 @@ private:
   COND_SERIALIZABLE;
 };
 
-std::ostream& operator<<(std::ostream&, BeamSpotObjects beam);
+std::ostream& operator<<(std::ostream&, const BeamSpotObjects& beam);
 
 #endif

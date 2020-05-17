@@ -26,7 +26,7 @@ void FieldStepWatcher::update(const BeginOfRun *) {
   G4VPhysicalVolume *pv =
       G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume();
   findTouch(pv, 0);
-  lvnames.push_back("Not Found");
+  lvnames.emplace_back("Not Found");
 
   edm::LogInfo("FieldStepWatcher") << "FieldStepWatcher: Finds " << lvnames.size() << " different volumes"
                                    << " at level " << level;
@@ -88,8 +88,8 @@ void FieldStepWatcher::update(const BeginOfRun *) {
 }
 
 void FieldStepWatcher::update(const BeginOfEvent *) {
-  for (unsigned int i = 0; i < steps.size(); i++)
-    steps[i] = 0;
+  for (int &step : steps)
+    step = 0;
 }
 
 void FieldStepWatcher::update(const EndOfEvent *) {
@@ -178,7 +178,7 @@ void FieldStepWatcher::findTouch(G4VPhysicalVolume *pv, int leafDepth) {
     fHistory.BackLevel();
 }
 
-int FieldStepWatcher::findName(std::string name) {
+int FieldStepWatcher::findName(const std::string &name) {
   for (unsigned int i = 0; i < lvnames.size(); i++)
     if (name == lvnames[i])
       return i;

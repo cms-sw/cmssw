@@ -71,14 +71,14 @@ public:
   typedef dqm::legacy::MonitorElement MonitorElement;
   typedef dqm::legacy::DQMStore DQMStore;
   explicit ValidationHcalIsoTrackAlCaReco(const edm::ParameterSet&);
-  ~ValidationHcalIsoTrackAlCaReco();
+  ~ValidationHcalIsoTrackAlCaReco() override;
 
 private:
   DQMStore* dbe_;
 
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   std::string folderName_;
   bool saveToFile_;

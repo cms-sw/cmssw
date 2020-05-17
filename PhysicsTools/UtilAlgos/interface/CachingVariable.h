@@ -15,6 +15,8 @@
 namespace edm {
   class EventSetup;
 }
+#include <utility>
+
 #include <vector>
 #include "TString.h"
 
@@ -53,7 +55,7 @@ public:
   };
 
   CachingVariable(std::string m, std::string n, const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC)
-      : cache_(std::make_pair(false, 0)), method_(m), name_(n), conf_(iConfig) {}
+      : cache_(std::make_pair(false, 0)), method_(std::move(m)), name_(std::move(n)), conf_(iConfig) {}
 
   virtual ~CachingVariable() {}
 
@@ -68,7 +70,7 @@ public:
   const Description& description() const { return d_; }
   void addDescriptionLine(const std::string& s) { d_.addLine(s); }
   const std::string& holderName() const { return holderName_; }
-  void setHolder(std::string hn) const { holderName_ = hn; }
+  void setHolder(std::string hn) const { holderName_ = std::move(hn); }
 
   void print() const { edm::LogVerbatim("CachingVariable") << name() << "\n" << description().text(); }
 
@@ -182,7 +184,7 @@ public:
 class Splitter : public CachingVariable {
 public:
   Splitter(std::string method, std::string n, const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC)
-      : CachingVariable(method, n, iConfig, iC) {}
+      : CachingVariable(std::move(method), std::move(n), iConfig, iC) {}
 
   //purely virtual here
   CachingVariable::evalType eval(const edm::Event& iEvent) const override = 0;
@@ -226,7 +228,7 @@ public:
     useOverFlow_ = arg.iConfig.getParameter<bool>("useOverFlow");
     slots_ = arg.iConfig.getParameter<std::vector<double> >("slots");
     if (useUnderFlow_) {
-      labels_.push_back("underflow");
+      labels_.emplace_back("underflow");
       short_labels_.push_back("_" + arg.n + "_underflow");
     }
     std::vector<std::string> confLabels;
@@ -246,7 +248,7 @@ public:
       short_labels_.push_back(ss.str());
     }
     if (useOverFlow_) {
-      labels_.push_back("overFlow");
+      labels_.emplace_back("overFlow");
       short_labels_.push_back("_" + arg.n + "_overFlow");
     }
 
@@ -333,7 +335,7 @@ public:
         //do something fancy for multiple variable from one PSet
         std::vector<std::string> vars = arg.iConfig.getParameter<std::vector<std::string> >("vars");
         for (unsigned int v = 0; v != vars.size(); ++v) {
-          unsigned int sep = vars[v].find(":");
+          unsigned int sep = vars[v].find(':');
           std::string name = vars[v].substr(0, sep);
           std::string expr = vars[v].substr(sep + 1);
 
@@ -352,29 +354,29 @@ public:
 
       if (varEntry.empty()) {
         //loop only the indexes
-        for (std::map<std::string, edm::Entry>::iterator iIt = indexEntry.begin(); iIt != indexEntry.end(); ++iIt) {
+        for (auto& iIt : indexEntry) {
           edm::ParameterSet toUse = arg.iConfig;
-          toUse.insert(true, "index", iIt->second);
-          std::string newVname = radical + iIt->first;
+          toUse.insert(true, "index", iIt.second);
+          std::string newVname = radical + iIt.first;
           //	  std::cout<<"in the loop, creating variable with name: "<<newVname<<std::endl;
           // the constructor auto log the new variable in the map
           new ExpressionVariable(CachingVariable::CachingVariableFactoryArg(newVname, arg.m, toUse), iC);
         }
       } else {
-        for (std::map<std::string, edm::Entry>::iterator vIt = varEntry.begin(); vIt != varEntry.end(); ++vIt) {
+        for (auto& vIt : varEntry) {
           if (indexEntry.empty()) {
             edm::ParameterSet toUse = arg.iConfig;
-            toUse.insert(true, "expr", vIt->second);
-            std::string newVname = radical + vIt->first;
+            toUse.insert(true, "expr", vIt.second);
+            std::string newVname = radical + vIt.first;
             //	    std::cout<<"in the loop, creating variable with name: "<<newVname<<std::endl;
             // the constructor auto log the new variable in the map
             new ExpressionVariable(CachingVariable::CachingVariableFactoryArg(newVname, arg.m, toUse), iC);
           } else {
-            for (std::map<std::string, edm::Entry>::iterator iIt = indexEntry.begin(); iIt != indexEntry.end(); ++iIt) {
+            for (auto& iIt : indexEntry) {
               edm::ParameterSet toUse = arg.iConfig;
-              toUse.insert(true, "expr", vIt->second);
-              toUse.insert(true, "index", iIt->second);
-              std::string newVname = radical + iIt->first + vIt->first;
+              toUse.insert(true, "expr", vIt.second);
+              toUse.insert(true, "index", iIt.second);
+              std::string newVname = radical + iIt.first + vIt.first;
               //	      std::cout<<"in the loop, creating variable with name: "<<newVname<<std::endl;
               // the constructor auto log the new variable in the map
               new ExpressionVariable(CachingVariable::CachingVariableFactoryArg(newVname, arg.m, toUse), iC);

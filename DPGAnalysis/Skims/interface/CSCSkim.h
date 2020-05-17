@@ -85,31 +85,33 @@ public:
 protected:
 private:
   // main skimming routine
-  bool doCSCSkimming(edm::Handle<CSCRecHit2DCollection> cscRecHits, edm::Handle<CSCSegmentCollection> cscSegments);
+  bool doCSCSkimming(const edm::Handle<CSCRecHit2DCollection> &cscRecHits,
+                     const edm::Handle<CSCSegmentCollection> &cscSegments);
 
   // extra skimming routine for alignment studies
-  bool doOverlapSkimming(edm::Handle<CSCSegmentCollection> cscSegments);
+  bool doOverlapSkimming(const edm::Handle<CSCSegmentCollection> &cscSegments);
 
   // skimming routine for messy events
-  bool doMessyEventSkimming(edm::Handle<CSCRecHit2DCollection> cscRecHits,
-                            edm::Handle<CSCSegmentCollection> cscSegments);
+  bool doMessyEventSkimming(const edm::Handle<CSCRecHit2DCollection> &cscRecHits,
+                            const edm::Handle<CSCSegmentCollection> &cscSegments);
 
   // select events with DIGIs in a certain chamber
-  bool doCertainChamberSelection(edm::Handle<CSCWireDigiCollection> wires, edm::Handle<CSCStripDigiCollection> strips);
+  bool doCertainChamberSelection(const edm::Handle<CSCWireDigiCollection> &wires,
+                                 const edm::Handle<CSCStripDigiCollection> &strips);
 
   // select events which might probe the DT-CSC overlap region
-  bool doDTOverlap(edm::Handle<CSCSegmentCollection> cscSegments);
+  bool doDTOverlap(const edm::Handle<CSCSegmentCollection> &cscSegments);
 
   // select muons which go through inner part of stations 1,2,3,4
-  bool doHaloLike(edm::Handle<CSCSegmentCollection> cscSegments);
+  bool doHaloLike(const edm::Handle<CSCSegmentCollection> &cscSegments);
 
   // select events with long stand-alone (cosmic) muons
-  bool doLongSATrack(edm::Handle<reco::TrackCollection> saTracks);
+  bool doLongSATrack(const edm::Handle<reco::TrackCollection> &saTracks);
 
   // select events suitable for magnetic field studies - they have a track in the tracker
-  bool doBFieldStudySelection(edm::Handle<reco::TrackCollection> saTracks,
-                              edm::Handle<reco::TrackCollection> Tracks,
-                              edm::Handle<reco::MuonCollection> gMuons);
+  bool doBFieldStudySelection(const edm::Handle<reco::TrackCollection> &saTracks,
+                              const edm::Handle<reco::TrackCollection> &Tracks,
+                              const edm::Handle<reco::MuonCollection> &gMuons);
 
   // some useful functions
   int chamberSerial(int kE, int kS, int kR, int kCh);

@@ -162,8 +162,7 @@ float CSCHitFromWireOnly::findWireHitPosition() {
 
   float y = 0.0;
 
-  for (unsigned i = 0; i < wire_cluster.size(); ++i) {
-    CSCWireDigi wdigi = wire_cluster[i];
+  for (auto wdigi : wire_cluster) {
     int wgroup = wdigi.getWireGroup();
     wire_in_cluster.push_back(wgroup);
     int wgroupAndBX = wdigi.getBXandWireGroup();  /// BX to WireHit

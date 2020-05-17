@@ -197,7 +197,7 @@ bool SimpleNavigableLayer::wellInside(const FreeTrajectoryState& fts,
 
 bool SimpleNavigableLayer::wellInside(
     const FreeTrajectoryState& fts, PropagationDirection dir, ConstBDLI begin, ConstBDLI end, DLC& result) const {
-  for (ConstBDLI i = begin; i < end; i++) {
+  for (auto i = begin; i < end; i++) {
     if (wellInside(fts, dir, *i, result))
       return true;
   }
@@ -206,7 +206,7 @@ bool SimpleNavigableLayer::wellInside(
 
 bool SimpleNavigableLayer::wellInside(
     const FreeTrajectoryState& fts, PropagationDirection dir, ConstFDLI begin, ConstFDLI end, DLC& result) const {
-  for (ConstFDLI i = begin; i < end; i++) {
+  for (auto i = begin; i < end; i++) {
     if (wellInside(fts, dir, *i, result))
       return true;
   }

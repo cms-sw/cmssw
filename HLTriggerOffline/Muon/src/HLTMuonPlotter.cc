@@ -2,6 +2,8 @@
 /** \file HLTMuonPlotter.cc
  */
 
+#include <utility>
+
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
@@ -34,7 +36,7 @@ HLTMuonPlotter::HLTMuonPlotter(const ParameterSet &pset,
     :
 
       l1Matcher_(pset) {
-  hltPath_ = hltPath;
+  hltPath_ = std::move(hltPath);
   moduleLabels_ = moduleLabels;
   stepLabels_ = stepLabels;
   hltProcessName_ = pset.getParameter<string>("hltProcessName");
@@ -96,13 +98,12 @@ void HLTMuonPlotter::beginRun(DQMStore::IBooker &iBooker, const Run &iRun, const
   elements_["CutMinPt"]->Fill(cutMinPt_);
   elements_["CutMaxEta"]->Fill(cutMaxEta_);
 
-  for (size_t i = 0; i < sources.size(); i++) {
-    string source = sources[i];
-    for (size_t j = 0; j < stepLabels_.size(); j++) {
-      bookHist(iBooker, hltPath_, stepLabels_[j], source, "Eta");
-      bookHist(iBooker, hltPath_, stepLabels_[j], source, "Phi");
-      bookHist(iBooker, hltPath_, stepLabels_[j], source, "MaxPt1");
-      bookHist(iBooker, hltPath_, stepLabels_[j], source, "MaxPt2");
+  for (auto source : sources) {
+    for (const auto &stepLabel : stepLabels_) {
+      bookHist(iBooker, hltPath_, stepLabel, source, "Eta");
+      bookHist(iBooker, hltPath_, stepLabel, source, "Phi");
+      bookHist(iBooker, hltPath_, stepLabel, source, "MaxPt1");
+      bookHist(iBooker, hltPath_, stepLabel, source, "MaxPt2");
     }
   }
 }
@@ -131,13 +132,11 @@ void HLTMuonPlotter::analyze(const Event &iEvent, const EventSetup &iSetup) {
 
   vector<string> sources;
   if (genParticles.isValid())
-    sources.push_back("gen");
+    sources.emplace_back("gen");
   if (recMuons.isValid())
-    sources.push_back("rec");
+    sources.emplace_back("rec");
 
-  for (size_t sourceNo = 0; sourceNo < sources.size(); sourceNo++) {
-    string source = sources[sourceNo];
-
+  for (auto source : sources) {
     // If this is the first event, initialize selectors
     if (!genMuonSelector_)
       genMuonSelector_ = new StringCutObjectSelector<reco::GenParticle>(genMuonCut_);
@@ -147,13 +146,13 @@ void HLTMuonPlotter::analyze(const Event &iEvent, const EventSetup &iSetup) {
     // Make each good gen/rec muon into the base cand for a MatchStruct
     vector<MatchStruct> matches;
     if (source == "gen" && genParticles.isValid())
-      for (size_t i = 0; i < genParticles->size(); i++)
-        if ((*genMuonSelector_)(genParticles->at(i)))
-          matches.push_back(MatchStruct(&genParticles->at(i)));
+      for (const auto &i : *genParticles)
+        if ((*genMuonSelector_)(i))
+          matches.emplace_back(&i);
     if (source == "rec" && recMuons.isValid())
-      for (size_t i = 0; i < recMuons->size(); i++)
-        if ((*recMuonSelector_)(recMuons->at(i)))
-          matches.push_back(MatchStruct(&recMuons->at(i)));
+      for (const auto &i : *recMuons)
+        if ((*recMuonSelector_)(i))
+          matches.emplace_back(&i);
 
     // Sort the MatchStructs by pT for later filling of turn-on curve
     sort(matches.begin(), matches.end(), matchesByDescendingPt());
@@ -291,8 +290,8 @@ void HLTMuonPlotter::findMatches(vector<MatchStruct> &matches,
     for (size_t j = 0; j < candsHlt[i].size(); j++)
       indicesHlt[i].insert(j);
 
-  for (size_t i = 0; i < matches.size(); i++) {
-    const Candidate *cand = matches[i].candBase;
+  for (auto &matche : matches) {
+    const Candidate *cand = matche.candBase;
 
     double bestDeltaR = cutsDr_[0];
     size_t bestMatch = kNull;
@@ -317,10 +316,10 @@ void HLTMuonPlotter::findMatches(vector<MatchStruct> &matches,
     }
 
     if (bestMatch != kNull)
-      matches[i].candL1 = &*candsL1[bestMatch];
+      matche.candL1 = &*candsL1[bestMatch];
     indicesL1.erase(bestMatch);
 
-    matches[i].candHlt.assign(candsHlt.size(), nullptr);
+    matche.candHlt.assign(candsHlt.size(), nullptr);
     for (size_t j = 0; j < candsHlt.size(); j++) {
       size_t level = (candsHlt.size() == 4) ? (j < 2) ? 2 : 3 : (candsHlt.size() == 2) ? (j < 1) ? 2 : 3 : 2;
       bestDeltaR = cutsDr_[level - 2];
@@ -333,7 +332,7 @@ void HLTMuonPlotter::findMatches(vector<MatchStruct> &matches,
         }
       }
       if (bestMatch != kNull)
-        matches[i].candHlt[j] = candsHlt[j][bestMatch];
+        matche.candHlt[j] = candsHlt[j][bestMatch];
       indicesHlt[j].erase(bestMatch);
     }
 
@@ -347,7 +346,8 @@ void HLTMuonPlotter::findMatches(vector<MatchStruct> &matches,
   }
 }
 
-void HLTMuonPlotter::bookHist(DQMStore::IBooker &iBooker, string path, string label, string source, string type) {
+void HLTMuonPlotter::bookHist(
+    DQMStore::IBooker &iBooker, const string &path, const string &label, const string &source, const string &type) {
   string sourceUpper = source;
   sourceUpper[0] = toupper(sourceUpper[0]);
   string name = source + "Pass" + type + "_" + label;

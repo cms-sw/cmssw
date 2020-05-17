@@ -20,13 +20,14 @@
 #include "TPaveStats.h"
 #include <string>
 #include <fstream>
+#include <utility>
 
 namespace {
 
   class HcalChannelStatusContainer : public HcalObjRepresent::HcalDataContainer<HcalChannelQuality, HcalChannelStatus> {
   public:
     HcalChannelStatusContainer(std::shared_ptr<HcalChannelQuality> payload, unsigned int run)
-        : HcalObjRepresent::HcalDataContainer<HcalChannelQuality, HcalChannelStatus>(payload, run) {}
+        : HcalObjRepresent::HcalDataContainer<HcalChannelQuality, HcalChannelStatus>(std::move(payload), run) {}
     float getValue(HcalChannelStatus* chan) override { return chan->getValue() / 32770; }
   };
 
@@ -44,7 +45,7 @@ namespace {
       auto iov = iovs.front();
       std::shared_ptr<HcalChannelQuality> payload = fetchPayload(std::get<1>(iov));
       if (payload.get()) {
-        HcalChannelStatusContainer* objContainer = new HcalChannelStatusContainer(payload, std::get<0>(iov));
+        auto* objContainer = new HcalChannelStatusContainer(payload, std::get<0>(iov));
         std::string ImageName(m_imageFileName);
         objContainer->getCanvasAll()->SaveAs(ImageName.c_str());
         return true;
@@ -66,8 +67,8 @@ namespace {
       std::shared_ptr<HcalChannelQuality> payload1 = fetchPayload(std::get<1>(iov1));
       std::shared_ptr<HcalChannelQuality> payload2 = fetchPayload(std::get<1>(iov2));
       if (payload1.get() && payload2.get()) {
-        HcalChannelStatusContainer* objContainer1 = new HcalChannelStatusContainer(payload1, std::get<0>(iov1));
-        HcalChannelStatusContainer* objContainer2 = new HcalChannelStatusContainer(payload2, std::get<0>(iov2));
+        auto* objContainer1 = new HcalChannelStatusContainer(payload1, std::get<0>(iov1));
+        auto* objContainer2 = new HcalChannelStatusContainer(payload2, std::get<0>(iov2));
 
         objContainer2->Subtract(objContainer1);
         //

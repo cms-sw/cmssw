@@ -16,9 +16,9 @@ namespace edmtest {
   public:
     explicit DTMapWrite(edm::ParameterSet const& p);
     explicit DTMapWrite(int i);
-    virtual ~DTMapWrite();
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-    virtual void endJob();
+    ~DTMapWrite() override;
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+    void endJob() override;
 
   private:
   };

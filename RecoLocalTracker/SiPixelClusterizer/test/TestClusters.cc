@@ -238,26 +238,26 @@ int getBX::find(int bx) {
   //cout<<bx<<endl;
 
   // Check collisions
-  for (int i = 0; i < coll_num; ++i) {
-    if (bx == coll[i])
+  for (int i : coll) {
+    if (bx == i)
       return (3);  // collision
-    else if (bx == (coll[i] + 1))
+    else if (bx == (i + 1))
       return (4);  // collision+1
   }
 
   // Check beam1
-  for (int i = 0; i < beam1_num; ++i) {
-    if (bx == beam1[i])
+  for (int i : beam1) {
+    if (bx == i)
       return (1);  // collision
-    else if (bx == (beam1[i] + 1))
+    else if (bx == (i + 1))
       return (5);  // collision+1
   }
 
   // Check beam1
-  for (int i = 0; i < beam2_num; ++i) {
-    if (bx == beam2[i])
+  for (int i : beam2) {
+    if (bx == i)
       return (2);  // collision
-    else if (bx == (beam2[i] + 1))
+    else if (bx == (i + 1))
       return (6);  // collision+1
   }
 
@@ -829,11 +829,11 @@ float rocEfficiency::getModule(int layer, int ladder, int module, float &half1, 
 class TestClusters : public edm::EDAnalyzer {
 public:
   explicit TestClusters(const edm::ParameterSet &conf);
-  virtual ~TestClusters();
-  virtual void analyze(const edm::Event &e, const edm::EventSetup &c) override;
-  virtual void beginRun(edm::Run const &, edm::EventSetup const &) override;
-  virtual void beginJob() override;
-  virtual void endJob() override;
+  ~TestClusters() override;
+  void analyze(const edm::Event &e, const edm::EventSetup &c) override;
+  void beginRun(edm::Run const &, edm::EventSetup const &) override;
+  void beginJob() override;
+  void endJob() override;
 
 private:
   edm::ParameterSet conf_;
@@ -1945,20 +1945,20 @@ void TestClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
 
     //int numPVs = vertices->size(); // unused
     if (!vertices.failedToGet() && vertices.isValid()) {
-      for (reco::VertexCollection::const_iterator iVertex = vertices->begin(); iVertex != vertices->end(); ++iVertex) {
-        if (!iVertex->isValid())
+      for (const auto &iVertex : *vertices) {
+        if (!iVertex.isValid())
           continue;
-        if (iVertex->isFake())
+        if (iVertex.isFake())
           continue;
         numPVsGood++;
 
         if (PRINT) {
           cout << "vertex";
-          cout << ": x " << iVertex->x();
-          cout << ", y " << iVertex->y();
-          cout << ", z " << iVertex->z();
-          cout << ", ndof " << iVertex->ndof();
-          cout << ", sumpt " << iVertex->p4().pt();
+          cout << ": x " << iVertex.x();
+          cout << ", y " << iVertex.y();
+          cout << ", z " << iVertex.z();
+          cout << ", ndof " << iVertex.ndof();
+          cout << ", sumpt " << iVertex.p4().pt();
           cout << endl;
         }  // print
       }    // for loop
@@ -2093,8 +2093,8 @@ void TestClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
   // Analyse HLT
   //bool passHLT1=false,passHLT2=false,passHLT3=false,passHLT4=false,passHLT5=false;
   bool hlt[256];
-  for (int i = 0; i < 256; ++i)
-    hlt[i] = false;
+  for (bool &i : hlt)
+    i = false;
 
 #ifdef HLT
 
@@ -2328,7 +2328,7 @@ void TestClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
     //dynamic_cast<const PixelGeomDetUnit*>(genericDet);
 
     // Get the geom-detector
-    const PixelGeomDetUnit *theGeomDet = dynamic_cast<const PixelGeomDetUnit *>(theTracker.idToDet(detId));
+    const auto *theGeomDet = dynamic_cast<const PixelGeomDetUnit *>(theTracker.idToDet(detId));
     double detZ = theGeomDet->surface().position().z();
     double detR = theGeomDet->surface().position().perp();
 

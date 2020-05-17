@@ -92,7 +92,7 @@ void L1MuGMTPattern::analyze(const edm::Event& e, const edm::EventSetup& es) {
   e.getByLabel(m_inputTag, gmtrc_handle);
   L1MuGMTReadoutCollection const* gmtrc = gmtrc_handle.product();
 
-  L1MuGMTReadoutRecord gmt_record = gmtrc->getRecord(0);
+  const L1MuGMTReadoutRecord& gmt_record = gmtrc->getRecord(0);
 
   // Regional Candidates
   printRegional("DT", gmt_record.getDTBXCands());

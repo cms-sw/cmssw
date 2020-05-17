@@ -33,6 +33,8 @@
 #include <map>
 #include <memory>
 #include <typeinfo>
+#include <utility>
+
 #include <vector>
 #include <functional>
 
@@ -55,9 +57,9 @@ namespace fwlite {
     //            DataGetterHelper() {};
     DataGetterHelper(
         TTree* tree,
-        std::shared_ptr<HistoryGetterBase> historyGetter,
+        const std::shared_ptr<HistoryGetterBase>& historyGetter,
         std::shared_ptr<BranchMapReader> branchMap = std::shared_ptr<BranchMapReader>(),
-        std::shared_ptr<edm::EDProductGetter> getter = std::shared_ptr<edm::EDProductGetter>(),
+        const std::shared_ptr<edm::EDProductGetter>& getter = std::shared_ptr<edm::EDProductGetter>(),
         bool useCache = false,
         std::function<void(TBranch const&)> baFunc = [](TBranch const&) {});
     virtual ~DataGetterHelper();
@@ -79,7 +81,7 @@ namespace fwlite {
 
     // ---------- member functions ---------------------------
 
-    void setGetter(std::shared_ptr<edm::EDProductGetter const> getter) { getter_ = getter; }
+    void setGetter(std::shared_ptr<edm::EDProductGetter const> getter) { getter_ = std::move(getter); }
 
     edm::EDProductGetter const* getter() const { return getter_.get(); }
 

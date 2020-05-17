@@ -150,17 +150,16 @@ void L1GtPsbConfig::print(std::ostream& myCout) const {
   myCout << std::endl;
 
   int iLvds = -1;
-  for (std::vector<bool>::const_iterator cIt = m_gtPsbEnableRecLvds.begin(); cIt != m_gtPsbEnableRecLvds.end(); ++cIt) {
+  for (std::_Bit_const_iterator::const_reference m_gtPsbEnableRecLvd : m_gtPsbEnableRecLvds) {
     iLvds++;
-    myCout << "\n    Enable_Rec_LVDS [" << iLvds << "] = " << ((*cIt) ? "True" : "False");
+    myCout << "\n    Enable_Rec_LVDS [" << iLvds << "] = " << (m_gtPsbEnableRecLvd ? "True" : "False");
   }
   myCout << std::endl;
 
   int iCh = -1;
-  for (std::vector<bool>::const_iterator cIt = m_gtPsbEnableRecSerLink.begin(); cIt != m_gtPsbEnableRecSerLink.end();
-       ++cIt) {
+  for (std::_Bit_const_iterator::const_reference cIt : m_gtPsbEnableRecSerLink) {
     iCh++;
-    myCout << "\n    SerLink_Ch" << iCh << "_Rec_Enable = " << ((*cIt) ? "True" : "False");
+    myCout << "\n    SerLink_Ch" << iCh << "_Rec_Enable = " << (cIt ? "True" : "False");
   }
   myCout << std::endl;
 }

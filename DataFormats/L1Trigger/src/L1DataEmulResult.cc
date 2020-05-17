@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "DataFormats/L1Trigger/interface/L1DataEmulResult.h"
 
 l1t::L1DataEmulResult::L1DataEmulResult()
@@ -13,7 +15,7 @@ l1t::L1DataEmulResult::L1DataEmulResult()
 
 l1t::L1DataEmulResult::L1DataEmulResult(bool event_match, std::string collname)
     : event_match_(event_match),
-      collname_(collname),
+      collname_(std::move(collname)),
       pt_mismatch_(0),
       etaphi_mismatch_(0),
       n_mismatch_(0),
@@ -32,7 +34,7 @@ l1t::L1DataEmulResult::L1DataEmulResult(bool event_match,
                                         int add2,
                                         std::string collname)
     : event_match_(event_match),
-      collname_(collname),
+      collname_(std::move(collname)),
       pt_mismatch_(pt_mismatch),
       etaphi_mismatch_(etaphi_mismatch),
       n_mismatch_(n_mismatch),

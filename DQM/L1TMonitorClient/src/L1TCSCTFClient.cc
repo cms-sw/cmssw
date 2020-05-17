@@ -51,8 +51,8 @@ void L1TCSCTFClient::processHistograms(DQMStore::IGetter &igetter) {
   igetter.setCurrentFolder(input_dir);
 
   vector<string> meVec = igetter.getMEs();
-  for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
-    string full_path = input_dir + "/" + (*it);
+  for (const auto &it : meVec) {
+    string full_path = input_dir + "/" + it;
     MonitorElement *me = igetter.get(full_path);
     if (!me) {
       LogInfo("TriggerDQM") << full_path << " NOT FOUND.";
@@ -60,7 +60,7 @@ void L1TCSCTFClient::processHistograms(DQMStore::IGetter &igetter) {
     }
 
     //  But for now we only do a simple workaround
-    if ((*it) != "CSCTF_errors")
+    if (it != "CSCTF_errors")
       continue;
     TH1F *errors = me->getTH1F();
     csctferrors_->getTH1F()->Reset();

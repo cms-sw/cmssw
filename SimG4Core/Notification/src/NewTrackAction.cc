@@ -32,7 +32,7 @@ void NewTrackAction::secondary(G4Track *aSecondary, const G4Track &mother, int f
 }
 
 void NewTrackAction::addUserInfoToPrimary(G4Track *aTrack) const {
-  TrackInformation *trkInfo = new TrackInformation();
+  auto *trkInfo = new TrackInformation();
   trkInfo->isPrimary(true);
   trkInfo->storeTrack(true);
   trkInfo->putInHistory();
@@ -44,7 +44,7 @@ void NewTrackAction::addUserInfoToPrimary(G4Track *aTrack) const {
 void NewTrackAction::addUserInfoToSecondary(G4Track *aTrack, const TrackInformation &motherInfo, int flag) const {
   // ralf.ulrich@kit.edu: it is more efficient to use the constructor to copy all data and modify later only when needed
 
-  TrackInformation *trkInfo = new TrackInformation();
+  auto *trkInfo = new TrackInformation();
   //  LogDebug("SimG4CoreApplication") << "NewTrackAction called for "
   //				   << aTrack->GetTrackID()
   //				   << " mother " << motherInfo.isPrimary()

@@ -45,14 +45,14 @@ std::pair<double, int> IsoDeposit::depositAndCountWithin(double coneSize,
   typedef Vetos::const_iterator IV;
   if (!skipDepositVeto)
     allVetos.push_back(theVeto);
-  IV ivEnd = allVetos.end();
+  auto ivEnd = allVetos.end();
 
   Distance maxDistance = {float(coneSize), 999.f};
   typedef DepositsMultimap::const_iterator IM;
-  IM imLoc = theDeposits.upper_bound(maxDistance);
-  for (IM im = theDeposits.begin(); im != imLoc; ++im) {
+  auto imLoc = theDeposits.upper_bound(maxDistance);
+  for (auto im = theDeposits.begin(); im != imLoc; ++im) {
     bool vetoed = false;
-    for (IV iv = allVetos.begin(); iv < ivEnd; ++iv) {
+    for (auto iv = allVetos.begin(); iv < ivEnd; ++iv) {
       Direction dirDep = theDirection + im->first;
       if (dirDep.deltaR(iv->vetoDir) < iv->dR)
         vetoed = true;
@@ -74,21 +74,21 @@ std::pair<double, int> IsoDeposit::depositAndCountWithin(
   typedef Vetos::const_iterator IV;
   if (!skipDepositVeto)
     allVetos.push_back(theVeto);
-  IV ivEnd = allVetos.end();
+  auto ivEnd = allVetos.end();
 
   typedef DepositsMultimap::const_iterator IM;
-  for (IM im = theDeposits.begin(); im != theDeposits.end(); ++im) {
+  for (auto theDeposit : theDeposits) {
     bool vetoed = false;
-    Direction dirDep = theDirection + im->first;
+    Direction dirDep = theDirection + theDeposit.first;
     Distance newDist = dirDep - dir;
     if (newDist.deltaR > coneSize)
       continue;
-    for (IV iv = allVetos.begin(); iv < ivEnd; ++iv) {
+    for (auto iv = allVetos.begin(); iv < ivEnd; ++iv) {
       if (dirDep.deltaR(iv->vetoDir) < iv->dR)
         vetoed = true;
     }
-    if (!vetoed && im->second > threshold) {
-      result += im->second;
+    if (!vetoed && theDeposit.second > threshold) {
+      result += theDeposit.second;
       count++;
     }
   }
@@ -103,15 +103,15 @@ std::pair<double, int> IsoDeposit::depositAndCountWithin(double coneSize,
   int count = 0;
   typedef AbsVetos::const_iterator IV;
 
-  IV ivEnd = vetos.end();
+  auto ivEnd = vetos.end();
 
   Distance maxDistance = {float(coneSize), 999.f};
   typedef DepositsMultimap::const_iterator IM;
-  IM imLoc = theDeposits.upper_bound(maxDistance);
-  for (IM im = theDeposits.begin(); im != imLoc; ++im) {
+  auto imLoc = theDeposits.upper_bound(maxDistance);
+  for (auto im = theDeposits.begin(); im != imLoc; ++im) {
     bool vetoed = false;
     Direction dirDep = theDirection + im->first;
-    for (IV iv = vetos.begin(); iv < ivEnd; ++iv) {
+    for (auto iv = vetos.begin(); iv < ivEnd; ++iv) {
       if ((*iv)->veto(dirDep.eta(), dirDep.phi(), im->second)) {
         vetoed = true;
         break;
@@ -152,15 +152,15 @@ double IsoDeposit::nearestDR(double coneSize, const AbsVetos& vetos, bool skipDe
   double result = coneSize;
   typedef AbsVetos::const_iterator IV;
 
-  IV ivEnd = vetos.end();
+  auto ivEnd = vetos.end();
 
   Distance maxDistance = {float(coneSize), 999.f};
   typedef DepositsMultimap::const_iterator IM;
-  IM imLoc = theDeposits.upper_bound(maxDistance);
-  for (IM im = theDeposits.begin(); im != imLoc; ++im) {
+  auto imLoc = theDeposits.upper_bound(maxDistance);
+  for (auto im = theDeposits.begin(); im != imLoc; ++im) {
     bool vetoed = false;
     Direction dirDep = theDirection + im->first;
-    for (IV iv = vetos.begin(); iv < ivEnd; ++iv) {
+    for (auto iv = vetos.begin(); iv < ivEnd; ++iv) {
       if ((*iv)->veto(dirDep.eta(), dirDep.phi(), im->second)) {
         vetoed = true;
         break;
@@ -181,8 +181,8 @@ std::string IsoDeposit::print() const {
   str << "Veto:       (" << theVeto.vetoDir.eta() << ", " << theVeto.vetoDir.phi() << " dR=" << theVeto.dR << ")"
       << std::endl;
   typedef DepositsMultimap::const_iterator IM;
-  IM imEnd = theDeposits.end();
-  for (IM im = theDeposits.begin(); im != imEnd; ++im) {
+  auto imEnd = theDeposits.end();
+  for (auto im = theDeposits.begin(); im != imEnd; ++im) {
     str << "(dR=" << im->first.deltaR << ", alpha=" << im->first.relativeAngle << ", Pt=" << im->second << "),";
   }
   str << std::endl;

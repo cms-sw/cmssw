@@ -54,12 +54,12 @@ PFGsfHelper::PFGsfHelper(const TrajectoryMeasurement& tm) {
     pyStates.reserve(numb);
     std::vector<SingleGaussianState1D> pzStates;
     pzStates.reserve(numb);
-    for (auto ic = components.begin(); ic != components.end(); ++ic) {
-      GlobalVector momentum(ic->globalMomentum());
-      AlgebraicSymMatrix66 cov(ic->cartesianError().matrix());
-      pxStates.push_back(SingleGaussianState1D(momentum.x(), cov(3, 3), ic->weight()));
-      pyStates.push_back(SingleGaussianState1D(momentum.y(), cov(4, 4), ic->weight()));
-      pzStates.push_back(SingleGaussianState1D(momentum.z(), cov(5, 5), ic->weight()));
+    for (const auto& component : components) {
+      GlobalVector momentum(component.globalMomentum());
+      AlgebraicSymMatrix66 cov(component.cartesianError().matrix());
+      pxStates.emplace_back(momentum.x(), cov(3, 3), component.weight());
+      pyStates.emplace_back(momentum.y(), cov(4, 4), component.weight());
+      pzStates.emplace_back(momentum.z(), cov(5, 5), component.weight());
       //	cout<<"COMP "<<momentum<<endl;
     }
     MultiGaussianState1D pxState(pxStates);
@@ -131,7 +131,7 @@ double PFGsfHelper::fittedDP() const { return dp; }
 double PFGsfHelper::sigmafittedDP() const { return sigmaDp; }
 bool PFGsfHelper::isValid() const { return Valid; }
 
-void PFGsfHelper::computeQpMode(const TrajectoryStateOnSurface tsos,
+void PFGsfHelper::computeQpMode(const TrajectoryStateOnSurface& tsos,
                                 AlgebraicVector5& parameters,
                                 AlgebraicSymMatrix55& covariance) const {
   //

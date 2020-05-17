@@ -46,8 +46,7 @@ void FWHGCalMultiClusterLegoProxyBuilder::fillCaloData() {
   if (m_towers) {
     if (item()->defaultDisplayProperties().isVisible()) {
       unsigned int index = 0;
-      for (std::vector<reco::HGCalMultiCluster>::const_iterator tower = m_towers->begin(); tower != m_towers->end();
-           ++tower, ++index) {
+      for (auto tower = m_towers->begin(); tower != m_towers->end(); ++tower, ++index) {
         const FWEventItem::ModelInfo &info = item()->modelInfo(index);
         if (info.displayProperties().isVisible()) {
           addEntryToTEveCaloData(tower->eta(), tower->phi(), tower->pt(), info.isSelected());

@@ -99,7 +99,7 @@ TEveElement* FWRPZViewGeometry::makeCaloOutlineRhoZ() {
 
   float ri = m_context.caloZ2() * tan(2 * atan(exp(-m_context.caloMaxEta())));
 
-  TEveStraightLineSet* el = new TEveStraightLineSet("TrackerRhoZoutline");
+  auto* el = new TEveStraightLineSet("TrackerRhoZoutline");
   el->SetPickable(kFALSE);
   addToCompound(el, kFWTrackerBarrelColorIndex, false);
 
@@ -116,7 +116,7 @@ TEveElement* FWRPZViewGeometry::makeCaloOutlineRhoZ() {
 }
 
 TEveElement* FWRPZViewGeometry::makeCaloOutlineRhoPhi() {
-  TEveStraightLineSet* el = new TEveStraightLineSet("TrackerRhoPhi");
+  auto* el = new TEveStraightLineSet("TrackerRhoPhi");
   addToCompound(el, kFWTrackerBarrelColorIndex, false);
 
   el->SetLineColor(m_context.colorManager()->geomColor(kFWTrackerBarrelColorIndex));
@@ -184,7 +184,7 @@ TEveElement* FWRPZViewGeometry::makeMuonGeometryRhoZ(void) {
         for (Int_t iSector = 1; iSector <= 4; ++iSector) {
           DTChamberId id(iWheel, iStation, iSector);
           unsigned int rawid = id.rawId();
-          FWGeometry::IdToInfoItr det = m_geom->find(rawid);
+          auto det = m_geom->find(rawid);
           if (det == m_geom->mapEnd())
             return container;
           estimateProjectionSizeDT(*det, min_rho, max_rho, min_z, max_z);
@@ -208,29 +208,29 @@ TEveElement* FWRPZViewGeometry::makeMuonGeometryRhoZ(void) {
     std::vector<CSCDetId> ids;
     for (int endcap = CSCDetId::minEndcapId(); endcap <= CSCDetId::maxEndcapId(); ++endcap) {
       for (int station = 1; station <= 4; ++station) {
-        ids.push_back(CSCDetId(endcap, station, 2, 10, 0));  //outer ring up
-        ids.push_back(CSCDetId(endcap, station, 2, 11, 0));  //outer ring up
+        ids.emplace_back(endcap, station, 2, 10, 0);  //outer ring up
+        ids.emplace_back(endcap, station, 2, 11, 0);  //outer ring up
 
-        ids.push_back(CSCDetId(endcap, station, 2, 28, 0));  //outer ring down
-        ids.push_back(CSCDetId(endcap, station, 2, 29, 0));  //outer ring down
+        ids.emplace_back(endcap, station, 2, 28, 0);  //outer ring down
+        ids.emplace_back(endcap, station, 2, 29, 0);  //outer ring down
 
-        ids.push_back(CSCDetId(endcap, station, 1, 5, 0));  //inner ring up
-        ids.push_back(CSCDetId(endcap, station, 1, 6, 0));  //inner ring up
+        ids.emplace_back(endcap, station, 1, 5, 0);  //inner ring up
+        ids.emplace_back(endcap, station, 1, 6, 0);  //inner ring up
 
         int off = (station == 1) ? 10 : 0;
-        ids.push_back(CSCDetId(endcap, station, 1, 15 + off, 0));  //inner ring down
-        ids.push_back(CSCDetId(endcap, station, 1, 16 + off, 0));  //inner ring down
+        ids.emplace_back(endcap, station, 1, 15 + off, 0);  //inner ring down
+        ids.emplace_back(endcap, station, 1, 16 + off, 0);  //inner ring down
       }
-      ids.push_back(CSCDetId(endcap, 1, 3, 10, 0));  // ring 3 down
-      ids.push_back(CSCDetId(endcap, 1, 3, 28, 0));  // ring 3 down
+      ids.emplace_back(endcap, 1, 3, 10, 0);  // ring 3 down
+      ids.emplace_back(endcap, 1, 3, 28, 0);  // ring 3 down
     }
-    for (std::vector<CSCDetId>::iterator i = ids.begin(); i != ids.end(); ++i) {
-      unsigned int rawid = i->rawId();
+    for (auto& id : ids) {
+      unsigned int rawid = id.rawId();
       TEveGeoShape* shape = m_geom->getEveShape(rawid);
       if (!shape)
         return cscContainer;
       addToCompound(shape, kFWMuonEndcapLineColorIndex);
-      shape->SetName(Form(" e:%d r:%d s:%d chamber %d", i->endcap(), i->ring(), i->station(), i->chamber()));
+      shape->SetName(Form(" e:%d r:%d s:%d chamber %d", id.endcap(), id.ring(), id.station(), id.chamber()));
       cscContainer->AddElement(shape);
     }
     container->AddElement(cscContainer);
@@ -368,11 +368,11 @@ void FWRPZViewGeometry::showPixelBarrel(bool show) {
     m_pixelBarrelElements = new TEveElementList("PixelBarrel");
     AddElement(m_pixelBarrelElements);
     std::vector<unsigned int> ids = m_geom->getMatchedIds(FWGeometry::Tracker, FWGeometry::PixelBarrel);
-    for (std::vector<unsigned int>::const_iterator id = ids.begin(); id != ids.end(); ++id) {
-      TEveGeoShape* shape = m_geom->getEveShape(*id);
+    for (unsigned int id : ids) {
+      TEveGeoShape* shape = m_geom->getEveShape(id);
       if (!shape)
         return;
-      shape->SetTitle(Form("PixelBarrel %d", *id));
+      shape->SetTitle(Form("PixelBarrel %d", id));
       addToCompound(shape, kFWPixelBarrelColorIndex);
       m_pixelBarrelElements->AddElement(shape);
     }
@@ -390,11 +390,11 @@ void FWRPZViewGeometry::showPixelEndcap(bool show) {
     m_pixelEndcapElements = new TEveElementList("PixelEndcap");
 
     std::vector<unsigned int> ids = m_geom->getMatchedIds(FWGeometry::Tracker, FWGeometry::PixelEndcap);
-    for (std::vector<unsigned int>::const_iterator id = ids.begin(); id != ids.end(); ++id) {
-      TEveGeoShape* shape = m_geom->getEveShape(*id);
+    for (unsigned int id : ids) {
+      TEveGeoShape* shape = m_geom->getEveShape(id);
       if (!shape)
         return;
-      shape->SetTitle(Form("PixelEndCap %d", *id));
+      shape->SetTitle(Form("PixelEndCap %d", id));
       addToCompound(shape, kFWPixelEndcapColorIndex);
       m_pixelEndcapElements->AddElement(shape);
     }
@@ -414,19 +414,19 @@ void FWRPZViewGeometry::showTrackerBarrel(bool show) {
     m_trackerBarrelElements = new TEveElementList("TrackerBarrel");
 
     std::vector<unsigned int> ids = m_geom->getMatchedIds(FWGeometry::Tracker, FWGeometry::TIB);
-    for (std::vector<unsigned int>::const_iterator id = ids.begin(); id != ids.end(); ++id) {
-      TEveGeoShape* shape = m_geom->getEveShape(*id);
+    for (unsigned int id : ids) {
+      TEveGeoShape* shape = m_geom->getEveShape(id);
       if (!shape)
         return;
       addToCompound(shape, kFWTrackerBarrelColorIndex);
       m_trackerBarrelElements->AddElement(shape);
     }
     ids = m_geom->getMatchedIds(FWGeometry::Tracker, FWGeometry::TOB);
-    for (std::vector<unsigned int>::const_iterator id = ids.begin(); id != ids.end(); ++id) {
-      TEveGeoShape* shape = m_geom->getEveShape(*id);
+    for (unsigned int id : ids) {
+      TEveGeoShape* shape = m_geom->getEveShape(id);
       if (!shape)
         return;
-      shape->SetTitle(Form("TrackerBarrel %d", *id));
+      shape->SetTitle(Form("TrackerBarrel %d", id));
       addToCompound(shape, kFWTrackerBarrelColorIndex);
       m_trackerBarrelElements->AddElement(shape);
     }
@@ -446,8 +446,8 @@ void FWRPZViewGeometry::showTrackerEndcap(bool show) {
     m_trackerEndcapElements = new TEveElementList("TrackerEndcap");
 
     std::vector<unsigned int> ids = m_geom->getMatchedIds(FWGeometry::Tracker, FWGeometry::TID);
-    for (std::vector<unsigned int>::const_iterator id = ids.begin(); id != ids.end(); ++id) {
-      TEveGeoShape* shape = m_geom->getEveShape(*id);
+    for (unsigned int id : ids) {
+      TEveGeoShape* shape = m_geom->getEveShape(id);
       addToCompound(shape, kFWTrackerEndcapColorIndex);
 
       if (!shape)
@@ -455,9 +455,9 @@ void FWRPZViewGeometry::showTrackerEndcap(bool show) {
       m_trackerEndcapElements->AddElement(shape);
     }
     ids = m_geom->getMatchedIds(FWGeometry::Tracker, FWGeometry::TEC);
-    for (std::vector<unsigned int>::const_iterator id = ids.begin(); id != ids.end(); ++id) {
-      TEveGeoShape* shape = m_geom->getEveShape(*id);
-      shape->SetTitle(Form("TrackerEndcap %d", *id));
+    for (unsigned int id : ids) {
+      TEveGeoShape* shape = m_geom->getEveShape(id);
+      shape->SetTitle(Form("TrackerEndcap %d", id));
       if (!shape)
         return;
       addToCompound(shape, kFWTrackerEndcapColorIndex);
@@ -487,30 +487,30 @@ void FWRPZViewGeometry::showRpcEndcap(bool show) {
       for (int ring = 2; ring <= 3; ++ring) {
         for (int station = 1; station <= mxSt; ++station) {
           int sector = 1;
-          ids.push_back(RPCDetId(region, ring, station, sector, 1, 1, 1));
-          ids.push_back(RPCDetId(region, ring, station, sector, 1, 1, 2));
-          ids.push_back(RPCDetId(region, ring, station, sector, 1, 1, 3));
+          ids.emplace_back(region, ring, station, sector, 1, 1, 1);
+          ids.emplace_back(region, ring, station, sector, 1, 1, 2);
+          ids.emplace_back(region, ring, station, sector, 1, 1, 3);
           if (ring == 2 && station == 1) {  // 2 layers in ring 2 station 1 up
-            ids.push_back(RPCDetId(region, ring, station, sector, 1, 2, 1));
-            ids.push_back(RPCDetId(region, ring, station, sector, 1, 2, 2));
-            ids.push_back(RPCDetId(region, ring, station, sector, 1, 2, 3));
+            ids.emplace_back(region, ring, station, sector, 1, 2, 1);
+            ids.emplace_back(region, ring, station, sector, 1, 2, 2);
+            ids.emplace_back(region, ring, station, sector, 1, 2, 3);
           }
           sector = 5;
-          ids.push_back(RPCDetId(region, ring, station, sector, 1, 1, 1));
-          ids.push_back(RPCDetId(region, ring, station, sector, 1, 1, 2));
-          ids.push_back(RPCDetId(region, ring, station, sector, 1, 1, 3));
+          ids.emplace_back(region, ring, station, sector, 1, 1, 1);
+          ids.emplace_back(region, ring, station, sector, 1, 1, 2);
+          ids.emplace_back(region, ring, station, sector, 1, 1, 3);
 
           if (ring == 2 && station == 1) {  // 2 layers in ring 2 station 1 down
-            ids.push_back(RPCDetId(region, ring, station, sector, 1, 2, 1));
-            ids.push_back(RPCDetId(region, ring, station, sector, 1, 2, 2));
-            ids.push_back(RPCDetId(region, ring, station, sector, 1, 2, 3));
+            ids.emplace_back(region, ring, station, sector, 1, 2, 1);
+            ids.emplace_back(region, ring, station, sector, 1, 2, 2);
+            ids.emplace_back(region, ring, station, sector, 1, 2, 3);
           }
         }
       }
     }
 
-    for (std::vector<RPCDetId>::iterator i = ids.begin(); i != ids.end(); ++i) {
-      TEveGeoShape* shape = m_geom->getEveShape(i->rawId());
+    for (auto& id : ids) {
+      TEveGeoShape* shape = m_geom->getEveShape(id.rawId());
       if (!shape)
         return;
       addToCompound(shape, kFWMuonEndcapLineColorIndex);

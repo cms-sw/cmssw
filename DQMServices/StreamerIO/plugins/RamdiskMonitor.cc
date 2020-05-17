@@ -38,7 +38,7 @@ namespace dqm {
     void globalEndLuminosityBlock(edm::LuminosityBlock const &lumi, edm::EventSetup const &eSetup) final {}
     void analyze(edm::Event const &e, edm::EventSetup const &eSetup) override{};
 
-    void analyzeFile(std::string fn, unsigned int run, unsigned int lumi, std::string label) const;
+    void analyzeFile(const std::string &fn, unsigned int run, unsigned int lumi, const std::string &label) const;
     double getRunTimestamp() const;
 
     const unsigned int runNumber_;
@@ -72,7 +72,7 @@ namespace dqm {
   RamdiskMonitor::~RamdiskMonitor(){};
 
   void RamdiskMonitor::bookHistograms(DQMStore::IBooker &ib, edm::Run const &, edm::EventSetup const &) {
-    for (auto stream : streamLabels_) {
+    for (const auto &stream : streamLabels_) {
       edm::LogInfo("RamdiskMonitor") << "Booking: " << stream;
 
       ib.cd();
@@ -122,7 +122,10 @@ namespace dqm {
     return global_start_;
   };
 
-  void RamdiskMonitor::analyzeFile(std::string fn, unsigned int run, unsigned int lumi, std::string label) const {
+  void RamdiskMonitor::analyzeFile(const std::string &fn,
+                                   unsigned int run,
+                                   unsigned int lumi,
+                                   const std::string &label) const {
     using LumiEntry = dqmservices::DQMFileIterator::LumiEntry;
 
     // we are disabled, at least for this stream

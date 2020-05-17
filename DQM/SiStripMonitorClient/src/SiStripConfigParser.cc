@@ -10,7 +10,7 @@ SiStripConfigParser::SiStripConfigParser() {
                                       << "\n";
 }
 
-void SiStripConfigParser::getDocument(std::string filename) {
+void SiStripConfigParser::getDocument(const std::string& filename) {
   boost::property_tree::ptree xml;
   boost::property_tree::read_xml(filename, xml);
 

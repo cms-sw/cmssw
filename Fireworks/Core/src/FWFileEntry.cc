@@ -44,8 +44,8 @@ FWFileEntry::FWFileEntry(const std::string& name, bool checkVersion, bool checkG
 }
 
 FWFileEntry::~FWFileEntry() {
-  for (std::list<Filter*>::iterator i = m_filterEntries.begin(); i != m_filterEntries.end(); ++i)
-    delete (*i)->m_eventList;
+  for (auto& m_filterEntrie : m_filterEntries)
+    delete m_filterEntrie->m_eventList;
 
   delete m_globalEventList;
 }
@@ -122,7 +122,7 @@ void FWFileEntry::openFile(bool checkVersion, bool checkGlobalTag) {
           id = 1;
           simpleIDs[pc.id()] = id;
         }
-        ParameterSetMap::const_iterator itFind = psm_.find(pc.parameterSetID());
+        auto itFind = psm_.find(pc.parameterSetID());
         if (itFind == psm_.end()) {
           std::cout << "No ParameterSetID for " << pc.parameterSetID() << std::endl;
           fwLog(fwlog::kInfo) << "FWFileEntry::openFile no ParameterSetID for " << pc.parameterSetID() << std::endl;
@@ -202,7 +202,7 @@ void FWFileEntry::openFile(bool checkVersion, bool checkGlobalTag) {
   m_event = new fwlite::Event(m_file, false, [tc](TBranch const& b) { tc->BranchAccessCallIn(&b); });
 
   // Connect to collection add/remove signals
-  FWEventItemsManager* eiMng = (FWEventItemsManager*)FWGUIManager::getGUIManager()->getContext()->eventItemsManager();
+  auto* eiMng = (FWEventItemsManager*)FWGUIManager::getGUIManager()->getContext()->eventItemsManager();
   eiMng->newItem_.connect(boost::bind(&FWFileEntry::NewEventItemCallIn, this, _1));
   eiMng->removingItem_.connect(boost::bind(&FWFileEntry::RemovingEventItemCallIn, this, _1));
   // no need to connect to goingToClearItems_ ... individual removes are emitted.
@@ -279,8 +279,8 @@ int FWFileEntry::previousSelectedEvent(int tree_entry) {
 
 //______________________________________________________________________________
 bool FWFileEntry::hasActiveFilters() {
-  for (std::list<Filter*>::iterator it = m_filterEntries.begin(); it != m_filterEntries.end(); ++it) {
-    if ((*it)->m_selector->m_enabled)
+  for (auto& m_filterEntrie : m_filterEntries) {
+    if (m_filterEntrie->m_selector->m_enabled)
       return true;
   }
 
@@ -297,18 +297,18 @@ void FWFileEntry::updateFilters(const FWEventItemsManager* eiMng, bool globalOR)
   else
     m_globalEventList = new FWTEventList;
 
-  for (std::list<Filter*>::iterator it = m_filterEntries.begin(); it != m_filterEntries.end(); ++it) {
-    if ((*it)->m_selector->m_enabled && (*it)->m_needsUpdate) {
-      runFilter(*it, eiMng);
+  for (auto& m_filterEntrie : m_filterEntries) {
+    if (m_filterEntrie->m_selector->m_enabled && m_filterEntrie->m_needsUpdate) {
+      runFilter(m_filterEntrie, eiMng);
     }
     // Need to re-check if enabled after filtering as it can be set to false
     // in runFilter().
-    if ((*it)->m_selector->m_enabled) {
-      if ((*it)->hasSelectedEvents()) {
+    if (m_filterEntrie->m_selector->m_enabled) {
+      if (m_filterEntrie->hasSelectedEvents()) {
         if (globalOR || m_globalEventList->GetN() == 0) {
-          m_globalEventList->Add((*it)->m_eventList);
+          m_globalEventList->Add(m_filterEntrie->m_eventList);
         } else {
-          m_globalEventList->Intersect((*it)->m_eventList);
+          m_globalEventList->Intersect(m_filterEntrie->m_eventList);
         }
       } else if (!globalOR) {
         m_globalEventList->Reset();
@@ -335,8 +335,8 @@ void FWFileEntry::runFilter(Filter* filter, const FWEventItemsManager* eiMng) {
   // list of branch names to be added to tree-cache
   std::vector<std::string> branch_names;
 
-  for (FWEventItemsManager::const_iterator i = eiMng->begin(), end = eiMng->end(); i != end; ++i) {
-    FWEventItem* item = *i;
+  for (auto i : *eiMng) {
+    FWEventItem* item = i;
     if (item == nullptr)
       continue;
     // FIXME: hack to get full branch name filled
@@ -346,7 +346,7 @@ void FWFileEntry::runFilter(Filter* filter, const FWEventItemsManager* eiMng) {
       item->setEvent(nullptr);
     }
 
-    boost::regex re(std::string("\\$") + (*i)->name());
+    boost::regex re(std::string("\\$") + i->name());
 
     if (boost::regex_search(interpretedSelection, re)) {
       const edm::TypeWithDict elementType(const_cast<TClass*>(item->type()));
@@ -503,7 +503,7 @@ bool FWFileEntry::filterEventsWithCustomParser(Filter* filterEntry) {
       // Trigger name not found.
       return false;
     }
-    filters.push_back(std::make_pair(index, flag));
+    filters.emplace_back(index, flag);
   }
   if (filters.empty())
     return false;
@@ -520,7 +520,7 @@ bool FWFileEntry::filterEventsWithCustomParser(Filter* filterEntry) {
 
   for (m_event->toBegin(); !m_event->atEnd(); ++(*m_event)) {
     hTriggerResults.getByLabel(*m_event, "TriggerResults", "", filterEntry->m_selector->m_triggerProcess.c_str());
-    std::vector<std::pair<unsigned int, bool>>::const_iterator filter = filters.begin();
+    auto filter = filters.begin();
     bool passed = hTriggerResults->accept(filter->first) == filter->second;
     while (++filter != filters.end()) {
       if (junction_mode)

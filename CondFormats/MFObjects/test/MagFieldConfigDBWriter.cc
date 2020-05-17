@@ -19,13 +19,13 @@ public:
   MagFieldConfigDBWriter(const edm::ParameterSet& pset);
 
   /// Destructor
-  ~MagFieldConfigDBWriter();
+  ~MagFieldConfigDBWriter() override;
 
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& setup){};
+  void beginRun(const edm::Run& run, const edm::EventSetup& setup) override{};
 
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) {}
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override {}
 
-  virtual void endJob();
+  void endJob() override;
 
 private:
   MagFieldConfig* conf;

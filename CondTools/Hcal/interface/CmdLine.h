@@ -121,7 +121,7 @@ namespace cmdline {
   // Subsequent classes will throw exceptions of the following class
   class CmdLineError {
   public:
-    inline CmdLineError(const char* msg = 0) : os_(new std::ostringstream()) {
+    inline CmdLineError(const char* msg = nullptr) : os_(new std::ostringstream()) {
       if (msg)
         *os_ << msg;
     }
@@ -155,7 +155,7 @@ namespace cmdline {
 
     inline OneShotIStream(const std::string& s) : str_(s), valid_(true), readout_(false) {}
 
-    inline operator void*() const { return valid_ && !readout_ ? (void*)this : (void*)0; }
+    inline operator void*() const { return valid_ && !readout_ ? (void*)this : (void*)nullptr; }
 
     template <typename T>
     inline bool operator>>(T& obj) {
@@ -193,7 +193,7 @@ namespace cmdline {
     inline std::string demangle(T& obj) const {
       int status;
       const std::type_info& ti = typeid(obj);
-      char* realname = abi::__cxa_demangle(ti.name(), 0, 0, &status);
+      char* realname = abi::__cxa_demangle(ti.name(), nullptr, nullptr, &status);
       std::string s(realname);
       free(realname);
       return s;
@@ -211,8 +211,8 @@ namespace cmdline {
     typedef std::list<Pair> Optlist;
 
     inline Optlist::iterator find(const char* shortOpt, const char* longOpt) {
-      Optlist::iterator iend = args_.end();
-      for (Optlist::iterator it = args_.begin(); it != iend; ++it) {
+      auto iend = args_.end();
+      for (auto it = args_.begin(); it != iend; ++it) {
         if (shortOpt && it->second == 1 && it->first == shortOpt)
           return it;
         if (longOpt && it->second == 2 && it->first == longOpt)
@@ -275,11 +275,11 @@ namespace cmdline {
 
     inline const char* progname() const { return progname_.c_str(); }
 
-    inline bool has(const char* shortOpt, const char* longOpt = 0) {
+    inline bool has(const char* shortOpt, const char* longOpt = nullptr) {
       bool found = false;
-      for (Optlist::iterator it = find(shortOpt, longOpt); it != args_.end(); it = find(shortOpt, longOpt)) {
+      for (auto it = find(shortOpt, longOpt); it != args_.end(); it = find(shortOpt, longOpt)) {
         found = true;
-        Optlist::iterator it0(it);
+        auto it0(it);
         if (++it != args_.end())
           if (it->second == 0)
             it->second = 3;
@@ -288,10 +288,10 @@ namespace cmdline {
       return found;
     }
 
-    inline OneShotIStream option(const char* shortOpt, const char* longOpt = 0) {
+    inline OneShotIStream option(const char* shortOpt, const char* longOpt = nullptr) {
       OneShotIStream result;
-      for (Optlist::iterator it = find(shortOpt, longOpt); it != args_.end(); it = find(shortOpt, longOpt)) {
-        Optlist::iterator it0(it);
+      for (auto it = find(shortOpt, longOpt); it != args_.end(); it = find(shortOpt, longOpt)) {
+        auto it0(it);
         if (++it != args_.end())
           if (it->second == 0) {
             result = OneShotIStream(it->first);
@@ -304,7 +304,7 @@ namespace cmdline {
       return result;
     }
 
-    inline OneShotIStream require(const char* shortOpt, const char* longOpt = 0) {
+    inline OneShotIStream require(const char* shortOpt, const char* longOpt = nullptr) {
       const OneShotIStream& is(option(shortOpt, longOpt));
       if (!is.isValid()) {
         const char empty[] = "";
@@ -315,9 +315,9 @@ namespace cmdline {
     }
 
     inline void optend() const {
-      for (Optlist::const_iterator it = args_.begin(); it != args_.end(); ++it)
-        if (it->second == 1 || it->second == 2)
-          throw CmdLineError("invalid command line option \"") << it->first << '"';
+      for (const auto& arg : args_)
+        if (arg.second == 1 || arg.second == 2)
+          throw CmdLineError("invalid command line option \"") << arg.first << '"';
     }
 
     inline operator void*() const { return (void*)(static_cast<unsigned long>(nprogargs_)); }
@@ -328,7 +328,7 @@ namespace cmdline {
     inline CmdLine& operator>>(T& obj) {
       if (!nprogargs_)
         throw CmdLineError("no more input available on the command line");
-      Optlist::iterator it = args_.begin();
+      auto it = args_.begin();
       for (; it != args_.end(); ++it)
         if (it->second == 0 || it->second == 3)
           break;
@@ -340,7 +340,7 @@ namespace cmdline {
     }
 
   private:
-    CmdLine();
+    CmdLine() = delete;
 
     std::string progname_;
     Optlist args_;

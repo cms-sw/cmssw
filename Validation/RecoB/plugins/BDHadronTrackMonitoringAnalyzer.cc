@@ -5,7 +5,7 @@ using namespace edm;
 using namespace std;
 
 const reco::TrackBaseRef toTrackRef(const edm::Ptr<reco::Candidate> &cnd) {
-  const reco::PFCandidate *pfcand = dynamic_cast<const reco::PFCandidate *>(cnd.get());
+  const auto *pfcand = dynamic_cast<const reco::PFCandidate *>(cnd.get());
 
   if ((std::abs(pfcand->pdgId()) == 11 || pfcand->pdgId() == 22) && pfcand->gsfTrackRef().isNonnull() &&
       pfcand->gsfTrackRef().isAvailable())
@@ -238,15 +238,15 @@ void BDHadronTrackMonitoringAnalyzer::analyze(const edm::Event &iEvent, const ed
   // -----------------------
 
   // -------- Loop Over Jets ----------
-  for (pat::JetCollection::const_iterator jet = patJetsColl->begin(); jet != patJetsColl->end(); ++jet) {
-    if (jet->pt() < minJetPt_ || std::fabs(jet->eta()) > maxJetEta_)
+  for (const auto &jet : *patJetsColl) {
+    if (jet.pt() < minJetPt_ || std::fabs(jet.eta()) > maxJetEta_)
       continue;
 
-    unsigned int flav = abs(jet->hadronFlavour());
+    unsigned int flav = abs(jet.hadronFlavour());
 
     // std::cout << "patJet collection has pfImpactParameterTagInfo?: " <<
     // jet->hasTagInfo("pfImpactParameter") << std::endl;
-    const CandIPTagInfo *trackIpTagInfo = jet->tagInfoCandIP(ipTagInfos_);
+    const CandIPTagInfo *trackIpTagInfo = jet.tagInfoCandIP(ipTagInfos_);
     const std::vector<edm::Ptr<reco::Candidate>> &selectedTracks(trackIpTagInfo->selectedTracks());
 
     unsigned int nseltracks = 0;
@@ -261,7 +261,7 @@ void BDHadronTrackMonitoringAnalyzer::analyze(const edm::Event &iEvent, const ed
       const reco::Track &ptrack = *ptrackPtr;
 
       reco::TransientTrack transientTrack = trackBuilder->build(ptrackPtr);
-      GlobalVector direction(jet->px(), jet->py(), jet->pz());
+      GlobalVector direction(jet.px(), jet.py(), jet.pz());
 
       Double_t distJetAxis = IPTools::jetTrackDistance(transientTrack, direction, *pv).second.value();
 

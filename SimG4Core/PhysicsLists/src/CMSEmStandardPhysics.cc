@@ -182,16 +182,16 @@ void CMSEmStandardPhysics::ConstructProcess() {
     } else if (particleName == "e-") {
       G4eIonisation* eioni = new G4eIonisation();
 
-      G4eMultipleScattering* msc = new G4eMultipleScattering;
+      auto* msc = new G4eMultipleScattering;
       G4UrbanMscModel* msc1 = new G4UrbanMscModel();
-      G4WentzelVIModel* msc2 = new G4WentzelVIModel();
+      auto* msc2 = new G4WentzelVIModel();
       msc1->SetHighEnergyLimit(highEnergyLimit);
       msc2->SetLowEnergyLimit(highEnergyLimit);
       msc->SetEmModel(msc1);
       msc->SetEmModel(msc2);
 
-      G4eCoulombScatteringModel* ssm = new G4eCoulombScatteringModel();
-      G4CoulombScattering* ss = new G4CoulombScattering();
+      auto* ssm = new G4eCoulombScatteringModel();
+      auto* ss = new G4CoulombScattering();
       ss->SetEmModel(ssm);
       ss->SetMinKinEnergy(highEnergyLimit);
       ssm->SetLowEnergyLimit(highEnergyLimit);
@@ -205,16 +205,16 @@ void CMSEmStandardPhysics::ConstructProcess() {
     } else if (particleName == "e+") {
       G4eIonisation* eioni = new G4eIonisation();
 
-      G4eMultipleScattering* msc = new G4eMultipleScattering;
+      auto* msc = new G4eMultipleScattering;
       G4UrbanMscModel* msc1 = new G4UrbanMscModel();
-      G4WentzelVIModel* msc2 = new G4WentzelVIModel();
+      auto* msc2 = new G4WentzelVIModel();
       msc1->SetHighEnergyLimit(highEnergyLimit);
       msc2->SetLowEnergyLimit(highEnergyLimit);
       msc->SetEmModel(msc1);
       msc->SetEmModel(msc2);
 
-      G4eCoulombScatteringModel* ssm = new G4eCoulombScatteringModel();
-      G4CoulombScattering* ss = new G4CoulombScattering();
+      auto* ssm = new G4eCoulombScatteringModel();
+      auto* ss = new G4CoulombScattering();
       ss->SetEmModel(ssm);
       ss->SetMinKinEnergy(highEnergyLimit);
       ssm->SetLowEnergyLimit(highEnergyLimit);
@@ -284,9 +284,9 @@ void CMSEmStandardPhysics::ConstructProcess() {
         pb = new G4hBremsstrahlung();
         pp = new G4hPairProduction();
       }
-      G4hMultipleScattering* pmsc = new G4hMultipleScattering();
+      auto* pmsc = new G4hMultipleScattering();
       pmsc->SetEmModel(new G4WentzelVIModel());
-      G4CoulombScattering* pss = new G4CoulombScattering();
+      auto* pss = new G4CoulombScattering();
 
       ph->RegisterProcess(pmsc, particle);
       ph->RegisterProcess(new G4hIonisation(), particle);

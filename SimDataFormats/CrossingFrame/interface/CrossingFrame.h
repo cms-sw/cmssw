@@ -27,6 +27,8 @@
 template <class T>
 class PCrossingFrame;
 
+#include <utility>
+
 #include <vector>
 #include <string>
 #include <iostream>
@@ -128,7 +130,7 @@ public:
   void setPileups(const std::vector<const T*>& p) { pileups_ = p; }
   void setBunchSpace(int bSpace) { bunchSpace_ = bSpace; }
   void setMaxNbSources(unsigned int mNbS) { maxNbSources_ = mNbS; }
-  void setSubDet(std::string det) { subdet_ = det; }
+  void setSubDet(const std::string& det) { subdet_ = det; }
   void setPileupFileNr(unsigned int pFileNr) { pileupFileNr_ = pFileNr; }
   void setIdFirstPileup(edm::EventID idFP) { idFirstPileup_ = idFP; }
   void setPileupOffsetsBcr(const std::vector<unsigned int>& pOffsetsBcr) { pileupOffsetsBcr_ = pOffsetsBcr; }
@@ -179,7 +181,11 @@ private:
 
 template <class T>
 CrossingFrame<T>::CrossingFrame(int minb, int maxb, int bunchsp, std::string subdet, unsigned int maxNbSources)
-    : firstCrossing_(minb), lastCrossing_(maxb), bunchSpace_(bunchsp), subdet_(subdet), maxNbSources_(maxNbSources) {
+    : firstCrossing_(minb),
+      lastCrossing_(maxb),
+      bunchSpace_(bunchsp),
+      subdet_(std::move(subdet)),
+      maxNbSources_(maxNbSources) {
   pileupOffsetsSource_.resize(maxNbSources_);
   for (unsigned int i = 0; i < maxNbSources_; ++i)
     pileupOffsetsSource_[i].reserve(-firstCrossing_ + lastCrossing_ + 1);

@@ -104,31 +104,31 @@ void L1TRPCTPG::analyze(const Event& e, const EventSetup& c) {
   for (RRItr = gmt_records.begin(); RRItr != gmt_records.end(); RRItr++) {
     // DTs
     vector<L1MuRegionalCand> DTCands = RRItr->getDTBXCands();
-    for (vector<L1MuRegionalCand>::const_iterator ECItr = DTCands.begin(); ECItr != DTCands.end(); ++ECItr) {
-      if (!ECItr->empty()) {
+    for (const auto& DTCand : DTCands) {
+      if (!DTCand.empty()) {
         ++nDTTrack;
       }
     }
     // CSCs
     vector<L1MuRegionalCand> CSCCands = RRItr->getCSCCands();
-    for (vector<L1MuRegionalCand>::const_iterator ECItr = CSCCands.begin(); ECItr != CSCCands.end(); ++ECItr) {
-      if (!ECItr->empty()) {
+    for (const auto& CSCCand : CSCCands) {
+      if (!CSCCand.empty()) {
         ++nCSCTrack;
       }
     }
 
     //RPC barrel
     vector<L1MuRegionalCand> RPCBCands = RRItr->getBrlRPCCands();
-    for (vector<L1MuRegionalCand>::const_iterator ECItr = RPCBCands.begin(); ECItr != RPCBCands.end(); ++ECItr) {
-      if (!ECItr->empty()) {
+    for (const auto& RPCBCand : RPCBCands) {
+      if (!RPCBCand.empty()) {
         ++nRPCTrackBarrel;
       }
     }
 
     //RPC endcap
     vector<L1MuRegionalCand> RPCECands = RRItr->getFwdRPCCands();
-    for (vector<L1MuRegionalCand>::const_iterator ECItr = RPCECands.begin(); ECItr != RPCECands.end(); ++ECItr) {
-      if (!ECItr->empty()) {
+    for (const auto& RPCECand : RPCECands) {
+      if (!RPCECand.empty()) {
         ++nRPCTrackEndcap;
       }
     }

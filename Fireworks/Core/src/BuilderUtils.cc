@@ -21,8 +21,7 @@ namespace fireworks {
     double min = 100;
     double max = -100;
 
-    for (std::vector<double>::const_iterator i = phis.begin(); i != phis.end(); ++i) {
-      double aphi = *i;
+    for (double aphi : phis) {
       // make phi continuous around jet phi
       if (aphi - phi > M_PI)
         aphi -= 2 * M_PI;
@@ -163,7 +162,7 @@ namespace fireworks {
                  const unsigned int nLineSegments,
                  TEveElement* comp,
                  FWProxyBuilderBase* pb) {
-    TEveStraightLineSet* container = new TEveStraightLineSet;
+    auto* container = new TEveStraightLineSet;
 
     for (unsigned int iphi = 0; iphi < nLineSegments; ++iphi) {
       container->AddLine(eta + radius * cos(2 * M_PI / nLineSegments * iphi),
@@ -177,7 +176,7 @@ namespace fireworks {
   }
 
   void addDashedArrow(double phi, double size, TEveElement* comp, FWProxyBuilderBase* pb) {
-    TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet;
+    auto* marker = new TEveScalableStraightLineSet;
     marker->SetLineWidth(1);
     marker->SetLineStyle(2);
     marker->AddLine(0, 0, 0, size * cos(phi), size * sin(phi), 0);
@@ -193,7 +192,7 @@ namespace fireworks {
     else
       r = pb->context().caloR1() / sin(theta);
 
-    TEveStraightLineSet* marker = new TEveStraightLineSet;
+    auto* marker = new TEveStraightLineSet;
     marker->SetLineWidth(2);
     marker->SetLineStyle(2);
     marker->AddLine(r * cos(phi) * sin(theta),
@@ -206,12 +205,12 @@ namespace fireworks {
   }
 
   void addDoubleLines(double phi, TEveElement* comp, FWProxyBuilderBase* pb) {
-    TEveStraightLineSet* mainLine = new TEveStraightLineSet;
+    auto* mainLine = new TEveStraightLineSet;
     mainLine->AddLine(-5.191, phi, 0.01, 5.191, phi, 0.01);
     pb->setupAddElement(mainLine, comp);
 
     phi = phi > 0 ? phi - M_PI : phi + M_PI;
-    TEveStraightLineSet* secondLine = new TEveStraightLineSet;
+    auto* secondLine = new TEveStraightLineSet;
     secondLine->SetLineStyle(7);
     secondLine->AddLine(-5.191, phi, 0.01, 5.191, phi, 0.01);
     pb->setupAddElement(secondLine, comp);

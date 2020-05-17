@@ -1,6 +1,8 @@
 #ifndef RecoParticleFlow_PFTracking_PFDisplacedVertexFinder_h
 #define RecoParticleFlow_PFTracking_PFDisplacedVertexFinder_h
 
+#include <utility>
+
 #include "RecoParticleFlow/PFTracking/interface/PFDisplacedVertexHelper.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -73,7 +75,7 @@ public:
                         const TrackerTopology* tkerTopo,
                         const TrackerGeometry* tkerGeom) {
     magField_ = magField;
-    globTkGeomHandle_ = globTkGeomHandle;
+    globTkGeomHandle_ = std::move(globTkGeomHandle);
     tkerTopo_ = tkerTopo;
     tkerGeom_ = tkerGeom;
   }
@@ -82,8 +84,8 @@ public:
 
   void setVertexIdentifier(const edm::ParameterSet& ps) { helper_.setVertexIdentifier(ps); }
 
-  void setPrimaryVertex(edm::Handle<reco::VertexCollection> mainVertexHandle,
-                        edm::Handle<reco::BeamSpot> beamSpotHandle) {
+  void setPrimaryVertex(const edm::Handle<reco::VertexCollection>& mainVertexHandle,
+                        const edm::Handle<reco::BeamSpot>& beamSpotHandle) {
     helper_.setPrimaryVertex(mainVertexHandle, beamSpotHandle);
   }
 

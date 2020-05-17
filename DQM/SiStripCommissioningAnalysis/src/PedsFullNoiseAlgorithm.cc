@@ -77,7 +77,7 @@ void PedsFullNoiseAlgorithm::extract(const std::vector<TH1*>& histos) {
   }
 
   // Extract 1D histograms
-  std::vector<TH1*>::const_iterator ihis = histos.begin();
+  auto ihis = histos.begin();
   for (; ihis != histos.end(); ihis++) {
     // Check for NULL pointer
     if (!(*ihis)) {
@@ -159,8 +159,8 @@ void PedsFullNoiseAlgorithm::analyse() {
     return;
   }
 
-  CommissioningAnalysis* tmp = const_cast<CommissioningAnalysis*>(anal());
-  PedsFullNoiseAnalysis* ana = dynamic_cast<PedsFullNoiseAnalysis*>(tmp);
+  auto* tmp = const_cast<CommissioningAnalysis*>(anal());
+  auto* ana = dynamic_cast<PedsFullNoiseAnalysis*>(tmp);
 
   // check PedsFullNoiseAnalysis object
   if (!ana) {

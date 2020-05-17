@@ -93,7 +93,7 @@ void SiStripActionExecutor::createOfflineTkMap(edm::ParameterSet const& tkmapPse
 //
 // -- create root file with detId info from tracker maps
 //
-void SiStripActionExecutor::createTkInfoFile(std::vector<std::string> map_names,
+void SiStripActionExecutor::createTkInfoFile(const std::vector<std::string>& map_names,
                                              TTree* tkinfo_tree,
                                              DQMStore& dqm_store) {
   if (!tkMapCreator_)
@@ -184,7 +184,9 @@ void SiStripActionExecutor::createShiftReport(DQMStore& dqm_store) {
   configWriter_.reset();
 }
 
-void SiStripActionExecutor::printReportSummary(MonitorElement* me, std::ostringstream& str_val, std::string name) {
+void SiStripActionExecutor::printReportSummary(MonitorElement* me,
+                                               std::ostringstream& str_val,
+                                               const std::string& name) {
   str_val << " " << name << "  : ";
   std::string value;
   SiStripUtility::getMEValue(me, value);
@@ -247,12 +249,12 @@ void SiStripActionExecutor::printFaultyModuleList(DQMStore& dqm_store, std::ostr
   std::string mechanicalview_dir = dqm_store.pwd();
 
   std::vector<std::string> subdet_folder;
-  subdet_folder.push_back("TIB");
-  subdet_folder.push_back("TOB");
-  subdet_folder.push_back("TEC/MINUS");
-  subdet_folder.push_back("TEC/PLUS");
-  subdet_folder.push_back("TID/MINUS");
-  subdet_folder.push_back("TID/PLUS");
+  subdet_folder.emplace_back("TIB");
+  subdet_folder.emplace_back("TOB");
+  subdet_folder.emplace_back("TEC/MINUS");
+  subdet_folder.emplace_back("TEC/PLUS");
+  subdet_folder.emplace_back("TID/MINUS");
+  subdet_folder.emplace_back("TID/PLUS");
 
   int nDetsTotal = 0;
   int nDetsWithErrorTotal = 0;

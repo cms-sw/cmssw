@@ -41,11 +41,11 @@ PATTauIDEmbedder::PATTauIDEmbedder(const edm::ParameterSet& cfg) {
     int wpidx = idp.getParameter<int>("workingPointIndex");
     edm::InputTag tag = idp.getParameter<edm::InputTag>("inputTag");
     if (wpidx == -99) {
-      tauIDSrcs_.push_back(NameTag(name, tag));
+      tauIDSrcs_.emplace_back(name, tag);
     } else {
       std::map<std::string, IDContainerData>::iterator it;
       it = idContainerMap.insert({tag.label() + tag.instance(), {tag, std::vector<NameWPIdx>()}}).first;
-      it->second.second.push_back(NameWPIdx(name, wpidx));
+      it->second.second.emplace_back(name, wpidx);
     }
   }
   // but in any case at least once
@@ -77,8 +77,7 @@ void PATTauIDEmbedder::produce(edm::Event& evt, const edm::EventSetup& es) {
   outputTaus->reserve(inputTaus->size());
 
   int tau_idx = 0;
-  for (pat::TauCollection::const_iterator inputTau = inputTaus->begin(); inputTau != inputTaus->end();
-       ++inputTau, ++tau_idx) {
+  for (auto inputTau = inputTaus->begin(); inputTau != inputTaus->end(); ++inputTau, ++tau_idx) {
     pat::Tau outputTau(*inputTau);
     pat::TauRef inputTauRef(inputTaus, tau_idx);
     size_t nTauIds = inputTau->tauIDs().size();

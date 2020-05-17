@@ -33,18 +33,18 @@ namespace reco {
     typedef edm::RefVector<Container> RefVector;
 
     /// Get number of tracks associated with jet
-    int tracksNumber(const Container&, const reco::JetBaseRef);
+    int tracksNumber(const Container&, const reco::JetBaseRef&);
     /// Get number of tracks associated with jet
     int tracksNumber(const Container&, const reco::Jet&);
     /// Get LorentzVector as sum of all tracks associated with jet.
-    LorentzVector tracksP4(const Container&, const reco::JetBaseRef);
+    LorentzVector tracksP4(const Container&, const reco::JetBaseRef&);
     /// Get LorentzVector as sum of all tracks associated with jet.
     LorentzVector tracksP4(const Container&, const reco::Jet&);
 
     /// associate jet with value. Returns false and associate nothing if jet is already associated
-    bool setValue(Container&, const reco::JetBaseRef&, reco::TrackRefVector);
+    bool setValue(Container&, const reco::JetBaseRef&, const reco::TrackRefVector&);
     /// associate jet with value. Returns false and associate nothing if jet is already associated
-    bool setValue(Container*, const reco::JetBaseRef&, reco::TrackRefVector);
+    bool setValue(Container*, const reco::JetBaseRef&, const reco::TrackRefVector&);
     /// get value for the association. Throw exception if no association found
     const reco::TrackRefVector& getValue(const Container&, const reco::JetBaseRef&);
     /// get value for the association. Throw exception if no association found

@@ -64,7 +64,7 @@ namespace ecaldqm {
 
     ExtractorList varMap;
 
-    for (typename ExtractorList::const_iterator eItr(_extractors.begin()); eItr != _extractors.end(); ++eItr)
+    for (auto eItr(_extractors.begin()); eItr != _extractors.end(); ++eItr)
       if (_formula.find(eItr->first) != std::string::npos)
         varMap[eItr->first] = eItr->second;
 
@@ -75,7 +75,7 @@ namespace ecaldqm {
 
     unsigned iV(0);
     char varChars[4][2] = {"x", "y", "z", "t"};
-    for (typename ExtractorList::iterator vItr(varMap.begin()); vItr != varMap.end(); ++vItr)
+    for (auto vItr(varMap.begin()); vItr != varMap.end(); ++vItr)
       formula.ReplaceAll(vItr->first, varChars[iV++]);
 
     TFormula tformula("formula", formula);
@@ -90,7 +90,7 @@ namespace ecaldqm {
     for (typename DataSet::const_iterator dItr(dataSet.begin()); dItr != dataSet.end(); ++dItr) {
       double vars[4];
       iV = 0;
-      for (typename ExtractorList::iterator vItr(varMap.begin()); vItr != varMap.end(); ++vItr)
+      for (auto vItr(varMap.begin()); vItr != varMap.end(); ++vItr)
         vars[iV++] = vItr->second(dItr->second);
 
       result[toDetId(dItr->first)] = tformula.EvalPar(vars);

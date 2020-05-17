@@ -51,41 +51,38 @@ void ShiftedPFCandidateProducerByMatchedObject::produce(edm::Event& evt, const e
       }
     }
     if (isMatched_Object) {
-      objects_.push_back(
-          objectEntryType(shiftedObjectP4_matched->p4(), unshiftedObject->p4(), sqrt(dR2bestMatch_Object)));
+      objects_.emplace_back(shiftedObjectP4_matched->p4(), unshiftedObject->p4(), sqrt(dR2bestMatch_Object));
     }
   }
 
   auto shiftedPFCandidates = std::make_unique<reco::PFCandidateCollection>();
 
-  for (reco::PFCandidateCollection::const_iterator originalPFCandidate = originalPFCandidates->begin();
-       originalPFCandidate != originalPFCandidates->end();
-       ++originalPFCandidate) {
+  for (const auto& originalPFCandidate : *originalPFCandidates) {
     double shift = 0.;
     bool applyShift = false;
     double dR2bestMatch_PFCandidate = dRDefault;
-    for (std::vector<objectEntryType>::const_iterator object = objects_.begin(); object != objects_.end(); ++object) {
-      if (!object->isValidMatch_)
+    for (const auto& object : objects_) {
+      if (!object.isValidMatch_)
         continue;
-      double dR2 = deltaR2(originalPFCandidate->p4(), object->unshiftedObjectP4_);
+      double dR2 = deltaR2(originalPFCandidate.p4(), object.unshiftedObjectP4_);
       if (dR2 < dR2match_PFCandidate_ && dR2 < dR2bestMatch_PFCandidate) {
-        shift = object->shift_;
+        shift = object.shift_;
         applyShift = true;
         dR2bestMatch_PFCandidate = dR2;
       }
     }
 
-    reco::Candidate::LorentzVector shiftedPFCandidateP4 = originalPFCandidate->p4();
+    reco::Candidate::LorentzVector shiftedPFCandidateP4 = originalPFCandidate.p4();
     if (applyShift) {
-      double shiftedPx = (1. + shift) * originalPFCandidate->px();
-      double shiftedPy = (1. + shift) * originalPFCandidate->py();
-      double shiftedPz = (1. + shift) * originalPFCandidate->pz();
-      double mass = originalPFCandidate->mass();
+      double shiftedPx = (1. + shift) * originalPFCandidate.px();
+      double shiftedPy = (1. + shift) * originalPFCandidate.py();
+      double shiftedPz = (1. + shift) * originalPFCandidate.pz();
+      double mass = originalPFCandidate.mass();
       double shiftedEn = sqrt(shiftedPx * shiftedPx + shiftedPy * shiftedPy + shiftedPz * shiftedPz + mass * mass);
       shiftedPFCandidateP4.SetPxPyPzE(shiftedPx, shiftedPy, shiftedPz, shiftedEn);
     }
 
-    reco::PFCandidate shiftedPFCandidate(*originalPFCandidate);
+    reco::PFCandidate shiftedPFCandidate(originalPFCandidate);
     shiftedPFCandidate.setP4(shiftedPFCandidateP4);
 
     shiftedPFCandidates->push_back(shiftedPFCandidate);

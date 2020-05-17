@@ -72,7 +72,7 @@ TypeTrans::TypeTrans() : table_(255) {
   table_['r'] = "VEventRange";
   table_['R'] = "EventRange";
 
-  for (CodeMap::const_iterator itCode = table_.begin(), itCodeEnd = table_.end(); itCode != itCodeEnd; ++itCode) {
+  for (auto itCode = table_.begin(), itCodeEnd = table_.end(); itCode != itCodeEnd; ++itCode) {
     type2Code_[*itCode] = (itCode - table_.begin());
   }
 }
@@ -158,16 +158,16 @@ void FWPSetTableManager::handlePSet(edm::ParameterSet *psp) {
   edm::ParameterSet &ps = *psp;
 
   typedef edm::ParameterSet::table::const_iterator TIterator;
-  for (TIterator i = ps.tbl().begin(), e = ps.tbl().end(); i != e; ++i)
-    handleEntry(i->second, i->first);
+  for (const auto &i : ps.tbl())
+    handleEntry(i.second, i.first);
 
   typedef edm::ParameterSet::psettable::const_iterator PSIterator;
-  for (PSIterator i = ps.psetTable().begin(), e = ps.psetTable().end(); i != e; ++i)
-    handlePSetEntry(const_cast<edm::ParameterSetEntry &>(i->second), i->first);
+  for (const auto &i : ps.psetTable())
+    handlePSetEntry(const_cast<edm::ParameterSetEntry &>(i.second), i.first);
 
   typedef edm::ParameterSet::vpsettable::const_iterator VPSIterator;
-  for (VPSIterator i = ps.vpsetTable().begin(), e = ps.vpsetTable().end(); i != e; ++i)
-    handleVPSetEntry(const_cast<edm::VParameterSetEntry &>(i->second), i->first);
+  for (const auto &i : ps.vpsetTable())
+    handleVPSetEntry(const_cast<edm::VParameterSetEntry &>(i.second), i.first);
 }
 
 template <class T>
@@ -418,7 +418,7 @@ void FWPSetTableManager::updateSchedule(const edm::ScheduleInfo *info) {
       const edm::ParameterSet *ps = info->parametersForModule(pathModules[mi]);
 
       const edm::ParameterSet::table &pst = ps->tbl();
-      const edm::ParameterSet::table::const_iterator ti = pst.find("@module_edm_type");
+      const auto ti = pst.find("@module_edm_type");
       if (ti == pst.end())
         moduleEntry.value = "Unknown module name";
       else
@@ -474,7 +474,7 @@ void FWPSetTableManager::update(std::vector<PathUpdate> &pathUpdates) {
   // Update whether or not a given path / module passed selection.
   for (size_t pui = 0, pue = pathUpdates.size(); pui != pue; ++pui) {
     PathUpdate &update = pathUpdates[pui];
-    std::map<std::string, size_t>::const_iterator index = m_pathIndex.find(update.pathName);
+    auto index = m_pathIndex.find(update.pathName);
     if (index == m_pathIndex.end()) {
       fwLog(fwlog::kError) << "Path " << update.pathName << "cannot be found!" << std::endl;
       continue;
@@ -557,8 +557,8 @@ const std::string FWPSetTableManager::title() const { return "Modules & their pa
 std::vector<std::string> FWPSetTableManager::getTitles() const {
   std::vector<std::string> returnValue;
   returnValue.reserve(numberOfColumns());
-  returnValue.push_back("Label");
-  returnValue.push_back("Value");
+  returnValue.emplace_back("Label");
+  returnValue.emplace_back("Value");
   return returnValue;
 }
 

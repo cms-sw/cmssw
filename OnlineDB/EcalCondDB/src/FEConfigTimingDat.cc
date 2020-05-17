@@ -129,8 +129,8 @@ void FEConfigTimingDat::writeArrayDB(const std::map<EcalLogicID, FEConfigTimingD
   const FEConfigTimingDat* dataitem;
   int count = 0;
   typedef map<EcalLogicID, FEConfigTimingDat>::const_iterator CI;
-  for (CI p = data->begin(); p != data->end(); ++p) {
-    channel = &(p->first);
+  for (const auto& p : *data) {
+    channel = &(p.first);
     int logicID = channel->getLogicID();
     if (!logicID) {
       throw(std::runtime_error("FEConfigTimingDat::writeArrayDB:  Bad EcalLogicID"));
@@ -138,7 +138,7 @@ void FEConfigTimingDat::writeArrayDB(const std::map<EcalLogicID, FEConfigTimingD
     ids[count] = logicID;
     iconfid_vec[count] = iconfID;
 
-    dataitem = &(p->second);
+    dataitem = &(p.second);
     // dataIface.writeDB( channel, dataitem, iconf);
     int x = dataitem->getTimingPar1();
     int y = dataitem->getTimingPar2();

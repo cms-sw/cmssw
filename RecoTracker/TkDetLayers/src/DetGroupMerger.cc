@@ -49,7 +49,7 @@ void DetGroupMerger::addSameLevel(vector<DetGroup>&& gvec, vector<DetGroup>& res
     int gSize = ig.indexSize();
     int index = ig.index();  // at which level it should be inserted
     bool found = false;
-    for (vector<DetGroup>::iterator ires = result.begin(); ires != result.end(); ires++) {
+    for (auto ires = result.begin(); ires != result.end(); ires++) {
       int resSize = ires->indexSize();
       if (gSize != resSize) {
         LogDebug("TkDetLayers") << "DetGroupMerger::addSameLevel called with groups of different index sizes";
@@ -75,14 +75,14 @@ void DetGroupMerger::addSameLevel(vector<DetGroup>&& gvec, vector<DetGroup>& res
 
 void DetGroupMerger::doubleIndexSize(vector<DetGroup>& vec) {
   int indSize = vec.front().indexSize();
-  for (vector<DetGroup>::iterator i = vec.begin(); i != vec.end(); i++) {
-    i->setIndexSize(2 * indSize);
+  for (auto& i : vec) {
+    i.setIndexSize(2 * indSize);
   }
 }
 
 void DetGroupMerger::incrementAndDoubleSize(vector<DetGroup>& vec) {
   int indSize = vec.front().indexSize();
-  for (vector<DetGroup>::iterator i = vec.begin(); i != vec.end(); i++) {
-    i->incrementIndex(indSize);
+  for (auto& i : vec) {
+    i.incrementIndex(indSize);
   }
 }

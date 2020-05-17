@@ -8,7 +8,7 @@
 #include <fstream>
 #include <string>
 #include <stdexcept>
-#include <assert.h>
+#include <cassert>
 
 #include "DataFormats/EcalDetId/interface/EcalScDetId.h"
 

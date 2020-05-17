@@ -151,8 +151,8 @@ void DTEffAnalyzer::effSegments(const Event& event, const EventSetup& eventSetup
   event.getByLabel(theRecHits4DLabel, segs);
   if (debug) {
     cout << "4d " << segs->size() << endl;
-    for (DTRecSegment4DCollection::const_iterator seg = segs->begin(); seg != segs->end(); ++seg)
-      cout << *seg << endl;
+    for (const auto& seg : *segs)
+      cout << seg << endl;
   }
 
   // Get events with 3 segments in different station and look what happen on
@@ -193,7 +193,7 @@ void DTEffAnalyzer::evaluateEff(const DTChamberId& MidId, int bottom, int top) c
   const DTRecSegment4D& bestBotSeg = getBestSegment(segsBot);
   //cout << "BestBotSeg " << bestBotSeg << endl;
 
-  DTRecSegment4D* pBestTopSeg = 0;
+  DTRecSegment4D* pBestTopSeg = nullptr;
   if (nSegsTop > 0)
     pBestTopSeg = const_cast<DTRecSegment4D*>(&getBestSegment(segsTop));
   //if top chamber is MB4 sector 10, consider also sector 14

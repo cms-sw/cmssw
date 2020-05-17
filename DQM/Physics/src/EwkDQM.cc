@@ -257,7 +257,7 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   if (!vertexHandle.isValid())
     return;
   VertexCollection vertexCollection = *(vertexHandle.product());
-  VertexCollection::const_iterator v = vertexCollection.begin();
+  auto v = vertexCollection.begin();
   int vertex_number = vertexCollection.size();
   double vertex_chi2 = v->normalizedChi2();  // v->chi2();
   double vertex_d0 = sqrt(v->x() * v->x() + v->y() * v->y());
@@ -265,8 +265,7 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   double vertex_sumTrks = 0.0;
   // std::cout << "vertex_d0=" << vertex_d0 << "\n";
   // double vertex_ndof    = v->ndof();cout << "ndof="<<vertex_ndof<<endl;
-  for (Vertex::trackRef_iterator vertex_curTrack = v->tracks_begin(); vertex_curTrack != v->tracks_end();
-       vertex_curTrack++)
+  for (auto vertex_curTrack = v->tracks_begin(); vertex_curTrack != v->tracks_end(); vertex_curTrack++)
     vertex_sumTrks += (*vertex_curTrack)->pt();
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -298,37 +297,31 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   // If it passed electron HLT and the collection was found, find electrons near
   // Z mass
   if (passed_electron_HLT) {
-    for (reco::GsfElectronCollection::const_iterator recoElectron = electronCollection->begin();
-         recoElectron != electronCollection->end();
-         recoElectron++) {
+    for (const auto& recoElectron : *electronCollection) {
       // Require electron to pass some basic cuts
-      if (recoElectron->et() < 20 || fabs(recoElectron->eta()) > 2.5)
+      if (recoElectron.et() < 20 || fabs(recoElectron.eta()) > 2.5)
         continue;
 
       // Tighter electron cuts
-      if (recoElectron->deltaPhiSuperClusterTrackAtVtx() > 0.58 ||
-          recoElectron->deltaEtaSuperClusterTrackAtVtx() > 0.01 || recoElectron->sigmaIetaIeta() > 0.027)
+      if (recoElectron.deltaPhiSuperClusterTrackAtVtx() > 0.58 ||
+          recoElectron.deltaEtaSuperClusterTrackAtVtx() > 0.01 || recoElectron.sigmaIetaIeta() > 0.027)
         continue;
 
-      if (recoElectron->et() > electron_et) {
+      if (recoElectron.et() > electron_et) {
         electron2_et = electron_et;  // 2nd highest gets values from current highest
         electron2_eta = electron_eta;
         electron2_phi = electron_phi;
-        electron_et = recoElectron->et();  // 1st highest gets values from new highest
-        electron_eta = recoElectron->eta();
-        electron_phi = recoElectron->phi();
-        e1 = TLorentzVector(recoElectron->momentum().x(),
-                            recoElectron->momentum().y(),
-                            recoElectron->momentum().z(),
-                            recoElectron->p());
-      } else if (recoElectron->et() > electron2_et) {
-        electron2_et = recoElectron->et();
-        electron2_eta = recoElectron->eta();
-        electron2_phi = recoElectron->phi();
-        e2 = TLorentzVector(recoElectron->momentum().x(),
-                            recoElectron->momentum().y(),
-                            recoElectron->momentum().z(),
-                            recoElectron->p());
+        electron_et = recoElectron.et();  // 1st highest gets values from new highest
+        electron_eta = recoElectron.eta();
+        electron_phi = recoElectron.phi();
+        e1 = TLorentzVector(
+            recoElectron.momentum().x(), recoElectron.momentum().y(), recoElectron.momentum().z(), recoElectron.p());
+      } else if (recoElectron.et() > electron2_et) {
+        electron2_et = recoElectron.et();
+        electron2_eta = recoElectron.eta();
+        electron2_phi = recoElectron.phi();
+        e2 = TLorentzVector(
+            recoElectron.momentum().x(), recoElectron.momentum().y(), recoElectron.momentum().z(), recoElectron.p());
       }
     }  // end of loop over electrons
     if (electron2_et > 0.0) {
@@ -356,30 +349,27 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   TLorentzVector m1, m2;
 
   if (passed_muon_HLT) {
-    for (reco::MuonCollection::const_iterator recoMuon = muonCollection->begin(); recoMuon != muonCollection->end();
-         recoMuon++) {
+    for (const auto& recoMuon : *muonCollection) {
       // Require muon to pass some basic cuts
-      if (recoMuon->pt() < 20 || !recoMuon->isGlobalMuon())
+      if (recoMuon.pt() < 20 || !recoMuon.isGlobalMuon())
         continue;
       // Some tighter muon cuts
-      if (recoMuon->globalTrack()->normalizedChi2() > 10)
+      if (recoMuon.globalTrack()->normalizedChi2() > 10)
         continue;
 
-      if (recoMuon->pt() > muon_pt) {
+      if (recoMuon.pt() > muon_pt) {
         muon2_pt = muon_pt;  // 2nd highest gets values from current highest
         muon2_eta = muon_eta;
         muon2_phi = muon_phi;
-        muon_pt = recoMuon->pt();  // 1st highest gets values from new highest
-        muon_eta = recoMuon->eta();
-        muon_phi = recoMuon->phi();
-        m1 =
-            TLorentzVector(recoMuon->momentum().x(), recoMuon->momentum().y(), recoMuon->momentum().z(), recoMuon->p());
-      } else if (recoMuon->pt() > muon2_pt) {
-        muon2_pt = recoMuon->pt();
-        muon2_eta = recoMuon->eta();
-        muon2_phi = recoMuon->phi();
-        m2 =
-            TLorentzVector(recoMuon->momentum().x(), recoMuon->momentum().y(), recoMuon->momentum().z(), recoMuon->p());
+        muon_pt = recoMuon.pt();  // 1st highest gets values from new highest
+        muon_eta = recoMuon.eta();
+        muon_phi = recoMuon.phi();
+        m1 = TLorentzVector(recoMuon.momentum().x(), recoMuon.momentum().y(), recoMuon.momentum().z(), recoMuon.p());
+      } else if (recoMuon.pt() > muon2_pt) {
+        muon2_pt = recoMuon.pt();
+        muon2_eta = recoMuon.eta();
+        muon2_phi = recoMuon.phi();
+        m2 = TLorentzVector(recoMuon.momentum().x(), recoMuon.momentum().y(), recoMuon.momentum().z(), recoMuon.p());
       }
     }
   }

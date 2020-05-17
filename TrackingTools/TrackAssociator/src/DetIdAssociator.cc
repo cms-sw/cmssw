@@ -158,34 +158,34 @@ void DetIdAssociator::buildMap() {
       std::vector<DetId> const& validIds = std::move(detIdBuffer);
       LogTrace("TrackAssociator") << "Number of valid DetIds for subdetector: " << subDetectorIndex << " is "
                                   << validIds.size();
-      for (std::vector<DetId>::const_iterator id_itr = validIds.begin(); id_itr != validIds.end(); id_itr++) {
-        std::pair<const_iterator, const_iterator> points = getDetIdPoints(*id_itr, pointBuffer);
+      for (auto validId : validIds) {
+        std::pair<const_iterator, const_iterator> points = getDetIdPoints(validId, pointBuffer);
         LogTrace("TrackAssociatorVerbose") << "Found " << points.second - points.first
-                                           << " global points to describe geometry of DetId: " << id_itr->rawId();
+                                           << " global points to describe geometry of DetId: " << validId.rawId();
         int etaMax(-1);
         int etaMin(-1);
         int phiMax(-1);
         int phiMin(-1);
         // this is a bit overkill, but it should be 100% proof (when debugged :)
-        for (std::vector<GlobalPoint>::const_iterator iter = points.first; iter != points.second; iter++) {
+        for (auto iter = points.first; iter != points.second; iter++) {
           LogTrace("TrackAssociatorVerbose")
               << "\tpoint (rho,phi,z): " << iter->perp() << ", " << iter->phi() << ", " << iter->z();
           // FIX ME: this should be a fatal error
           if (edm::isNotFinite(iter->mag()) || iter->mag() > 1e5) {  //Detector parts cannot be 1 km away or be NaN
             edm::LogWarning("TrackAssociator")
-                << "Critical error! Bad detector unit geometry:\n\tDetId:" << id_itr->rawId()
+                << "Critical error! Bad detector unit geometry:\n\tDetId:" << validId.rawId()
                 << "\t mag(): " << iter->mag() << "\n"
-                << DetIdInfo::info(*id_itr, nullptr) << "\nSkipped the element";
+                << DetIdInfo::info(validId, nullptr) << "\nSkipped the element";
             continue;
           }
           volume_.addActivePoint(*iter);
           int ieta = iEta(*iter);
           int iphi = iPhi(*iter);
           if (ieta < 0 || ieta >= nEta_) {
-            LogTrace("TrackAssociator") << "Out of range: DetId:" << id_itr->rawId() << "\t (ieta,iphi): " << ieta
+            LogTrace("TrackAssociator") << "Out of range: DetId:" << validId.rawId() << "\t (ieta,iphi): " << ieta
                                         << "," << iphi << "\n"
                                         << "Point: " << *iter << "\t(eta,phi): " << (*iter).eta() << ","
-                                        << (*iter).phi() << "\n center: " << getPosition(*id_itr);
+                                        << (*iter).phi() << "\n center: " << getPosition(validId);
             continue;
           }
           if (phiMin < 0) {
@@ -220,15 +220,15 @@ void DetIdAssociator::buildMap() {
         }
         if (etaMax < 0 || phiMax < 0 || etaMin >= nEta_ || phiMin >= nPhi_) {
           LogTrace("TrackAssociatorVerbose")
-              << "Out of range or no geometry: DetId:" << id_itr->rawId() << "\n\teta (min,max): " << etaMin << ","
-              << etaMax << "\n\tphi (min,max): " << phiMin << "," << phiMax << "\nTower id: " << id_itr->rawId()
+              << "Out of range or no geometry: DetId:" << validId.rawId() << "\n\teta (min,max): " << etaMin << ","
+              << etaMax << "\n\tphi (min,max): " << phiMin << "," << phiMax << "\nTower id: " << validId.rawId()
               << "\n";
           numberOfDetIdsOutsideEtaRange++;
           continue;
         }
         numberOfDetIdsActive++;
 
-        LogTrace("TrackAssociatorVerbose") << "DetId (ieta_min,ieta_max,iphi_min,iphi_max): " << id_itr->rawId() << ", "
+        LogTrace("TrackAssociatorVerbose") << "DetId (ieta_min,ieta_max,iphi_min,iphi_max): " << validId.rawId() << ", "
                                            << etaMin << ", " << etaMax << ", " << phiMin << ", " << phiMax;
         for (int ieta = etaMin; ieta <= etaMax; ieta++)
           for (int iphi = phiMin; iphi <= phiMax; iphi++)
@@ -236,7 +236,7 @@ void DetIdAssociator::buildMap() {
               lookupMap_.at(index(ieta, iphi % nPhi_)).second++;
               totalNumberOfElementsInTheContainer++;
             } else {
-              container_.at(lookupMap_.at(index(ieta, iphi % nPhi_)).first) = *id_itr;
+              container_.at(lookupMap_.at(index(ieta, iphi % nPhi_)).first) = validId;
               lookupMap_.at(index(ieta, iphi % nPhi_)).first--;
               totalNumberOfElementsInTheContainer--;
             }
@@ -250,13 +250,11 @@ void DetIdAssociator::buildMap() {
       container_.resize(totalNumberOfElementsInTheContainer);
       // fill the range index in the lookup map to point to the last element in the range
       unsigned int index(0);
-      for (std::vector<std::pair<unsigned int, unsigned int> >::iterator bin = lookupMap_.begin();
-           bin != lookupMap_.end();
-           ++bin) {
-        if (bin->second == 0)
+      for (auto& bin : lookupMap_) {
+        if (bin.second == 0)
           continue;
-        index += bin->second;
-        bin->first = index - 1;
+        index += bin.second;
+        bin.first = index - 1;
       }
     }
   }
@@ -277,11 +275,10 @@ std::set<DetId> DetIdAssociator::getDetIdsInACone(const std::set<DetId>& inset,
     return inset;
   check_setup();
   std::set<DetId> outset;
-  for (std::set<DetId>::const_iterator id_iter = inset.begin(); id_iter != inset.end(); id_iter++)
-    for (std::vector<GlobalPoint>::const_iterator point_iter = trajectory.begin(); point_iter != trajectory.end();
-         point_iter++)
-      if (nearElement(*point_iter, *id_iter, dR)) {
-        outset.insert(*id_iter);
+  for (auto id_iter : inset)
+    for (const auto& point_iter : trajectory)
+      if (nearElement(point_iter, id_iter, dR)) {
+        outset.insert(id_iter);
         break;
       }
   return outset;
@@ -293,7 +290,7 @@ std::vector<DetId> DetIdAssociator::getCrossedDetIds(const std::set<DetId>& inse
   std::vector<DetId> output;
   std::set<DetId> ids(inset);
   for (unsigned int i = 0; i + 1 < trajectory.size(); ++i) {
-    std::set<DetId>::const_iterator id_iter = ids.begin();
+    auto id_iter = ids.begin();
     while (id_iter != ids.end()) {
       if (crossedElement(trajectory[i], trajectory[i + 1], *id_iter)) {
         output.push_back(*id_iter);
@@ -312,7 +309,7 @@ std::vector<DetId> DetIdAssociator::getCrossedDetIds(const std::set<DetId>& inse
   std::vector<DetId> output;
   std::set<DetId> ids(inset);
   for (unsigned int i = 0; i + 1 < trajectory.size(); ++i) {
-    std::set<DetId>::const_iterator id_iter = ids.begin();
+    auto id_iter = ids.begin();
     while (id_iter != ids.end()) {
       if (crossedElement(trajectory[i].position(), trajectory[i + 1].position(), *id_iter, tolerance, &trajectory[i])) {
         output.push_back(*id_iter);
@@ -334,10 +331,10 @@ void DetIdAssociator::dumpMapContent(int ieta, int iphi) const {
   std::set<DetId> set;
   fillSet(set, ieta, iphi % nPhi_);
   LogTrace("TrackAssociator") << "Map content for cell (ieta,iphi): " << ieta << ", " << iphi % nPhi_;
-  for (std::set<DetId>::const_iterator itr = set.begin(); itr != set.end(); itr++) {
-    LogTrace("TrackAssociator") << "\tDetId " << itr->rawId() << ", geometry (x,y,z,rho,eta,phi):";
-    std::pair<const_iterator, const_iterator> points = getDetIdPoints(*itr, pointBuffer);
-    for (std::vector<GlobalPoint>::const_iterator point = points.first; point != points.second; point++)
+  for (auto itr : set) {
+    LogTrace("TrackAssociator") << "\tDetId " << itr.rawId() << ", geometry (x,y,z,rho,eta,phi):";
+    std::pair<const_iterator, const_iterator> points = getDetIdPoints(itr, pointBuffer);
+    for (auto point = points.first; point != points.second; point++)
       LogTrace("TrackAssociator") << "\t\t" << point->x() << ", " << point->y() << ", " << point->z() << ", "
                                   << point->perp() << ", " << point->eta() << ", " << point->phi();
   }

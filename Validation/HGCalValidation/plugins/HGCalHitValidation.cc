@@ -186,22 +186,22 @@ void HGCalHitValidation::bookHistograms(DQMStore::IBooker& iB, edm::Run const&, 
 
 void HGCalHitValidation::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
   //initiating hgc Geometry
-  for (size_t i = 0; i < geometrySource_.size(); i++) {
-    if (geometrySource_[i].find("Hcal") != std::string::npos) {
+  for (auto& i : geometrySource_) {
+    if (i.find("Hcal") != std::string::npos) {
       edm::ESHandle<HcalDDDSimConstants> pHSNDC;
       iSetup.get<HcalSimNumberingRecord>().get(pHSNDC);
       if (pHSNDC.isValid()) {
         hcCons_ = pHSNDC.product();
         hgcCons_.push_back(nullptr);
       } else {
-        edm::LogWarning("HGCalValid") << "Cannot initiate HcalDDDSimConstants: " << geometrySource_[i] << std::endl;
+        edm::LogWarning("HGCalValid") << "Cannot initiate HcalDDDSimConstants: " << i << std::endl;
       }
       edm::ESHandle<HcalDDDRecConstants> pHRNDC;
       iSetup.get<HcalRecNumberingRecord>().get(pHRNDC);
       if (pHRNDC.isValid()) {
         hcConr_ = pHRNDC.product();
       } else {
-        edm::LogWarning("HGCalValid") << "Cannot initiate HcalDDDRecConstants: " << geometrySource_[i] << std::endl;
+        edm::LogWarning("HGCalValid") << "Cannot initiate HcalDDDRecConstants: " << i << std::endl;
       }
       edm::ESHandle<CaloGeometry> caloG;
       iSetup.get<CaloGeometryRecord>().get(caloG);
@@ -210,22 +210,22 @@ void HGCalHitValidation::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const
         hcGeometry_ = geo->getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
         hgcGeometry_.push_back(nullptr);
       } else {
-        edm::LogWarning("HGCalValid") << "Cannot initiate HcalGeometry for " << geometrySource_[i] << std::endl;
+        edm::LogWarning("HGCalValid") << "Cannot initiate HcalGeometry for " << i << std::endl;
       }
     } else {
       edm::ESHandle<HGCalDDDConstants> hgcCons;
-      iSetup.get<IdealGeometryRecord>().get(geometrySource_[i], hgcCons);
+      iSetup.get<IdealGeometryRecord>().get(i, hgcCons);
       if (hgcCons.isValid()) {
         hgcCons_.push_back(hgcCons.product());
       } else {
-        edm::LogWarning("HGCalValid") << "Cannot initiate HGCalDDDConstants for " << geometrySource_[i] << std::endl;
+        edm::LogWarning("HGCalValid") << "Cannot initiate HGCalDDDConstants for " << i << std::endl;
       }
       edm::ESHandle<HGCalGeometry> hgcGeom;
-      iSetup.get<IdealGeometryRecord>().get(geometrySource_[i], hgcGeom);
+      iSetup.get<IdealGeometryRecord>().get(i, hgcGeom);
       if (hgcGeom.isValid()) {
         hgcGeometry_.push_back(hgcGeom.product());
       } else {
-        edm::LogWarning("HGCalValid") << "Cannot initiate HGCalGeometry for " << geometrySource_[i] << std::endl;
+        edm::LogWarning("HGCalValid") << "Cannot initiate HGCalGeometry for " << i << std::endl;
       }
     }
   }
@@ -274,9 +274,9 @@ void HGCalHitValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   iEvent.getByToken(bhSimHitToken_, bhSimHits);
   if (bhSimHits.isValid()) {
     if (ifHCALsim_) {
-      for (std::vector<PCaloHit>::const_iterator simHit = bhSimHits->begin(); simHit != bhSimHits->end(); ++simHit) {
+      for (const auto& simHit : *bhSimHits) {
         int subdet, z, depth, eta, phi, lay;
-        HcalTestNumbering::unpackHcalIndex(simHit->id(), subdet, z, depth, eta, phi, lay);
+        HcalTestNumbering::unpackHcalIndex(simHit.id(), subdet, z, depth, eta, phi, lay);
 
         if (subdet == static_cast<int>(HcalEndcap)) {
           HcalCellType::HcalCell cell = hcCons_->cell(subdet, z, lay, eta, phi);
@@ -287,7 +287,7 @@ void HGCalHitValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
           zp *= sign;
           HcalDetId id = HcalDetId(HcalEndcap, sign * idx.eta, idx.phi, idx.depth);
 
-          float energy = simHit->energy();
+          float energy = simHit.energy();
           float energySum(energy);
           if (bhHitRefs.count(id.rawId()) != 0)
             energySum += std::get<0>(bhHitRefs[id.rawId()]);
@@ -322,12 +322,12 @@ void HGCalHitValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   iEvent.getByToken(eeRecHitToken_, eeRecHit);
   if (eeRecHit.isValid()) {
     const HGCeeRecHitCollection* theHits = (eeRecHit.product());
-    for (auto it = theHits->begin(); it != theHits->end(); ++it) {
-      double energy = it->energy();
+    for (const auto& theHit : *theHits) {
+      double energy = theHit.energy();
       heeEnRec->Fill(energy);
-      std::map<unsigned int, HGCHitTuple>::const_iterator itr = eeHitRefs.find(it->id().rawId());
+      auto itr = eeHitRefs.find(theHit.id().rawId());
       if (itr != eeHitRefs.end()) {
-        GlobalPoint xyz = hgcGeometry_[0]->getPosition(it->id());
+        GlobalPoint xyz = hgcGeometry_[0]->getPosition(theHit.id());
         heeRecVsSimX->Fill(std::get<1>(itr->second), xyz.x());
         heeRecVsSimY->Fill(std::get<2>(itr->second), xyz.y());
         heeRecVsSimZ->Fill(std::get<3>(itr->second), xyz.z());
@@ -352,12 +352,12 @@ void HGCalHitValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   iEvent.getByToken(fhRecHitToken_, fhRecHit);
   if (fhRecHit.isValid()) {
     const HGChefRecHitCollection* theHits = (fhRecHit.product());
-    for (auto it = theHits->begin(); it != theHits->end(); ++it) {
-      double energy = it->energy();
+    for (const auto& theHit : *theHits) {
+      double energy = theHit.energy();
       hefEnRec->Fill(energy);
-      std::map<unsigned int, HGCHitTuple>::const_iterator itr = fhHitRefs.find(it->id().rawId());
+      auto itr = fhHitRefs.find(theHit.id().rawId());
       if (itr != fhHitRefs.end()) {
-        GlobalPoint xyz = hgcGeometry_[1]->getPosition(it->id());
+        GlobalPoint xyz = hgcGeometry_[1]->getPosition(theHit.id());
 
         hefRecVsSimX->Fill(std::get<1>(itr->second), xyz.x());
         hefRecVsSimY->Fill(std::get<2>(itr->second), xyz.y());
@@ -405,9 +405,9 @@ void HGCalHitValidation::analyzeHGCalSimHit(edm::Handle<std::vector<PCaloHit>> c
                                             MonitorElement* hist,
                                             std::map<unsigned int, HGCHitTuple>& hitRefs) {
   const HGCalTopology& hTopo = hgcGeometry_[idet]->topology();
-  for (std::vector<PCaloHit>::const_iterator simHit = simHits->begin(); simHit != simHits->end(); ++simHit) {
+  for (const auto& simHit : *simHits) {
     int subdet, zside, layer, wafer, celltype, cell;
-    HGCalTestNumbering::unpackHexagonIndex(simHit->id(), subdet, zside, layer, wafer, celltype, cell);
+    HGCalTestNumbering::unpackHexagonIndex(simHit.id(), subdet, zside, layer, wafer, celltype, cell);
     std::pair<float, float> xy = hgcCons_[idet]->locateCell(cell, layer, wafer, false);
     float zp = hgcCons_[idet]->waferZ(layer, false);
     if (zside < 0)
@@ -425,7 +425,7 @@ void HGCalHitValidation::analyzeHGCalSimHit(edm::Handle<std::vector<PCaloHit>> c
     } else {
       //assign the RECO DetId
       HGCalDetId id = HGCalDetId((ForwardSubdetector)(subdet), zside, layer, celltype, wafer, cell);
-      float energy = simHit->energy();
+      float energy = simHit.energy();
 
       float energySum(energy);
       if (hitRefs.count(id.rawId()) != 0)
@@ -445,7 +445,7 @@ void HGCalHitValidation::analyzeHGCalRecHit(T1 const& theHits, std::map<unsigned
       hebEnRec->Fill(energy);
       GlobalPoint xyz = hcGeometry_->getGeometry(id)->getPosition();
 
-      std::map<unsigned int, HGCHitTuple>::const_iterator itr = hitRefs.find(id.rawId());
+      auto itr = hitRefs.find(id.rawId());
       if (itr != hitRefs.end()) {
         float ang3 = xyz.phi().value();  // returns the phi in radians
         double fac = sinh(std::get<1>(itr->second));

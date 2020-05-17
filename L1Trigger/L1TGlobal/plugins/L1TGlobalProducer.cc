@@ -221,7 +221,7 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet)
   // Set default, initial, dummy prescale factor table
   std::vector<std::vector<int>> temp_prescaleTable;
 
-  temp_prescaleTable.push_back(std::vector<int>());
+  temp_prescaleTable.emplace_back();
   m_initialPrescaleFactorsAlgoTrig = temp_prescaleTable;
 }
 
@@ -388,7 +388,7 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
       iEvent.getByToken(m_algoblkInputToken, m_uGtAlgBlk);
 
       if (m_uGtAlgBlk.isValid() && !m_uGtAlgBlk->isEmpty(0)) {
-        std::vector<GlobalAlgBlk>::const_iterator algBlk = m_uGtAlgBlk->begin(0);
+        auto algBlk = m_uGtAlgBlk->begin(0);
         m_prescaleSet = static_cast<unsigned int>(algBlk->getPreScColumn());
       } else {
         m_prescaleSet = 1;
@@ -525,8 +525,7 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
 
   // For now, set masks according to prescale value of 0
   m_initialTriggerMaskAlgoTrig.clear();
-  for (unsigned int iAlgo = 0; iAlgo < prescaleFactorsAlgoTrig.size(); iAlgo++) {
-    unsigned int value = prescaleFactorsAlgoTrig[iAlgo];
+  for (unsigned int value : prescaleFactorsAlgoTrig) {
     value = (value == 0) ? 0 : 1;
     m_initialTriggerMaskAlgoTrig.push_back(value);
   }
@@ -618,8 +617,8 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
 
     const std::vector<GlobalObjectMap> objMapVec = gtObjectMapRecord->gtObjectMap();
 
-    for (std::vector<GlobalObjectMap>::const_iterator it = objMapVec.begin(); it != objMapVec.end(); ++it) {
-      (*it).print(myCoutStream);
+    for (const auto& it : objMapVec) {
+      it.print(myCoutStream);
     }
 
     LogDebug("L1TGlobalProducer") << "Test gtObjectMapRecord in L1TGlobalProducer \n\n"

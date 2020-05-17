@@ -51,7 +51,7 @@ namespace {
                          NbRows);
 
         double row = NbRows - 0.5;
-        for (std::map<uint32_t, EcalTPGPhysicsConst::Item>::const_iterator it = map.begin(); it != map.end(); it++) {
+        for (auto it = map.begin(); it != map.end(); it++) {
           uint32_t mapKey = it->first;
           EcalTPGPhysicsConst::Item item = it->second;
 

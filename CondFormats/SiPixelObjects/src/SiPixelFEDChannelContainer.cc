@@ -19,7 +19,7 @@ void SiPixelFEDChannelContainer::setScenario(const std::string &theScenarioId,
 //****************************************************************************//
 SiPixelFEDChannelContainer::SiPixelFEDChannelCollection SiPixelFEDChannelContainer::getSiPixelBadFedChannels(
     const std::string &theScenarioId) const {
-  SiPixelBadFEDChannelsScenarioMap::const_iterator it = m_scenarioMap.find(theScenarioId);
+  auto it = m_scenarioMap.find(theScenarioId);
 
   if (it != m_scenarioMap.end()) {
     return it->second;
@@ -32,7 +32,7 @@ SiPixelFEDChannelContainer::SiPixelFEDChannelCollection SiPixelFEDChannelContain
 //****************************************************************************//
 const SiPixelFEDChannelContainer::SiPixelFEDChannelCollection &SiPixelFEDChannelContainer::getSiPixelBadFedChannels(
     const std::string &theScenarioId) {
-  SiPixelBadFEDChannelsScenarioMap::const_iterator it = m_scenarioMap.find(theScenarioId);
+  auto it = m_scenarioMap.find(theScenarioId);
 
   if (it != m_scenarioMap.end()) {
     return it->second;
@@ -45,13 +45,13 @@ const SiPixelFEDChannelContainer::SiPixelFEDChannelCollection &SiPixelFEDChannel
 //****************************************************************************//
 const std::vector<PixelFEDChannel> &SiPixelFEDChannelContainer::getSiPixelBadFedChannelsInDetId(
     const std::string &theScenarioId, DetId theDetId) {
-  SiPixelBadFEDChannelsScenarioMap::const_iterator it = m_scenarioMap.find(theScenarioId);
+  auto it = m_scenarioMap.find(theScenarioId);
 
   if (it == m_scenarioMap.end()) {
     throw cms::Exception("SiPixelFEDChannelContainer")
         << "No Bad Pixel FEDChannels defined for Scenario id: " << theScenarioId << "\n";
   } else {
-    SiPixelFEDChannelCollection::const_iterator it2 = (it->second).find(theDetId);
+    auto it2 = (it->second).find(theDetId);
 
     if (it2 == (it->second).end()) {
       throw cms::Exception("SiPixelFEDChannelContainer")
@@ -64,7 +64,7 @@ const std::vector<PixelFEDChannel> &SiPixelFEDChannelContainer::getSiPixelBadFed
 //****************************************************************************//
 std::unique_ptr<PixelFEDChannelCollection> SiPixelFEDChannelContainer::getDetSetBadPixelFedChannels(
     const std::string &theScenarioId) const {
-  SiPixelBadFEDChannelsScenarioMap::const_iterator it = m_scenarioMap.find(theScenarioId);
+  auto it = m_scenarioMap.find(theScenarioId);
 
   if (it == m_scenarioMap.end()) {
     throw cms::Exception("SiPixelFEDChannelContainer")
@@ -85,9 +85,9 @@ void SiPixelFEDChannelContainer::printAll() const {
   edm::LogVerbatim("SiPixelFEDChannelContainer") << "SiPixelFEDChannelContainer::printAll()";
   edm::LogVerbatim("SiPixelFEDChannelContainer") << " ================================================================="
                                                     "==================================================";
-  for (auto it = m_scenarioMap.begin(); it != m_scenarioMap.end(); ++it) {
-    edm::LogVerbatim("SiPixelFEDChannelContainer") << "run :" << it->first << "  \n ";
-    for (const auto &thePixelFEDChannel : it->second) {
+  for (const auto &it : m_scenarioMap) {
+    edm::LogVerbatim("SiPixelFEDChannelContainer") << "run :" << it.first << "  \n ";
+    for (const auto &thePixelFEDChannel : it.second) {
       DetId detId = thePixelFEDChannel.first;
 
       edm::LogVerbatim("SiPixelFEDChannelContainer") << "DetId :" << detId << "  \n ";
@@ -104,9 +104,9 @@ void SiPixelFEDChannelContainer::printAll() const {
 
 //****************************************************************************//
 void SiPixelFEDChannelContainer::print(std::ostream &os) const {
-  for (auto it = m_scenarioMap.begin(); it != m_scenarioMap.end(); ++it) {
-    os << "run :" << it->first << "  \n ";
-    for (const auto &thePixelFEDChannel : it->second) {
+  for (const auto &it : m_scenarioMap) {
+    os << "run :" << it.first << "  \n ";
+    for (const auto &thePixelFEDChannel : it.second) {
       DetId detId = thePixelFEDChannel.first;
       os << "DetId :" << detId << "  \n ";
       for (const auto &entry : thePixelFEDChannel.second) {
@@ -122,14 +122,14 @@ std::vector<std::string> SiPixelFEDChannelContainer::getScenarioList() const {
   std::vector<std::string> scenarios;
   scenarios.reserve(m_scenarioMap.size());
 
-  for (auto it = m_scenarioMap.begin(); it != m_scenarioMap.end(); ++it) {
-    scenarios.push_back(it->first);
+  for (const auto &it : m_scenarioMap) {
+    scenarios.push_back(it.first);
   }
   return scenarios;
 }
 
 //****************************************************************************//
-std::ostream &operator<<(std::ostream &os, SiPixelFEDChannelContainer FEDChannels) {
+std::ostream &operator<<(std::ostream &os, const SiPixelFEDChannelContainer &FEDChannels) {
   std::stringstream ss;
   FEDChannels.print(ss);
   os << ss.str();

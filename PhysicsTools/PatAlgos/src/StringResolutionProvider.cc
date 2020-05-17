@@ -16,12 +16,11 @@ StringResolutionProvider::StringResolutionProvider(const edm::ParameterSet& cfg)
   parametrization_ = pat::helper::ParametrizationHelper::fromString(parametrization);
 
   std::vector<edm::ParameterSet> functionSets_ = cfg.getParameter<std::vector<edm::ParameterSet> >("functions");
-  for (std::vector<edm::ParameterSet>::const_iterator iSet = functionSets_.begin(); iSet != functionSets_.end();
-       ++iSet) {
+  for (auto iSet = functionSets_.begin(); iSet != functionSets_.end(); ++iSet) {
     if (iSet->exists("bin"))
       bins_.push_back(iSet->getParameter<std::string>("bin"));
     else if (functionSets_.size() == 1)
-      bins_.push_back("");
+      bins_.emplace_back("");
     else
       throw cms::Exception("WrongConfig") << "Parameter 'bin' is needed if more than one PSet is specified\n";
 

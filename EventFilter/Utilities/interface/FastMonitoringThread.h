@@ -4,6 +4,8 @@
 #include "EventFilter/Utilities/interface/FastMonitor.h"
 
 #include <iostream>
+#include <memory>
+
 #include <vector>
 #include <thread>
 #include <mutex>
@@ -160,7 +162,7 @@ namespace evf {
         fm->registerGlobalMonitorable(&fastLockCountJ_, false);
 
         for (unsigned int i = 0; i < nStreams; i++) {
-          jsoncollector::AtomicMonUInt* p = new jsoncollector::AtomicMonUInt;
+          auto* p = new jsoncollector::AtomicMonUInt;
           *p = 0;
           processed_.push_back(p);
           streamLumi_.push_back(0);
@@ -170,8 +172,8 @@ namespace evf {
         ministateEncoded_.resize(nStreams);
         threadMicrostateEncoded_.resize(nThreads);
         inputState_.resize(nStreams);
-        for (unsigned int j = 0; j < inputState_.size(); j++)
-          inputState_[j] = 0;
+        for (unsigned int& j : inputState_)
+          j = 0;
 
         //tell FM to track these int vectors
         fm->registerStreamMonitorableUIntVec("Ministate", &ministateEncoded_, true, &ministateBins_);
@@ -199,7 +201,7 @@ namespace evf {
 
     void resetFastMonitor(std::string const& microStateDefPath, std::string const& fastMicroStateDefPath) {
       std::string defGroup = "data";
-      jsonMonitor_.reset(new jsoncollector::FastMonitor(microStateDefPath, defGroup, false));
+      jsonMonitor_ = std::make_unique<jsoncollector::FastMonitor>(microStateDefPath, defGroup, false);
       if (!fastMicroStateDefPath.empty())
         jsonMonitor_->addFastPathDefinition(fastMicroStateDefPath, defGroup, false);
     }

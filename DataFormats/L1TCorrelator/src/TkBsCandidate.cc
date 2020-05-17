@@ -12,7 +12,7 @@
 using namespace l1t;
 
 TkBsCandidate::TkBsCandidate() {}
-TkBsCandidate::TkBsCandidate(const LorentzVector& p4, TkPhiCandidate cand1, TkPhiCandidate cand2)
+TkBsCandidate::TkBsCandidate(const LorentzVector& p4, const TkPhiCandidate& cand1, const TkPhiCandidate& cand2)
     : L1Candidate(p4), phiCandList_{cand1, cand2} {}
 
 // deltaR between the Phi pair

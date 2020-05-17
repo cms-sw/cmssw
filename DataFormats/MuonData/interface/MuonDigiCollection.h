@@ -119,7 +119,7 @@ public:
 
   /// return the digis for a given DetUnit
   Range get(const IndexType& index) const {
-    typename container::const_iterator it = data_.find(index);
+    auto it = data_.find(index);
     if (it == data_.end()) {
       // if data_ is empty there is no other way to get an empty range
       static const std::vector<DigiType> empty;

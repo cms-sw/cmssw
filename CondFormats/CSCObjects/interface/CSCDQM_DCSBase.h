@@ -44,7 +44,7 @@ namespace cscdqm {
      * @param  board Board name in string format
      * @return DCSBoardType for the string given
      */
-    static DCSBoardType getDCSBoard(const std::string board) {
+    static DCSBoardType getDCSBoard(const std::string& board) {
       if (board.compare("ALCT"))
         return ALCT;
       if (board.compare("CFEB"))

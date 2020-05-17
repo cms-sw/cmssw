@@ -46,11 +46,10 @@ void FWHLTValidator::fillOptions(const char* iBegin,
 
   //only use add items which begin with the part of the member we are trying to match
   unsigned int part_size = part.size();
-  for (std::vector<std::string>::const_iterator trigger = m_triggerNames.begin(); trigger != m_triggerNames.end();
-       ++trigger)
-    if (part == trigger->substr(0, part_size)) {
-      oOptions.push_back(std::make_pair(std::make_shared<std::string>(*trigger),
-                                        trigger->substr(part_size, trigger->size() - part_size)));
+  for (const auto& m_triggerName : m_triggerNames)
+    if (part == m_triggerName.substr(0, part_size)) {
+      oOptions.emplace_back(std::make_shared<std::string>(m_triggerName),
+                            m_triggerName.substr(part_size, m_triggerName.size() - part_size));
     }
 }
 

@@ -60,8 +60,7 @@ void SiStripDcsInfo::beginRun(edm::Run const& run, edm::EventSetup const& eSetup
 
     if (sumFED.isValid()) {
       std::vector<int> FedsInIds = sumFED->m_fed_in;
-      for (unsigned int it = 0; it < FedsInIds.size(); ++it) {
-        int fedID = FedsInIds[it];
+      for (int fedID : FedsInIds) {
         if (fedID >= siStripFedIdMin && fedID <= siStripFedIdMax)
           ++nFEDConnected_;
       }
@@ -165,19 +164,17 @@ void SiStripDcsInfo::readCabling(edm::EventSetup const& eSetup) {
                                << " Total Detectors " << SelectedDetIds.size();
 
     // initialise total # of detectors first
-    for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
-      it->second.TotalDetectors = 0;
+    for (auto& it : SubDetMEsMap) {
+      it.second.TotalDetectors = 0;
     }
 
-    for (std::vector<uint32_t>::const_iterator idetid = SelectedDetIds.begin(); idetid != SelectedDetIds.end();
-         ++idetid) {
-      uint32_t detId = *idetid;
+    for (unsigned int detId : SelectedDetIds) {
       if (detId == 0 || detId == 0xFFFFFFFF)
         continue;
       std::string subdet_tag;
       SiStripUtility::getSubDetectorTag(detId, subdet_tag, tTopo);
 
-      std::map<std::string, SubDetMEs>::iterator iPos = SubDetMEsMap.find(subdet_tag);
+      auto iPos = SubDetMEsMap.find(subdet_tag);
       if (iPos != SubDetMEsMap.end()) {
         iPos->second.TotalDetectors++;
       }
@@ -199,17 +196,15 @@ void SiStripDcsInfo::readStatus(edm::EventSetup const& eSetup) {
   LogDebug("SiStripDcsInfo") << " SiStripDcsInfo::readStatus : "
                              << " Faulty Detectors " << FaultyDetIds.size();
   // Read and fille bad modules
-  for (std::vector<uint32_t>::const_iterator ihvoff = FaultyDetIds.begin(); ihvoff != FaultyDetIds.end(); ++ihvoff) {
-    uint32_t detId_hvoff = (*ihvoff);
+  for (unsigned int detId_hvoff : FaultyDetIds) {
     if (!detCabling_->IsConnected(detId_hvoff))
       continue;
     std::string subdet_tag;
     SiStripUtility::getSubDetectorTag(detId_hvoff, subdet_tag, tTopo);
 
-    std::map<std::string, SubDetMEs>::iterator iPos = SubDetMEsMap.find(subdet_tag);
+    auto iPos = SubDetMEsMap.find(subdet_tag);
     if (iPos != SubDetMEsMap.end()) {
-      std::vector<uint32_t>::iterator ibad =
-          std::find(iPos->second.FaultyDetectors.begin(), iPos->second.FaultyDetectors.end(), detId_hvoff);
+      auto ibad = std::find(iPos->second.FaultyDetectors.begin(), iPos->second.FaultyDetectors.end(), detId_hvoff);
       if (ibad == iPos->second.FaultyDetectors.end())
         iPos->second.FaultyDetectors.push_back(detId_hvoff);
     }

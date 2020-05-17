@@ -69,12 +69,12 @@ public:
     }
 
     // Loop over all the associated vertexes
-    for (std::size_t index = 0; index < vertexes->size(); ++index) {
+    for (const auto &vertexe : *vertexes) {
       // Copy the last status for all the flags
       Flags flags(flags_);
 
       // Evaluate the history for a given index
-      VertexClassifier::evaluate(vertexes->at(index));
+      VertexClassifier::evaluate(vertexe);
 
       // Combine OR the flag information
       for (std::size_t i = 0; i < flags_.size(); ++i)

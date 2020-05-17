@@ -21,8 +21,8 @@ SiStripTrivialClusterSource::~SiStripTrivialClusterSource() {}
 void SiStripTrivialClusterSource::beginRun(const edm::Run&, const edm::EventSetup& setup) {
   setup.get<SiStripDetCablingRcd>().get(cabling_);
   cabling_->addAllDetectorsRawIds(detids_);
-  for (unsigned int i = 0; i < detids_.size(); i++) {
-    nstrips_ += cabling_->getConnections(detids_[i]).size() * 256;
+  for (unsigned int detid : detids_) {
+    nstrips_ += cabling_->getConnections(detid).size() * 256;
   }
 }
 
@@ -68,9 +68,9 @@ void SiStripTrivialClusterSource::produce(edm::Event& iEvent, const edm::EventSe
 bool SiStripTrivialClusterSource::available(const edm::DetSet<SiStripDigi>& detset,
                                             const uint16_t firststrip,
                                             const uint32_t size) {
-  for (edm::DetSet<SiStripDigi>::const_iterator idigi = detset.data.begin(); idigi != detset.data.end(); idigi++) {
-    if (idigi->strip() >= (firststrip - separation_) &&
-        idigi->strip() < static_cast<int>(firststrip + size + separation_) && idigi->adc()) {
+  for (auto idigi : detset.data) {
+    if (idigi.strip() >= (firststrip - separation_) &&
+        idigi.strip() < static_cast<int>(firststrip + size + separation_) && idigi.adc()) {
       return false;
     }
   }

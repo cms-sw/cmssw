@@ -1,6 +1,8 @@
 #ifndef DytParamsObject_h
 #define DytParamsObject_h
 
+#include <utility>
+
 #include <vector>
 #include "CondFormats/RecoMuonObjects/interface/DYTParamObject.h"
 #include "CondFormats/Serialization/interface/Serializable.h"
@@ -14,7 +16,7 @@ public:
   void addParamObject(const DYTParamObject& obj) { m_paramObjs.push_back(obj); };
 
   // Set the parametrized formula
-  void setFormula(std::string formula) { m_formula = formula; };
+  void setFormula(std::string formula) { m_formula = std::move(formula); };
 
   // Get the list of parameters
   const std::vector<DYTParamObject>& getParamObjs() const { return m_paramObjs; };

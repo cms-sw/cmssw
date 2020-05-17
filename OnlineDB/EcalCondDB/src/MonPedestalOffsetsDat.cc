@@ -70,7 +70,7 @@ void MonPedestalOffsetsDat::writeDB(const EcalLogicID* ecid,
 
 void MonPedestalOffsetsDat::fetchData(std::map<EcalLogicID, MonPedestalOffsetsDat>* fillMap,
                                       MonRunIOV* iov,
-                                      std::string mappa) noexcept(false) {
+                                      const std::string& mappa) noexcept(false) {
   this->checkConnection();
   fillMap->clear();
 
@@ -143,8 +143,8 @@ void MonPedestalOffsetsDat::writeArrayDB(const std::map<EcalLogicID, MonPedestal
   const MonPedestalOffsetsDat* dataitem;
   int count = 0;
   typedef map<EcalLogicID, MonPedestalOffsetsDat>::const_iterator CI;
-  for (CI p = data->begin(); p != data->end(); ++p) {
-    channel = &(p->first);
+  for (const auto& p : *data) {
+    channel = &(p.first);
     int logicID = channel->getLogicID();
     if (!logicID) {
       throw(std::runtime_error("MonPedestalOffsetsDat::writeArrayDB:  Bad EcalLogicID"));
@@ -152,7 +152,7 @@ void MonPedestalOffsetsDat::writeArrayDB(const std::map<EcalLogicID, MonPedestal
     ids[count] = logicID;
     iovid_vec[count] = iovID;
 
-    dataitem = &(p->second);
+    dataitem = &(p.second);
     // dataIface.writeDB( channel, dataitem, iov);
     float x = dataitem->getDACG1();
     float y = dataitem->getDACG6();

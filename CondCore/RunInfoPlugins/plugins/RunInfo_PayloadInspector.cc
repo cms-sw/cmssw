@@ -83,8 +83,8 @@ namespace {
       canvas.Modified();
       canvas.SetGrid();
 
-      auto h2_RunInfoParameters = std::unique_ptr<TH2F>(new TH2F("Parameters", "", 1, 0.0, 1.0, 11, 0, 11.));
-      auto h2_RunInfoState = std::unique_ptr<TH2F>(new TH2F("State", "", 1, 0.0, 1.0, 11, 0, 11.));
+      auto h2_RunInfoParameters = std::make_unique<TH2F>("Parameters", "", 1, 0.0, 1.0, 11, 0, 11.);
+      auto h2_RunInfoState = std::make_unique<TH2F>("State", "", 1, 0.0, 1.0, 11, 0, 11.);
       h2_RunInfoParameters->SetStats(false);
       h2_RunInfoState->SetStats(false);
 
@@ -128,7 +128,7 @@ namespace {
 
       unsigned int yBin = 11;
       for (int foo = RunInfoPI::m_run; foo != RunInfoPI::END_OF_TYPES; foo++) {
-        RunInfoPI::parameters param = static_cast<RunInfoPI::parameters>(foo);
+        auto param = static_cast<RunInfoPI::parameters>(foo);
         std::string theLabel = RunInfoPI::getStringFromTypeEnum(param);
         h2_RunInfoState->GetYaxis()->SetBinLabel(yBin, theLabel.c_str());
         h2_RunInfoParameters->GetYaxis()->SetBinLabel(yBin, theLabel.c_str());

@@ -89,7 +89,7 @@ DD4hep_VolumeBasedMagneticFieldESProducerFromDB::DD4hep_VolumeBasedMagneticField
         this, &DD4hep_VolumeBasedMagneticFieldESProducerFromDB::chooseConfigAtRuntime, edm::es::Label(myConfigLabel))
         .setMayConsume(
             mayGetConfigToken_,
-            [](auto const& iGet, edm::ESTransientHandle<RunInfo> iHandle) {
+            [](auto const& iGet, const edm::ESTransientHandle<RunInfo>& iHandle) {
               auto const label = closerNominalLabel(iHandle->m_avg_current);
               edm::LogInfo("MagneticField") << "Current :" << iHandle->m_avg_current
                                             << " (from RunInfo DB); using map configuration with label: " << label;
@@ -114,7 +114,7 @@ DD4hep_VolumeBasedMagneticFieldESProducerFromDB::DD4hep_VolumeBasedMagneticField
   setWhatProduced(this, label)
       .setMayConsume(
           mayConsumeBlobToken_,
-          [](auto const& iGet, edm::ESTransientHandle<MagFieldConfig> iConfig) {
+          [](auto const& iGet, const edm::ESTransientHandle<MagFieldConfig>& iConfig) {
             if (iConfig->version == "parametrizedMagneticField") {
               return iGet.nothing();
             }

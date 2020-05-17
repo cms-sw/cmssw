@@ -179,12 +179,10 @@ void ValidationHcalIsoTrackAlCaReco::analyze(const edm::Event& iEvent, const edm
     hl3AbsEta->Fill(fabs(TObj.eta()), 1);
     hl3phi->Fill(TObj.phi(), 1);
 
-    if (recoIsoTracks->size() > 0) {
+    if (!recoIsoTracks->empty()) {
       double minRecoL3dist = 1000;
       reco::IsolatedPixelTrackCandidateCollection::const_iterator mrtr;
-      for (reco::IsolatedPixelTrackCandidateCollection::const_iterator rtrit = recoIsoTracks->begin();
-           rtrit != recoIsoTracks->end();
-           rtrit++) {
+      for (auto rtrit = recoIsoTracks->begin(); rtrit != recoIsoTracks->end(); rtrit++) {
         double R = getDist(rtrit->eta(), rtrit->phi(), TObj.eta(), TObj.phi());
         if (R < minRecoL3dist) {
           mrtr = rtrit;
@@ -202,44 +200,42 @@ void ValidationHcalIsoTrackAlCaReco::analyze(const edm::Event& iEvent, const edm
   }
 
   //general distributions
-  for (reco::IsolatedPixelTrackCandidateCollection::const_iterator itr = recoIsoTracks->begin();
-       itr != recoIsoTracks->end();
-       itr++) {
+  for (const auto& itr : *recoIsoTracks) {
     bool match = false;
     for (unsigned int l = 0; l < trigEta.size(); l++) {
-      if (getDist(itr->eta(), itr->phi(), trigEta[l], trigPhi[l]) < 0.2)
+      if (getDist(itr.eta(), itr.phi(), trigEta[l], trigPhi[l]) < 0.2)
         match = true;
     }
     if (match && trig) {
-      hOffEtaFP->Fill(itr->eta(), 1);
-      hOffPhiFP->Fill(itr->phi(), 1);
+      hOffEtaFP->Fill(itr.eta(), 1);
+      hOffPhiFP->Fill(itr.phi(), 1);
     }
 
-    hOffEta->Fill(itr->eta(), 1);
-    hOffPhi->Fill(itr->phi(), 1);
+    hOffEta->Fill(itr.eta(), 1);
+    hOffPhi->Fill(itr.phi(), 1);
 
-    hOffAbsEta->Fill(fabs(itr->eta()), 1);
+    hOffAbsEta->Fill(fabs(itr.eta()), 1);
 
-    hDeposEcalInner->Fill(itr->energyIn(), 1);
-    hDeposEcalOuter->Fill(itr->energyOut(), 1);
+    hDeposEcalInner->Fill(itr.energyIn(), 1);
+    hDeposEcalOuter->Fill(itr.energyOut(), 1);
 
-    hTracksSumP->Fill(itr->sumPtPxl(), 1);
-    hTracksMaxP->Fill(itr->maxPtPxl(), 1);
+    hTracksSumP->Fill(itr.sumPtPxl(), 1);
+    hTracksMaxP->Fill(itr.maxPtPxl(), 1);
 
-    if (fabs(itr->eta()) < 0.5)
-      hOffP_0005->Fill(itr->p(), 1);
-    if (fabs(itr->eta()) > 0.5 && fabs(itr->eta()) < 1.0)
-      hOffP_0510->Fill(itr->p(), 1);
-    if (fabs(itr->eta()) > 1.0 && fabs(itr->eta()) < 1.5)
-      hOffP_1015->Fill(itr->p(), 1);
-    if (fabs(itr->eta()) < 1.5 && fabs(itr->eta()) < 2.0)
-      hOffP_1520->Fill(itr->p(), 1);
+    if (fabs(itr.eta()) < 0.5)
+      hOffP_0005->Fill(itr.p(), 1);
+    if (fabs(itr.eta()) > 0.5 && fabs(itr.eta()) < 1.0)
+      hOffP_0510->Fill(itr.p(), 1);
+    if (fabs(itr.eta()) > 1.0 && fabs(itr.eta()) < 1.5)
+      hOffP_1015->Fill(itr.p(), 1);
+    if (fabs(itr.eta()) < 1.5 && fabs(itr.eta()) < 2.0)
+      hOffP_1520->Fill(itr.p(), 1);
 
-    hOffP->Fill(itr->p(), 1);
+    hOffP->Fill(itr.p(), 1);
 
-    std::pair<int, int> TI = towerIndex(itr->eta(), itr->phi());
+    std::pair<int, int> TI = towerIndex(itr.eta(), itr.phi());
     hOccupancyFull->Fill(TI.first, TI.second, 1);
-    if (itr->p() > heLow_ && itr->p() < heUp_)
+    if (itr.p() > heLow_ && itr.p() < heUp_)
       hOccupancyHighEn->Fill(TI.first, TI.second, 1);
   }
 
@@ -250,10 +246,8 @@ void ValidationHcalIsoTrackAlCaReco::analyze(const edm::Event& iEvent, const edm
   edm::Handle<edm::SimTrackContainer> simTracks;
   iEvent.getByToken<edm::SimTrackContainer>(tok_simTrack_, simTracks);
 
-  for (reco::IsolatedPixelTrackCandidateCollection::const_iterator bll = recoIsoTracks->begin();
-       bll != recoIsoTracks->end();
-       bll++) {
-    std::cout << "ISO Pt " << bll->pt() << " P     " << bll->p() << " Eta " << bll->eta() << " Phi " << bll->phi()
+  for (const auto& bll : *recoIsoTracks) {
+    std::cout << "ISO Pt " << bll.pt() << " P     " << bll.p() << " Eta " << bll.eta() << " Phi " << bll.phi()
               << std::endl;
 
     double distanceMin = 1.;
@@ -266,50 +260,49 @@ void ValidationHcalIsoTrackAlCaReco::analyze(const edm::Event& iEvent, const edm
     double neuenm = 0.;
     int neun = 0;
 
-    for (edm::SimTrackContainer::const_iterator tracksCI = simTracks->begin(); tracksCI != simTracks->end();
-         tracksCI++) {
-      int partIndex = tracksCI->genpartIndex();
-      if (tracksCI->momentum().eta() > (bll->eta() - 0.1) && tracksCI->momentum().eta() < (bll->eta() + 0.1) &&
-          tracksCI->momentum().phi() > (bll->phi() - 0.1) &&
-          tracksCI->momentum().phi() < (bll->phi() + 0.1)
+    for (const auto& tracksCI : *simTracks) {
+      int partIndex = tracksCI.genpartIndex();
+      if (tracksCI.momentum().eta() > (bll.eta() - 0.1) && tracksCI.momentum().eta() < (bll.eta() + 0.1) &&
+          tracksCI.momentum().phi() > (bll.phi() - 0.1) &&
+          tracksCI.momentum().phi() < (bll.phi() + 0.1)
           //	   && tracksCI->momentum().e() > (0.5*bll->p())
           //	   && tracksCI->momentum().e() < (2.*bll->p())
-          && tracksCI->momentum().e() > 2. && fabs(tracksCI->charge()) == 1 && partIndex > 0) {
-        double distance = getDist(tracksCI->momentum().eta(), tracksCI->momentum().phi(), bll->eta(), bll->phi());
-        double distanceCM = getDistInCM(tracksCI->momentum().eta(), tracksCI->momentum().phi(), bll->eta(), bll->phi());
+          && tracksCI.momentum().e() > 2. && fabs(tracksCI.charge()) == 1 && partIndex > 0) {
+        double distance = getDist(tracksCI.momentum().eta(), tracksCI.momentum().phi(), bll.eta(), bll.phi());
+        double distanceCM = getDistInCM(tracksCI.momentum().eta(), tracksCI.momentum().phi(), bll.eta(), bll.phi());
 
         if (distanceMin > distance) {
           distanceMin = distance;
-          SimPtMatched = tracksCI->momentum().pt();
-          SimPhiMatched = tracksCI->momentum().phi();
-          SimEtaMatched = tracksCI->momentum().eta();
+          SimPtMatched = tracksCI.momentum().pt();
+          SimPhiMatched = tracksCI.momentum().phi();
+          SimEtaMatched = tracksCI.momentum().eta();
           SimDistMatched = distance;
-          SimPMatched = sqrt(tracksCI->momentum().pt() * tracksCI->momentum().pt() +
-                             tracksCI->momentum().pz() * tracksCI->momentum().pz());
+          SimPMatched = sqrt(tracksCI.momentum().pt() * tracksCI.momentum().pt() +
+                             tracksCI.momentum().pz() * tracksCI.momentum().pz());
         }
 
-        std::cout << "    Pt " << tracksCI->momentum().pt() << " Energy " << tracksCI->momentum().e() << " Eta "
-                  << tracksCI->momentum().eta() << " Phi " << tracksCI->momentum().phi() << " Ind " << partIndex
-                  << " Cha " << tracksCI->charge() << " Dis " << distance << " DCM " << distanceCM << std::endl;
+        std::cout << "    Pt " << tracksCI.momentum().pt() << " Energy " << tracksCI.momentum().e() << " Eta "
+                  << tracksCI.momentum().eta() << " Phi " << tracksCI.momentum().phi() << " Ind " << partIndex
+                  << " Cha " << tracksCI.charge() << " Dis " << distance << " DCM " << distanceCM << std::endl;
       }
 
-      if (tracksCI->momentum().eta() > (bll->eta() - 0.5) && tracksCI->momentum().eta() < (bll->eta() + 0.5) &&
-          tracksCI->momentum().phi() > (bll->phi() - 0.5) &&
-          tracksCI->momentum().phi() < (bll->phi() + 0.5)
+      if (tracksCI.momentum().eta() > (bll.eta() - 0.5) && tracksCI.momentum().eta() < (bll.eta() + 0.5) &&
+          tracksCI.momentum().phi() > (bll.phi() - 0.5) &&
+          tracksCI.momentum().phi() < (bll.phi() + 0.5)
           //	   && tracksCI->momentum().e() > 2.
-          && tracksCI->charge() == 0 && partIndex > 0) {
-        double distance = getDist(tracksCI->momentum().eta(), tracksCI->momentum().phi(), bll->eta(), bll->phi());
-        double distanceCM = getDistInCM(tracksCI->momentum().eta(), tracksCI->momentum().phi(), bll->eta(), bll->phi());
+          && tracksCI.charge() == 0 && partIndex > 0) {
+        double distance = getDist(tracksCI.momentum().eta(), tracksCI.momentum().phi(), bll.eta(), bll.phi());
+        double distanceCM = getDistInCM(tracksCI.momentum().eta(), tracksCI.momentum().phi(), bll.eta(), bll.phi());
 
-        std::cout << "NEU Pt " << tracksCI->momentum().pt() << " Energy " << tracksCI->momentum().e() << " Eta "
-                  << tracksCI->momentum().eta() << " Phi " << tracksCI->momentum().phi() << " Ind " << partIndex
-                  << " Cha " << tracksCI->charge() << " Dis " << distance << " DCM " << distanceCM << std::endl;
+        std::cout << "NEU Pt " << tracksCI.momentum().pt() << " Energy " << tracksCI.momentum().e() << " Eta "
+                  << tracksCI.momentum().eta() << " Phi " << tracksCI.momentum().phi() << " Ind " << partIndex
+                  << " Cha " << tracksCI.charge() << " Dis " << distance << " DCM " << distanceCM << std::endl;
 
         if (distanceCM < 40.) {
-          neuen = neuen + tracksCI->momentum().e();
+          neuen = neuen + tracksCI.momentum().e();
           neun = neun + 1;
-          if (neuenm < tracksCI->momentum().e())
-            neuenm = tracksCI->momentum().e();
+          if (neuenm < tracksCI.momentum().e())
+            neuenm = tracksCI.momentum().e();
         }
       }
     }
@@ -324,7 +317,7 @@ void ValidationHcalIsoTrackAlCaReco::analyze(const edm::Event& iEvent, const edm
       hSimEta->Fill(SimEtaMatched, 1);
       hSimAbsEta->Fill(fabs(SimEtaMatched), 1);
       hSimDist->Fill(SimDistMatched, 1);
-      hSimPtRatOff->Fill(SimPtMatched / bll->pt(), 1);
+      hSimPtRatOff->Fill(SimPtMatched / bll.pt(), 1);
       hSimP->Fill(SimPMatched, 1);
       hSimN->Fill(1, 1);
 

@@ -16,8 +16,8 @@ namespace edmtest {
   public:
     explicit DTT0Print(edm::ParameterSet const& p);
     explicit DTT0Print(int i);
-    virtual ~DTT0Print();
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    ~DTT0Print() override;
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   private:
   };

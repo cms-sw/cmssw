@@ -11,7 +11,7 @@ namespace reco {
     // determine decay mode
     unsigned int nCharged = chargedPions_.numberOfDaughters();
     unsigned int nNeutral = piZeroes_.numberOfDaughters();
-    hadronicTauDecayModes hadronicTauDecayIndex =
+    auto hadronicTauDecayIndex =
         static_cast<hadronicTauDecayModes>(((nCharged - 1) * (maxNumberOfPiZeroCandidatesAllowed + 1) + nNeutral));
     if (nNeutral > maxNumberOfPiZeroCandidatesAllowed)
       hadronicTauDecayIndex = static_cast<hadronicTauDecayModes>(tauDecayOther);

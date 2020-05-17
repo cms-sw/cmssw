@@ -23,7 +23,9 @@ const double defaultScaleFactor = 1.;
 
 const int verbosity = 0;
 
-void mapSubDirectoryStructure(TDirectory* directory, std::string directoryName, std::set<std::string>& subDirectories) {
+void mapSubDirectoryStructure(TDirectory* directory,
+                              const std::string& directoryName,
+                              std::set<std::string>& subDirectories) {
   //std::cout << "<mapSubDirectoryStructure>:" << std::endl;
   //std::cout << " directoryName = " << directoryName << std::endl;
 
@@ -57,27 +59,27 @@ TauDQMFileLoader::cfgEntryFileSet::cfgEntryFileSet(const std::string& name, cons
   name_ = name;
 
   vstring inputFileList = cfg.getParameter<vstring>("inputFileNames");
-  for (vstring::const_iterator inputFile = inputFileList.begin(); inputFile != inputFileList.end(); ++inputFile) {
-    if (inputFile->find(rangeKeyword) != std::string::npos) {
-      size_t posRangeStart = inputFile->find(rangeKeyword) + rangeKeyword.length();
-      size_t posRangeEnd = inputFile->find('#', posRangeStart);
+  for (const auto& inputFile : inputFileList) {
+    if (inputFile.find(rangeKeyword) != std::string::npos) {
+      size_t posRangeStart = inputFile.find(rangeKeyword) + rangeKeyword.length();
+      size_t posRangeEnd = inputFile.find('#', posRangeStart);
 
-      size_t posRangeSeparator = inputFile->find('-', posRangeStart);
+      size_t posRangeSeparator = inputFile.find('-', posRangeStart);
 
       if ((posRangeEnd == std::string::npos) || (posRangeSeparator >= posRangeEnd)) {
         edm::LogError("TauDQMFileLoader::cfgEntryFileSet")
-            << " Invalid range specification in inputFile = " << (*inputFile) << " !!";
+            << " Invalid range specification in inputFile = " << inputFile << " !!";
         continue;
       }
 
-      std::string firstFile = std::string(*inputFile, posRangeStart, posRangeSeparator - posRangeStart);
+      std::string firstFile = std::string(inputFile, posRangeStart, posRangeSeparator - posRangeStart);
       //std::cout << "firstFile = " << firstFile << std::endl;
-      std::string lastFile = std::string(*inputFile, posRangeSeparator + 1, posRangeEnd - (posRangeSeparator + 1));
+      std::string lastFile = std::string(inputFile, posRangeSeparator + 1, posRangeEnd - (posRangeSeparator + 1));
       //std::cout << "lastFile = " << lastFile << std::endl;
 
       if (firstFile.length() != lastFile.length()) {
         edm::LogError("TauDQMFileLoader::cfgEntryFileSet")
-            << " Invalid range specification in inputFile = " << (*inputFile) << " !!";
+            << " Invalid range specification in inputFile = " << inputFile << " !!";
         continue;
       }
 
@@ -85,14 +87,14 @@ TauDQMFileLoader::cfgEntryFileSet::cfgEntryFileSet(const std::string& name, cons
       int numLastFile = atoi(lastFile.data());
       for (int iFile = numFirstFile; iFile <= numLastFile; ++iFile) {
         std::ostringstream fileName;
-        fileName << std::string(*inputFile, 0, inputFile->find(rangeKeyword));
+        fileName << std::string(inputFile, 0, inputFile.find(rangeKeyword));
         fileName << std::setfill('0') << std::setw(firstFile.length()) << iFile;
-        fileName << std::string(*inputFile, posRangeEnd + 1);
+        fileName << std::string(inputFile, posRangeEnd + 1);
         //std::cout << "iFile = " << iFile << ", fileName = " << fileName.str() << std::endl;
         inputFileNames_.push_back(fileName.str());
       }
     } else {
-      inputFileNames_.push_back(*inputFile);
+      inputFileNames_.push_back(inputFile);
     }
   }
 
@@ -130,8 +132,7 @@ TauDQMFileLoader::TauDQMFileLoader(const edm::ParameterSet& cfg) {
   //    unless there is only one fileSet to be loaded
   //    (otherwise histograms of different fileSets get overwritten,
   //     once histograms of the next fileSet are loaded)
-  for (std::map<std::string, cfgEntryFileSet>::const_iterator fileSet = fileSets_.begin(); fileSet != fileSets_.end();
-       ++fileSet) {
+  for (auto fileSet = fileSets_.begin(); fileSet != fileSets_.end(); ++fileSet) {
     if (fileSet->second.dqmDirectory_store_.empty() && fileSets_.size() > 1) {
       edm::LogError("TauDQMFileLoader") << " dqmDirectory_store undefined for fileSet = " << fileSet->second.name_
                                         << " !!";
@@ -175,15 +176,12 @@ void TauDQMFileLoader::endRun(const edm::Run& r, const edm::EventSetup& c) {
   //    store list of directories existing in inputFile,
   //    in order to separate histogram directories existing in the inputFile from directories existing in DQMStore
   //    when calling recursive function dqmCopyRecursively
-  for (std::map<std::string, cfgEntryFileSet>::const_iterator fileSet = fileSets_.begin(); fileSet != fileSets_.end();
-       ++fileSet) {
-    for (vstring::const_iterator inputFileName = fileSet->second.inputFileNames_.begin();
-         inputFileName != fileSet->second.inputFileNames_.end();
-         ++inputFileName) {
+  for (auto fileSet = fileSets_.begin(); fileSet != fileSets_.end(); ++fileSet) {
+    for (const auto& inputFileName : fileSet->second.inputFileNames_) {
       //std::cout << " checking inputFile = " << (*inputFileName) << std::endl;
-      TFile inputFile(inputFileName->data());
+      TFile inputFile(inputFileName.data());
       if (inputFile.IsZombie()) {
-        edm::LogError("endJob") << " Failed to open inputFile = " << (*inputFileName)
+        edm::LogError("endJob") << " Failed to open inputFile = " << inputFileName
                                 << "--> histograms will NOT be loaded !!";
         return;
       }
@@ -191,10 +189,10 @@ void TauDQMFileLoader::endRun(const edm::Run& r, const edm::EventSetup& c) {
       TObject* obj = inputFile.Get(dqmRootDirectory_inTFile.data());
       //std::cout << " obj = " << obj << std::endl;
       if (TDirectory* directory = dynamic_cast<TDirectory*>(obj)) {
-        mapSubDirectoryStructure(directory, dqmRootDirectory, subDirectoryMap_[*inputFileName]);
+        mapSubDirectoryStructure(directory, dqmRootDirectory, subDirectoryMap_[inputFileName]);
       } else {
         edm::LogError("endJob") << " Failed to access " << dqmRootDirectory_inTFile
-                                << " in inputFile = " << (*inputFileName) << "--> histograms will NOT be loaded !!";
+                                << " in inputFile = " << inputFileName << "--> histograms will NOT be loaded !!";
         return;
       }
 
@@ -214,9 +212,8 @@ void TauDQMFileLoader::endRun(const edm::Run& r, const edm::EventSetup& c) {
   //--- load histograms from file
   //std::cout << "--> loading histograms from file..." << std::endl;
   DQMStore& dqmStore = (*edm::Service<DQMStore>());
-  for (std::map<std::string, cfgEntryFileSet>::const_iterator fileSet = fileSets_.begin(); fileSet != fileSets_.end();
-       ++fileSet) {
-    for (vstring::const_iterator inputFileName = fileSet->second.inputFileNames_.begin();
+  for (auto fileSet = fileSets_.begin(); fileSet != fileSets_.end(); ++fileSet) {
+    for (auto inputFileName = fileSet->second.inputFileNames_.begin();
          inputFileName != fileSet->second.inputFileNames_.end();
          ++inputFileName) {
       if (verbosity)
@@ -236,9 +233,8 @@ void TauDQMFileLoader::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
         dqmStore.setCurrentFolder(inputDirectory);
         std::vector<std::string> dirNames = dqmStore.getSubdirs();
-        for (std::vector<std::string>::const_iterator dirName = dirNames.begin(); dirName != dirNames.end();
-             ++dirName) {
-          std::string subDirName = dqmSubDirectoryName_merged(inputDirectory, *dirName);
+        for (const auto& dirName : dirNames) {
+          std::string subDirName = dqmSubDirectoryName_merged(inputDirectory, dirName);
           //std::cout << " subDirName = " << subDirName << std::endl;
 
           const sstring& subDirectories = subDirectoryMap_[*inputFileName];

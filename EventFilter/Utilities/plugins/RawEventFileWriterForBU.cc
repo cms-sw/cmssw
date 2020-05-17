@@ -223,7 +223,7 @@ void RawEventFileWriterForBU::finishFileWrite(int ls) {
     write(outfd_, (char*)&frdFileHeader, sizeof(FRDFileHeader_v1));
     closefd();
     //move raw file from open to run directory
-    rename(fileName_.c_str(), (destinationDir_ + fileName_.substr(fileName_.rfind("/"))).c_str());
+    rename(fileName_.c_str(), (destinationDir_ + fileName_.substr(fileName_.rfind('/'))).c_str());
 
     edm::LogInfo("RawEventFileWriterForBU")
         << "Wrote RAW input file: " << fileName_ << " with perFileEventCount = " << perFileEventCount_.value()
@@ -231,7 +231,7 @@ void RawEventFileWriterForBU::finishFileWrite(int ls) {
   } else {
     closefd();
     //move raw file from open to run directory
-    rename(fileName_.c_str(), (destinationDir_ + fileName_.substr(fileName_.rfind("/"))).c_str());
+    rename(fileName_.c_str(), (destinationDir_ + fileName_.substr(fileName_.rfind('/'))).c_str());
     //create equivalent JSON file
     //TODO:fix this to use DaqDirector convention and better extension replace
     boost::filesystem::path source(fileName_);
@@ -242,7 +242,7 @@ void RawEventFileWriterForBU::finishFileWrite(int ls) {
     fileMon_->discardCollected(ls);
 
     //move the json file from open
-    rename(path.c_str(), (destinationDir_ + path.substr(path.rfind("/"))).c_str());
+    rename(path.c_str(), (destinationDir_ + path.substr(path.rfind('/'))).c_str());
 
     edm::LogInfo("RawEventFileWriterForBU")
         << "Wrote JSON input file: " << path << " with perFileEventCount = " << perFileEventCount_.value()

@@ -20,7 +20,7 @@ public:
 
   using TransientTrackingRecHitBuilder::build;
   /// Call the MTDTransientTrackingRecHit::specificBuild
-  RecHitPointer build(const TrackingRecHit* p, edm::ESHandle<GlobalTrackingGeometry> trackingGeometry) const;
+  RecHitPointer build(const TrackingRecHit* p, const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry) const;
 
   RecHitPointer build(const TrackingRecHit* p) const override;
 

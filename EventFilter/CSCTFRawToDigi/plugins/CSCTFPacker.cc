@@ -78,7 +78,7 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c) {
        csc++) {
     CSCCorrelatedLCTDigiCollection::Range range1 = corrlcts.product()->get((*csc).first);
     int lctId = 0;
-    for (CSCCorrelatedLCTDigiCollection::const_iterator lct = range1.first; lct != range1.second; lct++, lctId++) {
+    for (auto lct = range1.first; lct != range1.second; lct++, lctId++) {
       int station = (*csc).first.station() - 1;
       int cscId = (*csc).first.triggerCscId() - 1;
       int sector = (*csc).first.triggerSector() - 1 + ((*csc).first.endcap() == 1 ? 0 : 6);
@@ -159,24 +159,24 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c) {
     e.getByToken(CSCTC_Tok, barrelStubs);
     if (barrelStubs.isValid()) {
       std::vector<csctf::TrackStub> stubs = barrelStubs.product()->get();
-      for (std::vector<csctf::TrackStub>::const_iterator dt = stubs.begin(); dt != stubs.end(); dt++) {
-        int sector = dt->sector() - 1 + (dt->endcap() == 1 ? 0 : 6);
-        int subSector = dt->subsector() - 1;
-        int tbin = dt->getBX() - (central_lct_bx - central_sp_bx);  // Shift back to hardware BX window definition
+      for (const auto& stub : stubs) {
+        int sector = stub.sector() - 1 + (stub.endcap() == 1 ? 0 : 6);
+        int subSector = stub.subsector() - 1;
+        int tbin = stub.getBX() - (central_lct_bx - central_sp_bx);  // Shift back to hardware BX window definition
         if (tbin < 0 || tbin > 6 || sector < 0 || sector > 11 || subSector < 0 || subSector > 11) {
           edm::LogInfo("CSCTFPacker: CSC DT digi are out of range: ")
               << " sector=" << sector << "  subSector=" << subSector << "  tbin=" << tbin;
           continue;
         }
-        mbDataRecord[sector][subSector][tbin].quality_ = dt->getQuality();
-        mbDataRecord[sector][subSector][tbin].phi_bend_ = dt->getBend();
-        mbDataRecord[sector][subSector][tbin].flag_ = dt->getStrip();
-        mbDataRecord[sector][subSector][tbin].cal_ = dt->getKeyWG();
-        mbDataRecord[sector][subSector][tbin].phi_ = dt->phiPacked();
-        mbDataRecord[sector][subSector][tbin].bxn1_ = (dt->getBX0() >> 1) & 0x1;
-        mbDataRecord[sector][subSector][tbin].bxn0_ = dt->getBX0() & 0x1;
-        mbDataRecord[sector][subSector][tbin].bc0_ = dt->getPattern();
-        mbDataRecord[sector][subSector][tbin].mb_bxn_ = dt->getCSCID();
+        mbDataRecord[sector][subSector][tbin].quality_ = stub.getQuality();
+        mbDataRecord[sector][subSector][tbin].phi_bend_ = stub.getBend();
+        mbDataRecord[sector][subSector][tbin].flag_ = stub.getStrip();
+        mbDataRecord[sector][subSector][tbin].cal_ = stub.getKeyWG();
+        mbDataRecord[sector][subSector][tbin].phi_ = stub.phiPacked();
+        mbDataRecord[sector][subSector][tbin].bxn1_ = (stub.getBX0() >> 1) & 0x1;
+        mbDataRecord[sector][subSector][tbin].bxn0_ = stub.getBX0() & 0x1;
+        mbDataRecord[sector][subSector][tbin].bc0_ = stub.getPattern();
+        mbDataRecord[sector][subSector][tbin].mb_bxn_ = stub.getCSCID();
         switch (subSector) {
           case 0:
             meDataHeader[sector][tbin].vq_a = 1;
@@ -188,7 +188,7 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c) {
             edm::LogInfo("CSCTFPacker: subSector=") << subSector;
             break;
         }
-        mbDataRecord[sector][subSector][tbin].id_ = dt->getMPCLink();  // for later use
+        mbDataRecord[sector][subSector][tbin].id_ = stub.getMPCLink();  // for later use
       }
     }
   }
@@ -202,9 +202,9 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c) {
   if (trackProducer.label() != "null") {
     e.getByToken(L1CSCTr_Tok, tracks);
 
-    for (L1CSCTrackCollection::const_iterator trk = tracks->begin(); trk != tracks->end(); trk++) {
-      int sector = 6 * (trk->first.endcap() - 1) + trk->first.sector() - 1;
-      int tbin = trk->first.BX() + central_sp_bx;  // Shift back to hardware BX window definition
+    for (const auto& trk : *tracks) {
+      int sector = 6 * (trk.first.endcap() - 1) + trk.first.sector() - 1;
+      int tbin = trk.first.BX() + central_sp_bx;  // Shift back to hardware BX window definition
       //std::cout<<"Track["<<nTrk[sector][tbin]<<"]  sector: "<<sector<<" tbin: "<<tbin<<std::endl;
       if (tbin > 6 || tbin < 0) {
         edm::LogError("CSCTFPacker|analyze") << " Track's BX=" << tbin << " is out of 0-6 window";
@@ -214,35 +214,35 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c) {
         edm::LogError("CSCTFPacker|analyze") << " Track's sector=" << sector << " is out of range";
         continue;
       }
-      spDataRecord[sector][tbin][nTrk[sector][tbin]].phi_ = trk->first.localPhi();
-      spDataRecord[sector][tbin][nTrk[sector][tbin]].sign_ = (trk->first.ptLUTAddress() >> 20) & 0x1;
-      spDataRecord[sector][tbin][nTrk[sector][tbin]].front_rear = trk->first.front_rear();
-      spDataRecord[sector][tbin][nTrk[sector][tbin]].charge_ = trk->first.charge_packed();  //
-      spDataRecord[sector][tbin][nTrk[sector][tbin]].eta_ = trk->first.eta_packed();
+      spDataRecord[sector][tbin][nTrk[sector][tbin]].phi_ = trk.first.localPhi();
+      spDataRecord[sector][tbin][nTrk[sector][tbin]].sign_ = (trk.first.ptLUTAddress() >> 20) & 0x1;
+      spDataRecord[sector][tbin][nTrk[sector][tbin]].front_rear = trk.first.front_rear();
+      spDataRecord[sector][tbin][nTrk[sector][tbin]].charge_ = trk.first.charge_packed();  //
+      spDataRecord[sector][tbin][nTrk[sector][tbin]].eta_ = trk.first.eta_packed();
 
-      spDataRecord[sector][tbin][nTrk[sector][tbin]].halo_ = trk->first.finehalo_packed();
+      spDataRecord[sector][tbin][nTrk[sector][tbin]].halo_ = trk.first.finehalo_packed();
       spDataRecord[sector][tbin][nTrk[sector][tbin]].se = 0;  // dummy
-      spDataRecord[sector][tbin][nTrk[sector][tbin]].deltaPhi12_ = trk->first.ptLUTAddress() & 0xFF;
-      spDataRecord[sector][tbin][nTrk[sector][tbin]].deltaPhi23_ = (trk->first.ptLUTAddress() >> 8) & 0xF;
+      spDataRecord[sector][tbin][nTrk[sector][tbin]].deltaPhi12_ = trk.first.ptLUTAddress() & 0xFF;
+      spDataRecord[sector][tbin][nTrk[sector][tbin]].deltaPhi23_ = (trk.first.ptLUTAddress() >> 8) & 0xF;
       spDataRecord[sector][tbin][nTrk[sector][tbin]].bxn0_ = 0;  //dummy
       spDataRecord[sector][tbin][nTrk[sector][tbin]].bc0_ = 0;   //dummy
 
-      spDataRecord[sector][tbin][nTrk[sector][tbin]].me1_id = trk->first.me1ID();
-      spDataRecord[sector][tbin][nTrk[sector][tbin]].me2_id = trk->first.me2ID();
-      spDataRecord[sector][tbin][nTrk[sector][tbin]].me3_id = trk->first.me3ID();
-      spDataRecord[sector][tbin][nTrk[sector][tbin]].me4_id = trk->first.me4ID();
-      spDataRecord[sector][tbin][nTrk[sector][tbin]].mb_id = trk->first.mb1ID();
+      spDataRecord[sector][tbin][nTrk[sector][tbin]].me1_id = trk.first.me1ID();
+      spDataRecord[sector][tbin][nTrk[sector][tbin]].me2_id = trk.first.me2ID();
+      spDataRecord[sector][tbin][nTrk[sector][tbin]].me3_id = trk.first.me3ID();
+      spDataRecord[sector][tbin][nTrk[sector][tbin]].me4_id = trk.first.me4ID();
+      spDataRecord[sector][tbin][nTrk[sector][tbin]].mb_id = trk.first.mb1ID();
       spDataRecord[sector][tbin][nTrk[sector][tbin]].ms_id = 0;  // don't care winner()
 
       // Warning, digi copying was broken for <= CMSSW_3_8_x! The 5 lines of code below will give problems there:
-      spDataRecord[sector][tbin][nTrk[sector][tbin]].me1_tbin = trk->first.me1Tbin();
-      spDataRecord[sector][tbin][nTrk[sector][tbin]].me2_tbin = trk->first.me2Tbin();
-      spDataRecord[sector][tbin][nTrk[sector][tbin]].me3_tbin = trk->first.me3Tbin();
-      spDataRecord[sector][tbin][nTrk[sector][tbin]].me4_tbin = trk->first.me4Tbin();
-      spDataRecord[sector][tbin][nTrk[sector][tbin]].mb_tbin = trk->first.mb1Tbin();
+      spDataRecord[sector][tbin][nTrk[sector][tbin]].me1_tbin = trk.first.me1Tbin();
+      spDataRecord[sector][tbin][nTrk[sector][tbin]].me2_tbin = trk.first.me2Tbin();
+      spDataRecord[sector][tbin][nTrk[sector][tbin]].me3_tbin = trk.first.me3Tbin();
+      spDataRecord[sector][tbin][nTrk[sector][tbin]].me4_tbin = trk.first.me4Tbin();
+      spDataRecord[sector][tbin][nTrk[sector][tbin]].mb_tbin = trk.first.mb1Tbin();
       // As the MB stubs are not saved in simulation, we want to introduce an artificial ids
-      if (trk->first.mb1ID()) {
-        int subSector = (trk->first.mb1ID() - 1) % 2;
+      if (trk.first.mb1ID()) {
+        int subSector = (trk.first.mb1ID() - 1) % 2;
         int MBtbin = tbin - spDataRecord[sector][tbin][nTrk[sector][tbin]].mb_tbin;
         if (subSector < 0 || subSector > 1 || MBtbin < 0 || MBtbin > 7 || !mbDataRecord[sector][subSector][MBtbin].id_)
           spDataRecord[sector][tbin][nTrk[sector][tbin]].mb_id = (subSector ? 6 : 5);
@@ -252,13 +252,13 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c) {
       nTrk[sector][tbin]++;
       switch (nTrk[sector][tbin]) {
         case 1:
-          meDataHeader[sector][tbin].mode1 = (trk->first.ptLUTAddress() >> 16) & 0xF;
+          meDataHeader[sector][tbin].mode1 = (trk.first.ptLUTAddress() >> 16) & 0xF;
           break;
         case 2:
-          meDataHeader[sector][tbin].mode2 = (trk->first.ptLUTAddress() >> 16) & 0xF;
+          meDataHeader[sector][tbin].mode2 = (trk.first.ptLUTAddress() >> 16) & 0xF;
           break;
         case 3:
-          meDataHeader[sector][tbin].mode3 = (trk->first.ptLUTAddress() >> 16) & 0xF;
+          meDataHeader[sector][tbin].mode3 = (trk.first.ptLUTAddress() >> 16) & 0xF;
           break;
         default:
           edm::LogInfo("More than 3 tracks from one SP in the BX");

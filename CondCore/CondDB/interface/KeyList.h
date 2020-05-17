@@ -33,7 +33,7 @@ namespace cond {
     class KeyList {
     public:
       ///Called by PoolDBESSource
-      void init(IOVProxy iovProxy);
+      void init(const IOVProxy& iovProxy);
       void init(KeyList const&);
 
       /// determines which keys to use to read from the DB. Should only be used by PoolDBESSource

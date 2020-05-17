@@ -9,7 +9,7 @@
 
 using namespace std;
 
-ostream& pcenter(unsigned w, string s) {
+ostream& pcenter(unsigned w, const string& s) {
   int pad = ((int)w - (int)s.size()) / 2;
   //  if(pad<0) pad = 0;
   for (int i = 0; i < pad; ++i)

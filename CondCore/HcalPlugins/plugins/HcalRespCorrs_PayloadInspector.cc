@@ -18,13 +18,14 @@
 #include "TPaveStats.h"
 #include <string>
 #include <fstream>
+#include <utility>
 
 namespace {
 
   class HcalRespCorrContainer : public HcalObjRepresent::HcalDataContainer<HcalRespCorrs, HcalRespCorr> {
   public:
     HcalRespCorrContainer(std::shared_ptr<HcalRespCorrs> payload, unsigned int run)
-        : HcalObjRepresent::HcalDataContainer<HcalRespCorrs, HcalRespCorr>(payload, run) {}
+        : HcalObjRepresent::HcalDataContainer<HcalRespCorrs, HcalRespCorr>(std::move(payload), run) {}
     float getValue(HcalRespCorr* rCor) override { return rCor->getValue(); }
   };
 
@@ -41,7 +42,7 @@ namespace {
       auto iov = iovs.front();
       std::shared_ptr<HcalRespCorrs> payload = fetchPayload(std::get<1>(iov));
       if (payload.get()) {
-        HcalRespCorrContainer* objContainer = new HcalRespCorrContainer(payload, std::get<0>(iov));
+        auto* objContainer = new HcalRespCorrContainer(payload, std::get<0>(iov));
         std::string ImageName(m_imageFileName);
         objContainer->getCanvasAll()->SaveAs(ImageName.c_str());
         return true;
@@ -67,8 +68,8 @@ namespace {
       std::shared_ptr<HcalRespCorrs> payload2 = fetchPayload(std::get<1>(iov2));
 
       if (payload1.get() && payload2.get()) {
-        HcalRespCorrContainer* objContainer1 = new HcalRespCorrContainer(payload1, std::get<0>(iov1));
-        HcalRespCorrContainer* objContainer2 = new HcalRespCorrContainer(payload2, std::get<0>(iov2));
+        auto* objContainer1 = new HcalRespCorrContainer(payload1, std::get<0>(iov1));
+        auto* objContainer2 = new HcalRespCorrContainer(payload2, std::get<0>(iov2));
         objContainer2->Divide(objContainer1);
         std::string ImageName(m_imageFileName);
         objContainer2->getCanvasAll()->SaveAs(ImageName.c_str());
@@ -90,7 +91,7 @@ namespace {
       auto iov = iovs.front();
       std::shared_ptr<HcalRespCorrs> payload = fetchPayload(std::get<1>(iov));
       if (payload.get()) {
-        HcalRespCorrContainer* objContainer = new HcalRespCorrContainer(payload, std::get<0>(iov));
+        auto* objContainer = new HcalRespCorrContainer(payload, std::get<0>(iov));
         std::string ImageName(m_imageFileName);
         objContainer->getCanvasAll("EtaProfile")->SaveAs(ImageName.c_str());
         return true;
@@ -116,8 +117,8 @@ namespace {
       std::shared_ptr<HcalRespCorrs> payload2 = fetchPayload(std::get<1>(iov2));
 
       if (payload1.get() && payload2.get()) {
-        HcalRespCorrContainer* objContainer1 = new HcalRespCorrContainer(payload1, std::get<0>(iov1));
-        HcalRespCorrContainer* objContainer2 = new HcalRespCorrContainer(payload2, std::get<0>(iov2));
+        auto* objContainer1 = new HcalRespCorrContainer(payload1, std::get<0>(iov1));
+        auto* objContainer2 = new HcalRespCorrContainer(payload2, std::get<0>(iov2));
         objContainer2->Divide(objContainer1);
         std::string ImageName(m_imageFileName);
         objContainer2->getCanvasAll("EtaProfile")->SaveAs(ImageName.c_str());
@@ -139,7 +140,7 @@ namespace {
       auto iov = iovs.front();
       std::shared_ptr<HcalRespCorrs> payload = fetchPayload(std::get<1>(iov));
       if (payload.get()) {
-        HcalRespCorrContainer* objContainer = new HcalRespCorrContainer(payload, std::get<0>(iov));
+        auto* objContainer = new HcalRespCorrContainer(payload, std::get<0>(iov));
         std::string ImageName(m_imageFileName);
         objContainer->getCanvasAll("PhiProfile")->SaveAs(ImageName.c_str());
         return true;
@@ -165,8 +166,8 @@ namespace {
       std::shared_ptr<HcalRespCorrs> payload2 = fetchPayload(std::get<1>(iov2));
 
       if (payload1.get() && payload2.get()) {
-        HcalRespCorrContainer* objContainer1 = new HcalRespCorrContainer(payload1, std::get<0>(iov1));
-        HcalRespCorrContainer* objContainer2 = new HcalRespCorrContainer(payload2, std::get<0>(iov2));
+        auto* objContainer1 = new HcalRespCorrContainer(payload1, std::get<0>(iov1));
+        auto* objContainer2 = new HcalRespCorrContainer(payload2, std::get<0>(iov2));
         objContainer2->Divide(objContainer1);
         std::string ImageName(m_imageFileName);
         objContainer2->getCanvasAll("PhiProfile")->SaveAs(ImageName.c_str());
@@ -188,7 +189,7 @@ namespace {
       auto iov = iovs.front();
       std::shared_ptr<HcalRespCorrs> payload = fetchPayload(std::get<1>(iov));
       if (payload.get()) {
-        HcalRespCorrContainer* objContainer = new HcalRespCorrContainer(payload, std::get<0>(iov));
+        auto* objContainer = new HcalRespCorrContainer(payload, std::get<0>(iov));
         std::string ImageName(m_imageFileName);
         objContainer->getCanvasHBHO()->SaveAs(ImageName.c_str());
         return true;
@@ -214,8 +215,8 @@ namespace {
       std::shared_ptr<HcalRespCorrs> payload2 = fetchPayload(std::get<1>(iov2));
 
       if (payload1.get() && payload2.get()) {
-        HcalRespCorrContainer* objContainer1 = new HcalRespCorrContainer(payload1, std::get<0>(iov1));
-        HcalRespCorrContainer* objContainer2 = new HcalRespCorrContainer(payload2, std::get<0>(iov2));
+        auto* objContainer1 = new HcalRespCorrContainer(payload1, std::get<0>(iov1));
+        auto* objContainer2 = new HcalRespCorrContainer(payload2, std::get<0>(iov2));
         objContainer2->Divide(objContainer1);
         std::string ImageName(m_imageFileName);
         objContainer2->getCanvasHBHO()->SaveAs(ImageName.c_str());
@@ -237,7 +238,7 @@ namespace {
       auto iov = iovs.front();
       std::shared_ptr<HcalRespCorrs> payload = fetchPayload(std::get<1>(iov));
       if (payload.get()) {
-        HcalRespCorrContainer* objContainer = new HcalRespCorrContainer(payload, std::get<0>(iov));
+        auto* objContainer = new HcalRespCorrContainer(payload, std::get<0>(iov));
         std::string ImageName(m_imageFileName);
         objContainer->getCanvasHE()->SaveAs(ImageName.c_str());
         return true;
@@ -263,8 +264,8 @@ namespace {
       std::shared_ptr<HcalRespCorrs> payload2 = fetchPayload(std::get<1>(iov2));
 
       if (payload1.get() && payload2.get()) {
-        HcalRespCorrContainer* objContainer1 = new HcalRespCorrContainer(payload1, std::get<0>(iov1));
-        HcalRespCorrContainer* objContainer2 = new HcalRespCorrContainer(payload2, std::get<0>(iov2));
+        auto* objContainer1 = new HcalRespCorrContainer(payload1, std::get<0>(iov1));
+        auto* objContainer2 = new HcalRespCorrContainer(payload2, std::get<0>(iov2));
         objContainer2->Divide(objContainer1);
         std::string ImageName(m_imageFileName);
         objContainer2->getCanvasHE()->SaveAs(ImageName.c_str());
@@ -286,7 +287,7 @@ namespace {
       auto iov = iovs.front();
       std::shared_ptr<HcalRespCorrs> payload = fetchPayload(std::get<1>(iov));
       if (payload.get()) {
-        HcalRespCorrContainer* objContainer = new HcalRespCorrContainer(payload, std::get<0>(iov));
+        auto* objContainer = new HcalRespCorrContainer(payload, std::get<0>(iov));
         std::string ImageName(m_imageFileName);
         objContainer->getCanvasHF()->SaveAs(ImageName.c_str());
         return true;
@@ -312,8 +313,8 @@ namespace {
       std::shared_ptr<HcalRespCorrs> payload2 = fetchPayload(std::get<1>(iov2));
 
       if (payload1.get() && payload2.get()) {
-        HcalRespCorrContainer* objContainer1 = new HcalRespCorrContainer(payload1, std::get<0>(iov1));
-        HcalRespCorrContainer* objContainer2 = new HcalRespCorrContainer(payload2, std::get<0>(iov2));
+        auto* objContainer1 = new HcalRespCorrContainer(payload1, std::get<0>(iov1));
+        auto* objContainer2 = new HcalRespCorrContainer(payload2, std::get<0>(iov2));
         objContainer2->Divide(objContainer1);
         std::string ImageName(m_imageFileName);
         objContainer2->getCanvasHF()->SaveAs(ImageName.c_str());

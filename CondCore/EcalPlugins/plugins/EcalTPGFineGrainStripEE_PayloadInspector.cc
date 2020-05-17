@@ -51,10 +51,10 @@ namespace {
 
       uint32_t rawEE[NTCC][NTower][NStrip][NXtal];
       int NbrawEE[NTCC][NTower][NStrip];
-      for (int TCC = 0; TCC < NTCC; TCC++)
+      for (auto& TCC : NbrawEE)
         for (int TT = 0; TT < NTower; TT++)
           for (int ST = 0; ST < NStrip; ST++)
-            NbrawEE[TCC][TT][ST] = 0;
+            TCC[TT][ST] = 0;
 
       while (!f.eof()) {
         int ix, iy, iz, CL;

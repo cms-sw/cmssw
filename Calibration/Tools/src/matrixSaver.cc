@@ -41,7 +41,7 @@ std::ostream &operator<<(std::ostream &outputFile, const CLHEP::HepGenMatrix *sa
   return outputFile;
 }
 
-int matrixSaver::saveMatrix(std::string outputFileName, const CLHEP::HepGenMatrix *saveMe) {
+int matrixSaver::saveMatrix(const std::string &outputFileName, const CLHEP::HepGenMatrix *saveMe) {
   // open the output file
   std::fstream outputFile(outputFileName.c_str(), std::ios::out);
   assert(outputFile);
@@ -57,7 +57,7 @@ int matrixSaver::saveMatrix(std::string outputFileName, const CLHEP::HepGenMatri
   return 0;
 }
 
-int matrixSaver::saveMatrixVector(std::string filename, const std::vector<CLHEP::HepGenMatrix *> &saveMe) {
+int matrixSaver::saveMatrixVector(const std::string &filename, const std::vector<CLHEP::HepGenMatrix *> &saveMe) {
   typedef std::vector<CLHEP::HepGenMatrix *>::const_iterator const_iterator;
   // open the output file
   std::fstream outputFile(filename.c_str(), std::ios::out);
@@ -70,8 +70,8 @@ int matrixSaver::saveMatrixVector(std::string filename, const std::vector<CLHEP:
   outputFile << (*saveMe.begin())->num_row() << '\t' << (*saveMe.begin())->num_col() << '\n';
 
   // loop over the vector
-  for (const_iterator it = saveMe.begin(); it != saveMe.end(); ++it) {
-    outputFile << (*it);
+  for (auto it : saveMe) {
+    outputFile << it;
   }  // loop over the vecor
 
   return 0;
@@ -100,12 +100,12 @@ std::istream &operator>>(std::istream &input, CLHEP::HepGenMatrix &matrix) {
   return input;
 }
 
-bool matrixSaver::touch(std::string inputFileName) {
+bool matrixSaver::touch(const std::string &inputFileName) {
   std::fstream inputFile(inputFileName.c_str(), std::ios::in);
   return !inputFile.fail();
 }
 
-CLHEP::HepGenMatrix *matrixSaver::getMatrix(std::string inputFileName) {
+CLHEP::HepGenMatrix *matrixSaver::getMatrix(const std::string &inputFileName) {
   //PG open the output file
   std::fstream inputFile(inputFileName.c_str(), std::ios::in);
   if (inputFile.fail())
@@ -130,7 +130,7 @@ CLHEP::HepGenMatrix *matrixSaver::getMatrix(std::string inputFileName) {
   return matrix;
 }
 
-std::vector<CLHEP::HepGenMatrix *> *matrixSaver::getMatrixVector(std::string inputFileName) {
+std::vector<CLHEP::HepGenMatrix *> *matrixSaver::getMatrixVector(const std::string &inputFileName) {
   // open the output file
   std::fstream inputFile(inputFileName.c_str(), std::ios::in);
   assert(inputFile.fail() == false);
@@ -146,7 +146,7 @@ std::vector<CLHEP::HepGenMatrix *> *matrixSaver::getMatrixVector(std::string inp
   inputFile >> numCol;
 
   //PG prepara il vector
-  std::vector<CLHEP::HepGenMatrix *> *matrixVector = new std::vector<CLHEP::HepGenMatrix *>(numElem);
+  auto *matrixVector = new std::vector<CLHEP::HepGenMatrix *>(numElem);
 
   //PG loop sugli elementi del vettore
   for (int i = 0; i < numElem; ++i) {
@@ -169,7 +169,7 @@ std::vector<CLHEP::HepGenMatrix *> *matrixSaver::getMatrixVector(std::string inp
   return matrixVector;
 }
 
-std::vector<CLHEP::HepMatrix> matrixSaver::getConcreteMatrixVector(std::string inputFileName) {
+std::vector<CLHEP::HepMatrix> matrixSaver::getConcreteMatrixVector(const std::string &inputFileName) {
   // open the output file
   std::fstream inputFile(inputFileName.c_str(), std::ios::in);
   assert(inputFile.fail() == false);

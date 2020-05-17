@@ -79,8 +79,8 @@ namespace ecaldqm {
     xaxis_ = xaxisTemp;
 
     if (minutely_) {
-      for (unsigned iME(0); iME < mes_.size(); ++iME)
-        mes_[iME]->getTH1()->GetXaxis()->SetTimeDisplay(1);
+      for (auto &me : mes_)
+        me->getTH1()->GetXaxis()->SetTimeDisplay(1);
       setAxisTitle("UTC");
     } else
       setAxisTitle("LumiSections");
@@ -192,8 +192,7 @@ namespace ecaldqm {
         if (thisBin < currentBin_)
           return false;
         else if (thisBin > currentBin_) {
-          for (unsigned iME(0); iME < mes_.size(); iME++) {
-            MonitorElement *me(mes_[iME]);
+          for (auto me : mes_) {
             int nbinsY(me->getTH1()->GetNbinsY());
             for (int iy(1); iy <= nbinsY; ++iy) {
               int orig(me->getTH1()->GetBin(currentBin_, iy));
@@ -220,9 +219,7 @@ namespace ecaldqm {
 
       int maxBin(0);
 
-      for (unsigned iME(0); iME < mes_.size(); iME++) {
-        MonitorElement *me(mes_[iME]);
-
+      for (auto me : mes_) {
         bool filled(false);
         int iMax(nbinsX + 1);
         while (--iMax > 0 && !filled) {
@@ -273,9 +270,7 @@ namespace ecaldqm {
     tLow += dBin * unitsPerBin;
     tHigh += dBin * unitsPerBin;
 
-    for (unsigned iME(0); iME < mes_.size(); iME++) {
-      MonitorElement *me(mes_[iME]);
-
+    for (auto me : mes_) {
       me->getTH1()->GetXaxis()->SetLimits(tLow, tHigh);
 
       if ((end - start) / step < 0) {

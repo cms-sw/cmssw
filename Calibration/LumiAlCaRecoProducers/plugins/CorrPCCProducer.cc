@@ -197,9 +197,9 @@ void CorrPCCProducer::makeCorrectionTemplate() {
 // Finds max lumi value
 float CorrPCCProducer::getMaximum(std::vector<float> lumi_vector) {
   float max_lumi = 0;
-  for (size_t i = 0; i < lumi_vector.size(); i++) {
-    if (lumi_vector.at(i) > max_lumi)
-      max_lumi = lumi_vector.at(i);
+  for (float i : lumi_vector) {
+    if (i > max_lumi)
+      max_lumi = i;
   }
   return max_lumi;
 }
@@ -209,8 +209,8 @@ float CorrPCCProducer::getMaximum(std::vector<float> lumi_vector) {
 // the follow non-active bunch crossing to estimate the spill over fraction (type 1 afterglow).
 void CorrPCCProducer::estimateType1Frac(std::vector<float> uncorrPCCPerBX, float& type1Frac) {
   std::vector<float> corrected_tmp_;
-  for (size_t i = 0; i < uncorrPCCPerBX.size(); i++) {
-    corrected_tmp_.push_back(uncorrPCCPerBX.at(i));
+  for (float i : uncorrPCCPerBX) {
+    corrected_tmp_.push_back(i);
   }
 
   //Apply initial type 1 correction
@@ -310,8 +310,8 @@ void CorrPCCProducer::calculateCorrections(std::vector<float> uncorrected,
   type1Frac = std::max(0.0, (double)type1Frac);
 
   std::vector<float> corrected_tmp_;
-  for (size_t i = 0; i < uncorrected.size(); i++) {
-    corrected_tmp_.push_back(uncorrected.at(i));
+  for (float i : uncorrected) {
+    corrected_tmp_.push_back(i);
   }
 
   //Apply all corrections
@@ -444,14 +444,14 @@ void CorrPCCProducer::dqmEndRunProduce(edm::Run const& runSeg, const edm::EventS
 
   //Constructing nBlocks IOVs
   for (unsigned iKey = 0; iKey < nBlocks; iKey++) {
-    lsKeys.push_back(std::make_pair(lumiSections[(unsigned int)(iKey * nLSPerBlock)],
-                                    lumiSections[(unsigned int)((iKey + 1) * nLSPerBlock) - 1]));
+    lsKeys.emplace_back(lumiSections[(unsigned int)(iKey * nLSPerBlock)],
+                        lumiSections[(unsigned int)((iKey + 1) * nLSPerBlock) - 1]);
   }
 
   lsKeys[0].first = 1;
 
-  for (unsigned int lumiSection = 0; lumiSection < lumiSections.size(); lumiSection++) {
-    thisLS = lumiSections[lumiSection];
+  for (unsigned int lumiSection : lumiSections) {
+    thisLS = lumiSection;
 
     std::pair<unsigned int, unsigned int> lsKey;
 
@@ -650,8 +650,8 @@ void CorrPCCProducer::dqmEndRunProduce(edm::Run const& runSeg, const edm::EventS
   for (lumiInfoMapIterator = lumiInfoMap.begin(); (lumiInfoMapIterator != lumiInfoMap.end()); ++lumiInfoMapIterator) {
     delete lumiInfoMapIterator->second;
   }
-  for (unsigned int lumiSection = 0; lumiSection < lumiSections.size(); lumiSection++) {
-    thisLS = lumiSections[lumiSection];
+  for (unsigned int lumiSection : lumiSections) {
+    thisLS = lumiSection;
     delete lumiInfoMapPerLS[thisLS];
   }
   lumiInfoMap.clear();

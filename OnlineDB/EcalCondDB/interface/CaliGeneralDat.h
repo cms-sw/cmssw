@@ -3,6 +3,7 @@
 
 #include <map>
 #include <stdexcept>
+#include <utility>
 
 #include "OnlineDB/EcalCondDB/interface/IDataItem.h"
 #include "OnlineDB/EcalCondDB/interface/CaliTag.h"
@@ -21,7 +22,7 @@ public:
   inline void setNumEvents(int n) { m_numEvents = n; }
   inline int getNumEvents() const { return m_numEvents; }
 
-  inline void setComments(std::string comments) { m_comments = comments; }
+  inline void setComments(std::string comments) { m_comments = std::move(comments); }
   inline std::string getComments() const { return m_comments; }
 
 private:

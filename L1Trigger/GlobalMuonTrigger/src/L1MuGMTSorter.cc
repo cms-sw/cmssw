@@ -141,7 +141,7 @@ void L1MuGMTSorter::run() {
 
   // copy the best 4 candidates
   int number_of_cands = 0;
-  std::vector<L1MuGMTExtendedCand*>::const_iterator iter1 = mycands.begin();
+  auto iter1 = mycands.begin();
   while (iter1 != mycands.end()) {
     if (*iter1 && number_of_cands < 4) {
       m_MuonCands.push_back(*iter1);
@@ -169,7 +169,7 @@ void L1MuGMTSorter::reset() {
 void L1MuGMTSorter::print() {
   edm::LogVerbatim("GMT_Sorter_info") << " ";
   edm::LogVerbatim("GMT_Sorter_info") << "Muon candidates found by the L1 Global Muon Trigger : " << numberOfCands();
-  std::vector<const L1MuGMTExtendedCand*>::const_iterator iter = m_MuonCands.begin();
+  auto iter = m_MuonCands.begin();
   while (iter != m_MuonCands.end()) {
     if (*iter)
       (*iter)->print();

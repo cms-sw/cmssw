@@ -26,7 +26,7 @@ namespace {
     //return std::make_pair(true,"");
     std::string status, aName, aNs;
     bool emptyNs = false;
-    if (ns == "")
+    if (ns.empty())
       emptyNs = true;
 
     aName = "^" + nm + "$";
@@ -79,7 +79,7 @@ namespace {
           //   edm::LogInfo("DDLogicalPart") << "DDD-WARNING: multiple namespaces match (in SpecPars PartSelector): " << *nsIt << std::endl;
           //}
         } else if (!emptyNs) {  // only accept matching namespaces
-          std::vector<DDName>::const_iterator nsit(it->second.begin()), nsed(it->second.end());
+          auto nsit(it->second.begin()), nsed(it->second.end());
           for (; nsit != nsed; ++nsit) {
             //edm::LogInfo("DDLogicalPart") << "comparing " << aNs << " with " << *nsit << std::endl;
             bool another_doit = !regexec(&aNsRegex, nsit->ns().c_str(), 0, nullptr, 0);
@@ -91,7 +91,7 @@ namespace {
         } else {  // emtpyNs and sz>1 -> error, too ambigous
           std::string message = "DDLogicalPart-name \"" + it->first + "\" matching regex \"" + nm +
                                 "\" has been found at least in following namespaces:\n";
-          std::vector<DDName>::const_iterator vit = it->second.begin();
+          auto vit = it->second.begin();
           for (; vit != it->second.end(); ++vit) {
             message += vit->ns();
             message += " ";
@@ -140,7 +140,7 @@ namespace {
       std::cout << "LPNAMES begin" << std::endl;
       for (; it != ed; ++it) {
         std::cout << it->first;
-        std::vector<DDName>::const_iterator nsit(it->second.begin()), nsed(it->second.end());
+        auto nsit(it->second.begin()), nsed(it->second.end());
         for (; nsit != nsed; ++nsit)
           std::cout << " " << nsit->ns();
         std::cout << std::endl;
@@ -184,7 +184,7 @@ void testDDIsValid::testloading() {
   LPNAMES::value_type::const_iterator it(LPNAMES::instance().begin()), ed(LPNAMES::instance().end());
   for (; it != ed; ++it) {
     os << it->first;
-    std::vector<DDName>::const_iterator nsit(it->second.begin()), nsed(it->second.end());
+    auto nsit(it->second.begin()), nsed(it->second.end());
     for (; nsit != nsed; ++nsit)
       os << " " << nsit->ns();
     os << std::endl;
@@ -204,12 +204,12 @@ void testDDIsValid::buildIt() {
   std::string line;
   while (std::getline(in, line)) {
     std::string::size_type p;
-    p = line.find(" ");
+    p = line.find(' ');
     std::string nm(line, 0, p);
     std::vector<DDName>& v = LPNAMES::instance()[nm];
     while (p != std::string::npos) {
       ++p;
-      std::string::size_type e = line.find(" ", p);
+      std::string::size_type e = line.find(' ', p);
       std::string::size_type s = e - p;
       if (e == std::string::npos)
         s = e;
@@ -234,9 +234,9 @@ void testDDIsValid::checkAgaistOld() {
   const std::string ns;
   int bad = 0;
   while (std::getline(in, line)) {
-    std::string::size_type p = line.find(" ");
+    std::string::size_type p = line.find(' ');
     ++p;
-    std::string::size_type e = line.find(" ", p);
+    std::string::size_type e = line.find(' ', p);
     // ns, we know, is always ""
     std::vector<DDLogicalPart> oldResult;
     std::vector<DDLogicalPart> result;

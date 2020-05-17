@@ -169,12 +169,11 @@ void RPDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   DigiVector.reserve(400);
   DigiVector.clear();
 
-  for (simhit_map_iterator it = simHitMap_.begin(); it != simHitMap_.end(); ++it) {
+  for (auto it = simHitMap_.begin(); it != simHitMap_.end(); ++it) {
     edm::DetSet<TotemRPDigi> digi_collector(it->first);
 
     if (theAlgoMap.find(it->first) == theAlgoMap.end()) {
-      theAlgoMap[it->first] =
-          std::unique_ptr<RPDetDigitizer>(new RPDetDigitizer(conf_, *rndEngine_, it->first, iSetup));
+      theAlgoMap[it->first] = std::make_unique<RPDetDigitizer>(conf_, *rndEngine_, it->first, iSetup);
     }
 
     std::vector<int> input_links;
@@ -212,9 +211,7 @@ edm::DetSet<TotemRPDigi> RPDigiProducer::convertRPStripDetSet(const edm::DetSet<
   edm::DetSet<TotemRPDigi> rpdigi_detset(rpstrip_detset.detId());
   rpdigi_detset.reserve(rpstrip_detset.size());
 
-  for (std::vector<TotemRPDigi>::const_iterator stripIterator = rpstrip_detset.data.begin();
-       stripIterator < rpstrip_detset.data.end();
-       ++stripIterator) {
+  for (auto stripIterator = rpstrip_detset.data.begin(); stripIterator < rpstrip_detset.data.end(); ++stripIterator) {
     rpdigi_detset.push_back(TotemRPDigi(stripIterator->stripNumber()));
   }
 

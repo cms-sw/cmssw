@@ -56,7 +56,7 @@ CmsShowViewPopup::CmsShowViewPopup(
   SetCleanup(kDeepCleanup);
 
   // label
-  TGHorizontalFrame* viewFrame = new TGHorizontalFrame(this);
+  auto* viewFrame = new TGHorizontalFrame(this);
   m_viewLabel = new TGLabel(viewFrame, "No view selected");
   try {
     TGFont* defaultFont = gClient->GetFontPool()->GetFont(m_viewLabel->GetDefaultFontStruct());
@@ -231,7 +231,7 @@ ViewerParameterGUI& ViewerParameterGUI::addParam(const FWParameterBase* param) {
 /* Add separator in current tab. */
 ViewerParameterGUI& ViewerParameterGUI::separator() {
   assert(m_tab);
-  TGHorizontal3DLine* s = new TGHorizontal3DLine(m_tab->GetCurrentContainer());
+  auto* s = new TGHorizontal3DLine(m_tab->GetCurrentContainer());
   m_tab->GetCurrentContainer()->AddFrame(s, new TGLayoutHints(kLHintsExpandX, 4, 4, 2, 2));
 
   return *this;

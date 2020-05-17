@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "L1Trigger/L1TMuonEndCap/interface/SectorProcessor.h"
 
 SectorProcessor::SectorProcessor() {}
@@ -91,7 +93,7 @@ void SectorProcessor::configure(const GeometryTranslator* tp_geom,
   bxShiftRPC_ = bxShiftRPC;
   bxShiftGEM_ = bxShiftGEM;
 
-  era_ = era;
+  era_ = std::move(era);
 
   zoneBoundaries_ = zoneBoundaries;
   zoneOverlap_ = zoneOverlap;

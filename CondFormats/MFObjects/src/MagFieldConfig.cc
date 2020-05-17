@@ -26,11 +26,11 @@ MagFieldConfig::MagFieldConfig(const edm::ParameterSet& pset, bool debug) {
 
   VPSet fileSpec = pset.getParameter<VPSet>("gridFiles");
   if (!fileSpec.empty()) {
-    for (VPSet::const_iterator rule = fileSpec.begin(); rule != fileSpec.end(); ++rule) {
-      string s_volumes = rule->getParameter<string>("volumes");
-      string s_sectors = rule->getParameter<string>("sectors");  // 0 means all volumes
-      int master = rule->getParameter<int>("master");
-      string path = rule->getParameter<string>("path");
+    for (const auto& rule : fileSpec) {
+      string s_volumes = rule.getParameter<string>("volumes");
+      string s_sectors = rule.getParameter<string>("sectors");  // 0 means all volumes
+      int master = rule.getParameter<int>("master");
+      string path = rule.getParameter<string>("path");
 
       vector<unsigned> volumes = expandList(s_volumes);
       vector<unsigned> sectors = expandList(s_sectors);
@@ -46,9 +46,9 @@ MagFieldConfig::MagFieldConfig(const edm::ParameterSet& pset, bool debug) {
         cout << endl;
       }
 
-      for (vector<unsigned>::iterator i = volumes.begin(); i != volumes.end(); ++i) {
-        for (vector<unsigned>::iterator j = sectors.begin(); j != sectors.end(); ++j) {
-          unsigned vpacked = (*i) * 100 + (*j);
+      for (unsigned int& volume : volumes) {
+        for (unsigned int& sector : sectors) {
+          unsigned vpacked = volume * 100 + sector;
           if (gridFiles.find(vpacked) == gridFiles.end()) {
             gridFiles[vpacked] = make_pair(path, master);
           } else {
@@ -78,9 +78,9 @@ vector<unsigned> MagFieldConfig::expandList(const string& list) {
   vector<unsigned> values;
   vstring v1;
   boost::split(v1, list, boost::is_any_of(","));
-  for (vstring::const_iterator i = v1.begin(); i != v1.end(); ++i) {
+  for (const auto& i : v1) {
     vstring v2;
-    boost::split(v2, *i, boost::is_any_of("-"));
+    boost::split(v2, i, boost::is_any_of("-"));
     unsigned start = boost::lexical_cast<unsigned>(v2.front());
     unsigned end = boost::lexical_cast<unsigned>(v2.back());
     if ((v2.size() > 2) || (start > end)) {

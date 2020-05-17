@@ -86,8 +86,7 @@ void FWModelChangeManager::endChanges() {
   bool guard(false);
   if (0 == --m_depth) {
     unsigned int index = 0;
-    for (std::set<const FWEventItem*>::iterator itChanges = m_itemChanges.begin(); itChanges != m_itemChanges.end();
-         ++itChanges, ++index) {
+    for (auto itChanges = m_itemChanges.begin(); itChanges != m_itemChanges.end(); ++itChanges, ++index) {
       if (!guard) {
         // std::shared_ptr<FWModelChangeManager> done(this, &sendChangeSignalsAreDone);
         guard = true;
@@ -96,10 +95,9 @@ void FWModelChangeManager::endChanges() {
       FWItemChangeSignal& signal = m_itemChangeSignals[(*itChanges)->id()];
       //loop over the slots ourself so we can control the behavior in case of a failure
       FWItemChangeSignal::slot_list_type slots = signal.slots();
-      for (FWItemChangeSignal::slot_list_type::iterator itSlot = slots.begin(), itEnd = slots.end(); itSlot != itEnd;
-           ++itSlot) {
+      for (auto& slot : slots) {
         try {
-          (*itSlot)(*itChanges);
+          slot(*itChanges);
         } catch (const cms::Exception& iE) {
           fwLog(fwlog::kError) << (*itChanges)->name() << " had the failure in process FWItemChanged signals\n"
                                << iE.what() << std::endl;
@@ -126,10 +124,9 @@ void FWModelChangeManager::endChanges() {
         }
         //loop over the slots ourself so we can control the behavior in case of a failure
         FWModelChangeSignal::slot_list_type slots = signal.slots();
-        for (FWModelChangeSignal::slot_list_type::iterator itSlot = slots.begin(), itEnd = slots.end(); itSlot != itEnd;
-             ++itSlot) {
+        for (auto& slot : slots) {
           try {
-            (*itSlot)(changes);
+            slot(changes);
           } catch (const cms::Exception& iE) {
             fwLog(fwlog::kError) << changes.begin()->item()->name()
                                  << " had the failure in process FWModelChangeSignals\n"
@@ -156,9 +153,9 @@ void FWModelChangeManager::newItemSlot(FWEventItem* iItem) {
   assert(nullptr != iItem);
   assert(iItem->id() == m_changes.size());
   assert(iItem->id() == m_changeSignals.size());
-  m_changes.push_back(FWModelIds());
-  m_changeSignals.push_back(FWModelChangeSignal());
-  m_itemChangeSignals.push_back(FWItemChangeSignal());
+  m_changes.emplace_back();
+  m_changeSignals.emplace_back();
+  m_itemChangeSignals.emplace_back();
   //propagate our signal to the item
   m_changeSignals.back().connect(iItem->changed_);
   m_itemChangeSignals.back().connect(iItem->itemChanged_);

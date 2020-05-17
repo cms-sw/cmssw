@@ -19,9 +19,9 @@ class SiStripDeDx2DBuilder : public edm::EDAnalyzer {
 public:
   explicit SiStripDeDx2DBuilder(const edm::ParameterSet& iConfig);
 
-  ~SiStripDeDx2DBuilder(){};
+  ~SiStripDeDx2DBuilder() override{};
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   edm::FileInPath fp_;
@@ -39,7 +39,7 @@ void SiStripDeDx2DBuilder::analyze(const edm::Event& evt, const edm::EventSetup&
       << "... creating dummy PhysicsToolsObjects::Calibration::HistogramD2D Data for Run " << run << "\n " << std::endl;
 
   //  PhysicsToolsObjects::Calibration::HistogramD2D* obj = new PhysicsTools::Calibration::HistogramD2D(300, 0., 3., 1000,0.,1000.);
-  PhysicsTools::Calibration::VHistogramD2D* obj = new PhysicsTools::Calibration::VHistogramD2D();
+  auto* obj = new PhysicsTools::Calibration::VHistogramD2D();
 
   for (int ih = 0; ih < 3; ih++) {
     PhysicsTools::Calibration::HistogramD2D myhist(300, 0., 3., 1000, 0., 1000.);

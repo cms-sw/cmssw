@@ -53,7 +53,7 @@ namespace hcaldqm {
       char name[10];
       for (int i = 0; i < 84; i++) {
         sprintf(name, "%d", getDid_ieta(i).ieta());
-        labels.push_back(std::string(name));
+        labels.emplace_back(name);
       }
       return labels;
     }
@@ -62,15 +62,19 @@ namespace hcaldqm {
 
     std::vector<std::string> getLabels_Subdet() {
       std::vector<std::string> labels;
-      for (int i = 0; i < 4; i++)
-        labels.push_back(constants::SUBDET_NAME[i]);
+      labels.reserve(4);
+
+      for (const auto &i : constants::SUBDET_NAME)
+        labels.push_back(i);
       return labels;
     }
 
     std::vector<std::string> getLabels_SubdetPM() {
       std::vector<std::string> labels;
-      for (int i = 0; i < 8; i++)
-        labels.push_back(constants::SUBDETPM_NAME[i]);
+      labels.reserve(8);
+
+      for (const auto &i : constants::SUBDETPM_NAME)
+        labels.push_back(i);
       return labels;
     }
   }  // namespace quantity

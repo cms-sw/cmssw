@@ -38,7 +38,7 @@ public:
   /**
    *   App constructor; Makes the database connection
    */
-  CondDBApp(std::string connect, std::string user, std::string pass) {
+  CondDBApp(const std::string& connect, const std::string& user, const std::string& pass) {
     std::cout << "Loading services..." << std::flush;
 
     if (!::getenv("POOL_OUTMSG_LEVEL")) {  //if not set, default to warning

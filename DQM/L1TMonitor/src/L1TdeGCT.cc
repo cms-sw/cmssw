@@ -146,9 +146,9 @@ void L1TdeGCT::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::
       sysncand[1]->setBinLabel(i + 1, cLabel[i]);
     }
 
-    for (int i = 0; i < nGctColl_; i++) {
+    for (auto& i : errortype) {
       for (int j = 0; j < nerr; j++) {
-        errortype[i]->setBinLabel(j + 1, errLabel[j]);
+        i->setBinLabel(j + 1, errLabel[j]);
       }
     }
 
@@ -301,9 +301,9 @@ void L1TdeGCT::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::
       sysncand[1]->setBinLabel(i + 1, sLabel[i]);
     }
 
-    for (int i = 0; i < nStage1Layer2Coll_; i++) {
+    for (auto& i : errortype_stage1layer2) {
       for (int j = 0; j < nerr; j++) {
-        errortype_stage1layer2[i]->setBinLabel(j + 1, errLabel[j]);
+        i->setBinLabel(j + 1, errLabel[j]);
       }
     }
 
@@ -380,15 +380,15 @@ void L1TdeGCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
     gctColl.reserve(20);
     gctColl.clear();
 
-    for (L1DEDigiCollection::const_iterator it = deColl.begin(); it != deColl.end(); it++)
-      if (!it->empty())
-        if (it->sid() == GCT)
-          gctColl.push_back(*it);
+    for (const auto& it : deColl)
+      if (!it.empty())
+        if (it.sid() == GCT)
+          gctColl.push_back(it);
 
     if (verbose()) {
       std::cout << "[L1TdeGCT] record has " << gctColl.size() << " gct de digis\n" << std::flush;
-      for (L1DEDigiCollection::const_iterator it = gctColl.begin(); it != gctColl.end(); it++)
-        std::cout << "\t" << *it << std::endl;
+      for (const auto& it : gctColl)
+        std::cout << "\t" << it << std::endl;
     }
 
     const int nullVal = L1DataEmulDigi().reset();
@@ -396,29 +396,29 @@ void L1TdeGCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
     /// --- Fill histograms(me) ---
 
     // d|e candidate loop
-    for (L1DEDigiCollection::const_iterator it = gctColl.begin(); it != gctColl.end(); it++) {
+    for (const auto& it : gctColl) {
       // sid should be GCT
-      int sid = it->sid();
+      int sid = it.sid();
       // cid: GCTisolaem, GCTnoisoem, GCTcenjets, GCTforjets, GCTtaujets
-      int cid = it->cid();
+      int cid = it.cid();
       ///(note see L1Trigger/HardwareValidation/interface/DEtrait.h)
 
       if (verbose())
         std::cout << "[L1TdeGCT] processing digi "
-                  << " sys:" << sid << " type:" << cid << " \n\t" << *it << "\n"
+                  << " sys:" << sid << " type:" << cid << " \n\t" << it << "\n"
                   << std::flush;
 
       //assert(cid==GCT);
-      if (sid != GCT || it->empty()) {
+      if (sid != GCT || it.empty()) {
         LogDebug("L1TdeGCT") << "consistency check failure, non-gct digis!";
         continue;
       }
 
-      int type = it->type();
-      double phiv = it->x1();
-      double etav = it->x2();
+      int type = it.type();
+      double phiv = it.x1();
+      double etav = it.x2();
       float rankarr[2];
-      it->rank(rankarr);
+      it.rank(rankarr);
       float rnkv = rankarr[0];
 
       double wei = 1.;
@@ -433,9 +433,9 @@ void L1TdeGCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
       }
 
       //type: 0:agree 1:loc.agree, 2:loc.disagree, 3:data.only, 4:emul.only
-      if (it->type() < 4)
+      if (it.type() < 4)
         sysncand[0]->Fill(ccid);
-      if (it->type() < 5 && it->type() != 3)
+      if (it.type() < 5 && it.type() != 3)
         sysncand[1]->Fill(ccid);
 
       errortype[ccid]->Fill(type);
@@ -464,7 +464,7 @@ void L1TdeGCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
       // GCT trigger bits
       unsigned int word[2];
-      it->data(word);
+      it.data(word);
       std::bitset<32> dbits(word[0]);
       std::bitset<32> ebits(word[1]);
       unsigned int dexor = ((word[0]) ^ (word[1]));
@@ -502,11 +502,11 @@ void L1TdeGCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
     //error rates per GCT trigger object type
     int hasCol[nGctColl_] = {0};
     int nagree[nGctColl_] = {0};
-    for (L1DEDigiCollection::const_iterator it = gctColl.begin(); it != gctColl.end(); it++) {
-      int ccid = it->cid() - dedefs::GCTisolaem;
+    for (const auto& it : gctColl) {
+      int ccid = it.cid() - dedefs::GCTisolaem;
       ccid = (ccid < 0 || ccid >= nGctColl_) ? 0 : ccid;
       hasCol[ccid]++;
-      if (!it->type())
+      if (!it.type())
         nagree[ccid]++;
     }
     for (int i = 0; i < nGctColl_; i++) {
@@ -565,16 +565,16 @@ void L1TdeGCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
     stage1layer2Coll.reserve(21);
     stage1layer2Coll.clear();
 
-    for (L1DEDigiCollection::const_iterator it = deColl.begin(); it != deColl.end(); it++)
-      if (!it->empty())
-        if (it->sid() == GCT)
-          stage1layer2Coll.push_back(*it);
+    for (const auto& it : deColl)
+      if (!it.empty())
+        if (it.sid() == GCT)
+          stage1layer2Coll.push_back(it);
 
     if (verbose()) {
       std::cout << "[L1TdeSTAGE1LAYER2] record has " << stage1layer2Coll.size() << " stage1layer2 de digis\n"
                 << std::endl;
-      for (L1DEDigiCollection::const_iterator it = stage1layer2Coll.begin(); it != stage1layer2Coll.end(); it++)
-        std::cout << "\t" << *it << std::endl;
+      for (const auto& it : stage1layer2Coll)
+        std::cout << "\t" << it << std::endl;
     }
 
     const int nullVal = L1DataEmulDigi().reset();
@@ -582,28 +582,28 @@ void L1TdeGCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
     /// --- Fill histograms(me) ---
 
     // d|e candidate loop
-    for (L1DEDigiCollection::const_iterator it = stage1layer2Coll.begin(); it != stage1layer2Coll.end(); it++) {
+    for (const auto& it : stage1layer2Coll) {
       // sid should be GCT
-      int sid = it->sid();
+      int sid = it.sid();
 
-      int cid = it->cid();
+      int cid = it.cid();
       ///(note see L1Trigger/HardwareValidation/interface/DEtrait.h)
 
       if (verbose())
         std::cout << "[L1TdeStage1Layer2] processing digi "
-                  << " sys:" << sid << " type:" << cid << " \n\t" << *it << "\n"
+                  << " sys:" << sid << " type:" << cid << " \n\t" << it << "\n"
                   << std::endl;
 
-      if (sid != GCT || it->empty()) {
+      if (sid != GCT || it.empty()) {
         LogDebug("L1TdeGCT") << "consistency check failure, non-stage1layer2 digis!";
         continue;
       }
 
-      int type = it->type();
-      double phiv = it->x1();
-      double etav = it->x2();
+      int type = it.type();
+      double phiv = it.x1();
+      double etav = it.x2();
       float rankarr[2];
-      it->rank(rankarr);
+      it.rank(rankarr);
       float rnkv = rankarr[0];
 
       double wei = 1.;
@@ -618,9 +618,9 @@ void L1TdeGCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
       }
 
       //type: 0:agree 1:loc.agree, 2:loc.disagree, 3:data.only, 4:emul.only
-      if (it->type() < 4)
+      if (it.type() < 4)
         sysncand[0]->Fill(ccid);
-      if (it->type() < 5 && it->type() != 3)
+      if (it.type() < 5 && it.type() != 3)
         sysncand[1]->Fill(ccid);
       errortype_stage1layer2[ccid]->Fill(type);
       wei = 1.;
@@ -647,7 +647,7 @@ void L1TdeGCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
       // GCT trigger bits
       unsigned int word_stage1layer2[2];
-      it->data(word_stage1layer2);
+      it.data(word_stage1layer2);
       std::bitset<32> dbits(word_stage1layer2[0]);
       std::bitset<32> ebits(word_stage1layer2[1]);
       unsigned int dexor = ((word_stage1layer2[0]) ^ (word_stage1layer2[1]));
@@ -684,11 +684,11 @@ void L1TdeGCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
     //error rates per GCT trigger object type
     int hasCol[nStage1Layer2Coll_] = {0};
     int nagree[nStage1Layer2Coll_] = {0};
-    for (L1DEDigiCollection::const_iterator it = stage1layer2Coll.begin(); it != stage1layer2Coll.end(); it++) {
-      int ccid = it->cid() - dedefs::GCTisolaem;
+    for (const auto& it : stage1layer2Coll) {
+      int ccid = it.cid() - dedefs::GCTisolaem;
       ccid = (ccid < 0 || ccid >= nStage1Layer2Coll_) ? 0 : ccid;
       hasCol[ccid]++;
-      if (!it->type())
+      if (!it.type())
         nagree[ccid]++;
     }
     for (int i = 0; i < nStage1Layer2Coll_; i++) {

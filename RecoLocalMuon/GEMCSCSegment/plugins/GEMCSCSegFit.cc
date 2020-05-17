@@ -51,7 +51,7 @@ void GEMCSCSegFit::fit2(void) {
 
   // 1) Check whether hits are on the same layer
   // -------------------------------------------
-  std::vector<const TrackingRecHit*>::const_iterator ih = hits_.begin();
+  auto ih = hits_.begin();
   // layer numbering: GEM: (1,2) CSC (3,4,5,6,7,8)
   int il1 = 0, il2 = 0;
   DetId d1 = DetId((*ih)->rawId());
@@ -208,7 +208,7 @@ void GEMCSCSegFit::fitlsq(void) {
   SMatrix4 M;  // 4x4, init to 0
   SVector4 B;  // 4x1, init to 0;
 
-  std::vector<const TrackingRecHit*>::const_iterator ih = hits_.begin();
+  auto ih = hits_.begin();
 
   // LogDebug :: Loop over the TrackingRecHits and print the GEM and CSC Hits
   for (ih = hits_.begin(); ih != hits_.end(); ++ih) {
@@ -431,8 +431,8 @@ GEMCSCSegFit::SMatrixSym16 GEMCSCSegFit::weightMatrix() {
 
   int row = 0;
 
-  for (std::vector<const TrackingRecHit*>::const_iterator it = hits_.begin(); it != hits_.end(); ++it) {
-    const TrackingRecHit& hit = (**it);
+  for (auto it : hits_) {
+    const TrackingRecHit& hit = (*it);
 
     // Note scaleXError allows rescaling the x error if necessary
 
@@ -458,8 +458,8 @@ GEMCSCSegFit::SMatrix16by4 GEMCSCSegFit::derivativeMatrix() {
   SMatrix16by4 matrix;  // 16x4, init to 0
   int row = 0;
 
-  for (std::vector<const TrackingRecHit*>::const_iterator it = hits_.begin(); it != hits_.end(); ++it) {
-    const TrackingRecHit& hit = (**it);
+  for (auto it : hits_) {
+    const TrackingRecHit& hit = (*it);
     GlobalPoint gp;
     DetId d = DetId(hit.rawId());
     if (d.subdetId() == MuonSubdetId::GEM) {

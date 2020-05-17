@@ -206,8 +206,8 @@ namespace l1t {
     std::shared_ptr<coral::IQuery> query(table.newQuery());
 
     // Construct query
-    std::vector<std::string>::const_iterator it = columnNames.begin();
-    std::vector<std::string>::const_iterator end = columnNames.end();
+    auto it = columnNames.begin();
+    auto end = columnNames.end();
     for (; it != end; ++it) {
       query->addToOutputList(*it);
     }
@@ -258,7 +258,7 @@ namespace l1t {
   template <class T>
   const OMDSReader::QueryResults OMDSReader::singleAttribute(const T& data) const {
     std::vector<std::string> names;
-    names.push_back("dummy");
+    names.emplace_back("dummy");
 
     coral::AttributeList attList;
     attList.extend("dummy", typeid(T));

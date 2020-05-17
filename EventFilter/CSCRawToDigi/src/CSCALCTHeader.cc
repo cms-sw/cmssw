@@ -180,8 +180,8 @@ std::vector<CSCALCTDigi> CSCALCTHeader::ALCTDigis() const {
           << "Empty Digis: ALCT firmware version is bad/not defined!" << firmwareVersion;
       break;
   }
-  for (unsigned i = 0; i < result.size(); ++i) {
-    result[i].setFullBX(BXNCount());
+  for (auto &i : result) {
+    i.setFullBX(BXNCount());
   }
   return result;
 }
@@ -193,8 +193,8 @@ void CSCALCTHeader::add(const std::vector<CSCALCTDigi> &digis) {
     if (theALCTs.empty()) {
       theALCTs.resize(header2007.lctBins * 2);
     }
-    for (std::vector<CSCALCTDigi>::const_iterator digi = digis.begin(); digi != digis.end(); ++digi) {
-      int bx = digi->getBX();
+    for (const auto &digi : digis) {
+      int bx = digi.getBX();
       if (bx < (int)header2007.lctBins) {
         // 2 ALCTs per bx
         int i = bx * 2;
@@ -202,16 +202,16 @@ void CSCALCTHeader::add(const std::vector<CSCALCTDigi> &digis) {
         int q2 = theALCTs[i + 1].quality;
         // see if it's non=blank
         if (!theALCTs[i].valid) {
-          theALCTs[i] = CSCALCT(*digi);
+          theALCTs[i] = CSCALCT(digi);
         }
         // new best LCT
-        else if (digi->getQuality() > q1) {
+        else if (digi.getQuality() > q1) {
           theALCTs[i + 1] = theALCTs[i];
-          theALCTs[i] = CSCALCT(*digi);
+          theALCTs[i] = CSCALCT(digi);
         }
         // new second best
-        else if (!theALCTs[i + 1].valid || (digi->getQuality() > q2)) {
-          theALCTs[i + 1] = CSCALCT(*digi);
+        else if (!theALCTs[i + 1].valid || (digi.getQuality() > q2)) {
+          theALCTs[i + 1] = CSCALCT(digi);
         }
       }
     }
@@ -233,9 +233,9 @@ boost::dynamic_bitset<> CSCALCTHeader::pack() {
   else if (firmwareVersion == 2007) {
     result = bitset_utilities::ushortToBitset(header2007.sizeInWords() * 16, (unsigned short *)&header2007);
 
-    for (unsigned i = 0; i < theALCTs.size(); ++i) {
+    for (auto &theALCT : theALCTs) {
       boost::dynamic_bitset<> alct =
-          bitset_utilities::ushortToBitset(theALCTs[i].sizeInWords() * 16, (unsigned short *)&theALCTs[i]);
+          bitset_utilities::ushortToBitset(theALCT.sizeInWords() * 16, (unsigned short *)&theALCT);
       result = bitset_utilities::append(result, alct);
     }
 
@@ -263,9 +263,9 @@ void CSCALCTHeader::selfTest(int firmware) {
     std::vector<CSCALCTDigi> alcts = alctHeader.ALCTDigis();
     // pick out the valid ones
     std::vector<CSCALCTDigi> validALCTs;
-    for (std::vector<CSCALCTDigi>::const_iterator alctItr = alcts.begin(); alctItr != alcts.end(); ++alctItr) {
-      if (alctItr->isValid()) {
-        validALCTs.push_back(*alctItr);
+    for (const auto &alct : alcts) {
+      if (alct.isValid()) {
+        validALCTs.push_back(alct);
       }
     }
     assert(validALCTs[0] == alct0);

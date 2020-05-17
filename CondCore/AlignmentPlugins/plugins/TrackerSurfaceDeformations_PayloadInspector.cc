@@ -320,7 +320,7 @@ namespace {
       std::string titleMap =
           "Surface deformation parameter " + std::to_string(par) + " value (payload : " + std::get<1>(iov) + ")";
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("Surface Deformations"));
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("Surface Deformations");
       tmap->setTitle(titleMap);
       tmap->setPalette(1);
 
@@ -432,7 +432,7 @@ namespace {
                              " (IOV : " + std::to_string(std::get<0>(lastiov)) + "- " +
                              std::to_string(std::get<0>(firstiov)) + ")";
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("Surface Deformations #Delta"));
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("Surface Deformations #Delta");
       tmap->setTitle(titleMap);
       tmap->setPalette(1);
 
@@ -610,7 +610,7 @@ namespace {
 
       // book the intermediate histograms
       for (int r = AlignmentPI::BPixL1o; r != AlignmentPI::StripDoubleSide; r++) {
-        AlignmentPI::regions part = static_cast<AlignmentPI::regions>(r);
+        auto part = static_cast<AlignmentPI::regions>(r);
         std::string s_part = AlignmentPI::getStringFromRegionEnum(part);
 
         FirstSurfDef_spectraByRegion[part] =
@@ -767,7 +767,7 @@ namespace {
       // fill the summary plots
       int bin = 1;
       for (int r = AlignmentPI::BPixL1o; r != AlignmentPI::StripDoubleSide; r++) {
-        AlignmentPI::regions part = static_cast<AlignmentPI::regions>(r);
+        auto part = static_cast<AlignmentPI::regions>(r);
 
         summaryFirst->GetXaxis()->SetBinLabel(bin, AlignmentPI::getStringFromRegionEnum(part).c_str());
         // avoid filling the histogram with numerical noise

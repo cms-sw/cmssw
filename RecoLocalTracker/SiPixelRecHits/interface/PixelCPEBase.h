@@ -263,8 +263,8 @@ protected:
 
   void setTheClu(DetParam const&, ClusterParam& theClusterParam) const;
 
-  LocalVector driftDirection(DetParam& theDetParam, GlobalVector bfield) const;
-  LocalVector driftDirection(DetParam& theDetParam, LocalVector bfield) const;
+  LocalVector driftDirection(DetParam& theDetParam, const GlobalVector& bfield) const;
+  LocalVector driftDirection(DetParam& theDetParam, const LocalVector& bfield) const;
   void computeLorentzShifts(DetParam&) const;
 
   //---------------------------------------------------------------------------

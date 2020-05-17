@@ -32,13 +32,13 @@ void MSLayersAtAngle::init() {
 MSLayersAtAngle::MSLayersAtAngle(const vector<MSLayer>& layers) : theLayers(layers) { init(); }
 //------------------------------------------------------------------------------
 const MSLayer* MSLayersAtAngle::findLayer(const MSLayer& layer) const {
-  vector<MSLayer>::const_iterator it = find(theLayers.begin(), theLayers.end(), layer);
+  auto it = find(theLayers.begin(), theLayers.end(), layer);
   return it == theLayers.end() ? nullptr : &(*it);
 }
 
 //------------------------------------------------------------------------------
 void MSLayersAtAngle::update(const MSLayer& layer) {
-  vector<MSLayer>::iterator it = find(theLayers.begin(), theLayers.end(), layer);
+  auto it = find(theLayers.begin(), theLayers.end(), layer);
   if (it == theLayers.end()) {
     theLayers.push_back(layer);
     init();
@@ -49,9 +49,9 @@ void MSLayersAtAngle::update(const MSLayer& layer) {
 
 //------------------------------------------------------------------------------
 float MSLayersAtAngle::sumX0D(const PixelRecoPointRZ& pointI, const PixelRecoPointRZ& pointO) const {
-  LayerItr iO = findLayer(pointO, theLayers.begin(), theLayers.end());
+  auto iO = findLayer(pointO, theLayers.begin(), theLayers.end());
   //  cout << "outer Layer: "<<*iO<<endl;
-  LayerItr iI = findLayer(pointI, theLayers.begin(), iO);
+  auto iI = findLayer(pointI, theLayers.begin(), iO);
   //  cout << "inner Layer: "<<*iI<<endl;
 
   return sqrt(sum2RmRn(iI, iO, pointO.r(), SimpleLineRZ(pointI, pointO)));
@@ -62,8 +62,8 @@ float MSLayersAtAngle::sumX0D(int il, int ol, const PixelRecoPointRZ& pointI, co
   if (il >= int(indeces.size()) || ol >= int(indeces.size()) || indeces[il] < 0 || indeces[ol] < 0)
     return sumX0D(pointI, pointO);
 
-  LayerItr iI = theLayers.begin() + indeces[il];
-  LayerItr iO = theLayers.begin() + indeces[ol];
+  auto iI = theLayers.begin() + indeces[il];
+  auto iO = theLayers.begin() + indeces[ol];
 
   return sqrt(sum2RmRn(iI, iO, pointO.r(), SimpleLineRZ(pointI, pointO)));
 }
@@ -75,9 +75,9 @@ static const bool doPrint = false;
 float MSLayersAtAngle::sumX0D(const PixelRecoPointRZ& pointI,
                               const PixelRecoPointRZ& pointM,
                               const PixelRecoPointRZ& pointO) const {
-  LayerItr iO = findLayer(pointO, theLayers.begin(), theLayers.end());
-  LayerItr iI = findLayer(pointI, theLayers.begin(), iO);
-  LayerItr iM = findLayer(pointM, iI, iO);
+  auto iO = findLayer(pointO, theLayers.begin(), theLayers.end());
+  auto iI = findLayer(pointI, theLayers.begin(), iO);
+  auto iM = findLayer(pointM, iI, iO);
 
   float drOI = pointO.r() - pointI.r();
   float drMO = pointO.r() - pointM.r();
@@ -107,8 +107,8 @@ float MSLayersAtAngle::sumX0D(
   if (il >= int(indeces.size()) || ol >= int(indeces.size()) || indeces[il] < 0 || indeces[ol] < 0)
     return sumX0D(pointV, pointI, pointO);
 
-  LayerItr iI = theLayers.begin() + indeces[il];
-  LayerItr iO = theLayers.begin() + indeces[ol];
+  auto iI = theLayers.begin() + indeces[il];
+  auto iO = theLayers.begin() + indeces[ol];
 
   float drOI = pointO.r();
   float drMO = pointO.r() - pointI.r();
@@ -134,7 +134,7 @@ float MSLayersAtAngle::sum2RmRn(MSLayersAtAngle::LayerItr i1,
                                 const SimpleLineRZ& line) const {
   float sum2 = 0.f;
   float cotTh = line.cotLine();
-  for (LayerItr it = i1; it < i2; it++) {
+  for (auto it = i1; it < i2; it++) {
     std::pair<PixelRecoPointRZ, bool> cross = it->crossing(line);
     if (cross.second) {
       float x0 = it->x0(cotTh);
@@ -153,9 +153,9 @@ MSLayersAtAngle::LayerItr MSLayersAtAngle::findLayer(const PixelRecoPointRZ& poi
                                                      MSLayersAtAngle::LayerItr iend) const {
   const float BIG = 99999.f;
   const float EPSILON = 1.e-8f;
-  LayerItr theIt = ibeg;
+  auto theIt = ibeg;
   float dist = BIG;
-  for (LayerItr it = ibeg; it < iend; it++) {
+  for (auto it = ibeg; it < iend; it++) {
     float d = it->distance2(point);
     if (d < dist) {
       if (d < EPSILON)
@@ -169,6 +169,6 @@ MSLayersAtAngle::LayerItr MSLayersAtAngle::findLayer(const PixelRecoPointRZ& poi
 
 //------------------------------------------------------------------------------
 void MSLayersAtAngle::print() const {
-  for (LayerItr it = theLayers.begin(); it != theLayers.end(); it++)
-    cout << *it << endl;
+  for (const auto& theLayer : theLayers)
+    cout << theLayer << endl;
 }

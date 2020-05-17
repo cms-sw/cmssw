@@ -8,8 +8,8 @@ HLTTauRefCombiner::HLTTauRefCombiner(const edm::ParameterSet &iConfig)
     : matchDeltaR_{iConfig.getParameter<double>("MatchDeltaR")},
       outName_{iConfig.getParameter<string>("OutputCollection")} {
   std::vector<edm::InputTag> inputCollVector_ = iConfig.getParameter<std::vector<InputTag>>("InputCollections");
-  for (unsigned int ii = 0; ii < inputCollVector_.size(); ++ii) {
-    inputColl_.push_back(consumes<LorentzVectorCollection>(inputCollVector_[ii]));
+  for (const auto &ii : inputCollVector_) {
+    inputColl_.push_back(consumes<LorentzVectorCollection>(ii));
   }
 
   produces<LorentzVectorCollection>(outName_);
@@ -23,9 +23,9 @@ void HLTTauRefCombiner::produce(edm::StreamID, edm::Event &iEvent, const edm::Ev
 
   bool allCollectionsExist = true;
   // Map the Handles to the collections if all collections exist
-  for (size_t i = 0; i < inputColl_.size(); ++i) {
+  for (auto i : inputColl_) {
     edm::Handle<LorentzVectorCollection> tmp;
-    if (iEvent.getByToken(inputColl_[i], tmp)) {
+    if (iEvent.getByToken(i, tmp)) {
       handles.push_back(tmp);
     } else {
       allCollectionsExist = false;
@@ -62,8 +62,8 @@ bool HLTTauRefCombiner::match(const LorentzVector &lv, const LorentzVectorCollec
   bool matched = false;
 
   if (!lvcol.empty())
-    for (LorentzVectorCollection::const_iterator it = lvcol.begin(); it != lvcol.end(); ++it) {
-      double delta = ROOT::Math::VectorUtil::DeltaR(lv, *it);
+    for (const auto &it : lvcol) {
+      double delta = ROOT::Math::VectorUtil::DeltaR(lv, it);
       if (delta < matchDeltaR_) {
         matched = true;
       }

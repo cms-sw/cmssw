@@ -21,20 +21,20 @@ namespace L1Analysis {
     L1AnalysisGCT(bool verbose);
     ~L1AnalysisGCT();
 
-    void SetJet(const edm::Handle<L1GctJetCandCollection> l1CenJets,
-                const edm::Handle<L1GctJetCandCollection> l1ForJets,
-                const edm::Handle<L1GctJetCandCollection> l1TauJets,
-                const edm::Handle<L1GctJetCandCollection> l1IsoTauJets);
+    void SetJet(const edm::Handle<L1GctJetCandCollection>& l1CenJets,
+                const edm::Handle<L1GctJetCandCollection>& l1ForJets,
+                const edm::Handle<L1GctJetCandCollection>& l1TauJets,
+                const edm::Handle<L1GctJetCandCollection>& l1IsoTauJets);
 
-    void SetES(const edm::Handle<L1GctEtMissCollection> l1EtMiss,
-               const edm::Handle<L1GctHtMissCollection> l1HtMiss,
-               const edm::Handle<L1GctEtHadCollection> l1EtHad,
-               const edm::Handle<L1GctEtTotalCollection> l1EtTotal);
+    void SetES(const edm::Handle<L1GctEtMissCollection>& l1EtMiss,
+               const edm::Handle<L1GctHtMissCollection>& l1HtMiss,
+               const edm::Handle<L1GctEtHadCollection>& l1EtHad,
+               const edm::Handle<L1GctEtTotalCollection>& l1EtTotal);
 
-    void SetHFminbias(const edm::Handle<L1GctHFRingEtSumsCollection> l1HFSums,
-                      const edm::Handle<L1GctHFBitCountsCollection> l1HFCounts);
+    void SetHFminbias(const edm::Handle<L1GctHFRingEtSumsCollection>& l1HFSums,
+                      const edm::Handle<L1GctHFBitCountsCollection>& l1HFCounts);
 
-    void SetEm(const edm::Handle<L1GctEmCandCollection> l1IsoEm, const edm::Handle<L1GctEmCandCollection> l1NonIsoEm);
+    void SetEm(const edm::Handle<L1GctEmCandCollection>& l1IsoEm, const edm::Handle<L1GctEmCandCollection>& l1NonIsoEm);
 
     void Reset() { gct_.Reset(); }
 

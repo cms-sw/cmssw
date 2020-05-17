@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "RecoBTag/SecondaryVertex/interface/CandidateBoostedDoubleSecondaryVertexComputer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -24,10 +26,10 @@ CandidateBoostedDoubleSecondaryVertexComputer::CandidateBoostedDoubleSecondaryVe
                       : edm::FileInPath()),
       useGBRForest_(parameters.existsAs<bool>("useGBRForest") ? parameters.getParameter<bool>("useGBRForest") : false),
       useAdaBoost_(parameters.existsAs<bool>("useAdaBoost") ? parameters.getParameter<bool>("useAdaBoost") : false),
-      tokens_{std::move(tokens)} {
+      tokens_{tokens} {
   uses(0, "svTagInfos");
 
-  mvaID.reset(new TMVAEvaluator());
+  mvaID = std::make_unique<TMVAEvaluator>();
 }
 
 void CandidateBoostedDoubleSecondaryVertexComputer::initialize(const JetTagComputerRecord& record) {
@@ -71,7 +73,7 @@ void CandidateBoostedDoubleSecondaryVertexComputer::initialize(const JetTagCompu
 
 float CandidateBoostedDoubleSecondaryVertexComputer::discriminator(const TagInfoHelper& tagInfo) const {
   // get the TagInfo
-  const reco::BoostedDoubleSVTagInfo& bdsvTagInfo = tagInfo.get<reco::BoostedDoubleSVTagInfo>(0);
+  const auto& bdsvTagInfo = tagInfo.get<reco::BoostedDoubleSVTagInfo>(0);
 
   // get the TaggingVariables
   const reco::TaggingVariableList vars = bdsvTagInfo.taggingVariables();

@@ -52,7 +52,7 @@ std::vector<std::pair<std::pair<DetId, LocalPoint>, float> > SiStripFineDelayTLA
   for (itm = TMeas.begin(); itm != TMeas.end(); itm++) {
     TrajectoryStateOnSurface tsos = itm->updatedState();
     auto thit = itm->recHit();
-    const SiStripMatchedRecHit2D* matchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>((*thit).hit());
+    const auto* matchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>((*thit).hit());
     const SiStripRecHit2D* hit = dynamic_cast<const SiStripRecHit2D*>((*thit).hit());
     LocalVector trackdirection = tsos.localDirection();
     if (matchedhit) {  //if matched hit...
@@ -72,7 +72,7 @@ std::vector<std::pair<std::pair<DetId, LocalPoint>, float> > SiStripFineDelayTLA
                               ? 0.0500
                               : 0.0320;
         float angle = computeAngleCorr(monotkdir, localpitch, thickness);
-        hitangleassociation.push_back(make_pair(make_pair(monohit.geographicalId(), monohit.localPosition()), angle));
+        hitangleassociation.emplace_back(make_pair(monohit.geographicalId(), monohit.localPosition()), angle);
         // trackdirection on stereo det
         // this the pointer to the stereo hit of a matched hit
         const SiStripRecHit2D stereohit = matchedhit->stereoHit();
@@ -87,8 +87,7 @@ std::vector<std::pair<std::pair<DetId, LocalPoint>, float> > SiStripFineDelayTLA
                                 ? 0.0500
                                 : 0.0320;
           float angle = computeAngleCorr(stereotkdir, localpitch, thickness);
-          hitangleassociation.push_back(
-              make_pair(make_pair(stereohit.geographicalId(), stereohit.localPosition()), angle));
+          hitangleassociation.emplace_back(make_pair(stereohit.geographicalId(), stereohit.localPosition()), angle);
         }
       }
     } else if (hit) {
@@ -103,7 +102,7 @@ std::vector<std::pair<std::pair<DetId, LocalPoint>, float> > SiStripFineDelayTLA
                 ? 0.0500
                 : 0.0320;
         float angle = computeAngleCorr(trackdirection, localpitch, thickness);
-        hitangleassociation.push_back(make_pair(make_pair(hit->geographicalId(), hit->localPosition()), angle));
+        hitangleassociation.emplace_back(make_pair(hit->geographicalId(), hit->localPosition()), angle);
       }
     }
   }

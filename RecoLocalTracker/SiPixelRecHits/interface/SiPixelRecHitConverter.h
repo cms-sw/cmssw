@@ -81,7 +81,7 @@ namespace cms {
              SiPixelRecHitCollectionNew& output,
              edm::ESHandle<TrackerGeometry>& geom);
 
-    void run(edm::Handle<edmNew::DetSetVector<SiPixelCluster>> inputhandle,
+    void run(const edm::Handle<edmNew::DetSetVector<SiPixelCluster>>& inputhandle,
              SiPixelRecHitCollectionNew& output,
              edm::ESHandle<TrackerGeometry>& geom);
 

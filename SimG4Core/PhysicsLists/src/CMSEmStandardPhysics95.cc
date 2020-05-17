@@ -171,8 +171,8 @@ void CMSEmStandardPhysics95::ConstructProcess() {
 
     } else if (particleName == "e-") {
       G4eIonisation* eioni = new G4eIonisation();
-      G4eMultipleScattering* msc = new G4eMultipleScattering();
-      G4eBremsstrahlung* ebrem = new G4eBremsstrahlung();
+      auto* msc = new G4eMultipleScattering();
+      auto* ebrem = new G4eBremsstrahlung();
 
       ph->RegisterProcess(msc, particle);
       ph->RegisterProcess(eioni, particle);
@@ -180,8 +180,8 @@ void CMSEmStandardPhysics95::ConstructProcess() {
 
     } else if (particleName == "e+") {
       G4eIonisation* eioni = new G4eIonisation();
-      G4eMultipleScattering* msc = new G4eMultipleScattering();
-      G4eBremsstrahlung* ebrem = new G4eBremsstrahlung();
+      auto* msc = new G4eMultipleScattering();
+      auto* ebrem = new G4eBremsstrahlung();
 
       ph->RegisterProcess(msc, particle);
       ph->RegisterProcess(eioni, particle);

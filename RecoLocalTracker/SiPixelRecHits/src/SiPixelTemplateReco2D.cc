@@ -188,9 +188,9 @@ int SiPixelTemplateReco2D::PixelTempReco2D(int id,
   // allow for significant zeros [pseudopixels] to be added
 
   float clusxy[BXM2][BYM2];
-  for (int j = 0; j < BXM2; ++j) {
+  for (auto& j : clusxy) {
     for (int i = 0; i < BYM2; ++i) {
-      clusxy[j][i] = 0.f;
+      j[i] = 0.f;
     }
   }
 
@@ -211,8 +211,8 @@ int SiPixelTemplateReco2D::PixelTempReco2D(int id,
     ysum[i] = 0.f;
     yd[i] = false;
   }
-  for (int j = 0; j < BXM2; ++j) {
-    xd[j] = false;
+  for (bool& j : xd) {
+    j = false;
   }
   for (int i = 0; i < nclusy; ++i) {
     if (ydouble[i]) {
@@ -502,15 +502,15 @@ int SiPixelTemplateReco2D::PixelTempReco2D(int id,
     float ygridscale = 0.271 * cotbeta;
     if (ygridscale < 1.f)
       ygridscale = 1.f;
-    for (int is = 0; is < nilist; ++is) {
-      for (int js = 0; js < njlist; ++js) {
-        float xtry = x0 + jlist[js] * xsize;
-        float ytry = y0 + ilist[is] * ygridscale * ysize;
+    for (float is : ilist) {
+      for (float js : jlist) {
+        float xtry = x0 + js * xsize;
+        float ytry = y0 + is * ygridscale * ysize;
         chi2 = 0.f;
         qactive = 0.f;
-        for (int j = 0; j < BXM2; ++j) {
+        for (auto& j : template2d) {
           for (int i = 0; i < BYM2; ++i) {
-            template2d[j][i] = 0.f;
+            j[i] = 0.f;
           }
         }
         templ2D.xytemp(xtry, ytry, yd, xd, template2d, false, dpdx2d, qtemplate);
@@ -549,9 +549,9 @@ int SiPixelTemplateReco2D::PixelTempReco2D(int id,
 
       // Calculate the initial template which also allows the error calculation for the struck pixels
 
-      for (int j = 0; j < BXM2; ++j) {
+      for (auto& j : template2d) {
         for (int i = 0; i < BYM2; ++i) {
-          template2d[j][i] = 0.f;
+          j[i] = 0.f;
         }
       }
       templ2D.xytemp(x2D, y2D, yd, xd, template2d, true, dpdx2d, qtemplate);

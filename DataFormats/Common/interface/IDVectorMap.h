@@ -87,7 +87,7 @@ namespace edm {
     };
     range get(ID id) const {
       container_iterator begin, end;
-      map_iterator i = map_.find(id);
+      auto i = map_.find(id);
       if (i != map_.end()) {
         begin = i->second.begin();
         end = i->second.end();

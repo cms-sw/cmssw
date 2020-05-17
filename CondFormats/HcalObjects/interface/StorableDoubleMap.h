@@ -48,10 +48,10 @@ private:
 
 template <typename T>
 void StorableDoubleMap<T>::clear() {
-  const typename DataMap::iterator end = data_.end();
-  for (typename DataMap::iterator dit = data_.begin(); dit != end; ++dit) {
-    const typename PtrMap::iterator pend = dit->second.end();
-    for (typename PtrMap::iterator pit = dit->second.begin(); pit != pend; ++pit)
+  const auto end = data_.end();
+  for (auto dit = data_.begin(); dit != end; ++dit) {
+    const auto pend = dit->second.end();
+    for (auto pit = dit->second.begin(); pit != pend; ++pit)
       delete pit->second;
   }
   data_.clear();

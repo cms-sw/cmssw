@@ -14,11 +14,11 @@
 class test_PedestalsBuilder : public edm::EDAnalyzer {
 public:
   test_PedestalsBuilder(const edm::ParameterSet&) { ; }
-  virtual ~test_PedestalsBuilder() { ; }
+  ~test_PedestalsBuilder() override { ; }
 
-  void beginJob() { ; }
-  void analyze(const edm::Event&, const edm::EventSetup&);
-  void endJob() { ; }
+  void beginJob() override { ; }
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override { ; }
 };
 
 #endif  // OnlineDB_SiStripESSources_test_PedestalsBuilder_H

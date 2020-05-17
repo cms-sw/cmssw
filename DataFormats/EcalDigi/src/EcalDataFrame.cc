@@ -15,16 +15,16 @@ int EcalDataFrame::lastUnsaturatedSample() const {
 }
 
 bool EcalDataFrame::hasSwitchToGain6() const {
-  for (unsigned int u = 0; u < m_data.size(); u++) {
-    if ((static_cast<EcalMGPASample>(m_data[u])).gainId() == EcalMgpaBitwiseGain6)
+  for (unsigned short u : m_data) {
+    if ((static_cast<EcalMGPASample>(u)).gainId() == EcalMgpaBitwiseGain6)
       return true;
   }
   return false;
 }
 
 bool EcalDataFrame::hasSwitchToGain1() const {
-  for (unsigned int u = 0; u < m_data.size(); u++) {
-    if ((static_cast<EcalMGPASample>(m_data[u])).gainId() == EcalMgpaBitwiseGain1)
+  for (unsigned short u : m_data) {
+    if ((static_cast<EcalMGPASample>(u)).gainId() == EcalMgpaBitwiseGain1)
       return true;
   }
   return false;

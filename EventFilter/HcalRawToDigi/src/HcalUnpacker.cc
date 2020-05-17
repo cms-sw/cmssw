@@ -406,10 +406,9 @@ void HcalUnpacker::unpackVME(const FEDRawData& raw,
           }
         }
       }
-      for (int i = 0; i < 24; i++) {
-        if (unrolled[i].valid)
-          colls.tphoCont->push_back(HOTriggerPrimitiveDigi(
-              unrolled[i].ieta, unrolled[i].iphi, unrolled[i].samples, unrolled[i].soi, unrolled[i].databits));
+      for (auto& i : unrolled) {
+        if (i.valid)
+          colls.tphoCont->push_back(HOTriggerPrimitiveDigi(i.ieta, i.iphi, i.samples, i.soi, i.databits));
       }
     } else {  // regular TPs (not HO)
       for (tp_work = tp_begin; tp_work != tp_end; tp_work++) {
@@ -685,7 +684,7 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw,
                               Collections& colls,
                               HcalUnpackerReport& report,
                               bool silent) {
-  const hcal::AMC13Header* amc13 = (const hcal::AMC13Header*)(raw.data());
+  const auto* amc13 = (const hcal::AMC13Header*)(raw.data());
 
   // how many AMC in this packet
   int namc = amc13->NAMC();
@@ -1040,7 +1039,7 @@ void HcalUnpacker::unpack(const FEDRawData& raw,
           }
           continue;
         }
-        histoDigis.push_back(HcalHistogramDigi(HcalDetId(did)));  // add it!
+        histoDigis.emplace_back(HcalDetId(did));  // add it!
         HcalHistogramDigi& digi = histoDigis.back();
 
         // unpack the four capids
@@ -1052,7 +1051,7 @@ void HcalUnpacker::unpack(const FEDRawData& raw,
 }
 // Method to unpack uMNio data
 void HcalUnpacker::unpackUMNio(const FEDRawData& raw, int slot, Collections& colls) {
-  const hcal::AMC13Header* amc13 = (const hcal::AMC13Header*)(raw.data());
+  const auto* amc13 = (const hcal::AMC13Header*)(raw.data());
   int namc = amc13->NAMC();
   //Find AMC corresponding to uMNio slot
   for (int iamc = 0; iamc < namc; iamc++) {

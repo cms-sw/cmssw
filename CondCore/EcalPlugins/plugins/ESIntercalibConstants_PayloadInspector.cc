@@ -57,7 +57,7 @@ namespace {
               std::cout << " channel " << id << " side " << myESId.zside() << " plane " << myESId.plane() << std::endl;
               return false;
             }
-            ESIntercalibConstants::const_iterator IC_it = payload->find(myESId);
+            auto IC_it = payload->find(myESId);
             float value = *IC_it;
             //	    if(id < 64) std::cout << " channel " << id << " value " << value << std::endl;
             if (myESId.strip() == 1) {  // we get 32 times the same value, plot it only once!
@@ -138,7 +138,7 @@ namespace {
             if (ESDetId::validHashIndex(id)) {
               ESDetId myESId = ESDetId::unhashIndex(id);
               //	      ESIntercalibConstantsCode status_it = (payload->getMap())[myESId];
-              ESIntercalibConstants::const_iterator IC_it = payload->find(myESId);
+              auto IC_it = payload->find(myESId);
               float value = *IC_it;
               //	      int status = status_it.getStatusCode();
               if (irun == 0)

@@ -17,11 +17,13 @@
 #include "TFile.h"
 #include "TH1F.h"
 #include <iostream>
+#include <memory>
+
 const unsigned int edm::BMixingModule::maxNbSources_ = 4;
 
 namespace {
   std::shared_ptr<edm::PileUpConfig> maybeConfigPileUp(
-      edm::ParameterSet const& ps, std::string sourceName, const int minb, const int maxb, const bool playback) {
+      edm::ParameterSet const& ps, const std::string& sourceName, const int minb, const int maxb, const bool playback) {
     std::shared_ptr<edm::PileUpConfig> pileupconfig;  // value to be returned
     // Make sure we have a parameter named 'sourceName'
     if (ps.exists(sourceName)) {
@@ -214,10 +216,10 @@ namespace edm {
       }
 
       // Just for debugging print out.
-      sourceNames_.push_back("input");
-      sourceNames_.push_back("cosmics");
-      sourceNames_.push_back("beamhalo_plus");
-      sourceNames_.push_back("beamhalo_minus");
+      sourceNames_.emplace_back("input");
+      sourceNames_.emplace_back("cosmics");
+      sourceNames_.emplace_back("beamhalo_plus");
+      sourceNames_.emplace_back("beamhalo_minus");
 
       for (size_t makeIdx = 0; makeIdx < maxNbSources; makeIdx++) {
         inputConfigs_.push_back(maybeConfigPileUp(pset, sourceNames_[makeIdx], minBunch_, maxBunch_, playback_));
@@ -226,7 +228,7 @@ namespace edm {
   }  // namespace MixingCache
 
   std::unique_ptr<MixingCache::Config> BMixingModule::initializeGlobalCache(edm::ParameterSet const& pset) {
-    return std::unique_ptr<MixingCache::Config>(new MixingCache::Config(pset, maxNbSources_));
+    return std::make_unique<MixingCache::Config>(pset, maxNbSources_);
   }
 
   // update method call at begin run/lumi to reload the mixing configuration

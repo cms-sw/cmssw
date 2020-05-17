@@ -49,7 +49,7 @@ LumiScalers::LumiScalers()
 LumiScalers::LumiScalers(const unsigned char* rawData) {
   LumiScalers();
 
-  struct ScalersEventRecordRaw_v1 const* raw = reinterpret_cast<struct ScalersEventRecordRaw_v1 const*>(rawData);
+  auto const* raw = reinterpret_cast<struct ScalersEventRecordRaw_v1 const*>(rawData);
   trigType_ = (raw->header >> 56) & 0xFULL;
   eventID_ = (raw->header >> 32) & 0x00FFFFFFULL;
   sourceID_ = (raw->header >> 8) & 0x00000FFFULL;
@@ -62,7 +62,7 @@ LumiScalers::LumiScalers(const unsigned char* rawData) {
     if (version_ <= 2) {
       lumi = &(raw->lumi);
     } else {
-      struct ScalersEventRecordRaw_v3 const* raw3 = reinterpret_cast<struct ScalersEventRecordRaw_v3 const*>(rawData);
+      auto const* raw3 = reinterpret_cast<struct ScalersEventRecordRaw_v3 const*>(rawData);
       lumi = &(raw3->lumi);
     }
     collectionTime_.set_tv_sec(static_cast<long>(lumi->collectionTime_sec));
@@ -98,7 +98,7 @@ LumiScalers::LumiScalers(const unsigned char* rawData) {
     numOrbits_ = lumi->numOrbits;
 
     if (version_ >= 7) {
-      struct ScalersEventRecordRaw_v6 const* raw6 = (struct ScalersEventRecordRaw_v6 const*)rawData;
+      auto const* raw6 = (struct ScalersEventRecordRaw_v6 const*)rawData;
       float const* fspare = reinterpret_cast<float const*>(raw6->spare);
       pileup_ = fspare[ScalersRaw::I_SPARE_PILEUP_v7];
       pileupRMS_ = fspare[ScalersRaw::I_SPARE_PILEUPRMS_v7];

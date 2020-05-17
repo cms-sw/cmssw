@@ -95,12 +95,12 @@ using namespace reco;
 class TestIsoTracks : public edm::EDAnalyzer {
 public:
   explicit TestIsoTracks(const edm::ParameterSet&);
-  virtual ~TestIsoTracks(){};
+  ~TestIsoTracks() override{};
 
   void setPrimaryVertex(const reco::Vertex& a) { theRecVertex = a; }
   void setTracksFromPrimaryVertex(vector<reco::Track>& a) { theTrack = a; }
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  void endJob(void);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob(void) override;
 
 private:
   TFile* m_Hfile;
@@ -181,9 +181,9 @@ void TestIsoTracks::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   //   for(SimTrackContainer::const_iterator tracksCI = simTracks->begin();
   //       tracksCI != simTracks->end(); tracksCI++){
 
-  for (reco::TrackCollection::const_iterator tracksCI = tC.begin(); tracksCI != tC.end(); tracksCI++) {
+  for (const auto& tracksCI : tC) {
     double mome_pt =
-        sqrt(tracksCI->momentum().x() * tracksCI->momentum().x() + tracksCI->momentum().y() * tracksCI->momentum().y());
+        sqrt(tracksCI.momentum().x() * tracksCI.momentum().x() + tracksCI.momentum().y() * tracksCI.momentum().y());
 
     // skip low Pt tracks
     if (mome_pt < 0.5) {
@@ -205,7 +205,7 @@ void TestIsoTracks::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     //      }
 
     std::cout << "\n-------------------------------------------------------\n Track (pt,eta,phi): " << mome_pt << " , "
-              << tracksCI->momentum().eta() << " , " << tracksCI->momentum().phi() << std::endl;
+              << tracksCI.momentum().eta() << " , " << tracksCI.momentum().phi() << std::endl;
 
     // Simply get ECAL energy of the crossed crystals
     //      std::cout << "ECAL energy of crossed crystals: " <<
@@ -215,7 +215,7 @@ void TestIsoTracks::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
     //      std::cout << "Details:\n" <<std::endl;
     TrackDetMatchInfo info = trackAssociator_.associate(
-        iEvent, iSetup, trackAssociator_.getFreeTrajectoryState(iSetup, *tracksCI), trackAssociatorParameters_);
+        iEvent, iSetup, trackAssociator_.getFreeTrajectoryState(iSetup, tracksCI), trackAssociatorParameters_);
     //      std::cout << "ECAL, if track reach ECAL:     " << info.isGoodEcal << std::endl;
     //      std::cout << "ECAL, number of crossed cells: " << info.crossedEcalRecHits.size() << std::endl;
     //      std::cout << "ECAL, energy of crossed cells: " << info.ecalEnergy() << " GeV" << std::endl;
@@ -231,16 +231,16 @@ void TestIsoTracks::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
         sqrt(info.trkGlobPosAtEcal.x() * info.trkGlobPosAtEcal.x() +
              info.trkGlobPosAtEcal.y() * info.trkGlobPosAtEcal.y() +
              info.trkGlobPosAtEcal.z() * info.trkGlobPosAtEcal.z()) /
-        sqrt(tracksCI->momentum().x() * tracksCI->momentum().x() + tracksCI->momentum().y() * tracksCI->momentum().y() +
-             tracksCI->momentum().z() * tracksCI->momentum().z());
+        sqrt(tracksCI.momentum().x() * tracksCI.momentum().x() + tracksCI.momentum().y() * tracksCI.momentum().y() +
+             tracksCI.momentum().z() * tracksCI.momentum().z());
 
     if (info.isGoodEcal == 1 && fabs(info.trkGlobPosAtEcal.eta()) < 2.6) {
-      AllTracks.push_back(GlobalPoint(
-          info.trkGlobPosAtEcal.x() / rfa, info.trkGlobPosAtEcal.y() / rfa, info.trkGlobPosAtEcal.z() / rfa));
+      AllTracks.emplace_back(
+          info.trkGlobPosAtEcal.x() / rfa, info.trkGlobPosAtEcal.y() / rfa, info.trkGlobPosAtEcal.z() / rfa);
       if (mome_pt > 2. && fabs(info.trkGlobPosAtEcal.eta()) < 2.1)
         if (fabs(info.trkGlobPosAtEcal.eta()) < 2.1) {
-          AllTracks1.push_back(GlobalPoint(
-              info.trkGlobPosAtEcal.x() / rfa, info.trkGlobPosAtEcal.y() / rfa, info.trkGlobPosAtEcal.z() / rfa));
+          AllTracks1.emplace_back(
+              info.trkGlobPosAtEcal.x() / rfa, info.trkGlobPosAtEcal.y() / rfa, info.trkGlobPosAtEcal.z() / rfa);
         }
     }
 
@@ -263,14 +263,14 @@ void TestIsoTracks::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   double imult = 0.;
 
-  for (unsigned int ia1 = 0; ia1 < AllTracks1.size(); ia1++) {
+  for (auto& ia1 : AllTracks1) {
     double delta_min = 3.141592;
 
-    for (unsigned int ia = 0; ia < AllTracks.size(); ia++) {
-      double delta_phi = fabs(AllTracks1[ia1].phi() - AllTracks[ia].phi());
+    for (auto& AllTrack : AllTracks) {
+      double delta_phi = fabs(ia1.phi() - AllTrack.phi());
       if (delta_phi > 3.141592)
         delta_phi = 6.283184 - delta_phi;
-      double delta_eta = fabs(AllTracks1[ia1].eta() - AllTracks[ia].eta());
+      double delta_eta = fabs(ia1.eta() - AllTrack.eta());
       double delta_actual = sqrt(delta_phi * delta_phi + delta_eta * delta_eta);
 
       if (delta_actual < delta_min && delta_actual != 0.)
@@ -278,13 +278,12 @@ void TestIsoTracks::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     }
 
     if (delta_min > 0.5) {
-      std::cout << "FIND ISOLATED TRACK " << AllTracks1[ia1].mag() << "  " << AllTracks1[ia1].eta() << "  "
-                << AllTracks1[ia1].phi() << std::endl;
+      std::cout << "FIND ISOLATED TRACK " << ia1.mag() << "  " << ia1.eta() << "  " << ia1.phi() << std::endl;
 
-      IsoHists.eta->Fill(AllTracks1[ia1].eta());
-      IsoHists.phi->Fill(AllTracks1[ia1].phi());
-      IsoHists.p->Fill(AllTracks1[ia1].mag());
-      IsoHists.pt->Fill(AllTracks1[ia1].perp());
+      IsoHists.eta->Fill(ia1.eta());
+      IsoHists.phi->Fill(ia1.phi());
+      IsoHists.p->Fill(ia1.mag());
+      IsoHists.pt->Fill(ia1.perp());
 
       imult = imult + 1.;
     }

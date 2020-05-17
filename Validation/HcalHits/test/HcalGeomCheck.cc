@@ -219,14 +219,14 @@ void HcalGeomCheck::beginJob() {
   }
 
   std::vector<std::string> dets = {"HCAL", "HB", "HE", "HF", "HO"};
-  for (unsigned int ih = 0; ih < dets.size(); ++ih) {
-    sprintf(name, "E_%s", dets[ih].c_str());
-    sprintf(title, "Energy deposit in %s (MeV)", dets[ih].c_str());
+  for (auto& det : dets) {
+    sprintf(name, "E_%s", det.c_str());
+    sprintf(title, "Energy deposit in %s (MeV)", det.c_str());
     h_E_.emplace_back(fs->make<TH1D>(name, title, 1000, 0.0, 1.0));
     if (verbosity_ > 2)
       edm::LogVerbatim("HcalValidation") << "HcalGeomCheck: books " << title;
-    sprintf(name, "T_%s", dets[ih].c_str());
-    sprintf(title, "Time of hit in %s (ns)", dets[ih].c_str());
+    sprintf(name, "T_%s", det.c_str());
+    sprintf(title, "Time of hit in %s (ns)", det.c_str());
     h_T_.emplace_back(fs->make<TH1D>(name, title, 1000, 0.0, 200.0));
     if (verbosity_ > 2)
       edm::LogVerbatim("HcalValidation") << "HcalGeomCheck: books " << title;

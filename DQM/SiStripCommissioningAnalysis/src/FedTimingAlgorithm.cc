@@ -38,7 +38,7 @@ void FedTimingAlgorithm::extract(const std::vector<TH1*>& histos) {
   }
 
   // Extract histograms
-  std::vector<TH1*>::const_iterator ihis = histos.begin();
+  auto ihis = histos.begin();
   for (; ihis != histos.end(); ihis++) {
     // Check for NULL pointer
     if (!(*ihis)) {
@@ -67,8 +67,8 @@ void FedTimingAlgorithm::analyse() {
     return;
   }
 
-  CommissioningAnalysis* tmp = const_cast<CommissioningAnalysis*>(anal());
-  FedTimingAnalysis* anal = dynamic_cast<FedTimingAnalysis*>(tmp);
+  auto* tmp = const_cast<CommissioningAnalysis*>(anal());
+  auto* anal = dynamic_cast<FedTimingAnalysis*>(tmp);
   if (!anal) {
     edm::LogWarning(mlCommissioning_) << "[FedTimingAlgorithm::" << __func__ << "]"
                                       << " NULL pointer to derived Analysis object!";
@@ -158,9 +158,9 @@ void FedTimingAlgorithm::analyse() {
   // Find rms spread in "baseline" samples
   float mean = 0.;
   float mean2 = 0.;
-  for (uint16_t ibin = 0; ibin < base.size(); ibin++) {
-    mean += base[ibin];
-    mean2 += base[ibin] * base[ibin];
+  for (float ibin : base) {
+    mean += ibin;
+    mean2 += ibin * ibin;
   }
   if (!base.empty()) {
     mean = mean / base.size();
@@ -194,7 +194,7 @@ void FedTimingAlgorithm::analyse() {
   bool found = false;
   uint16_t deriv_bin = sistrip::invalid_;
   float max_deriv = -1. * sistrip::invalid_;
-  std::map<uint16_t, float>::iterator iter = edges.begin();
+  auto iter = edges.begin();
   while (!found && iter != edges.end()) {
     // Iterate through 50 subsequent samples
     bool valid = true;

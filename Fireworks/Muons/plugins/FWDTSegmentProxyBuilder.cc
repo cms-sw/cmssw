@@ -59,7 +59,7 @@ void FWDTSegmentProxyBuilder::buildViewType(const DTRecSegment4D& iData,
     return;
   }
 
-  TEveStraightLineSet* segmentSet = new TEveStraightLineSet();
+  auto* segmentSet = new TEveStraightLineSet();
   // FIXME: This should be set elsewhere.
   segmentSet->SetLineWidth(3);
   setupAddElement(segmentSet, &oItemHolder);
@@ -126,9 +126,9 @@ void FWDTSegmentProxyBuilder::buildViewType(const DTRecSegment4D& iData,
         copy(zRecHits.begin(), zRecHits.end(), back_inserter(recHits));
       }
 
-      for (std::vector<DTRecHit1D>::const_iterator rh = recHits.begin(); rh != recHits.end(); ++rh) {
-        DTLayerId layerId = (*rh).wireId().layerId();
-        LocalPoint hpos = (*rh).localPosition();
+      for (const auto& recHit : recHits) {
+        DTLayerId layerId = recHit.wireId().layerId();
+        LocalPoint hpos = recHit.localPosition();
         float hitLocalPos[3] = {hpos.x(), hpos.y(), hpos.z()};
         if (type == FWViewType::kRhoZ) {
           // In RhoZ view, draw hits at the middle of the layer in the global Z coordinate,

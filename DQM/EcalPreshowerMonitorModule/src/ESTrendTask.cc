@@ -128,16 +128,15 @@ void ESTrendTask::analyze(const Event& e, const EventSetup& c) {
   vector<int> fiberStatus;
   Handle<ESRawDataCollection> dccs;
   if (e.getByToken(dccCollections_, dccs)) {
-    for (ESRawDataCollection::const_iterator dccItr = dccs->begin(); dccItr != dccs->end(); ++dccItr) {
-      ESDCCHeaderBlock dcc = (*dccItr);
+    for (const auto& dccItr : *dccs) {
+      ESDCCHeaderBlock dcc = dccItr;
 
       if (dcc.getDCCErrors() == 101)
         slinkCRCErr++;
 
       fiberStatus = dcc.getFEChannelStatus();
-      for (unsigned int i = 0; i < fiberStatus.size(); ++i) {
-        if (fiberStatus[i] == 4 || fiberStatus[i] == 8 || fiberStatus[i] == 10 || fiberStatus[i] == 11 ||
-            fiberStatus[i] == 12)
+      for (int fiberStatu : fiberStatus) {
+        if (fiberStatu == 4 || fiberStatu == 8 || fiberStatu == 10 || fiberStatu == 11 || fiberStatu == 12)
           fiberErr++;
       }
     }
@@ -158,15 +157,15 @@ void ESTrendTask::analyze(const Event& e, const EventSetup& c) {
   // ES RecHits
   int zside, plane;
   int nrh[2][2];
-  for (int i = 0; i < 2; i++)
+  for (auto& i : nrh)
     for (int j = 0; j < 2; j++) {
-      nrh[i][j] = 0;
+      i[j] = 0;
     }
 
   Handle<ESRecHitCollection> ESRecHit;
   if (e.getByToken(rechittoken_, ESRecHit)) {
-    for (ESRecHitCollection::const_iterator hitItr = ESRecHit->begin(); hitItr != ESRecHit->end(); ++hitItr) {
-      ESDetId id = ESDetId(hitItr->id());
+    for (const auto& hitItr : *ESRecHit) {
+      ESDetId id = ESDetId(hitItr.id());
 
       zside = id.zside();
       plane = id.plane();

@@ -22,14 +22,17 @@ public:
    *  Constructor
    *  Makes a connection to an oracle database without TNS_ADMIN
    */
-  EcalDBConnection(std::string host, std::string sid, std::string user, std::string pass, int port = 1521) noexcept(
-      false);
+  EcalDBConnection(const std::string& host,
+                   const std::string& sid,
+                   const std::string& user,
+                   const std::string& pass,
+                   int port = 1521) noexcept(false);
 
   /**
    *  Constructor
    *  Makes a connection to an oracle database using TNS_ADMIN
    */
-  EcalDBConnection(std::string sid, std::string user, std::string pass) noexcept(false);
+  EcalDBConnection(const std::string& sid, const std::string& user, const std::string& pass) noexcept(false);
 
   /**
    *  Destructor

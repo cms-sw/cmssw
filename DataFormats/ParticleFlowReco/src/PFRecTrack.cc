@@ -25,8 +25,8 @@ std::ostream& reco::operator<<(std::ostream& out, const PFRecTrack& track) {
       << "\tnumber of tracker measurements = " << track.nTrajectoryMeasurements() << std::endl
       << "\tnumber of points total = " << track.trajectoryPoints().size() << std::endl;
 
-  for (unsigned i = 0; i < track.trajectoryPoints().size(); i++)
-    out << track.trajectoryPoints()[i] << std::endl;
+  for (const auto& i : track.trajectoryPoints())
+    out << i << std::endl;
 
   return out;
 }

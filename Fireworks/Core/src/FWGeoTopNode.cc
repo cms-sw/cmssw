@@ -154,8 +154,8 @@ bool FWGeoTopNode::selectPhysicalFromTable(int tableIndex) {
 
 //______________________________________________________________________________
 void FWGeoTopNode::printSelected() {
-  for (std::set<TGLPhysicalShape*>::iterator it = fSted.begin(); it != fSted.end(); ++it) {
-    printf("FWGeoTopNode::printSelected %s \n", tableManager()->refEntries().at(tableIdx(*it)).name());
+  for (auto it : fSted) {
+    printf("FWGeoTopNode::printSelected %s \n", tableManager()->refEntries().at(tableIdx(it)).name());
   }
 }
 
@@ -166,9 +166,7 @@ int FWGeoTopNode::getFirstSelectedTableIndex() {
 
   if (fSted.size() <= 1) {
     int cnt = 0;
-    for (FWGeometryTableManagerBase::Entries_i i = tableManager()->refEntries().begin();
-         i != tableManager()->refEntries().end();
-         ++i, ++cnt) {
+    for (auto i = tableManager()->refEntries().begin(); i != tableManager()->refEntries().end(); ++i, ++cnt) {
       if (i->testBit(FWGeometryTableManagerBase::kSelected))
         return cnt;
     }
@@ -225,7 +223,7 @@ void FWGeoTopNode::paintShape(Int_t tableIndex, const TGeoHMatrix& nm, bool volu
     return;
   TGeoShape* shape = data.m_node->GetVolume()->GetShape();
 
-  TGeoCompositeShape* compositeShape = dynamic_cast<TGeoCompositeShape*>(shape);
+  auto* compositeShape = dynamic_cast<TGeoCompositeShape*>(shape);
   if (compositeShape) {
     // m_scene->fNextCompositeID = phyID(tableIndex);
 
@@ -317,19 +315,15 @@ void FWGeoTopNode::Paint(Option_t* opt) {
 // ______________________________________________________________________
 void FWGeoTopNode::UnSelected() {
   ClearSet(fSted);
-  for (FWGeometryTableManagerBase::Entries_i i = tableManager()->refEntries().begin();
-       i != tableManager()->refEntries().end();
-       ++i)
-    i->resetBit(FWGeometryTableManagerBase::kSelected);
+  for (auto& i : tableManager()->refEntries())
+    i.resetBit(FWGeometryTableManagerBase::kSelected);
 }
 
 // ______________________________________________________________________
 void FWGeoTopNode::UnHighlighted() {
   ClearSet(fHted);
-  for (FWGeometryTableManagerBase::Entries_i i = tableManager()->refEntries().begin();
-       i != tableManager()->refEntries().end();
-       ++i)
-    i->resetBit(FWGeometryTableManagerBase::kHighlighted);
+  for (auto& i : tableManager()->refEntries())
+    i.resetBit(FWGeometryTableManagerBase::kHighlighted);
 }
 
 // ______________________________________________________________________

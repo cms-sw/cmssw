@@ -37,25 +37,25 @@ PixelGlobalDelay25::PixelGlobalDelay25(vector<vector<string> > &tableMat) : Pixe
     GLOBALDELAY25                                       VARCHAR
 
   */
-  colNames.push_back("CONFIG_KEY");
-  colNames.push_back("KEY_TYPE");
-  colNames.push_back("KEY_ALIAS_ID");
-  colNames.push_back("KEY_ALIAS");
-  colNames.push_back("VERSION");
-  colNames.push_back("KIND_OF_COND");
-  colNames.push_back("GLOBALDELAY25");
+  colNames.emplace_back("CONFIG_KEY");
+  colNames.emplace_back("KEY_TYPE");
+  colNames.emplace_back("KEY_ALIAS_ID");
+  colNames.emplace_back("KEY_ALIAS");
+  colNames.emplace_back("VERSION");
+  colNames.emplace_back("KIND_OF_COND");
+  colNames.emplace_back("GLOBALDELAY25");
   for (unsigned int c = 0; c < ins.size(); c++) {
-    for (unsigned int n = 0; n < colNames.size(); n++) {
-      if (tableMat[0][c] == colNames[n]) {
-        colM[colNames[n]] = c;
+    for (const auto &colName : colNames) {
+      if (tableMat[0][c] == colName) {
+        colM[colName] = c;
         break;
       }
     }
   }  //end for
-  for (unsigned int n = 0; n < colNames.size(); n++) {
-    if (colM.find(colNames[n]) == colM.end()) {
+  for (const auto &colName : colNames) {
+    if (colM.find(colName) == colM.end()) {
       std::cerr << "[PixelGlobalDelay25::PixelGlobalDelay25()]\tCouldn't find in the database the column with name "
-                << colNames[n] << std::endl;
+                << colName << std::endl;
       assert(0);
     }
   }
@@ -70,7 +70,7 @@ PixelGlobalDelay25::PixelGlobalDelay25(vector<vector<string> > &tableMat) : Pixe
   }
 }
 
-PixelGlobalDelay25::PixelGlobalDelay25(std::string filename) : PixelConfigBase(" ", " ", " ") {
+PixelGlobalDelay25::PixelGlobalDelay25(const std::string &filename) : PixelConfigBase(" ", " ", " ") {
   std::string mthn = "[PixelGlobalDelay25::PixelGlobalDelay25()]\t\t\t    ";
   std::ifstream in(filename.c_str());
 

@@ -39,9 +39,9 @@
 class testEcalRingCalibrationTools : public edm::EDAnalyzer {
 public:
   explicit testEcalRingCalibrationTools(const edm::ParameterSet&);
-  ~testEcalRingCalibrationTools();
+  ~testEcalRingCalibrationTools() override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   // ----------member data ---------------------------
@@ -76,7 +76,7 @@ void testEcalRingCalibrationTools::build(const CaloGeometry& cg, DetId::Detector
   std::fstream f(name, std::ios_base::out);
   const CaloSubdetectorGeometry* geom = cg.getSubdetectorGeometry(det, subdetn);
 
-  std::vector<DetId> ids = geom->getValidDetIds(det, subdetn);
+  const std::vector<DetId>& ids = geom->getValidDetIds(det, subdetn);
   if (det == DetId::Ecal && subdetn == EcalBarrel) {
     f << "EB-" << std::endl;
     for (int iphi = 360; iphi > 0; --iphi) {
@@ -108,8 +108,8 @@ void testEcalRingCalibrationTools::build(const CaloGeometry& cg, DetId::Detector
       std::vector<DetId> ringIds = EcalRingCalibrationTools::getDetIdsInRing(i);
       std::cout << i << " " << ringIds.size() << std::endl;
       assert(ringIds.size() == 360);
-      for (unsigned int iid = 0; iid < ringIds.size(); ++iid)
-        f << EBDetId(ringIds[iid]) << std::endl;
+      for (auto ringId : ringIds)
+        f << EBDetId(ringId) << std::endl;
     }
   }
 
@@ -145,8 +145,8 @@ void testEcalRingCalibrationTools::build(const CaloGeometry& cg, DetId::Detector
       std::vector<DetId> ringIds = EcalRingCalibrationTools::getDetIdsInRing(i);
       std::cout << i << " " << ringIds.size() << std::endl;
       totalRingSize += ringIds.size();
-      for (unsigned int iid = 0; iid < ringIds.size(); ++iid)
-        f << EEDetId(ringIds[iid]) << std::endl;
+      for (auto ringId : ringIds)
+        f << EEDetId(ringId) << std::endl;
     }
     assert(totalRingSize == ids.size());
   }

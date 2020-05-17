@@ -141,7 +141,7 @@ void BlockFormatter::CleanUp(FEDRawDataCollection* productRawData, map<int, map<
 
     // cout << " in BlockFormatter::CleanUp. FEDid = " << FEDid << " event_length*8 " << dec << event_length*8 << endl;
 
-    map<int, map<int, int> >::iterator fen = FEDorder->find(FEDid);
+    auto fen = FEDorder->find(FEDid);
 
     bool FED_has_data = true;
     if (fen == FEDorder->end())
@@ -164,7 +164,7 @@ void BlockFormatter::CleanUp(FEDRawDataCollection* productRawData, map<int, map<
       map<int, int>& FEorder = (*fen).second;
 
       for (int iFE = 1; iFE <= 68; iFE++) {
-        map<int, int>::iterator fe = FEorder.find(iFE);
+        auto fe = FEorder.find(iFE);
         int ch_status = 0;
         if (fe == FEorder.end())  // FE not present due to SRP, update CH_status
           ch_status = 7;          // CH_SUPPRESS

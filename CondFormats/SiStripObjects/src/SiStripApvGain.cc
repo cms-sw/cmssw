@@ -7,7 +7,7 @@
 
 bool SiStripApvGain::put(const uint32_t& DetId, Range input) {
   // put in SiStripApvGain of DetId
-  RegistryIterator p = std::lower_bound(v_detids.begin(), v_detids.end(), DetId);
+  auto p = std::lower_bound(v_detids.begin(), v_detids.end(), DetId);
   if (p != v_detids.end() && *p == DetId) {
     edm::LogError("SiStripApvGain") << "[" << __PRETTY_FUNCTION__ << "] SiStripApvGain for DetID " << DetId
                                     << " is already stored. Skippig this put" << std::endl;
@@ -29,7 +29,7 @@ bool SiStripApvGain::put(const uint32_t& DetId, Range input) {
 
 const SiStripApvGain::Range SiStripApvGain::getRange(const uint32_t DetId) const {
   // get SiStripApvGain Range of DetId
-  RegistryConstIterator p = std::lower_bound(v_detids.begin(), v_detids.end(), DetId);
+  auto p = std::lower_bound(v_detids.begin(), v_detids.end(), DetId);
   if (p == v_detids.end() || *p != DetId)
     return SiStripApvGain::Range(v_gains.end(), v_gains.end());
   else {
@@ -83,7 +83,7 @@ float SiStripApvGain::getApvGain(const uint16_t& apv, const Range& range) {
 #endif
 
 void SiStripApvGain::printDebug(std::stringstream& ss, const TrackerTopology* /*trackerTopo*/) const {
-  std::vector<unsigned int>::const_iterator detid = v_detids.begin();
+  auto detid = v_detids.begin();
   ss << "Number of detids " << v_detids.size() << std::endl;
 
   for (; detid != v_detids.end(); ++detid) {
@@ -99,7 +99,7 @@ void SiStripApvGain::printDebug(std::stringstream& ss, const TrackerTopology* /*
 void SiStripApvGain::printSummary(std::stringstream& ss, const TrackerTopology* trackerTopo) const {
   SiStripDetSummary summaryGain{trackerTopo};
 
-  std::vector<uint32_t>::const_iterator detid = v_detids.begin();
+  auto detid = v_detids.begin();
   for (; detid != v_detids.end(); ++detid) {
     Range range = getRange(*detid);
     for (int it = 0; it < range.second - range.first; ++it) {

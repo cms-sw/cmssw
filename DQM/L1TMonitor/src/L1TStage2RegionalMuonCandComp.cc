@@ -335,9 +335,8 @@ void L1TStage2RegionalMuonCandComp::analyze(const edm::Event& e, const edm::Even
             muColl1hwDXY->Fill(muonIt1->hwDXY());
             muColl1hwPt2->Fill(muonIt1->hwPt2());
           }
-          for (std::map<int, int>::const_iterator trIt1 = muon1TrackAddr.begin(); trIt1 != muon1TrackAddr.end();
-               ++trIt1) {
-            muColl1TrkAddr->Fill(trIt1->first, trIt1->second);
+          for (auto trIt1 : muon1TrackAddr) {
+            muColl1TrkAddr->Fill(trIt1.first, trIt1.second);
           }
         }
       } else {
@@ -359,9 +358,8 @@ void L1TStage2RegionalMuonCandComp::analyze(const edm::Event& e, const edm::Even
             muColl2hwDXY->Fill(muonIt2->hwDXY());
             muColl2hwPt2->Fill(muonIt2->hwPt2());
           }
-          for (std::map<int, int>::const_iterator trIt2 = muon2TrackAddr.begin(); trIt2 != muon2TrackAddr.end();
-               ++trIt2) {
-            muColl2TrkAddr->Fill(trIt2->first, trIt2->second);
+          for (auto trIt2 : muon2TrackAddr) {
+            muColl2TrkAddr->Fill(trIt2.first, trIt2.second);
           }
         }
       }
@@ -473,12 +471,11 @@ void L1TStage2RegionalMuonCandComp::analyze(const edm::Event& e, const edm::Even
       std::map<int, int> muon2TrackAddr = muonIt2->trackAddress();
       bool badTrackAddr = false;
       if (muon1TrackAddr.size() == muon2TrackAddr.size()) {
-        for (std::map<int, int>::const_iterator trIt1 = muon1TrackAddr.begin(); trIt1 != muon1TrackAddr.end();
-             ++trIt1) {
-          if (muon2TrackAddr.find(trIt1->first) == muon2TrackAddr.end()) {  // key does not exist
+        for (auto trIt1 : muon1TrackAddr) {
+          if (muon2TrackAddr.find(trIt1.first) == muon2TrackAddr.end()) {  // key does not exist
             badTrackAddr = true;
             break;
-          } else if (muon2TrackAddr[trIt1->first] != trIt1->second) {  // wrong value for key
+          } else if (muon2TrackAddr[trIt1.first] != trIt1.second) {  // wrong value for key
             badTrackAddr = true;
             break;
           }
@@ -536,9 +533,8 @@ void L1TStage2RegionalMuonCandComp::analyze(const edm::Event& e, const edm::Even
           muColl1hwDXY->Fill(muonIt1->hwDXY());
           muColl1hwPt2->Fill(muonIt1->hwPt2());
         }
-        for (std::map<int, int>::const_iterator trIt1 = muon1TrackAddr.begin(); trIt1 != muon1TrackAddr.end();
-             ++trIt1) {
-          muColl1TrkAddr->Fill(trIt1->first, trIt1->second);
+        for (auto trIt1 : muon1TrackAddr) {
+          muColl1TrkAddr->Fill(trIt1.first, trIt1.second);
         }
 
         muColl2hwPt->Fill(muonIt2->hwPt());
@@ -556,8 +552,7 @@ void L1TStage2RegionalMuonCandComp::analyze(const edm::Event& e, const edm::Even
           muColl2hwDXY->Fill(muonIt2->hwDXY());
           muColl2hwPt2->Fill(muonIt2->hwPt2());
         }
-        for (std::map<int, int>::const_iterator trIt2 = muon2TrackAddr.begin(); trIt2 != muon2TrackAddr.end();
-             ++trIt2) {
+        for (auto trIt2 = muon2TrackAddr.begin(); trIt2 != muon2TrackAddr.end(); ++trIt2) {
           muColl2TrkAddr->Fill(trIt2->first, trIt2->second);
         }
       } else {

@@ -56,9 +56,9 @@ void RazorComputer::compute(const edm::Event& iEvent) const {
 
   std::vector<LorentzVector> jets;
   jets.reserve(jetH.product()->size());
-  for (std::vector<pat::Jet>::const_iterator jetit = jetH.product()->begin(); jetit != jetH.product()->end(); ++jetit) {
-    if (jetit->et() > pt_ && fabs(jetit->eta()) < eta_) {
-      jets.push_back(jetit->p4());
+  for (const auto& jetit : *jetH.product()) {
+    if (jetit.et() > pt_ && fabs(jetit.eta()) < eta_) {
+      jets.push_back(jetit.p4());
     }
   }
 

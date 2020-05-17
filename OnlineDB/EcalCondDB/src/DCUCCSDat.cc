@@ -169,8 +169,8 @@ void DCUCCSDat::writeArrayDB(const std::map<EcalLogicID, DCUCCSDat>* data, DCUIO
   const DCUCCSDat* dataitem;
   int count = 0;
   typedef map<EcalLogicID, DCUCCSDat>::const_iterator CI;
-  for (CI p = data->begin(); p != data->end(); ++p) {
-    channel = &(p->first);
+  for (const auto& p : *data) {
+    channel = &(p.first);
     int logicID = channel->getLogicID();
     if (!logicID) {
       throw(std::runtime_error("DCUCCSDat::writeArrayDB:  Bad EcalLogicID"));
@@ -178,7 +178,7 @@ void DCUCCSDat::writeArrayDB(const std::map<EcalLogicID, DCUCCSDat>* data, DCUIO
     ids[count] = logicID;
     iovid_vec[count] = iovID;
 
-    dataitem = &(p->second);
+    dataitem = &(p.second);
 
     x1[count] = dataitem->getM1VDD1();
     x2[count] = dataitem->getM2VDD1();

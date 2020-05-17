@@ -12,6 +12,8 @@
 
 // system include files
 #include <algorithm>
+#include <memory>
+
 #include <string>
 #include "TFile.h"
 #include "TTree.h"
@@ -300,7 +302,7 @@ void NanoAODOutputModule::openFile(edm::FileBlock const&) {
 
   for (const auto& keep : keeps[edm::InRun]) {
     if (keep.first->className() == "nanoaod::MergeableCounterTable")
-      m_runTables.push_back(SummaryTableOutputBranches(keep.first, keep.second));
+      m_runTables.emplace_back(keep.first, keep.second);
     else if (keep.first->className() == "nanoaod::UniqueString" && keep.first->moduleLabel() == "nanoMetadata")
       m_nanoMetadata.emplace_back(keep.first->productInstanceName(), keep.second);
     else
@@ -309,23 +311,23 @@ void NanoAODOutputModule::openFile(edm::FileBlock const&) {
   }
 
   // create the trees
-  m_tree.reset(new TTree("Events", "Events"));
+  m_tree = std::make_unique<TTree>("Events", "Events");
   m_tree->SetAutoSave(0);
   m_tree->SetAutoFlush(0);
   m_commonBranches.branch(*m_tree);
 
-  m_lumiTree.reset(new TTree("LuminosityBlocks", "LuminosityBlocks"));
+  m_lumiTree = std::make_unique<TTree>("LuminosityBlocks", "LuminosityBlocks");
   m_lumiTree->SetAutoSave(0);
   m_commonLumiBranches.branch(*m_lumiTree);
 
-  m_runTree.reset(new TTree("Runs", "Runs"));
+  m_runTree = std::make_unique<TTree>("Runs", "Runs");
   m_runTree->SetAutoSave(0);
   m_commonRunBranches.branch(*m_runTree);
 
   if (m_writeProvenance) {
-    m_metaDataTree.reset(new TTree(edm::poolNames::metaDataTreeName().c_str(), "Job metadata"));
+    m_metaDataTree = std::make_unique<TTree>(edm::poolNames::metaDataTreeName().c_str(), "Job metadata");
     m_metaDataTree->SetAutoSave(0);
-    m_parameterSetsTree.reset(new TTree(edm::poolNames::parameterSetsTreeName().c_str(), "Parameter sets"));
+    m_parameterSetsTree = std::make_unique<TTree>(edm::poolNames::parameterSetsTreeName().c_str(), "Parameter sets");
     m_parameterSetsTree->SetAutoSave(0);
   }
 }

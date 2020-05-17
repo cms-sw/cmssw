@@ -129,7 +129,7 @@ void CSCTMBHeader::add(const std::vector<CSCCorrelatedLCTDigi> &digis) {
 }
 
 CSCTMBHeader2007 CSCTMBHeader::tmbHeader2007() const {
-  CSCTMBHeader2007 *result = dynamic_cast<CSCTMBHeader2007 *>(theHeaderFormat.get());
+  auto *result = dynamic_cast<CSCTMBHeader2007 *>(theHeaderFormat.get());
   if (result == nullptr) {
     throw cms::Exception("Could not get 2007 TMB header format");
   }
@@ -137,7 +137,7 @@ CSCTMBHeader2007 CSCTMBHeader::tmbHeader2007() const {
 }
 
 CSCTMBHeader2007_rev0x50c3 CSCTMBHeader::tmbHeader2007_rev0x50c3() const {
-  CSCTMBHeader2007_rev0x50c3 *result = dynamic_cast<CSCTMBHeader2007_rev0x50c3 *>(theHeaderFormat.get());
+  auto *result = dynamic_cast<CSCTMBHeader2007_rev0x50c3 *>(theHeaderFormat.get());
   if (result == nullptr) {
     throw cms::Exception("Could not get 2007 rev0x50c3 TMB header format");
   }
@@ -145,7 +145,7 @@ CSCTMBHeader2007_rev0x50c3 CSCTMBHeader::tmbHeader2007_rev0x50c3() const {
 }
 
 CSCTMBHeader2013 CSCTMBHeader::tmbHeader2013() const {
-  CSCTMBHeader2013 *result = dynamic_cast<CSCTMBHeader2013 *>(theHeaderFormat.get());
+  auto *result = dynamic_cast<CSCTMBHeader2013 *>(theHeaderFormat.get());
   if (result == nullptr) {
     throw cms::Exception("Could not get 2013 TMB header format");
   }
@@ -153,7 +153,7 @@ CSCTMBHeader2013 CSCTMBHeader::tmbHeader2013() const {
 }
 
 CSCTMBHeader2006 CSCTMBHeader::tmbHeader2006() const {
-  CSCTMBHeader2006 *result = dynamic_cast<CSCTMBHeader2006 *>(theHeaderFormat.get());
+  auto *result = dynamic_cast<CSCTMBHeader2006 *>(theHeaderFormat.get());
   if (result == nullptr) {
     throw cms::Exception("Could not get 2006 TMB header format");
   }

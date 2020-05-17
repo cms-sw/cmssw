@@ -28,6 +28,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
+#include <memory>
 
 namespace edm {
   class StreamID;
@@ -66,7 +67,7 @@ OscarMTProducer::OscarMTProducer(edm::ParameterSet const& p, const OscarMTMaster
   // Random number generation not allowed here
   StaticRandomEngineSetUnset random(nullptr);
 
-  m_runManagerWorker.reset(new RunManagerMTWorker(p, consumesCollector()));
+  m_runManagerWorker = std::make_unique<RunManagerMTWorker>(p, consumesCollector());
 
   produces<edm::SimTrackContainer>().setBranchAlias("SimTracks");
   produces<edm::SimVertexContainer>().setBranchAlias("SimVertices");
@@ -126,8 +127,8 @@ OscarMTProducer::OscarMTProducer(edm::ParameterSet const& p, const OscarMTMaster
   //register any products
   auto& producers = m_runManagerWorker->producers();
 
-  for (Producers::iterator itProd = producers.begin(); itProd != producers.end(); ++itProd) {
-    (*itProd)->registerProducts(producesCollector());
+  for (auto& producer : producers) {
+    producer->registerProducts(producesCollector());
   }
 }
 
@@ -137,7 +138,7 @@ std::unique_ptr<OscarMTMasterThread> OscarMTProducer::initializeGlobalCache(cons
   // Random number generation not allowed here
   StaticRandomEngineSetUnset random(nullptr);
 
-  return std::unique_ptr<OscarMTMasterThread>(new OscarMTMasterThread(iConfig));
+  return std::make_unique<OscarMTMasterThread>(iConfig);
 }
 
 std::shared_ptr<int> OscarMTProducer::globalBeginRun(const edm::Run& iRun,

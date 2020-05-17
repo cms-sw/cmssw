@@ -169,26 +169,24 @@ public:
 
     // fill the origins and halfLengths depending on the mode
     if (m_mode == BEAM_SPOT_FIXED || m_mode == BEAM_SPOT_SIGMA) {
-      origins.push_back(std::make_pair(
-          default_origin, (m_mode == BEAM_SPOT_FIXED) ? m_zErrorBeamSpot : m_nSigmaZBeamSpot * bs->sigmaZ()));
+      origins.emplace_back(default_origin,
+                           (m_mode == BEAM_SPOT_FIXED) ? m_zErrorBeamSpot : m_nSigmaZBeamSpot * bs->sigmaZ());
     } else if (m_mode == VERTICES_FIXED || m_mode == VERTICES_SIGMA) {
       edm::Handle<reco::VertexCollection> vertices;
       e.getByToken(token_vertex, vertices);
       int n_vert = 0;
-      for (reco::VertexCollection::const_iterator iv = vertices->begin(), ev = vertices->end();
-           iv != ev && n_vert < m_maxNVertices;
-           ++iv) {
+      for (auto iv = vertices->begin(), ev = vertices->end(); iv != ev && n_vert < m_maxNVertices; ++iv) {
         if (iv->isFake() || !iv->isValid())
           continue;
 
-        origins.push_back(std::make_pair(GlobalPoint(iv->x(), iv->y(), iv->z()),
-                                         (m_mode == VERTICES_FIXED) ? m_zErrorVetex : m_nSigmaZVertex * iv->zError()));
+        origins.emplace_back(GlobalPoint(iv->x(), iv->y(), iv->z()),
+                             (m_mode == VERTICES_FIXED) ? m_zErrorVetex : m_nSigmaZVertex * iv->zError());
         ++n_vert;
       }
       // no-vertex fall-back case:
       if (origins.empty()) {
-        origins.push_back(std::make_pair(
-            default_origin, (m_nSigmaZBeamSpot > 0.) ? m_nSigmaZBeamSpot * bs->z0Error() : m_zErrorBeamSpot));
+        origins.emplace_back(default_origin,
+                             (m_nSigmaZBeamSpot > 0.) ? m_nSigmaZBeamSpot * bs->z0Error() : m_zErrorBeamSpot);
       }
     }
 

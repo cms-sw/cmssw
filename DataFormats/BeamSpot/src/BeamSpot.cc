@@ -63,7 +63,7 @@ namespace reco {
   }
 
   //
-  std::ostream& operator<<(std::ostream& os, BeamSpot beam) {
+  std::ostream& operator<<(std::ostream& os, const BeamSpot& beam) {
     std::stringstream ss;
     beam.print(ss);
     os << ss.str();

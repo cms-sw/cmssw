@@ -278,13 +278,13 @@ void GsfGEDElectronAnalyzer::analyze(const edm::Event &iEvent, const edm::EventS
 
   // Validation from generator events
 
-  for (std::vector<reco::GenParticle>::const_iterator cP = pMCTruth->begin(); cP != pMCTruth->end(); cP++) {
-    float etamc = cP->eta();
-    float phimc = cP->phi();
-    float ptmc = cP->pt();
-    float Emc = cP->energy();
+  for (const auto &cP : *pMCTruth) {
+    float etamc = cP.eta();
+    float phimc = cP.phi();
+    float ptmc = cP.pt();
+    float Emc = cP.energy();
 
-    if (abs(cP->pdgId()) == 11 && cP->status() == 1 && cP->pt() > 2. && fabs(cP->eta()) < 2.5) {
+    if (abs(cP.pdgId()) == 11 && cP.status() == 1 && cP.pt() > 2. && fabs(cP.eta()) < 2.5) {
       h_etamc_ele->Fill(etamc);
       h_ptmc_ele->Fill(ptmc);
 
@@ -351,26 +351,26 @@ void GsfGEDElectronAnalyzer::analyze(const edm::Event &iEvent, const edm::EventS
       bool isEgTrDr = false;
       bool isEgEcDr = false;
 
-      for (uint j = 0; j < theGsfEle.size(); j++) {
-        reco::GsfTrackRef egGsfTrackRef = (theGsfEle[j]).gsfTrack();
-        float etareco = theGsfEle[j].eta();
-        float phireco = theGsfEle[j].phi();
+      for (const auto &j : theGsfEle) {
+        reco::GsfTrackRef egGsfTrackRef = j.gsfTrack();
+        float etareco = j.eta();
+        float phireco = j.phi();
 
-        float pfmva = theGsfEle[j].mva_e_pi();
+        float pfmva = j.mva_e_pi();
 
-        reco::GsfTrackRef refGsf = theGsfEle[j].gsfTrack();
+        reco::GsfTrackRef refGsf = j.gsfTrack();
         //ElectronSeedRef seedRef= refGsf->extra()->seedRef().castTo<ElectronSeedRef>();
 
         float deta = etamc - etareco;
         float dphi = normalizedPhi(phimc - phireco);
         float dR = sqrt(deta * deta + dphi * dphi);
 
-        float SCEnergy = (theGsfEle[j]).superCluster()->energy();
+        float SCEnergy = j.superCluster()->energy();
         float ErecoEtrue = SCEnergy / Emc;
 
         if (dR < 0.05) {
           if (debug)
-            cout << " EG ele matched: pt " << theGsfEle[j].pt() << " (" << SCEnergy / std::cosh(etareco) << ") "
+            cout << " EG ele matched: pt " << j.pt() << " (" << SCEnergy / std::cosh(etareco) << ") "
                  << " eta,phi " << etareco << ", " << phireco << " pfmva " << pfmva << endl;
 
           if (fabs(etamc) < 0.5) {
@@ -389,8 +389,8 @@ void GsfGEDElectronAnalyzer::analyze(const edm::Event &iEvent, const edm::EventS
             eg_EEcalEtrue_5->Fill(ErecoEtrue);
           }
 
-          if ((theGsfEle[j].parentSuperCluster()).isNonnull()) {
-            float SCPF = (theGsfEle[j]).parentSuperCluster()->rawEnergy();
+          if ((j.parentSuperCluster()).isNonnull()) {
+            float SCPF = j.parentSuperCluster()->rawEnergy();
             float EpfEtrue = SCPF / Emc;
             if (fabs(etamc) < 0.5) {
               pf_EEcalEtrue_1->Fill(EpfEtrue);
@@ -407,47 +407,47 @@ void GsfGEDElectronAnalyzer::analyze(const edm::Event &iEvent, const edm::EventS
             if (fabs(etamc) >= 2.0 && fabs(etamc) < 2.5) {
               pf_EEcalEtrue_5->Fill(EpfEtrue);
             }
-            const reco::GsfElectron::ShowerShape &pfshapes = theGsfEle[j].showerShape();
+            const reco::GsfElectron::ShowerShape &pfshapes = j.showerShape();
 
             pf_e1x5_all->Fill(pfshapes.e1x5);
             pf_sihih_all->Fill(pfshapes.sigmaIetaIeta);
             pf_r9_all->Fill(pfshapes.r9);
-            pf_scshh_all->Fill((theGsfEle[j]).parentSuperCluster()->etaWidth());
-            pf_scsff_all->Fill((theGsfEle[j]).parentSuperCluster()->phiWidth());
+            pf_scshh_all->Fill(j.parentSuperCluster()->etaWidth());
+            pf_scsff_all->Fill(j.parentSuperCluster()->phiWidth());
             if (std::abs(etareco) < 1.479) {
               pf_e1x5_eb->Fill(pfshapes.e1x5);
               pf_sihih_eb->Fill(pfshapes.sigmaIetaIeta);
               pf_r9_eb->Fill(pfshapes.r9);
-              pf_scshh_eb->Fill((theGsfEle[j]).parentSuperCluster()->etaWidth());
-              pf_scsff_eb->Fill((theGsfEle[j]).parentSuperCluster()->phiWidth());
+              pf_scshh_eb->Fill(j.parentSuperCluster()->etaWidth());
+              pf_scsff_eb->Fill(j.parentSuperCluster()->phiWidth());
             }
             if (std::abs(etareco) >= 1.479) {
               pf_e1x5_ee->Fill(pfshapes.e1x5);
               pf_sihih_ee->Fill(pfshapes.sigmaIetaIeta);
               pf_r9_ee->Fill(pfshapes.r9);
-              pf_scshh_ee->Fill((theGsfEle[j]).parentSuperCluster()->etaWidth());
-              pf_scsff_ee->Fill((theGsfEle[j]).parentSuperCluster()->phiWidth());
+              pf_scshh_ee->Fill(j.parentSuperCluster()->etaWidth());
+              pf_scsff_ee->Fill(j.parentSuperCluster()->phiWidth());
             }
           }
 
-          eg_e1x5_all->Fill(theGsfEle[j].e1x5());
-          eg_sihih_all->Fill(theGsfEle[j].sigmaIetaIeta());
-          eg_r9_all->Fill(theGsfEle[j].r9());
-          eg_scshh_all->Fill((theGsfEle[j]).superCluster()->etaWidth());
-          eg_scsff_all->Fill((theGsfEle[j]).superCluster()->phiWidth());
+          eg_e1x5_all->Fill(j.e1x5());
+          eg_sihih_all->Fill(j.sigmaIetaIeta());
+          eg_r9_all->Fill(j.r9());
+          eg_scshh_all->Fill(j.superCluster()->etaWidth());
+          eg_scsff_all->Fill(j.superCluster()->phiWidth());
           if (std::abs(etareco) < 1.479) {
-            eg_e1x5_eb->Fill(theGsfEle[j].e1x5());
-            eg_sihih_eb->Fill(theGsfEle[j].sigmaIetaIeta());
-            eg_r9_eb->Fill(theGsfEle[j].r9());
-            eg_scshh_eb->Fill((theGsfEle[j]).superCluster()->etaWidth());
-            eg_scsff_eb->Fill((theGsfEle[j]).superCluster()->phiWidth());
+            eg_e1x5_eb->Fill(j.e1x5());
+            eg_sihih_eb->Fill(j.sigmaIetaIeta());
+            eg_r9_eb->Fill(j.r9());
+            eg_scshh_eb->Fill(j.superCluster()->etaWidth());
+            eg_scsff_eb->Fill(j.superCluster()->phiWidth());
           }
           if (std::abs(etareco) >= 1.479) {
-            eg_e1x5_ee->Fill(theGsfEle[j].e1x5());
-            eg_sihih_ee->Fill(theGsfEle[j].sigmaIetaIeta());
-            eg_r9_ee->Fill(theGsfEle[j].r9());
-            eg_scshh_ee->Fill((theGsfEle[j]).superCluster()->etaWidth());
-            eg_scsff_ee->Fill((theGsfEle[j]).superCluster()->phiWidth());
+            eg_e1x5_ee->Fill(j.e1x5());
+            eg_sihih_ee->Fill(j.sigmaIetaIeta());
+            eg_r9_ee->Fill(j.r9());
+            eg_scshh_ee->Fill(j.superCluster()->etaWidth());
+            eg_scsff_ee->Fill(j.superCluster()->phiWidth());
           }
 
           MindREG = dR;
@@ -480,33 +480,33 @@ void GsfGEDElectronAnalyzer::analyze(const edm::Event &iEvent, const edm::EventS
       bool isGedEgTrDr = false;
       bool isGedEgEcDr = false;
 
-      for (uint j = 0; j < theGedEle.size(); j++) {
-        reco::GsfTrackRef egGsfTrackRef = (theGedEle[j]).gsfTrack();
-        float etareco = theGedEle[j].eta();
-        float phireco = theGedEle[j].phi();
-        float pfmva = theGedEle[j].mva_e_pi();
+      for (const auto &j : theGedEle) {
+        reco::GsfTrackRef egGsfTrackRef = j.gsfTrack();
+        float etareco = j.eta();
+        float phireco = j.phi();
+        float pfmva = j.mva_e_pi();
 
-        reco::GsfTrackRef refGsf = theGedEle[j].gsfTrack();
+        reco::GsfTrackRef refGsf = j.gsfTrack();
         //ElectronSeedRef seedRef= refGsf->extra()->seedRef().castTo<ElectronSeedRef>();
 
         float deta = etamc - etareco;
         float dphi = normalizedPhi(phimc - phireco);
         float dR = sqrt(deta * deta + dphi * dphi);
 
-        float SCEnergy = (theGedEle[j]).superCluster()->energy();
+        float SCEnergy = j.superCluster()->energy();
         float ErecoEtrue = SCEnergy / Emc;
 
         if (dR < 0.05) {
-          const reco::PFCandidate *matchPF = NULL;
+          const reco::PFCandidate *matchPF = nullptr;
           if (debug)
-            cout << " GED ele matched: pt " << theGedEle[j].pt() << " (" << SCEnergy / std::cosh(etareco) << ") "
+            cout << " GED ele matched: pt " << j.pt() << " (" << SCEnergy / std::cosh(etareco) << ") "
                  << " eta,phi " << etareco << ", " << phireco << " pfmva " << pfmva << endl;
 
-          for (unsigned k = 0; k < candidates.size(); ++k) {
-            if (std::abs(candidates[k].pdgId()) == 11) {
-              reco::GsfTrackRef gsfEleGsfTrackRef = candidates[k].gsfTrackRef();
+          for (auto &candidate : candidates) {
+            if (std::abs(candidate.pdgId()) == 11) {
+              reco::GsfTrackRef gsfEleGsfTrackRef = candidate.gsfTrackRef();
               if (gsfEleGsfTrackRef->ptMode() == egGsfTrackRef->ptMode()) {
-                matchPF = &candidates[k];
+                matchPF = &candidate;
               }
             }
           }
@@ -555,24 +555,24 @@ void GsfGEDElectronAnalyzer::analyze(const edm::Event &iEvent, const edm::EventS
 	    */
           }
 
-          ged_e1x5_all->Fill(theGedEle[j].e1x5());
-          ged_sihih_all->Fill(theGedEle[j].sigmaIetaIeta());
-          ged_r9_all->Fill(theGedEle[j].r9());
-          ged_scshh_all->Fill((theGedEle[j]).superCluster()->etaWidth());
-          ged_scsff_all->Fill((theGedEle[j]).superCluster()->phiWidth());
+          ged_e1x5_all->Fill(j.e1x5());
+          ged_sihih_all->Fill(j.sigmaIetaIeta());
+          ged_r9_all->Fill(j.r9());
+          ged_scshh_all->Fill(j.superCluster()->etaWidth());
+          ged_scsff_all->Fill(j.superCluster()->phiWidth());
           if (std::abs(etareco) < 1.479) {
-            ged_e1x5_eb->Fill(theGedEle[j].e1x5());
-            ged_sihih_eb->Fill(theGedEle[j].sigmaIetaIeta());
-            ged_r9_eb->Fill(theGedEle[j].r9());
-            ged_scshh_eb->Fill((theGedEle[j]).superCluster()->etaWidth());
-            ged_scsff_eb->Fill((theGedEle[j]).superCluster()->phiWidth());
+            ged_e1x5_eb->Fill(j.e1x5());
+            ged_sihih_eb->Fill(j.sigmaIetaIeta());
+            ged_r9_eb->Fill(j.r9());
+            ged_scshh_eb->Fill(j.superCluster()->etaWidth());
+            ged_scsff_eb->Fill(j.superCluster()->phiWidth());
           }
           if (std::abs(etareco) >= 1.479) {
-            ged_e1x5_ee->Fill(theGedEle[j].e1x5());
-            ged_sihih_ee->Fill(theGedEle[j].sigmaIetaIeta());
-            ged_r9_ee->Fill(theGedEle[j].r9());
-            ged_scshh_ee->Fill((theGedEle[j]).superCluster()->etaWidth());
-            ged_scsff_eb->Fill((theGedEle[j]).superCluster()->phiWidth());
+            ged_e1x5_ee->Fill(j.e1x5());
+            ged_sihih_ee->Fill(j.sigmaIetaIeta());
+            ged_r9_ee->Fill(j.r9());
+            ged_scshh_ee->Fill(j.superCluster()->etaWidth());
+            ged_scsff_eb->Fill(j.superCluster()->phiWidth());
           }
 
           MindRGedEg = dR;

@@ -1,6 +1,8 @@
 #ifndef TagProbeFitter_h
 #define TagProbeFitter_h
 
+#include <utility>
+
 #include "TFile.h"
 #include "TChain.h"
 #include "TGraphAsymmErrors.h"
@@ -12,9 +14,9 @@ class TagProbeFitter {
 public:
   ///construct the fitter with the inputFileName, inputDirectoryName, inputTreeName, outputFileName and specify wether to save the workspace with data for each bin
   TagProbeFitter(const std::vector<std::string>& inputFileNames,
-                 std::string inputDirectoryName,
-                 std::string inputTreeName,
-                 std::string outputFileName,
+                 const std::string& inputDirectoryName,
+                 const std::string& inputTreeName,
+                 const std::string& outputFileName,
                  int numCPU = 1,
                  bool saveWorkspace_ = false,
                  bool floatShapeParameters = true,
@@ -24,42 +26,51 @@ public:
   ~TagProbeFitter();
 
   ///adds a new real variable to the set of variables describing the data in the tree
-  bool addVariable(std::string variableName, std::string title, double low, double hi, std::string units);
+  bool addVariable(
+      const std::string& variableName, const std::string& title, double low, double hi, const std::string& units);
 
   ///adds a new category variable to the set of variables describing the data in the tree; "expression" is parsed by factory()
-  bool addCategory(std::string categoryName, std::string title, std::string expression);
+  bool addCategory(const std::string& categoryName, const std::string& title, const std::string& expression);
 
   ///adds a new category based on a cut
-  bool addExpression(std::string expressionName,
-                     std::string title,
-                     std::string expression,
+  bool addExpression(const std::string& expressionName,
+                     const std::string& title,
+                     const std::string& expression,
                      const std::vector<std::string>& arguments);
 
   ///adds a new category based on a cut
-  bool addThresholdCategory(std::string categoryName, std::string title, std::string varName, double cutValue);
+  bool addThresholdCategory(const std::string& categoryName,
+                            const std::string& title,
+                            const std::string& varName,
+                            double cutValue);
 
   ///add a new PDF to the list of available PDFs; "pdfCommands" are parsed by factory().
   /// the user needs to define efficiency[0.9,0,1] for the initial value, "signal" PDF, "backgroundPass" PDF and "backgroundFail" PDF
-  void addPdf(std::string pdfName, std::vector<std::string>& pdfCommands);
+  void addPdf(const std::string& pdfName, std::vector<std::string>& pdfCommands);
 
   ///set a list of variables to fix during first fit iteration. If the list is empty, do one iteration.
   void addFixedVariavles(const std::vector<std::string>&);
 
   ///calculate the efficiency for a particular binning of the data; it saves everything in the directory "dirName", uses the previously defined PDF with name "pdfName"
   std::string calculateEfficiency(std::string dirName,
-                                  std::string efficiencyCategory,
-                                  std::string efficiencyState,
+                                  const std::string& efficiencyCategory,
+                                  const std::string& efficiencyState,
                                   std::vector<std::string>& unbinnedVariables,
                                   std::map<std::string, std::vector<double> >& binnedReals,
                                   std::map<std::string, std::vector<std::string> >& binnedCategories,
                                   std::vector<std::string>& binToPDFmap) {
     std::vector<std::string> efficiencyCategories(1, efficiencyCategory);
     std::vector<std::string> efficiencyStates(1, efficiencyState);
-    return calculateEfficiency(
-        dirName, efficiencyCategories, efficiencyStates, unbinnedVariables, binnedReals, binnedCategories, binToPDFmap);
+    return calculateEfficiency(std::move(dirName),
+                               efficiencyCategories,
+                               efficiencyStates,
+                               unbinnedVariables,
+                               binnedReals,
+                               binnedCategories,
+                               binToPDFmap);
   }
 
-  std::string calculateEfficiency(std::string dirName,
+  std::string calculateEfficiency(const std::string& dirName,
                                   const std::vector<std::string>& efficiencyCategories,
                                   const std::vector<std::string>& efficiencyStates,
                                   std::vector<std::string>& unbinnedVariables,
@@ -161,7 +172,7 @@ protected:
   void varRestorer(RooWorkspace* w);
 
   ///calculate the efficiecny with a simulataneous maximum likelihood fit in the dataset found in the workspace with PDF pdfName
-  void doFitEfficiency(RooWorkspace* w, std::string pdfName, RooRealVar& efficiency);
+  void doFitEfficiency(RooWorkspace* w, const std::string& pdfName, RooRealVar& efficiency);
 
   ///calculate the efficiecny with side band substraction in the dataset found in the workspace
   void doSBSEfficiency(RooWorkspace* w, RooRealVar& efficiency);

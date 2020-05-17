@@ -158,7 +158,7 @@ namespace reco {
     BeamType type_;
   };
   ///
-  std::ostream& operator<<(std::ostream&, BeamSpot beam);
+  std::ostream& operator<<(std::ostream&, const BeamSpot& beam);
 
 }  // namespace reco
 

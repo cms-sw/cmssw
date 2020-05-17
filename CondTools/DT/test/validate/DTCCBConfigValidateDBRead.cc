@@ -5,7 +5,7 @@ Toy EDAnalyzer for testing purposes only.
 
 ----------------------------------------------------------------------*/
 
-#include <math.h>
+#include <cmath>
 #include <stdexcept>
 #include <string>
 #include <iostream>
@@ -108,10 +108,10 @@ void DTCCBConfigValidateDBRead::endJob() {
 bool DTCCBConfigValidateDBRead::cfrDiff(const std::vector<int>& l_conf, const std::vector<int>& r_conf) {
   if (l_conf.size() != r_conf.size())
     return true;
-  std::vector<int>::const_iterator l_iter = l_conf.begin();
-  std::vector<int>::const_iterator l_iend = l_conf.end();
-  std::vector<int>::const_iterator r_iter = r_conf.begin();
-  std::vector<int>::const_iterator r_iend = r_conf.end();
+  auto l_iter = l_conf.begin();
+  auto l_iend = l_conf.end();
+  auto r_iter = r_conf.begin();
+  auto r_iend = r_conf.end();
   while ((l_iter != l_iend) && (r_iter != r_iend)) {
     if (*l_iter++ != *r_iter++)
       return true;
@@ -123,10 +123,10 @@ bool DTCCBConfigValidateDBRead::cfrDiff(const std::vector<DTConfigKey>& l_conf,
                                         const std::vector<DTConfigKey>& r_conf) {
   if (l_conf.size() != r_conf.size())
     return true;
-  std::vector<DTConfigKey>::const_iterator l_iter = l_conf.begin();
-  std::vector<DTConfigKey>::const_iterator l_iend = l_conf.end();
-  std::vector<DTConfigKey>::const_iterator r_iter = r_conf.begin();
-  std::vector<DTConfigKey>::const_iterator r_iend = r_conf.end();
+  auto l_iter = l_conf.begin();
+  auto l_iend = l_conf.end();
+  auto r_iter = r_conf.begin();
+  auto r_iend = r_conf.end();
   while ((l_iter != l_iend) && (r_iter != r_iend)) {
     const DTConfigKey& l_key = *l_iter++;
     const DTConfigKey& r_key = *r_iter++;

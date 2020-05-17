@@ -133,11 +133,9 @@ void ConversionSeedFilter::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
       if (trajTrackAssociations.isValid()) {
         edm::LogInfo("ConversionSeedFilter") << "Reconstructed tracks " << trajTrackAssociations->size() << std::endl;
-        for (TrajTrackAssociationCollection::const_iterator association = trajTrackAssociations->begin();
-             association != trajTrackAssociations->end();
-             association++) {
-          const Trajectory* traj = association->key.get();
-          const reco::Track* track = association->val.get();
+        for (const auto& association : *trajTrackAssociations) {
+          const Trajectory* traj = association.key.get();
+          const reco::Track* track = association.val.get();
 
           //edm::LogInfo("ConversionSeedFilter") << "Traj charge " << track->charge() << std::endl;
 
@@ -162,13 +160,13 @@ void ConversionSeedFilter::SearchAmongSeeds(const TrajectorySeedCollection* pInP
                                             TrajectorySeedCollection& selectedColl,
                                             std::vector<bool>& idxPosColl1,
                                             std::vector<bool>& idxPosColl2) {
-  for (TrajectorySeedCollection::const_iterator iS1 = pInPos->begin(); iS1 != pInPos->end(); ++iS1) {
+  for (auto iS1 = pInPos->begin(); iS1 != pInPos->end(); ++iS1) {
     bool pushed1 = false;
 
     double vars1[4];
     getKine(getTSOS(*iS1), vars1);
 
-    for (TrajectorySeedCollection::const_iterator iS2 = pInNeg->begin(); iS2 != pInNeg->end(); ++iS2) {
+    for (auto iS2 = pInNeg->begin(); iS2 != pInNeg->end(); ++iS2) {
       double vars2[4];
       getKine(getTSOS(*iS2), vars2);
 
@@ -193,16 +191,16 @@ void ConversionSeedFilter::SearchAmongTracks(const TrajectorySeedCollection* pIn
                                              const reco::TrackCollection* pInTk,
                                              TrajectorySeedCollection& selectedColl,
                                              std::vector<bool>& idxPosColl) {
-  for (TrajectorySeedCollection::const_iterator iS1 = pInSeed->begin(); iS1 != pInSeed->end(); ++iS1) {
+  for (auto iS1 = pInSeed->begin(); iS1 != pInSeed->end(); ++iS1) {
     if (idxPosColl[iS1 - pInSeed->begin()])
       continue;
 
     double vars1[4];
     getKine(getTSOS(*iS1), vars1);
 
-    for (reco::TrackCollection::const_iterator iS2 = pInTk->begin(); iS2 != pInTk->end(); ++iS2) {
+    for (const auto& iS2 : *pInTk) {
       double vars2[4];
-      getKine(getTSOS(*iS2), vars2);
+      getKine(getTSOS(iS2), vars2);
 
       if (isCompatible(vars1, vars2)) {
         edm::LogInfo("ConversionSeedFilter")
@@ -219,7 +217,7 @@ void ConversionSeedFilter::SearchAmongTrajectories(const TrajectorySeedCollectio
                                                    const Trajectory* InTj,
                                                    TrajectorySeedCollection& selectedColl,
                                                    std::vector<bool>& idxPosColl) {
-  for (TrajectorySeedCollection::const_iterator iS1 = pInSeed->begin(); iS1 != pInSeed->end(); ++iS1) {
+  for (auto iS1 = pInSeed->begin(); iS1 != pInSeed->end(); ++iS1) {
     if (idxPosColl[iS1 - pInSeed->begin()])
       continue;
 

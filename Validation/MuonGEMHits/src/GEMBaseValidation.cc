@@ -4,11 +4,12 @@
 #include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
 
 #include <memory>
+#include <utility>
 
 using namespace dqm::impl;
 
 GEMBaseValidation::GEMBaseValidation(const edm::ParameterSet& ps, std::string log_category)
-    : kLogCategory_(log_category) {
+    : kLogCategory_(std::move(log_category)) {
   zr_occ_num_bins_ = ps.getUntrackedParameter<std::vector<Int_t> >("ZROccNumBins");
   zr_occ_range_ = ps.getUntrackedParameter<std::vector<Double_t> >("ZROccRange");
   xy_occ_num_bins_ = ps.getUntrackedParameter<Int_t>("XYOccNumBins", 360);

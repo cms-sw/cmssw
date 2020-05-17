@@ -19,7 +19,7 @@ typedef std::shared_ptr<GenericTransientTrackingRecHit> MTDRecHitPointer;
 typedef std::vector<GenericTransientTrackingRecHit::RecHitPointer> MTDRecHitContainer;
 typedef MTDDetLayerMeasurements::MeasurementContainer MeasurementContainer;
 
-MTDDetLayerMeasurements::MTDDetLayerMeasurements(edm::InputTag mtdlabel, edm::ConsumesCollector& iC)
+MTDDetLayerMeasurements::MTDDetLayerMeasurements(const edm::InputTag& mtdlabel, edm::ConsumesCollector& iC)
     : theMTDRecHits(), theMTDEventCacheID(0), theEvent(nullptr) {
   mtdToken_ = iC.consumes<MTDTrackingRecHit>(mtdlabel);
 }
@@ -105,11 +105,11 @@ MeasurementContainer MTDDetLayerMeasurements::measurements(const DetLayer* layer
   MTDRecHitContainer mtdRecHits = recHits(det, iEvent);
 
   // Create the Trajectory Measurement
-  for (auto rechit = mtdRecHits.begin(); rechit != mtdRecHits.end(); ++rechit) {
-    MeasurementEstimator::HitReturnType estimate = est.estimate(stateOnDet, **rechit);
-    LogDebug("RecoMTD") << "Dimension: " << (*rechit)->dimension() << " Chi2: " << estimate.second << std::endl;
+  for (auto& mtdRecHit : mtdRecHits) {
+    MeasurementEstimator::HitReturnType estimate = est.estimate(stateOnDet, *mtdRecHit);
+    LogDebug("RecoMTD") << "Dimension: " << mtdRecHit->dimension() << " Chi2: " << estimate.second << std::endl;
     if (estimate.first) {
-      result.push_back(TrajectoryMeasurement(stateOnDet, *rechit, estimate.second, layer));
+      result.push_back(TrajectoryMeasurement(stateOnDet, mtdRecHit, estimate.second, layer));
     }
   }
 
@@ -127,7 +127,7 @@ MeasurementContainer MTDDetLayerMeasurements::fastMeasurements(const DetLayer* l
                                                                const edm::Event& iEvent) {
   MeasurementContainer result;
   MTDRecHitContainer rhs = recHits(layer, iEvent);
-  for (MTDRecHitContainer::value_type irh : rhs) {
+  for (const MTDRecHitContainer::value_type& irh : rhs) {
     MeasurementEstimator::HitReturnType estimate = est.estimate(theStateOnDet, (*irh));
     if (estimate.first) {
       result.push_back(TrajectoryMeasurement(theStateOnDet, irh, estimate.second, layer));
@@ -182,7 +182,7 @@ std::vector<TrajectoryMeasurementGroup> MTDDetLayerMeasurements::groupedMeasurem
     if (!groupMeasurements.empty())
       std::sort(groupMeasurements.begin(), groupMeasurements.end(), TrajMeasLessEstim());
 
-    result.push_back(TrajectoryMeasurementGroup(groupMeasurements, grp));
+    result.emplace_back(groupMeasurements, grp);
   }
 
   return result;

@@ -17,28 +17,28 @@ void PlotPixelMultVtxPos(TFile* ff, const char* module) {
   //  camult.setPath("VtxPosCorr");
 
   std::vector<std::string> labels;
-  labels.push_back("FPIX_m");
-  labels.push_back("BPIX_L1_mod_1");
-  labels.push_back("BPIX_L1_mod_2");
-  labels.push_back("BPIX_L1_mod_3");
-  labels.push_back("BPIX_L1_mod_4");
-  labels.push_back("BPIX_L1_mod_5");
-  labels.push_back("BPIX_L1_mod_6");
-  labels.push_back("BPIX_L1_mod_7");
-  labels.push_back("BPIX_L1_mod_8");
-  labels.push_back("FPIX_p");
-  labels.push_back("BPIX_L1");
-  labels.push_back("BPIX_L2");
-  labels.push_back("BPIX_L3");
-  labels.push_back("Lumi");
+  labels.emplace_back("FPIX_m");
+  labels.emplace_back("BPIX_L1_mod_1");
+  labels.emplace_back("BPIX_L1_mod_2");
+  labels.emplace_back("BPIX_L1_mod_3");
+  labels.emplace_back("BPIX_L1_mod_4");
+  labels.emplace_back("BPIX_L1_mod_5");
+  labels.emplace_back("BPIX_L1_mod_6");
+  labels.emplace_back("BPIX_L1_mod_7");
+  labels.emplace_back("BPIX_L1_mod_8");
+  labels.emplace_back("FPIX_p");
+  labels.emplace_back("BPIX_L1");
+  labels.emplace_back("BPIX_L2");
+  labels.emplace_back("BPIX_L3");
+  labels.emplace_back("Lumi");
 
   std::vector<TProfile*> profs;
 
-  for (unsigned int i = 0; i < labels.size(); ++i) {
-    std::string path = "VtxPosCorr/" + labels[i];
+  for (const auto& label : labels) {
+    std::string path = "VtxPosCorr/" + label;
     camult.setPath(path.c_str());
 
-    std::string hname = "n" + labels[i] + "digivsvtxposprof";
+    std::string hname = "n" + label + "digivsvtxposprof";
     profs.push_back((TProfile*)camult.getObject(hname.c_str()));
   }
 
@@ -108,11 +108,11 @@ TH1D* AverageRunMultiplicity(TFile& ff,
   std::sort(runs.begin(), runs.end());
 
   {
-    for (unsigned int i = 0; i < runs.size(); ++i) {
+    for (unsigned int run : runs) {
       char runlabel[100];
-      sprintf(runlabel, "%d", runs[i]);
+      sprintf(runlabel, "%d", run);
       char runpath[100];
-      sprintf(runpath, "run_%d", runs[i]);
+      sprintf(runpath, "run_%d", run);
       camult.setPath(runpath);
 
       TProfile* multvstime = nullptr;

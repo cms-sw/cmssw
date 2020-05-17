@@ -224,12 +224,12 @@ void CTPPSPixelDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   theDigiVector.reserve(400);
   theDigiVector.clear();
 
-  for (simhit_map_iterator it = SimHitMap.begin(); it != SimHitMap.end(); ++it) {
+  for (auto it = SimHitMap.begin(); it != SimHitMap.end(); ++it) {
     edm::DetSet<CTPPSPixelDigi> digi_collector(it->first);
 
     if (theAlgoMap.find(it->first) == theAlgoMap.end()) {
-      theAlgoMap[it->first] = std::unique_ptr<RPixDetDigitizer>(
-          new RPixDetDigitizer(conf_, *rndEngine_, it->first, iSetup));  //a digitizer for eny detector
+      theAlgoMap[it->first] =
+          std::make_unique<RPixDetDigitizer>(conf_, *rndEngine_, it->first, iSetup);  //a digitizer for eny detector
     }
 
     std::vector<int> input_links;

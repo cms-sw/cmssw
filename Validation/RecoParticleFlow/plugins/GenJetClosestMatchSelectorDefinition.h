@@ -46,8 +46,8 @@ struct GenJetClosestMatchSelectorDefinition {
 
       // look for the closest gen jet
       double deltaR2Min = 9999;
-      collection::const_iterator closest = hc->end();
-      for (collection::const_iterator genjet = hc->begin(); genjet != hc->end(); ++genjet, ++key) {
+      auto closest = hc->end();
+      for (auto genjet = hc->begin(); genjet != hc->end(); ++genjet, ++key) {
         reco::GenJetRef genJetRef(hc, key);
 
         // is it matched?

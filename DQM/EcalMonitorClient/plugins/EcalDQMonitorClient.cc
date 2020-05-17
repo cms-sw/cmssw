@@ -28,7 +28,7 @@ EcalDQMonitorClient::EcalDQMonitorClient(edm::ParameterSet const& _ps)
     : DQMEDHarvester(), ecaldqm::EcalDQMonitor(_ps), iEvt_(0), statusManager_() {
   executeOnWorkers_(
       [this](ecaldqm::DQWorker* worker) {
-        ecaldqm::DQWorkerClient* client(dynamic_cast<ecaldqm::DQWorkerClient*>(worker));
+        auto* client(dynamic_cast<ecaldqm::DQWorkerClient*>(worker));
         if (!client)
           throw cms::Exception("InvalidConfiguration") << "Non-client DQWorker " << worker->getName() << " passed";
         client->setStatusManager(this->statusManager_);
@@ -86,7 +86,7 @@ void EcalDQMonitorClient::dqmEndLuminosityBlock(DQMStore::IBooker& _ibooker,
                                                 edm::EventSetup const& _es) {
   executeOnWorkers_(
       [&_ibooker](ecaldqm::DQWorker* worker) {
-        ecaldqm::DQWorkerClient* client(static_cast<ecaldqm::DQWorkerClient*>(worker));
+        auto* client(static_cast<ecaldqm::DQWorkerClient*>(worker));
         if (!client->onlineMode() && !client->runsOn(ecaldqm::DQWorkerClient::kLumi))
           return;
         client->bookMEs(_ibooker);
@@ -100,7 +100,7 @@ void EcalDQMonitorClient::dqmEndLuminosityBlock(DQMStore::IBooker& _ibooker,
 
   executeOnWorkers_(
       [](ecaldqm::DQWorker* worker) {
-        ecaldqm::DQWorkerClient* client(static_cast<ecaldqm::DQWorkerClient*>(worker));
+        auto* client(static_cast<ecaldqm::DQWorkerClient*>(worker));
         client->resetPerLumi();
       },
       "dqmEndLuminosityBlock",
@@ -126,7 +126,7 @@ void EcalDQMonitorClient::runWorkers(DQMStore::IGetter& _igetter, ecaldqm::DQWor
 
   executeOnWorkers_(
       [&_igetter, &_type](ecaldqm::DQWorker* worker) {
-        ecaldqm::DQWorkerClient* client(static_cast<ecaldqm::DQWorkerClient*>(worker));
+        auto* client(static_cast<ecaldqm::DQWorkerClient*>(worker));
         if (!client->onlineMode() && !client->runsOn(_type))
           return;
         client->releaseSource();

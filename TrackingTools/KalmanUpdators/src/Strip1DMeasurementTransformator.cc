@@ -42,7 +42,7 @@ AlgebraicMatrix15 Strip1DMeasurementTransformator::projectionMatrix() const {
   //  H(measurement <- local)
   //  m_meas = H*x_local + c
   AlgebraicMatrix15 H;
-  if (const RadialStripTopology* tmp = dynamic_cast<const RadialStripTopology*>(idealTopology())) {
+  if (const auto* tmp = dynamic_cast<const RadialStripTopology*>(idealTopology())) {
     double yHitToInter = tmp->yDistanceToIntersection(hit().localPosition().y());
     double t = tmp->yAxisOrientation() * hit().localPosition().x() / yHitToInter;
     double c2 = 1. / (1. + t * t);  // cos(angle)**2

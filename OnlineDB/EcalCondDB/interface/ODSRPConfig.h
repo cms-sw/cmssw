@@ -3,6 +3,8 @@
 
 #include <map>
 #include <stdexcept>
+#include <utility>
+
 #include "OnlineDB/Oracle/interface/Oracle.h"
 #include "OnlineDB/EcalCondDB/interface/IODConfig.h"
 
@@ -31,7 +33,7 @@ public:
   inline void setDummyMode(int x) { m_dummy = x; }
   inline int getDummyMode() const { return m_dummy; }
 
-  inline void setPatternDirectory(std::string x) { m_patdir = x; }
+  inline void setPatternDirectory(std::string x) { m_patdir = std::move(x); }
   inline std::string getPatternDirectory() const { return m_patdir; }
 
   inline void setAutomaticMasks(int x) { m_auto = x; }
@@ -43,7 +45,7 @@ public:
   inline void setSRP0BunchAdjustPosition(int x) { m_bnch = x; }
   inline int getSRP0BunchAdjustPosition() const { return m_bnch; }
 
-  inline void setConfigFile(std::string x) { m_file = x; }
+  inline void setConfigFile(std::string x) { m_file = std::move(x); }
   inline std::string getConfigFile() const { return m_file; }
 
   inline void setSRPClob(unsigned char* x) { m_srp_clob = x; }

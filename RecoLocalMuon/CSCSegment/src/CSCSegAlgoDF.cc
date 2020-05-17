@@ -76,11 +76,9 @@ std::vector<CSCSegment> CSCSegAlgoDF::run(const CSCChamber* aChamber, const Cham
     std::vector<CSCSegment> testSegments;
     std::vector<ChamberHitContainer> clusteredHits = preCluster_->clusterHits(theChamber, rechits);
     // loop over the found clusters:
-    for (std::vector<ChamberHitContainer>::iterator subrechits = clusteredHits.begin();
-         subrechits != clusteredHits.end();
-         ++subrechits) {
+    for (auto& clusteredHit : clusteredHits) {
       // build the subset of segments:
-      std::vector<CSCSegment> segs = buildSegments((*subrechits));
+      std::vector<CSCSegment> segs = buildSegments(clusteredHit);
       // add the found subset of segments to the collection of all segments in this chamber:
       segments_temp.insert(segments_temp.end(), segs.begin(), segs.end());
     }
@@ -183,13 +181,13 @@ std::vector<CSCSegment> CSCSegAlgoDF::buildSegments(const ChamberHitContainer& _
   BoolContainer used_ini(rechits.size(), false);
   usedHits = used_ini;
 
-  ChamberHitContainerCIt ib = rechits.begin();
-  ChamberHitContainerCIt ie = rechits.end();
+  auto ib = rechits.begin();
+  auto ie = rechits.end();
 
   //  std::cout << "[CSCSegAlgoDF::buildSegments] entering rechit loop" << std::endl;
 
   // Now Loop over hits within the chamber to find 1st seed for segment building
-  for (ChamberHitContainerCIt i1 = ib; i1 < ie; ++i1) {
+  for (auto i1 = ib; i1 < ie; ++i1) {
     if (usedHits[i1 - ib])
       continue;
 
@@ -200,7 +198,7 @@ std::vector<CSCSegment> CSCSegAlgoDF::buildSegments(const ChamberHitContainer& _
     LocalPoint lp1 = theChamber->toLocal(gp1);
 
     // Loop over hits backward to find 2nd seed for segment building
-    for (ChamberHitContainerCIt i2 = ie - 1; i2 > ib; --i2) {
+    for (auto i2 = ie - 1; i2 > ib; --i2) {
       if (usedHits[i2 - ib])
         continue;  // Hit has been used already
 
@@ -301,14 +299,14 @@ void CSCSegAlgoDF::tryAddingHitsToSegment(const ChamberHitContainer& rechits,
   //  std::cout << "[CSCSegAlgoDF::tryAddingHitsToSegment] entering"
   //	    << " with rechits.size() = " << rechits.size() << std::endl;
 
-  ChamberHitContainerCIt ib = rechits.begin();
-  ChamberHitContainerCIt ie = rechits.end();
+  auto ib = rechits.begin();
+  auto ie = rechits.end();
   closeHits.clear();
 
   //  int counter1 = 0;
   //  int counter2 = 0;
 
-  for (ChamberHitContainerCIt i = ib; i != ie; ++i) {
+  for (auto i = ib; i != ie; ++i) {
     //    std::cout << "counter1 = " << ++counter1 << std::endl;
     if (i == i1 || i == i2)
       continue;
@@ -366,10 +364,10 @@ void CSCSegAlgoDF::tryAddingHitsToSegment(const ChamberHitContainer& rechits,
 
   // 2nd pass to remove biases
   // This time, also consider changing the endpoints
-  for (ChamberHitContainerCIt i = closeHits.begin(); i != closeHits.end(); ++i) {
+  for (auto closeHit : closeHits) {
     //    std::cout << "2nd pass" << std::endl;
-    const CSCRecHit2D* h = *i;
-    int layer = (*i)->cscDetId().layer();
+    const CSCRecHit2D* h = closeHit;
+    int layer = closeHit->cscDetId().layer();
     compareProtoSegment(h, layer);
   }
 }
@@ -431,8 +429,8 @@ bool CSCSegAlgoDF::addHit(const CSCRecHit2D* aHit, int layer) {
     return false;  //@@ can only have 6 hits at most
 
   // Test that we are not trying to add the same hit again
-  for (ChamberHitContainer::const_iterator it = protoSegment.begin(); it != protoSegment.end(); ++it)
-    if (aHit == (*it))
+  for (auto it : protoSegment)
+    if (aHit == it)
       return false;
 
   protoSegment.push_back(aHit);
@@ -467,8 +465,8 @@ bool CSCSegAlgoDF::hasHitOnLayer(int layer) const {
   //  std::cout << "[CSCSegAlgoDF::hasHitOnLayer] on layer " << layer << std::endl;
 
   // Is there already a hit on this layer?
-  for (ChamberHitContainerCIt it = protoSegment.begin(); it != protoSegment.end(); it++)
-    if ((*it)->cscDetId().layer() == layer)
+  for (auto it : protoSegment)
+    if (it->cscDetId().layer() == layer)
       return true;
 
   return false;
@@ -523,7 +521,7 @@ void CSCSegAlgoDF::compareProtoSegment(const CSCRecHit2D* h, int layer) {
  */
 void CSCSegAlgoDF::flagHitsAsUsed(const ChamberHitContainer& rechitsInChamber) {
   // Flag hits on segment as used
-  ChamberHitContainerCIt ib = rechitsInChamber.begin();
+  auto ib = rechitsInChamber.begin();
   ChamberHitContainerCIt hi, iu;
 
   for (hi = protoSegment.begin(); hi != protoSegment.end(); ++hi) {

@@ -191,7 +191,7 @@ namespace cscdqm {
     /** Include filtered item or not */
     bool include;
     /** Constructor */
-    MOFilterItem(const std::string pattern_, const bool include_) : pattern(pattern_.c_str()), include(include_) {}
+    MOFilterItem(const std::string& pattern_, const bool include_) : pattern(pattern_.c_str()), include(include_) {}
   };
 
   /** @brief Chamber level counter types */
@@ -403,8 +403,7 @@ namespace cscdqm {
     void load(const edm::ParameterSet& ps) {
       BOOST_PP_SEQ_FOR_EACH_I(CONFIG_PARAMETER_LOADPS_MACRO, _, CONFIG_PARAMETERS_SEQ)
       std::vector<std::string> moFilter = ps.getUntrackedParameter<std::vector<std::string> >("MO_FILTER");
-      for (std::vector<std::string>::iterator it = moFilter.begin(); it != moFilter.end(); it++) {
-        std::string f = *it;
+      for (auto f : moFilter) {
         if (!Utility::regexMatch("^[-+]/.*/$", f)) {
           LOG_WARN << "MO_FILTER item " << f << " does not recognized to be a valid one. Skipping...";
           continue;
@@ -564,10 +563,10 @@ namespace cscdqm {
        * @param  name MO name to book
        * @return true if MO is not excluded, false - otherwise
        */
-    const bool needBookMO(const std::string name) const {
+    const bool needBookMO(const std::string& name) const {
       bool result = true;
-      for (unsigned int i = 0; i < MOFilterItems.size(); i++) {
-        const MOFilterItem* filter = &MOFilterItems.at(i);
+      for (const auto& i : MOFilterItems) {
+        const MOFilterItem* filter = &i;
         if (Utility::regexMatch(filter->pattern, name))
           result = filter->include;
       }
@@ -651,8 +650,8 @@ namespace cscdqm {
         it = chamberCounters.insert(chamberCounters.end(),
                                     ChamberCounterKeyType(crateId, dmbId, ChamberCounterMapType()));
       }
-      ChamberCounterMapType* cs = const_cast<ChamberCounterMapType*>(&it->counters);
-      ChamberCounterMapType::iterator itc = cs->find(counter);
+      auto* cs = const_cast<ChamberCounterMapType*>(&it->counters);
+      auto itc = cs->find(counter);
       if (itc == cs->end()) {
         cs->insert(std::make_pair(counter, value));
       } else {
@@ -688,7 +687,7 @@ namespace cscdqm {
       ChamberMapCounterMapType::iterator it = chamberCounters.find(boost::make_tuple(crateId, dmbId));
       if (it == chamberCounters.end())
         return 0;
-      ChamberCounterMapType::const_iterator itc = it->counters.find(counter);
+      auto itc = it->counters.find(counter);
       if (itc == it->counters.end())
         return 0;
       return itc->second;

@@ -32,8 +32,8 @@ void PFJetsTauOverlapRemoval::produce(edm::StreamID iSId, edm::Event& iEvent, co
     for (unsigned int iJet = 0; iJet < PFJets->size(); iJet++) {
       bool isMatched = false;
       const reco::PFJet& myPFJet = (*PFJets)[iJet];
-      for (unsigned int iTau = 0; iTau < taus.size(); iTau++) {
-        if (reco::deltaR2(taus[iTau]->p4(), myPFJet.p4()) < matchingR2_) {
+      for (auto& tau : taus) {
+        if (reco::deltaR2(tau->p4(), myPFJet.p4()) < matchingR2_) {
           isMatched = true;
           break;
         }

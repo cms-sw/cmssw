@@ -36,7 +36,7 @@ template <unsigned int N>
 std::pair<bool, double> MRHChi2MeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
                                                               const TrackingRecHit& aRecHit) const {
   LogDebug("MRHChi2MeasurementEstimator") << "Calling MRHChi2MeasurementEstimator";
-  SiTrackerMultiRecHit const& mHit = dynamic_cast<SiTrackerMultiRecHit const&>(aRecHit);
+  auto const& mHit = dynamic_cast<SiTrackerMultiRecHit const&>(aRecHit);
   double est = 0;
 
   double annealing = mHit.getAnnealingFactor();
@@ -46,8 +46,7 @@ std::pair<bool, double> MRHChi2MeasurementEstimator::estimate(const TrajectorySt
   LogDebug("MRHChi2MeasurementEstimator") << "this hit has " << components.size() << " components";
 
   int iComp = 0;
-  for (std::vector<const TrackingRecHit*>::const_iterator iter = components.begin(); iter != components.end();
-       iter++, iComp++) {
+  for (auto iter = components.begin(); iter != components.end(); iter++, iComp++) {
     // define variables that will be used to setup the KfComponentsHolder
     ProjectMatrix<double, 5, N> pf;
     typename AlgebraicROOTObject<N>::Vector r, rMeas;

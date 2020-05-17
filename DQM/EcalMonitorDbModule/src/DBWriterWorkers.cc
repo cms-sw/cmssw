@@ -61,16 +61,15 @@ namespace ecaldqm {
     edm::ParameterSet const &params(_ps.getUntrackedParameterSet(name_));
 
     std::vector<std::string> runTypes(params.getUntrackedParameter<std::vector<std::string>>("runTypes"));
-    for (unsigned iT(0); iT < runTypes.size(); ++iT)
-      runTypes_.insert(runTypes[iT]);
+    for (const auto &runType : runTypes)
+      runTypes_.insert(runType);
 
     if (!params.existsAs<edm::ParameterSet>("source", false))
       return;
 
     edm::ParameterSet const &sourceParams(params.getUntrackedParameterSet("source"));
     std::vector<std::string> const &meNames(sourceParams.getParameterNames());
-    for (unsigned iP(0); iP < meNames.size(); ++iP) {
-      std::string meName(meNames[iP]);
+    for (auto meName : meNames) {
       edm::ParameterSet const &meParam(sourceParams.getUntrackedParameterSet(meName));
       source_.insert(meName, createMESet(meParam));
     }
@@ -175,11 +174,11 @@ namespace ecaldqm {
         std::vector<DetId> channels(getElectronicsMap()->dccTowerConstituents(iDCC + 1, iTower));
         int nDigis(0);
         bool towerBad(false);
-        for (unsigned iD(0); iD < channels.size(); ++iD) {
-          int n(digiME.getBinContent(channels[iD]));
+        for (auto channel : channels) {
+          int n(digiME.getBinContent(channel));
           if (n > nDigis)
             nDigis = n;
-          int channelStatus(qualityME.getBinContent(channels[iD]));
+          int channelStatus(qualityME.getBinContent(channel));
           if (channelStatus == kBad || channelStatus == kMBad)
             towerBad = true;
         }
@@ -207,9 +206,7 @@ namespace ecaldqm {
     if (verbosity_ > 1)
       edm::LogInfo("EcalDQM") << " Looping over MEM channels and towers";
 
-    for (unsigned iMD(0); iMD < memDCC.size(); ++iMD) {
-      unsigned iDCC(memDCC[iMD]);
-
+    for (unsigned int iDCC : memDCC) {
       int subdet(iDCC <= kEEmHigh || iDCC >= kEEpLow ? EcalEndcap : EcalBarrel);
 
       for (unsigned iPN(1); iPN <= 10; ++iPN) {
@@ -357,9 +354,9 @@ namespace ecaldqm {
     MESet const &pnQualityME(source_.at("PNQuality"));
     MESet const &pnPedestalME(source_.at("PNPedestal"));
 
-    for (std::map<int, unsigned>::iterator wlItr(wlToME_.begin()); wlItr != wlToME_.end(); ++wlItr) {
-      int wl(wlItr->first);
-      unsigned iM(wlItr->second);
+    for (auto &wlItr : wlToME_) {
+      int wl(wlItr.first);
+      unsigned iM(wlItr.second);
 
       static_cast<MESetMulti const &>(ampME).use(iM);
       static_cast<MESetMulti const &>(aopME).use(iM);
@@ -456,9 +453,7 @@ namespace ecaldqm {
         result &= qualityOK(channelStatus);
       }
 
-      for (unsigned iMD(0); iMD < memDCC.size(); ++iMD) {
-        unsigned iDCC(memDCC[iMD]);
-
+      for (unsigned int iDCC : memDCC) {
         int subdet(iDCC <= kEEmHigh || iDCC >= kEEpLow ? EcalEndcap : EcalBarrel);
 
         for (unsigned iPN(1); iPN <= 10; ++iPN) {
@@ -619,9 +614,9 @@ namespace ecaldqm {
     MESet const &pnPedestalME(source_.at("PNPedestal"));
     MESet const &pnQualityME(source_.at("PNQuality"));
 
-    for (std::map<int, unsigned>::iterator gainItr(gainToME_.begin()); gainItr != gainToME_.end(); ++gainItr) {
-      int gain(gainItr->first);
-      int iM(gainItr->second);
+    for (auto &gainItr : gainToME_) {
+      int gain(gainItr.first);
+      int iM(gainItr.second);
 
       static_cast<MESetMulti const &>(pedestalME).use(iM);
       static_cast<MESetMulti const &>(qualityME).use(iM);
@@ -675,16 +670,14 @@ namespace ecaldqm {
       }
     }
 
-    for (std::map<int, unsigned>::iterator gainItr(pnGainToME_.begin()); gainItr != pnGainToME_.end(); ++gainItr) {
-      int gain(gainItr->first);
-      int iM(gainItr->second);
+    for (auto &gainItr : pnGainToME_) {
+      int gain(gainItr.first);
+      int iM(gainItr.second);
 
       static_cast<MESetMulti const &>(pnPedestalME).use(iM);
       static_cast<MESetMulti const &>(pnQualityME).use(iM);
 
-      for (unsigned iMD(0); iMD < memDCC.size(); ++iMD) {
-        unsigned iDCC(memDCC[iMD]);
-
+      for (unsigned int iDCC : memDCC) {
         int subdet(iDCC <= kEEmHigh || iDCC >= kEEpLow ? EcalEndcap : EcalBarrel);
 
         for (unsigned iPN(1); iPN <= 10; ++iPN) {
@@ -849,9 +842,9 @@ namespace ecaldqm {
     MESet const &pnPedestalME(source_.at("PNPedestal"));
     MESet const &pnQualityME(source_.at("PNQuality"));
 
-    for (std::map<int, unsigned>::iterator gainItr(gainToME_.begin()); gainItr != gainToME_.end(); ++gainItr) {
-      int gain(gainItr->first);
-      int iM(gainItr->second);
+    for (auto &gainItr : gainToME_) {
+      int gain(gainItr.first);
+      int iM(gainItr.second);
 
       static_cast<MESetMulti const &>(amplitudeME).use(iM);
       static_cast<MESetMulti const &>(shapeME).use(iM);
@@ -945,16 +938,14 @@ namespace ecaldqm {
       }
     }
 
-    for (std::map<int, unsigned>::iterator gainItr(pnGainToME_.begin()); gainItr != pnGainToME_.end(); ++gainItr) {
-      int gain(gainItr->first);
-      int iM(gainItr->second);
+    for (auto &gainItr : pnGainToME_) {
+      int gain(gainItr.first);
+      int iM(gainItr.second);
 
       static_cast<MESetMulti const &>(pnAmplitudeME).use(iM);
       static_cast<MESetMulti const &>(pnQualityME).use(iM);
 
-      for (unsigned iMD(0); iMD < memDCC.size(); ++iMD) {
-        unsigned iDCC(memDCC[iMD]);
-
+      for (unsigned int iDCC : memDCC) {
         int subdet(iDCC <= kEEmHigh || iDCC >= kEEpLow ? EcalEndcap : EcalBarrel);
 
         for (unsigned iPN(1); iPN <= 10; ++iPN) {
@@ -1128,9 +1119,9 @@ x      PNDiodeTask.Pedestal (i13, i14)
     //     MESet const& pnQualityME(source_.at("PNQuality"));
     //     MESet const& pnPedestalME(source_.at("PNPedestal"));
 
-    for (std::map<int, unsigned>::iterator wlItr(wlToME_.begin()); wlItr != wlToME_.end(); ++wlItr) {
-      int wl(wlItr->first);
-      unsigned iM(wlItr->second);
+    for (auto &wlItr : wlToME_) {
+      int wl(wlItr.first);
+      unsigned iM(wlItr.second);
 
       static_cast<MESetMulti const &>(ampME).use(iM);
       static_cast<MESetMulti const &>(aopME).use(iM);

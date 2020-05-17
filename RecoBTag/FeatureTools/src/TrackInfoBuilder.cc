@@ -31,7 +31,7 @@ namespace btagbtvdeep {
 
   void TrackInfoBuilder::buildTrackInfo(const reco::Candidate *candidate,
                                         const math::XYZVector &jetDir,
-                                        GlobalVector refjetdirection,
+                                        const GlobalVector &refjetdirection,
                                         const reco::Vertex &pv) {
     TVector3 jetDir3(jetDir.x(), jetDir.y(), jetDir.z());
 

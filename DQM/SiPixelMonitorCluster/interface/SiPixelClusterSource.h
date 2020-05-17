@@ -117,7 +117,7 @@ private:
   void getrococcupancye(DetId detId,
                         const edmNew::DetSetVector<SiPixelCluster> &clustColl,
                         const TrackerTopology *const pTT,
-                        edm::ESHandle<TrackerGeometry> pDD,
+                        const edm::ESHandle<TrackerGeometry> &pDD,
                         MonitorElement *meinput);
 
   // define Token(-s)

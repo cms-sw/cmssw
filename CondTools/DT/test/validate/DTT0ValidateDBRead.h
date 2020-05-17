@@ -15,9 +15,9 @@ class DTT0ValidateDBRead : public edm::EDAnalyzer {
 public:
   explicit DTT0ValidateDBRead(edm::ParameterSet const& p);
   explicit DTT0ValidateDBRead(int i);
-  virtual ~DTT0ValidateDBRead();
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-  virtual void endJob();
+  ~DTT0ValidateDBRead() override;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void endJob() override;
 
 private:
   std::string dataFileName;

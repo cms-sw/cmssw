@@ -54,7 +54,7 @@ public:
 
   void recalculateVisibility() override;
   virtual void recalculateVisibilityNodeRec(int);
-  void importOverlaps(std::string path, double precision);
+  void importOverlaps(const std::string& path, double precision);
   int numberOfColumns() const override { return 6; }
 
   std::vector<std::string> getTitles() const override;

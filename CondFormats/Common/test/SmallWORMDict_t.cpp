@@ -7,19 +7,19 @@ namespace test {
     int test() {
       std::vector<std::string> dict;
       size_t tot = 0;
-      dict.push_back("Sneezy");
+      dict.emplace_back("Sneezy");
       tot += dict.back().size();
-      dict.push_back("Sleepy");
+      dict.emplace_back("Sleepy");
       tot += dict.back().size();
-      dict.push_back("Dopey");
+      dict.emplace_back("Dopey");
       tot += dict.back().size();
-      dict.push_back("Doc");
+      dict.emplace_back("Doc");
       tot += dict.back().size();
-      dict.push_back("Happy");
+      dict.emplace_back("Happy");
       tot += dict.back().size();
-      dict.push_back("Bashful");
+      dict.emplace_back("Bashful");
       tot += dict.back().size();
-      dict.push_back("Grumpy");
+      dict.emplace_back("Grumpy");
       tot += dict.back().size();
 
       cond::SmallWORMDict worm(dict);

@@ -28,26 +28,26 @@ PixelTTCciConfig::PixelTTCciConfig(vector<vector<string> > &tableMat) : PixelCon
      TTC_OBJ_DATA_CLOB  		       NOT NULL CLOB
   */
 
-  colNames.push_back("CONFIG_KEY");
-  colNames.push_back("KEY_TYPE");
-  colNames.push_back("KEY_ALIAS");
-  colNames.push_back("VERSION");
-  colNames.push_back("KIND_OF_COND");
-  colNames.push_back("TTC_OBJ_DATA_FILE");
-  colNames.push_back("TTC_OBJ_DATA_CLOB");
+  colNames.emplace_back("CONFIG_KEY");
+  colNames.emplace_back("KEY_TYPE");
+  colNames.emplace_back("KEY_ALIAS");
+  colNames.emplace_back("VERSION");
+  colNames.emplace_back("KIND_OF_COND");
+  colNames.emplace_back("TTC_OBJ_DATA_FILE");
+  colNames.emplace_back("TTC_OBJ_DATA_CLOB");
 
   for (unsigned int c = 0; c < tableMat[0].size(); c++) {
-    for (unsigned int n = 0; n < colNames.size(); n++) {
-      if (tableMat[0][c] == colNames[n]) {
-        colM[colNames[n]] = c;
+    for (const auto &colName : colNames) {
+      if (tableMat[0][c] == colName) {
+        colM[colName] = c;
         break;
       }
     }
   }  //end for
-  for (unsigned int n = 0; n < colNames.size(); n++) {
-    if (colM.find(colNames[n]) == colM.end()) {
+  for (const auto &colName : colNames) {
+    if (colM.find(colName) == colM.end()) {
       std::cerr << "[PixelTTCciConfig::PixelTTCciConfig()]\tCouldn't find in the database the column with name "
-                << colNames[n] << std::endl;
+                << colName << std::endl;
       assert(0);
     }
   }
@@ -55,7 +55,7 @@ PixelTTCciConfig::PixelTTCciConfig(vector<vector<string> > &tableMat) : PixelCon
   //   cout << "[PixelTTCciConfig::PixelTTCciConfig()]\tRead: "<< endl<< ttcConfigStream_.str() << endl ;
 }
 
-PixelTTCciConfig::PixelTTCciConfig(std::string filename) : PixelConfigBase(" ", " ", " ") {
+PixelTTCciConfig::PixelTTCciConfig(const std::string &filename) : PixelConfigBase(" ", " ", " ") {
   std::string mthn = "]\t[PixelTKFECConfig::PixelTKFECConfig()]\t\t\t    ";
   std::ifstream in(filename.c_str());
 

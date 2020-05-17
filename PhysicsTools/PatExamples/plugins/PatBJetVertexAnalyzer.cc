@@ -133,14 +133,14 @@ void PatBJetVertexAnalyzer::analyze(const edm::Event &event, const edm::EventSet
   event.getByToken(jetsToken_, jetsHandle);
 
   // now go through all jets
-  for (pat::JetCollection::const_iterator jet = jetsHandle->begin(); jet != jetsHandle->end(); ++jet) {
+  for (const auto &jet : *jetsHandle) {
     // only look at jets that pass the pt and eta cut
-    if (jet->pt() < jetPtCut_ || std::abs(jet->eta()) > jetEtaCut_)
+    if (jet.pt() < jetPtCut_ || std::abs(jet.eta()) > jetEtaCut_)
       continue;
 
     Flavour flavour;
     // find out the jet flavour (differs between quark and anti-quark)
-    switch (std::abs(jet->partonFlavour())) {
+    switch (std::abs(jet.partonFlavour())) {
       case 1:
       case 2:
       case 3:
@@ -164,7 +164,7 @@ void PatBJetVertexAnalyzer::analyze(const edm::Event &event, const edm::EventSet
     // retrieve the "secondary vertex tag infos"
     // this is the output of the b-tagging reconstruction code
     // and contains secondary vertices in the jets
-    const reco::SecondaryVertexTagInfo &svTagInfo = *jet->tagInfoSecondaryVertex();
+    const reco::SecondaryVertexTagInfo &svTagInfo = *jet.tagInfoSecondaryVertex();
 
     // count the number of secondary vertices
     plots_[ALL_JETS].nVertices->Fill(svTagInfo.nVertices());
@@ -204,7 +204,7 @@ void PatBJetVertexAnalyzer::analyze(const edm::Event &event, const edm::EventSet
     math::XYZVector dir2(dir.x(), dir.y(), dir.z());
 
     // compute a few variables that we are plotting
-    double deltaR = ROOT::Math::VectorUtil::DeltaR(jet->momentum(), dir2);
+    double deltaR = ROOT::Math::VectorUtil::DeltaR(jet.momentum(), dir2);
 
     plots_[ALL_JETS].deltaR->Fill(deltaR);
     plots_[flavour].deltaR->Fill(deltaR);
@@ -213,7 +213,7 @@ void PatBJetVertexAnalyzer::analyze(const edm::Event &event, const edm::EventSet
     math::XYZTLorentzVector trackFourVectorSum;
 
     // loop over all tracks in the vertex
-    for (reco::Vertex::trackRef_iterator track = sv.tracks_begin(); track != sv.tracks_end(); ++track) {
+    for (auto track = sv.tracks_begin(); track != sv.tracks_end(); ++track) {
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double> > vec;
       vec.SetPx((*track)->px());
       vec.SetPy((*track)->py());

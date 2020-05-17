@@ -89,11 +89,11 @@ private:
       candBase = cand;
       candL1 = nullptr;
     }
-    bool operator<(MatchStruct match) { return candBase->pt() < match.candBase->pt(); }
-    bool operator>(MatchStruct match) { return candBase->pt() > match.candBase->pt(); }
+    bool operator<(const MatchStruct &match) { return candBase->pt() < match.candBase->pt(); }
+    bool operator>(const MatchStruct &match) { return candBase->pt() > match.candBase->pt(); }
   };
   struct matchesByDescendingPt {
-    bool operator()(MatchStruct a, MatchStruct b) { return a.candBase->pt() > b.candBase->pt(); }
+    bool operator()(const MatchStruct &a, const MatchStruct &b) { return a.candBase->pt() > b.candBase->pt(); }
   };
 
   void analyzePath(const edm::Event &,
@@ -104,7 +104,7 @@ private:
   void findMatches(std::vector<MatchStruct> &,
                    const l1t::MuonVectorRef &candsL1,
                    const std::vector<std::vector<const reco::RecoChargedCandidate *>> &);
-  void bookHist(DQMStore::IBooker &, std::string, std::string, std::string, std::string);
+  void bookHist(DQMStore::IBooker &, const std::string &, const std::string &, const std::string &, const std::string &);
 
   std::string hltPath_;
   std::string hltProcessName_;

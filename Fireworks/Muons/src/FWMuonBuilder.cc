@@ -37,18 +37,16 @@ namespace {
     float globalTrajectoryPoint[3];
 
     const std::vector<reco::MuonChamberMatch>& matches = muon->matches();
-    for (std::vector<reco::MuonChamberMatch>::const_iterator chamber = matches.begin(), chamberEnd = matches.end();
-         chamber != chamberEnd;
-         ++chamber) {
+    for (const auto& matche : matches) {
       // expected track position
-      localTrajectoryPoint[0] = chamber->x;
-      localTrajectoryPoint[1] = chamber->y;
+      localTrajectoryPoint[0] = matche.x;
+      localTrajectoryPoint[1] = matche.y;
       localTrajectoryPoint[2] = 0;
 
-      unsigned int rawid = chamber->id.rawId();
+      unsigned int rawid = matche.id.rawId();
       if (geom->contains(rawid)) {
         geom->localToGlobal(rawid, localTrajectoryPoint, globalTrajectoryPoint);
-        points.push_back(TEveVector(globalTrajectoryPoint[0], globalTrajectoryPoint[1], globalTrajectoryPoint[2]));
+        points.emplace_back(globalTrajectoryPoint[0], globalTrajectoryPoint[1], globalTrajectoryPoint[2]);
       }
     }
     return points;
@@ -67,10 +65,8 @@ namespace {
     // FIXME: This should be set elsewhere.
     segmentSet->SetLineWidth(4);
 
-    for (std::vector<reco::MuonChamberMatch>::const_iterator chamber = matches.begin(), chambersEnd = matches.end();
-         chamber != chambersEnd;
-         ++chamber) {
-      unsigned int rawid = chamber->id.rawId();
+    for (const auto& matche : matches) {
+      unsigned int rawid = matche.id.rawId();
       float segmentLength = 0.0;
       float segmentLimit = 0.0;
 
@@ -79,7 +75,7 @@ namespace {
         shape->SetElementName("Chamber");
         shape->RefMainTrans().Scale(0.999, 0.999, 0.999);
 
-        FWGeometry::IdToInfoItr det = geom->find(rawid);
+        auto det = geom->find(rawid);
         if (det->shape[0] == 1)  // TGeoTrap
         {
           segmentLength = det->shape[3];
@@ -96,12 +92,11 @@ namespace {
         }
 
         if (ids.insert(rawid).second &&  // ensure that we add same chamber only once
-            (chamber->detector() != MuonSubdetId::CSC || showEndcap)) {
+            (matche.detector() != MuonSubdetId::CSC || showEndcap)) {
           pb->setupAddElement(shape, parentList);
         }
 
-        for (std::vector<reco::MuonSegmentMatch>::const_iterator segment = chamber->segmentMatches.begin(),
-                                                                 segmentEnd = chamber->segmentMatches.end();
+        for (auto segment = matche.segmentMatches.begin(), segmentEnd = matche.segmentMatches.end();
              segment != segmentEnd;
              ++segment) {
           float segmentPosition[3] = {segment->x, segment->y, 0.0};
@@ -110,7 +105,7 @@ namespace {
           float localSegmentInnerPoint[3];
           float localSegmentOuterPoint[3];
 
-          fireworks::createSegment(chamber->detector(),
+          fireworks::createSegment(matche.detector(),
                                    true,
                                    segmentLength,
                                    segmentLimit,
@@ -149,15 +144,13 @@ namespace {
     float globalTrajectoryPoint[3];
 
     const std::vector<reco::MuonChamberMatch>& matches = muon->matches();
-    for (std::vector<reco::MuonChamberMatch>::const_iterator chamber = matches.begin(), chamberEnd = matches.end();
-         chamber != chamberEnd;
-         ++chamber) {
+    for (const auto& matche : matches) {
       // expected track position
-      localTrajectoryPoint[0] = chamber->x;
-      localTrajectoryPoint[1] = chamber->y;
+      localTrajectoryPoint[0] = matche.x;
+      localTrajectoryPoint[1] = matche.y;
       localTrajectoryPoint[2] = 0;
 
-      unsigned int rawid = chamber->id.rawId();
+      unsigned int rawid = matche.id.rawId();
       if (geom->contains(rawid)) {
         geom->localToGlobal(rawid, localTrajectoryPoint, globalTrajectoryPoint);
         double phi = atan2(globalTrajectoryPoint[1], globalTrajectoryPoint[0]);
@@ -257,20 +250,20 @@ void FWMuonBuilder::buildMuon(
   if (muon->isGlobalMuon() && muon->globalTrack().isAvailable()) {
     std::vector<TEveVector> extraPoints;
     if (muon->innerTrack().isAvailable() && muon->innerTrack()->extra().isAvailable()) {
-      extraPoints.push_back(TEveVector(muon->innerTrack()->innerPosition().x(),
-                                       muon->innerTrack()->innerPosition().y(),
-                                       muon->innerTrack()->innerPosition().z()));
-      extraPoints.push_back(TEveVector(muon->innerTrack()->outerPosition().x(),
-                                       muon->innerTrack()->outerPosition().y(),
-                                       muon->innerTrack()->outerPosition().z()));
+      extraPoints.emplace_back(muon->innerTrack()->innerPosition().x(),
+                               muon->innerTrack()->innerPosition().y(),
+                               muon->innerTrack()->innerPosition().z());
+      extraPoints.emplace_back(muon->innerTrack()->outerPosition().x(),
+                               muon->innerTrack()->outerPosition().y(),
+                               muon->innerTrack()->outerPosition().z());
     }
     if (muon->outerTrack().isAvailable() && muon->outerTrack()->extra().isAvailable()) {
-      extraPoints.push_back(TEveVector(muon->outerTrack()->innerPosition().x(),
-                                       muon->outerTrack()->innerPosition().y(),
-                                       muon->outerTrack()->innerPosition().z()));
-      extraPoints.push_back(TEveVector(muon->outerTrack()->outerPosition().x(),
-                                       muon->outerTrack()->outerPosition().y(),
-                                       muon->outerTrack()->outerPosition().z()));
+      extraPoints.emplace_back(muon->outerTrack()->innerPosition().x(),
+                               muon->outerTrack()->innerPosition().y(),
+                               muon->outerTrack()->innerPosition().z());
+      extraPoints.emplace_back(muon->outerTrack()->outerPosition().x(),
+                               muon->outerTrack()->outerPosition().y(),
+                               muon->outerTrack()->outerPosition().z());
     }
     TEveTrack* trk = nullptr;
     if (extraPoints.empty())

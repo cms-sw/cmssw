@@ -37,10 +37,10 @@ void CSCWireDigiValidation::analyze(const edm::Event &e, const edm::EventSetup &
 
   unsigned nDigisPerEvent = 0;
 
-  for (CSCWireDigiCollection::DigiRangeIterator j = wires->begin(); j != wires->end(); j++) {
-    std::vector<CSCWireDigi>::const_iterator beginDigi = (*j).second.first;
-    std::vector<CSCWireDigi>::const_iterator endDigi = (*j).second.second;
-    int detId = (*j).first.rawId();
+  for (auto &&j : *wires) {
+    auto beginDigi = j.second.first;
+    auto endDigi = j.second.second;
+    int detId = j.first.rawId();
 
     const CSCLayer *layer = findLayer(detId);
     int chamberType = layer->chamber()->specs()->chamberType();
@@ -48,7 +48,7 @@ void CSCWireDigiValidation::analyze(const edm::Event &e, const edm::EventSetup &
     nDigisPerEvent += nDigis;
     theNDigisPerLayerPlots[chamberType - 1]->Fill(nDigis);
 
-    for (std::vector<CSCWireDigi>::const_iterator digiItr = beginDigi; digiItr != endDigi; ++digiItr) {
+    for (auto digiItr = beginDigi; digiItr != endDigi; ++digiItr) {
       theTimeBinPlots[chamberType - 1]->Fill(digiItr->getTimeBin());
     }
 

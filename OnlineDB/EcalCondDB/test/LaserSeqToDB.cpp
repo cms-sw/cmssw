@@ -1,5 +1,5 @@
-#include <time.h>
-#include <stdio.h>
+#include <ctime>
+#include <cstdio>
 #include <cmath>
 
 #include <iostream>
@@ -34,7 +34,7 @@ using namespace std;
 
 class CondDBApp {
 public:
-  CondDBApp(string sid, string user, string pass)
+  CondDBApp(const string& sid, const string& user, const string& pass)
       : _debug(0), _insert(true), _run(0), _seq(0), _type(0), _color(0), _t0(0), _t1(0) {
     _location = "P5_Co";
     _runtype = "TEST";    //???
@@ -173,8 +173,8 @@ public:
     _lmfseq.setConnection(econn->getEnv(), econn->getConn());
     std::map<int, LMFSeqDat> l = _lmfseq.fetchByRunIOV(_runiov);
     cout << "Run has " << l.size() << " sequences in database" << endl;
-    std::map<int, LMFSeqDat>::const_iterator b = l.begin();
-    std::map<int, LMFSeqDat>::const_iterator e = l.end();
+    auto b = l.begin();
+    auto e = l.end();
     bool ok_(false);
     while (b != e) {
       _lmfseq = b->second;
@@ -215,8 +215,8 @@ public:
     LMFRunIOV lmfiov;
     lmfiov.setConnection(econn->getEnv(), econn->getConn());
     std::list<LMFRunIOV> iov_l = lmfiov.fetchBySequence(_lmfseq);
-    std::list<LMFRunIOV>::const_iterator iov_b = iov_l.begin();
-    std::list<LMFRunIOV>::const_iterator iov_e = iov_l.end();
+    auto iov_b = iov_l.begin();
+    auto iov_e = iov_l.end();
     while (iov_b != iov_e) {
       if (iov_b->getTriggerType() == _lmftrig && iov_b->getColor() == _lmfcol) {
         int ilmr = iov_b->getLmr();
@@ -226,7 +226,7 @@ public:
     }
   }
 
-  void storeLaserPrimitive(const char* fname, ME::Header header, ME::Settings settings, time_t dt) {
+  void storeLaserPrimitive(const char* fname, const ME::Header& header, ME::Settings settings, time_t dt) {
     LMFRunIOV lmfiov;
     lmfiov.setConnection(econn->getEnv(), econn->getConn());
 
@@ -311,7 +311,7 @@ public:
     //  Open the ROOT file
     TString rootfile(fname);
     TDirectory* f = TFile::Open(rootfile);
-    if (f == 0) {
+    if (f == nullptr) {
       cout << "ERROR -- file=" << rootfile << " not found! " << endl;
       //	abort();  // this must not happen
       return;
@@ -577,8 +577,7 @@ public:
     LMFPrimDat laser_(econn, color, "LASER");
     laser_.setLMFRunIOV(lmfiov);
     laser_.dump();
-    for (unsigned ii = 0; ii < channels_.size(); ii++) {
-      EcalLogicID ecid_prim = channels_[ii];
+    for (auto ecid_prim : channels_) {
       logic_id = ecid_prim.getLogicID();
       id1_ = ecid_prim.getID1();
       id2_ = ecid_prim.getID2();
@@ -799,7 +798,7 @@ public:
   void insert(bool insert) { _insert = insert; }
 
 private:
-  CondDBApp();  // hidden default constructor
+  CondDBApp() = delete;  // hidden default constructor
   EcalCondDBInterface* econn;
 
   //   uint64_t startmicros;
@@ -1026,7 +1025,7 @@ int main(int argc, char* argv[]) {
     vector<int> dtv;
 
     TObjArray* array_ = seqstr.Tokenize("-");
-    TObjString* token_(0);
+    TObjString* token_(nullptr);
     TString str_;
     int nTokens_ = array_->GetEntries();
     if (nTokens_ == 0)

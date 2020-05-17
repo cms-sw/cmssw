@@ -120,31 +120,31 @@ void PatElectronAnalyzer::analyze(const edm::Event &evt, const edm::EventSetup &
   // ----------------------------------------------------------------------
   if (mode_ == 0) {
     // loop generator particles
-    for (reco::GenParticleCollection::const_iterator part = particles->begin(); part != particles->end(); ++part) {
+    for (const auto &part : *particles) {
       // only loop stable electrons
-      if (part->status() == 1 && abs(part->pdgId()) == 11) {
-        if (part->pt() > minPt_ && fabs(part->eta()) < maxEta_) {
-          genPt_->Fill(part->pt());
-          genEta_->Fill(part->eta());
-          genPhi_->Fill(part->phi());
+      if (part.status() == 1 && abs(part.pdgId()) == 11) {
+        if (part.pt() > minPt_ && fabs(part.eta()) < maxEta_) {
+          genPt_->Fill(part.pt());
+          genEta_->Fill(part.eta());
+          genPhi_->Fill(part.phi());
         }
       }
     }
 
     // loop electrons
-    for (std::vector<pat::Electron>::const_iterator elec = electrons->begin(); elec != electrons->end(); ++elec) {
-      if (elec->genLepton()) {
-        float deltaR = ROOT::Math::VectorUtil::DeltaR(elec->genLepton()->p4(), elec->p4());
+    for (const auto &elec : *electrons) {
+      if (elec.genLepton()) {
+        float deltaR = ROOT::Math::VectorUtil::DeltaR(elec.genLepton()->p4(), elec.p4());
         deltaR_->Fill(TMath::Log10(deltaR));
         if (deltaR < maxDeltaR_) {
           if (electronID_ != "none") {
-            if (elec->electronID(electronID_) < 0.5)
+            if (elec.electronID(electronID_) < 0.5)
               continue;
           }
-          if (elec->pt() > minPt_ && fabs(elec->eta()) < maxEta_) {
-            pt_->Fill(elec->pt());
-            eta_->Fill(elec->eta());
-            phi_->Fill(elec->phi());
+          if (elec.pt() > minPt_ && fabs(elec.eta()) < maxEta_) {
+            pt_->Fill(elec.pt());
+            eta_->Fill(elec.eta());
+            phi_->Fill(elec.phi());
           }
         }
       }
@@ -158,12 +158,11 @@ void PatElectronAnalyzer::analyze(const edm::Event &evt, const edm::EventSetup &
   // ----------------------------------------------------------------------
   if (mode_ == 1) {
     // loop tag electron
-    for (std::vector<pat::Electron>::const_iterator elec = electrons->begin(); elec != electrons->end(); ++elec) {
+    for (auto elec = electrons->begin(); elec != electrons->end(); ++elec) {
       isoTag_->Fill(elec->trackIso());
       if (elec->trackIso() < maxTagIso_ && elec->electronID("eidTight") > 0.5) {
         // loop probe electron
-        for (std::vector<pat::Electron>::const_iterator probe = electrons->begin(); probe != electrons->end();
-             ++probe) {
+        for (auto probe = electrons->begin(); probe != electrons->end(); ++probe) {
           // skip the tag electron itself
           if (probe == elec)
             continue;

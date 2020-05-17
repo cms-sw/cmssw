@@ -81,8 +81,8 @@ bool editVInputTag(edm::ParameterSet &ps, bool tracked, const std::string &label
   size_t fst, lst;
 
   while (getline(iss, vitem, ',')) {
-    fst = vitem.find("[");
-    lst = vitem.find("]");
+    fst = vitem.find('[');
+    lst = vitem.find(']');
 
     if (fst != std::string::npos)
       vitem.erase(fst, 1);
@@ -107,7 +107,7 @@ bool editVInputTag(edm::ParameterSet &ps, bool tracked, const std::string &label
       if (nwords > 2)
         it_process = tokens[2];
 
-      inputTags.push_back(edm::InputTag(it_label, it_instance, it_process));
+      inputTags.emplace_back(it_label, it_instance, it_process);
     }
   }
 
@@ -193,8 +193,8 @@ void editVectorParameter(edm::ParameterSet &ps, bool tracked, const std::string 
   size_t fst, lst;
 
   while (getline(iss, vitem, ',')) {
-    fst = vitem.find("[");
-    lst = vitem.find("]");
+    fst = vitem.find('[');
+    lst = vitem.find(']');
 
     if (fst != std::string::npos)
       vitem.erase(fst, 1);

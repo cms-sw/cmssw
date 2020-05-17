@@ -60,7 +60,7 @@ FWTriggerTableView::FWTriggerTableView(TEveWindowSlot* iParent, FWViewType::ETyp
   frame->AddFrame(m_vert, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
 
   // have to have at least one column when call  FWTableWidget constructor
-  m_columns.push_back(Column("Name"));
+  m_columns.emplace_back("Name");
 
   m_tableWidget = new FWTableWidget(m_tableManager, frame);
   m_tableWidget->SetHeaderBackgroundColor(gVirtualX->GetPixel(kWhite));
@@ -109,8 +109,8 @@ FWTriggerTableView::saveImageTo( const std::string& iName ) const
    }*/
 
 void FWTriggerTableView::dataChanged() {
-  for (std::vector<Column>::iterator i = m_columns.begin(); i != m_columns.end(); ++i)
-    (*i).values.clear();
+  for (auto& m_column : m_columns)
+    m_column.values.clear();
 
   edm::EventBase* base = const_cast<edm::EventBase*>(FWGUIManager::getGUIManager()->getCurrentEvent());
   if (fwlite::Event* event = dynamic_cast<fwlite::Event*>(base))
@@ -171,11 +171,11 @@ void FWTriggerTableView::resetCombo() const {
     m_combo->RemoveAll();
     int cnt = 0;
     int id = -1;
-    for (std::vector<std::string>::iterator i = m_processList->begin(); i != m_processList->end(); ++i) {
-      if (m_process.value() == *i)
+    for (auto& i : *m_processList) {
+      if (m_process.value() == i)
         id = cnt;
 
-      m_combo->AddEntry((*i).c_str(), cnt);
+      m_combo->AddEntry(i.c_str(), cnt);
       cnt++;
     }
 
@@ -196,8 +196,8 @@ void FWTriggerTableView::processChanged(const char* x) {
 }
 
 bool FWTriggerTableView::isProcessValid() const {
-  for (std::vector<std::string>::iterator i = m_processList->begin(); i != m_processList->end(); ++i) {
-    if (*i == m_process.value())
+  for (auto& i : *m_processList) {
+    if (i == m_process.value())
       return true;
   }
   return false;
@@ -214,7 +214,7 @@ void FWTriggerTableView::populateController(ViewerParameterGUI& gui) const {
 
   // add combo for processes
   if (typeId() == FWViewType::kTableHLT) {
-    TGHorizontalFrame* f = new TGHorizontalFrame(gui.getTabContainer());
+    auto* f = new TGHorizontalFrame(gui.getTabContainer());
     gui.getTabContainer()->AddFrame(f, new TGLayoutHints(kLHintsNormal, 2, 2, 2, 2));
 
     m_combo = new TGComboBox(f);
@@ -223,7 +223,7 @@ void FWTriggerTableView::populateController(ViewerParameterGUI& gui) const {
     f->AddFrame(new TGLabel(f, "Process"), new TGLayoutHints(kLHintsLeft, 8, 2, 2, 2));
 
     resetCombo();
-    FWTriggerTableView* tt = (FWTriggerTableView*)this;
+    auto* tt = (FWTriggerTableView*)this;
     m_combo->Connect("Selected(const char*)", "FWTriggerTableView", tt, "processChanged(const char*)");
   }
 }

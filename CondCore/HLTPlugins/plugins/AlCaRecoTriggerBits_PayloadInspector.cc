@@ -47,7 +47,7 @@ namespace {
 
       y -= pitch;
       y_x1.push_back(y);
-      s_x1.push_back("#scale[1.2]{Key}");
+      s_x1.emplace_back("#scale[1.2]{Key}");
       y_x2.push_back(y);
       s_x2.push_back("#scale[1.2]{in IOV: " + IOVsince + "}");
 
@@ -193,7 +193,7 @@ namespace {
 
       y -= pitch;
       y_x1.push_back(y);
-      s_x1.push_back("#scale[1.2]{Key}");
+      s_x1.emplace_back("#scale[1.2]{Key}");
       y_x2.push_back(y);
       s_x2.push_back("#scale[1.2]{in IOV: " + firstIOVsince + "}");
       y_x3.push_back(y);

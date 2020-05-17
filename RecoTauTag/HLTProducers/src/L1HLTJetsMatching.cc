@@ -52,11 +52,11 @@ void L1HLTJetsMatching::produce(edm::Event& iEvent, const edm::EventSetup& iES) 
   math::XYZPoint a(0., 0., 0.);
   CaloJet::Specific f;
 
-  for (unsigned int iL1Tau = 0; iL1Tau < tauCandRefVec.size(); iL1Tau++) {
+  for (auto& iL1Tau : tauCandRefVec) {
     for (unsigned int iJet = 0; iJet < tauJets->size(); iJet++) {
       //Find the relative L2TauJets, to see if it has been reconstructed
       const Candidate& myJet = (*tauJets)[iJet];
-      deltaR = ROOT::Math::VectorUtil::DeltaR(myJet.p4().Vect(), (tauCandRefVec[iL1Tau]->p4()).Vect());
+      deltaR = ROOT::Math::VectorUtil::DeltaR(myJet.p4().Vect(), (iL1Tau->p4()).Vect());
       if (deltaR < matchingR) {
         //		 LeafCandidate myLC(myJet);
         CaloJet myCaloJet(myJet.p4(), a, f);
@@ -69,11 +69,11 @@ void L1HLTJetsMatching::produce(edm::Event& iEvent, const edm::EventSetup& iES) 
     }
   }
 
-  for (unsigned int iL1Tau = 0; iL1Tau < jetCandRefVec.size(); iL1Tau++) {
+  for (auto& iL1Tau : jetCandRefVec) {
     for (unsigned int iJet = 0; iJet < tauJets->size(); iJet++) {
       const Candidate& myJet = (*tauJets)[iJet];
       //Find the relative L2TauJets, to see if it has been reconstructed
-      deltaR = ROOT::Math::VectorUtil::DeltaR(myJet.p4().Vect(), (jetCandRefVec[iL1Tau]->p4()).Vect());
+      deltaR = ROOT::Math::VectorUtil::DeltaR(myJet.p4().Vect(), (iL1Tau->p4()).Vect());
       if (deltaR < matchingR) {
         //		 LeafCandidate myLC(myJet);
         CaloJet myCaloJet(myJet.p4(), a, f);

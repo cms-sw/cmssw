@@ -13,9 +13,9 @@ namespace edm {
 class writeBlob : public edm::EDAnalyzer {
 public:
   explicit writeBlob(const edm::ParameterSet& iConfig);
-  ~writeBlob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() {}
+  ~writeBlob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override {}
 
 private:
   std::string m_StripRecordName;

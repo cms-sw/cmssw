@@ -138,8 +138,7 @@ void ESDataFormatterV1_1::DigiToRaw(int fedId, Digis& digis, FEDRawData& fedRawD
   //       return 0;
   //     }
 
-  for (DetDigis::const_iterator it = detDigis.begin(); it != detDigis.end(); ++it) {
-    const ESDataFrame& dataframe = (*it);
+  for (auto dataframe : detDigis) {
     const ESDetId& detId = dataframe.id();
 
     for (int is = 0; is < dataframe.size(); ++is)
@@ -200,10 +199,10 @@ void ESDataFormatterV1_1::DigiToRaw(int fedId, Digis& digis, FEDRawData& fedRawD
     words.push_back(word);
 
     const vector<Word64>& data = kit->second;
-    for (unsigned int id = 0; id < data.size(); ++id) {
+    for (unsigned long id : data) {
       if (debug_)
-        cout << "Data  : " << print(data[id]) << endl;
-      words.push_back(data[id]);
+        cout << "Data  : " << print(id) << endl;
+      words.push_back(id);
     }
   }
 
@@ -246,16 +245,16 @@ void ESDataFormatterV1_1::DigiToRaw(int fedId, Digis& digis, FEDRawData& fedRawD
   w++;
 
   // ES-DCC
-  for (unsigned int i = 0; i < DCCwords.size(); ++i) {
+  for (unsigned long DCCword : DCCwords) {
     if (debug_)
-      cout << "DCC  : " << print(DCCwords[i]) << endl;
-    *w = DCCwords[i];
+      cout << "DCC  : " << print(DCCword) << endl;
+    *w = DCCword;
     w++;
   }
 
   // event data
-  for (unsigned int i = 0; i < words.size(); ++i) {
-    *w = words[i];
+  for (unsigned long word : words) {
+    *w = word;
     w++;
   }
 

@@ -3,13 +3,14 @@
 #include "PhysicsTools/Utilities/interface/Parameter.h"
 
 #include <cmath>
+#include <utility>
 
 namespace funct {
   const double twoOverPi = 2. / M_PI;
 
   struct BreitWigner {
     BreitWigner(const Parameter& m, const Parameter& g) : mass(m.ptr()), width(g.ptr()) {}
-    BreitWigner(std::shared_ptr<double> m, std::shared_ptr<double> g) : mass(m), width(g) {}
+    BreitWigner(std::shared_ptr<double> m, std::shared_ptr<double> g) : mass(std::move(m)), width(std::move(g)) {}
     BreitWigner(double m, double g) : mass(new double(m)), width(new double(g)) {}
     double operator()(double x) const {
       double m2 = *mass * (*mass);

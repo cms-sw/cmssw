@@ -43,6 +43,8 @@
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/ptr_container/ptr_list.hpp>
 
+#include <memory>
+
 #include <string>
 #include <vector>
 #include <list>
@@ -103,9 +105,9 @@ PFRecoTauChargedHadronProducer::PFRecoTauChargedHadronProducer(const edm::Parame
 
   // get set of ChargedHadron builder plugins
   edm::VParameterSet psets_builders = cfg.getParameter<edm::VParameterSet>("builders");
-  for (edm::VParameterSet::const_iterator pset = psets_builders.begin(); pset != psets_builders.end(); ++pset) {
-    std::string pluginType = pset->getParameter<std::string>("plugin");
-    edm::ParameterSet pset_modified = (*pset);
+  for (const auto& psets_builder : psets_builders) {
+    std::string pluginType = psets_builder.getParameter<std::string>("plugin");
+    edm::ParameterSet pset_modified = psets_builder;
     pset_modified.addParameter<int>("verbosity", verbosity_);
     builders_.push_back(
         PFRecoTauChargedHadronBuilderPluginFactory::get()->create(pluginType, pset_modified, consumesCollector()));
@@ -113,20 +115,20 @@ PFRecoTauChargedHadronProducer::PFRecoTauChargedHadronProducer(const edm::Parame
 
   // get set of plugins for ranking ChargedHadrons in quality
   edm::VParameterSet psets_rankers = cfg.getParameter<edm::VParameterSet>("ranking");
-  for (edm::VParameterSet::const_iterator pset = psets_rankers.begin(); pset != psets_rankers.end(); ++pset) {
-    std::string pluginType = pset->getParameter<std::string>("plugin");
-    edm::ParameterSet pset_modified = (*pset);
+  for (const auto& psets_ranker : psets_rankers) {
+    std::string pluginType = psets_ranker.getParameter<std::string>("plugin");
+    edm::ParameterSet pset_modified = psets_ranker;
     pset_modified.addParameter<int>("verbosity", verbosity_);
     rankers_.push_back(PFRecoTauChargedHadronQualityPluginFactory::get()->create(pluginType, pset_modified));
   }
 
   // build the sorting predicate
-  predicate_ = std::unique_ptr<ChargedHadronPredicate>(new ChargedHadronPredicate(rankers_));
+  predicate_ = std::make_unique<ChargedHadronPredicate>(rankers_);
 
   // check if we want to apply a final output selection
   std::string selection = cfg.getParameter<std::string>("outputSelection");
   if (!selection.empty()) {
-    outputSelector_.reset(new StringCutObjectSelector<reco::PFRecoTauChargedHadron>(selection));
+    outputSelector_ = std::make_unique<StringCutObjectSelector<reco::PFRecoTauChargedHadron>>(selection);
   }
 
   produces<reco::PFJetChargedHadronAssociation>();
@@ -214,7 +216,7 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
 
       const reco::Track* track = nullptr;
       if (nextChargedHadron->getChargedPFCandidate().isNonnull()) {
-        const reco::PFCandidate* chargedPFCand =
+        const auto* chargedPFCand =
             dynamic_cast<const reco::PFCandidate*>(&*nextChargedHadron->getChargedPFCandidate());
         if (chargedPFCand) {
           if (chargedPFCand->trackRef().isNonnull())
@@ -238,7 +240,7 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
       if (track) {
         double track_eta = track->eta();
         double track_phi = track->phi();
-        for (std::list<etaPhiPair>::const_iterator trackInCleanCollection = tracksInCleanCollection.begin();
+        for (auto trackInCleanCollection = tracksInCleanCollection.begin();
              trackInCleanCollection != tracksInCleanCollection.end();
              ++trackInCleanCollection) {
           double dR = deltaR(track_eta, track_phi, trackInCleanCollection->first, trackInCleanCollection->second);
@@ -255,11 +257,8 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
       // discard ChargedHadron candidates without track in case they are close to neutral PFCandidates "used" by ChargedHadron candidates in the clean collection
       bool isNeutralPFCand_overlap = false;
       if (nextChargedHadron->algoIs(reco::PFRecoTauChargedHadron::kPFNeutralHadron)) {
-        for (std::set<reco::CandidatePtr>::const_iterator neutralPFCandInCleanCollection =
-                 neutralPFCandsInCleanCollection.begin();
-             neutralPFCandInCleanCollection != neutralPFCandsInCleanCollection.end();
-             ++neutralPFCandInCleanCollection) {
-          if ((*neutralPFCandInCleanCollection) == nextChargedHadron->getChargedPFCandidate())
+        for (const auto& neutralPFCandInCleanCollection : neutralPFCandsInCleanCollection) {
+          if (neutralPFCandInCleanCollection == nextChargedHadron->getChargedPFCandidate())
             isNeutralPFCand_overlap = true;
         }
       }
@@ -281,7 +280,7 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
           nextChargedHadron->getNeutralPFCandidates()
               .size()) {  // all neutral PFCandidates are unique, add ChargedHadron candidate to clean collection
         if (track)
-          tracksInCleanCollection.push_back(std::make_pair(track->eta(), track->phi()));
+          tracksInCleanCollection.emplace_back(track->eta(), track->phi());
         neutralPFCandsInCleanCollection.insert(nextChargedHadron->getNeutralPFCandidates().begin(),
                                                nextChargedHadron->getNeutralPFCandidates().end());
         if (verbosity_) {
@@ -320,15 +319,14 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
 
 template <typename T>
 void PFRecoTauChargedHadronProducer::print(const T& chargedHadrons) {
-  for (typename T::const_iterator chargedHadron = chargedHadrons.begin(); chargedHadron != chargedHadrons.end();
-       ++chargedHadron) {
+  for (auto chargedHadron = chargedHadrons.begin(); chargedHadron != chargedHadrons.end(); ++chargedHadron) {
     edm::LogPrint("PFRecoTauChHProducer") << (*chargedHadron);
     edm::LogPrint("PFRecoTauChHProducer") << "Rankers:";
-    for (rankerList::const_iterator ranker = rankers_.begin(); ranker != rankers_.end(); ++ranker) {
+    for (const auto& ranker : rankers_) {
       const unsigned width = 25;
       edm::LogPrint("PFRecoTauChHProducer")
-          << " " << std::setiosflags(std::ios::left) << std::setw(width) << ranker->name() << " "
-          << std::resetiosflags(std::ios::left) << std::setprecision(3) << (*ranker)(*chargedHadron) << std::endl;
+          << " " << std::setiosflags(std::ios::left) << std::setw(width) << ranker.name() << " "
+          << std::resetiosflags(std::ios::left) << std::setprecision(3) << ranker(*chargedHadron) << std::endl;
     }
   }
 }

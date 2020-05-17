@@ -1,10 +1,12 @@
 #include <iostream>
 #include <iomanip>
 #include <string>
+#include <utility>
+
 #include <vector>
-#include <time.h>
+#include <ctime>
 #include <cstdlib>
-#include <limits.h>
+#include <climits>
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 #include "OnlineDB/EcalCondDB/interface/LMFDefFabric.h"
 #include "OnlineDB/EcalCondDB/interface/LMFLaserPulseDat.h"
@@ -21,7 +23,7 @@ public:
   CondDBApp(string sid, string user, string pass, run_t r) {
     try {
       cout << "Making connection..." << flush;
-      econn = new EcalCondDBInterface(sid, user, pass);
+      econn = new EcalCondDBInterface(std::move(sid), std::move(user), std::move(pass));
       run = r;
       cout << "Done." << endl;
     } catch (runtime_error &e) {
@@ -56,19 +58,19 @@ public:
     lmfruniov.dump();
     vector<LMFDat *> v;
     LMFRunDat *lmfrundat = new LMFRunDat(econn);
-    LMFTestPulseConfigDat *lmfconfigdat = new LMFTestPulseConfigDat(econn);
-    LMFLaserConfigDat *lmflaserconfdat = new LMFLaserConfigDat(econn);
-    LMFLaserPulseDat *lmfbluepulsedat = new LMFLaserPulseDat("BLUE");
+    auto *lmfconfigdat = new LMFTestPulseConfigDat(econn);
+    auto *lmflaserconfdat = new LMFLaserConfigDat(econn);
+    auto *lmfbluepulsedat = new LMFLaserPulseDat("BLUE");
     lmfbluepulsedat->setConnection(econn->getEnv(), econn->getConn());
     v.push_back(lmfrundat);
     v.push_back(lmfconfigdat);
     v.push_back(lmflaserconfdat);
     v.push_back(lmfbluepulsedat);
-    for (unsigned int i = 0; i < v.size(); i++) {
-      v[i]->setLMFRunIOV(lmfruniov);
-      v[i]->fetch();
-      v[i]->setMaxDataToDump(10);
-      v[i]->dump();
+    for (auto &i : v) {
+      i->setLMFRunIOV(lmfruniov);
+      i->fetch();
+      i->setMaxDataToDump(10);
+      i->dump();
     }
     delete lmfrundat;
     delete lmfconfigdat;
@@ -158,8 +160,8 @@ public:
                                                1234);
     cout << ecid_vec.size() << endl;
     // create random data
-    vector<EcalLogicID>::const_iterator i = ecid_vec.begin();
-    vector<EcalLogicID>::const_iterator e = ecid_vec.end();
+    auto i = ecid_vec.begin();
+    auto e = ecid_vec.end();
     LMFRunDat rundat(econn);
     rundat.setLMFRunIOV(lmfruniov);
     rundat.dump();
@@ -189,6 +191,8 @@ public:
       int g = rand() % 3;
       tpDat.setData(logic_id, gain[g], rand(), rand(), rand());
       vector<float> random_data;
+      random_data.reserve(8);
+
       for (int k = 0; k < 8; k++) {
         random_data.push_back((float)rand() / static_cast<float>(RAND_MAX));
       }
@@ -250,7 +254,7 @@ public:
   }
 
 private:
-  CondDBApp();  // hidden default constructor
+  CondDBApp() = delete;  // hidden default constructor
   EcalCondDBInterface *econn;
   run_t run;
 };

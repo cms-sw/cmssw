@@ -62,24 +62,22 @@ void L1TStage2uGTTiming::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const
   }
 
   int algoBitUnpre_ = -1;
-  for (unsigned int i = 0; i < unprescaledAlgoShortList_.size(); i++) {
-    if (gtUtil_->getAlgBitFromName(unprescaledAlgoShortList_.at(i), algoBitUnpre_)) {
-      unprescaledAlgoBitName_.emplace_back(unprescaledAlgoShortList_.at(i), algoBitUnpre_);
+  for (auto& i : unprescaledAlgoShortList_) {
+    if (gtUtil_->getAlgBitFromName(i, algoBitUnpre_)) {
+      unprescaledAlgoBitName_.emplace_back(i, algoBitUnpre_);
     } else {
-      edm::LogWarning("L1TStage2uGTTiming")
-          << "Algo \"" << unprescaledAlgoShortList_.at(i) << "\" not found in the trigger menu "
-          << gtUtil_->gtTriggerMenuName() << ". Could not retrieve algo bit number.";
+      edm::LogWarning("L1TStage2uGTTiming") << "Algo \"" << i << "\" not found in the trigger menu "
+                                            << gtUtil_->gtTriggerMenuName() << ". Could not retrieve algo bit number.";
     }
   }
 
   int algoBitPre_ = -1;
-  for (unsigned int i = 0; i < prescaledAlgoShortList_.size(); i++) {
-    if ((gtUtil_->getAlgBitFromName(prescaledAlgoShortList_.at(i), algoBitPre_))) {
-      prescaledAlgoBitName_.emplace_back(prescaledAlgoShortList_.at(i), algoBitPre_);
+  for (auto& i : prescaledAlgoShortList_) {
+    if ((gtUtil_->getAlgBitFromName(i, algoBitPre_))) {
+      prescaledAlgoBitName_.emplace_back(i, algoBitPre_);
     } else {
-      edm::LogWarning("L1TStage2uGTTiming")
-          << "Algo \"" << prescaledAlgoShortList_.at(i) << "\" not found in the trigger menu "
-          << gtUtil_->gtTriggerMenuName() << ". Could not retrieve algo bit number.";
+      edm::LogWarning("L1TStage2uGTTiming") << "Algo \"" << i << "\" not found in the trigger menu "
+                                            << gtUtil_->gtTriggerMenuName() << ". Could not retrieve algo bit number.";
     }
   }
 }
@@ -426,7 +424,7 @@ void L1TStage2uGTTiming::analyze(const edm::Event& evt, const edm::EventSetup& e
   int bxShiftLast = -999;
   int bxShiftIso = -999;
   for (int bx = uGtAlgs->getFirstBX(); bx <= uGtAlgs->getLastBX(); ++bx) {
-    for (GlobalAlgBlkBxCollection::const_iterator itr = uGtAlgs->begin(bx); itr != uGtAlgs->end(bx); ++itr) {
+    for (auto itr = uGtAlgs->begin(bx); itr != uGtAlgs->end(bx); ++itr) {
       // first bunch in train
       if (algoBitFirstBxInTrain_ != -1) {
         bool bit = false;
@@ -489,8 +487,7 @@ void L1TStage2uGTTiming::analyze(const edm::Event& evt, const edm::EventSetup& e
     auto minBx = std::max(uGtAlgs->getFirstBX(), uGtAlgs->getFirstBX() + bxShiftFirst);
     auto maxBx = std::min(uGtAlgs->getLastBX(), uGtAlgs->getLastBX() + bxShiftFirst);
 
-    for (GlobalAlgBlkBxCollection::const_iterator itr = uGtAlgs->begin(bxShiftFirst); itr != uGtAlgs->end(bxShiftFirst);
-         ++itr) {
+    for (auto itr = uGtAlgs->begin(bxShiftFirst); itr != uGtAlgs->end(bxShiftFirst); ++itr) {
       for (int ibx = minBx; ibx <= maxBx; ++ibx) {
         for (auto itr2 = uGtAlgs->begin(ibx); itr2 != uGtAlgs->end(ibx); ++itr2) {
           auto algoBits = itr2->getAlgoDecisionInitial();
@@ -528,8 +525,7 @@ void L1TStage2uGTTiming::analyze(const edm::Event& evt, const edm::EventSetup& e
     auto minBx = std::max(uGtAlgs->getFirstBX(), uGtAlgs->getFirstBX() + bxShiftLast);
     auto maxBx = std::min(uGtAlgs->getLastBX(), uGtAlgs->getLastBX() + bxShiftLast);
 
-    for (GlobalAlgBlkBxCollection::const_iterator itr = uGtAlgs->begin(bxShiftLast); itr != uGtAlgs->end(bxShiftLast);
-         ++itr) {
+    for (auto itr = uGtAlgs->begin(bxShiftLast); itr != uGtAlgs->end(bxShiftLast); ++itr) {
       for (int ibx = minBx; ibx <= maxBx; ++ibx) {
         for (auto itr2 = uGtAlgs->begin(ibx); itr2 != uGtAlgs->end(ibx); ++itr2) {
           auto algoBits = itr2->getAlgoDecisionInitial();
@@ -567,8 +563,7 @@ void L1TStage2uGTTiming::analyze(const edm::Event& evt, const edm::EventSetup& e
     auto minBx = std::max(uGtAlgs->getFirstBX(), uGtAlgs->getFirstBX() + bxShiftIso);
     auto maxBx = std::min(uGtAlgs->getLastBX(), uGtAlgs->getLastBX() + bxShiftIso);
 
-    for (GlobalAlgBlkBxCollection::const_iterator itr = uGtAlgs->begin(bxShiftIso); itr != uGtAlgs->end(bxShiftIso);
-         ++itr) {
+    for (auto itr = uGtAlgs->begin(bxShiftIso); itr != uGtAlgs->end(bxShiftIso); ++itr) {
       for (int ibx = minBx; ibx <= maxBx; ++ibx) {
         for (auto itr2 = uGtAlgs->begin(ibx); itr2 != uGtAlgs->end(ibx); ++itr2) {
           auto algoBits = itr2->getAlgoDecisionInitial();

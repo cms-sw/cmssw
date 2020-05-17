@@ -510,7 +510,7 @@ void LHCInfo::setBunchBitsetForBeam2(std::bitset<LHCInfo::bunchSlots + 1> const&
   m_bunchConfiguration2 = bunchConfiguration;
 }
 
-std::ostream& operator<<(std::ostream& os, LHCInfo beamInfo) {
+std::ostream& operator<<(std::ostream& os, const LHCInfo& beamInfo) {
   std::stringstream ss;
   beamInfo.print(ss);
   os << ss.str();

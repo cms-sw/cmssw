@@ -29,15 +29,14 @@ std::vector<GlobalPoint> HDetIdAssociator::getTrajectory(const FreeTrajectorySta
   TrajectoryStateOnSurface tSOSDest;
   FreeTrajectoryState ftsCurrent = ftsStart;
 
-  for (std::vector<GlobalPoint>::const_iterator surface_iter = surfaces.begin(); surface_iter != surfaces.end();
-       surface_iter++) {
+  for (const auto& surface : surfaces) {
     // this stuff is some weird pointer, which destroy itself
     std::unique_ptr<Cylinder> cylinder =
-        std::make_unique<Cylinder>(surface_iter->perp(), Surface::PositionType(0, 0, 0), Surface::RotationType());
+        std::make_unique<Cylinder>(surface.perp(), Surface::PositionType(0, 0, 0), Surface::RotationType());
     std::unique_ptr<Plane> forwardEndcap =
-        std::make_unique<Plane>(Surface::PositionType(0, 0, surface_iter->z()), Surface::RotationType());
+        std::make_unique<Plane>(Surface::PositionType(0, 0, surface.z()), Surface::RotationType());
     std::unique_ptr<Plane> backwardEndcap =
-        std::make_unique<Plane>(Surface::PositionType(0, 0, -surface_iter->z()), Surface::RotationType());
+        std::make_unique<Plane>(Surface::PositionType(0, 0, -surface.z()), Surface::RotationType());
 
     LogTrace("StartingPoint") << "Propagate from "
                               << "\n"
@@ -49,7 +48,7 @@ std::vector<GlobalPoint> HDetIdAssociator::getTrajectory(const FreeTrajectorySta
                               << "\tmomentum: " << ftsStart.momentum().mag() << "\n";
 
     float tanTheta = ftsCurrent.momentum().perp() / ftsCurrent.momentum().z();
-    float corner = surface_iter->perp() / surface_iter->z();
+    float corner = surface.perp() / surface.z();
     /*
       std::cout<<"Propagate from "<< "\n"
         << "\tx: " << ftsCurrent.position().x()<< "\n"
@@ -90,7 +89,7 @@ std::vector<GlobalPoint> HDetIdAssociator::getTrajectory(const FreeTrajectorySta
     } else {
       // missed target
       if (abs(ibar) > 0) {
-        if (tSOSDest.globalPosition().perp() > surface_iter->perp()) {
+        if (tSOSDest.globalPosition().perp() > surface.perp()) {
           tSOSDest = ivProp_->propagate(ftsCurrent, *cylinder);
         }
       } else {
@@ -289,9 +288,9 @@ void HDetIdAssociator::buildMap() {
   int numberOfDetIdsOutsideEtaRange = 0;
   int numberOfDetIdsActive = 0;
   std::set<DetId> validIds = getASetOfValidDetIds();
-  for (std::set<DetId>::const_iterator id_itr = validIds.begin(); id_itr != validIds.end(); id_itr++) {
+  for (auto validId : validIds) {
     //      std::vector<GlobalPoint> points = getDetIdPoints(*id_itr);
-    GlobalPoint point = getPosition(*id_itr);
+    GlobalPoint point = getPosition(validId);
     // reject fake DetIds (eta=0 - what are they anyway???)
     if (point.eta() == 0)
       continue;
@@ -320,9 +319,9 @@ void HDetIdAssociator::buildMap() {
       phiMin--;
 
     if (etaMax < 0 || phiMax < 0 || etaMin >= nEta_ || phiMin >= nPhi_) {
-      LogTrace("HDetIdAssociator") << "Out of range: DetId:" << id_itr->rawId() << "\n\teta (min,max): " << etaMin
+      LogTrace("HDetIdAssociator") << "Out of range: DetId:" << validId.rawId() << "\n\teta (min,max): " << etaMin
                                    << "," << etaMax << "\n\tphi (min,max): " << phiMin << "," << phiMax
-                                   << "\nTower id: " << id_itr->rawId() << "\n";
+                                   << "\nTower id: " << validId.rawId() << "\n";
       numberOfDetIdsOutsideEtaRange++;
       continue;
     }
@@ -333,7 +332,7 @@ void HDetIdAssociator::buildMap() {
     }
     for (int ieta = etaMin; ieta <= etaMax; ieta++)
       for (int iphi = phiMin; iphi <= phiMax; iphi++)
-        (*theMap_)[ieta][iphi % nPhi_].insert(*id_itr);
+        (*theMap_)[ieta][iphi % nPhi_].insert(validId);
     numberOfDetIdsActive++;
   }
   LogTrace("HDetIdAssociator") << "Number of elements outside the allowed range ( |eta|>" << nEta_ / 2 * etaBinSize_
@@ -350,15 +349,14 @@ std::set<DetId> HDetIdAssociator::getDetIdsInACone(const std::set<DetId>& inset,
   std::set<DetId> outset;
 
   if (dR >= 0) {
-    for (std::set<DetId>::const_iterator id_iter = inset.begin(); id_iter != inset.end(); id_iter++)
-      for (std::vector<GlobalPoint>::const_iterator point_iter = trajectory.begin(); point_iter != trajectory.end();
-           point_iter++)
-        if (nearElement(*point_iter, *id_iter, dR))
-          outset.insert(*id_iter);
+    for (auto id_iter : inset)
+      for (const auto& point_iter : trajectory)
+        if (nearElement(point_iter, id_iter, dR))
+          outset.insert(id_iter);
   } else {
     if (inset.size() != 1)
       return outset;
-    std::set<DetId>::const_iterator id_inp = inset.begin();
+    auto id_inp = inset.begin();
     int ieta;
     int iphi;
     GlobalPoint point = getPosition(*id_inp);
@@ -395,11 +393,10 @@ std::set<DetId> HDetIdAssociator::getCrossedDetIds(const std::set<DetId>& inset,
                                                    const std::vector<GlobalPoint>& trajectory) {
   check_setup();
   std::set<DetId> outset;
-  for (std::set<DetId>::const_iterator id_iter = inset.begin(); id_iter != inset.end(); id_iter++)
-    for (std::vector<GlobalPoint>::const_iterator point_iter = trajectory.begin(); point_iter != trajectory.end();
-         point_iter++)
-      if (insideElement(*point_iter, *id_iter))
-        outset.insert(*id_iter);
+  for (auto id_iter : inset)
+    for (const auto& point_iter : trajectory)
+      if (insideElement(point_iter, id_iter))
+        outset.insert(id_iter);
   return outset;
 }
 
@@ -409,15 +406,15 @@ std::set<DetId> HDetIdAssociator::getMaxEDetId(const std::set<DetId>& inset,
   // returns the most energetic tower in the NxN box (Michal)
   check_setup();
   std::set<DetId> outset;
-  std::set<DetId>::const_iterator id_max = inset.begin();
+  auto id_max = inset.begin();
   double Ehadmax = 0;
 
-  for (std::set<DetId>::const_iterator id_iter = inset.begin(); id_iter != inset.end(); id_iter++) {
+  for (auto id_iter = inset.begin(); id_iter != inset.end(); id_iter++) {
     DetId id(*id_iter);
     //     GlobalPoint point = getPosition(*id_iter);
     //     int ieta = iEta(point);
     //     int iphi = iPhi(point);
-    CaloTowerCollection::const_iterator tower = (*caloTowers).find(id);
+    auto tower = (*caloTowers).find(id);
     if (tower != (*caloTowers).end() && tower->hadEnergy() > Ehadmax) {
       id_max = id_iter;
       Ehadmax = tower->hadEnergy();
@@ -444,15 +441,15 @@ std::set<DetId> HDetIdAssociator::getMaxEDetId(const std::set<DetId>& inset,
   // returns the most energetic tower in the NxN box - from RecHits (Michal)
   check_setup();
   std::set<DetId> outset;
-  std::set<DetId>::const_iterator id_max = inset.begin();
+  auto id_max = inset.begin();
   double Ehadmax = 0;
 
-  for (std::set<DetId>::const_iterator id_iter = inset.begin(); id_iter != inset.end(); id_iter++) {
+  for (auto id_iter = inset.begin(); id_iter != inset.end(); id_iter++) {
     DetId id(*id_iter);
     //     GlobalPoint point = getPosition(*id_iter);
     //     int ieta = iEta(point);
     //     int iphi = iPhi(point);
-    HBHERecHitCollection::const_iterator hit = (*recHits).find(id);
+    auto hit = (*recHits).find(id);
     if (hit != (*recHits).end() && hit->energy() > Ehadmax) {
       id_max = id_iter;
       Ehadmax = hit->energy();

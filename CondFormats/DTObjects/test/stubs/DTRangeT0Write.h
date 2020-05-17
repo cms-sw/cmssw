@@ -16,9 +16,9 @@ namespace edmtest {
   public:
     explicit DTRangeT0Write(edm::ParameterSet const& p);
     explicit DTRangeT0Write(int i);
-    virtual ~DTRangeT0Write();
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-    virtual void endJob();
+    ~DTRangeT0Write() override;
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+    void endJob() override;
 
   private:
   };

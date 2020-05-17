@@ -33,12 +33,12 @@ public:
   PFJetBenchmark();
   virtual ~PFJetBenchmark();
 
-  void setup(std::string Filename,
+  void setup(const std::string &Filename,
              bool debug,
              bool plotAgainstReco = false,
              bool onlyTwoJets = true,
              double deltaRMax = 0.1,
-             std::string benchmarkLabel_ = "ParticleFlow",
+             const std::string &benchmarkLabel_ = "ParticleFlow",
              double recPt = -1,
              double maxEta = -1,
              DQMStore *dbe_store = nullptr);

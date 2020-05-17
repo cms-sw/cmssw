@@ -14,11 +14,11 @@
 class test_NoiseBuilder : public edm::EDAnalyzer {
 public:
   test_NoiseBuilder(const edm::ParameterSet&) { ; }
-  virtual ~test_NoiseBuilder() { ; }
+  ~test_NoiseBuilder() override { ; }
 
-  void beginJob() { ; }
-  void analyze(const edm::Event&, const edm::EventSetup&);
-  void endJob() { ; }
+  void beginJob() override { ; }
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override { ; }
 };
 
 #endif  // OnlineDB_SiStripESSources_test_NoiseBuilder_H

@@ -101,8 +101,8 @@ DTConfigTraco::DTConfigTraco(int debugTRACO, unsigned short int* buffer) {
               << " sslmsk=" << sslmsk << " sltmsk=" << sltmsk << " shtmsk=" << shtmsk << " reusei=" << reusei
               << " reuseo=" << reuseo << " ltf=" << ltf << " lts=" << lts << " prgdel=" << prgdel
               << " snapcor=" << snapcor << " trgenb=";
-    for (int t = 0; t < 16; t++)
-      std::cout << trgenb[t] << " ";
+    for (int t : trgenb)
+      std::cout << t << " ";
     std::cout << " trgadel=" << trgadel << " ibtioff=" << ibtioff << " kprgcom=" << kprgcom << " testmode=" << testmode
               << " starttest=" << starttest << " prvsignmux=" << prvsignmux << " lth=" << lth << std::endl;
   }

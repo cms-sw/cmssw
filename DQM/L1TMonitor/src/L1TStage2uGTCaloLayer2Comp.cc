@@ -123,8 +123,8 @@ bool L1TStage2uGTCaloLayer2Comp::compareJets(const edm::Handle<l1t::JetBxCollect
                                              const edm::Handle<l1t::JetBxCollection>& col2) {
   bool eventGood = true;
 
-  l1t::JetBxCollection::const_iterator col1It = col1->begin();
-  l1t::JetBxCollection::const_iterator col2It = col2->begin();
+  auto col1It = col1->begin();
+  auto col2It = col2->begin();
 
   // process jets
   if (col1->size() != col2->size()) {
@@ -184,8 +184,8 @@ bool L1TStage2uGTCaloLayer2Comp::compareEGs(const edm::Handle<l1t::EGammaBxColle
                                             const edm::Handle<l1t::EGammaBxCollection>& col2) {
   bool eventGood = true;
 
-  l1t::EGammaBxCollection::const_iterator col1It = col1->begin();
-  l1t::EGammaBxCollection::const_iterator col2It = col2->begin();
+  auto col1It = col1->begin();
+  auto col2It = col2->begin();
 
   // check length of collections
   if (col1->size() != col2->size()) {
@@ -243,8 +243,8 @@ bool L1TStage2uGTCaloLayer2Comp::compareTaus(const edm::Handle<l1t::TauBxCollect
                                              const edm::Handle<l1t::TauBxCollection>& col2) {
   bool eventGood = true;
 
-  l1t::TauBxCollection::const_iterator col1It = col1->begin();
-  l1t::TauBxCollection::const_iterator col2It = col2->begin();
+  auto col1It = col1->begin();
+  auto col2It = col2->begin();
 
   // check length of collections
   if (col1->size() != col2->size()) {
@@ -314,8 +314,8 @@ bool L1TStage2uGTCaloLayer2Comp::compareSums(const edm::Handle<l1t::EtSumBxColle
     return false;
   }
 
-  l1t::EtSumBxCollection::const_iterator col1It = col1->begin();
-  l1t::EtSumBxCollection::const_iterator col2It = col2->begin();
+  auto col1It = col1->begin();
+  auto col2It = col2->begin();
 
   while (col1It != col1->end() && col2It != col2->end()) {
     // ETT, ETTEM, HTT, TowCnt, MBHFP0, MBHFM0, MBHFP1 or MBHFM1

@@ -113,15 +113,15 @@ ESDataFormatterV4::ESDataFormatterV4(const ParameterSet& ps) : ESDataFormatter(p
           optoId_[i][j][k][m] = -1;
         }
 
-  for (int i = 0; i < 56; ++i) {
+  for (auto& i : fedIdOptoRx_) {
     for (int j = 0; j < 3; ++j)
-      fedIdOptoRx_[i][j] = false;
+      i[j] = false;
   }
 
-  for (int i = 0; i < 56; ++i) {
+  for (auto& i : fedIdOptoRxFiber_) {
     for (int j = 0; j < 3; ++j)
       for (int k = 0; k < 12; k++)
-        fedIdOptoRxFiber_[i][j][k] = false;
+        i[j][k] = false;
   }
 
   // read in look-up table
@@ -207,9 +207,9 @@ void ESDataFormatterV4::DigiToRaw(int fedId, Digis& digis, FEDRawData& fedRawDat
   map_data.clear();
 
   // clean optorx channel status fields:
-  for (int i = 0; i < 3; ++i)
+  for (auto& optorx_ch_count : optorx_ch_counts)
     for (int j = 0; j < 12; ++j)
-      optorx_ch_counts[i][j] = 0;
+      optorx_ch_count[j] = 0;
 
   const DetDigis& detDigis = digis[fedId];
 
@@ -217,8 +217,7 @@ void ESDataFormatterV4::DigiToRaw(int fedId, Digis& digis, FEDRawData& fedRawDat
     cout << "ESDataFormatterV4::DigiToRaw : FEDID : " << fedId << " size of detDigis : " << detDigis.size() << endl;
   }
 
-  for (DetDigis::const_iterator it = detDigis.begin(); it != detDigis.end(); ++it) {
-    const ESDataFrame& dataframe = (*it);
+  for (auto dataframe : detDigis) {
     const ESDetId& detId = dataframe.id();
 
     for (int is = 0; is < dataframe.size(); ++is)
@@ -280,7 +279,7 @@ void ESDataFormatterV4::DigiToRaw(int fedId, Digis& digis, FEDRawData& fedRawDat
              << "] : " << theSet.size() << endl;
       }
 
-      set<pair<int, int>, ltfiber>::const_iterator kit = theSet.begin();
+      auto kit = theSet.begin();
 
       int ikchip = 0;
 
@@ -306,10 +305,10 @@ void ESDataFormatterV4::DigiToRaw(int fedId, Digis& digis, FEDRawData& fedRawDat
           // sort against stripid field, as hardware gives this order to strip data :
           sort(data.begin(), data.end(), ltstrip);
 
-          for (unsigned int id = 0; id < data.size(); ++id) {
+          for (unsigned long id : data) {
             if (debug_)
-              cout << "Data  : " << print(data[id]) << endl;
-            words.push_back(data[id]);
+              cout << "Data  : " << print(id) << endl;
+            words.push_back(id);
           }
         }
         ++kit;
@@ -372,16 +371,16 @@ void ESDataFormatterV4::DigiToRaw(int fedId, Digis& digis, FEDRawData& fedRawDat
   w++;
 
   // ES-DCC
-  for (unsigned int i = 0; i < DCCwords.size(); ++i) {
+  for (unsigned long DCCword : DCCwords) {
     if (debug_)
-      cout << "DCC  : " << print(DCCwords[i]) << endl;
-    *w = DCCwords[i];
+      cout << "DCC  : " << print(DCCword) << endl;
+    *w = DCCword;
     w++;
   }
 
   // event data
-  for (unsigned int i = 0; i < words.size(); ++i) {
-    *w = words[i];
+  for (unsigned long word : words) {
+    *w = word;
     w++;
   }
 

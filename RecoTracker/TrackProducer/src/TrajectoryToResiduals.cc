@@ -8,10 +8,10 @@ reco::TrackResiduals trajectoryToResiduals(const Trajectory &trajectory) {
   reco::TrackResiduals residuals;
   residuals.resize(trajectory.measurements().size());
   int i_residual = 0;
-  Trajectory::DataContainer::const_iterator i_fwd = trajectory.measurements().begin();
-  Trajectory::DataContainer::const_reverse_iterator i_bwd = trajectory.measurements().rbegin();
-  Trajectory::DataContainer::const_iterator i_end = trajectory.measurements().end();
-  Trajectory::DataContainer::const_reverse_iterator i_rend = trajectory.measurements().rend();
+  auto i_fwd = trajectory.measurements().begin();
+  auto i_bwd = trajectory.measurements().rbegin();
+  auto i_end = trajectory.measurements().end();
+  auto i_rend = trajectory.measurements().rend();
   bool forward = trajectory.direction() == alongMomentum;
   for (; forward ? i_fwd != i_end : i_bwd != i_rend; ++i_fwd, ++i_bwd, ++i_residual) {
     const TrajectoryMeasurement *i = forward ? &*i_fwd : &*i_bwd;

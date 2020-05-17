@@ -61,7 +61,7 @@ int run(const std::string& connectionString) {
 
     IOVProxy pxn = session.readIov("MyNewIOV");
     IOVArray arr0 = pxn.selectAll();
-    for (auto iiov : arr0) {
+    for (const auto& iiov : arr0) {
       std::cout << "# since=" << iiov.since << " till:" << iiov.till << std::endl;
     }
     std::vector<cond::Time_t> inputTimes{10,

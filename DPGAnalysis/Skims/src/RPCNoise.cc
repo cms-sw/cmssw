@@ -396,9 +396,9 @@ bool RPCNoise::filter(edm::Event &event, const edm::EventSetup &eventSetup) {
 
   // count the number of wire digis.
   int nW = 0;
-  for (CSCWireDigiCollection::DigiRangeIterator jW = wires->begin(); jW != wires->end(); jW++) {
-    std::vector<CSCWireDigi>::const_iterator wireIterA = (*jW).second.first;
-    std::vector<CSCWireDigi>::const_iterator lWireA = (*jW).second.second;
+  for (auto &&jW : *wires) {
+    auto wireIterA = jW.second.first;
+    auto lWireA = jW.second.second;
     for (; wireIterA != lWireA; ++wireIterA) {
       nW++;
     }
@@ -408,9 +408,9 @@ bool RPCNoise::filter(edm::Event &event, const edm::EventSetup &eventSetup) {
   // I am using a crude indicator of signal - this is fast and adequate for
   // this purpose, but it would be poor for actual CSC studies.
   int nS = 0;
-  for (CSCStripDigiCollection::DigiRangeIterator jS = strips->begin(); jS != strips->end(); jS++) {
-    std::vector<CSCStripDigi>::const_iterator stripItA = (*jS).second.first;
-    std::vector<CSCStripDigi>::const_iterator lastStripA = (*jS).second.second;
+  for (auto &&jS : *strips) {
+    auto stripItA = jS.second.first;
+    auto lastStripA = jS.second.second;
     for (; stripItA != lastStripA; ++stripItA) {
       std::vector<int> myADCVals = stripItA->getADCCounts();
       int iDiff = myADCVals[4] + myADCVals[5] - myADCVals[0] - myADCVals[1];
@@ -431,8 +431,8 @@ bool RPCNoise::filter(edm::Event &event, const edm::EventSetup &eventSetup) {
   int nDT = 0;
   int nDTin = 0;
   int nDTout = 0;
-  for (DTDigiCollection::DigiRangeIterator jDT = dtDIGIs->begin(); jDT != dtDIGIs->end(); ++jDT) {
-    const DTDigiCollection::Range &digiRange = (*jDT).second;
+  for (auto &&jDT : *dtDIGIs) {
+    const DTDigiCollection::Range &digiRange = jDT.second;
     for (DTDigiCollection::const_iterator digi = digiRange.first; digi != digiRange.second; digi++) {
       double t0 = (*digi).countsTDC();
       nDT++;

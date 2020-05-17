@@ -116,7 +116,7 @@ void SingleMultiplicity<T>::getEvent(const edm::Event& iEvent, const edm::EventS
   edm::Handle<T> digis;
   iEvent.getByToken(m_collection, digis);
 
-  for (typename T::const_iterator it = digis->begin(); it != digis->end(); it++) {
+  for (auto it = digis->begin(); it != digis->end(); it++) {
     if (!m_useQuality || !qualityHandle->IsModuleBad(it->detId())) {
       if (m_modthr < 0 || int(it->size()) < m_modthr) {
         m_mult += it->size();

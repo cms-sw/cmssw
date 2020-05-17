@@ -60,10 +60,10 @@ void CSCRecHitDBuilder::build(const CSCStripDigiCollection* stripdc,
   int layer_idx = 0;
   CSCDetId old_id;
 
-  for (CSCStripDigiCollection::DigiRangeIterator it = stripdc->begin(); it != stripdc->end(); ++it) {
-    const CSCDetId& id = (*it).first;
+  for (auto&& it : *stripdc) {
+    const CSCDetId& id = it.first;
     const CSCLayer* layer = getLayer(id);
-    const CSCStripDigiCollection::Range& rstripd = (*it).second;
+    const CSCStripDigiCollection::Range& rstripd = it.second;
 
     // Skip if no strip digis in this layer
     if (rstripd.second == rstripd.first)

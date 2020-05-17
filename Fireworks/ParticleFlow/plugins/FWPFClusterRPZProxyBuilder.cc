@@ -13,11 +13,11 @@ void FWPFClusterRPZProxyBuilder::scaleProduct(TEveElementList *parent,
   typedef std::vector<ScalableLines> Lines_t;
   FWViewEnergyScale *caloScale = vc->getEnergyScale();
 
-  for (Lines_t::iterator i = m_clusters.begin(); i != m_clusters.end(); ++i) {
-    if (vc == (*i).m_vc) {
-      float value = caloScale->getPlotEt() ? (*i).m_et : (*i).m_energy;
-      (*i).m_ls->SetScale(caloScale->getScaleFactor3D() * value);
-      TEveProjected *proj = *(*i).m_ls->BeginProjecteds();
+  for (auto &m_cluster : m_clusters) {
+    if (vc == m_cluster.m_vc) {
+      float value = caloScale->getPlotEt() ? m_cluster.m_et : m_cluster.m_energy;
+      m_cluster.m_ls->SetScale(caloScale->getScaleFactor3D() * value);
+      TEveProjected *proj = *m_cluster.m_ls->BeginProjecteds();
       proj->UpdateProjection();
     }
   }
@@ -38,7 +38,7 @@ void FWPFClusterRPZProxyBuilder::sharedBuild(
 
   ls = m_clusterUtils->buildRhoPhiClusterLineSet(iData, vc, energy, et, r);
   ls->SetLineColor(dp.color());
-  m_clusters.push_back(ScalableLines(ls, et, energy, vc));
+  m_clusters.emplace_back(ls, et, energy, vc);
   setupAddElement(ls, &oItemHolder);
 }
 
@@ -62,7 +62,7 @@ void FWPFClusterRPZProxyBuilder::build(const reco::PFCluster &iData,
   ls = m_clusterUtils->buildRhoZClusterLineSet(iData, vc, context().caloTransAngle(), energy, et, ecalR, ecalZ);
   ls->SetLineColor(dp.color());
 
-  m_clusters.push_back(ScalableLines(ls, et, energy, vc));
+  m_clusters.emplace_back(ls, et, energy, vc);
   setupAddElement(ls, &oItemHolder);
 }
 

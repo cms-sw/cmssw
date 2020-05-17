@@ -406,7 +406,7 @@ void PrimaryVertexResolution::analyze(const edm::Event& iEvent, const edm::Event
     edm::Handle<LumiScalersCollection> lumiScalers;
     iEvent.getByToken(lumiScalersSrc_, lumiScalers);
     if (lumiScalers.isValid() && !lumiScalers->empty()) {
-      LumiScalersCollection::const_iterator scalit = lumiScalers->begin();
+      auto scalit = lumiScalers->begin();
       lumi = scalit->instantLumi();
     }
   } else {

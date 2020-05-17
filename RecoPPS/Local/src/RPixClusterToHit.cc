@@ -12,12 +12,12 @@ void RPixClusterToHit::buildHits(unsigned int detId,
   if (verbosity_)
     edm::LogInfo("RPixClusterToHit") << " RPixClusterToHit " << detId
                                      << " received cluster array of size = " << clusters.size();
-  for (unsigned int i = 0; i < clusters.size(); i++) {
-    make_hit(clusters[i], hits);
+  for (const auto &cluster : clusters) {
+    make_hit(cluster, hits);
   }
 }
 
-void RPixClusterToHit::make_hit(CTPPSPixelCluster aCluster, std::vector<CTPPSPixelRecHit> &hits) {
+void RPixClusterToHit::make_hit(const CTPPSPixelCluster &aCluster, std::vector<CTPPSPixelRecHit> &hits) {
   // take a cluster, generate a rec hit and push it in the rec hit vector
 
   //call the topology

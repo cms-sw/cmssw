@@ -25,7 +25,7 @@ namespace pos {
   public:
     PixelROCMaskBits();
 
-    void setROCMaskBits(PixelROCName& rocid, std::string bits);
+    void setROCMaskBits(PixelROCName& rocid, const std::string& bits);
 
     int read(const PixelROCName& rocid, std::string in);
     int read(const PixelROCName& rocid, std::ifstream& in);

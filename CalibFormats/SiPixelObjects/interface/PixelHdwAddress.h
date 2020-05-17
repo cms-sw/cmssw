@@ -69,8 +69,11 @@ namespace pos {
       return (fedrocnumber_ < aHdwAddress.fedrocnumber_);
     }
 
-    void setAddress(std::string what, int value);                                                  // Added by Dario
-    void compare(std::string what, bool& changed, unsigned int newValue, unsigned int& oldValue);  // Added by Dario
+    void setAddress(const std::string& what, int value);  // Added by Dario
+    void compare(const std::string& what,
+                 bool& changed,
+                 unsigned int newValue,
+                 unsigned int& oldValue);  // Added by Dario
 
   private:
     unsigned int fecnumber_;

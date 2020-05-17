@@ -10,15 +10,17 @@
  *
  **/
 
+#include <utility>
+
 #include "RecoMTD/TransientTrackingRecHit/interface/MTDTransientTrackingRecHitBuilder.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 
 MTDTransientTrackingRecHitBuilder::MTDTransientTrackingRecHitBuilder(
     edm::ESHandle<GlobalTrackingGeometry> trackingGeometry)
-    : theTrackingGeometry(trackingGeometry) {}
+    : theTrackingGeometry(std::move(trackingGeometry)) {}
 
 MTDTransientTrackingRecHitBuilder::RecHitPointer MTDTransientTrackingRecHitBuilder::build(
-    const TrackingRecHit* p, edm::ESHandle<GlobalTrackingGeometry> trackingGeometry) const {
+    const TrackingRecHit* p, const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry) const {
   if (p->geographicalId().det() == DetId::Forward && p->geographicalId().subdetId() == FastTime) {
     return p->cloneSH();
   }

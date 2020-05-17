@@ -422,7 +422,7 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   bool simInfoIsAvailalbe = iEvent.getByToken(simInfo_, simInfo);
 
   // this will be the new object collection
-  std::vector<Muon>* patMuons = new std::vector<Muon>();
+  auto* patMuons = new std::vector<Muon>();
 
   edm::Handle<reco::PFCandidateCollection> pfMuons;
   if (useParticleFlow_) {
@@ -430,7 +430,7 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     iEvent.getByToken(pfMuonToken_, pfMuons);
 
     unsigned index = 0;
-    for (reco::PFCandidateConstIterator i = pfMuons->begin(); i != pfMuons->end(); ++i, ++index) {
+    for (auto i = pfMuons->begin(); i != pfMuons->end(); ++i, ++index) {
       const reco::PFCandidate& pfmu = *i;
       //const reco::IsolaPFCandidate& pfmu = *i;
       const reco::MuonRef& muonRef = pfmu.muonRef();
@@ -555,10 +555,7 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         isolator_.fill(*muons, idx, isolatorTmpStorage_);
         typedef pat::helper::MultiIsolator::IsolationValuePairs IsolationValuePairs;
         // better to loop backwards, so the vector is resized less times
-        for (IsolationValuePairs::const_reverse_iterator it = isolatorTmpStorage_.rbegin(),
-                                                         ed = isolatorTmpStorage_.rend();
-             it != ed;
-             ++it) {
+        for (auto it = isolatorTmpStorage_.rbegin(), ed = isolatorTmpStorage_.rend(); it != ed; ++it) {
           aMuon.setIsolation(it->first, it->second);
         }
       }
@@ -828,8 +825,8 @@ void PATMuonProducer::fillMuon(Muon& aMuon,
 
   // store the match to the generated final state muons
   if (addGenMatch_) {
-    for (size_t i = 0, n = genMatches.size(); i < n; ++i) {
-      reco::GenParticleRef genMuon = (*genMatches[i])[baseRef];
+    for (const auto& genMatche : genMatches) {
+      reco::GenParticleRef genMuon = (*genMatche)[baseRef];
       aMuon.addGenParticleRef(genMuon);
     }
     if (embedGenMatch_)
@@ -1098,7 +1095,7 @@ void PATMuonProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
 // embed various impact parameters with errors
 // embed high level selection
 void PATMuonProducer::embedHighLevel(pat::Muon& aMuon,
-                                     reco::TrackRef track,
+                                     const reco::TrackRef& track,
                                      reco::TransientTrack& tt,
                                      reco::Vertex& primaryVertex,
                                      bool primaryVertexIsValid,

@@ -405,7 +405,7 @@ namespace edm {
 
   template <typename PROD>
   OrphanHandle<PROD> Event::put(EDPutToken token, std::unique_ptr<PROD> product) {
-    if (UNLIKELY(product.get() == 0)) {  // null pointer is illegal
+    if (UNLIKELY(product.get() == nullptr)) {  // null pointer is illegal
       TypeID typeID(typeid(PROD));
       principal_get_adapter_detail::throwOnPutOfNullProduct("Event", typeID, provRecorder_.productInstanceLabel(token));
     }
@@ -518,8 +518,7 @@ namespace edm {
   template <typename PROD>
   void Event::getManyByType(std::vector<Handle<PROD>>& results) const {
     provRecorder_.getManyByType(results, moduleCallingContext_);
-    for (typename std::vector<Handle<PROD>>::const_iterator it = results.begin(), itEnd = results.end(); it != itEnd;
-         ++it) {
+    for (auto it = results.begin(), itEnd = results.end(); it != itEnd; ++it) {
       addToGotBranchIDs(*it->provenance());
     }
   }

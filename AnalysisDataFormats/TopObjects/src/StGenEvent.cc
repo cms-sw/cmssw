@@ -50,10 +50,9 @@ const reco::GenParticle* StGenEvent::associatedB() const {
 const reco::GenParticle* StGenEvent::singleLepton() const {
   const reco::GenParticle* cand = nullptr;
   const reco::GenParticleCollection& partsColl = *parts_;
-  for (unsigned int i = 0; i < partsColl.size(); ++i) {
-    if (reco::isLepton(partsColl[i]) && partsColl[i].mother() &&
-        std::abs(partsColl[i].mother()->pdgId()) == TopDecayID::WID) {
-      cand = &partsColl[i];
+  for (const auto& i : partsColl) {
+    if (reco::isLepton(i) && i.mother() && std::abs(i.mother()->pdgId()) == TopDecayID::WID) {
+      cand = &i;
     }
   }
   return cand;
@@ -62,10 +61,9 @@ const reco::GenParticle* StGenEvent::singleLepton() const {
 const reco::GenParticle* StGenEvent::singleNeutrino() const {
   const reco::GenParticle* cand = nullptr;
   const reco::GenParticleCollection& partsColl = *parts_;
-  for (unsigned int i = 0; i < partsColl.size(); ++i) {
-    if (reco::isNeutrino(partsColl[i]) && partsColl[i].mother() &&
-        std::abs(partsColl[i].mother()->pdgId()) == TopDecayID::WID) {
-      cand = &partsColl[i];
+  for (const auto& i : partsColl) {
+    if (reco::isNeutrino(i) && i.mother() && std::abs(i.mother()->pdgId()) == TopDecayID::WID) {
+      cand = &i;
     }
   }
   return cand;
@@ -76,11 +74,10 @@ const reco::GenParticle* StGenEvent::singleW() const {
   if (singleLepton()) {
     const reco::GenParticleCollection& partsColl = *parts_;
     const reco::GenParticle& singleLep = *singleLepton();
-    for (unsigned int i = 0; i < partsColl.size(); ++i) {
-      if (std::abs(partsColl[i].pdgId()) == TopDecayID::WID &&
-          reco::flavour(singleLep) == -reco::flavour(partsColl[i])) {
+    for (const auto& i : partsColl) {
+      if (std::abs(i.pdgId()) == TopDecayID::WID && reco::flavour(singleLep) == -reco::flavour(i)) {
         // PDG Id:13=mu- 24=W+ (+24)->(-13) (-24)->(+13) opposite sign
-        cand = &partsColl[i];
+        cand = &i;
       }
     }
   }
@@ -92,10 +89,9 @@ const reco::GenParticle* StGenEvent::singleTop() const {
   if (singleLepton()) {
     const reco::GenParticleCollection& partsColl = *parts_;
     const reco::GenParticle& singleLep = *singleLepton();
-    for (unsigned int i = 0; i < partsColl.size(); ++i) {
-      if (std::abs(partsColl[i].pdgId()) == TopDecayID::tID &&
-          reco::flavour(singleLep) != reco::flavour(partsColl[i])) {
-        cand = &partsColl[i];
+    for (const auto& i : partsColl) {
+      if (std::abs(i.pdgId()) == TopDecayID::tID && reco::flavour(singleLep) != reco::flavour(i)) {
+        cand = &i;
       }
     }
   }

@@ -15,6 +15,8 @@
 #include <iostream>
 #include <memory>
 #include <stdexcept>
+#include <utility>
+
 #include "TROOT.h"
 #include "TSystem.h"
 #include "TStopwatch.h"
@@ -74,23 +76,18 @@ void FWConfigurationManager::add(const std::string& iName, FWConfigurable* iConf
 //
 void FWConfigurationManager::setFrom(const FWConfiguration& iConfig) const {
   assert(nullptr != iConfig.keyValues());
-  for (FWConfiguration::KeyValues::const_iterator it = iConfig.keyValues()->begin(), itEnd = iConfig.keyValues()->end();
-       it != itEnd;
-       ++it) {
-    std::map<std::string, FWConfigurable*>::const_iterator itFound = m_configurables.find(it->first);
+  for (const auto& it : *iConfig.keyValues()) {
+    auto itFound = m_configurables.find(it.first);
     assert(itFound != m_configurables.end());
-    itFound->second->setFrom(it->second);
+    itFound->second->setFrom(it.second);
   }
 }
 
 void FWConfigurationManager::to(FWConfiguration& oConfig) const {
   FWConfiguration config;
-  for (std::map<std::string, FWConfigurable*>::const_iterator it = m_configurables.begin(),
-                                                              itEnd = m_configurables.end();
-       it != itEnd;
-       ++it) {
-    it->second->addTo(config);
-    oConfig.addKeyValue(it->first, config, true);
+  for (const auto& m_configurable : m_configurables) {
+    m_configurable.second->addTo(config);
+    oConfig.addKeyValue(m_configurable.first, config, true);
   }
 }
 
@@ -174,18 +171,18 @@ std::string FWConfigurationManager::guessAndReadFromFile(FWJobMetadataManager* d
     int cnt;
     const FWConfiguration* cfg;
 
-    CMatch(std::string f) : file(f), cnt(0), cfg(nullptr) {}
+    CMatch(std::string f) : file(std::move(f)), cnt(0), cfg(nullptr) {}
     bool operator<(const CMatch& x) const { return cnt < x.cnt; }
   };
 
   std::vector<CMatch> clist;
-  clist.push_back(CMatch("reco.fwc"));
-  clist.push_back(CMatch("miniaod.fwc"));
-  clist.push_back(CMatch("aod.fwc"));
+  clist.emplace_back("reco.fwc");
+  clist.emplace_back("miniaod.fwc");
+  clist.emplace_back("aod.fwc");
   std::vector<FWJobMetadataManager::Data>& sdata = dataMng->usableData();
 
-  for (std::vector<CMatch>::iterator c = clist.begin(); c != clist.end(); ++c) {
-    std::string iName = gSystem->Which(TROOT::GetMacroPath(), c->file.c_str(), kReadPermission);
+  for (auto& c : clist) {
+    std::string iName = gSystem->Which(TROOT::GetMacroPath(), c.file.c_str(), kReadPermission);
     std::ifstream f(iName.c_str());
     if (f.peek() != (int)'<') {
       fwLog(fwlog::kWarning) << "FWConfigurationManager::guessAndReadFromFile can't open " << iName << std::endl;
@@ -194,28 +191,25 @@ std::string FWConfigurationManager::guessAndReadFromFile(FWJobMetadataManager* d
 
     // Read again, this time actually parse.
     std::ifstream g(iName.c_str());
-    FWXMLConfigParser* parser = new FWXMLConfigParser(g);
+    auto* parser = new FWXMLConfigParser(g);
     parser->parse();
 
-    c->cfg = parser->config();
+    c.cfg = parser->config();
     const FWConfiguration::KeyValues* keyValues = nullptr;
-    for (FWConfiguration::KeyValues::const_iterator it = c->cfg->keyValues()->begin(),
-                                                    itEnd = c->cfg->keyValues()->end();
-         it != itEnd;
-         ++it) {
+    for (auto it = c.cfg->keyValues()->begin(), itEnd = c.cfg->keyValues()->end(); it != itEnd; ++it) {
       if (it->first == "EventItems") {
         keyValues = it->second.keyValues();
         break;
       }
     }
 
-    for (FWConfiguration::KeyValues::const_iterator it = keyValues->begin(); it != keyValues->end(); ++it) {
-      const FWConfiguration& conf = it->second;
+    for (const auto& keyValue : *keyValues) {
+      const FWConfiguration& conf = keyValue.second;
       const FWConfiguration::KeyValues* keyValues = conf.keyValues();
       const std::string& type = (*keyValues)[0].second.value();
-      for (std::vector<FWJobMetadataManager::Data>::iterator di = sdata.begin(); di != sdata.end(); ++di) {
-        if (di->type_ == type) {
-          c->cnt++;
+      for (auto& di : sdata) {
+        if (di.type_ == type) {
+          c.cnt++;
           break;
         }
       }

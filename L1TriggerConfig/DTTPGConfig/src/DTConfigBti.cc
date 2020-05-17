@@ -103,11 +103,11 @@ DTConfigBti::DTConfigBti(int debugBTI, unsigned short int* buffer) {
               << " ten=" << ten << " xon=" << xon << " ron=" << ron << " set=" << set << " lts=" << lts
               << " ac1=" << ac1 << " ac2=" << ac2 << " acl=" << acl << " ach=" << ach << std::endl;
     std::cout << std::dec << " wire masks= ";
-    for (int iw = 0; iw < 9; iw++)
-      std::cout << wmask[iw] << " ";
+    for (int iw : wmask)
+      std::cout << iw << " ";
     std::cout << std::dec << "\n pattern masks= ";
-    for (int ip = 0; ip < 32; ip++)
-      std::cout << pmask[ip] << " ";
+    for (int ip : pmask)
+      std::cout << ip << " ";
     std::cout << std::endl;
   }
 

@@ -5,6 +5,7 @@
 
 #include <DataFormats/CSCRecHit/interface/CSCSegment.h>
 #include <iostream>
+#include <utility>
 
 namespace {
   // Get CSCDetId from one of the rechits, but then remove the layer part so it's a _chamber_ id
@@ -18,29 +19,29 @@ CSCSegment::CSCSegment(const std::vector<const CSCRecHit2D*>& proto_segment,
                        const AlgebraicSymMatrix& errors,
                        double chi2)
     : RecSegment(buildDetId(proto_segment.front()->cscDetId())),
-      theOrigin(origin),
-      theLocalDirection(direction),
+      theOrigin(std::move(origin)),
+      theLocalDirection(std::move(direction)),
       theCovMatrix(errors),
       theChi2(chi2),
       aME11a_duplicate(false) {
-  for (unsigned int i = 0; i < proto_segment.size(); ++i)
-    theCSCRecHits.push_back(*proto_segment[i]);
+  for (auto i : proto_segment)
+    theCSCRecHits.push_back(*i);
 }
 
 CSCSegment::~CSCSegment() {}
 
 std::vector<const TrackingRecHit*> CSCSegment::recHits() const {
   std::vector<const TrackingRecHit*> pointersOfRecHits;
-  for (std::vector<CSCRecHit2D>::const_iterator irh = theCSCRecHits.begin(); irh != theCSCRecHits.end(); ++irh) {
-    pointersOfRecHits.push_back(&(*irh));
+  for (const auto& theCSCRecHit : theCSCRecHits) {
+    pointersOfRecHits.push_back(&theCSCRecHit);
   }
   return pointersOfRecHits;
 }
 
 std::vector<TrackingRecHit*> CSCSegment::recHits() {
   std::vector<TrackingRecHit*> pointersOfRecHits;
-  for (std::vector<CSCRecHit2D>::iterator irh = theCSCRecHits.begin(); irh != theCSCRecHits.end(); ++irh) {
-    pointersOfRecHits.push_back(&(*irh));
+  for (auto& theCSCRecHit : theCSCRecHits) {
+    pointersOfRecHits.push_back(&theCSCRecHit);
   }
   return pointersOfRecHits;
 }
@@ -82,8 +83,8 @@ AlgebraicMatrix CSCSegment::projectionMatrix() const { return theProjectionMatri
 
 void CSCSegment::setDuplicateSegments(std::vector<CSCSegment*>& duplicates) {
   theDuplicateSegments.clear();
-  for (unsigned int i = 0; i < duplicates.size(); ++i) {
-    theDuplicateSegments.push_back(*duplicates[i]);
+  for (auto& duplicate : duplicates) {
+    theDuplicateSegments.push_back(*duplicate);
     //avoid copying duplicates of duplicates of duplicates...
     theDuplicateSegments.back().theDuplicateSegments.resize(0);
   }
@@ -100,12 +101,11 @@ bool CSCSegment::testSharesAllInSpecificRecHits(const std::vector<CSCRecHit2D>& 
   }
   //
   bool shareConditionPassed = true;
-  for (std::vector<CSCRecHit2D>::const_iterator itRH = rhContainer_1->begin(); itRH != rhContainer_1->end(); ++itRH) {
-    const CSCRecHit2D* firstRecHit = &(*itRH);
+  for (const auto& itRH : *rhContainer_1) {
+    const CSCRecHit2D* firstRecHit = &itRH;
     bool sharedHit = false;
-    for (std::vector<CSCRecHit2D>::const_iterator itRH2 = rhContainer_2->begin(); itRH2 != rhContainer_2->end();
-         ++itRH2) {
-      if (itRH2->sharesInput(firstRecHit, sharesInput)) {
+    for (const auto& itRH2 : *rhContainer_2) {
+      if (itRH2.sharesInput(firstRecHit, sharesInput)) {
         sharedHit = true;
         break;
       }
@@ -144,8 +144,8 @@ bool CSCSegment::sharesRecHits(const CSCSegment& anotherSegment) const {
 float CSCSegment::time() const {
   float averageTime = 0;
   std::vector<float> wireTimes;
-  for (std::vector<CSCRecHit2D>::const_iterator itRH = theCSCRecHits.begin(); itRH != theCSCRecHits.end(); ++itRH) {
-    const CSCRecHit2D* recHit = &(*itRH);
+  for (const auto& theCSCRecHit : theCSCRecHits) {
+    const CSCRecHit2D* recHit = &theCSCRecHit;
     averageTime += recHit->tpeak();
     averageTime += recHit->wireTime();
     wireTimes.push_back(recHit->wireTime());
@@ -158,7 +158,7 @@ float CSCSegment::time() const {
     modified = false;
     double maxDiff = -1;
     std::vector<float>::iterator maxHit;
-    for (std::vector<float>::iterator itWT = wireTimes.begin(); itWT != wireTimes.end(); ++itWT) {
+    for (auto itWT = wireTimes.begin(); itWT != wireTimes.end(); ++itWT) {
       float diff = fabs(*itWT - averageTime);
       if (diff > maxDiff) {
         maxDiff = diff;

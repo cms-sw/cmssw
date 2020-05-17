@@ -163,13 +163,11 @@ void WValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   TLorentzVector dilepton_mom = lep1 + lep2;
   TLorentzVector dilepton_andphoton_mom = dilepton_mom;
   std::vector<TLorentzVector> gammasMomenta;
-  for (unsigned int ipho = 0; ipho < fsrphotons.size(); ++ipho) {
-    TLorentzVector phomom(fsrphotons[ipho]->momentum().x(),
-                          fsrphotons[ipho]->momentum().y(),
-                          fsrphotons[ipho]->momentum().z(),
-                          fsrphotons[ipho]->momentum().t());
+  for (auto& fsrphoton : fsrphotons) {
+    TLorentzVector phomom(
+        fsrphoton->momentum().x(), fsrphoton->momentum().y(), fsrphoton->momentum().z(), fsrphoton->momentum().t());
     dilepton_andphoton_mom += phomom;
-    Wdaughters->Fill(fsrphotons[ipho]->pdg_id(), weight);
+    Wdaughters->Fill(fsrphoton->pdg_id(), weight);
     gammasMomenta.push_back(phomom);
   }
   //Fill "true" W histograms
@@ -198,8 +196,8 @@ void WValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   boost *= -1.;
   lep1.Boost(boost);
   lep2.Boost(boost);
-  for (unsigned int ipho = 0; ipho < gammasMomenta.size(); ++ipho) {
-    gammasMomenta[ipho].Boost(boost);
+  for (auto& ipho : gammasMomenta) {
+    ipho.Boost(boost);
   }
   std::sort(gammasMomenta.begin(), gammasMomenta.end(), HepMCValidationHelper::GreaterByE<TLorentzVector>);
 

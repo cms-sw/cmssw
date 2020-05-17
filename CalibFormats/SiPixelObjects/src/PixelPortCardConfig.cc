@@ -13,6 +13,8 @@
 #include <sstream>
 #include <iostream>
 #include <string>
+#include <utility>
+
 #include <vector>
 #include <cassert>
 #include <stdexcept>
@@ -119,92 +121,92 @@ PixelPortCardConfig::PixelPortCardConfig(vector<vector<string> > &tableMat) : Pi
       PLL_CTR5  					 NUMBER(38)
   */
 
-  colNames.push_back("CONFIG_KEY");
-  colNames.push_back("KEY_TYPE");
-  colNames.push_back("KEY_ALIAS");
-  colNames.push_back("VERSION");
-  colNames.push_back("KIND_OF_COND");
-  colNames.push_back("PORT_CARD");
-  colNames.push_back("TRKFEC");
-  colNames.push_back("RING");
-  colNames.push_back("CHANNEL");
-  colNames.push_back("CCU_ADDR");
-  colNames.push_back("I2C_CNTRL");
-  colNames.push_back("I2C_SPEED");
-  colNames.push_back("AOH_BIAS1");
-  colNames.push_back("AOH_BIAS2");
-  colNames.push_back("AOH_BIAS3");
-  colNames.push_back("AOH_BIAS4");
-  colNames.push_back("AOH_BIAS5");
-  colNames.push_back("AOH_BIAS6");
-  colNames.push_back("AOH_GAIN1");
-  colNames.push_back("AOH_GAIN2");
-  colNames.push_back("AOH_GAIN3");
-  colNames.push_back("AOH_GAIN4");
-  colNames.push_back("AOH_GAIN5");
-  colNames.push_back("AOH_GAIN6");
-  colNames.push_back("AOH1_BIAS1");
-  colNames.push_back("AOH1_BIAS2");
-  colNames.push_back("AOH1_BIAS3");
-  colNames.push_back("AOH1_BIAS4");
-  colNames.push_back("AOH1_BIAS5");
-  colNames.push_back("AOH1_BIAS6");
-  colNames.push_back("AOH1_GAIN1");
-  colNames.push_back("AOH1_GAIN2");
-  colNames.push_back("AOH1_GAIN3");
-  colNames.push_back("AOH1_GAIN4");
-  colNames.push_back("AOH1_GAIN5");
-  colNames.push_back("AOH1_GAIN6");
-  colNames.push_back("AOH2_BIAS1");
-  colNames.push_back("AOH2_BIAS2");
-  colNames.push_back("AOH2_BIAS3");
-  colNames.push_back("AOH2_BIAS4");
-  colNames.push_back("AOH2_BIAS5");
-  colNames.push_back("AOH2_BIAS6");
-  colNames.push_back("AOH2_GAIN1");
-  colNames.push_back("AOH2_GAIN2");
-  colNames.push_back("AOH2_GAIN3");
-  colNames.push_back("AOH2_GAIN4");
-  colNames.push_back("AOH2_GAIN5");
-  colNames.push_back("AOH2_GAIN6");
-  colNames.push_back("AOH3_BIAS1");
-  colNames.push_back("AOH3_BIAS2");
-  colNames.push_back("AOH3_BIAS3");
-  colNames.push_back("AOH3_BIAS4");
-  colNames.push_back("AOH3_BIAS5");
-  colNames.push_back("AOH3_BIAS6");
-  colNames.push_back("AOH3_GAIN1");
-  colNames.push_back("AOH3_GAIN2");
-  colNames.push_back("AOH3_GAIN3");
-  colNames.push_back("AOH3_GAIN4");
-  colNames.push_back("AOH3_GAIN5");
-  colNames.push_back("AOH3_GAIN6");
-  colNames.push_back("AOH4_BIAS1");
-  colNames.push_back("AOH4_BIAS2");
-  colNames.push_back("AOH4_BIAS3");
-  colNames.push_back("AOH4_BIAS4");
-  colNames.push_back("AOH4_BIAS5");
-  colNames.push_back("AOH4_BIAS6");
-  colNames.push_back("AOH4_GAIN1");
-  colNames.push_back("AOH4_GAIN2");
-  colNames.push_back("AOH4_GAIN3");
-  colNames.push_back("AOH4_GAIN4");
-  colNames.push_back("AOH4_GAIN5");
-  colNames.push_back("AOH4_GAIN6");
-  colNames.push_back("DELAY25_GCR");
-  colNames.push_back("DELAY25_SCL");
-  colNames.push_back("DELAY25_TRG");
-  colNames.push_back("DELAY25_SDA");
-  colNames.push_back("DELAY25_RCL");
-  colNames.push_back("DELAY25_RDA");
-  colNames.push_back("DOH_BIAS0");
-  colNames.push_back("DOH_BIAS1");
-  colNames.push_back("DOH_SEU_GAIN");
-  colNames.push_back("PLL_CTR1");
-  colNames.push_back("PLL_CTR2");
-  colNames.push_back("PLL_CTR3");
-  colNames.push_back("PLL_CTR4");
-  colNames.push_back("PLL_CTR5");
+  colNames.emplace_back("CONFIG_KEY");
+  colNames.emplace_back("KEY_TYPE");
+  colNames.emplace_back("KEY_ALIAS");
+  colNames.emplace_back("VERSION");
+  colNames.emplace_back("KIND_OF_COND");
+  colNames.emplace_back("PORT_CARD");
+  colNames.emplace_back("TRKFEC");
+  colNames.emplace_back("RING");
+  colNames.emplace_back("CHANNEL");
+  colNames.emplace_back("CCU_ADDR");
+  colNames.emplace_back("I2C_CNTRL");
+  colNames.emplace_back("I2C_SPEED");
+  colNames.emplace_back("AOH_BIAS1");
+  colNames.emplace_back("AOH_BIAS2");
+  colNames.emplace_back("AOH_BIAS3");
+  colNames.emplace_back("AOH_BIAS4");
+  colNames.emplace_back("AOH_BIAS5");
+  colNames.emplace_back("AOH_BIAS6");
+  colNames.emplace_back("AOH_GAIN1");
+  colNames.emplace_back("AOH_GAIN2");
+  colNames.emplace_back("AOH_GAIN3");
+  colNames.emplace_back("AOH_GAIN4");
+  colNames.emplace_back("AOH_GAIN5");
+  colNames.emplace_back("AOH_GAIN6");
+  colNames.emplace_back("AOH1_BIAS1");
+  colNames.emplace_back("AOH1_BIAS2");
+  colNames.emplace_back("AOH1_BIAS3");
+  colNames.emplace_back("AOH1_BIAS4");
+  colNames.emplace_back("AOH1_BIAS5");
+  colNames.emplace_back("AOH1_BIAS6");
+  colNames.emplace_back("AOH1_GAIN1");
+  colNames.emplace_back("AOH1_GAIN2");
+  colNames.emplace_back("AOH1_GAIN3");
+  colNames.emplace_back("AOH1_GAIN4");
+  colNames.emplace_back("AOH1_GAIN5");
+  colNames.emplace_back("AOH1_GAIN6");
+  colNames.emplace_back("AOH2_BIAS1");
+  colNames.emplace_back("AOH2_BIAS2");
+  colNames.emplace_back("AOH2_BIAS3");
+  colNames.emplace_back("AOH2_BIAS4");
+  colNames.emplace_back("AOH2_BIAS5");
+  colNames.emplace_back("AOH2_BIAS6");
+  colNames.emplace_back("AOH2_GAIN1");
+  colNames.emplace_back("AOH2_GAIN2");
+  colNames.emplace_back("AOH2_GAIN3");
+  colNames.emplace_back("AOH2_GAIN4");
+  colNames.emplace_back("AOH2_GAIN5");
+  colNames.emplace_back("AOH2_GAIN6");
+  colNames.emplace_back("AOH3_BIAS1");
+  colNames.emplace_back("AOH3_BIAS2");
+  colNames.emplace_back("AOH3_BIAS3");
+  colNames.emplace_back("AOH3_BIAS4");
+  colNames.emplace_back("AOH3_BIAS5");
+  colNames.emplace_back("AOH3_BIAS6");
+  colNames.emplace_back("AOH3_GAIN1");
+  colNames.emplace_back("AOH3_GAIN2");
+  colNames.emplace_back("AOH3_GAIN3");
+  colNames.emplace_back("AOH3_GAIN4");
+  colNames.emplace_back("AOH3_GAIN5");
+  colNames.emplace_back("AOH3_GAIN6");
+  colNames.emplace_back("AOH4_BIAS1");
+  colNames.emplace_back("AOH4_BIAS2");
+  colNames.emplace_back("AOH4_BIAS3");
+  colNames.emplace_back("AOH4_BIAS4");
+  colNames.emplace_back("AOH4_BIAS5");
+  colNames.emplace_back("AOH4_BIAS6");
+  colNames.emplace_back("AOH4_GAIN1");
+  colNames.emplace_back("AOH4_GAIN2");
+  colNames.emplace_back("AOH4_GAIN3");
+  colNames.emplace_back("AOH4_GAIN4");
+  colNames.emplace_back("AOH4_GAIN5");
+  colNames.emplace_back("AOH4_GAIN6");
+  colNames.emplace_back("DELAY25_GCR");
+  colNames.emplace_back("DELAY25_SCL");
+  colNames.emplace_back("DELAY25_TRG");
+  colNames.emplace_back("DELAY25_SDA");
+  colNames.emplace_back("DELAY25_RCL");
+  colNames.emplace_back("DELAY25_RDA");
+  colNames.emplace_back("DOH_BIAS0");
+  colNames.emplace_back("DOH_BIAS1");
+  colNames.emplace_back("DOH_SEU_GAIN");
+  colNames.emplace_back("PLL_CTR1");
+  colNames.emplace_back("PLL_CTR2");
+  colNames.emplace_back("PLL_CTR3");
+  colNames.emplace_back("PLL_CTR4");
+  colNames.emplace_back("PLL_CTR5");
 
   //these are arbitrary integers that control the sort order
   unsigned int othercount = 100;
@@ -213,17 +215,16 @@ PixelPortCardConfig::PixelPortCardConfig(vector<vector<string> > &tableMat) : Pi
   unsigned int pllcount = 1;
 
   for (unsigned int c = 0; c < tableMat[0].size(); c++) {
-    for (unsigned int n = 0; n < colNames.size(); n++) {
-      if (tableMat[0][c] == colNames[n]) {
-        colM[colNames[n]] = c;
+    for (const auto &colName : colNames) {
+      if (tableMat[0][c] == colName) {
+        colM[colName] = c;
         break;
       }
     }
   }  //end for
-  for (unsigned int n = 0; n < colNames.size(); n++) {
-    if (colM.find(colNames[n]) == colM.end()) {
-      std::cerr << __LINE__ << mthn << "\tCouldn't find in the database the column with name " << colNames[n]
-                << std::endl;
+  for (const auto &colName : colNames) {
+    if (colM.find(colName) == colM.end()) {
+      std::cerr << __LINE__ << mthn << "\tCouldn't find in the database the column with name " << colName << std::endl;
       assert(0);
     }
   }
@@ -287,8 +288,8 @@ PixelPortCardConfig::PixelPortCardConfig(vector<vector<string> > &tableMat) : Pi
       if (containsSetting(k_PLL_CTR2))
         last_CTR2 = getdeviceValuesForSetting(k_PLL_CTR2);
 
-      device_.push_back(make_pair(getdeviceAddressForSetting(k_PLL_CTR2), new_PLL_CTR2_value(settingName, last_CTR2)));
-      device_.push_back(make_pair(getdeviceAddressForSetting(k_PLL_CTR4or5), i2c_values));
+      device_.emplace_back(getdeviceAddressForSetting(k_PLL_CTR2), new_PLL_CTR2_value(settingName, last_CTR2));
+      device_.emplace_back(getdeviceAddressForSetting(k_PLL_CTR4or5), i2c_values);
 
       key_.push_back(pllcount++);  //these are arbitrary integers that control the sort order
       key_.push_back(pllcount++);
@@ -301,10 +302,10 @@ PixelPortCardConfig::PixelPortCardConfig(vector<vector<string> > &tableMat) : Pi
           ((settingName.find("DOH_SEU_GAIN") != std::string::npos) && type_ == "bpix"))
       //Note that DOH_SEU_GAIN will be *ignored* for fpix
       {
-        map<string, string>::iterator iter = nameDBtoFileConversion_.find(settingName);
+        auto iter = nameDBtoFileConversion_.find(settingName);
         if (iter == nameDBtoFileConversion_.end())
           continue;
-        map<string, unsigned int>::iterator foundName_itr = nameToAddress_.find(nameDBtoFileConversion_[settingName]);
+        auto foundName_itr = nameToAddress_.find(nameDBtoFileConversion_[settingName]);
 
         if (foundName_itr != nameToAddress_.end()) {
           if (portcardname_.find("PRT2") != std::string::npos &&
@@ -351,7 +352,7 @@ PixelPortCardConfig::PixelPortCardConfig(vector<vector<string> > &tableMat) : Pi
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-PixelPortCardConfig::PixelPortCardConfig(std::string filename) : PixelConfigBase(" ", " ", " ") {
+PixelPortCardConfig::PixelPortCardConfig(const std::string &filename) : PixelConfigBase(" ", " ", " ") {
   string mthn = "[PixelPortCardConfig::PixelPortCardConfig()]\t\t    ";
   //std::cout << __LINE__ << "]\t" << mthn << "filename:"<<filename<<std::endl;
 
@@ -439,11 +440,11 @@ PixelPortCardConfig::PixelPortCardConfig(std::string filename) : PixelConfigBase
       if (containsSetting(k_PLL_CTR2))
         last_CTR2 = getdeviceValuesForSetting(k_PLL_CTR2);
 
-      device_.push_back(make_pair(getdeviceAddressForSetting(k_PLL_CTR2), new_PLL_CTR2_value(settingName, last_CTR2)));
-      device_.push_back(make_pair(getdeviceAddressForSetting(k_PLL_CTR4or5), i2c_values));
+      device_.emplace_back(getdeviceAddressForSetting(k_PLL_CTR2), new_PLL_CTR2_value(settingName, last_CTR2));
+      device_.emplace_back(getdeviceAddressForSetting(k_PLL_CTR4or5), i2c_values);
     } else  // no special handling for this name
     {
-      std::map<std::string, unsigned int>::iterator foundName_itr = nameToAddress_.find(settingName);
+      auto foundName_itr = nameToAddress_.find(settingName);
 
       if (foundName_itr != nameToAddress_.end()) {
         i2c_address = foundName_itr->second;
@@ -468,9 +469,8 @@ void PixelPortCardConfig::sortDeviceList() {
 
   //  cout<<" -=-=-=-= done with sorting -=-=-="<<endl;
   device_.clear();
-  for (set<pair<unsigned int, pair<unsigned int, unsigned int> > >::iterator i = sorted.begin(); i != sorted.end();
-       ++i) {
-    device_.push_back(i->second);
+  for (const auto &i : sorted) {
+    device_.push_back(i.second);
   }
 
   //  for (unsigned int i=0; i<device_.size(); i++ ) {
@@ -478,7 +478,7 @@ void PixelPortCardConfig::sortDeviceList() {
   //  }
 }
 
-unsigned int PixelPortCardConfig::new_PLL_CTR2_value(std::string CTR4or5, unsigned int last_CTR2) const {
+unsigned int PixelPortCardConfig::new_PLL_CTR2_value(const std::string &CTR4or5, unsigned int last_CTR2) const {
   if (CTR4or5 == k_PLL_CTR4)
     return 0xdf & last_CTR2;
   else if (CTR4or5 == k_PLL_CTR5)
@@ -537,17 +537,17 @@ void PixelPortCardConfig::setAOHGain(std::string settingName, unsigned int value
 
   // Search for this address in the previously-defined settings.
   bool foundOne = false;
-  for (unsigned int i = 0; i < device_.size(); i++) {
-    if (device_[i].first == i2c_address)  // Change this setting in all previous instances
+  for (auto &i : device_) {
+    if (i.first == i2c_address)  // Change this setting in all previous instances
     {
       foundOne = true;
-      unsigned int oldValue = device_[i].second;
+      unsigned int oldValue = i.second;
       if (channelOnAOH % 3 == 1)
-        device_[i].second = (0x3c & oldValue) + ((value & 0x3) << 0);  // replace bits 0 and 1 with value
+        i.second = (0x3c & oldValue) + ((value & 0x3) << 0);  // replace bits 0 and 1 with value
       else if (channelOnAOH % 3 == 2)
-        device_[i].second = (0x33 & oldValue) + ((value & 0x3) << 2);  // replace bits 2 and 3 with value
+        i.second = (0x33 & oldValue) + ((value & 0x3) << 2);  // replace bits 2 and 3 with value
       else if (channelOnAOH % 3 == 0)
-        device_[i].second = (0x0f & oldValue) + ((value & 0x3) << 4);  // replace bits 4 and 5 with value
+        i.second = (0x0f & oldValue) + ((value & 0x3) << 4);  // replace bits 4 and 5 with value
       else
         assert(0);
       //std::cout << "Changed setting "<< k_fpix_AOH_Gain123 <<"(address 0x"<<std::hex<<k_fpix_AOH_Gain123_address<<") from 0x"<<oldValue<<" to 0x"<< device_[i].second << std::dec <<"\n";
@@ -618,17 +618,17 @@ void PixelPortCardConfig::setDataBaseAOHGain(std::string settingName, unsigned i
 
   // Search for this address in the previously-defined settings.
   bool foundOne = false;
-  for (unsigned int i = 0; i < device_.size(); i++) {
-    if (device_[i].first == i2c_address)  // Change this setting in all previous instances
+  for (auto &i : device_) {
+    if (i.first == i2c_address)  // Change this setting in all previous instances
     {
       foundOne = true;
-      unsigned int oldValue = device_[i].second;
+      unsigned int oldValue = i.second;
       if (channelOnAOH % 3 == 1)
-        device_[i].second = (0x3c & oldValue) + ((value & 0x3) << 0);  // replace bits 0 and 1 with value
+        i.second = (0x3c & oldValue) + ((value & 0x3) << 0);  // replace bits 0 and 1 with value
       else if (channelOnAOH % 3 == 2)
-        device_[i].second = (0x33 & oldValue) + ((value & 0x3) << 2);  // replace bits 2 and 3 with value
+        i.second = (0x33 & oldValue) + ((value & 0x3) << 2);  // replace bits 2 and 3 with value
       else if (channelOnAOH % 3 == 0)
-        device_[i].second = (0x0f & oldValue) + ((value & 0x3) << 4);  // replace bits 4 and 5 with value
+        i.second = (0x0f & oldValue) + ((value & 0x3) << 4);  // replace bits 4 and 5 with value
       else
         assert(0);
       //std::cout << "Changed setting "<< k_fpix_AOH_Gain123 <<"(address 0x"<<std::hex<<k_fpix_AOH_Gain123_address<<") from 0x"<<oldValue<<" to 0x"<< device_[i].second << std::dec <<"\n";
@@ -1008,8 +1008,8 @@ void PixelPortCardConfig::writeASCII(std::string dir) const {
 
   bool found_PLL_CTR2 = false;
   unsigned int last_PLL_CTR2_value = 0x0;
-  for (unsigned int i = 0; i < device_.size(); i++) {
-    unsigned int deviceAddress = device_.at(i).first;
+  for (const auto &i : device_) {
+    unsigned int deviceAddress = i.first;
 
     // Special handling for AOH gains
     if ((type_ == "fpix" && deviceAddress == k_fpix_AOH_Gain123_address) ||
@@ -1057,11 +1057,11 @@ void PixelPortCardConfig::writeASCII(std::string dir) const {
       } else
         assert(0);
 
-      out << "AOH" << whichAOHString << "_Gain" << zeroOrThree + 1 << ": 0x" << (((device_[i].second) & 0x03) >> 0)
+      out << "AOH" << whichAOHString << "_Gain" << zeroOrThree + 1 << ": 0x" << (((i.second) & 0x03) >> 0)
           << std::endl;  // output bits 0 & 1
-      out << "AOH" << whichAOHString << "_Gain" << zeroOrThree + 2 << ": 0x" << (((device_[i].second) & 0x0c) >> 2)
+      out << "AOH" << whichAOHString << "_Gain" << zeroOrThree + 2 << ": 0x" << (((i.second) & 0x0c) >> 2)
           << std::endl;  // output bits 2 & 3
-      out << "AOH" << whichAOHString << "_Gain" << zeroOrThree + 3 << ": 0x" << (((device_[i].second) & 0x30) >> 4)
+      out << "AOH" << whichAOHString << "_Gain" << zeroOrThree + 3 << ": 0x" << (((i.second) & 0x30) >> 4)
           << std::endl;  // output bits 4 & 5
       continue;
     }
@@ -1069,8 +1069,7 @@ void PixelPortCardConfig::writeASCII(std::string dir) const {
 
     // Check to see if there's a name corresponding to this address.
     std::string settingName = "";
-    for (std::map<std::string, unsigned int>::const_iterator nameToAddress_itr = nameToAddress_.begin();
-         nameToAddress_itr != nameToAddress_.end();
+    for (auto nameToAddress_itr = nameToAddress_.begin(); nameToAddress_itr != nameToAddress_.end();
          ++nameToAddress_itr) {
       //       cout << "[PixelPortCardConfig::WriteASCII()]\tnameToAddress.first:  " << nameToAddress_itr->first  << endl ;
       //       cout << "[PixelPortCardConfig::WriteASCII()]\tnameToAddress.second: " << nameToAddress_itr->second << endl ;
@@ -1086,10 +1085,10 @@ void PixelPortCardConfig::writeASCII(std::string dir) const {
 
     // Special handling for PLL addresses.
     if (settingName == k_PLL_CTR2) {
-      if (found_PLL_CTR2 && last_PLL_CTR2_value == device_.at(i).second)
+      if (found_PLL_CTR2 && last_PLL_CTR2_value == i.second)
         continue;  // don't save duplicate CTR2 settings
       found_PLL_CTR2 = true;
-      last_PLL_CTR2_value = device_.at(i).second;
+      last_PLL_CTR2_value = i.second;
     }
     if (found_PLL_CTR2 && settingName == k_PLL_CTR4or5)  // change name to PLL_CTR4 or PLL_CTR5
     {
@@ -1101,11 +1100,11 @@ void PixelPortCardConfig::writeASCII(std::string dir) const {
     // end of special handling
 
     if (settingName.empty())
-      out << "0x" << std::hex << device_.at(i).first << std::dec;
+      out << "0x" << std::hex << i.first << std::dec;
     else
       out << settingName << ":";
 
-    out << " 0x" << std::hex << device_.at(i).second << std::dec << std::endl;
+    out << " 0x" << std::hex << i.second << std::dec << std::endl;
   }
 
   out.close();
@@ -1153,19 +1152,19 @@ void PixelPortCardConfig::setdeviceValues(unsigned int address, unsigned int val
 }
 
 void PixelPortCardConfig::setdeviceValues(std::string settingName, unsigned int value) {
-  setdeviceValues(getdeviceAddressForSetting(settingName), value);
+  setdeviceValues(getdeviceAddressForSetting(std::move(settingName)), value);
   return;
 }
 
-unsigned int PixelPortCardConfig::getdeviceAddressForSetting(std::string settingName) const {
+unsigned int PixelPortCardConfig::getdeviceAddressForSetting(const std::string &settingName) const {
   //std::cout << "[PixelPortCardConfig::getdeviceAddressForSetting()]\t    settingName: " << settingName<< std::endl ;
-  std::map<std::string, unsigned int>::const_iterator foundName_itr = nameToAddress_.find(settingName);
+  auto foundName_itr = nameToAddress_.find(settingName);
   assert(foundName_itr != nameToAddress_.end());
   return foundName_itr->second;
 }
 
 unsigned int PixelPortCardConfig::getdeviceValuesForSetting(std::string settingName) const {
-  return getdeviceValuesForAddress(getdeviceAddressForSetting(settingName));
+  return getdeviceValuesForAddress(getdeviceAddressForSetting(std::move(settingName)));
 }
 
 unsigned int PixelPortCardConfig::getdeviceValuesForAddress(unsigned int address) const {
@@ -1180,10 +1179,8 @@ unsigned int PixelPortCardConfig::getdeviceValuesForAddress(unsigned int address
 }
 
 bool PixelPortCardConfig::containsDeviceAddress(unsigned int deviceAddress) const {
-  for (std::vector<std::pair<unsigned int, unsigned int> >::const_iterator device_itr = device_.begin();
-       device_itr != device_.end();
-       ++device_itr) {
-    if (device_itr->first == deviceAddress)
+  for (const auto &device_itr : device_) {
+    if (device_itr.first == deviceAddress)
       return true;
   }
   return false;
@@ -1502,8 +1499,8 @@ void PixelPortCardConfig::writeXML(std::ofstream *outstream,
 
   bool found_PLL_CTR2 = false;
   unsigned int last_PLL_CTR2_value = 0x0;
-  for (unsigned int i = 0; i < device_.size(); i++) {
-    unsigned int deviceAddress = device_.at(i).first;
+  for (const auto &i : device_) {
+    unsigned int deviceAddress = i.first;
 
     // Special handling for AOH gains
     if ((type_ == "fpix" && deviceAddress == k_fpix_AOH_Gain123_address) ||
@@ -1551,45 +1548,37 @@ void PixelPortCardConfig::writeXML(std::ofstream *outstream,
       } else
         assert(0);
 
-      *outstream << "   <AOH" << whichAOHString << "_GAIN" << zeroOrThree + 1 << ">"
-                 << (((device_[i].second) & 0x03) >> 0) << "</AOH" << whichAOHString << "_GAIN" << zeroOrThree + 1
-                 << ">" << std::endl;  // output bits 0 & 1
-      *outstream << "   <AOH" << whichAOHString << "_GAIN" << zeroOrThree + 2 << ">"
-                 << (((device_[i].second) & 0x0c) >> 2) << "</AOH" << whichAOHString << "_GAIN" << zeroOrThree + 2
-                 << ">" << std::endl;  // output bits 2 & 3
-      *outstream << "   <AOH" << whichAOHString << "_GAIN" << zeroOrThree + 3 << ">"
-                 << (((device_[i].second) & 0x30) >> 4) << "</AOH" << whichAOHString << "_GAIN" << zeroOrThree + 3
-                 << ">" << std::endl;  // output bits 4 & 5
+      *outstream << "   <AOH" << whichAOHString << "_GAIN" << zeroOrThree + 1 << ">" << (((i.second) & 0x03) >> 0)
+                 << "</AOH" << whichAOHString << "_GAIN" << zeroOrThree + 1 << ">" << std::endl;  // output bits 0 & 1
+      *outstream << "   <AOH" << whichAOHString << "_GAIN" << zeroOrThree + 2 << ">" << (((i.second) & 0x0c) >> 2)
+                 << "</AOH" << whichAOHString << "_GAIN" << zeroOrThree + 2 << ">" << std::endl;  // output bits 2 & 3
+      *outstream << "   <AOH" << whichAOHString << "_GAIN" << zeroOrThree + 3 << ">" << (((i.second) & 0x30) >> 4)
+                 << "</AOH" << whichAOHString << "_GAIN" << zeroOrThree + 3 << ">" << std::endl;  // output bits 4 & 5
       continue;
     }
     // End of special handling
 
     // Check to see if there's a name corresponding to this address.
     std::string settingName = "";
-    for (std::map<std::string, unsigned int>::const_iterator nameToAddress_itr = nameToAddress_.begin();
-         nameToAddress_itr != nameToAddress_.end();
-         ++nameToAddress_itr) {
-      if (nameToAddress_itr->second == deviceAddress) {
-        settingName = nameToAddress_itr->first;
+    for (const auto &nameToAddres : nameToAddress_) {
+      if (nameToAddres.second == deviceAddress) {
+        settingName = nameToAddres.first;
         break;
       }
     }
-    for (std::map<std::string, std::string>::const_iterator nameDBtoFileConversion_itr =
-             nameDBtoFileConversion_.begin();
-         nameDBtoFileConversion_itr != nameDBtoFileConversion_.end();
-         ++nameDBtoFileConversion_itr) {
-      if (nameDBtoFileConversion_itr->second.find(settingName) != std::string::npos) {
-        settingName = nameDBtoFileConversion_itr->first;
+    for (const auto &nameDBtoFileConversion_itr : nameDBtoFileConversion_) {
+      if (nameDBtoFileConversion_itr.second.find(settingName) != std::string::npos) {
+        settingName = nameDBtoFileConversion_itr.first;
         break;
       }
     }
 
     // Special handling for PLL addresses.
     if (settingName == k_PLL_CTR2) {
-      if (found_PLL_CTR2 && last_PLL_CTR2_value == device_.at(i).second)
+      if (found_PLL_CTR2 && last_PLL_CTR2_value == i.second)
         continue;  // don't save duplicate CTR2 settings
       found_PLL_CTR2 = true;
-      last_PLL_CTR2_value = device_.at(i).second;
+      last_PLL_CTR2_value = i.second;
     }
     if (found_PLL_CTR2 && settingName == k_PLL_CTR4or5)  // change name to PLL_CTR4 or PLL_CTR5
     {
@@ -1601,11 +1590,11 @@ void PixelPortCardConfig::writeXML(std::ofstream *outstream,
     // end of special handling
 
     if (settingName.empty())
-      *outstream << device_.at(i).first;
+      *outstream << i.first;
     else
       *outstream << "   <" << settingName << ">";
 
-    *outstream << device_.at(i).second << "</" << settingName << ">" << std::endl;
+    *outstream << i.second << "</" << settingName << ">" << std::endl;
   }
 
   *outstream << "  </DATA>" << std::endl;

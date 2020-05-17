@@ -69,8 +69,8 @@ void PFConversionProducer::produce(Event& iEvent, const EventSetup& iSetup) {
 
     bool greater_prob = false;
     std::vector<edm::RefToBase<reco::Track> > tracksRefColl1 = convColl[icoll1].tracks();
-    for (unsigned it1 = 0; it1 < tracksRefColl1.size(); it1++) {
-      reco::TrackRef trackRef1 = (tracksRefColl1[it1]).castTo<reco::TrackRef>();
+    for (auto& it1 : tracksRefColl1) {
+      reco::TrackRef trackRef1 = it1.castTo<reco::TrackRef>();
 
       for (unsigned int icoll2 = 0; icoll2 < convColl.size(); icoll2++) {
         if (icoll1 == icoll2)
@@ -79,8 +79,8 @@ void PFConversionProducer::produce(Event& iEvent, const EventSetup& iSetup) {
             (!convColl[icoll2].quality(reco::Conversion::highPurity)))
           continue;
         std::vector<edm::RefToBase<reco::Track> > tracksRefColl2 = convColl[icoll2].tracks();
-        for (unsigned it2 = 0; it2 < tracksRefColl2.size(); it2++) {
-          reco::TrackRef trackRef2 = (tracksRefColl2[it2]).castTo<reco::TrackRef>();
+        for (auto& it2 : tracksRefColl2) {
+          reco::TrackRef trackRef2 = it2.castTo<reco::TrackRef>();
           double like1 = -999;
           double like2 = -999;
           //number of shared hits
@@ -125,15 +125,14 @@ void PFConversionProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   }  //end loop over collection 1
 
   //Finally fill empty collections
-  for (unsigned iColl = 0; iColl < conv_coll.size(); iColl++) {
-    unsigned int collindex = conv_coll[iColl];
+  for (unsigned int collindex : conv_coll) {
     //std::cout<<"Filling this collection"<<collindex<<endl;
     std::vector<reco::PFRecTrackRef> pfRecTkcoll;
 
     std::vector<edm::RefToBase<reco::Track> > tracksRefColl = convColl[collindex].tracks();
     // convert the secondary tracks
-    for (unsigned it = 0; it < tracksRefColl.size(); it++) {
-      reco::TrackRef trackRef = (tracksRefColl[it]).castTo<reco::TrackRef>();
+    for (auto& it : tracksRefColl) {
+      reco::TrackRef trackRef = it.castTo<reco::TrackRef>();
       reco::PFRecTrack pfRecTrack(trackRef->charge(), reco::PFRecTrack::KF, trackRef.key(), trackRef);
       //std::cout<<"Track Pt "<<trackRef->pt()<<std::endl;
       Trajectory FakeTraj;
@@ -150,7 +149,7 @@ void PFConversionProducer::produce(Event& iEvent, const EventSetup& iSetup) {
                      .second.significance();
         }
         pfRecTrack.setSTIP(stip);
-        pfRecTkcoll.push_back(reco::PFRecTrackRef(pfTrackRefProd, idx++));
+        pfRecTkcoll.emplace_back(pfTrackRefProd, idx++);
         pfRecTrackColl->push_back(pfRecTrack);
       }
     }  //end loop over tracks

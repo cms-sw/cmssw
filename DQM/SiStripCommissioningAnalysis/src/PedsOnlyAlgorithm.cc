@@ -36,7 +36,7 @@ void PedsOnlyAlgorithm::extract(const std::vector<TH1*>& histos) {
   }
 
   // Extract histograms
-  std::vector<TH1*>::const_iterator ihis = histos.begin();
+  auto ihis = histos.begin();
   for (; ihis != histos.end(); ihis++) {
     // Check for NULL pointer
     if (!(*ihis)) {
@@ -56,7 +56,7 @@ void PedsOnlyAlgorithm::extract(const std::vector<TH1*>& histos) {
       hPeds_.second = (*ihis)->GetName();
       hNoise_.first = *ihis;
       hNoise_.second = (*ihis)->GetName();
-      PedsOnlyAnalysis* a = dynamic_cast<PedsOnlyAnalysis*>(const_cast<CommissioningAnalysis*>(anal()));
+      auto* a = dynamic_cast<PedsOnlyAnalysis*>(const_cast<CommissioningAnalysis*>(anal()));
       if (a) {
         a->legacy_ = true;
       }
@@ -81,8 +81,8 @@ void PedsOnlyAlgorithm::analyse() {
     return;
   }
 
-  CommissioningAnalysis* tmp = const_cast<CommissioningAnalysis*>(anal());
-  PedsOnlyAnalysis* anal = dynamic_cast<PedsOnlyAnalysis*>(tmp);
+  auto* tmp = const_cast<CommissioningAnalysis*>(anal());
+  auto* anal = dynamic_cast<PedsOnlyAnalysis*>(tmp);
   if (!anal) {
     edm::LogWarning(mlCommissioning_) << "[PedsOnlyAlgorithm::" << __func__ << "]"
                                       << " NULL pointer to derived Analysis object!";

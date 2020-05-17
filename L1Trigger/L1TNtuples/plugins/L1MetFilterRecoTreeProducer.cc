@@ -55,7 +55,7 @@ private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
 
-  void doMetFilters(edm::Handle<edm::TriggerResults> trigRes, edm::TriggerNames trigNames);
+  void doMetFilters(const edm::Handle<edm::TriggerResults>& trigRes, const edm::TriggerNames& trigNames);
 
 public:
   L1Analysis::L1AnalysisRecoMetFilterDataFormat* metFilter_data;
@@ -182,7 +182,8 @@ void L1MetFilterRecoTreeProducer::analyze(const edm::Event& iEvent, const edm::E
   tree_->Fill();
 }
 
-void L1MetFilterRecoTreeProducer::doMetFilters(edm::Handle<edm::TriggerResults> trigRes, edm::TriggerNames trigNames) {
+void L1MetFilterRecoTreeProducer::doMetFilters(const edm::Handle<edm::TriggerResults>& trigRes,
+                                               const edm::TriggerNames& trigNames) {
   //get array size
   unsigned int numTrigs = trigNames.triggerNames().size();
 

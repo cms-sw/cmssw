@@ -150,10 +150,10 @@ std::string DTCCBConfigValidateHandler::id() const { return dataVersion; }
 bool DTCCBConfigValidateHandler::cfrDiff(const std::vector<int>& l_conf, const std::vector<int>& r_conf) {
   if (l_conf.size() != r_conf.size())
     return true;
-  std::vector<int>::const_iterator l_iter = l_conf.begin();
-  std::vector<int>::const_iterator l_iend = l_conf.end();
-  std::vector<int>::const_iterator r_iter = r_conf.begin();
-  std::vector<int>::const_iterator r_iend = r_conf.end();
+  auto l_iter = l_conf.begin();
+  auto l_iend = l_conf.end();
+  auto r_iter = r_conf.begin();
+  auto r_iend = r_conf.end();
   while ((l_iter != l_iend) && (r_iter != r_iend)) {
     if (*l_iter++ != *r_iter++)
       return true;

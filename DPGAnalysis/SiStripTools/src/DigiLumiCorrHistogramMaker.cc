@@ -40,14 +40,14 @@ DigiLumiCorrHistogramMaker::DigiLumiCorrHistogramMaker(const edm::ParameterSet& 
   std::vector<edm::ParameterSet> wantedsubds(iConfig.getUntrackedParameter<std::vector<edm::ParameterSet> >(
       "wantedSubDets", std::vector<edm::ParameterSet>()));
 
-  for (std::vector<edm::ParameterSet>::iterator ps = wantedsubds.begin(); ps != wantedsubds.end(); ++ps) {
-    m_labels[ps->getParameter<unsigned int>("detSelection")] = ps->getParameter<std::string>("detLabel");
-    m_binmax[ps->getParameter<unsigned int>("detSelection")] = ps->getParameter<int>("binMax");
+  for (auto& wantedsubd : wantedsubds) {
+    m_labels[wantedsubd.getParameter<unsigned int>("detSelection")] = wantedsubd.getParameter<std::string>("detLabel");
+    m_binmax[wantedsubd.getParameter<unsigned int>("detSelection")] = wantedsubd.getParameter<int>("binMax");
   }
 }
 
 DigiLumiCorrHistogramMaker::~DigiLumiCorrHistogramMaker() {
-  for (std::map<unsigned int, std::string>::const_iterator lab = m_labels.begin(); lab != m_labels.end(); lab++) {
+  for (auto lab = m_labels.begin(); lab != m_labels.end(); lab++) {
     const unsigned int i = lab->first;
     const std::string slab = lab->second;
 
@@ -56,14 +56,14 @@ DigiLumiCorrHistogramMaker::~DigiLumiCorrHistogramMaker() {
   }
 }
 
-void DigiLumiCorrHistogramMaker::book(const std::string dirname,
+void DigiLumiCorrHistogramMaker::book(const std::string& dirname,
                                       const std::map<unsigned int, std::string>& labels,
                                       edm::ConsumesCollector&& iC) {
   m_labels = labels;
   book(dirname, iC);
 }
 
-void DigiLumiCorrHistogramMaker::book(const std::string dirname, edm::ConsumesCollector& iC) {
+void DigiLumiCorrHistogramMaker::book(const std::string& dirname, edm::ConsumesCollector& iC) {
   edm::Service<TFileService> tfserv;
   TFileDirectory subev = tfserv->mkdir(dirname);
 
@@ -74,7 +74,7 @@ void DigiLumiCorrHistogramMaker::book(const std::string dirname, edm::ConsumesCo
   edm::LogInfo("MaxLumi") << "max lumi value: " << m_maxlumi;
   edm::LogInfo("BinMaxValue") << "Setting bin max values";
 
-  for (std::map<unsigned int, std::string>::const_iterator lab = m_labels.begin(); lab != m_labels.end(); lab++) {
+  for (auto lab = m_labels.begin(); lab != m_labels.end(); lab++) {
     const unsigned int i = lab->first;
     const std::string slab = lab->second;
 
@@ -87,7 +87,7 @@ void DigiLumiCorrHistogramMaker::book(const std::string dirname, edm::ConsumesCo
     edm::LogVerbatim("BinMaxValue") << "Bin max for " << lab->second << " is " << m_binmax[i];
   }
 
-  for (std::map<unsigned int, std::string>::const_iterator lab = m_labels.begin(); lab != m_labels.end(); ++lab) {
+  for (auto lab = m_labels.begin(); lab != m_labels.end(); ++lab) {
     const int i = lab->first;
     const std::string slab = lab->second;
 
@@ -122,7 +122,7 @@ void DigiLumiCorrHistogramMaker::book(const std::string dirname, edm::ConsumesCo
 void DigiLumiCorrHistogramMaker::beginRun(const edm::Run& iRun) {
   edm::Service<TFileService> tfserv;
 
-  for (std::map<unsigned int, std::string>::const_iterator lab = m_labels.begin(); lab != m_labels.end(); ++lab) {
+  for (auto lab = m_labels.begin(); lab != m_labels.end(); ++lab) {
     const int i = lab->first;
     const std::string slab = lab->second;
     m_fhm[i]->beginRun(iRun, *m_subdirs[i]);
@@ -141,14 +141,14 @@ void DigiLumiCorrHistogramMaker::fill(const edm::Event& iEvent, const std::map<u
     if (ld->isValid()) {
       float bxlumi = ld->lumiValue(LumiDetails::kOCC1, iEvent.bunchCrossing()) * 6.37;
 
-      for (std::map<unsigned int, int>::const_iterator digi = ndigi.begin(); digi != ndigi.end(); digi++) {
-        if (m_labels.find(digi->first) != m_labels.end()) {
-          const unsigned int i = digi->first;
-          m_nmultvslumi[i]->Fill(bxlumi, digi->second);
-          m_nmultvslumiprof[i]->Fill(bxlumi, digi->second);
+      for (auto digi : ndigi) {
+        if (m_labels.find(digi.first) != m_labels.end()) {
+          const unsigned int i = digi.first;
+          m_nmultvslumi[i]->Fill(bxlumi, digi.second);
+          m_nmultvslumiprof[i]->Fill(bxlumi, digi.second);
 
           if (m_nmultvslumivsbxprofrun[i] && *m_nmultvslumivsbxprofrun[i])
-            (*m_nmultvslumivsbxprofrun[i])->Fill(iEvent.bunchCrossing() % 3564, bxlumi, digi->second);
+            (*m_nmultvslumivsbxprofrun[i])->Fill(iEvent.bunchCrossing() % 3564, bxlumi, digi.second);
         }
       }
     }

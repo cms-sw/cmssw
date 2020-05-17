@@ -76,14 +76,14 @@ void SiStripMonitorQuality::bookHistograms(DQMStore::IBooker &ibooker,
   edm::LogInfo("SiStripMonitorQuality") << "SiStripMonitorQuality::analyze: "
                                         << " Reading SiStripQuality " << std::endl;
 
-  SiStripBadStrip::RegistryIterator rbegin = stripQuality_->getRegistryVectorBegin();
-  SiStripBadStrip::RegistryIterator rend = stripQuality_->getRegistryVectorEnd();
+  auto rbegin = stripQuality_->getRegistryVectorBegin();
+  auto rend = stripQuality_->getRegistryVectorEnd();
   uint32_t detid;
 
   if (rbegin == rend)
     return;
 
-  for (SiStripBadStrip::RegistryIterator rp = rbegin; rp != rend; ++rp) {
+  for (auto rp = rbegin; rp != rend; ++rp) {
     detid = rp->detid;
     // Check consistency in DetId
     if (detid == 0 || detid == 0xFFFFFFFF) {
@@ -140,14 +140,14 @@ void SiStripMonitorQuality::analyze(edm::Event const &iEvent, edm::EventSetup co
   edm::LogInfo("SiStripMonitorQuality") << "SiStripMonitorQuality::analyze: "
                                         << " Reading SiStripQuality " << std::endl;
 
-  SiStripBadStrip::RegistryIterator rbegin = stripQuality_->getRegistryVectorBegin();
-  SiStripBadStrip::RegistryIterator rend = stripQuality_->getRegistryVectorEnd();
+  auto rbegin = stripQuality_->getRegistryVectorBegin();
+  auto rend = stripQuality_->getRegistryVectorEnd();
   uint32_t detid;
 
   if (rbegin == rend)
     return;
 
-  for (SiStripBadStrip::RegistryIterator rp = rbegin; rp != rend; ++rp) {
+  for (auto rp = rbegin; rp != rend; ++rp) {
     detid = rp->detid;
     // Check consistency in DetId
     if (detid == 0 || detid == 0xFFFFFFFF) {
@@ -164,7 +164,7 @@ void SiStripMonitorQuality::analyze(edm::Event const &iEvent, edm::EventSetup co
     MonitorElement *me = getQualityME(detid, tTopo);
     SiStripBadStrip::Range range = SiStripBadStrip::Range(stripQuality_->getDataVectorBegin() + rp->ibegin,
                                                           stripQuality_->getDataVectorBegin() + rp->iend);
-    SiStripBadStrip::ContainerIterator it = range.first;
+    auto it = range.first;
     for (; it != range.second; ++it) {
       unsigned int value = (*it);
       short str_start = stripQuality_->decode(value).firstStrip;
@@ -198,7 +198,7 @@ void SiStripMonitorQuality::endJob(void) {
 //
 SiStripMonitorQuality::MonitorElement *SiStripMonitorQuality::getQualityME(uint32_t idet,
                                                                            const TrackerTopology *tTopo) {
-  std::map<uint32_t, MonitorElement *>::iterator pos = QualityMEs.find(idet);
+  auto pos = QualityMEs.find(idet);
   MonitorElement *det_me = nullptr;
   if (pos != QualityMEs.end()) {
     det_me = pos->second;

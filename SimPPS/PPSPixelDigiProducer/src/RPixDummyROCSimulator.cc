@@ -23,12 +23,13 @@ void RPixDummyROCSimulator::ConvertChargeToHits(
     std::vector<CTPPSPixelDigi> &output_digi,
     std::vector<std::vector<std::pair<int, double> > > &output_digi_links,
     const CTPPSPixelGainCalibrations *pcalibrations) {
-  for (std::map<unsigned short, double>::const_iterator i = signals.begin(); i != signals.end(); ++i) {
+  for (auto signal : signals) {
     //one threshold per hybrid
-    unsigned short pixel_no = i->first;
+    unsigned short pixel_no = signal.first;
     if (verbosity_)
-      edm::LogInfo("RPixDummyROCSimulator") << "Dummy ROC adc and threshold : " << i->second << ", " << threshold_;
-    if (i->second > threshold_ && (!dead_pixels_simulation_on_ || dead_pixels_.find(pixel_no) == dead_pixels_.end())) {
+      edm::LogInfo("RPixDummyROCSimulator") << "Dummy ROC adc and threshold : " << signal.second << ", " << threshold_;
+    if (signal.second > threshold_ &&
+        (!dead_pixels_simulation_on_ || dead_pixels_.find(pixel_no) == dead_pixels_.end())) {
       float gain = 0;
       float pedestal = 0;
       int adc = 0;
@@ -42,12 +43,12 @@ void RPixDummyROCSimulator::ConvertChargeToHits(
         continue;
 
       if (doSingleCalibration_) {
-        adc = int(round(i->second / electron_per_adc_));
+        adc = int(round(signal.second / electron_per_adc_));
       } else {
         if (DetCalibs.getDetId() != 0) {
           gain = DetCalibs.getGain(col, row) * highRangeCal_ / lowRangeCal_;  // *highRangeCal/lowRangeCal
           pedestal = DetCalibs.getPed(col, row);
-          adc = int(round((i->second - VcaltoElectronOffset_) / (gain * VcaltoElectronGain_) + pedestal));
+          adc = int(round((signal.second - VcaltoElectronOffset_) / (gain * VcaltoElectronGain_) + pedestal));
         }
       }
       /// set maximum for 8 bits adc
@@ -55,14 +56,14 @@ void RPixDummyROCSimulator::ConvertChargeToHits(
         adc = maxADC_;
       if (adc < 0)
         adc = 0;
-      output_digi.push_back(CTPPSPixelDigi(row, col, adc));
+      output_digi.emplace_back(row, col, adc);
       if (links_persistence_) {
         output_digi_links.push_back(theSignalProvenance[pixel_no]);
         if (verbosity_) {
           edm::LogInfo("RPixDummyROCSimulator") << "digi links size=" << theSignalProvenance[pixel_no].size();
-          for (unsigned int u = 0; u < theSignalProvenance[pixel_no].size(); ++u) {
-            edm::LogInfo("RPixDummyROCSimulator") << "   digi: particle=" << theSignalProvenance[pixel_no][u].first
-                                                  << " energy [electrons]=" << theSignalProvenance[pixel_no][u].second;
+          for (auto &u : theSignalProvenance[pixel_no]) {
+            edm::LogInfo("RPixDummyROCSimulator")
+                << "   digi: particle=" << u.first << " energy [electrons]=" << u.second;
           }
         }
       }
@@ -70,10 +71,10 @@ void RPixDummyROCSimulator::ConvertChargeToHits(
   }
 
   if (verbosity_) {
-    for (unsigned int i = 0; i < output_digi.size(); ++i) {
+    for (auto &i : output_digi) {
       edm::LogInfo("RPixDummyROCSimulator")
           << "Dummy ROC Simulator " << det_id_ << "     row= "  //output_digi[i].GetDetId()<<" "
-          << output_digi[i].row() << "   col= " << output_digi[i].column() << "   adc= " << output_digi[i].adc();
+          << i.row() << "   col= " << i.column() << "   adc= " << i.adc();
     }
   }
 }

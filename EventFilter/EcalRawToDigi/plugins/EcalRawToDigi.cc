@@ -98,8 +98,8 @@ EcalRawToDigi::EcalRawToDigi(edm::ParameterSet const& conf)
   //print the FEDs to unpack to the logger
   std::ostringstream loggerOutput_;
   if (!fedUnpackList_.empty()) {
-    for (unsigned int i = 0; i < fedUnpackList_.size(); i++)
-      loggerOutput_ << fedUnpackList_[i] << " ";
+    for (int i : fedUnpackList_)
+      loggerOutput_ << i << " ";
     edm::LogInfo("EcalRawToDigi") << "EcalRawToDigi will unpack FEDs ( " << loggerOutput_.str() << ")";
     LogDebug("EcalRawToDigi") << "EcalRawToDigi will unpack FEDs ( " << loggerOutput_.str() << ")";
   }
@@ -417,27 +417,27 @@ void EcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
   //  double TIME_START = clock();
 
   // Step C: unpack all requested FEDs
-  for (std::vector<int>::const_iterator i = fedUnpackList_.begin(); i != fedUnpackList_.end(); i++) {
+  for (int i : fedUnpackList_) {
     if (REGIONAL_) {
-      std::vector<int>::const_iterator fed_it = find(FEDS_to_unpack.begin(), FEDS_to_unpack.end(), *i);
+      auto fed_it = find(FEDS_to_unpack.begin(), FEDS_to_unpack.end(), i);
       if (fed_it == FEDS_to_unpack.end())
         continue;
     }
 
     // get fed raw data and SM id
-    const FEDRawData& fedData = rawdata->FEDData(*i);
+    const FEDRawData& fedData = rawdata->FEDData(i);
     const size_t length = fedData.size();
 
     LogDebug("EcalRawToDigi") << "raw data length: " << length;
     //if data size is not null interpret data
     if (length >= EMPTYEVENTSIZE) {
-      if (myMap_->setActiveDCC(*i)) {
+      if (myMap_->setActiveDCC(i)) {
         const int smId = myMap_->getActiveSM();
-        LogDebug("EcalRawToDigi") << "Getting FED = " << *i << "(SM = " << smId << ")"
+        LogDebug("EcalRawToDigi") << "Getting FED = " << i << "(SM = " << smId << ")"
                                   << " data size is: " << length;
 
         const uint64_t* data = (uint64_t*)fedData.data();
-        theUnpacker_->unpack(data, length, smId, *i);
+        theUnpacker_->unpack(data, length, smId, i);
 
         LogDebug("EcalRawToDigi") << " in EE :" << productDigisEE->size() << " in EB :" << productDigisEB->size();
       }

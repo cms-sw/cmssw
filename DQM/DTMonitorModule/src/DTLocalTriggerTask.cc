@@ -84,14 +84,14 @@ void DTLocalTriggerTask::bookHistograms(DQMStore::IBooker& ibooker,
 
     vector<string> trigSources;
     if (parameters.getUntrackedParameter<bool>("localrun", true)) {
-      trigSources.push_back("");
+      trigSources.emplace_back("");
     } else {
-      trigSources.push_back("_DTonly");
-      trigSources.push_back("_NoDT");
-      trigSources.push_back("_DTalso");
+      trigSources.emplace_back("_DTonly");
+      trigSources.emplace_back("_NoDT");
+      trigSources.emplace_back("_DTalso");
     }
-    vector<string>::const_iterator trigSrcIt = trigSources.begin();
-    vector<string>::const_iterator trigSrcEnd = trigSources.end();
+    auto trigSrcIt = trigSources.begin();
+    auto trigSrcEnd = trigSources.end();
 
     if (parameters.getUntrackedParameter<bool>("process_tm", true)) {
       bookBarrelHistos(ibooker, "TM_ErrorsChamberID");
@@ -180,12 +180,9 @@ void DTLocalTriggerTask::beginLuminosityBlock(const LuminosityBlock& lumiSeg, co
   LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerTask") << "[DTLocalTriggerTask]: Begin of LS transition" << endl;
 
   if (lumiSeg.id().luminosityBlock() % parameters.getUntrackedParameter<int>("ResetCycle", 3) == 0) {
-    for (map<uint32_t, map<string, MonitorElement*> >::const_iterator histo = digiHistos.begin();
-         histo != digiHistos.end();
-         histo++) {
-      for (map<string, MonitorElement*>::const_iterator ht = (*histo).second.begin(); ht != (*histo).second.end();
-           ht++) {
-        (*ht).second->Reset();
+    for (auto histo = digiHistos.begin(); histo != digiHistos.end(); histo++) {
+      for (const auto& ht : (*histo).second) {
+        ht.second->Reset();
       }
     }
   }
@@ -229,7 +226,7 @@ void DTLocalTriggerTask::analyze(const edm::Event& e, const edm::EventSetup& c) 
   }
 }
 
-void DTLocalTriggerTask::bookBarrelHistos(DQMStore::IBooker& ibooker, string histoTag) {
+void DTLocalTriggerTask::bookBarrelHistos(DQMStore::IBooker& ibooker, const string& histoTag) {
   ibooker.setCurrentFolder(topFolder());
   if (histoTag == "TM_ErrorsChamberID") {
     tm_IDDataErrorPlot = ibooker.book1D(histoTag.c_str(), "TM Data ID Error", 5, -2, 3);
@@ -241,8 +238,8 @@ void DTLocalTriggerTask::bookBarrelHistos(DQMStore::IBooker& ibooker, string his
 
 void DTLocalTriggerTask::bookHistos(DQMStore::IBooker& ibooker,
                                     const DTChamberId& dtCh,
-                                    string folder,
-                                    string histoTag) {
+                                    const string& folder,
+                                    const string& histoTag) {
   int wh = dtCh.wheel();
   int sc = dtCh.sector();
   stringstream wheel;
@@ -256,7 +253,7 @@ void DTLocalTriggerTask::bookHistos(DQMStore::IBooker& ibooker,
   double maxBX = 0;
   int rangeBX = 0;
 
-  string histoType = histoTag.substr(3, histoTag.find("_", 3) - 3);
+  string histoType = histoTag.substr(3, histoTag.find('_', 3) - 3);
 
   ibooker.setCurrentFolder(topFolder() + "Wheel" + wheel.str() + "/Sector" + sector.str() + "/Station" + station.str() +
                            "/" + folder);
@@ -394,11 +391,11 @@ void DTLocalTriggerTask::bookHistos(DQMStore::IBooker& ibooker,
   }
 }
 
-void DTLocalTriggerTask::bookWheelHistos(DQMStore::IBooker& ibooker, int wh, string histoTag) {
+void DTLocalTriggerTask::bookWheelHistos(DQMStore::IBooker& ibooker, int wh, const string& histoTag) {
   stringstream wheel;
   wheel << wh;
 
-  string histoType = histoTag.substr(3, histoTag.find("_", 3) - 3);
+  string histoType = histoTag.substr(3, histoTag.find('_', 3) - 3);
 
   ibooker.setCurrentFolder(topFolder() + "Wheel" + wheel.str() + "/");
 
@@ -426,8 +423,8 @@ void DTLocalTriggerTask::runTMAnalysis(std::vector<L1MuDTChambPhDigi> const* phT
     }
   }
 
-  vector<L1MuDTChambPhDigi>::const_iterator iph = phTrigs->begin();
-  vector<L1MuDTChambPhDigi>::const_iterator iphe = phTrigs->end();
+  auto iph = phTrigs->begin();
+  auto iphe = phTrigs->end();
   for (; iph != iphe; ++iph) {
     int phwheel = iph->whNum();
     int phsec = iph->scNum() + 1;  // SM The track finder goes from 0 to 11. I need them from 1 to 12 !!!!!
@@ -475,8 +472,8 @@ void DTLocalTriggerTask::runTMAnalysis(std::vector<L1MuDTChambPhDigi> const* phT
 
   if (doTMTheta) {
     int thcode[7];
-    vector<L1MuDTChambThDigi>::const_iterator ith = thTrigs->begin();
-    vector<L1MuDTChambThDigi>::const_iterator ithe = thTrigs->end();
+    auto ith = thTrigs->begin();
+    auto ithe = thTrigs->end();
     for (; ith != ithe; ++ith) {
       int thwheel = ith->whNum();
       int thsec = ith->scNum() + 1;  // SM The track finder goes from 0 to 11. I need them from 1 to 12 !!!!!
@@ -697,16 +694,16 @@ void DTLocalTriggerTask::triggerSource(const edm::Event& e) {
     Handle<LTCDigiCollection> ltcdigis;
     e.getByToken(ltcDigiCollectionToken_, ltcdigis);
 
-    for (std::vector<LTCDigi>::const_iterator ltc_it = ltcdigis->begin(); ltc_it != ltcdigis->end(); ltc_it++) {
+    for (const auto& ltc_it : *ltcdigis) {
       size_t otherTriggerSum = 0;
       for (size_t i = 1; i < 6; i++) {
-        otherTriggerSum += size_t((*ltc_it).HasTriggered(i));
+        otherTriggerSum += size_t(ltc_it.HasTriggered(i));
       }
-      if ((*ltc_it).HasTriggered(0) && otherTriggerSum == 0)
+      if (ltc_it.HasTriggered(0) && otherTriggerSum == 0)
         trigsrc = "_DTonly";
-      else if (!(*ltc_it).HasTriggered(0))
+      else if (!ltc_it.HasTriggered(0))
         trigsrc = "_NoDT";
-      else if ((*ltc_it).HasTriggered(0) && otherTriggerSum > 0)
+      else if (ltc_it.HasTriggered(0) && otherTriggerSum > 0)
         trigsrc = "_DTalso";
     }
     return;

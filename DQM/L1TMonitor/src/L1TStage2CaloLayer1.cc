@@ -392,19 +392,19 @@ void L1TStage2CaloLayer1::endLuminosityBlock(const edm::LuminosityBlock& lumi, c
 }
 
 void L1TStage2CaloLayer1::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& run, const edm::EventSetup& es) {
-  auto bookEt = [&ibooker](std::string name, std::string title) {
+  auto bookEt = [&ibooker](const std::string& name, const std::string& title) {
     return ibooker.book1D(name, title + ";Raw ET;Counts", 256, -0.5, 255.5);
   };
-  auto bookEtCorrelation = [&ibooker](std::string name, std::string title) {
+  auto bookEtCorrelation = [&ibooker](const std::string& name, const std::string& title) {
     return ibooker.book2D(name, title, 256, -0.5, 255.5, 256, -0.5, 255.5);
   };
-  auto bookEtDiff = [&ibooker](std::string name, std::string title) {
+  auto bookEtDiff = [&ibooker](const std::string& name, const std::string& title) {
     return ibooker.book1D(name, title + ";#Delta Raw ET;Counts", 511, -255.5, 255.5);
   };
-  auto bookEcalOccupancy = [&ibooker](std::string name, std::string title) {
+  auto bookEcalOccupancy = [&ibooker](const std::string& name, const std::string& title) {
     return ibooker.book2D(name, title + ";iEta;iPhi", 57, -28.5, 28.5, 72, 0.5, 72.5);
   };
-  auto bookHcalOccupancy = [&ibooker](std::string name, std::string title) {
+  auto bookHcalOccupancy = [&ibooker](const std::string& name, const std::string& title) {
     return ibooker.book2D(name, title + ";iEta;iPhi", 83, -41.5, 41.5, 72, 0.5, 72.5);
   };
 

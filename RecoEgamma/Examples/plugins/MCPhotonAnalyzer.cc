@@ -203,18 +203,18 @@ void MCPhotonAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&) {
   std::vector<PhotonMCTruth> mcPhotons = thePhotonMCTruthFinder_->find(theSimTracks, theSimVertices);
   std::cout << " MCPhotonAnalyzer mcPhotons size " << mcPhotons.size() << std::endl;
 
-  for (std::vector<PhotonMCTruth>::const_iterator iPho = mcPhotons.begin(); iPho != mcPhotons.end(); ++iPho) {
-    if ((*iPho).fourMomentum().e() < 35)
+  for (const auto& mcPhoton : mcPhotons) {
+    if (mcPhoton.fourMomentum().e() < 35)
       continue;
 
-    h_MCPhoE_->Fill((*iPho).fourMomentum().e());
+    h_MCPhoE_->Fill(mcPhoton.fourMomentum().e());
     //    float correta = etaTransformation( (*iPho).fourMomentum().pseudoRapidity(),  (*iPho).primaryVertex().z() );
-    float Theta = (*iPho).fourMomentum().theta();
+    float Theta = mcPhoton.fourMomentum().theta();
     float correta = -log(tan(0.5 * Theta));
-    correta = etaTransformation(correta, (*iPho).primaryVertex().z());
+    correta = etaTransformation(correta, mcPhoton.primaryVertex().z());
     //h_MCPhoEta_->Fill  ( (*iPho).fourMomentum().pseudoRapidity() );
     h_MCPhoEta_->Fill(fabs(correta) - 0.001);
-    h_MCPhoPhi_->Fill((*iPho).fourMomentum().phi());
+    h_MCPhoPhi_->Fill(mcPhoton.fourMomentum().phi());
 
     /*
     if ( fabs((*iPho).fourMomentum().pseudoRapidity() ) <= 0.25 &&  fabs((*iPho).fourMomentum().pseudoRapidity() ) >=0.15  )
@@ -237,13 +237,13 @@ void MCPhotonAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&) {
       h_MCPhoEta4_->Fill(correta);
 
     //    if ( (*iPho).isAConversion()  && (*iPho).vertex().perp()< 10 ) {
-    if ((*iPho).isAConversion()) {
-      h_MCConvPhoE_->Fill((*iPho).fourMomentum().e());
+    if (mcPhoton.isAConversion()) {
+      h_MCConvPhoE_->Fill(mcPhoton.fourMomentum().e());
       //      h_MCConvPhoEta_->Fill  ( (*iPho).fourMomentum().pseudoRapidity() );
 
       h_MCConvPhoEta_->Fill(fabs(correta) - 0.001);
-      h_MCConvPhoPhi_->Fill((*iPho).fourMomentum().phi());
-      h_MCConvPhoR_->Fill((*iPho).vertex().perp());
+      h_MCConvPhoPhi_->Fill(mcPhoton.fourMomentum().phi());
+      h_MCConvPhoR_->Fill(mcPhoton.vertex().perp());
 
       /*
       if ( fabs((*iPho).fourMomentum().pseudoRapidity() ) <= 0.25 &&  fabs((*iPho).fourMomentum().pseudoRapidity() ) >=0.15  )
@@ -257,13 +257,13 @@ void MCPhotonAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&) {
       */
 
       if (fabs(correta) <= 0.3 && fabs(correta) > 0.2)
-        h_MCConvPhoREta1_->Fill((*iPho).vertex().perp());
+        h_MCConvPhoREta1_->Fill(mcPhoton.vertex().perp());
       if (fabs(correta) <= 1. && fabs(correta) > 0.9)
-        h_MCConvPhoREta2_->Fill((*iPho).vertex().perp());
+        h_MCConvPhoREta2_->Fill(mcPhoton.vertex().perp());
       if (fabs(correta) <= 1.6 && fabs(correta) > 1.5)
-        h_MCConvPhoREta3_->Fill((*iPho).vertex().perp());
+        h_MCConvPhoREta3_->Fill(mcPhoton.vertex().perp());
       if (fabs(correta) <= 2 && fabs(correta) > 1.9)
-        h_MCConvPhoREta4_->Fill((*iPho).vertex().perp());
+        h_MCConvPhoREta4_->Fill(mcPhoton.vertex().perp());
 
     }  // end conversions
 

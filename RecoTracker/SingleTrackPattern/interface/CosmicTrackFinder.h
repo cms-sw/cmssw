@@ -37,8 +37,8 @@ namespace cms {
       ltib1 = false;
       ltib2 = false;
       //     ConstRecHitIterator hit;
-      for (auto hit = hits.begin(); hit != hits.end(); hit++) {
-        unsigned int iid = (*hit)->hit()->geographicalId().rawId();
+      for (const auto& hit : hits) {
+        unsigned int iid = hit->hit()->geographicalId().rawId();
 
         int sub = (iid >> 25) & 0x7;
         int lay = (iid >> 16) & 0xF;

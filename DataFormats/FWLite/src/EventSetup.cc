@@ -102,7 +102,7 @@ RecordID EventSetup::recordID(const char* iRecordName) const {
   }
   //do we already have this Record?
   std::string name(iRecordName);
-  for (std::vector<Record*>::const_iterator it = m_records.begin(), itEnd = m_records.end(); it != itEnd; ++it) {
+  for (auto it = m_records.begin(), itEnd = m_records.end(); it != itEnd; ++it) {
     if ((*it)->name() == name) {
       return it - m_records.begin();
     }

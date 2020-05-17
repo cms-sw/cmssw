@@ -17,9 +17,9 @@
 namespace popcon {
   class ExPedestalSource : public popcon::PopConSourceHandler<Pedestals> {
   public:
-    void getNewObjects();
-    std::string id() const { return m_name; }
-    ~ExPedestalSource();
+    void getNewObjects() override;
+    std::string id() const override { return m_name; }
+    ~ExPedestalSource() override;
     ExPedestalSource(const edm::ParameterSet& pset);
 
   private:

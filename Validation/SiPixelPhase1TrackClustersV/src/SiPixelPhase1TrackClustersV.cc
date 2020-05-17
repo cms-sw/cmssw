@@ -46,9 +46,7 @@ void SiPixelPhase1TrackClustersV::analyze(const edm::Event &iEvent, const edm::E
   for (it = clusterColl->begin(); it != clusterColl->end(); ++it) {
     auto id = DetId(it->detId());
 
-    for (auto subit = it->begin(); subit != it->end(); ++subit) {
-      SiPixelCluster const &cluster = *subit;
-
+    for (auto &cluster : *it) {
       histo[CHARGE].fill(double(cluster.charge()), id, &iEvent);
       histo[SIZE_X].fill(double(cluster.sizeX()), id, &iEvent);
       histo[SIZE_Y].fill(double(cluster.sizeY()), id, &iEvent);

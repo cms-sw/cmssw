@@ -96,8 +96,8 @@ typename MinL3AlgoUniv<IDdet>::IDmap MinL3AlgoUniv<IDdet>::iterate(const std::ve
 
       for (i = 0; i < Nevents; i++) {
         sumOverEnergy = 0.;
-        for (unsigned j = 0; j < myEventMatrix[i].size(); j++) {
-          sumOverEnergy += myEventMatrix[i][j];
+        for (float j : myEventMatrix[i]) {
+          sumOverEnergy += j;
         }
         sumOverEnergy /= myEnergyVector[i];
         scale += sumOverEnergy;
@@ -123,8 +123,8 @@ typename MinL3AlgoUniv<IDdet>::IDmap MinL3AlgoUniv<IDdet>::iterate(const std::ve
     }
 
     // save solution into theCalibVector
-    for (iter_IDmap i = iterSolution.begin(); i != iterSolution.end(); i++) {
-      iter_IDmap itotal = totalSolution.find(i->first);
+    for (auto i = iterSolution.begin(); i != iterSolution.end(); i++) {
+      auto itotal = totalSolution.find(i->first);
       if (itotal == totalSolution.end()) {
         totalSolution.insert(IDmapvalue(i->first, i->second));
       } else {
@@ -149,8 +149,8 @@ void MinL3AlgoUniv<IDdet>::addEvent(const std::vector<float>& myCluster,
   // Loop over the crystal matrix to find the sum
   float sumXmatrix = 0.;
 
-  for (unsigned i = 0; i < myCluster.size(); i++) {
-    sumXmatrix += myCluster[i];
+  for (float i : myCluster) {
+    sumXmatrix += i;
   }
 
   // event weighting
@@ -164,13 +164,13 @@ void MinL3AlgoUniv<IDdet>::addEvent(const std::vector<float>& myCluster,
       w = myCluster[i] * invsumXmatrix;
 
       // include the weights into wsum, Ewsum
-      iter_IDmap iwsum = wsum.find(idCluster[i]);
+      auto iwsum = wsum.find(idCluster[i]);
       if (iwsum == wsum.end())
         wsum.insert(IDmapvalue(idCluster[i], w * eventw));
       else
         iwsum->second += w * eventw;
 
-      iter_IDmap iEwsum = Ewsum.find(idCluster[i]);
+      auto iEwsum = Ewsum.find(idCluster[i]);
       if (iEwsum == Ewsum.end())
         Ewsum.insert(IDmapvalue(idCluster[i], (w * eventw * energy * invsumXmatrix)));
       else
@@ -184,8 +184,8 @@ template <class IDdet>
 typename MinL3AlgoUniv<IDdet>::IDmap MinL3AlgoUniv<IDdet>::getSolution(const bool resetsolution) {
   IDmap solution;
 
-  for (iter_IDmap i = wsum.begin(); i != wsum.end(); i++) {
-    iter_IDmap iEwsum = Ewsum.find(i->first);
+  for (auto i = wsum.begin(); i != wsum.end(); i++) {
+    auto iEwsum = Ewsum.find(i->first);
     float myValue = 1;
     if (i->second != 0)
       myValue = iEwsum->second / i->second;
@@ -212,7 +212,7 @@ std::vector<float> MinL3AlgoUniv<IDdet>::recalibrateEvent(const std::vector<floa
   std::vector<float> newCluster(myCluster);
 
   for (unsigned i = 0; i < myCluster.size(); i++) {
-    citer_IDmap icalib = newCalibration.find(idCluster[i]);
+    auto icalib = newCalibration.find(idCluster[i]);
     if (icalib != newCalibration.end()) {
       newCluster[i] *= icalib->second;
     } else {

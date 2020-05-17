@@ -58,10 +58,10 @@ namespace ecaldqm {
     std::vector<double> inAmplitudeThreshold(_params.getUntrackedParameter<std::vector<double> >("amplitudeThreshold"));
     std::vector<double> inToleranceRMS(_params.getUntrackedParameter<std::vector<double> >("toleranceRMS"));
 
-    for (std::map<int, unsigned>::iterator gainItr(gainToME_.begin()); gainItr != gainToME_.end(); ++gainItr) {
-      unsigned iME(gainItr->second);
+    for (auto& gainItr : gainToME_) {
+      unsigned iME(gainItr.second);
       unsigned iGain(0);
-      switch (gainItr->first) {
+      switch (gainItr.first) {
         case 1:
           iGain = 0;
           break;
@@ -84,10 +84,10 @@ namespace ecaldqm {
         _params.getUntrackedParameter<std::vector<double> >("PNAmplitudeThreshold"));
     std::vector<double> inTolerancePNRMS(_params.getUntrackedParameter<std::vector<double> >("tolerancePNRMS"));
 
-    for (std::map<int, unsigned>::iterator gainItr(pnGainToME_.begin()); gainItr != pnGainToME_.end(); ++gainItr) {
-      unsigned iME(gainItr->second);
+    for (auto& gainItr : pnGainToME_) {
+      unsigned iME(gainItr.second);
       unsigned iGain(0);
-      switch (gainItr->first) {
+      switch (gainItr.first) {
         case 1:
           iGain = 0;
           break;
@@ -116,15 +116,15 @@ namespace ecaldqm {
     MESetMulti const& sAmplitude(static_cast<MESetMulti const&>(sources_.at("Amplitude")));
     MESetMulti const& sPNAmplitude(static_cast<MESetMulti const&>(sources_.at("PNAmplitude")));
 
-    for (map<int, unsigned>::iterator gainItr(gainToME_.begin()); gainItr != gainToME_.end(); ++gainItr) {
-      meQuality.use(gainItr->second);
-      meQualitySummary.use(gainItr->second);
-      meAmplitudeRMS.use(gainItr->second);
+    for (auto& gainItr : gainToME_) {
+      meQuality.use(gainItr.second);
+      meQualitySummary.use(gainItr.second);
+      meAmplitudeRMS.use(gainItr.second);
 
-      sAmplitude.use(gainItr->second);
+      sAmplitude.use(gainItr.second);
 
       uint32_t mask(0);
-      switch (gainItr->first) {
+      switch (gainItr.first) {
         case 1:
           mask |= (1 << EcalDQMStatusHelper::TESTPULSE_LOW_GAIN_MEAN_ERROR |
                    1 << EcalDQMStatusHelper::TESTPULSE_LOW_GAIN_RMS_ERROR);
@@ -164,7 +164,7 @@ namespace ecaldqm {
 
         rItr->setBinContent(rms);
 
-        if (amp < amplitudeThreshold_[gainItr->second] || rms > toleranceRMS_[gainItr->second])
+        if (amp < amplitudeThreshold_[gainItr.second] || rms > toleranceRMS_[gainItr.second])
           qItr->setBinContent(doMask ? kMBad : kBad);
         else
           qItr->setBinContent(doMask ? kMGood : kGood);
@@ -173,13 +173,13 @@ namespace ecaldqm {
       towerAverage_(meQualitySummary, meQuality, 0.2);
     }
 
-    for (map<int, unsigned>::iterator gainItr(pnGainToME_.begin()); gainItr != pnGainToME_.end(); ++gainItr) {
-      mePNQualitySummary.use(gainItr->second);
+    for (auto& gainItr : pnGainToME_) {
+      mePNQualitySummary.use(gainItr.second);
 
-      sPNAmplitude.use(gainItr->second);
+      sPNAmplitude.use(gainItr.second);
 
       uint32_t mask(0);
-      switch (gainItr->first) {
+      switch (gainItr.first) {
         case 1:
           mask |= (1 << EcalDQMStatusHelper::TESTPULSE_LOW_GAIN_MEAN_ERROR |
                    1 << EcalDQMStatusHelper::TESTPULSE_LOW_GAIN_RMS_ERROR);
@@ -216,7 +216,7 @@ namespace ecaldqm {
             continue;
           }
 
-          if (amp < PNAmplitudeThreshold_[gainItr->second] || rms > tolerancePNRMS_[gainItr->second])
+          if (amp < PNAmplitudeThreshold_[gainItr.second] || rms > tolerancePNRMS_[gainItr.second])
             mePNQualitySummary.setBinContent(id, doMask ? kMBad : kBad);
           else
             mePNQualitySummary.setBinContent(id, doMask ? kMGood : kGood);

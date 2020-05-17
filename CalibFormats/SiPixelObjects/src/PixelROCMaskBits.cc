@@ -18,7 +18,7 @@ using namespace pos;
 PixelROCMaskBits::PixelROCMaskBits() {}
 
 /**********************Start Modification******************************/
-void PixelROCMaskBits::setROCMaskBits(PixelROCName& rocid, std::string bits) {
+void PixelROCMaskBits::setROCMaskBits(PixelROCName& rocid, const std::string& bits) {
   std::string mthn = "[PixelROCMaskBits::setROCMaskBits()]\t\t\t    ";
   rocid_ = rocid;
   char cpt[520];
@@ -118,8 +118,8 @@ void PixelROCMaskBits::writeBinary(std::ofstream& out) const {
   out << (char)rocid_.rocname().size();
   out.write(rocid_.rocname().c_str(), rocid_.rocname().size());
 
-  for (unsigned int i = 0; i < 520; i++) {
-    out << bits_[i];
+  for (unsigned char bit : bits_) {
+    out << bit;
   }
 }
 

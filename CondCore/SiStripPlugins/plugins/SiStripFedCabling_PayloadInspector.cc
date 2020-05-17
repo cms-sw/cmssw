@@ -41,24 +41,22 @@ namespace {
       auto iov = iovs.front();
       std::shared_ptr<SiStripFedCabling> payload = fetchPayload(std::get<1>(iov));
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripFedCabling"));
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripFedCabling");
       tmap->setPalette(1);
       std::string titleMap = "TrackerMap of SiStrip Fed Cabling per module, IOV : " + std::to_string(std::get<0>(iov));
       tmap->setTitle(titleMap);
 
       TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(
           edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath());
-      std::unique_ptr<SiStripDetCabling> detCabling_ =
-          std::unique_ptr<SiStripDetCabling>(new SiStripDetCabling(*(payload.get()), &tTopo));
+      std::unique_ptr<SiStripDetCabling> detCabling_ = std::make_unique<SiStripDetCabling>(*(payload.get()), &tTopo);
 
       std::vector<uint32_t> activeDetIds;
       detCabling_->addActiveDetectorsRawIds(activeDetIds);
 
       for (const auto& detId : activeDetIds) {
         int32_t n_conn = 0;
-        for (uint32_t connDet_i = 0; connDet_i < detCabling_->getConnections(detId).size(); connDet_i++) {
-          if (detCabling_->getConnections(detId)[connDet_i] != nullptr &&
-              detCabling_->getConnections(detId)[connDet_i]->isConnected() != 0)
+        for (auto connDet_i : detCabling_->getConnections(detId)) {
+          if (connDet_i != nullptr && connDet_i->isConnected() != 0)
             n_conn++;
         }
         if (n_conn != 0) {
@@ -90,8 +88,7 @@ namespace {
 
       TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(
           edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath());
-      std::unique_ptr<SiStripDetCabling> detCabling_ =
-          std::unique_ptr<SiStripDetCabling>(new SiStripDetCabling(*(payload.get()), &tTopo));
+      std::unique_ptr<SiStripDetCabling> detCabling_ = std::make_unique<SiStripDetCabling>(*(payload.get()), &tTopo);
 
       detCabling_->addActiveDetectorsRawIds(activeDetIds);
 
@@ -99,11 +96,9 @@ namespace {
       containers allCounts;
 
       edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      auto* reader = new SiStripDetInfoFileReader(fp_.fullPath());
       auto DetInfos = reader->getAllData();
-      for (std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>::const_iterator it = DetInfos.begin();
-           it != DetInfos.end();
-           it++) {
+      for (auto it = DetInfos.begin(); it != DetInfos.end(); it++) {
         // check if det id is correct and if it is actually cabled in the detector
         if (it->first == 0 || it->first == 0xFFFFFFFF) {
           edm::LogError("DetIdNotGood") << "@SUB=analyze"

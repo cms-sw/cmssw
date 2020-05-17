@@ -32,9 +32,9 @@ class testJetCorrectorParameters : public CppUnit::TestFixture {
 
 public:
   testJetCorrectorParameters() {}
-  ~testJetCorrectorParameters() {}
-  void setUp();
-  void tearDown();
+  ~testJetCorrectorParameters() override {}
+  void setUp() override;
+  void tearDown() override;
   void setupCorrector(bool is3D);
   void destroyCorrector();
   void generateFiles();
@@ -46,7 +46,7 @@ public:
   void compareBinIndex3D();
 
   inline void loadbar3(
-      unsigned int x, unsigned int n, unsigned int w = 50, unsigned int freq = 100, string prefix = "") {
+      unsigned int x, unsigned int n, unsigned int w = 50, unsigned int freq = 100, const string& prefix = "") {
     if ((x != n) && (x % (n / freq) != 0))
       return;
     float ratio = x / (float)n;

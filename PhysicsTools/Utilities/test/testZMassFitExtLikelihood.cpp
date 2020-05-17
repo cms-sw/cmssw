@@ -34,7 +34,7 @@ int main() {
     funct::Parameter gamma(kGamma, commands.par(kGamma));
     funct::BreitWigner bw(mass, gamma);
 
-    PDF pdf = bw;
+    const PDF& pdf = bw;
     FitFunction f = yield * pdf;
     TF1 startFun = root::tf1("startFun", f, 0, 200, yield, mass, gamma);
     TH1D histo("histo", "Z mass (GeV/c)", 200, 0, 200);

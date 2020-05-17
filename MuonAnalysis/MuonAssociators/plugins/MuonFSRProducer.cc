@@ -141,8 +141,8 @@ void MuonFSRProducer::produce(edm::StreamID streamID, edm::Event& iEvent, const 
       // Check that is not in footprint of an electron
       pat::PackedCandidateRef pfcandRef = pat::PackedCandidateRef(pfcands, iter_pf - pfcands->begin());
 
-      for (auto electrons_iter = electrons->begin(); electrons_iter != electrons->end(); ++electrons_iter) {
-        for (auto const& cand : electrons_iter->associatedPackedPFCandidates()) {
+      for (const auto& electrons_iter : *electrons) {
+        for (auto const& cand : electrons_iter.associatedPackedPFCandidates()) {
           if (!cand.isAvailable())
             continue;
           if (cand.id() != pfcandRef.id())
@@ -191,7 +191,7 @@ double MuonFSRProducer::computeRelativeIsolation(const pat::PackedCandidate& pho
                                                  const double& isoConeMin) const {
   double ptsum = 0;
 
-  for (auto pfcand : pfcands) {
+  for (const auto& pfcand : pfcands) {
     // Isolation cone requirement
     double dRIsoCone = deltaR(photon.eta(), photon.phi(), pfcand.eta(), pfcand.phi());
     if (dRIsoCone > isoConeMax)

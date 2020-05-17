@@ -18,7 +18,7 @@ public:
 
   // Methods for user data
   std::string getMonitoringVersion() const;
-  void setMonitoringVersion(std::string ver);
+  void setMonitoringVersion(const std::string &ver);
 
   std::string getDescription() const;
 

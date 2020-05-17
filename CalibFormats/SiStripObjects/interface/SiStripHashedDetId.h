@@ -68,7 +68,7 @@ private:
 };
 
 uint32_t SiStripHashedDetId::hashedIndex(uint32_t det_id) {
-  const_iterator iter = end();
+  auto iter = end();
   if (det_id > id_) {
     iter = find(iter_, end(), det_id);
   } else {

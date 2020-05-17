@@ -58,10 +58,9 @@ void CTPPSPixelClusterProducer::run(const edm::DetSetVector<CTPPSPixelDigi> &inp
 
     if (verbosity_) {
       unsigned int cluN = 0;
-      for (std::vector<CTPPSPixelCluster>::iterator iit = ds_cluster.data.begin(); iit != ds_cluster.data.end();
-           iit++) {
-        edm::LogInfo("CTPPSPixelClusterProducer") << "Cluster " << ++cluN << " avg row " << (*iit).avg_row()
-                                                  << " avg col " << (*iit).avg_col() << " ADC.size " << (*iit).size();
+      for (auto &iit : ds_cluster.data) {
+        edm::LogInfo("CTPPSPixelClusterProducer") << "Cluster " << ++cluN << " avg row " << iit.avg_row() << " avg col "
+                                                  << iit.avg_col() << " ADC.size " << iit.size();
       }
     }
   }

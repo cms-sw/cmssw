@@ -38,7 +38,7 @@ EcalDQMonitorTask::EcalDQMonitorTask(edm::ParameterSet const& _ps)
 
   executeOnWorkers_(
       [&dependencies, &hasTaskToRun, &collector](ecaldqm::DQWorker* worker) {
-        ecaldqm::DQWorkerTask* task(dynamic_cast<ecaldqm::DQWorkerTask*>(worker));
+        auto* task(dynamic_cast<ecaldqm::DQWorkerTask*>(worker));
         if (!task)
           throw cms::Exception("InvalidConfiguration") << "Non-task DQWorker " << worker->getName() << " passed";
 
@@ -66,8 +66,8 @@ EcalDQMonitorTask::EcalDQMonitorTask(edm::ParameterSet const& _ps)
   if (verbosity_ > 0) {
     std::stringstream ss;
     ss << moduleName_ << ": Using collections" << std::endl;
-    for (unsigned iCol(0); iCol < schedule_.size(); iCol++)
-      ss << ecaldqm::collectionName[schedule_[iCol].second] << std::endl;
+    for (auto& iCol : schedule_)
+      ss << ecaldqm::collectionName[iCol.second] << std::endl;
     edm::LogInfo("EcalDQM") << ss.str();
   }
 
@@ -154,10 +154,10 @@ void EcalDQMonitorTask::analyze(edm::Event const& _evt, edm::EventSetup const& _
 
     short runType[ecaldqm::nDCC];
     std::fill_n(runType, ecaldqm::nDCC, -1);
-    for (EcalRawDataCollection::const_iterator dcchItr = dcchsHndl->begin(); dcchItr != dcchsHndl->end(); ++dcchItr) {
+    for (const auto& dcchItr : *dcchsHndl) {
       if (verbosity_ > 2)
-        ss << dcchItr->getRunType() << " ";
-      runType[dcchItr->id() - 1] = dcchItr->getRunType();
+        ss << dcchItr.getRunType() << " ";
+      runType[dcchItr.id() - 1] = dcchItr.getRunType();
     }
     if (verbosity_ > 2)
       edm::LogInfo("EcalDQM") << ss.str();
@@ -197,9 +197,9 @@ void EcalDQMonitorTask::analyze(edm::Event const& _evt, edm::EventSetup const& _
       "beginEvent");
 
   // run on collections
-  for (unsigned iSch(0); iSch < schedule_.size(); iSch++) {
-    Processor processor(schedule_[iSch].first);
-    (this->*processor)(_evt, schedule_[iSch].second, enabledTasks);
+  for (auto& iSch : schedule_) {
+    Processor processor(iSch.first);
+    (this->*processor)(_evt, iSch.second, enabledTasks);
   }
 
   // close event processing

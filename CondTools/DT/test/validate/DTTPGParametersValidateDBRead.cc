@@ -5,7 +5,7 @@ Toy EDAnalyzer for testing purposes only.
 
 ----------------------------------------------------------------------*/
 
-#include <math.h>
+#include <cmath>
 #include <stdexcept>
 #include <string>
 #include <iostream>
@@ -52,8 +52,8 @@ void DTTPGParametersValidateDBRead::analyze(const edm::Event& e, const edm::Even
   int ckclock;
   float ckphase;
   int status;
-  DTTPGParameters::const_iterator iter = tpg->begin();
-  DTTPGParameters::const_iterator iend = tpg->end();
+  auto iter = tpg->begin();
+  auto iend = tpg->end();
   while (iter != iend) {
     const DTTPGParametersId& tpgId = iter->first;
     const DTTPGParametersData& tpgData = iter->second;

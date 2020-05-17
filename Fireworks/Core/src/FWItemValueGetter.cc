@@ -13,6 +13,8 @@
 // system include files
 #include <sstream>
 #include <cstdio>
+#include <utility>
+
 #include "TMath.h"
 #include "FWCore/Reflection/interface/BaseWithDict.h"
 #include "FWCore/Reflection/interface/ObjectWithDict.h"
@@ -91,7 +93,10 @@ FWItemValueGetter::FWItemValueGetter(const edm::TypeWithDict& iType, const std::
     addEntry("phi", 2);
 }
 
-bool FWItemValueGetter::addEntry(std::string iExpression, int iPrec, std::string iTitle, std::string iUnit) {
+bool FWItemValueGetter::addEntry(const std::string& iExpression,
+                                 int iPrec,
+                                 const std::string& iTitle,
+                                 std::string iUnit) {
   using namespace boost::spirit::classic;
 
   reco::parser::ExpressionPtr tmpPtr;
@@ -106,7 +111,7 @@ bool FWItemValueGetter::addEntry(std::string iExpression, int iPrec, std::string
     //now setup the parser
     try {
       if (parse(temp.c_str(), grammar.use_parser<1>() >> end_p, space_p).full) {
-        m_entries.push_back(Entry(tmpPtr, iExpression, iUnit, iTitle.empty() ? iExpression : iTitle, iPrec));
+        m_entries.push_back(Entry(tmpPtr, iExpression, std::move(iUnit), iTitle.empty() ? iExpression : iTitle, iPrec));
         m_titleWidth = TMath::Max(m_titleWidth, (int)m_entries.back().m_title.size());
         return true;
       }
@@ -131,8 +136,8 @@ std::vector<std::string> FWItemValueGetter::getTitles() const {
   std::vector<std::string> titles;
   titles.reserve(m_entries.size());
 
-  for (std::vector<Entry>::const_iterator i = m_entries.begin(); i != m_entries.end(); ++i)
-    titles.push_back((*i).m_title.empty() ? (*i).m_expression : (*i).m_title);
+  for (const auto& m_entrie : m_entries)
+    titles.push_back(m_entrie.m_title.empty() ? m_entrie.m_expression : m_entrie.m_title);
 
   return titles;
 }
@@ -147,8 +152,7 @@ const std::string& FWItemValueGetter::getToolTip(const void* iObject) const {
   edm::ObjectWithDict o(m_type, const_cast<void*>(iObject));
 
   int off = 0;
-  for (std::vector<Entry>::const_iterator i = m_entries.begin(); i != m_entries.end(); ++i) {
-    const Entry& e = *i;
+  for (const auto& e : m_entries) {
     off += snprintf(&buff[off],
                     127,
                     fs.c_str(),

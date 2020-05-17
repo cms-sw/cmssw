@@ -44,7 +44,7 @@ private:
     size_t size = m_item->size();
     for (size_t i = 0; i < size; ++i) {
       FWEventItem::ModelInfo modelInfo = m_item->modelInfo(i);
-      TEveSecondarySelectable::SelectionSet_ci si = m_selected.find(i);
+      auto si = m_selected.find(i);
       if ((si != m_selected.end()) != modelInfo.isSelected()) {
         if (si != m_selected.end())
           m_item->select(i);
@@ -65,7 +65,7 @@ FWDigitSetProxyBuilder::~FWDigitSetProxyBuilder() {}
 
 TString FWDigitSetProxyBuilder::getTooltip(TEveDigitSet* set, int idx) {
   TEveElement* el = static_cast<TEveElement*>(set);  // tmp-workaround
-  FWSecondarySelectableSelector* ss = static_cast<FWSecondarySelectableSelector*>(el->GetUserData());
+  auto* ss = static_cast<FWSecondarySelectableSelector*>(el->GetUserData());
   return TString::Format(
       "%d %s %s", idx, ss->item()->name().c_str(), ss->item()->modelInterestingValueAsString(idx).c_str());
 }
@@ -76,7 +76,7 @@ TEveBoxSet* FWDigitSetProxyBuilder::addBoxSetToProduct(TEveElementList* product)
   m_boxSet = new TEveBoxSet();
   m_boxSet->SetTooltipCBFoo(getTooltip);
   m_boxSet->Reset(TEveBoxSet::kBT_FreeBox, true, 256);
-  FWSecondarySelectableSelector* sel = new FWSecondarySelectableSelector(m_boxSet->RefSelectedSet(), item());
+  auto* sel = new FWSecondarySelectableSelector(m_boxSet->RefSelectedSet(), item());
   m_boxSet->SetUserData(sel);
   m_boxSet->SetPickable(true);
   m_boxSet->SetAlwaysSecSelect(true);
@@ -107,24 +107,23 @@ void FWDigitSetProxyBuilder::modelChanges(const FWModelIds& iIds, Product* produ
   if (!digits)
     return;
 
-  TEveSecondarySelectable::SelectionSet_t& selected =
-      (TEveSecondarySelectable::SelectionSet_t&)(digits->RefSelectedSet());
+  auto& selected = (TEveSecondarySelectable::SelectionSet_t&)(digits->RefSelectedSet());
 
-  for (std::set<FWModelId>::const_iterator it = iIds.begin(); it != iIds.end(); ++it) {
-    const FWEventItem::ModelInfo& info = item()->modelInfo(it->index());
+  for (auto iId : iIds) {
+    const FWEventItem::ModelInfo& info = item()->modelInfo(iId.index());
 
     // id display properties
     const FWDisplayProperties& p = info.displayProperties();
-    digits->SetCurrentDigit(it->index());
+    digits->SetCurrentDigit(iId.index());
     digits->DigitValue(p.isVisible());
     if (p.isVisible())
       digits->DigitColor(p.color(), p.transparency());
 
     // id selection
-    TEveSecondarySelectable::SelectionSet_ci si = selected.find(it->index());
+    auto si = selected.find(iId.index());
     if (info.isSelected()) {
       if (si == selected.end())
-        selected.insert(it->index());
+        selected.insert(iId.index());
     } else {
       if (si != selected.end())
         selected.erase(si);

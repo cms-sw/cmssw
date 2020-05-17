@@ -28,29 +28,29 @@ DTSegmentResidual::DTResidual::DTResidual(double v, double wd, double a, DTEnums
     : value(v), wireDistance(wd), angle(a), side(s) {}
 
 DTSegmentResidual::DTSegmentResidual(const DTRecSegment2D* seg, const DTSuperLayer* sl)
-    : theSeg(seg), theCh(0), theSL(sl) {}
+    : theSeg(seg), theCh(nullptr), theSL(sl) {}
 
 DTSegmentResidual::DTSegmentResidual(const DTChamberRecSegment2D* seg, const DTChamber* ch)
-    : theSeg(seg), theCh(ch), theSL(0) {}
+    : theSeg(seg), theCh(ch), theSL(nullptr) {}
 
 /* Operations */
 void DTSegmentResidual::run() {
   vector<DTRecHit1D> hits = theSeg->specificRecHits();
-  for (vector<DTRecHit1D>::const_iterator hit = hits.begin(); hit != hits.end(); ++hit) {
+  for (const auto& hit : hits) {
     // interpolate the segment to hit plane
     // get this layer position in SL frame
-    const DTLayer* lay = theSL ? theSL->layer((*hit).wireId().layer()) : theCh->layer((*hit).wireId().layerId());
+    const DTLayer* lay = theSL ? theSL->layer(hit.wireId().layer()) : theCh->layer(hit.wireId().layerId());
     LocalPoint layPosInSL = theSL ? theSL->toLocal(lay->position()) : theCh->toLocal(lay->position());
 
     LocalPoint posAtLay =
         theSeg->localPosition() + theSeg->localDirection() * (layPosInSL.z() / cos(theSeg->localDirection().theta()));
     posAtLay = lay->toLocal(theSL ? theSL->toGlobal(posAtLay) : theCh->toGlobal(posAtLay));
 
-    double deltaX = (*hit).localPosition().x() - posAtLay.x();
+    double deltaX = hit.localPosition().x() - posAtLay.x();
     double angle = M_PI - theSeg->localDirection().theta();
-    double wireDistance = (*hit).localPosition().x() - lay->specificTopology().wirePosition((*hit).wireId().wire());
-    DTEnums::DTCellSide side = (*hit).lrSide();
+    double wireDistance = hit.localPosition().x() - lay->specificTopology().wirePosition(hit.wireId().wire());
+    DTEnums::DTCellSide side = hit.lrSide();
 
-    theResiduals.push_back(DTResidual(deltaX, wireDistance, angle, side));
+    theResiduals.emplace_back(deltaX, wireDistance, angle, side);
   }
 }

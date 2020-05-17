@@ -562,11 +562,9 @@ std::ostream& operator<<(std::ostream& out, const PFEnergyCalibration& calib) {
 
     };
 
-    for (std::map<std::string, PerformanceResult::ResultType>::const_iterator func = functType.begin();
-         func != functType.end();
-         ++func) {
-      cout << "Function: " << func->first << endl;
-      PerformanceResult::ResultType fType = func->second;
+    for (const auto& func : functType) {
+      cout << "Function: " << func.first << endl;
+      PerformanceResult::ResultType fType = func.second;
       calib.pfCalibrations->printFormula(fType);
     }
 

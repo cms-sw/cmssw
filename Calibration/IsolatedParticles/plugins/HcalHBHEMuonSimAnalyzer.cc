@@ -162,8 +162,7 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
     }
   }
   if (testN) {
-    for (edm::PCaloHitContainer::const_iterator itr = pcalohh->begin(); itr != pcalohh->end(); ++itr) {
-      PCaloHit hit(*itr);
+    for (auto hit : *pcalohh) {
       DetId newid = HcalHitRelabeller::relabel(hit.id(), hcons);
 #ifdef EDM_ML_DEBUG
       std::cout << "Old ID " << std::hex << hit.id() << std::dec << " New " << HcalDetId(newid) << std::endl;
@@ -193,7 +192,7 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
   const HcalTopology* theHBHETopology = htopo.product();
 
   // Loop over all SimTracks
-  for (edm::SimTrackContainer::const_iterator simTrkItr = SimTk->begin(); simTrkItr != SimTk->end(); simTrkItr++) {
+  for (auto simTrkItr = SimTk->begin(); simTrkItr != SimTk->end(); simTrkItr++) {
     if ((std::abs(simTrkItr->type()) == idMuon_) && (simTrkItr->vertIndex() == 0) &&
         (std::abs(simTrkItr->momentum().eta()) < etaMax_)) {
       unsigned int thisTrk = simTrkItr->trackId();
@@ -277,16 +276,16 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
                             500.0,
                             depthHE,
                             debug);
-        for (unsigned int i = 0; i < ehdepth.size(); ++i) {
-          eHcalDepth[ehdepth[i].second - 1] = ehdepth[i].first;
-          HcalSubdetector subdet0 = (hbhe) ? ((ehdepth[i].second >= depthHE) ? HcalEndcap : HcalBarrel) : subdet;
-          HcalDetId hcid0(subdet0, ieta, iphi, ehdepth[i].second);
+        for (auto& i : ehdepth) {
+          eHcalDepth[i.second - 1] = i.first;
+          HcalSubdetector subdet0 = (hbhe) ? ((i.second >= depthHE) ? HcalEndcap : HcalBarrel) : subdet;
+          HcalDetId hcid0(subdet0, ieta, iphi, i.second);
           double actL = activeLength(DetId(hcid0));
-          activeL[ehdepth[i].second - 1] = actL;
+          activeL[i.second - 1] = actL;
           activeLengthTot += actL;
 #ifdef EDM_ML_DEBUG
           if ((verbosity_ % 10) > 0)
-            std::cout << hcid0 << " E " << ehdepth[i].first << " L " << actL << std::endl;
+            std::cout << hcid0 << " E " << i.first << " L " << actL << std::endl;
 #endif
         }
 
@@ -313,16 +312,16 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
           std::vector<std::pair<double, int> > ehdepth;
           spr::energyHCALCell(
               hotCell, calohh, ehdepth, maxDepth_, -100.0, -100.0, -100.0, -100.0, tMinH_, tMaxH_, depthHE, debug);
-          for (unsigned int i = 0; i < ehdepth.size(); ++i) {
-            eHcalDepthHot[ehdepth[i].second - 1] = ehdepth[i].first;
-            HcalSubdetector subdet0 = (hbhe) ? ((ehdepth[i].second >= depthHE) ? HcalEndcap : HcalBarrel) : subdet;
-            HcalDetId hcid0(subdet0, ieta, iphi, ehdepth[i].second);
+          for (auto& i : ehdepth) {
+            eHcalDepthHot[i.second - 1] = i.first;
+            HcalSubdetector subdet0 = (hbhe) ? ((i.second >= depthHE) ? HcalEndcap : HcalBarrel) : subdet;
+            HcalDetId hcid0(subdet0, ieta, iphi, i.second);
             double actL = activeLength(DetId(hcid0));
-            activeHotL[ehdepth[i].second - 1] = actL;
+            activeHotL[i.second - 1] = actL;
             activeLengthHotTot += actL;
 #ifdef EDM_ML_DEBUG
             if ((verbosity_ % 10) > 0)
-              std::cout << hcid0 << " E " << ehdepth[i].first << " L " << actL << std::endl;
+              std::cout << hcid0 << " E " << i.first << " L " << actL << std::endl;
 #endif
           }
         }
@@ -450,16 +449,16 @@ double HcalHBHEMuonSimAnalyzer::activeLength(const DetId& id_) {
   int depth = id.depth();
   double lx(0);
   if (id.subdet() == HcalBarrel) {
-    for (unsigned int i = 0; i < actHB_.size(); ++i) {
-      if (ieta == actHB_[i].ieta && depth == actHB_[i].depth) {
-        lx = actHB_[i].thick;
+    for (auto& i : actHB_) {
+      if (ieta == i.ieta && depth == i.depth) {
+        lx = i.thick;
         break;
       }
     }
   } else {
-    for (unsigned int i = 0; i < actHE_.size(); ++i) {
-      if (ieta == actHE_[i].ieta && depth == actHE_[i].depth) {
-        lx = actHE_[i].thick;
+    for (auto& i : actHE_) {
+      if (ieta == i.ieta && depth == i.depth) {
+        lx = i.thick;
         break;
       }
     }

@@ -163,8 +163,8 @@ bool HeaderLess::operator()(const LHERunInfoProduct::Header &a, const LHERunInfo
   if (a.tag() > b.tag())
     return false;
 
-  LHERunInfoProduct::Header::const_iterator iter1 = a.begin();
-  LHERunInfoProduct::Header::const_iterator iter2 = b.begin();
+  auto iter1 = a.begin();
+  auto iter2 = b.begin();
 
   for (; iter1 != a.end() && iter2 != b.end(); ++iter1, ++iter2) {
     if (*iter1 < *iter2)
@@ -211,7 +211,7 @@ bool LHERunInfoProduct::mergeProduct(const LHERunInfoProduct &other) {
     // make a list of headers contained in the second file
     std::vector<std::vector<std::string> > runcard_v2;
     std::vector<std::string> runcard_v2_header;
-    for (auto header2 : headers_) {
+    for (const auto &header2 : headers_) {
       // fill a vector with the relevant header tags that can be not equal but sill compatible
       if (find_if_checklist(header2.tag(), tag_comparison_checklist)) {
         runcard_v2.push_back(header2.lines());
@@ -221,28 +221,25 @@ bool LHERunInfoProduct::mergeProduct(const LHERunInfoProduct &other) {
 
     // loop over the headers of the original file
     bool failed = false;
-    for (std::vector<LHERunInfoProduct::Header>::const_iterator header = other.headers_begin();
-         header != other.headers_end();
-         ++header) {
+    for (auto header = other.headers_begin(); header != other.headers_end(); ++header) {
       if (headers.count(*header)) {
         continue;
       }
 
       if (find_if_checklist(header->tag(), tag_comparison_checklist)) {
         bool header_compatible = false;
-        for (unsigned int iter_runcard = 0; iter_runcard < runcard_v2.size(); iter_runcard++) {
+        for (auto &iter_runcard : runcard_v2) {
           std::vector<std::string> runcard_v1 = header->lines();
           runcard_v1.erase(std::remove_if(runcard_v1.begin(),
                                           runcard_v1.end(),
                                           [&](const std::string &x) { return find_if_checklist(x, checklist); }),
                            runcard_v1.end());
-          runcard_v2[iter_runcard].erase(
-              std::remove_if(runcard_v2[iter_runcard].begin(),
-                             runcard_v2[iter_runcard].end(),
-                             [&](const std::string &x) { return find_if_checklist(x, checklist); }),
-              runcard_v2[iter_runcard].end());
+          iter_runcard.erase(std::remove_if(iter_runcard.begin(),
+                                            iter_runcard.end(),
+                                            [&](const std::string &x) { return find_if_checklist(x, checklist); }),
+                             iter_runcard.end());
 
-          if (std::equal(runcard_v1.begin(), runcard_v1.end(), runcard_v2[iter_runcard].begin())) {
+          if (std::equal(runcard_v1.begin(), runcard_v1.end(), iter_runcard.begin())) {
             header_compatible = true;
             break;
           }

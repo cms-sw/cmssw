@@ -41,18 +41,18 @@ void HcalSimHitsClient::runClient_(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
   std::vector<MonitorElement *> hcalMEs;
 
   std::vector<std::string> fullPathHLTFolders = ig.getSubdirs();
-  for (unsigned int i = 0; i < fullPathHLTFolders.size(); i++) {
+  for (const auto &fullPathHLTFolder : fullPathHLTFolders) {
     if (verbose_)
-      edm::LogInfo("HitsValidationHcal") << "fullPath: " << fullPathHLTFolders[i];
-    ig.setCurrentFolder(fullPathHLTFolders[i]);
+      edm::LogInfo("HitsValidationHcal") << "fullPath: " << fullPathHLTFolder;
+    ig.setCurrentFolder(fullPathHLTFolder);
 
     std::vector<std::string> fullSubPathHLTFolders = ig.getSubdirs();
-    for (unsigned int j = 0; j < fullSubPathHLTFolders.size(); j++) {
+    for (auto &fullSubPathHLTFolder : fullSubPathHLTFolders) {
       if (verbose_)
-        edm::LogInfo("HitsValidationHcal") << "fullSub: " << fullSubPathHLTFolders[j];
+        edm::LogInfo("HitsValidationHcal") << "fullSub: " << fullSubPathHLTFolder;
 
-      if (strcmp(fullSubPathHLTFolders[j].c_str(), "HcalHitsV/SimHitsValidationHcal") == 0) {
-        hcalMEs = ig.getContents(fullSubPathHLTFolders[j]);
+      if (strcmp(fullSubPathHLTFolder.c_str(), "HcalHitsV/SimHitsValidationHcal") == 0) {
+        hcalMEs = ig.getContents(fullSubPathHLTFolder);
         if (verbose_)
           edm::LogInfo("HitsValidationHcal") << "hltMES size : " << hcalMEs.size();
         if (!SimHitsEndjob(hcalMEs))
@@ -77,24 +77,24 @@ int HcalSimHitsClient::SimHitsEndjob(const std::vector<MonitorElement *> &hcalME
   for (int k = 0; k < nType1; k++) {
     Energy[k] = nullptr;
     Time_weighteden[k] = nullptr;
-    for (unsigned int ih = 0; ih < hcalMEs.size(); ih++) {
+    for (auto hcalME : hcalMEs) {
       sprintf(name1, "Energy_%s", detdivision[k].c_str());
       sprintf(name2, "Time_Enweighted_%s", detdivision[k].c_str());
-      if (strcmp(hcalMEs[ih]->getName().c_str(), name1) == 0) {
-        Energy[k] = hcalMEs[ih];
+      if (strcmp(hcalME->getName().c_str(), name1) == 0) {
+        Energy[k] = hcalME;
       }
-      if (strcmp(hcalMEs[ih]->getName().c_str(), name2) == 0) {
-        Time_weighteden[k] = hcalMEs[ih];
+      if (strcmp(hcalME->getName().c_str(), name2) == 0) {
+        Time_weighteden[k] = hcalME;
       }
     }
   }
 
   for (int i = 0; i < nTime; i++) {
     for (unsigned int j = 0; j < divisions.size(); j++) {
-      for (unsigned int ih = 0; ih < hcalMEs.size(); ih++) {
+      for (auto hcalME : hcalMEs) {
         sprintf(name, "HcalHitE%s%s", time[i].c_str(), divisions[j].c_str());
-        if (strcmp(hcalMEs[ih]->getName().c_str(), name) == 0) {
-          Occupancy_map[i][j] = hcalMEs[ih];
+        if (strcmp(hcalME->getName().c_str(), name) == 0) {
+          Occupancy_map[i][j] = hcalME;
         }
       }
     }
@@ -103,14 +103,14 @@ int HcalSimHitsClient::SimHitsEndjob(const std::vector<MonitorElement *> &hcalME
   for (unsigned int k = 0; k < divisions.size(); k++) {
     HitEnergyvsieta[k] = nullptr;
     HitTimevsieta[k] = nullptr;
-    for (unsigned int ih = 0; ih < hcalMEs.size(); ih++) {
+    for (auto hcalME : hcalMEs) {
       sprintf(name3, "HcalHitEta%s", divisions[k].c_str());
       sprintf(name4, "HcalHitTimeAEta%s", divisions[k].c_str());
-      if (strcmp(hcalMEs[ih]->getName().c_str(), name3) == 0) {
-        HitEnergyvsieta[k] = hcalMEs[ih];
+      if (strcmp(hcalME->getName().c_str(), name3) == 0) {
+        HitEnergyvsieta[k] = hcalME;
       }
-      if (strcmp(hcalMEs[ih]->getName().c_str(), name4) == 0) {
-        HitTimevsieta[k] = hcalMEs[ih];
+      if (strcmp(hcalME->getName().c_str(), name4) == 0) {
+        HitTimevsieta[k] = hcalME;
       }
     }
   }
@@ -184,34 +184,34 @@ std::vector<std::string> HcalSimHitsClient::getHistogramTypes() {
   // first overall Hcal
   for (int depth = 0; depth < maxDepth; ++depth) {
     sprintf(name1, "HC%d", depth);
-    divisions.push_back(std::string(name1));
+    divisions.emplace_back(name1);
   }
   // HB
   for (int depth = 0; depth < maxDepthHB_; ++depth) {
     sprintf(name1, "HB%d", depth);
-    divisions.push_back(std::string(name1));
+    divisions.emplace_back(name1);
   }
   // HE
   for (int depth = 0; depth < maxDepthHE_; ++depth) {
     sprintf(name1, "HE%d+z", depth);
-    divisions.push_back(std::string(name1));
+    divisions.emplace_back(name1);
     sprintf(name1, "HE%d-z", depth);
-    divisions.push_back(std::string(name1));
+    divisions.emplace_back(name1);
   }
   // HO
   {
     int depth = maxDepthHO_;
     sprintf(name1, "HO%d", depth);
-    divisions.push_back(std::string(name1));
+    divisions.emplace_back(name1);
   }
   // HF (first absorber, then different types of abnormal hits)
   std::string hfty1[4] = {"A", "W", "B", "J"};
-  for (int k = 0; k < 4; ++k) {
+  for (auto &k : hfty1) {
     for (int depth = 0; depth < maxDepthHF_; ++depth) {
-      sprintf(name1, "HF%s%d+z", hfty1[k].c_str(), depth);
-      divisions.push_back(std::string(name1));
-      sprintf(name1, "HF%s%d-z", hfty1[k].c_str(), depth);
-      divisions.push_back(std::string(name1));
+      sprintf(name1, "HF%s%d+z", k.c_str(), depth);
+      divisions.emplace_back(name1);
+      sprintf(name1, "HF%s%d-z", k.c_str(), depth);
+      divisions.emplace_back(name1);
     }
   }
   return divisions;

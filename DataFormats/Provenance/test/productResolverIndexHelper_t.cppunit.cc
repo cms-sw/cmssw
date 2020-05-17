@@ -26,8 +26,8 @@ class TestProductResolverIndexHelper : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp();
-  void tearDown() {}
+  void setUp() override;
+  void tearDown() override {}
 
   void testCreateEmpty();
   void testOneEntry();
@@ -100,7 +100,7 @@ void TestProductResolverIndexHelper::testOneEntry() {
 
   CPPUNIT_ASSERT(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA") == indexEmptyProcess);
   CPPUNIT_ASSERT(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA", "") == indexEmptyProcess);
-  CPPUNIT_ASSERT(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA", 0) == indexEmptyProcess);
+  CPPUNIT_ASSERT(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA", nullptr) == indexEmptyProcess);
   CPPUNIT_ASSERT(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA", "processA") == indexWithProcess);
 
   CPPUNIT_ASSERT(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instance", "processA") ==
@@ -148,7 +148,7 @@ void TestProductResolverIndexHelper::testOneEntry() {
 
   {
     auto indexToModules = helper.indiciesForModulesInProcess("processNotHere");
-    CPPUNIT_ASSERT(indexToModules.size() == 0);
+    CPPUNIT_ASSERT(indexToModules.empty());
   }
 }
 
@@ -233,7 +233,7 @@ void TestProductResolverIndexHelper::testManyEntries() {
 
   CPPUNIT_ASSERT(std::string(matches.moduleLabel(4)) == "labelB");
   CPPUNIT_ASSERT(std::string(matches.processName(4)) == "processB3");
-  CPPUNIT_ASSERT(std::string(matches.processName(0)) == "");
+  CPPUNIT_ASSERT(std::string(matches.processName(0)).empty());
 
   matches = helper.relatedIndexes(ELEMENT_TYPE, typeID_Simple);
   CPPUNIT_ASSERT(matches.numberOfMatches() == 2);

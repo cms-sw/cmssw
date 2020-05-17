@@ -49,7 +49,7 @@ double TauJetCorrector::ParametrizationTauJet::value(double et, double eta) cons
 
 class JetCalibrationParameterSetTauJet {
 public:
-  JetCalibrationParameterSetTauJet(string tag);
+  JetCalibrationParameterSetTauJet(const string& tag);
   int neta() { return etavector.size(); }
   double eta(int ieta) { return etavector[ieta]; }
   int type(int ieta) { return typevector[ieta]; }
@@ -61,7 +61,7 @@ private:
   vector<int> typevector;
   vector<vector<double> > pars;
 };
-JetCalibrationParameterSetTauJet::JetCalibrationParameterSetTauJet(string tag) {
+JetCalibrationParameterSetTauJet::JetCalibrationParameterSetTauJet(const string& tag) {
   std::string file = "JetMETCorrections/TauJet/data/" + tag + ".txt";
 
   edm::FileInPath f1(file);
@@ -83,7 +83,7 @@ JetCalibrationParameterSetTauJet::JetCalibrationParameterSetTauJet(string tag) {
 
     etavector.push_back(par);
     typevector.push_back(type);
-    pars.push_back(vector<double>());
+    pars.emplace_back();
     while (linestream >> par)
       pars.back().push_back(par);
   }
@@ -98,11 +98,11 @@ TauJetCorrector::TauJetCorrector(const edm::ParameterSet& fConfig) {
 }
 
 TauJetCorrector::~TauJetCorrector() {
-  for (ParametersMap::iterator ip = parametrization.begin(); ip != parametrization.end(); ip++)
-    delete ip->second;
+  for (auto& ip : parametrization)
+    delete ip.second;
 }
 
-void TauJetCorrector::setParameters(std::string aCalibrationType, int itype) {
+void TauJetCorrector::setParameters(const std::string& aCalibrationType, int itype) {
   //cout<< " Start to set parameters "<<endl;
   type = itype;
   JetCalibrationParameterSetTauJet pset(aCalibrationType);
@@ -191,7 +191,7 @@ double TauJetCorrector::correction(const LorentzVector& fJet) const {
   //cout<<" Et and eta of jet "<<et<<" "<<eta<<endl;
 
   double etnew;
-  std::map<double, ParametrizationTauJet*>::const_iterator ip = parametrization.upper_bound(eta);
+  auto ip = parametrization.upper_bound(eta);
   etnew = (--ip)->second->value(et, eta);
 
   //cout<<" The new energy found "<<etnew<<" "<<et<<endl;

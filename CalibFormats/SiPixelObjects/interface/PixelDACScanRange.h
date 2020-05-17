@@ -26,13 +26,13 @@ namespace pos {
   class PixelDACScanRange {
   public:
     PixelDACScanRange() { ; }
-    PixelDACScanRange(std::string dacname,
+    PixelDACScanRange(const std::string& dacname,
                       unsigned int first,
                       unsigned int last,
                       unsigned int step,
                       unsigned int index,
                       bool mixValuesAcrossROCs);
-    PixelDACScanRange(std::string name,
+    PixelDACScanRange(const std::string& name,
                       const std::vector<unsigned int>& values,
                       unsigned int index,
                       bool mixValuesAcrossROCs);
@@ -67,7 +67,7 @@ namespace pos {
     std::vector<unsigned int> values() const { return values_; }
 
   private:
-    void setDACChannel(std::string name);
+    void setDACChannel(const std::string& name);
 
     std::string name_;
     unsigned int dacchannel_;

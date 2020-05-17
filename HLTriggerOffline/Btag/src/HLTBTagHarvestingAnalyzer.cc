@@ -36,10 +36,9 @@ void HLTBTagHarvestingAnalyzer::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::
     std::map<std::string, bool> efficsOK;
     std::map<std::string, std::map<HCALSpecials, TH1F>> efficsmod;
     std::map<std::string, std::map<HCALSpecials, bool>> efficsmodOK;
-    for (unsigned int i = 0; i < m_mcLabels.size(); ++i) {
+    for (auto flavour : m_mcLabels) {
       bool isOK = false;
       std::string label = m_histoName.at(ind) + "__";  //"JetTag__";
-      std::string flavour = m_mcLabels[i];
       label += flavour;
       isOK =
           GetNumDenumerators(ibooker, igetter, dqmFolder_hist + "/" + label, dqmFolder_hist + "/" + label, num, den, 0);
@@ -49,7 +48,7 @@ void HLTBTagHarvestingAnalyzer::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::
         efficsOK[flavour] = isOK;
       }
       // for modules (HEP17 etc.)
-      for (auto j : HCALSpecialsNames) {
+      for (const auto &j : HCALSpecialsNames) {
         ibooker.setCurrentFolder(dqmFolder_hist + "/" + j.second + "/efficiency");
         isOK = GetNumDenumerators(ibooker,
                                   igetter,
@@ -112,7 +111,7 @@ void HLTBTagHarvestingAnalyzer::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::
       mistagrate(ibooker, igetter, &effics["b"], &effics["g"], m_histoName.at(ind) + "_b_g_mistagrate");
 
     /// save mistagrate vs b-eff plots for modules (HEP17 etc.)
-    for (auto j : HCALSpecialsNames) {
+    for (const auto &j : HCALSpecialsNames) {
       ibooker.setCurrentFolder(dqmFolder_hist + "/" + j.second + "/efficiency");
       if (efficsmodOK["b"][j.first] && efficsmodOK["c"][j.first])
         mistagrate(ibooker,
@@ -169,8 +168,8 @@ void HLTBTagHarvestingAnalyzer::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::
 
 bool HLTBTagHarvestingAnalyzer::GetNumDenumerators(DQMStore::IBooker &ibooker,
                                                    DQMStore::IGetter &igetter,
-                                                   std::string num,
-                                                   std::string den,
+                                                   const std::string &num,
+                                                   const std::string &den,
                                                    TH1 *&ptrnum,
                                                    TH1 *&ptrden,
                                                    int type) {
@@ -275,7 +274,7 @@ bool HLTBTagHarvestingAnalyzer::GetNumDenumerators(DQMStore::IBooker &ibooker,
 }
 
 void HLTBTagHarvestingAnalyzer::mistagrate(
-    DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, TH1F *num, TH1F *den, std::string effName) {
+    DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, TH1F *num, TH1F *den, const std::string &effName) {
   // do the efficiency_vs_mistag_rate plot
   TH1F *eff;
   eff = new TH1F(effName.c_str(), effName.c_str(), 100, 0, 1);
@@ -312,7 +311,7 @@ void HLTBTagHarvestingAnalyzer::mistagrate(
 }
 
 void HLTBTagHarvestingAnalyzer::modulesrate(
-    DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, TH1F *num, TH1F *den, std::string effName) {
+    DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, TH1F *num, TH1F *den, const std::string &effName) {
   // do the eff_vs_disc_HEP17 / eff_vs_disc_HEM17 plot
   TH1F *eff = new TH1F(*num);
   // eff = new TH1F(effName.c_str(),effName.c_str(),100,0,1);
@@ -338,7 +337,7 @@ void HLTBTagHarvestingAnalyzer::modulesrate(
 }
 
 TH1F HLTBTagHarvestingAnalyzer::calculateEfficiency1D(
-    DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, TH1 &num, TH1 &den, std::string effName) {
+    DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, TH1 &num, TH1 &den, const std::string &effName) {
   // calculate the efficiency as num/den ratio
   TH1F eff;
   if (num.GetXaxis()->GetXbins()->GetSize() == 0) {

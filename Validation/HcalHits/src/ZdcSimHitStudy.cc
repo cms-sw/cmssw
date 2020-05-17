@@ -547,11 +547,10 @@ void ZdcSimHitStudy::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
 
   if (gotGenParticles == true) {  // if the boolean was able to find the leaf
                                   // "genparticles" then do this
-    for (reco::GenParticleCollection::const_iterator gen = genhandle->begin(); gen != genhandle->end();
-         ++gen)  // here we iterate over all generated particles
+    for (const auto &gen : *genhandle)  // here we iterate over all generated particles
     {
       //         double energy=gen->energy();
-      reco::GenParticle thisParticle = (reco::GenParticle)(*gen);  // get the particle "gen" points to
+      reco::GenParticle thisParticle = (reco::GenParticle)gen;  // get the particle "gen" points to
       double energy_2 = thisParticle.energy();  // here I grab some of the attributes of the generated
                                                 // particle....like its energy, its phi and its eta and
                                                 // what kind of particle it is

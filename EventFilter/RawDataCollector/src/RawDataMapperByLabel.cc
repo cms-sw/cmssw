@@ -63,8 +63,8 @@ RawDataMapperByLabel::~RawDataMapperByLabel() {}
 
 void RawDataMapperByLabel::produce(Event& e, const EventSetup& c) {
   bool alreadyACollectionFilled = false;
-  tag_iterator_t inputTag = inputTags_.begin();
-  for (tok_iterator_t inputTok = inputTokens_.begin(); inputTok != inputTokens_.end(); ++inputTok, ++inputTag) {
+  auto inputTag = inputTags_.begin();
+  for (auto inputTok = inputTokens_.begin(); inputTok != inputTokens_.end(); ++inputTok, ++inputTag) {
     Handle<FEDRawDataCollection> input;
     if (e.getByToken(*inputTok, input)) {
       if (input.isValid()) {

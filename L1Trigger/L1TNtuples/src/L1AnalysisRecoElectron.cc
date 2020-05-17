@@ -10,16 +10,14 @@ void L1Analysis::L1AnalysisRecoElectron::SetElectron(
     const edm::Event& event,
     const edm::EventSetup& setup,
     //const edm::Handle<edm::View<reco::GsfElectron>>& electrons,
-    edm::Handle<reco::GsfElectronCollection> electrons,
+    const edm::Handle<reco::GsfElectronCollection>& electrons,
     std::vector<edm::Handle<edm::ValueMap<bool> > > eleVIDDecisionHandles,
     const unsigned& maxElectron)
 
 {
   recoElectron_.nElectrons = 0;
 
-  for (reco::GsfElectronCollection::const_iterator el = electrons->begin();
-       el != electrons->end() && recoElectron_.nElectrons < maxElectron;
-       ++el) {
+  for (auto el = electrons->begin(); el != electrons->end() && recoElectron_.nElectrons < maxElectron; ++el) {
     recoElectron_.e.push_back(el->energy());
     recoElectron_.pt.push_back(el->pt());
     recoElectron_.et.push_back(el->et());

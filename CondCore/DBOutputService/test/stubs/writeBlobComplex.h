@@ -13,9 +13,9 @@ namespace edm {
 class writeBlobComplex : public edm::EDAnalyzer {
 public:
   explicit writeBlobComplex(const edm::ParameterSet& iConfig);
-  ~writeBlobComplex();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() {}
+  ~writeBlobComplex() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override {}
 
 private:
   std::string m_RecordName;

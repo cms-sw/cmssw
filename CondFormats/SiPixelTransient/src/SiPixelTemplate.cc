@@ -126,7 +126,7 @@ using namespace edm;
 //! digits of filenum.
 //! \param filenum - an integer NNNN used in the filename template_summary_zpNNNN
 //****************************************************************
-bool SiPixelTemplate::pushfile(int filenum, std::vector<SiPixelTemplateStore>& pixelTemp, std::string dir) {
+bool SiPixelTemplate::pushfile(int filenum, std::vector<SiPixelTemplateStore>& pixelTemp, const std::string& dir) {
   // Add template stored in external file numbered filenum to theTemplateStore
 
   // Local variables

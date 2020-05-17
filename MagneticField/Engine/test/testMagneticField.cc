@@ -73,11 +73,13 @@ public:
     maxZ = pset.getUntrackedParameter<double>("maxZ", 2400);
   }
 
-  ~testMagneticField() {}
+  ~testMagneticField() override {}
 
-  void go(GlobalPoint g) { std::cout << "At: " << g << " phi=" << g.phi() << " B= " << field->inTesla(g) << std::endl; }
+  void go(const GlobalPoint& g) {
+    std::cout << "At: " << g << " phi=" << g.phi() << " B= " << field->inTesla(g) << std::endl;
+  }
 
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) {
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override {
     ESHandle<MagneticField> magfield;
     setup.get<IdealMagneticFieldRecord>().get(magfield);
 
@@ -87,7 +89,7 @@ public:
 
     go(GlobalPoint(0, 0, 0));
 
-    if (outputFile != "") {
+    if (!outputFile.empty()) {
       writeValidationTable(numberOfPoints, outputFile);
       return;
     }
@@ -110,7 +112,7 @@ public:
       while (getline(file, table)) {
         compareSectorTables(table);
       }
-    } else if (inputFile != "") {
+    } else if (!inputFile.empty()) {
       validate(inputFile, inputFileType);
     }
 
@@ -120,16 +122,16 @@ public:
     //   }
   }
 
-  void writeValidationTable(int npoints, string filename);
-  void validate(string filename, string type = "xyz");
-  void validateVsTOSCATable(string filename);
+  void writeValidationTable(int npoints, const string& filename);
+  void validate(const string& filename, const string& type = "xyz");
+  void validateVsTOSCATable(const string& filename);
 
   const MagVolume6Faces* findVolume(GlobalPoint& gp);
   const MagVolume6Faces* findMasterVolume(int volume, int sector);
 
-  void parseTOSCATablePath(string filename, int& volNo, int& sector, string& type);
-  void fillFromTable(string inputFile, vector<GlobalPoint>& p, vector<GlobalVector>& b, string type);
-  void compareSectorTables(string file);
+  void parseTOSCATablePath(const string& filename, int& volNo, int& sector, string& type);
+  void fillFromTable(const string& inputFile, vector<GlobalPoint>& p, vector<GlobalVector>& b, const string& type);
+  void compareSectorTables(const string& file);
 
 private:
   const MagneticField* field;
@@ -144,10 +146,10 @@ private:
   double maxZ;
 };
 
-void testMagneticField::writeValidationTable(int npoints, string filename) {
+void testMagneticField::writeValidationTable(int npoints, const string& filename) {
   GlobalPointProvider p(innerRadius, outerRadius, -Geom::pi(), Geom::pi(), minZ, maxZ);
 
-  std::string::size_type ps = filename.rfind(".");
+  std::string::size_type ps = filename.rfind('.');
   if (ps != std::string::npos && filename.substr(ps) == ".txt") {
     ofstream file(filename.c_str());
 
@@ -180,7 +182,7 @@ void testMagneticField::writeValidationTable(int npoints, string filename) {
   }
 }
 
-void testMagneticField::validate(string filename, string type) {
+void testMagneticField::validate(const string& filename, const string& type) {
   ifstream file;
 
   bool binary = true;
@@ -189,8 +191,8 @@ void testMagneticField::validate(string filename, string type) {
   edm::FileInPath mydata(filename);
   fullPath = mydata.fullPath();
 
-  std::string::size_type ps = filename.rfind(".");
-  if (ps != std::string::npos && filename.substr(filename.rfind(".")) == ".txt") {
+  std::string::size_type ps = filename.rfind('.');
+  if (ps != std::string::npos && filename.substr(filename.rfind('.')) == ".txt") {
     binary = false;
     file.open(fullPath.c_str());
   } else {
@@ -218,7 +220,7 @@ void testMagneticField::validate(string filename, string type) {
     } else {
       if (!(getline(file, line)))
         break;
-      if (line == "" || line[0] == '#')
+      if (line.empty() || line[0] == '#')
         continue;
       stringstream linestr;
       linestr << line;
@@ -266,7 +268,7 @@ void testMagneticField::validate(string filename, string type) {
   }
 }
 
-void testMagneticField::parseTOSCATablePath(string filename, int& volNo, int& sector, string& type) {
+void testMagneticField::parseTOSCATablePath(const string& filename, int& volNo, int& sector, string& type) {
   // Determine volume number, type, and sector from filename, assumed to be like:
   // [path]/s01_1/v-xyz-1156.table
   using boost::lexical_cast;
@@ -294,7 +296,7 @@ void testMagneticField::parseTOSCATablePath(string filename, int& volNo, int& se
   }
 }
 
-void testMagneticField::validateVsTOSCATable(string filename) {
+void testMagneticField::validateVsTOSCATable(const string& filename) {
   // The magic here is that we want to check against the result of the master volume only
   // as grid points on the border of volumes can end up in the neighbor volume.
 
@@ -303,7 +305,7 @@ void testMagneticField::validateVsTOSCATable(string filename) {
   parseTOSCATablePath(filename, volNo, sector, type);
 
   const MagVolume6Faces* vol = findMasterVolume(volNo, sector);
-  if (vol == 0) {
+  if (vol == nullptr) {
     cout << "   ERROR: volume " << volNo << ":" << sector << "not found" << endl;
     return;
   }
@@ -331,7 +333,7 @@ void testMagneticField::validateVsTOSCATable(string filename) {
   //   }
 
   while (getline(file, line) && count < numberOfPoints) {
-    if (line == "" || line[0] == '#')
+    if (line.empty() || line[0] == '#')
       continue;
     stringstream linestr;
     linestr << line;
@@ -384,7 +386,7 @@ void testMagneticField::validateVsTOSCATable(string filename) {
 #include <unistd.h>
 
 // Compare the TOSCA txt table with the corresponding one in other sector.
-void testMagneticField::compareSectorTables(string file1) {
+void testMagneticField::compareSectorTables(const string& file1) {
   bool list = false;  // true: print one line per volume
                       // false: print formatted table
 
@@ -438,7 +440,7 @@ void testMagneticField::compareSectorTables(string file1) {
     stat(binTable.c_str(), &theStat);
     off_t size = theStat.st_size;
 
-    if (p1.size() != p2.size() || p1.size() == 0) {
+    if (p1.size() != p2.size() || p1.empty()) {
       cout << "ERROR: file size: " << p1.size() << " " << p2.size() << endl;
     }
 
@@ -455,7 +457,7 @@ void testMagneticField::compareSectorTables(string file1) {
         cout << "ERROR: " << p12 << " " << p2[i] << " " << (p12 - p2[i]).mag() << endl;
       }
 
-      b12.push_back(GlobalVector(cphi * b1[i].x() - sphi * b1[i].y(), sphi * b1[i].x() + cphi * b1[i].y(), b1[i].z()));
+      b12.emplace_back(cphi * b1[i].x() - sphi * b1[i].y(), sphi * b1[i].x() + cphi * b1[i].y(), b1[i].z());
       GlobalVector delta = (b2[i] - b12[i]);
       float d = delta.mag();
       avgdelta += d;
@@ -486,7 +488,10 @@ void testMagneticField::compareSectorTables(string file1) {
   cout << endl;
 }
 
-void testMagneticField::fillFromTable(string inputFile, vector<GlobalPoint>& p, vector<GlobalVector>& b, string type) {
+void testMagneticField::fillFromTable(const string& inputFile,
+                                      vector<GlobalPoint>& p,
+                                      vector<GlobalVector>& b,
+                                      const string& type) {
   ifstream file(inputFile.c_str());
   string line;
   while (getline(file, line)) {
@@ -514,35 +519,35 @@ void testMagneticField::fillFromTable(string inputFile, vector<GlobalPoint>& p, 
 
 // Get the pointer of the volume containing a point
 const MagVolume6Faces* testMagneticField::findVolume(GlobalPoint& gp) {
-  const VolumeBasedMagneticField* vbffield = dynamic_cast<const VolumeBasedMagneticField*>(field);
+  const auto* vbffield = dynamic_cast<const VolumeBasedMagneticField*>(field);
   if (vbffield) {
     return (dynamic_cast<const MagVolume6Faces*>(vbffield->findVolume(gp)));
   }
-  return 0;
+  return nullptr;
 }
 
 // Find a specific volume:sector
 const MagVolume6Faces* testMagneticField::findMasterVolume(int volume, int sector) {
   const MagGeometry* vbffield = (dynamic_cast<const VolumeBasedMagneticField*>(field))->field;
 
-  if (vbffield == 0)
-    return 0;
+  if (vbffield == nullptr)
+    return nullptr;
 
   const vector<MagVolume6Faces const*>& bvol = vbffield->barrelVolumes();
-  for (vector<MagVolume6Faces const*>::const_iterator i = bvol.begin(); i != bvol.end(); i++) {
-    if ((*i)->copyno == sector && (*i)->volumeNo == volume) {
-      return (*i);
+  for (auto i : bvol) {
+    if (i->copyno == sector && i->volumeNo == volume) {
+      return i;
     }
   }
 
   const vector<MagVolume6Faces const*>& evol = vbffield->endcapVolumes();
-  for (vector<MagVolume6Faces const*>::const_iterator i = evol.begin(); i != evol.end(); i++) {
-    if ((*i)->copyno == sector && (*i)->volumeNo == volume) {
-      return (*i);
+  for (auto i : evol) {
+    if (i->copyno == sector && i->volumeNo == volume) {
+      return i;
     }
   }
 
-  return 0;
+  return nullptr;
 }
 
 DEFINE_FWK_MODULE(testMagneticField);

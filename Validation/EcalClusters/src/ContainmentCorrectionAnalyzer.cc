@@ -142,30 +142,30 @@ void ContainmentCorrectionAnalyzer::analyze(const Event &evt, const EventSetup &
   iMC.resize(mc_size);
 
   // loop over MC truth photons
-  for (unsigned int ipho = 0; ipho < photons.size(); ipho++) {
-    math::XYZTLorentzVectorD vtx = photons[ipho].primaryVertex();
-    double phiTrue = photons[ipho].fourMomentum().phi();
+  for (auto &photon : photons) {
+    math::XYZTLorentzVectorD vtx = photon.primaryVertex();
+    double phiTrue = photon.fourMomentum().phi();
     double vtxPerp = sqrt(vtx.x() * vtx.x() + vtx.y() * vtx.y());
-    double etaTrue = ecalEta(photons[ipho].fourMomentum().eta(), vtx.z(), vtxPerp);
-    double etTrue = photons[ipho].fourMomentum().e() / cosh(etaTrue);
+    double etaTrue = ecalEta(photon.fourMomentum().eta(), vtx.z(), vtxPerp);
+    double etTrue = photon.fourMomentum().e() / cosh(etaTrue);
     nMCphotons++;
-    mcEnergy[nMCphotons - 1] = photons[ipho].fourMomentum().e();
+    mcEnergy[nMCphotons - 1] = photon.fourMomentum().e();
     mcEta[nMCphotons - 1] = etaTrue;
     mcPhi[nMCphotons - 1] = phiTrue;
     mcPt[nMCphotons - 1] = etTrue;
-    isConverted[nMCphotons - 1] = photons[ipho].isAConversion();
+    isConverted[nMCphotons - 1] = photon.isAConversion();
     x_vtx[nMCphotons - 1] = vtx.x();
     y_vtx[nMCphotons - 1] = vtx.y();
     z_vtx[nMCphotons - 1] = vtx.z();
 
     // check histos for MC truth
     if (std::fabs(etaTrue) < 1.479) {
-      h_EB_eTrue->Fill(photons[ipho].fourMomentum().e());
-      h_EB_converted->Fill(photons[ipho].isAConversion());
+      h_EB_eTrue->Fill(photon.fourMomentum().e());
+      h_EB_converted->Fill(photon.isAConversion());
     }
     if (std::fabs(etaTrue) >= 1.6) {
-      h_EE_eTrue->Fill(photons[ipho].fourMomentum().e());
-      h_EE_converted->Fill(photons[ipho].isAConversion());
+      h_EE_eTrue->Fill(photon.fourMomentum().e());
+      h_EE_converted->Fill(photon.isAConversion());
     }
 
     // barrel
@@ -176,18 +176,16 @@ void ContainmentCorrectionAnalyzer::analyze(const Event &evt, const EventSetup &
       const reco::SuperCluster *nearSC = nullptr;
 
       double closestParticleDistance = 999;
-      for (reco::SuperClusterCollection::const_iterator aClus = BarrelSuperClusters->begin();
-           aClus != BarrelSuperClusters->end();
-           aClus++) {
-        etaCurrent = aClus->position().eta();
-        phiCurrent = aClus->position().phi();
+      for (const auto &BarrelSuperCluster : *BarrelSuperClusters) {
+        etaCurrent = BarrelSuperCluster.position().eta();
+        phiCurrent = BarrelSuperCluster.position().phi();
         // etCurrent  = aClus->energy()/std::cosh(etaCurrent); // UNUSED
         double deltaR = std::sqrt(std::pow(etaCurrent - etaTrue, 2) + std::pow(phiCurrent - phiTrue, 2));
         if (deltaR < closestParticleDistance) {
           // etFound  = etCurrent; // UNUSED
           // etaFound = etaCurrent; // UNUSED
           closestParticleDistance = deltaR;
-          nearSC = &(*aClus);
+          nearSC = &BarrelSuperCluster;
         }
       }
 
@@ -216,18 +214,16 @@ void ContainmentCorrectionAnalyzer::analyze(const Event &evt, const EventSetup &
       const reco::SuperCluster *nearSC = nullptr;
 
       double closestParticleDistance = 999;
-      for (reco::SuperClusterCollection::const_iterator aClus = EndcapSuperClusters->begin();
-           aClus != EndcapSuperClusters->end();
-           aClus++) {
-        etaCurrent = aClus->position().eta();
-        phiCurrent = aClus->position().phi();
+      for (const auto &EndcapSuperCluster : *EndcapSuperClusters) {
+        etaCurrent = EndcapSuperCluster.position().eta();
+        phiCurrent = EndcapSuperCluster.position().phi();
         // etCurrent  =  aClus->energy()/std::cosh(etaCurrent);
         double deltaR = std::sqrt(std::pow(etaCurrent - etaTrue, 2) + std::pow(phiCurrent - phiTrue, 2));
         if (deltaR < closestParticleDistance) {
           // etFound  = etCurrent; // UNUSED
           // etaFound = etaCurrent; // UNUSED
           closestParticleDistance = deltaR;
-          nearSC = &(*aClus);
+          nearSC = &EndcapSuperCluster;
         }
       }
 
@@ -348,7 +344,7 @@ std::vector<EcalSimPhotonMCTruth> ContainmentCorrectionAnalyzer::findMcTruth(std
   int iPV = -1;
   int partType1 = 0;
   int partType2 = 0;
-  std::vector<SimTrack>::iterator iFirstSimTk = theSimTracks.begin();
+  auto iFirstSimTk = theSimTracks.begin();
   if (!(*iFirstSimTk).noVertex()) {
     iPV = (*iFirstSimTk).vertIndex();
     int vtxId = (*iFirstSimTk).vertIndex();
@@ -365,16 +361,16 @@ std::vector<EcalSimPhotonMCTruth> ContainmentCorrectionAnalyzer::findMcTruth(std
   }
   int npv = 0;
   int iPho = 0;
-  for (std::vector<SimTrack>::iterator iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end(); ++iSimTk) {
-    if ((*iSimTk).noVertex())
+  for (auto &theSimTrack : theSimTracks) {
+    if (theSimTrack.noVertex())
       continue;
     // int vertexId = (*iSimTk).vertIndex(); // UNUSED
     // SimVertex vertex = theSimVertices[vertexId]; // UNUSED
-    if ((*iSimTk).vertIndex() == iPV) {
+    if (theSimTrack.vertIndex() == iPV) {
       npv++;
-      if ((*iSimTk).type() == 22) {
+      if (theSimTrack.type() == 22) {
         convInd.push_back(0);
-        photonTracks.push_back(&(*iSimTk));
+        photonTracks.push_back(&theSimTrack);
         // math::XYZTLorentzVectorD momentum = (*iSimTk).momentum(); // UNUSED
       }
     }
@@ -405,9 +401,9 @@ std::vector<EcalSimPhotonMCTruth> ContainmentCorrectionAnalyzer::findMcTruth(std
     int nConv = 0;
     int iConv = 0;
     iPho = 0;
-    for (std::vector<SimTrack *>::iterator iPhoTk = photonTracks.begin(); iPhoTk != photonTracks.end(); ++iPhoTk) {
+    for (auto &photonTrack : photonTracks) {
       trkFromConversion.clear();
-      for (std::vector<SimTrack>::iterator iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end(); ++iSimTk) {
+      for (auto iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end(); ++iSimTk) {
         if ((*iSimTk).noVertex())
           continue;
         if ((*iSimTk).vertIndex() == iPV)
@@ -419,13 +415,13 @@ std::vector<EcalSimPhotonMCTruth> ContainmentCorrectionAnalyzer::findMcTruth(std
         int motherId = -1;
         if (vertex.parentIndex()) {
           unsigned motherGeantId = vertex.parentIndex();
-          std::map<unsigned, unsigned>::iterator association = geantToIndex_.find(motherGeantId);
+          auto association = geantToIndex_.find(motherGeantId);
           if (association != geantToIndex_.end())
             motherId = association->second;
           // int motherType = motherId == -1 ? 0 :
           // theSimTracks[motherId].type();
 
-          if (theSimTracks[motherId].trackId() == (*iPhoTk)->trackId()) {
+          if (theSimTracks[motherId].trackId() == photonTrack->trackId()) {
             /// store this electron since it's from a converted photon
             trkFromConversion.push_back(&(*iSimTk));
           }
@@ -451,23 +447,23 @@ std::vector<EcalSimPhotonMCTruth> ContainmentCorrectionAnalyzer::findMcTruth(std
         }
         iConv++;
 
-        result.push_back(EcalSimPhotonMCTruth(isAconversion,
-                                              (*iPhoTk)->momentum(),
-                                              vtxPosition.pt(),
-                                              vtxPosition.z(),
-                                              vtxPosition,
-                                              primVtx.position(),
-                                              trkFromConversion));
+        result.emplace_back(isAconversion,
+                            photonTrack->momentum(),
+                            vtxPosition.pt(),
+                            vtxPosition.z(),
+                            vtxPosition,
+                            primVtx.position(),
+                            trkFromConversion);
       } else {
         isAconversion = 0;
         math::XYZTLorentzVectorD vtxPosition(0., 0., 0., 0.);
-        result.push_back(EcalSimPhotonMCTruth(isAconversion,
-                                              (*iPhoTk)->momentum(),
-                                              vtxPosition.pt(),
-                                              vtxPosition.z(),
-                                              vtxPosition,
-                                              primVtx.position(),
-                                              trkFromConversion));
+        result.emplace_back(isAconversion,
+                            photonTrack->momentum(),
+                            vtxPosition.pt(),
+                            vtxPosition.z(),
+                            vtxPosition,
+                            primVtx.position(),
+                            trkFromConversion);
       }
       iPho++;
     }  // loop over the primary photons

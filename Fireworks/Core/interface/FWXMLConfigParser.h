@@ -51,7 +51,7 @@ public:
       } else
         throw ParserError("Unexpected attribute " + attr.key);
     }
-    m_configs.push_back(std::make_pair(name, new FWConfiguration(version)));
+    m_configs.emplace_back(name, new FWConfiguration(version));
   }
 
   /** Executes any transaction in the state machine which happens when the 

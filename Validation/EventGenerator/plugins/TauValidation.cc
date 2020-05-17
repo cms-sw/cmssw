@@ -326,7 +326,7 @@ void TauValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::
 
   MODEID = dqm.book1dHisto("JAKID", "JAK ID", NMODEID + 1, -0.5, NMODEID + 0.5);
   for (unsigned int j = 0; j < NMODEID + 1; j++) {
-    MODEInvMass.push_back(std::vector<MonitorElement *>());
+    MODEInvMass.emplace_back();
     std::string tmp = "JAKID";
     tmp += std::to_string(j);
     MODEInvMass.at(j).push_back(dqm.book1dHisto("M" + tmp,
@@ -373,32 +373,32 @@ void TauValidation::analyze(const edm::Event &iEvent, const edm::EventSetup &iSe
   double weight = 1.0;  //=   wmanager_.weight(iEvent);
   //////////////////////////////////////////////
   // find taus
-  for (reco::GenParticleCollection::const_iterator iter = genParticles->begin(); iter != genParticles->end(); ++iter) {
-    if (abs(iter->pdgId()) == PdtPdgMini::Z0 || abs(iter->pdgId()) == PdtPdgMini::Higgs0) {
-      spinEffectsZH(&(*iter), weight);
+  for (const auto &iter : *genParticles) {
+    if (abs(iter.pdgId()) == PdtPdgMini::Z0 || abs(iter.pdgId()) == PdtPdgMini::Higgs0) {
+      spinEffectsZH(&iter, weight);
     }
-    if (abs(iter->pdgId()) == 15) {
-      if (isLastTauinChain(&(*iter))) {
+    if (abs(iter.pdgId()) == 15) {
+      if (isLastTauinChain(&iter)) {
         nTaus->Fill(0.5, weight);
-        int mother = tauMother(&(*iter), weight);
+        int mother = tauMother(&iter, weight);
         if (mother > -1) {  // exclude B, D and other non-signal decay modes
           nPrimeTaus->Fill(0.5, weight);
-          TauPt->Fill(iter->pt(), weight);
-          TauEta->Fill(iter->eta(), weight);
-          TauPhi->Fill(iter->phi(), weight);
-          photons(&(*iter), weight);
+          TauPt->Fill(iter.pt(), weight);
+          TauEta->Fill(iter.eta(), weight);
+          TauPhi->Fill(iter.phi(), weight);
+          photons(&iter, weight);
           ///////////////////////////////////////////////
           // Adding MODEID and Mass information
           TauDecay_GenParticle TD;
           unsigned int jak_id, TauBitMask;
-          if (TD.AnalyzeTau(&(*iter), jak_id, TauBitMask, false, false)) {
+          if (TD.AnalyzeTau(&iter, jak_id, TauBitMask, false, false)) {
             MODEID->Fill(jak_id, weight);
             TauProngs->Fill(TD.nProng(TauBitMask), weight);
-            tauDecayChannel(&(*iter), jak_id, TauBitMask, weight);
+            tauDecayChannel(&iter, jak_id, TauBitMask, weight);
             if (jak_id <= NMODEID) {
-              int tcharge = iter->pdgId() / abs(iter->pdgId());
+              int tcharge = iter.pdgId() / abs(iter.pdgId());
               std::vector<const reco::GenParticle *> part = TD.Get_TauDecayProducts();
-              spinEffectsWHpm(&(*iter), mother, jak_id, part, weight);
+              spinEffectsWHpm(&iter, mother, jak_id, part, weight);
               TLorentzVector LVQ(0, 0, 0, 0);
               TLorentzVector LVS12(0, 0, 0, 0);
               TLorentzVector LVS13(0, 0, 0, 0);
@@ -406,35 +406,34 @@ void TauValidation::analyze(const edm::Event &iEvent, const edm::EventSetup &iSe
               bool haspart1 = false;
               TVector3 PV, SV;
               bool hasDL(false);
-              for (unsigned int i = 0; i < part.size(); i++) {
-                if (abs(part.at(i)->pdgId()) != PdtPdgMini::nu_tau && TD.isTauFinalStateParticle(part.at(i)->pdgId()) &&
-                    !hasDL) {
+              for (auto &i : part) {
+                if (abs(i->pdgId()) != PdtPdgMini::nu_tau && TD.isTauFinalStateParticle(i->pdgId()) && !hasDL) {
                   hasDL = true;
-                  TLorentzVector tlv(iter->px(), iter->py(), iter->pz(), iter->energy());
-                  PV = TVector3(iter->vx(), iter->vy(), iter->vz());
-                  SV = TVector3(part.at(i)->vx(), part.at(i)->vy(), part.at(i)->vz());
+                  TLorentzVector tlv(iter.px(), iter.py(), iter.pz(), iter.energy());
+                  PV = TVector3(iter.vx(), iter.vy(), iter.vz());
+                  SV = TVector3(i->vx(), i->vy(), i->vz());
                   TVector3 DL = SV - PV;
                   DecayLength->Fill(DL.Dot(tlv.Vect()) / tlv.P(), weight);
-                  double c(2.99792458E8), Ltau(DL.Mag() / 100) /*cm->m*/, beta(iter->p() / iter->mass());
+                  double c(2.99792458E8), Ltau(DL.Mag() / 100) /*cm->m*/, beta(iter.p() / iter.mass());
                   LifeTime->Fill(Ltau / (c * beta), weight);
                 }
 
-                if (TD.isTauFinalStateParticle(part.at(i)->pdgId()) && abs(part.at(i)->pdgId()) != PdtPdgMini::nu_e &&
-                    abs(part.at(i)->pdgId()) != PdtPdgMini::nu_mu && abs(part.at(i)->pdgId()) != PdtPdgMini::nu_tau) {
-                  TLorentzVector LV(part.at(i)->px(), part.at(i)->py(), part.at(i)->pz(), part.at(i)->energy());
+                if (TD.isTauFinalStateParticle(i->pdgId()) && abs(i->pdgId()) != PdtPdgMini::nu_e &&
+                    abs(i->pdgId()) != PdtPdgMini::nu_mu && abs(i->pdgId()) != PdtPdgMini::nu_tau) {
+                  TLorentzVector LV(i->px(), i->py(), i->pz(), i->energy());
                   LVQ += LV;
                   if (jak_id == TauDecay::MODE_3PI || jak_id == TauDecay::MODE_PI2PI0 ||
                       jak_id == TauDecay::MODE_KPIK || jak_id == TauDecay::MODE_KPIPI) {
-                    if ((tcharge == part.at(i)->pdgId() / abs(part.at(i)->pdgId()) && TD.nProng(TauBitMask) == 3) ||
+                    if ((tcharge == i->pdgId() / abs(i->pdgId()) && TD.nProng(TauBitMask) == 3) ||
                         ((jak_id == TauDecay::MODE_3PI || jak_id == TauDecay::MODE_PI2PI0) &&
-                         TD.nProng(TauBitMask) == 1 && abs(part.at(i)->pdgId()) == PdtPdgMini::pi_plus)) {
+                         TD.nProng(TauBitMask) == 1 && abs(i->pdgId()) == PdtPdgMini::pi_plus)) {
                       LVS13 += LV;
                       LVS23 += LV;
                     } else {
                       LVS12 += LV;
                       if (!haspart1 && ((jak_id == TauDecay::MODE_3PI || jak_id == TauDecay::MODE_PI2PI0) ||
                                         ((jak_id != TauDecay::MODE_3PI || jak_id == TauDecay::MODE_PI2PI0) &&
-                                         abs(part.at(i)->pdgId()) == PdtPdgMini::K_plus))) {
+                                         abs(i->pdgId()) == PdtPdgMini::K_plus))) {
                         LVS13 += LV;
                         haspart1 = true;
                       } else {
@@ -464,7 +463,7 @@ void TauValidation::analyze(const edm::Event &iEvent, const edm::EventSetup &iSe
 
 const reco::GenParticle *TauValidation::GetMother(const reco::GenParticle *tau) {
   for (unsigned int i = 0; i < tau->numberOfMothers(); i++) {
-    const reco::GenParticle *mother = static_cast<const reco::GenParticle *>(tau->mother(i));
+    const auto *mother = static_cast<const reco::GenParticle *>(tau->mother(i));
     if (mother->pdgId() == tau->pdgId())
       return GetMother(mother);
     return mother;
@@ -475,7 +474,7 @@ const reco::GenParticle *TauValidation::GetMother(const reco::GenParticle *tau) 
 const std::vector<const reco::GenParticle *> TauValidation::GetMothers(const reco::GenParticle *boson) {
   std::vector<const reco::GenParticle *> mothers;
   for (unsigned int i = 0; i < boson->numberOfMothers(); i++) {
-    const reco::GenParticle *mother = static_cast<const reco::GenParticle *>(boson->mother(i));
+    const auto *mother = static_cast<const reco::GenParticle *>(boson->mother(i));
     if (mother->pdgId() == boson->pdgId())
       return GetMothers(mother);
     mothers.push_back(mother);
@@ -496,7 +495,7 @@ bool TauValidation::isLastTauinChain(const reco::GenParticle *tau) {
 void TauValidation::findTauList(const reco::GenParticle *tau, std::vector<const reco::GenParticle *> &TauList) {
   TauList.insert(TauList.begin(), tau);
   for (unsigned int i = 0; i < tau->numberOfMothers(); i++) {
-    const reco::GenParticle *mother = static_cast<const reco::GenParticle *>(tau->mother(i));
+    const auto *mother = static_cast<const reco::GenParticle *>(tau->mother(i));
     if (mother->pdgId() == tau->pdgId()) {
       findTauList(mother, TauList);
     }
@@ -517,7 +516,7 @@ void TauValidation::findFSRandBrem(const reco::GenParticle *p,
   }
   int photo_ID = 22;
   for (unsigned int i = 0; i < p->numberOfDaughters(); i++) {
-    const reco::GenParticle *dau = static_cast<const reco::GenParticle *>(p->daughter(i));
+    const auto *dau = static_cast<const reco::GenParticle *>(p->daughter(i));
     if (abs((dau)->pdgId()) == abs(photo_ID) && !doBrem) {
       ListofFSR.push_back(dau);
     }
@@ -538,7 +537,7 @@ void TauValidation::FindPhotosFSR(const reco::GenParticle *p,
   int mother_pid = m->pdgId();
   if (m->pdgId() != p->pdgId()) {
     for (unsigned int i = 0; i < m->numberOfDaughters(); i++) {
-      const reco::GenParticle *dau = static_cast<const reco::GenParticle *>(m->daughter(i));
+      const auto *dau = static_cast<const reco::GenParticle *>(m->daughter(i));
       if (abs(dau->pdgId()) == 22) {
         ListofFSR.push_back(dau);
       }
@@ -644,7 +643,7 @@ void TauValidation::countParticles(const reco::GenParticle *p,
                                    int &KCount,
                                    int &KstarCount) {
   for (unsigned int i = 0; i < p->numberOfDaughters(); i++) {
-    const reco::GenParticle *dau = static_cast<const reco::GenParticle *>(p->daughter(i));
+    const auto *dau = static_cast<const reco::GenParticle *>(p->daughter(i));
     int pid = dau->pdgId();
     allCount++;
     if (abs(pid) == 11)
@@ -693,12 +692,12 @@ void TauValidation::spinEffectsWHpm(
     }
   } else if (decay == TauDecay::MODE_PIPI0) {
     TLorentzVector rho(0, 0, 0, 0), pi(0, 0, 0, 0);
-    for (unsigned int i = 0; i < part.size(); i++) {
-      TLorentzVector LV(part.at(i)->px(), part.at(i)->py(), part.at(i)->pz(), part.at(i)->energy());
-      if (abs(part.at(i)->pdgId()) == PdtPdgMini::pi_plus) {
+    for (auto &i : part) {
+      TLorentzVector LV(i->px(), i->py(), i->pz(), i->energy());
+      if (abs(i->pdgId()) == PdtPdgMini::pi_plus) {
         pi += LV;
         rho += LV;
-      } else if (abs(part.at(i)->pdgId()) == PdtPdgMini::pi0) {
+      } else if (abs(i->pdgId()) == PdtPdgMini::pi0) {
         rho += LV;
       }
     }
@@ -709,13 +708,13 @@ void TauValidation::spinEffectsWHpm(
   } else if (decay == TauDecay::MODE_3PI || decay == TauDecay::MODE_PI2PI0) {  // only for pi2pi0 for now
     TLorentzVector a1(0, 0, 0, 0), pi_p(0, 0, 0, 0), pi_m(0, 0, 0, 0);
     int nplus(0), nminus(0);
-    for (unsigned int i = 0; i < part.size(); i++) {
-      TLorentzVector LV(part.at(i)->px(), part.at(i)->py(), part.at(i)->pz(), part.at(i)->energy());
-      if (part.at(i)->pdgId() == PdtPdgMini::pi_plus) {
+    for (auto &i : part) {
+      TLorentzVector LV(i->px(), i->py(), i->pz(), i->energy());
+      if (i->pdgId() == PdtPdgMini::pi_plus) {
         pi_p += LV;
         a1 += LV;
         nplus++;
-      } else if (part.at(i)->pdgId() == PdtPdgMini::pi_minus) {
+      } else if (i->pdgId() == PdtPdgMini::pi_minus) {
         pi_m += LV;
         a1 += LV;
         nminus++;
@@ -740,7 +739,7 @@ void TauValidation::spinEffectsWHpm(
 void TauValidation::spinEffectsZH(const reco::GenParticle *boson, double weight) {
   int ntau(0);
   for (unsigned int i = 0; i < boson->numberOfDaughters(); i++) {
-    const reco::GenParticle *dau = static_cast<const reco::GenParticle *>(boson->daughter(i));
+    const auto *dau = static_cast<const reco::GenParticle *>(boson->daughter(i));
     if (ntau == 1 && dau->pdgId() == 15)
       return;
     if (boson->pdgId() != 15 && abs(dau->pdgId()) == 15)
@@ -759,7 +758,7 @@ void TauValidation::spinEffectsZH(const reco::GenParticle *boson, double weight)
     double x1(0), x2(0);
     TLorentzVector Zboson(boson->px(), boson->py(), boson->pz(), boson->energy());
     for (unsigned int i = 0; i < boson->numberOfDaughters(); i++) {
-      const reco::GenParticle *dau = static_cast<const reco::GenParticle *>(boson->daughter(i));
+      const auto *dau = static_cast<const reco::GenParticle *>(boson->daughter(i));
       int pid = dau->pdgId();
       if (abs(findMother(dau)) != 15 && abs(pid) == 15) {
         TauDecay_GenParticle TD;
@@ -825,10 +824,10 @@ void TauValidation::spinEffectsZH(const reco::GenParticle *boson, double weight)
           if (pid == -15)
             taup = LVtau;
           if (jak_id == TauDecay::MODE_PIPI0) {
-            for (unsigned int i = 0; i < part.size(); i++) {
-              int pid_d = part.at(i)->pdgId();
+            for (auto &i : part) {
+              int pid_d = i->pdgId();
               if (abs(pid_d) == 211 || abs(pid_d) == 111) {
-                TLorentzVector LV(part.at(i)->px(), part.at(i)->py(), part.at(i)->pz(), part.at(i)->energy());
+                TLorentzVector LV(i->px(), i->py(), i->pz(), i->energy());
                 if (pid == 15) {
                   hasrho_minus = true;
                   if (pid_d == -211) {
@@ -851,10 +850,10 @@ void TauValidation::spinEffectsZH(const reco::GenParticle *boson, double weight)
             }
           }
           if (jak_id == TauDecay::MODE_PION) {
-            for (unsigned int i = 0; i < part.size(); i++) {
-              int pid_d = part.at(i)->pdgId();
+            for (auto &i : part) {
+              int pid_d = i->pdgId();
               if (abs(pid_d) == 211) {
-                TLorentzVector LV(part.at(i)->px(), part.at(i)->py(), part.at(i)->pz(), part.at(i)->energy());
+                TLorentzVector LV(i->px(), i->py(), i->pz(), i->energy());
                 if (pid == 15) {
                   haspi_minus = true;
                   if (pid_d == -211) {
@@ -981,11 +980,11 @@ void TauValidation::spinEffectsZH(const reco::GenParticle *boson, double weight)
         const std::vector<const reco::GenParticle *> m = GetMothers(boson);
         int q(0), qbar(0);
         TLorentzVector Z(0, 0, 0, 0);
-        for (unsigned int i = 0; i < m.size(); i++) {
-          if (m.at(i)->pdgId() == PdtPdgMini::d || m.at(i)->pdgId() == PdtPdgMini::u) {
+        for (auto i : m) {
+          if (i->pdgId() == PdtPdgMini::d || i->pdgId() == PdtPdgMini::u) {
             q++;
           }
-          if (m.at(i)->pdgId() == PdtPdgMini::anti_d || m.at(i)->pdgId() == PdtPdgMini::anti_u) {
+          if (i->pdgId() == PdtPdgMini::anti_d || i->pdgId() == PdtPdgMini::anti_u) {
             qbar++;
           }
         }
@@ -1022,7 +1021,7 @@ double TauValidation::leadingPionMomentum(const reco::GenParticle *tau, double w
 TLorentzVector TauValidation::leadingPionP4(const reco::GenParticle *tau) {
   TLorentzVector p4(0, 0, 0, 0);
   for (unsigned int i = 0; i < tau->numberOfDaughters(); i++) {
-    const reco::GenParticle *dau = static_cast<const reco::GenParticle *>(tau->daughter(i));
+    const auto *dau = static_cast<const reco::GenParticle *>(tau->daughter(i));
     int pid = dau->pdgId();
     if (abs(pid) == 15)
       return leadingPionP4(dau);
@@ -1042,7 +1041,7 @@ TLorentzVector TauValidation::motherP4(const reco::GenParticle *tau) {
 double TauValidation::visibleTauEnergy(const reco::GenParticle *tau) {
   TLorentzVector p4(tau->px(), tau->py(), tau->pz(), tau->energy());
   for (unsigned int i = 0; i < tau->numberOfDaughters(); i++) {
-    const reco::GenParticle *dau = static_cast<const reco::GenParticle *>(tau->daughter(i));
+    const auto *dau = static_cast<const reco::GenParticle *>(tau->daughter(i));
     int pid = dau->pdgId();
     if (abs(pid) == 15)
       return visibleTauEnergy(dau);
@@ -1074,9 +1073,9 @@ void TauValidation::photons(const reco::GenParticle *tau, double weight) {
     // Add the Tau Brem. information
     TauBremPhotonsN->Fill(ListofBrem.size(), weight);
     double photonPtSum = 0;
-    for (unsigned int i = 0; i < ListofBrem.size(); i++) {
-      photonPtSum += ListofBrem.at(i)->pt();
-      TauBremPhotonsPt->Fill(ListofBrem.at(i)->pt(), weight);
+    for (auto &i : ListofBrem) {
+      photonPtSum += i->pt();
+      TauBremPhotonsPt->Fill(i->pt(), weight);
     }
     TauBremPhotonsPtSum->Fill(photonPtSum, weight);
 
@@ -1084,14 +1083,14 @@ void TauValidation::photons(const reco::GenParticle *tau, double weight) {
     if (BosonScale != 0) {
       TauFSRPhotonsN->Fill(ListofFSR.size(), weight);
       photonPtSum = 0;
-      for (unsigned int i = 0; i < ListofFSR.size(); i++) {
-        photonPtSum += ListofFSR.at(i)->pt();
-        TauFSRPhotonsPt->Fill(ListofFSR.at(i)->pt(), weight);
+      for (auto &i : ListofFSR) {
+        photonPtSum += i->pt();
+        TauFSRPhotonsPt->Fill(i->pt(), weight);
       }
       double FSR_photosSum(0);
-      for (unsigned int i = 0; i < FSR_photos.size(); i++) {
-        FSR_photosSum += FSR_photos.at(i)->pt();
-        TauFSRPhotonsPt->Fill(FSR_photos.at(i)->pt() / BosonScale, weight * BosonScale);
+      for (auto &FSR_photo : FSR_photos) {
+        FSR_photosSum += FSR_photo->pt();
+        TauFSRPhotonsPt->Fill(FSR_photo->pt() / BosonScale, weight * BosonScale);
       }
       TauFSRPhotonsPtSum->Fill(photonPtSum + FSR_photosSum / BosonScale, weight);
     }

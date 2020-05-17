@@ -33,8 +33,8 @@ const std::vector<float> HcalNoiseHPD::bigCharge(void) const { return bigCharge_
 
 float HcalNoiseHPD::bigChargeTotal(void) const {
   float total = 0;
-  for (unsigned int i = 0; i < bigCharge_.size(); i++) {
-    total += bigCharge_[i];
+  for (float i : bigCharge_) {
+    total += i;
   }
   return total;
 }
@@ -57,8 +57,8 @@ const std::vector<float> HcalNoiseHPD::big5Charge(void) const { return big5Charg
 
 float HcalNoiseHPD::big5ChargeTotal(void) const {
   float total = 0;
-  for (unsigned int i = 0; i < big5Charge_.size(); i++) {
-    total += big5Charge_[i];
+  for (float i : big5Charge_) {
+    total += i;
   }
   return total;
 }
@@ -85,8 +85,8 @@ const edm::RefVector<HBHERecHitCollection> HcalNoiseHPD::recHits(void) const { r
 
 float HcalNoiseHPD::recHitEnergy(const float threshold) const {
   double total = 0.0;
-  for (edm::RefVector<HBHERecHitCollection>::const_iterator it = rechits_.begin(); it != rechits_.end(); ++it) {
-    const float energy = (*it)->eraw();
+  for (auto&& rechit : rechits_) {
+    const float energy = (rechit)->eraw();
     if (energy >= threshold)
       total += energy;
   }
@@ -95,9 +95,9 @@ float HcalNoiseHPD::recHitEnergy(const float threshold) const {
 
 float HcalNoiseHPD::recHitEnergyFailR45(const float threshold) const {
   double total = 0.0;
-  for (edm::RefVector<HBHERecHitCollection>::const_iterator it = rechits_.begin(); it != rechits_.end(); ++it) {
-    const float energy = (*it)->eraw();
-    if ((*it)->flagField(HcalCaloFlagLabels::HBHETS4TS5Noise) && !(*it)->flagField(HcalCaloFlagLabels::HBHEOOTPU))
+  for (auto&& rechit : rechits_) {
+    const float energy = (rechit)->eraw();
+    if ((rechit)->flagField(HcalCaloFlagLabels::HBHETS4TS5Noise) && !(rechit)->flagField(HcalCaloFlagLabels::HBHEOOTPU))
       if (energy >= threshold)
         total += energy;
   }
@@ -106,10 +106,10 @@ float HcalNoiseHPD::recHitEnergyFailR45(const float threshold) const {
 
 float HcalNoiseHPD::minRecHitTime(const float threshold) const {
   float mintime = 9999999;
-  for (edm::RefVector<HBHERecHitCollection>::const_iterator it = rechits_.begin(); it != rechits_.end(); ++it) {
-    if ((*it)->energy() < threshold)
+  for (auto&& rechit : rechits_) {
+    if ((rechit)->energy() < threshold)
       continue;
-    float time = (*it)->time();
+    float time = (rechit)->time();
     if (mintime > time)
       mintime = time;
   }
@@ -118,10 +118,10 @@ float HcalNoiseHPD::minRecHitTime(const float threshold) const {
 
 float HcalNoiseHPD::maxRecHitTime(const float threshold) const {
   float maxtime = -9999999;
-  for (edm::RefVector<HBHERecHitCollection>::const_iterator it = rechits_.begin(); it != rechits_.end(); ++it) {
-    if ((*it)->energy() < threshold)
+  for (auto&& rechit : rechits_) {
+    if ((rechit)->energy() < threshold)
       continue;
-    float time = (*it)->time();
+    float time = (rechit)->time();
     if (maxtime < time)
       maxtime = time;
   }
@@ -130,12 +130,12 @@ float HcalNoiseHPD::maxRecHitTime(const float threshold) const {
 
 int HcalNoiseHPD::numRecHits(const float threshold) const {
   int count = 0;
-  for (edm::RefVector<HBHERecHitCollection>::const_iterator it = rechits_.begin(); it != rechits_.end(); ++it) {
+  for (auto&& rechit : rechits_) {
     // Exclude uncollapsed QIE11 channels
-    if (CaloRecHitAuxSetter::getBit((*it)->auxPhase1(), HBHERecHitAuxSetter::OFF_TDC_TIME) &&
-        !CaloRecHitAuxSetter::getBit((*it)->auxPhase1(), HBHERecHitAuxSetter::OFF_COMBINED))
+    if (CaloRecHitAuxSetter::getBit((rechit)->auxPhase1(), HBHERecHitAuxSetter::OFF_TDC_TIME) &&
+        !CaloRecHitAuxSetter::getBit((rechit)->auxPhase1(), HBHERecHitAuxSetter::OFF_COMBINED))
       continue;
-    if ((*it)->eraw() >= threshold)
+    if ((rechit)->eraw() >= threshold)
       ++count;
   }
   return count;
@@ -143,9 +143,9 @@ int HcalNoiseHPD::numRecHits(const float threshold) const {
 
 int HcalNoiseHPD::numRecHitsFailR45(const float threshold) const {
   int count = 0;
-  for (edm::RefVector<HBHERecHitCollection>::const_iterator it = rechits_.begin(); it != rechits_.end(); ++it)
-    if ((*it)->flagField(HcalCaloFlagLabels::HBHETS4TS5Noise) && !(*it)->flagField(HcalCaloFlagLabels::HBHEOOTPU))
-      if ((*it)->eraw() >= threshold)
+  for (auto&& rechit : rechits_)
+    if ((rechit)->flagField(HcalCaloFlagLabels::HBHETS4TS5Noise) && !(rechit)->flagField(HcalCaloFlagLabels::HBHEOOTPU))
+      if ((rechit)->eraw() >= threshold)
         ++count;
   return count;
 }
@@ -154,30 +154,30 @@ const edm::RefVector<CaloTowerCollection> HcalNoiseHPD::caloTowers(void) const {
 
 double HcalNoiseHPD::caloTowerHadE(void) const {
   double total = 0;
-  for (edm::RefVector<CaloTowerCollection>::const_iterator it = calotowers_.begin(); it != calotowers_.end(); ++it)
-    total += (*it)->hadEnergy();
+  for (auto&& calotower : calotowers_)
+    total += (calotower)->hadEnergy();
   return total;
 }
 
 double HcalNoiseHPD::caloTowerEmE(void) const {
   double total = 0;
-  for (edm::RefVector<CaloTowerCollection>::const_iterator it = calotowers_.begin(); it != calotowers_.end(); ++it)
-    total += (*it)->emEnergy();
+  for (auto&& calotower : calotowers_)
+    total += (calotower)->emEnergy();
   return total;
 }
 
 double HcalNoiseHPD::caloTowerTotalE(void) const {
   double total = 0;
-  for (edm::RefVector<CaloTowerCollection>::const_iterator it = calotowers_.begin(); it != calotowers_.end(); ++it)
-    total += (*it)->emEnergy() + (*it)->hadEnergy();
+  for (auto&& calotower : calotowers_)
+    total += (calotower)->emEnergy() + (calotower)->hadEnergy();
   return total;
 }
 
 double HcalNoiseHPD::caloTowerEmFraction(void) const {
   double h = 0, e = 0;
-  for (edm::RefVector<CaloTowerCollection>::const_iterator it = calotowers_.begin(); it != calotowers_.end(); ++it) {
-    e += (*it)->emEnergy();
-    h += (*it)->hadEnergy();
+  for (auto&& calotower : calotowers_) {
+    e += (calotower)->emEnergy();
+    h += (calotower)->hadEnergy();
   }
   return (e + h) != 0 ? e / (e + h) : 999.;
 }

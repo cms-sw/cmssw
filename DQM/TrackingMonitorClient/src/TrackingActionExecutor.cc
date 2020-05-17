@@ -118,7 +118,9 @@ void TrackingActionExecutor::createShiftReport(DQMStore::IBooker& ibooker, DQMSt
 //
 //  -- Print Report Summary
 //
-void TrackingActionExecutor::printReportSummary(MonitorElement* me, std::ostringstream& str_val, std::string name) {
+void TrackingActionExecutor::printReportSummary(MonitorElement* me,
+                                                std::ostringstream& str_val,
+                                                const std::string& name) {
   //  std::cout << "[TrackingActionExecutor::printReportSummary]" << std::endl;
   str_val << " " << name << "  : ";
   std::string value;
@@ -139,9 +141,8 @@ void TrackingActionExecutor::printShiftHistoParameters(DQMStore::IBooker& ibooke
                                                        std::ostringstream& str_val) {
   //  std::cout << "[TrackingActionExecutor::printShiftHistoParameters]" << std::endl;
   str_val << std::endl;
-  for (std::map<std::string, std::vector<std::string> >::iterator it = layout_map.begin(); it != layout_map.end();
-       it++) {
-    std::string set_name = it->first;
+  for (auto& it : layout_map) {
+    std::string set_name = it.first;
     if (set_name.find("Summary") != std::string::npos)
       continue;
     configWriter_->createElement(set_name);
@@ -151,7 +152,7 @@ void TrackingActionExecutor::printShiftHistoParameters(DQMStore::IBooker& ibooke
 
     str_val << std::setprecision(2);
     str_val << setiosflags(std::ios::fixed);
-    for (std::vector<std::string>::iterator im = it->second.begin(); im != it->second.end(); im++) {
+    for (auto im = it.second.begin(); im != it.second.end(); im++) {
       std::string path_name = (*im);
       if (path_name.empty())
         continue;

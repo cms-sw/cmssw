@@ -37,6 +37,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <iostream>
 #include <fstream>
+#include <utility>
+
 #include <vector>
 
 //
@@ -100,7 +102,7 @@ private:
     const std::string getName(void) const { return pathName_; }
     ~PathInfo(){};
     PathInfo(std::string pathName, size_t type, float ptmin, float ptmax)
-        : pathName_(pathName),
+        : pathName_(std::move(pathName)),
           objectType_(type),
           et_(nullptr),
           eta_(nullptr),
@@ -116,7 +118,7 @@ private:
              MonitorElement* etavsphi,
              float ptmin,
              float ptmax)
-        : pathName_(pathName),
+        : pathName_(std::move(pathName)),
           objectType_(type),
           et_(et),
           eta_(eta),
@@ -124,7 +126,7 @@ private:
           etavsphi_(etavsphi),
           ptmin_(ptmin),
           ptmax_(ptmax){};
-    bool operator==(const std::string v) { return v == pathName_; }
+    bool operator==(const std::string& v) { return v == pathName_; }
 
   private:
     int pathIndex_;
@@ -148,7 +150,7 @@ private:
   class PathInfoCollection : public std::vector<PathInfo> {
   public:
     PathInfoCollection() : std::vector<PathInfo>(){};
-    std::vector<PathInfo>::iterator find(std::string pathName) { return std::find(begin(), end(), pathName); }
+    std::vector<PathInfo>::iterator find(const std::string& pathName) { return std::find(begin(), end(), pathName); }
   };
   PathInfoCollection hltPaths_;
 };

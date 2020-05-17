@@ -39,8 +39,8 @@ void SUSY_HLT_DoubleEle_Hadronic::dqmBeginRun(edm::Run const &run, edm::EventSet
 
   bool pathFound = false;
   const std::vector<std::string> allTrigNames = fHltConfig.triggerNames();
-  for (size_t j = 0; j < allTrigNames.size(); ++j) {
-    if (allTrigNames[j].find(triggerPath_) != std::string::npos) {
+  for (const auto &allTrigName : allTrigNames) {
+    if (allTrigName.find(triggerPath_) != std::string::npos) {
       pathFound = true;
     }
   }
@@ -123,8 +123,8 @@ void SUSY_HLT_DoubleEle_Hadronic::analyze(edm::Event const &e, edm::EventSetup c
   trigger::TriggerObjectCollection triggerObjects = triggerSummary->getObjects();
   if (!(filterIndex >= triggerSummary->sizeFilters())) {
     const trigger::Keys &keys = triggerSummary->filterKeys(filterIndex);
-    for (size_t j = 0; j < keys.size(); ++j) {
-      trigger::TriggerObject foundObject = triggerObjects[keys[j]];
+    for (unsigned short key : keys) {
+      trigger::TriggerObject foundObject = triggerObjects[key];
       if (fabs(foundObject.id()) == 11) {  // It's an electron
 
         bool same = false;
@@ -145,10 +145,8 @@ void SUSY_HLT_DoubleEle_Hadronic::analyze(edm::Event const &e, edm::EventSetup c
       }
     }
     if (ptElectron.size() >= 2) {
-      math::PtEtaPhiMLorentzVectorD *ele1 =
-          new math::PtEtaPhiMLorentzVectorD(ptElectron[0], etaElectron[0], phiElectron[0], 0.0005);
-      math::PtEtaPhiMLorentzVectorD *ele2 =
-          new math::PtEtaPhiMLorentzVectorD(ptElectron[1], etaElectron[1], phiElectron[1], 0.0005);
+      auto *ele1 = new math::PtEtaPhiMLorentzVectorD(ptElectron[0], etaElectron[0], phiElectron[0], 0.0005);
+      auto *ele2 = new math::PtEtaPhiMLorentzVectorD(ptElectron[1], etaElectron[1], phiElectron[1], 0.0005);
       (*ele1) += (*ele2);
       h_triggerDoubleEleMass->Fill(ele1->M());
       delete ele1;
@@ -180,8 +178,7 @@ void SUSY_HLT_DoubleEle_Hadronic::analyze(edm::Event const &e, edm::EventSetup c
     int indexOfMatchedElectron[2] = {-1};
     int matchedCounter = 0;
     int offlineCounter = 0;
-    for (reco::GsfElectronCollection::const_iterator Electron = ElectronCollection->begin();
-         (Electron != ElectronCollection->end() && matchedCounter < 2);
+    for (auto Electron = ElectronCollection->begin(); (Electron != ElectronCollection->end() && matchedCounter < 2);
          ++Electron) {
       for (size_t off_i = 0; off_i < ptElectron.size(); ++off_i) {
         if (sqrt((Electron->phi() - phiElectron[off_i]) * (Electron->phi() - phiElectron[off_i]) +
@@ -196,22 +193,19 @@ void SUSY_HLT_DoubleEle_Hadronic::analyze(edm::Event const &e, edm::EventSetup c
 
     float caloHT = 0.0;
     float pfHT = 0.0;
-    for (reco::PFJetCollection::const_iterator i_pfjet = pfJetCollection->begin(); i_pfjet != pfJetCollection->end();
-         ++i_pfjet) {
-      if (i_pfjet->pt() < ptThrJet_)
+    for (const auto &i_pfjet : *pfJetCollection) {
+      if (i_pfjet.pt() < ptThrJet_)
         continue;
-      if (fabs(i_pfjet->eta()) > etaThrJet_)
+      if (fabs(i_pfjet.eta()) > etaThrJet_)
         continue;
-      pfHT += i_pfjet->pt();
+      pfHT += i_pfjet.pt();
     }
-    for (reco::CaloJetCollection::const_iterator i_calojet = caloJetCollection->begin();
-         i_calojet != caloJetCollection->end();
-         ++i_calojet) {
-      if (i_calojet->pt() < ptThrJet_)
+    for (const auto &i_calojet : *caloJetCollection) {
+      if (i_calojet.pt() < ptThrJet_)
         continue;
-      if (fabs(i_calojet->eta()) > etaThrJet_)
+      if (fabs(i_calojet.eta()) > etaThrJet_)
         continue;
-      caloHT += i_calojet->pt();
+      caloHT += i_calojet.pt();
     }
 
     if (hasFiredAuxiliaryForElectronLeg && ElectronCollection->size() > 1) {

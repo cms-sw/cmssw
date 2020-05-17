@@ -65,22 +65,20 @@ namespace {
                       cmpElem.clusterRef().key() == chkElem.clusterRef().key());
             break;
           case reco::PFBlockElement::SC: {
-            const reco::PFBlockElementSuperCluster& cmpSC =
-                static_cast<const reco::PFBlockElementSuperCluster&>(cmpElem);
-            const reco::PFBlockElementSuperCluster& chkSC =
-                static_cast<const reco::PFBlockElementSuperCluster&>(chkElem);
+            const auto& cmpSC = static_cast<const reco::PFBlockElementSuperCluster&>(cmpElem);
+            const auto& chkSC = static_cast<const reco::PFBlockElementSuperCluster&>(chkElem);
             result = (cmpSC.superClusterRef().isNonnull() && chkSC.superClusterRef().isNonnull() &&
                       cmpSC.superClusterRef()->position() == chkSC.superClusterRef()->position());
           } break;
           case reco::PFBlockElement::GSF: {
-            const reco::PFBlockElementGsfTrack& cmpGSF = static_cast<const reco::PFBlockElementGsfTrack&>(cmpElem);
-            const reco::PFBlockElementGsfTrack& chkGSF = static_cast<const reco::PFBlockElementGsfTrack&>(chkElem);
+            const auto& cmpGSF = static_cast<const reco::PFBlockElementGsfTrack&>(cmpElem);
+            const auto& chkGSF = static_cast<const reco::PFBlockElementGsfTrack&>(chkElem);
             result = (cmpGSF.GsftrackRef().isNonnull() && chkGSF.GsftrackRef().isNonnull() &&
                       cmpGSF.GsftrackRef()->momentum() == chkGSF.GsftrackRef()->momentum());
           } break;
           case reco::PFBlockElement::BREM: {
-            const reco::PFBlockElementBrem& cmpBREM = static_cast<const reco::PFBlockElementBrem&>(cmpElem);
-            const reco::PFBlockElementBrem& chkBREM = static_cast<const reco::PFBlockElementBrem&>(chkElem);
+            const auto& cmpBREM = static_cast<const reco::PFBlockElementBrem&>(cmpElem);
+            const auto& chkBREM = static_cast<const reco::PFBlockElementBrem&>(chkElem);
             result = (cmpBREM.GsftrackRef().isNonnull() && chkBREM.GsftrackRef().isNonnull() &&
                       cmpBREM.GsftrackRef()->momentum() == chkBREM.GsftrackRef()->momentum() &&
                       cmpBREM.indTrajPoint() == chkBREM.indTrajPoint());
@@ -120,22 +118,20 @@ namespace {
                         cmpElem.clusterRef().key() == chkElem.clusterRef().key());
               break;
             case reco::PFBlockElement::SC: {
-              const reco::PFBlockElementSuperCluster& cmpSC =
-                  static_cast<const reco::PFBlockElementSuperCluster&>(cmpElem);
-              const reco::PFBlockElementSuperCluster& chkSC =
-                  static_cast<const reco::PFBlockElementSuperCluster&>(chkElem);
+              const auto& cmpSC = static_cast<const reco::PFBlockElementSuperCluster&>(cmpElem);
+              const auto& chkSC = static_cast<const reco::PFBlockElementSuperCluster&>(chkElem);
               result = (cmpSC.superClusterRef().isNonnull() && chkSC.superClusterRef().isNonnull() &&
                         cmpSC.superClusterRef()->position() == chkSC.superClusterRef()->position());
             } break;
             case reco::PFBlockElement::GSF: {
-              const reco::PFBlockElementGsfTrack& cmpGSF = static_cast<const reco::PFBlockElementGsfTrack&>(cmpElem);
-              const reco::PFBlockElementGsfTrack& chkGSF = static_cast<const reco::PFBlockElementGsfTrack&>(chkElem);
+              const auto& cmpGSF = static_cast<const reco::PFBlockElementGsfTrack&>(cmpElem);
+              const auto& chkGSF = static_cast<const reco::PFBlockElementGsfTrack&>(chkElem);
               result = (cmpGSF.GsftrackRef().isNonnull() && chkGSF.GsftrackRef().isNonnull() &&
                         cmpGSF.GsftrackRef()->momentum() == chkGSF.GsftrackRef()->momentum());
             } break;
             case reco::PFBlockElement::BREM: {
-              const reco::PFBlockElementBrem& cmpBREM = static_cast<const reco::PFBlockElementBrem&>(cmpElem);
-              const reco::PFBlockElementBrem& chkBREM = static_cast<const reco::PFBlockElementBrem&>(chkElem);
+              const auto& cmpBREM = static_cast<const reco::PFBlockElementBrem&>(cmpElem);
+              const auto& chkBREM = static_cast<const reco::PFBlockElementBrem&>(chkElem);
               result = (cmpBREM.GsftrackRef().isNonnull() && chkBREM.GsftrackRef().isNonnull() &&
                         cmpBREM.GsftrackRef()->momentum() == chkBREM.GsftrackRef()->momentum() &&
                         cmpBREM.indTrajPoint() == chkBREM.indTrajPoint());
@@ -161,9 +157,9 @@ class PFBlockComparator : public edm::EDAnalyzer {
 public:
   PFBlockComparator(const PSet& c)
       : _src(c.getParameter<edm::InputTag>("source")), _srcOld(c.getParameter<edm::InputTag>("sourceOld")){};
-  ~PFBlockComparator() {}
+  ~PFBlockComparator() override {}
 
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   edm::InputTag _src;

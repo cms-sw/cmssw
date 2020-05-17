@@ -48,7 +48,7 @@ void work() {
 
   edm::Wrapper<std::vector<double>> wrap3(std::move(thing3));
   assert(wrap3->size() == 10);
-  assert(thing3.get() == 0);
+  assert(thing3.get() == nullptr);
 }
 
 int main() {

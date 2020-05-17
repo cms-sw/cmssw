@@ -67,11 +67,9 @@ namespace IPProducerHelpers {
       iEvent.getByToken(token_associator, jetTracksAssociation);
       std::vector<reco::JTATagInfo> bases;
       size_t i = 0;
-      for (reco::JetTracksAssociationCollection::const_iterator it = jetTracksAssociation->begin();
-           it != jetTracksAssociation->end();
-           it++, i++) {
+      for (auto it = jetTracksAssociation->begin(); it != jetTracksAssociation->end(); it++, i++) {
         edm::Ref<reco::JetTracksAssociationCollection> jtaRef(jetTracksAssociation, i);
-        bases.push_back(reco::JTATagInfo(jtaRef));
+        bases.emplace_back(jtaRef);
       }
       return bases;
     }
@@ -100,7 +98,7 @@ namespace IPProducerHelpers {
       size_t i = 0;
       for (edm::View<reco::Jet>::const_iterator it = jets->begin(); it != jets->end(); it++, i++) {
         edm::RefToBase<reco::Jet> jRef(jets, i);
-        bases.push_back(reco::JetTagInfo(jRef));
+        bases.emplace_back(jRef);
         if (explicitJTA) {
           for (size_t j = 0; j < it->numberOfDaughters(); ++j) {
             if (it->daughterPtr(j)->bestTrack() != nullptr && it->daughterPtr(j)->charge() != 0) {
@@ -257,13 +255,13 @@ void IPProducer<Container, Base, Helper>::produce(edm::Event& iEvent, const edm:
   }
 
   std::vector<Base> baseTagInfos = m_helper.makeBaseVector(iEvent);
-  for (typename std::vector<Base>::const_iterator it = baseTagInfos.begin(); it != baseTagInfos.end(); it++) {
+  for (auto it = baseTagInfos.begin(); it != baseTagInfos.end(); it++) {
     Container tracks = m_helper.tracks(*it);
     math::XYZVector jetMomentum = it->jet()->momentum();
 
     if (m_directionWithTracks) {
       jetMomentum *= 0.5;
-      for (typename Container::const_iterator itTrack = tracks.begin(); itTrack != tracks.end(); ++itTrack)
+      for (auto itTrack = tracks.begin(); itTrack != tracks.end(); ++itTrack)
         if (reco::btag::toTrack(*itTrack)->numberOfValidHits() >= m_cutTotalHits)  //minimal quality cuts
           jetMomentum += (*itTrack)->momentum();
     }
@@ -271,7 +269,7 @@ void IPProducer<Container, Base, Helper>::produce(edm::Event& iEvent, const edm:
     Container selectedTracks;
     std::vector<reco::TransientTrack> transientTracks;
 
-    for (typename Container::const_iterator itTrack = tracks.begin(); itTrack != tracks.end(); ++itTrack) {
+    for (auto itTrack = tracks.begin(); itTrack != tracks.end(); ++itTrack) {
       reco::TransientTrack transientTrack = builder->build(*itTrack);
       const reco::Track& track = transientTrack.track();  //**itTrack;
                                                           /*    cout << " pt " <<  track.pt() <<
@@ -300,8 +298,8 @@ void IPProducer<Container, Base, Helper>::produce(edm::Event& iEvent, const edm:
       reco::GhostTrackFitter fitter;
       GlobalPoint origin = RecoVertex::convertPos(pv->position());
       GlobalError error = RecoVertex::convertError(pv->error());
-      ghostTrack.reset(
-          new reco::GhostTrack(fitter.fit(origin, error, direction, m_ghostTrackPriorDeltaR, transientTracks)));
+      ghostTrack = std::make_unique<reco::GhostTrack>(
+          fitter.fit(origin, error, direction, m_ghostTrackPriorDeltaR, transientTracks));
 
       /*
 	if (std::sqrt(jetMomentum.Perp2()) > 30) {
@@ -338,8 +336,7 @@ void IPProducer<Container, Base, Helper>::produce(edm::Event& iEvent, const edm:
     std::vector<float> prob2D, prob3D;
     std::vector<reco::btag::TrackIPData> ipData;
 
-    for (unsigned int ind = 0; ind < transientTracks.size(); ind++) {
-      const reco::TransientTrack& transientTrack = transientTracks[ind];
+    for (const auto& transientTrack : transientTracks) {
       const reco::Track& track = transientTrack.track();
 
       reco::btag::TrackIPData trackIP;
@@ -356,7 +353,7 @@ void IPProducer<Container, Base, Helper>::produce(edm::Event& iEvent, const edm:
 
       if (ghostTrack.get()) {
         const std::vector<reco::GhostTrackState>& states = ghostTrack->states();
-        std::vector<reco::GhostTrackState>::const_iterator pos = std::find_if(
+        auto pos = std::find_if(
             states.begin(),
             states.end(),
             bind(std::equal_to<reco::TransientTrack>(), bind(&reco::GhostTrackState::track, _1), transientTrack));

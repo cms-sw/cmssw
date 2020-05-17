@@ -71,11 +71,11 @@ BoundDisk* Phase2EndcapLayer::computeDisk(const vector<const Phase2EndcapRing*>&
   float theZmin = rings.front()->position().z() - rings.front()->surface().bounds().thickness() / 2;
   float theZmax = rings.front()->position().z() + rings.front()->surface().bounds().thickness() / 2;
 
-  for (vector<const Phase2EndcapRing*>::const_iterator i = rings.begin(); i != rings.end(); i++) {
-    float rmin = (**i).specificSurface().innerRadius();
-    float rmax = (**i).specificSurface().outerRadius();
-    float zmin = (**i).position().z() - (**i).surface().bounds().thickness() / 2.;
-    float zmax = (**i).position().z() + (**i).surface().bounds().thickness() / 2.;
+  for (auto ring : rings) {
+    float rmin = (*ring).specificSurface().innerRadius();
+    float rmax = (*ring).specificSurface().outerRadius();
+    float zmin = (*ring).position().z() - (*ring).surface().bounds().thickness() / 2.;
+    float zmax = (*ring).position().z() + (*ring).surface().bounds().thickness() / 2.;
     theRmin = min(theRmin, rmin);
     theRmax = max(theRmax, rmax);
     theZmin = min(theZmin, zmin);
@@ -248,12 +248,12 @@ std::array<int, 3> Phase2EndcapLayer::ringIndicesByCrossingProximity(const Traje
     const BoundDisk& theRing = static_cast<const BoundDisk&>(theComps[i]->surface());
     pair<bool, double> pathlen = myXing.pathLength(theRing);
     if (pathlen.first) {
-      ringCrossings.push_back(GlobalPoint(myXing.position(pathlen.second)));
+      ringCrossings.emplace_back(myXing.position(pathlen.second));
       // ringXDirections.push_back( GlobalVector( myXing.direction(pathlen.second )));
     } else {
       // TO FIX.... perhaps there is something smarter to do
       //throw DetLayerException("trajectory doesn't cross TID rings");
-      ringCrossings.push_back(GlobalPoint(0., 0., 0.));
+      ringCrossings.emplace_back(0., 0., 0.);
       //  ringXDirections.push_back( GlobalVector( 0.,0.,0.));
     }
   }

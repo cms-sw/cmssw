@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackReco/interface/fillCovariance.h"
 
@@ -27,7 +29,7 @@ TrackExtra::TrackExtra(const Point &outerPosition,
       innerOk_(iok),
       innerDetId_(innerId),
       seedDir_(seedDir),
-      seedRef_(seedRef) {
+      seedRef_(std::move(seedRef)) {
   index idx = 0;
   for (index i = 0; i < dimension; ++i) {
     for (index j = 0; j <= i; ++j) {

@@ -19,23 +19,23 @@ TECWedge* TECWedgeBuilder::build(const GeometricDet* aTECWedge, const TrackerGeo
 
   //---- to evaluate meanZ
   double meanZ = 0;
-  for (vector<const GeometricDet*>::const_iterator it = theGeometricDets.begin(); it != theGeometricDets.end(); it++) {
-    meanZ = meanZ + (*it)->positionBounds().z();
+  for (auto theGeometricDet : theGeometricDets) {
+    meanZ = meanZ + theGeometricDet->positionBounds().z();
   }
 
   meanZ = meanZ / theGeometricDets.size();
   //edm::LogInfo(TkDetLayers) << "meanZ: " << meanZ ;
   //----
 
-  for (vector<const GeometricDet*>::const_iterator it = theGeometricDets.begin(); it != theGeometricDets.end(); it++) {
+  for (auto theGeometricDet : theGeometricDets) {
     //double theGeometricDetRposition = (*it)->positionBounds().perp();
-    const GeomDet* theGeomDet = theGeomDetGeometry->idToDet((*it)->geographicalID());
+    const GeomDet* theGeomDet = theGeomDetGeometry->idToDet(theGeometricDet->geographicalID());
     //double theGeomDetRposition = theGeomDet->surface().position().perp();
 
-    if (std::abs((*it)->positionBounds().z()) < std::abs(meanZ))
+    if (std::abs(theGeometricDet->positionBounds().z()) < std::abs(meanZ))
       innerGeomDets.push_back(theGeomDet);
 
-    if (std::abs((*it)->positionBounds().z()) > std::abs(meanZ))
+    if (std::abs(theGeometricDet->positionBounds().z()) > std::abs(meanZ))
       outerGeomDets.push_back(theGeomDet);
   }
 

@@ -18,8 +18,8 @@ namespace edmtest {
   public:
     explicit DTHVDump(edm::ParameterSet const& p);
     explicit DTHVDump(int i);
-    virtual ~DTHVDump();
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    ~DTHVDump() override;
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   private:
   };

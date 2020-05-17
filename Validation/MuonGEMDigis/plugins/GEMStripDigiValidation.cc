@@ -182,8 +182,8 @@ void GEMStripDigiValidation::analyze(const edm::Event& event, const edm::EventSe
   }
 
   // NOTE
-  for (auto range_iter = digi_collection->begin(); range_iter != digi_collection->end(); range_iter++) {
-    GEMDetId id = (*range_iter).first;
+  for (auto&& range_iter : *digi_collection) {
+    GEMDetId id = range_iter.first;
     if (gem->idToDet(id) == nullptr) {
       edm::LogError(kLogCategory_) << "Getting DetId failed. Discard this gem strip hit. Maybe it comes "
                                    << "from unmatched geometry." << std::endl;
@@ -203,7 +203,7 @@ void GEMStripDigiValidation::analyze(const edm::Event& event, const edm::EventSe
     const BoundPlane& surface = gem->idToDet(id)->surface();
     const GEMEtaPartition* roll = gem->etaPartition(id);
 
-    const GEMDigiCollection::Range& range = (*range_iter).second;
+    const GEMDigiCollection::Range& range = range_iter.second;
     for (auto digi = range.first; digi != range.second; ++digi) {
       Int_t strip = digi->strip();
       Int_t bx = digi->bx();

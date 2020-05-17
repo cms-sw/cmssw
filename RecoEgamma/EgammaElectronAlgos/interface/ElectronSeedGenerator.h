@@ -60,7 +60,7 @@ public:
            reco::ElectronSeedCollection&);
 
 private:
-  void seedsFromThisCluster(edm::Ref<reco::SuperClusterCollection> seedCluster,
+  void seedsFromThisCluster(const edm::Ref<reco::SuperClusterCollection>& seedCluster,
                             reco::BeamSpot const& beamSpot,
                             std::vector<reco::Vertex> const* vertices,
                             reco::ElectronSeedCollection& out);

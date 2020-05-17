@@ -84,10 +84,10 @@ typedef coll_type::detset detset;
 void check_outer_collection_order(coll_type const& c) {
   if (c.size() < 2)
     return;
-  coll_type::const_iterator i = c.begin();
-  coll_type::const_iterator e = c.end();
+  auto i = c.begin();
+  auto e = c.end();
   // Invariant: sequence from prev to i is correctly ordered
-  coll_type::const_iterator prev(i);
+  auto prev(i);
   ++i;
   for (; i != e; ++i, ++prev) {
     // We don't use CPPUNIT_ASSERT because it gives us grossly
@@ -99,10 +99,10 @@ void check_outer_collection_order(coll_type const& c) {
 void check_inner_collection_order(detset const& d) {
   if (d.data.size() < 2)
     return;
-  detset::const_iterator i = d.data.begin();
-  detset::const_iterator e = d.data.end();
+  auto i = d.data.begin();
+  auto e = d.data.end();
   // Invariant: sequence from prev to i is correctly ordered
-  detset::const_iterator prev(i);
+  auto prev(i);
   ++i;
   for (; i != e; ++i, ++prev) {
     // We don't use CPPUNIT_ASSERT because it gives us grossly
@@ -121,18 +121,18 @@ void printDetSet(detset const& ds, std::ostream& os) {
 
 void sanity_check(coll_type const& c) {
   check_outer_collection_order(c);
-  for (coll_type::const_iterator i = c.begin(), e = c.end(); i != e; ++i) {
+  for (const auto& i : c) {
     //       printDetSet(*i, std::cerr);
     //       std::cerr << '\n';
-    check_inner_collection_order(*i);
+    check_inner_collection_order(i);
   }
 }
 
 void check_ids(coll_type const& c) {
   // Long way to get all ids...
   std::vector<det_id_type> all_ids;
-  for (coll_type::const_iterator i = c.begin(), e = c.end(); i != e; ++i) {
-    all_ids.push_back(i->id);
+  for (const auto& i : c) {
+    all_ids.push_back(i.id);
   }
   assert(c.size() == all_ids.size());
 
@@ -158,15 +158,15 @@ namespace {
   template <typename T>
   struct DSVGetter : edm::EDProductGetter {
     DSVGetter() : edm::EDProductGetter(), prod_(nullptr) {}
-    virtual WrapperBase const* getIt(ProductID const&) const override { return prod_; }
+    WrapperBase const* getIt(ProductID const&) const override { return prod_; }
 
-    virtual WrapperBase const* getThinnedProduct(ProductID const&, unsigned int&) const override { return nullptr; }
+    WrapperBase const* getThinnedProduct(ProductID const&, unsigned int&) const override { return nullptr; }
 
-    virtual void getThinnedProducts(ProductID const& pid,
-                                    std::vector<WrapperBase const*>& wrappers,
-                                    std::vector<unsigned int>& keys) const override {}
+    void getThinnedProducts(ProductID const& pid,
+                            std::vector<WrapperBase const*>& wrappers,
+                            std::vector<unsigned int>& keys) const override {}
 
-    virtual unsigned int transitionIndex_() const override { return 0U; }
+    unsigned int transitionIndex_() const override { return 0U; }
 
     edm::Wrapper<T> const* prod_;
   };
@@ -222,7 +222,7 @@ void refTest() {
     TestHandle<coll_type> pc2(&c, ProductID(1, 1));
     RefDet refDet = makeRefToDetSetVector(pc2, det_id_type(12), c[3].data.begin());
 
-    assert("Failed to throw required exception" == 0);
+    assert("Failed to throw required exception" == nullptr);
   } catch (edm::Exception const& x) {
     //std::cout <<x.what()<<std::endl;
     // Test we have the right exception category
@@ -234,7 +234,7 @@ void refTest() {
     TestHandle<coll_type> pc2(&c, ProductID(1, 1));
     RefDet refDet = makeRefToDetSetVector(pc2, det_id_type(1), c[3].data.begin());
 
-    assert("Failed to throw required exception" == 0);
+    assert("Failed to throw required exception" == nullptr);
   } catch (edm::Exception const& x) {
     //std::cout <<x.what()<<std::endl;
     // Test we have the right exception category
@@ -249,7 +249,7 @@ void work() {
   coll_type c1;
   c1.post_insert();
   sanity_check(c1);
-  assert(c1.size() == 0);
+  assert(c1.empty());
   assert(c1.empty());
 
   coll_type c2(c1);
@@ -309,15 +309,15 @@ void work() {
 
   {
     // We should not find anything with ID=11
-    coll_type::iterator i = c.find(edm::det_id_type(11));
+    auto i = c.find(edm::det_id_type(11));
     assert(i == c.end());
 
-    coll_type::const_iterator ci = static_cast<coll_type const&>(c).find(edm::det_id_type(11));
+    auto ci = static_cast<coll_type const&>(c).find(edm::det_id_type(11));
     assert(ci == c.end());
   }
   {
     // We should find  ID=10
-    coll_type::iterator i = c.find(edm::det_id_type(10));
+    auto i = c.find(edm::det_id_type(10));
     assert(i != c.end());
     assert(i->id == 10);
     assert(i->data.size() == 3);
@@ -327,13 +327,13 @@ void work() {
     // We should not find ID=100; op[] should throw.
     try {
       coll_type::reference r = c[edm::det_id_type(100)];
-      assert("Failed to throw required exception" == 0);
+      assert("Failed to throw required exception" == nullptr);
       assert(is_null(&r));  // to silence warning of unused r
     } catch (edm::Exception const& x) {
       // Test we have the right exception category
       assert(x.categoryCode() == edm::errors::InvalidReference);
     } catch (...) {
-      assert("Failed to throw correct exception type" == 0);
+      assert("Failed to throw correct exception type" == nullptr);
     }
   }
 
@@ -341,13 +341,13 @@ void work() {
     // We should not find ID=100; op[] should throw.
     try {
       coll_type::const_reference r = static_cast<coll_type const&>(c)[edm::det_id_type(100)];
-      assert("Failed to throw required exception" == 0);
+      assert("Failed to throw required exception" == nullptr);
       assert(is_null(&r));  // to silence warning of unused r
     } catch (edm::Exception const& x) {
       // Test we have the right exception category
       assert(x.categoryCode() == edm::errors::InvalidReference);
     } catch (...) {
-      assert("Failed to throw correct exception type" == 0);
+      assert("Failed to throw correct exception type" == nullptr);
     }
   }
   {
@@ -371,7 +371,7 @@ void work() {
     assert(newsize > oldsize);
     assert(newsize == (oldsize + 1));
     assert(r.id == edm::det_id_type(17));
-    assert(r.data.size() == 0);
+    assert(r.data.empty());
     r.data.push_back(Value(10.1));
     r.data.push_back(Value(9.1));
     r.data.push_back(Value(4.0));
@@ -394,7 +394,7 @@ void work() {
     assert(v.size() == numDetSets);
     coll_type c3(v);
     c3.post_insert();
-    assert(v.size() == 0);
+    assert(v.empty());
     assert(c3.size() == numDetSets);
     sanity_check(c3);
 

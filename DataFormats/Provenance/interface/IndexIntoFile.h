@@ -949,7 +949,7 @@ namespace edm {
     /// This implies the client needs to define a class that inherits from
     /// EventFinder and then create one.  This function is used to pass in a
     /// pointer to its base class.
-    void setEventFinder(std::shared_ptr<EventFinder> ptr) { transient_.eventFinder_ = ptr; }
+    void setEventFinder(const std::shared_ptr<EventFinder>& ptr) { transient_.eventFinder_ = ptr; }
 
     /// Fills a vector of event numbers.
     /// Not filling it reduces the memory used by IndexIntoFile.

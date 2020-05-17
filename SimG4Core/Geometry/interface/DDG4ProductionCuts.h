@@ -27,7 +27,7 @@ public:
 
 private:
   void initialize();
-  void setProdCuts(const DDLogicalPart, G4Region*);
+  void setProdCuts(const DDLogicalPart&, G4Region*);
 
   const G4LogicalVolumeToDDLogicalPartMap* map_ = nullptr;
   G4LogicalVolumeToDDLogicalPartMap::Vector vec_;

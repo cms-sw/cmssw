@@ -239,14 +239,13 @@ void HiggsDQM::analyze(const edm::Event& e, const edm::EventSetup& eSetup) {
   if (vertexHandle.isValid()) {
     VertexCollection vertexCollection = *(vertexHandle.product());
     int vertex_number = vertexCollection.size();
-    VertexCollection::const_iterator v = vertexCollection.begin();
+    auto v = vertexCollection.begin();
     double vertex_chi2 = v->normalizedChi2();  // v->chi2();
     double vertex_d0 = sqrt(v->x() * v->x() + v->y() * v->y());
     // double vertex_ndof    = v->ndof();cout << "ndof="<<vertex_ndof<<endl;
     double vertex_numTrks = v->tracksSize();
     double vertex_sumTrks = 0.0;
-    for (Vertex::trackRef_iterator vertex_curTrack = v->tracks_begin(); vertex_curTrack != v->tracks_end();
-         vertex_curTrack++) {
+    for (auto vertex_curTrack = v->tracks_begin(); vertex_curTrack != v->tracks_end(); vertex_curTrack++) {
       vertex_sumTrks += (*vertex_curTrack)->pt();
     }
     h_vertex_number->Fill(vertex_number);
@@ -267,17 +266,15 @@ void HiggsDQM::analyze(const edm::Event& e, const edm::EventSetup& eSetup) {
     // If it passed electron HLT and the collection was found, find electrons
     // near Z mass
     if (passed_electron_HLT) {
-      for (reco::GsfElectronCollection::const_iterator recoElectron = electronCollection->begin();
-           recoElectron != electronCollection->end();
-           recoElectron++) {
+      for (const auto& recoElectron : *electronCollection) {
         //      cout << "Electron with pt= " <<  recoElectron->pt() << " and
         // eta" << recoElectron->eta() << " p=" <<  recoElectron->p() << endl;
-        h_ePt->Fill(recoElectron->pt());
-        h_eEta->Fill(recoElectron->eta());
-        h_ePhi->Fill(recoElectron->phi());
-        if (recoElectron->charge() == 1) {
+        h_ePt->Fill(recoElectron.pt());
+        h_eEta->Fill(recoElectron.eta());
+        h_ePhi->Fill(recoElectron.phi());
+        if (recoElectron.charge() == 1) {
           posEle++;
-        } else if (recoElectron->charge() == -1) {
+        } else if (recoElectron.charge() == -1) {
           negEle++;
         }
         // Require electron to pass some basic cuts
@@ -324,35 +321,34 @@ void HiggsDQM::analyze(const edm::Event& e, const edm::EventSetup& eSetup) {
     int posMu = 0, negMu = 0;
     TLorentzVector m1, m2;
     if (passed_muon_HLT) {
-      for (reco::MuonCollection::const_iterator recoMuon = muonCollection->begin(); recoMuon != muonCollection->end();
-           recoMuon++) {
+      for (const auto& recoMuon : *muonCollection) {
         // cout << "Muon with pt= " <<  muIter->pt() << " and eta" <<
         // muIter->eta() << " p=" <<  muIter->p() << endl;
-        if (recoMuon->isGlobalMuon() && recoMuon->isTrackerMuon()) {
-          h_mPt_GMTM->Fill(recoMuon->pt());
-          h_mEta_GMTM->Fill(recoMuon->eta());
-          h_mPhi_GMTM->Fill(recoMuon->phi());
-        } else if (recoMuon->isGlobalMuon() && (muon::isGoodMuon((*recoMuon), muon::GlobalMuonPromptTight))) {
-          h_mPt_GMPT->Fill(recoMuon->pt());
-          h_mEta_GMPT->Fill(recoMuon->eta());
-          h_mPhi_GMPT->Fill(recoMuon->phi());
-        } else if (recoMuon->isGlobalMuon()) {
-          h_mPt_GM->Fill(recoMuon->pt());
-          h_mEta_GM->Fill(recoMuon->eta());
-          h_mPhi_GM->Fill(recoMuon->phi());
-        } else if (recoMuon->isTrackerMuon() &&
-                   (muon::segmentCompatibility((*recoMuon), reco::Muon::SegmentAndTrackArbitration))) {
-          h_mPt_TM->Fill(recoMuon->pt());
-          h_mEta_TM->Fill(recoMuon->eta());
-          h_mPhi_TM->Fill(recoMuon->phi());
-        } else if (recoMuon->isStandAloneMuon()) {
-          h_mPt_STAM->Fill(recoMuon->pt());
-          h_mEta_STAM->Fill(recoMuon->eta());
-          h_mPhi_STAM->Fill(recoMuon->phi());
+        if (recoMuon.isGlobalMuon() && recoMuon.isTrackerMuon()) {
+          h_mPt_GMTM->Fill(recoMuon.pt());
+          h_mEta_GMTM->Fill(recoMuon.eta());
+          h_mPhi_GMTM->Fill(recoMuon.phi());
+        } else if (recoMuon.isGlobalMuon() && (muon::isGoodMuon(recoMuon, muon::GlobalMuonPromptTight))) {
+          h_mPt_GMPT->Fill(recoMuon.pt());
+          h_mEta_GMPT->Fill(recoMuon.eta());
+          h_mPhi_GMPT->Fill(recoMuon.phi());
+        } else if (recoMuon.isGlobalMuon()) {
+          h_mPt_GM->Fill(recoMuon.pt());
+          h_mEta_GM->Fill(recoMuon.eta());
+          h_mPhi_GM->Fill(recoMuon.phi());
+        } else if (recoMuon.isTrackerMuon() &&
+                   (muon::segmentCompatibility(recoMuon, reco::Muon::SegmentAndTrackArbitration))) {
+          h_mPt_TM->Fill(recoMuon.pt());
+          h_mEta_TM->Fill(recoMuon.eta());
+          h_mPhi_TM->Fill(recoMuon.phi());
+        } else if (recoMuon.isStandAloneMuon()) {
+          h_mPt_STAM->Fill(recoMuon.pt());
+          h_mEta_STAM->Fill(recoMuon.eta());
+          h_mPhi_STAM->Fill(recoMuon.phi());
         }
-        if (recoMuon->charge() == 1) {
+        if (recoMuon.charge() == 1) {
           posMu++;
-        } else if (recoMuon->charge() == -1) {
+        } else if (recoMuon.charge() == -1) {
           negMu++;
         }
       }
@@ -410,10 +406,8 @@ void HiggsDQM::analyze(const edm::Event& e, const edm::EventSetup& eSetup) {
     float jet2_et = -9.0;
     //    float jet2_eta  = -9.0; // UNUSED
     //    float jet2_phi  = -9.0; // UNUSED
-    for (CaloJetCollection::const_iterator i_calojet = caloJetCollection->begin();
-         i_calojet != caloJetCollection->end();
-         i_calojet++) {
-      float jet_current_et = i_calojet->et();
+    for (const auto& i_calojet : *caloJetCollection) {
+      float jet_current_et = i_calojet.et();
       // if it overlaps with electron, it is not a jet
       // if ( electron_et>0.0 && fabs(i_calojet->eta()-electron_eta ) < 0.2 &&
       // calcDeltaPhi(i_calojet->phi(), electron_phi ) < 0.2) continue;
@@ -427,12 +421,12 @@ void HiggsDQM::analyze(const edm::Event& e, const edm::EventSetup& eSetup) {
         jet2_et = jet_et;          // 2nd highest jet get's et from current highest
                                    //        jet2_eta = jet_eta; // UNUSED
                                    //        jet2_phi = jet_phi; // UNUSED
-        jet_et = i_calojet->et();  // current highest jet gets et from the new
+        jet_et = i_calojet.et();   // current highest jet gets et from the new
                                    // highest
         //        jet_eta  = i_calojet->eta(); // UNUSED
         //        jet_phi  = i_calojet->phi(); // UNUSED
       } else if (jet_current_et > jet2_et) {
-        jet2_et = i_calojet->et();
+        jet2_et = i_calojet.et();
         //        jet2_eta = i_calojet->eta(); // UNUSED
         //        jet2_phi = i_calojet->phi(); // UNUSED
       }

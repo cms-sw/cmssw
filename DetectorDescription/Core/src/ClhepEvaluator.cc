@@ -27,7 +27,7 @@ void dd_exchange_value(std::vector<std::string>& vars,
                        std::vector<std::string>& vals,
                        const std::string& var,
                        const std::string& val) {
-  std::vector<std::string>::iterator it(vars.begin()), ed(vars.end());
+  auto it(vars.begin()), ed(vars.end());
   std::vector<std::string>::size_type count(0);
   for (; it != ed; ++it) {
     if (*it == var) {

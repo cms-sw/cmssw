@@ -18,8 +18,8 @@ void GeometricSearchDet::compatibleDetsV(const TrajectoryStateOnSurface& startin
 
   std::vector<DetGroup> vectorGroups;
   groupedCompatibleDetsV(startingState, prop, est, vectorGroups);
-  for (auto itDG = vectorGroups.begin(); itDG != vectorGroups.end(); itDG++) {
-    for (auto itDGE = itDG->begin(); itDGE != itDG->end(); itDGE++) {
+  for (auto& vectorGroup : vectorGroups) {
+    for (auto itDGE = vectorGroup.begin(); itDGE != vectorGroup.end(); itDGE++) {
       result.emplace_back(itDGE->det(), itDGE->trajectoryState());
     }
   }

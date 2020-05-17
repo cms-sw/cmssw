@@ -26,8 +26,8 @@ public:
   void ProcessBooking(DQMStore::IBooker &, DQMStore::IGetter &, std::string nameHist, TH1F *num, TH1F *den);
   void ProcessBookingBKG(
       DQMStore::IBooker &ibooker, DQMStore::IGetter &ig, std::string nameHist, TH1F *hist, TH1F *hist2);
-  TProfile *ComputeEff(TH1F *num, TH1F *denum, std::string nameHist);
-  TH1F *ComputeBKG(TH1F *hist1, TH1F *hist2, std::string nameHist);
+  TProfile *ComputeEff(TH1F *num, TH1F *denum, const std::string &nameHist);
+  TH1F *ComputeBKG(TH1F *hist1, TH1F *hist2, const std::string &nameHist);
 
 private:
   std::string dbe_path_;

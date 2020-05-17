@@ -86,12 +86,12 @@ void SiStripDigiValidator::validate(const edm::DetSetVector<SiStripDigi>& collec
   }
 
   //loop over first collection DetSets comparing them to same DetSet in other collection
-  edm::DetSetVector<SiStripDigi>::const_iterator iDetSet1 = collection1.begin();
-  edm::DetSetVector<SiStripDigi>::const_iterator jDetSet1 = collection1.end();
+  auto iDetSet1 = collection1.begin();
+  auto jDetSet1 = collection1.end();
   for (; iDetSet1 != jDetSet1; ++iDetSet1) {
     //check that it exists
     edm::det_id_type id = iDetSet1->detId();
-    edm::DetSetVector<SiStripDigi>::const_iterator iDetSet2 = collection2.find(id);
+    auto iDetSet2 = collection2.find(id);
     if (iDetSet2 == collection2.end()) {
       std::stringstream ss;
       ss << "[SiStripDigiValidator::" << __func__ << "]" << std::endl
@@ -102,9 +102,9 @@ void SiStripDigiValidator::validate(const edm::DetSetVector<SiStripDigi>& collec
     }
 
     //check that the digis are identical
-    edm::DetSet<SiStripDigi>::const_iterator iDigi1 = iDetSet1->begin();
-    edm::DetSet<SiStripDigi>::const_iterator iDigi2 = iDetSet2->begin();
-    edm::DetSet<SiStripDigi>::const_iterator jDigi2 = iDetSet2->end();
+    auto iDigi1 = iDetSet1->begin();
+    auto iDigi2 = iDetSet2->begin();
+    auto jDigi2 = iDetSet2->end();
     for (; iDigi2 != jDigi2; ++iDigi2) {
       if ((iDigi1->adc() == iDigi2->adc()) && (iDigi1->strip() == iDigi2->strip()))
         iDigi1++;
@@ -133,12 +133,12 @@ void SiStripDigiValidator::validate(const edm::DetSetVector<SiStripDigi>& collec
   }
 
   //loop over first collection DetSets comparing them to same DetSet in other collection
-  edm::DetSetVector<SiStripDigi>::const_iterator iDetSet1 = collection1.begin();
-  edm::DetSetVector<SiStripDigi>::const_iterator jDetSet1 = collection1.end();
+  auto iDetSet1 = collection1.begin();
+  auto jDetSet1 = collection1.end();
   for (; iDetSet1 != jDetSet1; ++iDetSet1) {
     //check that it exists
     edm::det_id_type id = iDetSet1->detId();
-    edm::DetSetVector<SiStripRawDigi>::const_iterator iDetSet2 = collection2.find(id);
+    auto iDetSet2 = collection2.find(id);
     if (iDetSet2 == collection2.end()) {
       std::stringstream ss;
       ss << "[SiStripDigiValidator::" << __func__ << "]" << std::endl
@@ -149,9 +149,9 @@ void SiStripDigiValidator::validate(const edm::DetSetVector<SiStripDigi>& collec
     }
 
     //check that the digis are identical
-    edm::DetSet<SiStripDigi>::const_iterator iDigi1 = iDetSet1->begin();
-    edm::DetSet<SiStripRawDigi>::const_iterator iDigi2 = iDetSet2->begin();
-    edm::DetSet<SiStripRawDigi>::const_iterator jDigi2 = iDetSet2->end();
+    auto iDigi1 = iDetSet1->begin();
+    auto iDigi2 = iDetSet2->begin();
+    auto jDigi2 = iDetSet2->end();
 
     for (; iDigi2 != jDigi2; ++iDigi2) {
       if ((iDigi1->adc() == iDigi2->adc()) && (iDigi1->strip() == iDigi2 - iDetSet2->begin()))
@@ -187,12 +187,12 @@ void SiStripDigiValidator::validate(const edm::DetSetVector<SiStripRawDigi>& col
   }
 
   //loop over first collection DetSets comparing them to same DetSet in other collection
-  edm::DetSetVector<SiStripRawDigi>::const_iterator iDetSet1 = collection1.begin();
-  edm::DetSetVector<SiStripRawDigi>::const_iterator jDetSet1 = collection1.end();
+  auto iDetSet1 = collection1.begin();
+  auto jDetSet1 = collection1.end();
   for (; iDetSet1 != jDetSet1; ++iDetSet1) {
     //check that it exists
     edm::det_id_type id = iDetSet1->detId();
-    edm::DetSetVector<SiStripRawDigi>::const_iterator iDetSet2 = collection2.find(id);
+    auto iDetSet2 = collection2.find(id);
     if (iDetSet2 == collection2.end()) {
       std::stringstream ss;
       ss << "[SiStripDigiValidator::" << __func__ << "]" << std::endl
@@ -203,9 +203,9 @@ void SiStripDigiValidator::validate(const edm::DetSetVector<SiStripRawDigi>& col
     }
 
     //check that the digis are identical
-    edm::DetSet<SiStripRawDigi>::const_iterator iDigi1 = iDetSet1->begin();
-    edm::DetSet<SiStripRawDigi>::const_iterator iDigi2 = iDetSet2->begin();
-    edm::DetSet<SiStripRawDigi>::const_iterator jDigi2 = iDetSet2->end();
+    auto iDigi1 = iDetSet1->begin();
+    auto iDigi2 = iDetSet2->begin();
+    auto jDigi2 = iDetSet2->end();
     for (; iDigi2 != jDigi2; ++iDigi2) {
       if (iDigi1->adc() != iDigi2->adc() || iDigi1 - iDetSet1->begin() != iDigi2 - iDetSet2->begin()) {
         break;

@@ -111,8 +111,7 @@ void HGCalTestNeighbor::doTest(const HGCalGeometry* geom, ForwardSubdetector sub
   int wafers[] = {1, 101, 201, 301, 401};
   const int ismax(5);
   for (int zside : zsides) {
-    for (int is = 0; is < ismax; ++is) {
-      int sector = wafers[is];
+    for (int sector : wafers) {
       int type = geom->topology().dddConstants().waferTypeT(sector);
       if (type != 1)
         type = 0;

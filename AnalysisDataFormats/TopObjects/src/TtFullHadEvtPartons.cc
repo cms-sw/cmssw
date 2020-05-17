@@ -8,22 +8,22 @@ TtFullHadEvtPartons::TtFullHadEvtPartons(const std::vector<std::string>& partons
   for (unsigned int i = 0; i < 6; i++)
     ignorePartons_.push_back(false);
   // read vector of strings and flag partons to be ignored
-  for (std::vector<std::string>::const_iterator str = partonsToIgnore.begin(); str != partonsToIgnore.end(); ++str) {
-    if ((*str) == "LightQ")
+  for (const auto& str : partonsToIgnore) {
+    if (str == "LightQ")
       ignorePartons_[LightQ] = true;
-    else if ((*str) == "LightQBar")
+    else if (str == "LightQBar")
       ignorePartons_[LightQBar] = true;
-    else if ((*str) == "B")
+    else if (str == "B")
       ignorePartons_[B] = true;
-    else if ((*str) == "LightP")
+    else if (str == "LightP")
       ignorePartons_[LightP] = true;
-    else if ((*str) == "LightPBar")
+    else if (str == "LightPBar")
       ignorePartons_[LightPBar] = true;
-    else if ((*str) == "BBar")
+    else if (str == "BBar")
       ignorePartons_[BBar] = true;
     else
       throw cms::Exception("Configuration")
-          << "The following string in partonsToIgnore is not supported: " << (*str) << "\n";
+          << "The following string in partonsToIgnore is not supported: " << str << "\n";
   }
 }
 

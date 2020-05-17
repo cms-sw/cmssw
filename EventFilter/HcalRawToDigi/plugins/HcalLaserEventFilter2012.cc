@@ -55,7 +55,7 @@ void HcalLaserEventFilter2012::addEventString(const string& eventString) {
   unsigned int ls = 0;
   unsigned int event = 0;
   // Check that event list object is in correct form
-  size_t found = eventString.find(":");  // find first colon
+  size_t found = eventString.find(':');  // find first colon
   if (found != std::string::npos)
     run = atoi((eventString.substr(0, found)).c_str());  // convert to run
   else {
@@ -63,7 +63,7 @@ void HcalLaserEventFilter2012::addEventString(const string& eventString) {
         << "  Unable to parse Event list input '" << eventString << "' for run number!";
     return;
   }
-  size_t found2 = eventString.find(":", found + 1);  // find second colon
+  size_t found2 = eventString.find(':', found + 1);  // find second colon
   if (found2 != std::string::npos) {
     /// Some event numbers are less than 0?  \JetHT\Run2012C-v1\RAW:201278:2145:-2130281065  -- due to events being dumped out as ints, not uints!
     ls = atoi((eventString.substr(found + 1, (found2 - found - 1))).c_str());  // convert to ls
@@ -178,7 +178,7 @@ bool HcalLaserEventFilter2012::filter(edm::Event& iEvent, const edm::EventSetup&
   thisevent << run << ":" << iEvent.luminosityBlock() << ":" << iEvent.id().event();
 
   // Event not found in bad list; it is a good event
-  strVecI it = std::lower_bound(EventList_.begin(), EventList_.end(), thisevent.str());
+  auto it = std::lower_bound(EventList_.begin(), EventList_.end(), thisevent.str());
   if (it == EventList_.end() || thisevent.str() < *it)
     return true;
   // Otherwise, this is a bad event

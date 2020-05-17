@@ -130,9 +130,9 @@ void RPCRecHitProducer::produce(Event& event, const EventSetup& setup) {
 
   // Iterate through all digi collections ordered by LayerId
 
-  for (auto rpcdgIt = digis->begin(); rpcdgIt != digis->end(); ++rpcdgIt) {
+  for (auto&& rpcdgIt : *digis) {
     // The layerId
-    const RPCDetId& rpcId = (*rpcdgIt).first;
+    const RPCDetId& rpcId = rpcdgIt.first;
 
     // Get the GeomDet from the setup
     const RPCRoll* roll = rpcGeom->roll(rpcId);
@@ -142,7 +142,7 @@ void RPCRecHitProducer::produce(Event& event, const EventSetup& setup) {
     }
 
     // Get the iterators over the digis associated with this LayerId
-    const RPCDigiCollection::Range& range = (*rpcdgIt).second;
+    const RPCDigiCollection::Range& range = rpcdgIt.second;
 
     // Getting the roll mask, that includes dead strips, for the given RPCDet
     RollMask mask;

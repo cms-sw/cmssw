@@ -5,40 +5,40 @@
 //
 // Get a list of MEs in a folder
 //
-int TrackingUtility::getMEList(std::string name, std::vector<std::string>& values) {
+int TrackingUtility::getMEList(const std::string& name, std::vector<std::string>& values) {
   values.clear();
-  std::string prefix_str = name.substr(0, (name.find(":")));
+  std::string prefix_str = name.substr(0, (name.find(':')));
   prefix_str += "/";
-  std::string temp_str = name.substr(name.find(":") + 1);
+  std::string temp_str = name.substr(name.find(':') + 1);
   split(temp_str, values, ",");
-  for (std::vector<std::string>::iterator it = values.begin(); it != values.end(); it++)
-    (*it).insert(0, prefix_str);
+  for (auto& value : values)
+    value.insert(0, prefix_str);
   return values.size();
 }
 //
 // Get a list of MEs in a folder and the path name
 //
-int TrackingUtility::getMEList(std::string name, std::string& dir_path, std::vector<std::string>& values) {
+int TrackingUtility::getMEList(const std::string& name, std::string& dir_path, std::vector<std::string>& values) {
   values.clear();
-  dir_path = name.substr(0, (name.find(":")));
+  dir_path = name.substr(0, (name.find(':')));
   dir_path += "/";
-  std::string temp_str = name.substr(name.find(":") + 1);
+  std::string temp_str = name.substr(name.find(':') + 1);
   split(temp_str, values, ",");
   return values.size();
 }
 
 // Check if the requested ME exists in a folder
-bool TrackingUtility::checkME(std::string name, std::string me_name, std::string& full_path) {
+bool TrackingUtility::checkME(const std::string& name, const std::string& me_name, std::string& full_path) {
   if (name.find(name) == std::string::npos)
     return false;
-  std::string prefix_str = name.substr(0, (name.find(":")));
+  std::string prefix_str = name.substr(0, (name.find(':')));
   prefix_str += "/";
-  std::string temp_str = name.substr(name.find(":") + 1);
+  std::string temp_str = name.substr(name.find(':') + 1);
   std::vector<std::string> values;
   split(temp_str, values, ",");
-  for (std::vector<std::string>::iterator it = values.begin(); it != values.end(); it++) {
-    if ((*it).find(me_name) != std::string::npos) {
-      full_path = prefix_str + (*it);
+  for (auto& value : values) {
+    if (value.find(me_name) != std::string::npos) {
+      full_path = prefix_str + value;
       return true;
     }
   }
@@ -144,8 +144,8 @@ void TrackingUtility::getModuleFolderList(DQMStore::IBooker& ibooker,
     mfolders.push_back(currDir);
   } else {
     std::vector<std::string> subdirs = igetter.getSubdirs();
-    for (std::vector<std::string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) {
-      ibooker.cd(*it);
+    for (const auto& subdir : subdirs) {
+      ibooker.cd(subdir);
       getModuleFolderList(ibooker, igetter, mfolders);
       ibooker.goUp();
     }
@@ -190,15 +190,15 @@ void TrackingUtility::getMEValue(MonitorElement* me, std::string& val) {
 //
 // -- go to a given Directory
 //
-bool TrackingUtility::goToDir(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, std::string name) {
+bool TrackingUtility::goToDir(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, const std::string& name) {
   std::string currDir = ibooker.pwd();
-  std::string dirName = currDir.substr(currDir.find_last_of("/") + 1);
+  std::string dirName = currDir.substr(currDir.find_last_of('/') + 1);
   if (dirName.find(name) == 0) {
     return true;
   }
   std::vector<std::string> subDirVec = igetter.getSubdirs();
-  for (std::vector<std::string>::const_iterator ic = subDirVec.begin(); ic != subDirVec.end(); ic++) {
-    std::string fname = (*ic);
+  for (const auto& ic : subDirVec) {
+    std::string fname = ic;
     if ((fname.find("Reference") != std::string::npos) || (fname.find("AlCaReco") != std::string::npos) ||
         (fname.find("HLT") != std::string::npos))
       continue;
@@ -250,7 +250,7 @@ void TrackingUtility::getBadModuleStatus(uint16_t flag, std::string& message) {
 //
 void TrackingUtility::getTopFolderPath(DQMStore::IBooker& ibooker,
                                        DQMStore::IGetter& igetter,
-                                       std::string top_dir,
+                                       const std::string& top_dir,
                                        std::string& path) {
   path = "";
   ibooker.cd();

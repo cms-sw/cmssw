@@ -15,10 +15,10 @@ private:
 
 std::unique_ptr<L1MuGMTChannelMask> L1MuGMTChannelMaskOnlineProducer::newObject(const std::string& objectKey) {
   std::vector<std::string> columns;
-  columns.push_back("ENABLE_RPCB");
-  columns.push_back("ENABLE_CSC");
-  columns.push_back("ENABLE_DT");
-  columns.push_back("ENABLE_RPCF");
+  columns.emplace_back("ENABLE_RPCB");
+  columns.emplace_back("ENABLE_CSC");
+  columns.emplace_back("ENABLE_DT");
+  columns.emplace_back("ENABLE_RPCF");
 
   // Execute SQL queries to get data from OMDS (using key) and make C++ object
   // Example: SELECT A_PARAMETER FROM CMS_XXX.XXX_CONF WHERE XXX_CONF.XXX_KEY = objectKey

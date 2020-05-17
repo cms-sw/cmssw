@@ -20,7 +20,7 @@ void DropBoxMetadata::Parameters::addParameter(const string& key, const string& 
 
 string DropBoxMetadata::Parameters::getParameter(const string& key) const {
   string ret;
-  map<string, string>::const_iterator thePair = theParameters.find(key);
+  auto thePair = theParameters.find(key);
   if (thePair != theParameters.end()) {
     ret = (*thePair).second;
   }

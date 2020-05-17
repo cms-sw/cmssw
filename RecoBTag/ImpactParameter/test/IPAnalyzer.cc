@@ -52,9 +52,9 @@ using namespace reco;
 class IPAnalyzer : public edm::EDAnalyzer {
 public:
   explicit IPAnalyzer(const edm::ParameterSet&);
-  ~IPAnalyzer() {}
+  ~IPAnalyzer() override {}
 
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
 private:
   edm::InputTag m_assoc;
@@ -83,7 +83,7 @@ void IPAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   cout << boolalpha;
   cout << fixed;
 
-  TrackIPTagInfoCollection::const_iterator it = ip.begin();
+  auto it = ip.begin();
   for (; it != ip.end(); it++) {
     cout << "Jet pt: " << it->jet()->pt() << endl;
     cout << "Tot tracks: " << it->tracks().size() << endl;

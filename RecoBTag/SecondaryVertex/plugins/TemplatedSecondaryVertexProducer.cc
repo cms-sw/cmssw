@@ -398,16 +398,14 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
                   << "TemplatedSecondaryVertexProducer: No weights (e.g. PUPPI) given for weighted jet collection"
                   << std::endl;
             float w = (*weightsHandle)[constit];
-            fjInputs.push_back(
-                fastjet::PseudoJet(constit->px() * w, constit->py() * w, constit->pz() * w, constit->energy() * w));
+            fjInputs.emplace_back(constit->px() * w, constit->py() * w, constit->pz() * w, constit->energy() * w);
           } else {
-            fjInputs.push_back(fastjet::PseudoJet(constit->px(), constit->py(), constit->pz(), constit->energy()));
+            fjInputs.emplace_back(constit->px(), constit->py(), constit->pz(), constit->energy());
           }
         }
       }
     } else {
-      for (typename std::vector<IPTI>::const_iterator it = trackIPTagInfos->begin(); it != trackIPTagInfos->end();
-           ++it) {
+      for (auto it = trackIPTagInfos->begin(); it != trackIPTagInfos->end(); ++it) {
         std::vector<edm::Ptr<reco::Candidate> > constituents = it->jet()->getJetConstituents();
         std::vector<edm::Ptr<reco::Candidate> >::const_iterator m;
         for (m = constituents.begin(); m != constituents.end(); ++m) {
@@ -422,10 +420,9 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
                   << "TemplatedSecondaryVertexProducer: No weights (e.g. PUPPI) given for weighted jet collection"
                   << std::endl;
             float w = (*weightsHandle)[constit];
-            fjInputs.push_back(
-                fastjet::PseudoJet(constit->px() * w, constit->py() * w, constit->pz() * w, constit->energy() * w));
+            fjInputs.emplace_back(constit->px() * w, constit->py() * w, constit->pz() * w, constit->energy() * w);
           } else {
-            fjInputs.push_back(fastjet::PseudoJet(constit->px(), constit->py(), constit->pz(), constit->energy()));
+            fjInputs.emplace_back(constit->px(), constit->py(), constit->pz(), constit->energy());
           }
         }
       }
@@ -520,18 +517,17 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
 
         std::vector<int> svIndices;
         // loop over jet constituents and try to find "ghosts"
-        for (std::vector<fastjet::PseudoJet>::const_iterator it = constituents.begin(); it != constituents.end();
-             ++it) {
-          if (!it->has_user_info())
+        for (const auto &constituent : constituents) {
+          if (!constituent.has_user_info())
             continue;  // skip if not a "ghost"
 
-          svIndices.push_back(it->user_info<VertexInfo>().vertexIndex());
+          svIndices.push_back(constituent.user_info<VertexInfo>().vertexIndex());
         }
 
         // loop over clustered SVs and assign them to different subjets based on smallest dR
-        for (size_t sv = 0; sv < svIndices.size(); ++sv) {
+        for (int &svIndice : svIndices) {
           const reco::Vertex &pv = *(trackIPTagInfos->front().primaryVertex());
-          const VTX &extSV = (*extSecVertex)[svIndices.at(sv)];
+          const VTX &extSV = (*extSecVertex)[svIndice];
           GlobalVector dir = flightDirection(pv, extSV);
           dir = dir.unit();
           fastjet::PseudoJet p(
@@ -541,17 +537,17 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
 
           std::vector<double> dR2toSubjets;
 
-          for (size_t sj = 0; sj < subjetIndices.at(i).size(); ++sj)
+          for (int &sj : subjetIndices.at(i))
             dR2toSubjets.push_back(Geom::deltaR2(p.rapidity(),
                                                  p.phi_std(),
-                                                 trackIPTagInfos->at(subjetIndices.at(i).at(sj)).jet()->rapidity(),
-                                                 trackIPTagInfos->at(subjetIndices.at(i).at(sj)).jet()->phi()));
+                                                 trackIPTagInfos->at(sj).jet()->rapidity(),
+                                                 trackIPTagInfos->at(sj).jet()->phi()));
 
           // find the closest subjet
           int closestSubjetIdx =
               std::distance(dR2toSubjets.begin(), std::min_element(dR2toSubjets.begin(), dR2toSubjets.end()));
 
-          clusteredSVs.at(subjetIndices.at(i).at(closestSubjetIdx)).push_back(svIndices.at(sv));
+          clusteredSVs.at(subjetIndices.at(i).at(closestSubjetIdx)).push_back(svIndice);
         }
       }
     } else {
@@ -609,12 +605,11 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
         std::vector<fastjet::PseudoJet> constituents = inclusiveJets.at(reclusteredIndices.at(i)).constituents();
 
         // loop over jet constituents and try to find "ghosts"
-        for (std::vector<fastjet::PseudoJet>::const_iterator it = constituents.begin(); it != constituents.end();
-             ++it) {
-          if (!it->has_user_info())
+        for (const auto &constituent : constituents) {
+          if (!constituent.has_user_info())
             continue;  // skip if not a "ghost"
           // push back clustered SV indices
-          clusteredSVs.at(i).push_back(it->user_info<VertexInfo>().vertexIndex());
+          clusteredSVs.at(i).push_back(constituent.user_info<VertexInfo>().vertexIndex());
         }
       }
     }
@@ -666,11 +661,11 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
 
         std::vector<double> dR2toSubjets;
 
-        for (size_t sj = 0; sj < subjetIndices.at(i).size(); ++sj)
+        for (int &sj : subjetIndices.at(i))
           dR2toSubjets.push_back(Geom::deltaR2(p.rapidity(),
                                                p.phi_std(),
-                                               trackIPTagInfos->at(subjetIndices.at(i).at(sj)).jet()->rapidity(),
-                                               trackIPTagInfos->at(subjetIndices.at(i).at(sj)).jet()->phi()));
+                                               trackIPTagInfos->at(sj).jet()->rapidity(),
+                                               trackIPTagInfos->at(sj).jet()->phi()));
 
         // find the closest subjet
         int closestSubjetIdx =
@@ -685,14 +680,14 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
   std::unique_ptr<ConfigurableVertexReconstructor> vertexReco;
   std::unique_ptr<GhostTrackVertexFinder> vertexRecoGT;
   if (useGhostTrack)
-    vertexRecoGT.reset(
-        new GhostTrackVertexFinder(vtxRecoPSet.getParameter<double>("maxFitChi2"),
-                                   vtxRecoPSet.getParameter<double>("mergeThreshold"),
-                                   vtxRecoPSet.getParameter<double>("primcut"),
-                                   vtxRecoPSet.getParameter<double>("seccut"),
-                                   getGhostTrackFitType(vtxRecoPSet.getParameter<std::string>("fitType"))));
+    vertexRecoGT = std::make_unique<GhostTrackVertexFinder>(
+        vtxRecoPSet.getParameter<double>("maxFitChi2"),
+        vtxRecoPSet.getParameter<double>("mergeThreshold"),
+        vtxRecoPSet.getParameter<double>("primcut"),
+        vtxRecoPSet.getParameter<double>("seccut"),
+        getGhostTrackFitType(vtxRecoPSet.getParameter<std::string>("fitType")));
   else
-    vertexReco.reset(new ConfigurableVertexReconstructor(vtxRecoPSet));
+    vertexReco = std::make_unique<ConfigurableVertexReconstructor>(vtxRecoPSet);
 
   TransientTrackMap primariesMap;
 
@@ -700,9 +695,7 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
 
   auto tagInfos = std::make_unique<Product>();
 
-  for (typename std::vector<IPTI>::const_iterator iterJets = trackIPTagInfos->begin();
-       iterJets != trackIPTagInfos->end();
-       ++iterJets) {
+  for (auto iterJets = trackIPTagInfos->begin(); iterJets != trackIPTagInfos->end(); ++iterJets) {
     TrackDataVector trackData;
     //		      std::cout << "Jet " << iterJets-trackIPTagInfos->begin() << std::endl;
 
@@ -710,8 +703,8 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
 
     std::set<TransientTrack> primaries;
     if (constraint == CONSTRAINT_PV_PRIMARIES_IN_FIT) {
-      for (Vertex::trackRef_iterator iter = pv.tracks_begin(); iter != pv.tracks_end(); ++iter) {
-        TransientTrackMap::iterator pos = primariesMap.lower_bound(iter->get());
+      for (auto iter = pv.tracks_begin(); iter != pv.tracks_end(); ++iter) {
+        auto pos = primariesMap.lower_bound(iter->get());
 
         if (pos != primariesMap.end() && pos->first == iter->get())
           primaries.insert(pos->second);
@@ -739,7 +732,7 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
     std::vector<GhostTrackState> gtStates;
     std::unique_ptr<GhostTrackPrediction> gtPred;
     if (useGhostTrack)
-      gtPred.reset(new GhostTrackPrediction(*iterJets->ghostTrack()));
+      gtPred = std::make_unique<GhostTrackPrediction>(*iterJets->ghostTrack());
 
     for (unsigned int i = 0; i < indices.size(); i++) {
       typedef typename TemplatedSecondaryVertexTagInfo<IPTI, VTX>::IndexedTrackData IndexedTrackData;
@@ -757,7 +750,7 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
         continue;
       }
 
-      TransientTrackMap::const_iterator pos = primariesMap.find(reco::btag::toTrack((trackRef)));
+      auto pos = primariesMap.find(reco::btag::toTrack((trackRef)));
       TransientTrack fitTrack;
       if (pos != primariesMap.end()) {
         primaries.erase(pos->second);
@@ -779,7 +772,7 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
 
     std::unique_ptr<GhostTrack> ghostTrack;
     if (useGhostTrack)
-      ghostTrack.reset(new GhostTrack(
+      ghostTrack = std::make_unique<GhostTrack>(
           GhostTrackPrediction(
               RecoVertex::convertPos(pv.position()),
               RecoVertex::convertError(pv.error()),
@@ -788,7 +781,7 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
           *gtPred,
           gtStates,
           iterJets->ghostTrack()->chi2(),
-          iterJets->ghostTrack()->ndof()));
+          iterJets->ghostTrack()->ndof());
 
     // perform actual vertex finding
 
@@ -862,8 +855,8 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
       if (useSVClustering || useFatJets) {
         size_t jetIdx = (iterJets - trackIPTagInfos->begin());
 
-        for (size_t iExtSv = 0; iExtSv < clusteredSVs.at(jetIdx).size(); iExtSv++) {
-          const VTX &extVertex = (*extSecVertex)[clusteredSVs.at(jetIdx).at(iExtSv)];
+        for (int &iExtSv : clusteredSVs.at(jetIdx)) {
+          const VTX &extVertex = (*extSecVertex)[iExtSv];
           if (extVertex.p4().M() < 0.3)
             continue;
           extAssoCollection.push_back(extVertex);
@@ -930,7 +923,7 @@ void TemplatedSecondaryVertexProducer<TrackIPTagInfo, reco::Vertex>::markUsedTra
                                                                                     const input_container &trackRefs,
                                                                                     const SecondaryVertex &sv,
                                                                                     size_t idx) {
-  for (Vertex::trackRef_iterator iter = sv.tracks_begin(); iter != sv.tracks_end(); ++iter) {
+  for (auto iter = sv.tracks_begin(); iter != sv.tracks_end(); ++iter) {
     if (sv.trackWeight(*iter) < minTrackWeight)
       continue;
 
@@ -952,10 +945,8 @@ void TemplatedSecondaryVertexProducer<TrackIPTagInfo, reco::Vertex>::markUsedTra
 template <>
 void TemplatedSecondaryVertexProducer<CandIPTagInfo, reco::VertexCompositePtrCandidate>::markUsedTracks(
     TrackDataVector &trackData, const input_container &trackRefs, const SecondaryVertex &sv, size_t idx) {
-  for (typename input_container::const_iterator iter = sv.daughterPtrVector().begin();
-       iter != sv.daughterPtrVector().end();
-       ++iter) {
-    typename input_container::const_iterator pos = std::find(trackRefs.begin(), trackRefs.end(), *iter);
+  for (const auto &iter : sv.daughterPtrVector()) {
+    auto pos = std::find(trackRefs.begin(), trackRefs.end(), iter);
 
     if (pos != trackRefs.end()) {
       unsigned int index = pos - trackRefs.begin();
@@ -997,14 +988,11 @@ TemplatedSecondaryVertexProducer<CandIPTagInfo, reco::VertexCompositePtrCandidat
     vtxCompPtrCand.setVertex(Candidate::Point(sv.position().x(), sv.position().y(), sv.position().z()));
 
     Candidate::LorentzVector p4;
-    for (std::vector<reco::TransientTrack>::const_iterator tt = sv.originalTracks().begin();
-         tt != sv.originalTracks().end();
-         ++tt) {
+    for (auto tt = sv.originalTracks().begin(); tt != sv.originalTracks().end(); ++tt) {
       if (sv.trackWeight(*tt) < minTrackWeight)
         continue;
 
-      const CandidatePtrTransientTrack *cptt =
-          dynamic_cast<const CandidatePtrTransientTrack *>(tt->basicTransientTrack());
+      const auto *cptt = dynamic_cast<const CandidatePtrTransientTrack *>(tt->basicTransientTrack());
       if (cptt == nullptr)
         edm::LogError("DynamicCastingFailed") << "Casting of TransientTrack to CandidatePtrTransientTrack failed!";
       else {
@@ -1111,7 +1099,7 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::matchGroomedJets(const edm::Ha
   }
 
   for (size_t j = 0; j < jets->size(); ++j) {
-    std::vector<int>::iterator matchedIndex = std::find(jetIndices.begin(), jetIndices.end(), j);
+    auto matchedIndex = std::find(jetIndices.begin(), jetIndices.end(), j);
 
     matchedIndices.push_back(matchedIndex != jetIndices.end() ? std::distance(jetIndices.begin(), matchedIndex) : -1);
   }
@@ -1123,12 +1111,12 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::matchSubjets(const std::vector
                                                                const edm::Handle<edm::View<reco::Jet> > &groomedJets,
                                                                const edm::Handle<std::vector<IPTI> > &subjets,
                                                                std::vector<std::vector<int> > &matchedIndices) {
-  for (size_t g = 0; g < groomedIndices.size(); ++g) {
+  for (int groomedIndice : groomedIndices) {
     std::vector<int> subjetIndices;
 
-    if (groomedIndices.at(g) >= 0) {
-      for (size_t s = 0; s < groomedJets->at(groomedIndices.at(g)).numberOfDaughters(); ++s) {
-        const edm::Ptr<reco::Candidate> &subjet = groomedJets->at(groomedIndices.at(g)).daughterPtr(s);
+    if (groomedIndice >= 0) {
+      for (size_t s = 0; s < groomedJets->at(groomedIndice).numberOfDaughters(); ++s) {
+        const edm::Ptr<reco::Candidate> &subjet = groomedJets->at(groomedIndice).daughterPtr(s);
 
         for (size_t sj = 0; sj < subjets->size(); ++sj) {
           const edm::RefToBase<reco::Jet> &subjetRef = subjets->at(sj).jet();

@@ -110,7 +110,7 @@ void SeedClusterRemoverPhase2::process(const TrackingRecHit *hit, float chi2, co
     if (!doOuterTracker_)
       return;
 
-    const Phase2TrackerRecHit1D *ph2OThit = static_cast<const Phase2TrackerRecHit1D *>(hit);
+    const auto *ph2OThit = static_cast<const Phase2TrackerRecHit1D *>(hit);
     LogDebug("SeedClusterRemoverPhase2") << "Plain Phase2TrackerRecHit1D in det " << detid.rawId();
 
     Phase2TrackerRecHit1D::CluRef cluster = ph2OThit->cluster();

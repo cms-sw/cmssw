@@ -973,7 +973,7 @@ void JetTester::analyze(const edm::Event &mEvent, const edm::EventSetup &mSetup)
     if (!genJets.isValid())
       return;
 
-    for (GenJetCollection::const_iterator gjet = genJets->begin(); gjet != genJets->end(); gjet++) {
+    for (auto gjet = genJets->begin(); gjet != genJets->end(); gjet++) {
       // for MiniAOD we have here intrinsic thresholds, introduce also threshold
       // for RECO
       if (gjet->pt() > mMatchGenPtThreshold) {
@@ -993,10 +993,10 @@ void JetTester::analyze(const edm::Event &mEvent, const edm::EventSetup &mSetup)
     }
 
     if (!(mInputGenCollection.label().empty())) {
-      for (GenJetCollection::const_iterator gjet = genJets->begin(); gjet != genJets->end(); gjet++) {
-        if (fabs(gjet->eta()) > 6.)
+      for (const auto &gjet : *genJets) {
+        if (fabs(gjet.eta()) > 6.)
           continue;  // Out of the detector
-        if (gjet->pt() < mMatchGenPtThreshold)
+        if (gjet.pt() < mMatchGenPtThreshold)
           continue;
         if (recoJets.empty())
           continue;
@@ -1017,7 +1017,7 @@ void JetTester::analyze(const edm::Event &mEvent, const edm::EventSetup &mSetup)
           }
           double CorrJetPt = correctedJet.pt();
           if (CorrJetPt > 10) {
-            double CorrdR = deltaR(gjet->eta(), gjet->phi(), correctedJet.eta(), correctedJet.phi());
+            double CorrdR = deltaR(gjet.eta(), gjet.phi(), correctedJet.eta(), correctedJet.phi());
             if (CorrdR < CorrdeltaRBest) {
               CorrJetMassBest = correctedJet.mass();
               CorrdeltaRBest = CorrdR;
@@ -1031,19 +1031,19 @@ void JetTester::analyze(const edm::Event &mEvent, const edm::EventSetup &mSetup)
         // use mass after jet energy correction -> for MiniAOD that is the case
         // per default
         if (!isMiniAODJet) {
-          fillMatchHists(gjet->eta(),
-                         gjet->phi(),
-                         gjet->pt(),
-                         gjet->mass(),
+          fillMatchHists(gjet.eta(),
+                         gjet.phi(),
+                         gjet.pt(),
+                         gjet.mass(),
                          recoJets[iMatch].eta(),
                          recoJets[iMatch].phi(),
                          recoJets[iMatch].pt(),
                          CorrJetMassBest);
         } else {
-          fillMatchHists(gjet->eta(),
-                         gjet->phi(),
-                         gjet->pt(),
-                         gjet->mass(),
+          fillMatchHists(gjet.eta(),
+                         gjet.phi(),
+                         gjet.pt(),
+                         gjet.mass(),
                          (*patJets)[iMatch].eta(),
                          (*patJets)[iMatch].phi(),
                          (*patJets)[iMatch].pt() * (*patJets)[iMatch].jecFactor("Uncorrected"),
@@ -1051,32 +1051,32 @@ void JetTester::analyze(const edm::Event &mEvent, const edm::EventSetup &mSetup)
         }
         if (pass_correction_flag) {  // fill only for corrected jets
           if (CorrdeltaRBest < mRThreshold) {
-            double response = CorrJetPtBest / gjet->pt();
+            double response = CorrJetPtBest / gjet.pt();
 
-            if (fabs(gjet->eta()) < 1.5)
-              mPtCorrOverGen_GenPt_B->Fill(log10(gjet->pt()), response);
-            else if (fabs(gjet->eta()) < 3.0)
-              mPtCorrOverGen_GenPt_E->Fill(log10(gjet->pt()), response);
-            else if (fabs(gjet->eta()) < 6.0)
-              mPtCorrOverGen_GenPt_F->Fill(log10(gjet->pt()), response);
+            if (fabs(gjet.eta()) < 1.5)
+              mPtCorrOverGen_GenPt_B->Fill(log10(gjet.pt()), response);
+            else if (fabs(gjet.eta()) < 3.0)
+              mPtCorrOverGen_GenPt_E->Fill(log10(gjet.pt()), response);
+            else if (fabs(gjet.eta()) < 6.0)
+              mPtCorrOverGen_GenPt_F->Fill(log10(gjet.pt()), response);
 
-            if (gjet->pt() > 20) {
-              if (gjet->pt() < 40)
-                mPtCorrOverGen_GenEta_20_40->Fill(gjet->eta(), response);
-              else if (gjet->pt() < 200)
-                mPtCorrOverGen_GenEta_40_200->Fill(gjet->eta(), response);
-              else if (gjet->pt() < 600)
-                mPtCorrOverGen_GenEta_200_600->Fill(gjet->eta(), response);
-              else if (gjet->pt() < 1500)
-                mPtCorrOverGen_GenEta_600_1500->Fill(gjet->eta(), response);
-              else if (gjet->pt() < 3500)
-                mPtCorrOverGen_GenEta_1500_3500->Fill(gjet->eta(), response);
-              else if (gjet->pt() < 5000)
-                mPtCorrOverGen_GenEta_3500_5000->Fill(gjet->eta(), response);
-              else if (gjet->pt() < 6500)
-                mPtCorrOverGen_GenEta_5000_6500->Fill(gjet->eta(), response);
-              if (gjet->pt() > 3500)
-                mPtCorrOverGen_GenEta_3500->Fill(gjet->eta(), response);
+            if (gjet.pt() > 20) {
+              if (gjet.pt() < 40)
+                mPtCorrOverGen_GenEta_20_40->Fill(gjet.eta(), response);
+              else if (gjet.pt() < 200)
+                mPtCorrOverGen_GenEta_40_200->Fill(gjet.eta(), response);
+              else if (gjet.pt() < 600)
+                mPtCorrOverGen_GenEta_200_600->Fill(gjet.eta(), response);
+              else if (gjet.pt() < 1500)
+                mPtCorrOverGen_GenEta_600_1500->Fill(gjet.eta(), response);
+              else if (gjet.pt() < 3500)
+                mPtCorrOverGen_GenEta_1500_3500->Fill(gjet.eta(), response);
+              else if (gjet.pt() < 5000)
+                mPtCorrOverGen_GenEta_3500_5000->Fill(gjet.eta(), response);
+              else if (gjet.pt() < 6500)
+                mPtCorrOverGen_GenEta_5000_6500->Fill(gjet.eta(), response);
+              if (gjet.pt() > 3500)
+                mPtCorrOverGen_GenEta_3500->Fill(gjet.eta(), response);
             }
           }
         }

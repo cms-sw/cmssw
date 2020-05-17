@@ -118,9 +118,9 @@ void SimTrackSimVertexDumper::analyze(const edm::Event& iEvent, const edm::Event
     std::cout << "\n" << std::endl;
   }
 
-  for (std::vector<SimTrack>::iterator isimtk = theSimTracks.begin(); isimtk != theSimTracks.end(); ++isimtk) {
-    if (isimtk->noVertex()) {
-      std::cout << "SimTrack without an associated Vertex = " << *isimtk << std::endl;
+  for (auto& theSimTrack : theSimTracks) {
+    if (theSimTrack.noVertex()) {
+      std::cout << "SimTrack without an associated Vertex = " << theSimTrack << std::endl;
     }
   }
 

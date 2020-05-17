@@ -1,12 +1,14 @@
+#include <utility>
+
 #include "CondFormats/PCLConfig/interface/AlignPCLThreshold.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-AlignPCLThreshold::AlignPCLThreshold(coordThresholds X,
-                                     coordThresholds tX,
-                                     coordThresholds Y,
-                                     coordThresholds tY,
-                                     coordThresholds Z,
-                                     coordThresholds tZ,
+AlignPCLThreshold::AlignPCLThreshold(const coordThresholds& X,
+                                     const coordThresholds& tX,
+                                     const coordThresholds& Y,
+                                     const coordThresholds& tY,
+                                     const coordThresholds& Z,
+                                     const coordThresholds& tZ,
                                      std::vector<coordThresholds> extraDOF) {
   m_xCoord = X;
   m_yCoord = Y;
@@ -14,7 +16,7 @@ AlignPCLThreshold::AlignPCLThreshold(coordThresholds X,
   m_thetaXCoord = tX;
   m_thetaYCoord = tY;
   m_thetaZCoord = tZ;
-  m_extraDOF = extraDOF;
+  m_extraDOF = std::move(extraDOF);
 };
 
 //****************************************************************************//

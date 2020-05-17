@@ -362,8 +362,8 @@ void TrackEfficiencyMonitor::analyze(const edm::Event& iEvent, const edm::EventS
 }
 
 //-----------------------------------------------------------------------------------
-void TrackEfficiencyMonitor::testTrackerTracks(edm::Handle<reco::TrackCollection> tkTracks,
-                                               edm::Handle<reco::TrackCollection> staTracks,
+void TrackEfficiencyMonitor::testTrackerTracks(const edm::Handle<reco::TrackCollection>& tkTracks,
+                                               const edm::Handle<reco::TrackCollection>& staTracks,
                                                const NavigationSchool& navigationSchool)
 //-----------------------------------------------------------------------------------
 {
@@ -424,9 +424,9 @@ void TrackEfficiencyMonitor::testTrackerTracks(edm::Handle<reco::TrackCollection
         //look for associated tracks
         //---------------------------------------------------
         float DR2min = 1000;
-        reco::TrackCollection::const_iterator closestTrk = tkTracks->end();
+        auto closestTrk = tkTracks->end();
 
-        for (reco::TrackCollection::const_iterator tkTrack = tkTracks->begin(); tkTrack != tkTracks->end(); ++tkTrack) {
+        for (auto tkTrack = tkTracks->begin(); tkTrack != tkTracks->end(); ++tkTrack) {
           reco::TransientTrack tkTT = theTTrackBuilder->build(*tkTrack);
           TrajectoryStateOnSurface tkInner = tkTT.innermostMeasurementState();
           staState = thePropagator->propagate(staTT.outermostMeasurementState(), tkInner.surface());
@@ -482,8 +482,8 @@ void TrackEfficiencyMonitor::testTrackerTracks(edm::Handle<reco::TrackCollection
 }
 
 //-----------------------------------------------------------------------------------
-void TrackEfficiencyMonitor::testSTATracks(edm::Handle<reco::TrackCollection> tkTracks,
-                                           edm::Handle<reco::TrackCollection> staTracks)
+void TrackEfficiencyMonitor::testSTATracks(const edm::Handle<reco::TrackCollection>& tkTracks,
+                                           const edm::Handle<reco::TrackCollection>& staTracks)
 //-----------------------------------------------------------------------------------
 {
   reco::TransientTrack tkTT = theTTrackBuilder->build(tkTracks->front());
@@ -505,10 +505,9 @@ void TrackEfficiencyMonitor::testSTATracks(edm::Handle<reco::TrackCollection> tk
     //---------------------------------------------------
 
     float DR2min = 1000;
-    reco::TrackCollection::const_iterator closestTrk = staTracks->end();
+    auto closestTrk = staTracks->end();
     //----------------------loop on tracker tracks:
-    for (reco::TrackCollection::const_iterator staTrack = staTracks->begin(); staTrack != staTracks->end();
-         ++staTrack) {
+    for (auto staTrack = staTracks->begin(); staTrack != staTracks->end(); ++staTrack) {
       if (checkSemiCylinder(*staTrack) == TrackEfficiencyMonitor::Up) {
         reco::TransientTrack staTT = theTTrackBuilder->build(*staTrack);
         failedToPropagate = 1;
@@ -557,7 +556,9 @@ TrackEfficiencyMonitor::SemiCylinder TrackEfficiencyMonitor::checkSemiCylinder(c
 }
 
 //-----------------------------------------------------------------------------------
-bool TrackEfficiencyMonitor::trackerAcceptance(TrajectoryStateOnSurface theTSOS, double theRadius, double theMaxZ)
+bool TrackEfficiencyMonitor::trackerAcceptance(const TrajectoryStateOnSurface& theTSOS,
+                                               double theRadius,
+                                               double theMaxZ)
 //-----------------------------------------------------------------------------------
 {
   //---------------------------------------------------

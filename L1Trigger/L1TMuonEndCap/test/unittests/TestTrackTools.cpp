@@ -13,9 +13,9 @@ class TestTrackTools : public CppUnit::TestFixture {
 
 public:
   TestTrackTools() {}
-  ~TestTrackTools() {}
-  void setUp() {}
-  void tearDown() {}
+  ~TestTrackTools() override {}
+  void setUp() override {}
+  void tearDown() override {}
 
   void test_pt();
   void test_eta();

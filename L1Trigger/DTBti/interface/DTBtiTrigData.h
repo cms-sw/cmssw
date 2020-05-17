@@ -45,7 +45,7 @@ public:
   ~DTBtiTrigData() override {}
 
   //! Set the parent BTI identifier
-  inline void setParent(DTBtiId btiid) { _btiid = btiid; }
+  inline void setParent(const DTBtiId& btiid) { _btiid = btiid; }
 
   //! Set trigger step
   inline void setStep(int step) { _step = step; }
@@ -76,8 +76,8 @@ public:
     _Kval = 9999;
     _Xval = 0;
     _str = -1;
-    for (int j = 0; j < 6; j++)
-      _Keq[j] = -1;
+    for (float& j : _Keq)
+      j = -1;
   }
 
   //! Return chamber identifier

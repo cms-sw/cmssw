@@ -25,6 +25,8 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
 #include <memory>
+#include <utility>
+
 #include <vector>
 #include <string>
 #include <typeinfo>
@@ -127,7 +129,7 @@ public:
   void getValue(SiStripApvGain*& val) { val = getApvGain(); }
   void getValue(SiStripLatency*& val) { val = getApvLatency(); }
 
-  void setLastIovGain(std::shared_ptr<SiStripApvGain> gain) { gain_last_ = gain; }
+  void setLastIovGain(std::shared_ptr<SiStripApvGain> gain) { gain_last_ = std::move(gain); }
 
 protected:
   void checkUpdate();

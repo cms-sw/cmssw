@@ -8,6 +8,8 @@
  *
  */
 #include <iostream>
+#include <utility>
+
 #include "TMath.h"
 // framework & common header files
 
@@ -43,7 +45,7 @@ private:
   class ParticleMonitor {
   public:
     ParticleMonitor(std::string name_, const edm::ParameterSet &p_)
-        : p(p_), name(name_), pdgid(p.getParameter<int>("pdgid")){};
+        : p(p_), name(std::move(name_)), pdgid(p.getParameter<int>("pdgid")){};
     ~ParticleMonitor(){};
 
     void Configure(DQMStore::IBooker &i) {

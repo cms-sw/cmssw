@@ -17,13 +17,14 @@
 #include "TPaveStats.h"
 #include <string>
 #include <fstream>
+#include <utility>
 
 namespace {
 
   class HcalPedestalWidthContainer : public HcalObjRepresent::HcalDataContainer<HcalPedestalWidths, HcalPedestalWidth> {
   public:
     HcalPedestalWidthContainer(std::shared_ptr<HcalPedestalWidths> payload, unsigned int run)
-        : HcalObjRepresent::HcalDataContainer<HcalPedestalWidths, HcalPedestalWidth>(payload, run) {}
+        : HcalObjRepresent::HcalDataContainer<HcalPedestalWidths, HcalPedestalWidth>(std::move(payload), run) {}
     float getValue(HcalPedestalWidth* ped) override {
       return (ped->getWidth(0) + ped->getWidth(1) + ped->getWidth(2) + ped->getWidth(3)) / 4;
     }
@@ -43,7 +44,7 @@ namespace {
       auto iov = iovs.front();
       std::shared_ptr<HcalPedestalWidths> payload = fetchPayload(std::get<1>(iov));
       if (payload.get()) {
-        HcalPedestalWidthContainer* objContainer = new HcalPedestalWidthContainer(payload, std::get<0>(iov));
+        auto* objContainer = new HcalPedestalWidthContainer(payload, std::get<0>(iov));
         std::string ImageName(m_imageFileName);
         objContainer->getCanvasAll()->SaveAs(ImageName.c_str());
         return true;
@@ -70,8 +71,8 @@ namespace {
       std::shared_ptr<HcalPedestalWidths> payload2 = fetchPayload(std::get<1>(iov2));
 
       if (payload1.get() && payload2.get()) {
-        HcalPedestalWidthContainer* objContainer1 = new HcalPedestalWidthContainer(payload1, std::get<0>(iov1));
-        HcalPedestalWidthContainer* objContainer2 = new HcalPedestalWidthContainer(payload2, std::get<0>(iov2));
+        auto* objContainer1 = new HcalPedestalWidthContainer(payload1, std::get<0>(iov1));
+        auto* objContainer2 = new HcalPedestalWidthContainer(payload2, std::get<0>(iov2));
         objContainer2->Subtract(objContainer1);
         std::string ImageName(m_imageFileName);
         objContainer2->getCanvasAll()->SaveAs(ImageName.c_str());
@@ -94,7 +95,7 @@ namespace {
       auto iov = iovs.front();
       std::shared_ptr<HcalPedestalWidths> payload = fetchPayload(std::get<1>(iov));
       if (payload.get()) {
-        HcalPedestalWidthContainer* objContainer = new HcalPedestalWidthContainer(payload, std::get<0>(iov));
+        auto* objContainer = new HcalPedestalWidthContainer(payload, std::get<0>(iov));
         std::string ImageName(m_imageFileName);
         objContainer->getCanvasAll("EtaProfile")->SaveAs(ImageName.c_str());
         return true;
@@ -121,8 +122,8 @@ namespace {
       std::shared_ptr<HcalPedestalWidths> payload2 = fetchPayload(std::get<1>(iov2));
 
       if (payload1.get() && payload2.get()) {
-        HcalPedestalWidthContainer* objContainer1 = new HcalPedestalWidthContainer(payload1, std::get<0>(iov1));
-        HcalPedestalWidthContainer* objContainer2 = new HcalPedestalWidthContainer(payload2, std::get<0>(iov2));
+        auto* objContainer1 = new HcalPedestalWidthContainer(payload1, std::get<0>(iov1));
+        auto* objContainer2 = new HcalPedestalWidthContainer(payload2, std::get<0>(iov2));
         objContainer2->Subtract(objContainer1);
         std::string ImageName(m_imageFileName);
         objContainer2->getCanvasAll("EtaProfile")->SaveAs(ImageName.c_str());
@@ -145,7 +146,7 @@ namespace {
       auto iov = iovs.front();
       std::shared_ptr<HcalPedestalWidths> payload = fetchPayload(std::get<1>(iov));
       if (payload.get()) {
-        HcalPedestalWidthContainer* objContainer = new HcalPedestalWidthContainer(payload, std::get<0>(iov));
+        auto* objContainer = new HcalPedestalWidthContainer(payload, std::get<0>(iov));
         std::string ImageName(m_imageFileName);
         objContainer->getCanvasAll("PhiProfile")->SaveAs(ImageName.c_str());
         return true;
@@ -172,8 +173,8 @@ namespace {
       std::shared_ptr<HcalPedestalWidths> payload2 = fetchPayload(std::get<1>(iov2));
 
       if (payload1.get() && payload2.get()) {
-        HcalPedestalWidthContainer* objContainer1 = new HcalPedestalWidthContainer(payload1, std::get<0>(iov1));
-        HcalPedestalWidthContainer* objContainer2 = new HcalPedestalWidthContainer(payload2, std::get<0>(iov2));
+        auto* objContainer1 = new HcalPedestalWidthContainer(payload1, std::get<0>(iov1));
+        auto* objContainer2 = new HcalPedestalWidthContainer(payload2, std::get<0>(iov2));
         objContainer2->Subtract(objContainer1);
         std::string ImageName(m_imageFileName);
         objContainer2->getCanvasAll("PhiProfile")->SaveAs(ImageName.c_str());

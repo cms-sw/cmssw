@@ -58,11 +58,14 @@ protected:
   /// Book chamber granularity histograms
   void bookChamberHistos(DQMStore::IBooker& ibooker,
                          const DTChamberId& dtCh,
-                         std::string histoTag,
-                         std::string folder = "");
+                         const std::string& histoTag,
+                         const std::string& folder = "");
 
   /// Book wheel granularity histograms
-  void bookWheelHistos(DQMStore::IBooker& ibooker, int wheel, std::string histoTag, std::string folder = "");
+  void bookWheelHistos(DQMStore::IBooker& ibooker,
+                       int wheel,
+                       const std::string& histoTag,
+                       const std::string& folder = "");
 
   /// checks for RPC Triggers
   bool hasRPCTriggers(const edm::Event& e);

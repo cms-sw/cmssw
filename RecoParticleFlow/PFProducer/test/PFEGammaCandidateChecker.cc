@@ -118,7 +118,7 @@ void PFEGammaCandidateChecker::analyze(const Event& iEvent, const EventSetup& iS
   std::cout << "========= check pf -> ged =========" << std::endl;
   for (unsigned i = 0; i < recoSize; i++) {
     const reco::PFCandidate& candReco = (rankByPt_) ? pfReco[i] : (*pfCandidatesReco)[i];
-    const reco::PFCandidate* candReReco = NULL;
+    const reco::PFCandidate* candReReco = nullptr;
 
     switch (std::abs(candReco.pdgId())) {
       case 11: {
@@ -126,7 +126,7 @@ void PFEGammaCandidateChecker::analyze(const Event& iEvent, const EventSetup& iS
         std::cout << '\t' << candReco << std::endl;
         std::cout << '\t' << candReco.gsfTrackRef()->ptMode() << std::endl;
         gsfequals findbygsf(candReco);
-        reco::PFCandidateCollection::const_iterator found = std::find_if(pfReReco.begin(), pfReReco.end(), findbygsf);
+        auto found = std::find_if(pfReReco.begin(), pfReReco.end(), findbygsf);
         if (found != pfReReco.end()) {
           std::cout << "Found matching electron candidate by gsf track!" << std::endl;
           candReReco = &*found;
@@ -151,7 +151,7 @@ void PFEGammaCandidateChecker::analyze(const Event& iEvent, const EventSetup& iS
       } break;
       case 22: {
         scequals findbysc(candReco);
-        reco::PFCandidateCollection::const_iterator found = std::find_if(pfReReco.begin(), pfReReco.end(), findbysc);
+        auto found = std::find_if(pfReReco.begin(), pfReReco.end(), findbysc);
         if (candReco.photonRef().isNonnull() && found != pfReReco.end()) {
           std::cout << "Found matching photon candidate by parent!" << std::endl;
           candReReco = &*found;
@@ -161,7 +161,7 @@ void PFEGammaCandidateChecker::analyze(const Event& iEvent, const EventSetup& iS
         break;
     }
 
-    if (candReReco != NULL) {
+    if (candReReco != nullptr) {
       double deltaE = (candReReco->energy() - candReco.energy()) / (candReReco->energy() + candReco.energy());
       double deltaEta = candReReco->eta() - candReco.eta();
       double deltaPhi = candReReco->phi() - candReco.phi();
@@ -188,7 +188,7 @@ void PFEGammaCandidateChecker::analyze(const Event& iEvent, const EventSetup& iS
   }
   std::cout << "========= check ged -> pf =========" << std::endl;
   for (unsigned i = 0; i < reRecoSize; i++) {
-    const reco::PFCandidate* candReco = NULL;
+    const reco::PFCandidate* candReco = nullptr;
     const reco::PFCandidate& candReReco = (rankByPt_) ? pfReReco[i] : (*pfCandidatesReReco)[i];
 
     switch (std::abs(candReReco.pdgId())) {
@@ -197,7 +197,7 @@ void PFEGammaCandidateChecker::analyze(const Event& iEvent, const EventSetup& iS
         std::cout << '\t' << candReReco << std::endl;
         std::cout << '\t' << candReReco.gsfTrackRef()->ptMode() << std::endl;
         gsfequals findbygsf(candReReco);
-        reco::PFCandidateCollection::const_iterator found = std::find_if(pfReco.begin(), pfReco.end(), findbygsf);
+        auto found = std::find_if(pfReco.begin(), pfReco.end(), findbygsf);
         if (found != pfReco.end()) {
           std::cout << "Found matching electron candidate by gsf track!" << std::endl;
           candReco = &*found;
@@ -231,7 +231,7 @@ void PFEGammaCandidateChecker::analyze(const Event& iEvent, const EventSetup& iS
       } break;
       case 22: {
         scequals findbysc(candReReco);
-        reco::PFCandidateCollection::const_iterator found = std::find_if(pfReco.begin(), pfReco.end(), findbysc);
+        auto found = std::find_if(pfReco.begin(), pfReco.end(), findbysc);
         if (candReReco.photonRef().isNonnull() && found != pfReco.end()) {
           std::cout << "Found matching photon candidate by parent!" << std::endl;
           candReco = &*found;
@@ -241,7 +241,7 @@ void PFEGammaCandidateChecker::analyze(const Event& iEvent, const EventSetup& iS
         break;
     }
 
-    if (candReco != NULL) {
+    if (candReco != nullptr) {
       double deltaE = (candReReco.energy() - candReco->energy()) / (candReReco.energy() + candReco->energy());
       double deltaEta = candReReco.eta() - candReco->eta();
       double deltaPhi = candReReco.phi() - candReco->phi();
@@ -281,18 +281,18 @@ void PFEGammaCandidateChecker::printMet(const PFCandidateCollection& pfReco,
                                         const PFCandidateCollection& pfReReco) const {
   double metX = 0.;
   double metY = 0.;
-  for (unsigned i = 0; i < pfReco.size(); i++) {
-    metX += pfReco[i].px();
-    metY += pfReco[i].py();
+  for (const auto& i : pfReco) {
+    metX += i.px();
+    metY += i.py();
   }
   double met = std::sqrt(metX * metX + metY * metY);
   std::cout << "MET RECO    = " << metX << " " << metY << " " << met << std::endl;
 
   metX = 0.;
   metY = 0.;
-  for (unsigned i = 0; i < pfReReco.size(); i++) {
-    metX += pfReReco[i].px();
-    metY += pfReReco[i].py();
+  for (const auto& i : pfReReco) {
+    metX += i.px();
+    metY += i.py();
   }
   met = std::sqrt(metX * metX + metY * metY);
   std::cout << "MET Re-RECO = " << metX << " " << metY << " " << met << std::endl;

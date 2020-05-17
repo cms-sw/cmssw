@@ -425,9 +425,9 @@ namespace cscdqm {
         std::vector<CSCALCTDigi> alctsDatasTmp = alctHeader->ALCTDigis();
         std::vector<CSCALCTDigi> alctsDatas;
 
-        for (uint32_t lct = 0; lct < alctsDatasTmp.size(); lct++) {
-          if (alctsDatasTmp[lct].isValid())
-            alctsDatas.push_back(alctsDatasTmp[lct]);
+        for (auto& lct : alctsDatasTmp) {
+          if (lct.isValid())
+            alctsDatas.push_back(lct);
         }
 
         FEBunpacked = FEBunpacked + 1;
@@ -681,12 +681,11 @@ namespace cscdqm {
             bool CheckLayerALCT = true;
 
             std::vector<CSCWireDigi> wireDigis = alctData->wireDigis(nLayer);
-            for (std::vector<CSCWireDigi>::iterator wireDigisItr = wireDigis.begin(); wireDigisItr != wireDigis.end();
-                 ++wireDigisItr) {
-              int wg = wireDigisItr->getWireGroup();
+            for (auto& wireDigi : wireDigis) {
+              int wg = wireDigi.getWireGroup();
               /**  int tbin = wireDigisItr->getBeamCrossingTag(); */
-              std::vector<int> tbins = wireDigisItr->getTimeBinsOn();
-              int tbin = wireDigisItr->getTimeBin();
+              std::vector<int> tbins = wireDigi.getTimeBinsOn();
+              int tbin = wireDigi.getTimeBin();
 
               if (mo_EventDisplay) {
                 mo_EventDisplay->SetBinContent(nLayer + 3, wg - 1, tbin + 1);
@@ -699,8 +698,8 @@ namespace cscdqm {
                 CheckLayerALCT = false;
               }
 
-              for (uint32_t n = 0; n < tbins.size(); n++) {
-                tbin = tbins[n];
+              for (int n : tbins) {
+                tbin = n;
                 if (wg != wg_previous || (tbin != tbin_previous + 1 && tbin != tbin_previous - 1)) {
                   if (getCSCHisto(h::CSC_ALCTTIME_LYXX, crateID, dmbID, nLayer, mo))
                     mo->Fill(wg - 1, tbin);
@@ -800,9 +799,9 @@ namespace cscdqm {
         std::vector<CSCALCTDigi> alctsDatasTmp = alctHeader->ALCTDigis();
         std::vector<CSCALCTDigi> alctsDatas;
 
-        for (uint32_t lct = 0; lct < alctsDatasTmp.size(); lct++) {
-          if (alctsDatasTmp[lct].isValid())
-            alctsDatas.push_back(alctsDatasTmp[lct]);
+        for (auto& lct : alctsDatasTmp) {
+          if (lct.isValid())
+            alctsDatas.push_back(lct);
         }
 
         CSCTMBData* tmbData = data.tmbData();
@@ -868,9 +867,9 @@ namespace cscdqm {
           std::vector<CSCCLCTDigi> clctsDatasTmp = tmbHeader->CLCTDigis(cid.rawId());
           std::vector<CSCCLCTDigi> clctsDatas;
 
-          for (uint32_t lct = 0; lct < clctsDatasTmp.size(); lct++) {
-            if (clctsDatasTmp[lct].isValid())
-              clctsDatas.push_back(clctsDatasTmp[lct]);
+          for (auto& lct : clctsDatasTmp) {
+            if (lct.isValid())
+              clctsDatas.push_back(lct);
           }
 
           FEBunpacked = FEBunpacked + 1;
@@ -1270,13 +1269,11 @@ namespace cscdqm {
 
                 std::vector<CSCComparatorDigi> compOutData = clctData->comparatorDigis(nLayer, nCFEB);
 
-                for (std::vector<CSCComparatorDigi>::iterator compOutDataItr = compOutData.begin();
-                     compOutDataItr != compOutData.end();
-                     ++compOutDataItr) {
+                for (auto& compOutDataItr : compOutData) {
                   /**  =VB= Fix to get right hafstrip */
-                  int hstrip = 2 * (compOutDataItr->getStrip() - 1) + compOutDataItr->getComparator();
-                  std::vector<int> tbins_clct = compOutDataItr->getTimeBinsOn();
-                  int tbin_clct = (int)compOutDataItr->getTimeBin();
+                  int hstrip = 2 * (compOutDataItr.getStrip() - 1) + compOutDataItr.getComparator();
+                  std::vector<int> tbins_clct = compOutDataItr.getTimeBinsOn();
+                  int tbin_clct = (int)compOutDataItr.getTimeBin();
 
                   if (mo_EventDisplay) {
                     mo_EventDisplay->SetBinContent(nLayer + 11, hstrip, tbin_clct + 1);
@@ -1289,8 +1286,8 @@ namespace cscdqm {
                     CheckLayerCLCT = false;
                   }
 
-                  for (uint32_t n = 0; n < tbins_clct.size(); n++) {
-                    tbin_clct = tbins_clct[n];
+                  for (int n : tbins_clct) {
+                    tbin_clct = n;
                     if (hstrip != hstrip_previous ||
                         (tbin_clct != tbin_clct_previous + 1 && tbin_clct != tbin_clct_previous - 1)) {
                       if (getCSCHisto(h::CSC_CLCTTIME_LYXX, crateID, dmbID, nLayer, mo))
@@ -1816,14 +1813,14 @@ namespace cscdqm {
         mo->Fill(Clus.size());
       }
 
-      for (uint32_t u = 0; u < Clus.size(); u++) {
+      for (auto& Clu : Clus) {
         Clus_Sum_Charge = 0.0;
 
-        for (uint32_t k = 0; k < Clus[u].ClusterPulseMapHeight.size(); k++) {
+        for (uint32_t k = 0; k < Clu.ClusterPulseMapHeight.size(); k++) {
           /**  LOG_DEBUG <<  "Strip: " << Clus[u].ClusterPulseMapHeight[k].channel_+1; */
 
-          for (int n = Clus[u].LFTBNDTime; n < Clus[u].IRTBNDTime; n++) {
-            Clus_Sum_Charge = Clus_Sum_Charge + Clus[u].ClusterPulseMapHeight[k].height_[n];
+          for (int n = Clu.LFTBNDTime; n < Clu.IRTBNDTime; n++) {
+            Clus_Sum_Charge = Clus_Sum_Charge + Clu.ClusterPulseMapHeight[k].height_[n];
           }
         }
 
@@ -1834,12 +1831,12 @@ namespace cscdqm {
 
         /**  Width of Clusters Histograms */
         if (getCSCHisto(h::CSC_CFEB_WIDTH_OF_CLUSTERS_LY_XX, crateID, dmbID, nLayer, mo)) {
-          mo->Fill(Clus[u].IRTBNDStrip - Clus[u].LFTBNDStrip + 1);
+          mo->Fill(Clu.IRTBNDStrip - Clu.LFTBNDStrip + 1);
         }
 
         /**  Cluster Duration Histograms */
         if (getCSCHisto(h::CSC_CFEB_CLUSTER_DURATION_LY_XX, crateID, dmbID, nLayer, mo)) {
-          mo->Fill(Clus[u].IRTBNDTime - Clus[u].LFTBNDTime + 1);
+          mo->Fill(Clu.IRTBNDTime - Clu.LFTBNDTime + 1);
         }
       }
 

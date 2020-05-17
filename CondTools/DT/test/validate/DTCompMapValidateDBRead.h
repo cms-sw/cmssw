@@ -15,9 +15,9 @@ class DTCompMapValidateDBRead : public edm::EDAnalyzer {
 public:
   explicit DTCompMapValidateDBRead(edm::ParameterSet const& p);
   explicit DTCompMapValidateDBRead(int i);
-  virtual ~DTCompMapValidateDBRead();
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-  virtual void endJob();
+  ~DTCompMapValidateDBRead() override;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void endJob() override;
 
 private:
   std::string dataFileName;

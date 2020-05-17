@@ -24,11 +24,11 @@ namespace L1Analysis {
     L1AnalysisRecoMet();
     ~L1AnalysisRecoMet();
 
-    void SetMet(const edm::Handle<reco::CaloMETCollection> recoMet);
-    void SetHtMht(const edm::Handle<reco::CaloJetCollection> caloJets, float jetptThreshold);
-    void SetECALFlags(const edm::ESHandle<EcalChannelStatus> chStatus,
-                      const edm::Handle<EcalRecHitCollection> ebRecHits,
-                      const edm::Handle<EcalRecHitCollection> eeRecHits,
+    void SetMet(const edm::Handle<reco::CaloMETCollection>& recoMet);
+    void SetHtMht(const edm::Handle<reco::CaloJetCollection>& caloJets, float jetptThreshold);
+    void SetECALFlags(const edm::ESHandle<EcalChannelStatus>& chStatus,
+                      const edm::Handle<EcalRecHitCollection>& ebRecHits,
+                      const edm::Handle<EcalRecHitCollection>& eeRecHits,
                       const EcalSeverityLevelAlgo* sevlv);
 
     L1AnalysisRecoMetDataFormat* getData() { return &recoMet_; }

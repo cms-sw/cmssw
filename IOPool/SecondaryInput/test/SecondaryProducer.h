@@ -25,17 +25,17 @@ namespace edm {
     explicit SecondaryProducer(ParameterSet const& pset);
 
     /**Default destructor*/
-    virtual ~SecondaryProducer();
+    ~SecondaryProducer() override;
 
     /**Accumulates the pileup events into this event*/
-    virtual void produce(Event& e1, EventSetup const& c);
+    void produce(Event& e1, EventSetup const& c) override;
 
     bool processOneEvent(EventPrincipal const& eventPrincipal, Event& e);
 
   private:
     virtual void put(Event&) {}
-    virtual void beginJob();
-    virtual void endJob();
+    void beginJob() override;
+    void endJob() override;
     std::shared_ptr<VectorInputSource> makeSecInput(ParameterSet const& ps);
 
     std::shared_ptr<ProductRegistry const> productRegistry() const { return get_underlying_safe(productRegistry_); }

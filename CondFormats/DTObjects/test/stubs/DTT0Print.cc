@@ -35,8 +35,8 @@ namespace edmtest {
     std::cout << std::distance(t0->begin(), t0->end()) << " data in the container" << std::endl;
     float t0mean;
     float t0rms;
-    DTT0::const_iterator iter = t0->begin();
-    DTT0::const_iterator iend = t0->end();
+    auto iter = t0->begin();
+    auto iend = t0->end();
     while (iter != iend) {
       const DTT0Data& t0Data = *iter++;
       int channelId = t0Data.channelId;

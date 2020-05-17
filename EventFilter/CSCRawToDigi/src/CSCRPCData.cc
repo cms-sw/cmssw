@@ -122,7 +122,7 @@ std::vector<CSCRPCDigi> CSCRPCData::digis() const {
       for (int i = 0; i < 16; ++i) {
         // if the bit is set, make a digi
         if ((pad >> i) & 1) {
-          result.push_back(CSCRPCDigi(rpc, i, bxn, tbin));
+          result.emplace_back(rpc, i, bxn, tbin);
           //LogTrace("RPC") << "digi-->" << " rpc: " << rpc << " i: " << i << " bxn: " << bxn << " tbin: " << tbin;
         }
       }

@@ -25,7 +25,7 @@ private:
   void checkHierarchyLeafPVLV(G4LogicalVolume *lv, unsigned int leafDepth);
   void checkPV(G4VPhysicalVolume *pv, unsigned int leafDepth);
   G4VPhysicalVolume *getTopPV();
-  void dumpLV(G4LogicalVolume *lv, std::string str);
+  void dumpLV(G4LogicalVolume *lv, const std::string &str);
 
 private:
   std::vector<std::string> nodeNames;

@@ -47,8 +47,8 @@ void PtLUTWriter::write(const std::string& lut_full_path, const uint16_t num_, c
   full_word_t full_word;
   full_word_t sub_word[4] = {0, 0, 0, 0};
 
-  table_t::const_iterator ptlut_it = ptlut_.begin();
-  table_t::const_iterator ptlut_end = ptlut_.end();
+  auto ptlut_it = ptlut_.begin();
+  auto ptlut_end = ptlut_.end();
 
   while (ptlut_it != ptlut_end) {
     sub_word[0] = *ptlut_it++;

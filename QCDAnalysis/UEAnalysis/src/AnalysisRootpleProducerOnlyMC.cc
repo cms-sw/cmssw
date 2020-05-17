@@ -131,9 +131,8 @@ void AnalysisRootpleProducerOnlyMC::analyze(const Event& e, const EventSetup&) {
   MonteCarlo->Clear();
 
   if (!ChgGenJetsHandle->empty()) {
-    for (GenJetCollection::const_iterator it(ChgGenJetsHandle->begin()), itEnd(ChgGenJetsHandle->end()); it != itEnd;
-         ++it) {
-      ChgGenJetContainer.push_back(*it);
+    for (const auto& it : *ChgGenJetsHandle) {
+      ChgGenJetContainer.push_back(it);
     }
 
     std::stable_sort(ChgGenJetContainer.begin(), ChgGenJetContainer.end(), GenJetSort());
@@ -146,8 +145,8 @@ void AnalysisRootpleProducerOnlyMC::analyze(const Event& e, const EventSetup&) {
   }
 
   if (!GenJetsHandle->empty()) {
-    for (GenJetCollection::const_iterator it(GenJetsHandle->begin()), itEnd(GenJetsHandle->end()); it != itEnd; ++it) {
-      GenJetContainer.push_back(*it);
+    for (const auto& it : *GenJetsHandle) {
+      GenJetContainer.push_back(it);
     }
 
     std::stable_sort(GenJetContainer.begin(), GenJetContainer.end(), GenJetSort());
@@ -160,8 +159,8 @@ void AnalysisRootpleProducerOnlyMC::analyze(const Event& e, const EventSetup&) {
   }
 
   if (!CandHandleMC->empty()) {
-    for (vector<GenParticle>::const_iterator it(CandHandleMC->begin()), itEnd(CandHandleMC->end()); it != itEnd; it++) {
-      GenPart.push_back(it->p4());
+    for (const auto& it : *CandHandleMC) {
+      GenPart.push_back(it.p4());
     }
 
     std::stable_sort(GenPart.begin(), GenPart.end(), GreaterPt());

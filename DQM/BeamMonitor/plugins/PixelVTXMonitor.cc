@@ -43,16 +43,15 @@ void PixelVTXMonitor::bookHistograms() {
 
   const std::vector<std::string>& pathList = hltConfig_.triggerNames();
   std::vector<std::string> selectedPaths;
-  for (std::vector<std::string>::const_iterator it = pathList.begin(); it != pathList.end(); ++it) {
+  for (const auto& it : pathList) {
     int nmatch = 0;
-    for (std::vector<std::string>::const_iterator kt = hltPathsOfInterest.begin(); kt != hltPathsOfInterest.end();
-         ++kt) {
-      nmatch += TPRegexp(*kt).Match(*it);
+    for (const auto& kt : hltPathsOfInterest) {
+      nmatch += TPRegexp(kt).Match(it);
     }
     if (!nmatch)
       continue;
     else
-      selectedPaths.push_back(*it);
+      selectedPaths.push_back(it);
   }
 
   edm::ParameterSet ClusHistoPar = parameters_.getParameter<edm::ParameterSet>("TH1ClusPar");
@@ -62,9 +61,9 @@ void PixelVTXMonitor::bookHistograms() {
   dbe_->setCurrentFolder(currentFolder);
 
   PixelMEs local_MEs;
-  for (std::vector<std::string>::iterator it = selectedPaths.begin(); it != selectedPaths.end(); it++) {
-    std::string tag = (*it);
-    std::map<std::string, PixelMEs>::iterator iPos = histoMap_.find(tag);
+  for (auto& selectedPath : selectedPaths) {
+    std::string tag = selectedPath;
+    auto iPos = histoMap_.find(tag);
     if (iPos == histoMap_.end()) {
       std::string hname, htitle;
 
@@ -133,12 +132,12 @@ void PixelVTXMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& i
   }
 
   int nVtx = 0;
-  for (reco::VertexCollection::const_iterator ivtx = pixelVertices->begin(); ivtx != pixelVertices->end(); ++ivtx) {
+  for (const auto& ivtx : *pixelVertices) {
     if (minVtxDoF_ == -1)
       nVtx++;
     else {
-      if ((ivtx->isValid() == true) && (ivtx->isFake() == false) && (ivtx->ndof() >= minVtxDoF_) &&
-          (ivtx->tracksSize() != 0))
+      if ((ivtx.isValid() == true) && (ivtx.isFake() == false) && (ivtx.ndof() >= minVtxDoF_) &&
+          (ivtx.tracksSize() != 0))
         nVtx++;
     }
   }
@@ -148,10 +147,10 @@ void PixelVTXMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& i
   if (!triggerResults.isValid())
     return;
 
-  for (std::map<std::string, PixelMEs>::iterator it = histoMap_.begin(); it != histoMap_.end(); ++it) {
-    std::string path = it->first;
-    MonitorElement* me_clus = it->second.clusME;
-    MonitorElement* me_vtx = it->second.vtxME;
+  for (auto& it : histoMap_) {
+    std::string path = it.first;
+    MonitorElement* me_clus = it.second.clusME;
+    MonitorElement* me_vtx = it.second.vtxME;
     unsigned int index = hltConfig_.triggerIndex(path);
     if (index < triggerResults->size() && triggerResults->accept(index)) {
       if (me_vtx)

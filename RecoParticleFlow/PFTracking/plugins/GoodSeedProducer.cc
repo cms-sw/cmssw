@@ -84,7 +84,7 @@ private:
   ///Find the bin in pt and eta
   int getBin(float, float);
 
-  void fillPreIdRefValueMap(edm::Handle<reco::TrackCollection> tkhandle,
+  void fillPreIdRefValueMap(const edm::Handle<reco::TrackCollection>& tkhandle,
                             const edm::OrphanHandle<reco::PreIdCollection>&,
                             edm::ValueMap<reco::PreIdRef>::Filler& filler);
   // ----------member data ---------------------------
@@ -187,9 +187,9 @@ GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig, const goodseedhe
 
   //now do what ever initialization is needed
   std::vector<edm::InputTag> tags = iConfig.getParameter<vector<InputTag>>("TkColList");
-  for (unsigned int i = 0; i < tags.size(); ++i) {
-    trajContainers_.push_back(consumes<vector<Trajectory>>(tags[i]));
-    tracksContainers_.push_back(consumes<reco::TrackCollection>(tags[i]));
+  for (const auto& tag : tags) {
+    trajContainers_.push_back(consumes<vector<Trajectory>>(tag));
+    tracksContainers_.push_back(consumes<reco::TrackCollection>(tag));
   }
 
   minPt_ = iConfig.getParameter<double>("MinPt");
@@ -647,7 +647,7 @@ int GoodSeedProducer::getBin(float eta, float pt) {
   return iep;
 }
 
-void GoodSeedProducer::fillPreIdRefValueMap(Handle<TrackCollection> tracks,
+void GoodSeedProducer::fillPreIdRefValueMap(const Handle<TrackCollection>& tracks,
                                             const edm::OrphanHandle<reco::PreIdCollection>& preidhandle,
                                             edm::ValueMap<reco::PreIdRef>::Filler& filler) {
   std::vector<reco::PreIdRef> values;
@@ -655,10 +655,10 @@ void GoodSeedProducer::fillPreIdRefValueMap(Handle<TrackCollection> tracks,
   unsigned ntracks = tracks->size();
   for (unsigned itrack = 0; itrack < ntracks; ++itrack) {
     reco::TrackRef theTrackRef(tracks, itrack);
-    std::map<reco::TrackRef, unsigned>::const_iterator itcheck = refMap_.find(theTrackRef);
+    auto itcheck = refMap_.find(theTrackRef);
     if (itcheck == refMap_.end()) {
       // the track has been early discarded
-      values.push_back(reco::PreIdRef());
+      values.emplace_back();
     } else {
       edm::Ref<reco::PreIdCollection> preIdRef(preidhandle, itcheck->second);
       values.push_back(preIdRef);

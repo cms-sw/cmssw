@@ -45,7 +45,7 @@ G4VParticleChange* CMSSIMPInelasticProcess::PostStepDoIt(const G4Track& aTrack, 
 
   // Find cross section at end of step and check if <= 0
   //
-  G4DynamicParticle* aParticle = const_cast<G4DynamicParticle*>(aTrack.GetDynamicParticle());
+  auto* aParticle = const_cast<G4DynamicParticle*>(aTrack.GetDynamicParticle());
 
   // change this SIMP particle in a neutron
   aParticle->SetPDGcode(2112);

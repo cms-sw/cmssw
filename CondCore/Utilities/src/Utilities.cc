@@ -69,7 +69,7 @@ namespace cond {
 cond::UtilitiesError::UtilitiesError(const std::string& message) : Exception(message) {}
 cond::UtilitiesError::~UtilitiesError() throw() {}
 
-cond::Utilities::Utilities(const std::string& commandName, std::string positionalParameter)
+cond::Utilities::Utilities(const std::string& commandName, const std::string& positionalParameter)
     : m_name(commandName),
       m_options(std::string("Usage: ") + m_name + std::string(" [options] ") + positionalParameter +
                 std::string(" \n")),

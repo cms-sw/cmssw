@@ -56,7 +56,7 @@ void testSiStripEnumsAndStrings::beginJob() {
                            << " Checking sistrip::RunType...";
     bool first = true;
     for (uint32_t cntr = 0; cntr <= sistrip::invalid_; cntr++) {
-      sistrip::RunType in = static_cast<sistrip::RunType>(cntr);
+      auto in = static_cast<sistrip::RunType>(cntr);
       std::string str = SiStripEnumsAndStrings::runType(in);
       sistrip::RunType out = SiStripEnumsAndStrings::runType(str);
       if (out != sistrip::UNKNOWN_RUN_TYPE || (out == sistrip::UNKNOWN_RUN_TYPE && first)) {
@@ -80,7 +80,7 @@ void testSiStripEnumsAndStrings::beginJob() {
                            << " Checking sistrip::KeyType...";
     bool first = true;
     for (uint32_t cntr = 0; cntr <= sistrip::invalid_; cntr++) {
-      sistrip::KeyType in = static_cast<sistrip::KeyType>(cntr);
+      auto in = static_cast<sistrip::KeyType>(cntr);
       std::string str = SiStripEnumsAndStrings::keyType(in);
       sistrip::KeyType out = SiStripEnumsAndStrings::keyType(str);
       if (out != sistrip::UNKNOWN_KEY || (out == sistrip::UNKNOWN_KEY && first)) {
@@ -104,7 +104,7 @@ void testSiStripEnumsAndStrings::beginJob() {
                            << " Checking sistrip::Granularity...";
     bool first = true;
     for (uint32_t cntr = 0; cntr <= sistrip::invalid_; cntr++) {
-      sistrip::Granularity in = static_cast<sistrip::Granularity>(cntr);
+      auto in = static_cast<sistrip::Granularity>(cntr);
       std::string str = SiStripEnumsAndStrings::granularity(in);
       sistrip::Granularity out = SiStripEnumsAndStrings::granularity(str);
       if (out != sistrip::UNKNOWN_GRAN || (out == sistrip::UNKNOWN_GRAN && first)) {
@@ -128,7 +128,7 @@ void testSiStripEnumsAndStrings::beginJob() {
                            << " Checking sistrip::ApvReadoutMode...";
     bool first = true;
     for (uint32_t cntr = 0; cntr <= sistrip::invalid_; cntr++) {
-      sistrip::ApvReadoutMode in = static_cast<sistrip::ApvReadoutMode>(cntr);
+      auto in = static_cast<sistrip::ApvReadoutMode>(cntr);
       std::string str = SiStripEnumsAndStrings::apvReadoutMode(in);
       sistrip::ApvReadoutMode out = SiStripEnumsAndStrings::apvReadoutMode(str);
       if (out != sistrip::UNKNOWN_APV_READOUT_MODE || (out == sistrip::UNKNOWN_APV_READOUT_MODE && first)) {
@@ -152,7 +152,7 @@ void testSiStripEnumsAndStrings::beginJob() {
                            << " Checking sistrip::FedReadoutMode...";
     bool first = true;
     for (uint32_t cntr = 0; cntr <= sistrip::invalid_; cntr++) {
-      sistrip::FedReadoutMode in = static_cast<sistrip::FedReadoutMode>(cntr);
+      auto in = static_cast<sistrip::FedReadoutMode>(cntr);
       std::string str = SiStripEnumsAndStrings::fedReadoutMode(in);
       sistrip::FedReadoutMode out = SiStripEnumsAndStrings::fedReadoutMode(str);
       if (out != sistrip::UNKNOWN_FED_READOUT_MODE || (out == sistrip::UNKNOWN_FED_READOUT_MODE && first)) {
@@ -175,7 +175,7 @@ void testSiStripEnumsAndStrings::beginJob() {
                            << " Checking sistrip::Monitorable...";
     bool first = true;
     for (uint32_t cntr = 0; cntr <= sistrip::invalid_; cntr++) {
-      sistrip::Monitorable in = static_cast<sistrip::Monitorable>(cntr);
+      auto in = static_cast<sistrip::Monitorable>(cntr);
       std::string str = SiStripEnumsAndStrings::monitorable(in);
       sistrip::Monitorable out = SiStripEnumsAndStrings::monitorable(str);
       if (out != sistrip::UNKNOWN_MONITORABLE || (out == sistrip::UNKNOWN_MONITORABLE && first)) {
@@ -195,7 +195,7 @@ void testSiStripEnumsAndStrings::beginJob() {
                            << " Checking sistrip::Presentation...";
     bool first = true;
     for (uint32_t cntr = 0; cntr <= sistrip::invalid_; cntr++) {
-      sistrip::Presentation in = static_cast<sistrip::Presentation>(cntr);
+      auto in = static_cast<sistrip::Presentation>(cntr);
       std::string str = SiStripEnumsAndStrings::presentation(in);
       sistrip::Presentation out = SiStripEnumsAndStrings::presentation(str);
       if (out != sistrip::UNKNOWN_PRESENTATION || (out == sistrip::UNKNOWN_PRESENTATION && first)) {

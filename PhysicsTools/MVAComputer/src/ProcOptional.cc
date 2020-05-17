@@ -49,7 +49,7 @@ namespace {  // anonymous
   }
 
   void ProcOptional::eval(ValueIterator iter, unsigned int n) const {
-    for (std::vector<double>::const_iterator pos = neutralPos.begin(); pos != neutralPos.end(); pos++, ++iter) {
+    for (auto pos = neutralPos.begin(); pos != neutralPos.end(); pos++, ++iter) {
       switch (iter.size()) {
         case 0:
           iter(*pos);
@@ -71,7 +71,7 @@ namespace {  // anonymous
     std::vector<double> result;
 
     unsigned int column = 0;
-    for (std::vector<double>::const_iterator pos = neutralPos.begin(); pos != neutralPos.end(); pos++, ++iter) {
+    for (auto pos = neutralPos.begin(); pos != neutralPos.end(); pos++, ++iter) {
       unsigned int row = result.size();
       result.resize(row + size);
       switch (iter.size()) {

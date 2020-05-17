@@ -152,8 +152,8 @@ void EcalPreshowerRecHitsValidation::analyze(const Event &e, const EventSetup &c
   float ene_zm2nd = 0.;
 
   // ES
-  for (ESRecHitCollection::const_iterator recHit = ESRecHit->begin(); recHit != ESRecHit->end(); ++recHit) {
-    ESDetId ESid = ESDetId(recHit->id());
+  for (const auto &recHit : *ESRecHit) {
+    ESDetId ESid = ESDetId(recHit.id());
 
     int zside = ESid.zside();
     int plane = ESid.plane();
@@ -164,14 +164,14 @@ void EcalPreshowerRecHitsValidation::analyze(const Event &e, const EventSetup &c
     // global
     mult_tot++;
     if (meESRecHitsEnergy_)
-      meESRecHitsEnergy_->Fill(recHit->energy());
+      meESRecHitsEnergy_->Fill(recHit.energy());
 
     // side +, plane 1
     if ((zside == +1) && (plane == 1)) {
       mult_zp1st++;
-      ene_zp1st += recHit->energy();
+      ene_zp1st += recHit.energy();
       if (meESRecHitsEnergy_zp1st_) {
-        meESRecHitsEnergy_zp1st_->Fill(recHit->energy());
+        meESRecHitsEnergy_zp1st_->Fill(recHit.energy());
       }
       if (meESRecHitsStripOccupancy_zp1st_[strip - 1]) {
         meESRecHitsStripOccupancy_zp1st_[strip - 1]->Fill(six, siy);
@@ -181,9 +181,9 @@ void EcalPreshowerRecHitsValidation::analyze(const Event &e, const EventSetup &c
     // side +, plane 2
     if ((zside == +1) && (plane == 2)) {
       mult_zp2nd++;
-      ene_zp2nd += recHit->energy();
+      ene_zp2nd += recHit.energy();
       if (meESRecHitsEnergy_zp2nd_) {
-        meESRecHitsEnergy_zp2nd_->Fill(recHit->energy());
+        meESRecHitsEnergy_zp2nd_->Fill(recHit.energy());
       }
       if (meESRecHitsStripOccupancy_zp2nd_[strip - 1]) {
         meESRecHitsStripOccupancy_zp2nd_[strip - 1]->Fill(six, siy);
@@ -193,9 +193,9 @@ void EcalPreshowerRecHitsValidation::analyze(const Event &e, const EventSetup &c
     // side -, plane 1
     if ((zside == -1) && (plane == 1)) {
       mult_zm1st++;
-      ene_zm1st += recHit->energy();
+      ene_zm1st += recHit.energy();
       if (meESRecHitsEnergy_zm1st_) {
-        meESRecHitsEnergy_zm1st_->Fill(recHit->energy());
+        meESRecHitsEnergy_zm1st_->Fill(recHit.energy());
       }
       if (meESRecHitsStripOccupancy_zm1st_[strip - 1]) {
         meESRecHitsStripOccupancy_zm1st_[strip - 1]->Fill(six, siy);
@@ -205,9 +205,9 @@ void EcalPreshowerRecHitsValidation::analyze(const Event &e, const EventSetup &c
     // side +, plane 2
     if ((zside == -1) && (plane == 2)) {
       mult_zm2nd++;
-      ene_zm2nd += recHit->energy();
+      ene_zm2nd += recHit.energy();
       if (meESRecHitsEnergy_zm2nd_) {
-        meESRecHitsEnergy_zm2nd_->Fill(recHit->energy());
+        meESRecHitsEnergy_zm2nd_->Fill(recHit.energy());
       }
       if (meESRecHitsStripOccupancy_zm2nd_[strip - 1]) {
         meESRecHitsStripOccupancy_zm2nd_[strip - 1]->Fill(six, siy);
@@ -220,14 +220,12 @@ void EcalPreshowerRecHitsValidation::analyze(const Event &e, const EventSetup &c
   double zpEE = 0.;
   double zmEE = 0.;
   if (!skipEE) {
-    for (EcalUncalibratedRecHitCollection::const_iterator uncalibRecHit = EEUncalibRecHit->begin();
-         uncalibRecHit != EEUncalibRecHit->end();
-         ++uncalibRecHit) {
-      EEDetId EEid = EEDetId(uncalibRecHit->id());
+    for (const auto &uncalibRecHit : *EEUncalibRecHit) {
+      EEDetId EEid = EEDetId(uncalibRecHit.id());
       int mySide = EEid.zside();
 
       // Find corresponding recHit
-      EcalRecHitCollection::const_iterator myRecHit = EERecHit->find(EEid);
+      auto myRecHit = EERecHit->find(EEid);
 
       if (myRecHit != EERecHit->end()) {
         if (mySide > 0) {

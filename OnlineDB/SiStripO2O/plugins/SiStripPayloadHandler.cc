@@ -7,6 +7,8 @@
 #include <iostream>
 #include <sstream>
 #include <typeinfo>
+#include <utility>
+
 #include <openssl/sha.h>
 
 #include "CondCore/CondDB/interface/ConnectionPool.h"
@@ -211,7 +213,7 @@ std::string SiStripPayloadHandler<SiStripPayload>::queryConfigMap(std::string co
   std::string whereClause("CONFIG_HASH = :CONFIG_HASH");
   coral::AttributeList whereData;
   whereData.extend<std::string>("CONFIG_HASH");
-  whereData.begin()->data<std::string>() = configHash;
+  whereData.begin()->data<std::string>() = std::move(configHash);
   query->setCondition(whereClause, whereData);
   coral::ICursor& cursor = query->execute();
   std::string p_hash;

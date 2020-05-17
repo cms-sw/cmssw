@@ -6,6 +6,7 @@
 
 #include <string>  //STL
 #include <set>
+#include <utility>
 
 #include "DCCDataParser.h"
 
@@ -22,7 +23,7 @@ public:
      Class constructor (sets data field's characteristics)
   */
   DCCTBDataField(std::string name, uint32_t wordPosition, uint32_t bitPosition, uint32_t mask) {
-    name_ = name;
+    name_ = std::move(name);
     wordPosition_ = wordPosition;
     bitPosition_ = bitPosition;
     mask_ = mask;
@@ -33,7 +34,7 @@ public:
   */
   void setName(std::string namestr) {
     name_.clear();
-    name_ = namestr;
+    name_ = std::move(namestr);
   }
   std::string name() { return name_; }
   void setWordPosition(uint32_t wordpos) { wordPosition_ = wordpos; }

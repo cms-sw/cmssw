@@ -205,7 +205,7 @@ void MatacqProducer::addMatacqData(edm::Event& event) {
 
         bool fileChange;
         if (doOrbitOffset_) {
-          map<uint32_t, uint32_t>::iterator it = orbitOffset_.find(runNumber);
+          auto it = orbitOffset_.find(runNumber);
           if (it == orbitOffset_.end()) {
             LogWarning("Matacq") << "Orbit offset not found for run " << runNumber
                                  << ". No orbit correction will be applied.";

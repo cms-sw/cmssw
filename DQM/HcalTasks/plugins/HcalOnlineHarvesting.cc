@@ -10,8 +10,8 @@ HcalOnlineHarvesting::HcalOnlineHarvesting(edm::ParameterSet const& ps)
   _vsumgen.resize(nSummary);
   _vnames.resize(nSummary);
   _vmarks.resize(nSummary);
-  for (uint32_t i = 0; i < _vmarks.size(); i++)
-    _vmarks[i] = false;
+  for (auto&& _vmark : _vmarks)
+    _vmark = false;
   _vnames[fRaw] = "RawTask";
   _vnames[fDigi] = "DigiTask";
   _vnames[fReco] = "RecHitTask";
@@ -29,8 +29,8 @@ HcalOnlineHarvesting::HcalOnlineHarvesting(edm::ParameterSet const& ps)
 
 /* virtual */ void HcalOnlineHarvesting::beginRun(edm::Run const& r, edm::EventSetup const& es) {
   DQHarvester::beginRun(r, es);
-  for (std::vector<DQClient*>::const_iterator it = _vsumgen.begin(); it != _vsumgen.end(); ++it)
-    (*it)->beginRun(r, es);
+  for (auto it : _vsumgen)
+    it->beginRun(r, es);
 }
 
 /* virtual */ void HcalOnlineHarvesting::_dqmEndLuminosityBlock(DQMStore::IBooker& ib,
@@ -64,8 +64,8 @@ HcalOnlineHarvesting::HcalOnlineHarvesting(edm::ParameterSet const& ps)
     _reportSummaryMap->getTH1()->SetBit(BIT(BIT_OFFSET + BIT_AXIS_LS));
 
     // INITIALIZE ALL THE MODULES
-    for (uint32_t i = 0; i < _vnames.size(); i++)
-      _vcSummaryvsLS.push_back(ContainerSingle2D(_vnames[i],
+    for (const auto& _vname : _vnames)
+      _vcSummaryvsLS.push_back(ContainerSingle2D(_vname,
                                                  "SummaryvsLS",
                                                  new hcaldqm::quantity::LumiSection(_maxLS),
                                                  new hcaldqm::quantity::FEDQuantity(_vFEDs),
@@ -86,8 +86,8 @@ HcalOnlineHarvesting::HcalOnlineHarvesting(edm::ParameterSet const& ps)
                                         new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
                                         0);
     _cKnownBadChannels_depth.book(ib, _emap, _subsystem);
-    for (uintCompactMap::const_iterator it = _xQuality.begin(); it != _xQuality.end(); ++it)
-      _cKnownBadChannels_depth.fill(HcalDetId(it->first));
+    for (auto it : _xQuality)
+      _cKnownBadChannels_depth.fill(HcalDetId(it.first));
 
     ig.setCurrentFolder(_subsystem + "/EventInfo");
     _runSummary = ib.book2D("runSummary", "runSummary", 1, 0, 1, 1, 0, 1);
@@ -96,8 +96,8 @@ HcalOnlineHarvesting::HcalOnlineHarvesting(edm::ParameterSet const& ps)
   int ifed = 0;
   hcaldqm::flag::Flag fTotal("Status", hcaldqm::flag::fNCDAQ);
   if (_ptype != fOffline) {  // hidefed2crate
-    for (std::vector<uint32_t>::const_iterator it = _vhashFEDs.begin(); it != _vhashFEDs.end(); ++it) {
-      HcalElectronicsId eid(*it);
+    for (unsigned int _vhashFED : _vhashFEDs) {
+      HcalElectronicsId eid(_vhashFED);
       hcaldqm::flag::Flag fSum("Status", hcaldqm::flag::fNCDAQ);
       for (uint32_t im = 0; im < _vmarks.size(); im++)
         if (_vmarks[im]) {

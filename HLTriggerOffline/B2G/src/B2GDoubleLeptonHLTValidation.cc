@@ -91,9 +91,9 @@ void B2GDoubleLeptonHLTValidation::analyze(const edm::Event &iEvent, const edm::
     edm::LogWarning("B2GDoubleLeptonHLTValidation") << "Trigger collection not found \n";
   const edm::TriggerNames &triggerNames = iEvent.triggerNames(*triggerTable);
   bool isInteresting = false;
-  for (unsigned int i = 0; i < triggerNames.triggerNames().size(); ++i) {
-    for (unsigned int j = 0; j < vsPaths_.size(); j++) {
-      if (triggerNames.triggerNames()[i].find(vsPaths_[j]) != std::string::npos) {
+  for (const auto &i : triggerNames.triggerNames()) {
+    for (const auto &vsPath : vsPaths_) {
+      if (i.find(vsPath) != std::string::npos) {
         isInteresting = true;
         break;
       }
@@ -133,9 +133,9 @@ void B2GDoubleLeptonHLTValidation::analyze(const edm::Event &iEvent, const edm::
       hNumLeptonEta->Fill(mu_->eta());
     }
 
-    for (unsigned int i = 0; i < triggerNames.triggerNames().size(); ++i) {
+    for (const auto &i : triggerNames.triggerNames()) {
       for (unsigned int j = 0; j < vsPaths_.size(); j++) {
-        if (triggerNames.triggerNames()[i].find(vsPaths_[j]) != std::string::npos) {
+        if (i.find(vsPaths_[j]) != std::string::npos) {
           hNumTriggerMon->Fill(j + 0.5);
         }
       }

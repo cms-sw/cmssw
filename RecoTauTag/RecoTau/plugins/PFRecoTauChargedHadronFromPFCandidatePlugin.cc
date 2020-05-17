@@ -130,16 +130,12 @@ namespace reco {
         reco::PFCandidate::ElementsInBlocks blockElements2 = pfCandidate2.elementsInBlocks();
         int numBlocks2 = blockElements2.size();
         int numBlocks_matched = 0;
-        for (reco::PFCandidate::ElementsInBlocks::const_iterator blockElement1 = blockElements1.begin();
-             blockElement1 != blockElements1.end();
-             ++blockElement1) {
+        for (const auto& blockElement1 : blockElements1) {
           bool isMatched = false;
-          for (reco::PFCandidate::ElementsInBlocks::const_iterator blockElement2 = blockElements2.begin();
-               blockElement2 != blockElements2.end();
-               ++blockElement2) {
-            if (blockElement1->first.id() == blockElement2->first.id() &&
-                blockElement1->first.key() == blockElement2->first.key() &&
-                blockElement1->second == blockElement2->second) {
+          for (const auto& blockElement2 : blockElements2) {
+            if (blockElement1.first.id() == blockElement2.first.id() &&
+                blockElement1.first.key() == blockElement2.first.key() &&
+                blockElement1.second == blockElement2.second) {
               isMatched = true;
             }
           }
@@ -170,22 +166,21 @@ namespace reco {
       qcuts_->setPV(vertexAssociator_.associatedVertex(jet));
       CandPtrs candsVector = qcuts_->filterCandRefs(pfCandidates(jet, inputParticleIds_));
 
-      for (CandPtrs::iterator cand = candsVector.begin(); cand != candsVector.end(); ++cand) {
+      for (auto& cand : candsVector) {
         if (verbosity_) {
           edm::LogPrint("TauChHadronFromPF")
-              << "processing PFCandidate: Pt = " << (*cand)->pt() << ", eta = " << (*cand)->eta()
-              << ", phi = " << (*cand)->phi() << " (pdgId = " << (*cand)->pdgId() << ", charge = " << (*cand)->charge()
-              << ")";
+              << "processing PFCandidate: Pt = " << cand->pt() << ", eta = " << cand->eta() << ", phi = " << cand->phi()
+              << " (pdgId = " << cand->pdgId() << ", charge = " << cand->charge() << ")";
         }
 
         PFRecoTauChargedHadron::PFRecoTauChargedHadronAlgorithm algo = PFRecoTauChargedHadron::kUndefined;
-        if (std::abs((*cand)->charge()) > 0.5)
+        if (std::abs(cand->charge()) > 0.5)
           algo = PFRecoTauChargedHadron::kChargedPFCandidate;
         else
           algo = PFRecoTauChargedHadron::kPFNeutralHadron;
-        std::unique_ptr<PFRecoTauChargedHadron> chargedHadron(new PFRecoTauChargedHadron(**cand, algo));
+        std::unique_ptr<PFRecoTauChargedHadron> chargedHadron(new PFRecoTauChargedHadron(*cand, algo));
 
-        const reco::PFCandidate* pfCand = dynamic_cast<const reco::PFCandidate*>(&**cand);
+        const auto* pfCand = dynamic_cast<const reco::PFCandidate*>(&*cand);
         if (pfCand) {
           if (pfCand->trackRef().isNonnull())
             chargedHadron->track_ = edm::refToPtr(pfCand->trackRef());
@@ -199,9 +194,9 @@ namespace reco {
             chargedHadron->track_ = edm::refToPtr(pfCand->gsfTrackRef());
         }  // TauReco@MiniAOD: Tracks only available dynamically, so no possiblity to save ref here; checked by code downstream
 
-        chargedHadron->positionAtECALEntrance_ = atECALEntrance(&**cand, bField_);
-        chargedHadron->chargedPFCandidate_ = (*cand);
-        chargedHadron->addDaughter(*cand);
+        chargedHadron->positionAtECALEntrance_ = atECALEntrance(&*cand, bField_);
+        chargedHadron->chargedPFCandidate_ = cand;
+        chargedHadron->addDaughter(cand);
 
         int pdgId = std::abs(chargedHadron->chargedPFCandidate_->pdgId());
 
@@ -253,8 +248,7 @@ namespace reco {
                 chargedHadron->addDaughter(jetConstituent);
               } else {
                 // TauReco@MiniAOD: No access to PF blocks at MiniAOD level, but the code below seems to have very minor impact
-                const reco::PFCandidate* pfJetConstituent =
-                    dynamic_cast<const reco::PFCandidate*>(jetConstituent.get());
+                const auto* pfJetConstituent = dynamic_cast<const reco::PFCandidate*>(jetConstituent.get());
                 if (pfCand != nullptr && pfJetConstituent != nullptr) {
                   if (isMatchedByBlockElement(*pfJetConstituent,
                                               *pfCand,

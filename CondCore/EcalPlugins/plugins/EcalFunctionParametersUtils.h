@@ -4,15 +4,15 @@
 
 int countEmptyRows(std::vector<float>& vec) {
   int cnt = 0;
-  for (std::vector<float>::const_iterator it = vec.begin(); it != vec.end(); it++)
-    if ((*it) == 0.0f)
+  for (float it : vec)
+    if (it == 0.0f)
       cnt++;
 
   return cnt;
 }
 
 void fillFunctionParamsValues(
-    TH2F*& align, std::vector<float>& m_params, std::string title, int& gridRows, int& NbColumns) {
+    TH2F*& align, std::vector<float>& m_params, const std::string& title, int& gridRows, int& NbColumns) {
   const int maxInCol = 25;
   int NbRows = 0;
 
@@ -34,10 +34,10 @@ void fillFunctionParamsValues(
     align->Fill(0.5, gridRows - i - 0.5, i + 1);
   }
 
-  for (std::vector<float>::const_iterator it = m_params.begin(); it != m_params.end(); it++) {
-    if ((*it) == 0.0f)
+  for (float m_param : m_params) {
+    if (m_param == 0.0f)
       continue;
-    align->Fill(column, row, *it);
+    align->Fill(column, row, m_param);
 
     cnt++;
     column = floor(1.0 * cnt / maxInCol) + 1.5;

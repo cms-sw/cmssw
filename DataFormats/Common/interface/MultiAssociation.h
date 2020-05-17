@@ -332,7 +332,7 @@ namespace edm {
   template <typename C>
   void MultiAssociation<C>::FastFiller::setValues(const edm::ProductID &id, unsigned int key, const Collection &vals) {
     indexFiller_->insert(id, key, assoc_.data_.size(), vals.size());
-    for (typename Collection::const_iterator it = vals.begin(), ed = vals.end(); it != ed; ++it) {
+    for (auto it = vals.begin(), ed = vals.end(); it != ed; ++it) {
       assoc_.data_.push_back(*it);
     }
   }
@@ -357,7 +357,7 @@ namespace edm {
   void MultiAssociation<C>::LazyFiller::fill() {
     if (id_ != ProductID()) {  // protection against double filling
       typename MultiAssociation<C>::FastFiller filler(assoc_, id_, size_);
-      for (typename TempValues::const_iterator it = tempValues_->begin(), ed = tempValues_->end(); it != ed; ++it) {
+      for (auto it = tempValues_->begin(), ed = tempValues_->end(); it != ed; ++it) {
         filler.setValues(id_, it->first, it->second);
       }
       id_ = ProductID();  // protection against double filling
