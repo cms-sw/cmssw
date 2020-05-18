@@ -28,12 +28,12 @@ namespace edm {
     template <class T>
     class ECGetterBase {
     public:
-      ECGetterBase() : data_(0) {}
+      ECGetterBase() : data_(nullptr) {}
       virtual ~ECGetterBase() {}
 
       // ---------- const member functions ---------------------
       const T* get() const {
-        if (data_ == 0) {
+        if (data_ == nullptr) {
           data_ = this->getImpl();
         }
         return data_;
@@ -58,7 +58,7 @@ namespace edm {
     ValueHolderECGetter(const T& iValue) : value_(&iValue) {}
 
   private:
-    virtual const T* getImpl() const { return value_; }
+    const T* getImpl() const override { return value_; }
     const T* value_;
   };
 }  // namespace edm
