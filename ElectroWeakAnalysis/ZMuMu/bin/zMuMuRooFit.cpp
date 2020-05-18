@@ -40,10 +40,10 @@ using namespace RooFit;
 
 TH1F * getHisto(TFile * file, const char * name, double fMin, double fMax, unsigned int rebin) {
   TObject * h = file->Get(name);
-  if(h == 0)
+  if (h == nullptr)
     cout  << "Can't find object " << name << "\n";
   TH1F * histo = dynamic_cast<TH1F*>(h);
-  if(histo == 0)
+  if (histo == nullptr)
     cout << "Object " << name << " is of type " << h->ClassName() << ", not TH1\n";
   TH1F * new_histo = new TH1F(name, name, (int) (fMax-fMin), fMin, fMax);
   int bin_num=0;
