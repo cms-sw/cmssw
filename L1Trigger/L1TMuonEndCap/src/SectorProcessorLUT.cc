@@ -1,6 +1,5 @@
 #include "L1Trigger/L1TMuonEndCap/interface/SectorProcessorLUT.h"
 
-#include <cassert>
 #include <iostream>
 #include <fstream>
 
@@ -33,7 +32,7 @@ void SectorProcessorLUT::read(bool pc_lut_data, int pc_lut_version) {
   else if (pc_lut_version == -1)
     coord_lut_dir = "ph_lut_v2";  // MC using ideal CMS LCT alignment, but use local CPPF LUTs for RPC
   else
-    throw cms::Exception("SectorProcessorLUT")
+    throw cms::Exception("L1TMuonEndCap")
         << "Trying to use EMTF pc_lut_version = " << pc_lut_version << ", does not exist!";
   // Will catch user trying to run with Global Tag settings on 2016 data, rather than fakeEmtfParams. - AWB 08.06.17
 
@@ -58,48 +57,46 @@ void SectorProcessorLUT::read(bool pc_lut_data, int pc_lut_version) {
                  use_local_cppf_files);  // cppf filenames are hardcoded in the function
 
   if (ph_init_neighbor_.size() != 2 * 6 * 61) {  // [endcap_2][sector_6][chamber_61]
-    throw cms::Exception("SectorProcessorLUT") << "Expected ph_init_neighbor_ to get " << 2 * 6 * 61 << " values, "
-                                               << "got " << ph_init_neighbor_.size() << " values.";
+    throw cms::Exception("L1TMuonEndCap") << "Expected ph_init_neighbor_ to get " << 2 * 6 * 61 << " values, "
+                                          << "got " << ph_init_neighbor_.size() << " values.";
   }
 
   if (ph_disp_neighbor_.size() != 2 * 6 * 61) {  // [endcap_2][sector_6][chamber_61]
-    throw cms::Exception("SectorProcessorLUT") << "Expected ph_disp_neighbor_ to get " << 2 * 6 * 61 << " values, "
-                                               << "got " << ph_disp_neighbor_.size() << " values.";
+    throw cms::Exception("L1TMuonEndCap") << "Expected ph_disp_neighbor_ to get " << 2 * 6 * 61 << " values, "
+                                          << "got " << ph_disp_neighbor_.size() << " values.";
   }
 
   if (th_init_neighbor_.size() != 2 * 6 * 61) {  // [endcap_2][sector_6][chamber_61]
-    throw cms::Exception("SectorProcessorLUT") << "Expected th_init_neighbor_ to get " << 2 * 6 * 61 << " values, "
-                                               << "got " << th_init_neighbor_.size() << " values.";
+    throw cms::Exception("L1TMuonEndCap") << "Expected th_init_neighbor_ to get " << 2 * 6 * 61 << " values, "
+                                          << "got " << th_init_neighbor_.size() << " values.";
   }
 
   if (th_disp_neighbor_.size() != 2 * 6 * 61) {  // [endcap_2][sector_6][chamber_61]
-    throw cms::Exception("SectorProcessorLUT") << "Expected th_disp_neighbor_ to get " << 2 * 6 * 61 << " values, "
-                                               << "got " << th_disp_neighbor_.size() << " values.";
+    throw cms::Exception("L1TMuonEndCap") << "Expected th_disp_neighbor_ to get " << 2 * 6 * 61 << " values, "
+                                          << "got " << th_disp_neighbor_.size() << " values.";
   }
 
   if (th_lut_neighbor_.size() != 2 * 6 * 61 * 128) {  // [endcap_2][sector_6][chamber_61][wire_128]
-    throw cms::Exception("SectorProcessorLUT") << "Expected th_lut_neighbor_ to get " << 2 * 6 * 61 * 128 << " values, "
-                                               << "got " << th_lut_neighbor_.size() << " values.";
+    throw cms::Exception("L1TMuonEndCap") << "Expected th_lut_neighbor_ to get " << 2 * 6 * 61 * 128 << " values, "
+                                          << "got " << th_lut_neighbor_.size() << " values.";
   }
 
   if (th_corr_lut_neighbor_.size() != 2 * 6 * 7 * 128) {  // [endcap_2][sector_6][chamber_61][strip_wire_128]
-    throw cms::Exception("SectorProcessorLUT")
-        << "Expected th_corr_lut_neighbor_ to get " << 2 * 6 * 7 * 128 << " values, "
-        << "got " << th_corr_lut_neighbor_.size() << " values.";
+    throw cms::Exception("L1TMuonEndCap") << "Expected th_corr_lut_neighbor_ to get " << 2 * 6 * 7 * 128 << " values, "
+                                          << "got " << th_corr_lut_neighbor_.size() << " values.";
   }
 
   if (cppf_ph_lut_.size() !=
       2 * 6 * 6 * 6 * 3 *
           64) {  // [endcap_2][rpc_sector_6][rpc_station_ring_6][rpc_subsector_6][rpc_roll_3][rpc_halfstrip_64]
-    throw cms::Exception("SectorProcessorLUT")
-        << "Expected cppf_ph_lut_ to get " << 2 * 6 * 6 * 6 * 3 * 64 << " values, "
-        << "got " << cppf_ph_lut_.size() << " values.";
+    throw cms::Exception("L1TMuonEndCap") << "Expected cppf_ph_lut_ to get " << 2 * 6 * 6 * 6 * 3 * 64 << " values, "
+                                          << "got " << cppf_ph_lut_.size() << " values.";
   }
 
   if (cppf_th_lut_.size() !=
       2 * 6 * 6 * 6 * 3) {  // [endcap_2][rpc_sector_6][rpc_station_ring_6][rpc_subsector_6][rpc_roll_3]
-    throw cms::Exception("SectorProcessorLUT") << "Expected cppf_th_lut_ to get " << 2 * 6 * 6 * 6 * 3 << " values, "
-                                               << "got " << cppf_th_lut_.size() << " values.";
+    throw cms::Exception("L1TMuonEndCap") << "Expected cppf_th_lut_ to get " << 2 * 6 * 6 * 6 * 3 << " values, "
+                                          << "got " << cppf_th_lut_.size() << " values.";
   }
 
   // clct pattern convertion array from CMSSW
@@ -107,22 +104,22 @@ void SectorProcessorLUT::read(bool pc_lut_data, int pc_lut_version) {
   // 0    0    -5      +5    -5      +5    -2      +2    -2      +2    0
   ph_patt_corr_ = {0, 0, 5, 5, 5, 5, 2, 2, 2, 2, 0};
   if (ph_patt_corr_.size() != 11) {
-    throw cms::Exception("SectorProcessorLUT") << "Expected ph_patt_corr_ to get " << 11 << " values, "
-                                               << "got " << ph_patt_corr_.size() << " values.";
+    throw cms::Exception("L1TMuonEndCap") << "Expected ph_patt_corr_ to get " << 11 << " values, "
+                                          << "got " << ph_patt_corr_.size() << " values.";
   }
 
   ph_patt_corr_sign_ = {0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0};
   if (ph_patt_corr_sign_.size() != 11) {
-    throw cms::Exception("SectorProcessorLUT") << "Expected ph_patt_corr_sign_ to get " << 11 << " values, "
-                                               << "got " << ph_patt_corr_sign_.size() << " values.";
+    throw cms::Exception("L1TMuonEndCap") << "Expected ph_patt_corr_sign_ to get " << 11 << " values, "
+                                          << "got " << ph_patt_corr_sign_.size() << " values.";
   }
 
   ph_zone_offset_ = {39, 57, 76,  39, 58, 76, 41, 60,  79,  95, 114, 132, 95, 114, 133, 98, 116, 135,
                      38, 76, 113, 39, 58, 76, 95, 114, 132, 38, 76,  113, 39, 58,  76,  95, 114, 132,
                      38, 76, 113, 38, 57, 76, 95, 113, 132, 21, 21,  23,  1,  21,  1,   21, 1,   20};
   if (ph_zone_offset_.size() != 6 * 9) {
-    throw cms::Exception("SectorProcessorLUT") << "Expected ph_zone_offset_ to get " << 6 * 9 << " values, "
-                                               << "got " << ph_zone_offset_.size() << " values.";
+    throw cms::Exception("L1TMuonEndCap") << "Expected ph_zone_offset_ to get " << 6 * 9 << " values, "
+                                          << "got " << ph_zone_offset_.size() << " values.";
   }
 
   // start phi of each chamber in reduced precision, for zone hits,
@@ -132,8 +129,8 @@ void SectorProcessorLUT::read(bool pc_lut_data, int pc_lut_version) {
                    132, 1,   21, 0,   0,   0,  0,   0,   38, 76, 113, 39,  58,  76, 95,  114, 132, 1,   21,  0,
                    0,   0,   0,  0,   38,  76, 113, 38,  57, 76, 95,  113, 132, 1,  20,  0,   0,   0,   0,   0};
   if (ph_init_hard_.size() != 5 * 16) {
-    throw cms::Exception("SectorProcessorLUT") << "Expected ph_init_hard_ to get " << 5 * 16 << " values, "
-                                               << "got " << ph_init_hard_.size() << " values.";
+    throw cms::Exception("L1TMuonEndCap") << "Expected ph_init_hard_ to get " << 5 * 16 << " values, "
+                                          << "got " << ph_init_hard_.size() << " values.";
   }
 
   version_ = pc_lut_version;
@@ -191,7 +188,7 @@ uint32_t SectorProcessorLUT::get_th_corr_lut(int fw_endcap, int fw_sector, int p
   } else if (16 <= pc_lut_id2 && pc_lut_id2 < 19) {
     pc_lut_id2 -= 12;
   } else {
-    throw cms::Exception("SectorProcessorLUT") << "get_th_corr_lut(): out of range pc_lut_id: " << pc_lut_id;
+    throw cms::Exception("L1TMuonEndCap") << "get_th_corr_lut(): out of range pc_lut_id: " << pc_lut_id;
   }
 
   size_t index = ((fw_endcap * 6 + fw_sector) * 7 + pc_lut_id2) * 128 + pc_wire_strip_id;
@@ -311,11 +308,10 @@ void SectorProcessorLUT::read_cppf_file(const std::string& filename,
       }
 
       if (local && (buf1 == 0 || buf2 == 0)) {
-        throw cms::Exception("SectorProcessorLUT")
-            << "Expected non-0 values, got buf1 = " << buf1 << ", buf2 = " << buf2;
+        throw cms::Exception("L1TMuonEndCap") << "Expected non-0 values, got buf1 = " << buf1 << ", buf2 = " << buf2;
       }
       if (!local && (buf1_prev == 0 || buf2_prev == 0)) {
-        throw cms::Exception("SectorProcessorLUT")
+        throw cms::Exception("L1TMuonEndCap")
             << "Expected non-0 values, got buf1_prev = " << buf1_prev << ", buf2_prev = " << buf2_prev;
       }
 
@@ -356,7 +352,7 @@ void SectorProcessorLUT::read_cppf_file(const std::string& filename,
       size_t ph_index = (th_index * 64) + (halfstrip - 1);
 
       // std::cout << id << " " << rpc_region << " " << rpc_sector << " " << rpc_station << " " << rpc_ring << " "
-      // 		<< rpc_subsector << " " << rpc_roll << " " << halfstrip << " " << th_index << " " << ph_index << std::endl;
+      //    << rpc_subsector << " " << rpc_roll << " " << halfstrip << " " << th_index << " " << ph_index << std::endl;
 
       vec1.at(ph_index) = ph;
       if (halfstrip == 1)
