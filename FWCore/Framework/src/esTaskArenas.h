@@ -9,6 +9,9 @@
 #include <tbb/task_arena.h>
 
 namespace edm {
+  namespace implementation_detail {
+    void useDifferentArenas();
+  }
   tbb::task_arena& mainTaskArena();
   tbb::task_arena& esTaskArena();
 }  // namespace edm

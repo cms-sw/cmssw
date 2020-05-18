@@ -35,6 +35,7 @@
 #include "FWCore/Framework/src/SharedResourcesRegistry.h"
 #include "FWCore/Framework/src/streamTransitionAsync.h"
 #include "FWCore/Framework/src/globalTransitionAsync.h"
+#include "FWCore/Framework/src/esTaskArenas.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -369,6 +370,7 @@ namespace edm {
     }
     if (nThreads > 1 or nStreams > 1) {
       edm::LogInfo("ThreadStreamSetup") << "setting # threads " << nThreads << "\nsetting # streams " << nStreams;
+      edm::implementation_detail::useDifferentArenas();
     }
     unsigned int nConcurrentRuns = optionsPset.getUntrackedParameter<unsigned int>("numberOfConcurrentRuns");
     if (nConcurrentRuns != 1) {
