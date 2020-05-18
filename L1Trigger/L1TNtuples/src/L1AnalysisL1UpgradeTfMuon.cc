@@ -39,7 +39,7 @@ void L1Analysis::L1AnalysisL1UpgradeTfMuon::SetTfMuon(const l1t::RegionalMuonCan
           l1upgradetfmuon_.tfMuonTrAdd.push_back(stat3);
           l1upgradetfmuon_.tfMuonTrAdd.push_back(stat4);
         }
-        l1upgradetfmuon_.tfMuonRawTrAdd.push_back(l1t::RegionalMuonRawDigiTranslator::generateRawTrkAddress(*it));
+        l1upgradetfmuon_.tfMuonRawTrAdd.push_back(l1t::RegionalMuonRawDigiTranslator::generateRawTrkAddress(*it, true));  // TODO: We're assuming that we're dealing with Kalman muons here.
 
         l1upgradetfmuon_.nTfMuons++;
       }
