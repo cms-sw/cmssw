@@ -29,7 +29,6 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
     CSCInput = cms.InputTag('simCscTriggerPrimitiveDigis','MPCSORTED'),
     CSCComparatorInput = cms.InputTag('simMuonCSCDigis','MuonCSCComparatorDigi'),
     RPCInput = cms.InputTag('simMuonRPCDigis'),
-    RPCRecHitInput = cms.InputTag('rpcRecHits'),
     CPPFInput = cms.InputTag('simCPPFDigis'),  ## Cannot use in MC workflow, does not exist yet.  CPPFEnable set to False - AWB 01.06.18
     GEMInput = cms.InputTag('simMuonGEMPadDigiClusters'),
     ME0Input = cms.InputTag('me0TriggerConvertedPseudoDigis'),

@@ -13,8 +13,6 @@ TrackFinder::TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollecto
       tokenCSCComparator_(iConsumes.consumes<emtf::CSCTag::comparator_digi_collection>(
           iConfig.getParameter<edm::InputTag>("CSCComparatorInput"))),
       tokenRPC_(iConsumes.consumes<emtf::RPCTag::digi_collection>(iConfig.getParameter<edm::InputTag>("RPCInput"))),
-      tokenRPCRecHit_(
-          iConsumes.consumes<emtf::RPCTag::rechit_collection>(iConfig.getParameter<edm::InputTag>("RPCRecHitInput"))),
       tokenCPPF_(iConsumes.consumes<emtf::CPPFTag::digi_collection>(iConfig.getParameter<edm::InputTag>("CPPFInput"))),
       tokenGEM_(iConsumes.consumes<emtf::GEMTag::digi_collection>(iConfig.getParameter<edm::InputTag>("GEMInput"))),
       tokenME0_(iConsumes.consumes<emtf::ME0Tag::digi_collection>(iConfig.getParameter<edm::InputTag>("ME0Input"))),
@@ -71,11 +69,9 @@ void TrackFinder::process(const edm::Event& iEvent,
     collector.extractPrimitives(emtf::CPPFTag(), tp_geom_, iEvent, tokenCPPF_, muon_primitives);
   } else if (useRPC) {
     collector.extractPrimitives(emtf::RPCTag(), tp_geom_, iEvent, tokenRPC_, muon_primitives);
-    //collector.extractPrimitives(emtf::RPCTag(), tp_geom_, iEvent, tokenRPC_, tokenRPCRecHit_, muon_primitives);
   }
   if (useIRPC) {
     collector.extractPrimitives(emtf::IRPCTag(), tp_geom_, iEvent, tokenRPC_, muon_primitives);
-    //collector.extractPrimitives(emtf::IRPCTag(), tp_geom_, iEvent, tokenRPC_, tokenRPCRecHit_, muon_primitives);
   }
   if (useGEM) {
     collector.extractPrimitives(emtf::GEMTag(), tp_geom_, iEvent, tokenGEM_, muon_primitives);
