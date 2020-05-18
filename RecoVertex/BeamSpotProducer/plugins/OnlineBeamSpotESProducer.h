@@ -20,7 +20,7 @@ class OnlineBeamSpotESProducer : public edm::ESProducer {
 public:
   OnlineBeamSpotESProducer(const edm::ParameterSet &p);
   ~OnlineBeamSpotESProducer() override;
-  std::shared_ptr<const BeamSpotOnlineObjects> produce(const BeamSpotTransientObjectsRcd &);
+  std::shared_ptr<const BeamSpotObjects> produce(const BeamSpotTransientObjectsRcd &);
  
   
 
@@ -28,13 +28,13 @@ private:
   const BeamSpotOnlineObjects* compareBS(const BeamSpotOnlineObjects* bs1, const BeamSpotOnlineObjects* bs2);
   const BeamSpotOnlineObjects* theHLTBS_;
   const BeamSpotOnlineObjects* theLegacyBS_;
-  const BeamSpotOnlineObjects* transientBS_;
-  BeamSpotOnlineObjects* fakeBS_;
+  BeamSpotObjects* transientBS_;
+  BeamSpotObjects* fakeBS_;
   bool newHLT_;
   bool newLegacy_;
   //  std::string label_HLT_;
     
-  edm::ESGetToken<BeamSpotOnlineObjects, BeamSpotTransientObjectsRcd> const bsToken_;
+  edm::ESGetToken<BeamSpotObjects, BeamSpotTransientObjectsRcd> const bsToken_;
   edm::ESGetToken<BeamSpotOnlineObjects, BeamSpotOnlineHLTObjectsRcd> bsHLTToken_;
   edm::ESGetToken<BeamSpotOnlineObjects, BeamSpotOnlineLegacyObjectsRcd> bsLegacyToken_;
   using HostType = edm::ESProductHost<BeamSpotOnlineObjects,

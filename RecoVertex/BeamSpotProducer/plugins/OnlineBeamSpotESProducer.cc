@@ -32,7 +32,7 @@ bsLegacyToken_ = cc.consumesFrom<BeamSpotOnlineObjects, BeamSpotOnlineLegacyObje
 
 const BeamSpotOnlineObjects* OnlineBeamSpotESProducer::compareBS(const BeamSpotOnlineObjects* bs1, const BeamSpotOnlineObjects* bs2){
 //Random logic so far ...
-if (bs1->GetSigmaZ()-0.0001 < bs2->GetSigmaZ()){
+if (bs1->GetSigmaZ()-0.0001 < bs2->GetSigmaZ()){ //just temporary for debugging
    if(bs1->GetSigmaZ()> 5.){
      return bs1;
    }else{
@@ -58,10 +58,12 @@ OnlineBeamSpotESProducer::~OnlineBeamSpotESProducer() {
 }
 
 
-std::shared_ptr<const BeamSpotOnlineObjects> OnlineBeamSpotESProducer::produce(const BeamSpotTransientObjectsRcd& iRecord) {
+std::shared_ptr<const BeamSpotObjects> OnlineBeamSpotESProducer::produce(const BeamSpotTransientObjectsRcd& iRecord) {
   
   if(!(iRecord.tryToGetRecord<BeamSpotOnlineLegacyObjectsRcd>()) && !(iRecord.tryToGetRecord<BeamSpotOnlineHLTObjectsRcd>())){
-    return std::shared_ptr<const BeamSpotOnlineObjects>(&(*fakeBS_), edm::do_nothing_deleter());
+    std::cout <<"Sending out the fakeBS_" << std::endl;
+    transientBS_ = fakeBS_;
+    return std::shared_ptr<const BeamSpotObjects>(&(*transientBS_), edm::do_nothing_deleter());
   }
    
   auto host = holder_.makeOrGet([]() {
@@ -92,21 +94,42 @@ std::shared_ptr<const BeamSpotOnlineObjects> OnlineBeamSpotESProducer::produce(c
    {
      std::cout<<"pippo1"<<std::endl;
      //compare newHLT with transientBS_
-     transientBS_ = compareBS(theHLTBS_, transientBS_);
+      //temporary test
+      //transientBS_ =  theHLTBS_;
+      transientBS_->SetPosition(0,0,0);
+      transientBS_->SetBeamWidthY(0.1);
+      transientBS_->SetBeamWidthX(0.1);
+      transientBS_->SetSigmaZ(5.0);
+     //newHLT_= false;
+     //transientBS_ = compareBS(theHLTBS_, transientBS_);
    }
 
    if (newLegacy_ && ! newHLT_){
      std::cout<<"pippo2"<<std::endl;
      //compare newLegacy_ with transientBS_
-     transientBS_ = compareBS(theLegacyBS_, transientBS_);
+    //test
+    transientBS_->SetPosition(1,1,1);
+    transientBS_->SetBeamWidthY(0.1);
+    transientBS_->SetBeamWidthX(0.1);
+    transientBS_->SetSigmaZ(5.0);
+     //transientBS_ = theLegacyBS_;
+     //newLegacy_ = false;
+     //transientBS_ = compareBS(theLegacyBS_, transientBS_);
 
    }
    if (newHLT_ && newLegacy_){
      //compare newHLT_ with transientBS_ and then with newLegacy_
      std::cout<<"pippo3"<<std::endl;
-
-     transientBS_ = compareBS(theHLTBS_, transientBS_);
-     transientBS_ = compareBS(theLegacyBS_, transientBS_);
+     //test
+     //transientBS_ = theHLTBS_;
+     transientBS_->SetPosition(2,2,2);
+      transientBS_->SetBeamWidthY(0.1);
+      transientBS_->SetBeamWidthX(0.1);
+      transientBS_->SetSigmaZ(5.0);
+     //newHLT_ = false;
+     //newLegacy_ = false;
+     //transientBS_ = compareBS(theHLTBS_, transientBS_);
+    // transientBS_ = compareBS(theLegacyBS_, transientBS_);
      
    };
 
@@ -114,7 +137,7 @@ std::shared_ptr<const BeamSpotOnlineObjects> OnlineBeamSpotESProducer::produce(c
   std::cout <<"Legacy "<<*theLegacyBS_<<std::endl;
   std::cout <<"HLT "<<*theHLTBS_<<std::endl;
   
-  return std::shared_ptr<const BeamSpotOnlineObjects>(&(*transientBS_), edm::do_nothing_deleter());
+  return std::shared_ptr<const BeamSpotObjects>(&(*transientBS_), edm::do_nothing_deleter());
   
 
  };
