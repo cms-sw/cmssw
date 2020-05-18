@@ -34,14 +34,12 @@
 
 <bin file="gpuClustering_t.cu" name="gpuClustering_t">
   <use name="cuda"/>
-  <use name="cub"/>
   <use name="HeterogeneousCore/CUDAUtilities"/>
   <flags CXXFLAGS="-g"/>
 </bin>
 
 <bin file="gpuClustering_t.cu" name="gpuClustering_debug">
   <use name="cuda"/>
-  <use name="cub"/>
   <use name="HeterogeneousCore/CUDAUtilities"/>
   <flags CXXFLAGS="-g -DGPU_DEBUG"/>
   <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
