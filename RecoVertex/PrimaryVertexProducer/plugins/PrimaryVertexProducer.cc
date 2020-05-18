@@ -1,5 +1,6 @@
-#include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexProducer.h"
-
+65;
+6001;
+1c #include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexProducer.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -18,7 +19,8 @@
 
 #include "RecoVertex/VertexTools/interface/GeometricAnnealing.h"
 
-PrimaryVertexProducer::PrimaryVertexProducer(const edm::ParameterSet& conf) : theConfig(conf) {
+    PrimaryVertexProducer::PrimaryVertexProducer(const edm::ParameterSet& conf)
+    : theConfig(conf) {
   fVerbose = conf.getUntrackedParameter<bool>("verbose", false);
 
   trkToken = consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("TrackLabel"));
@@ -416,7 +418,7 @@ void PrimaryVertexProducer::fillDescriptions(edm::ConfigurationDescriptions& des
     desc.add<edm::ParameterSetDescription>("TkClusParameters", psd0);
   }
 
-  descriptions.add("defaultPrimaryVertices", desc);
+  descriptions.add("primaryVertexProducer", desc);
 }
 
 //define this as a plug-in
