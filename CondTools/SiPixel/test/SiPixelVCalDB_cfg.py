@@ -1,6 +1,6 @@
 #! /usr/bin/env cmsRun
 # Author: Izaak Neutelings (March 2020)
-#from __future__ import print_function
+from __future__ import print_function
 #import os
 import os, shlex, shutil, getpass
 #import subprocess
@@ -10,9 +10,9 @@ from Configuration.StandardSequences.Eras import eras
 # SETTINGS
 run       = 313000 # select the geometry for Phase-I pixels
 era       = eras.Run2_2017 
-verbose   = True and False
+verbose   = False #or True
 threshold = 'INFO' if verbose else 'WARNING'
-print ">>> run = %s"%run
+print(">>> run = %s"%run)
 
 # LOAD PROCESS
 process = cms.Process("SiPixelVCalDB",era)
@@ -40,7 +40,7 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag,'auto:run2_data','')
 #process.GlobalTag = GlobalTag(process.GlobalTag,autoCond['run2_design'],'')
 #process.GlobalTag.globaltag = autoCond['run2_design']
-print ">>> globaltag = '%s'"%(process.GlobalTag.globaltag)
+print(">>> globaltag = '%s'"%(process.GlobalTag.globaltag))
 
 # BASIC SETTING
 process.source = cms.Source("EmptyIOVSource",
@@ -68,10 +68,10 @@ user = getpass.getuser()
 #file = "/tmp/" + user + "/SiPixelVCal.db"
 file = "siPixelVCal.db"
 sqlfile = "sqlite_file:" + file
-print ">>> Uploading as user %s into file %s, i.e. %s"%(user,file,sqlfile)
+print(">>> Uploading as user %s into file %s, i.e. %s"%(user,file,sqlfile))
 if os.path.exists("siPixelVCal.db"):
   oldfile = file.replace(".db","_old.db")
-  print ">>> Backing up locally existing '%s' -> '%s'"%(file,oldfile)
+  print(">>> Backing up locally existing '%s' -> '%s'"%(file,oldfile))
   shutil.move(file,oldfile)
 
 # DATABASE CONNNECTION AND INPUT TAGS
@@ -118,27 +118,27 @@ disks      = [1,2,3] # 1, 2, 3
 rings      = [1,2]   # 1=lower, 2=upper
 bpixpars   = cms.untracked.VPSet()
 fpixpars   = cms.untracked.VPSet()
-print ">>> %8s %8s %10s %10s %10s"%('layer','ladder','slope','offset','corr')
+print(">>> %8s %8s %10s %10s %10s"%('layer','ladder','slope','offset','corr'))
 for layer in layers:
-  for ladder in xrange(1,nladders[layer]+1):
+  for ladder in range(1,nladders[layer]+1):
     corr     = corrs_bpix[layer]
     slope_   = (slope_L1 if layer==1 else slope)*corr
     offset_  = (offset_L1 if layer==1 else offset)
-    print ">>> %8d %8d %10.4f %10.3f %10.4f"%(layer,ladder,slope_,offset_,corr)
+    print(">>> %8d %8d %10.4f %10.3f %10.4f"%(layer,ladder,slope_,offset_,corr))
     bpixpars.append(cms.PSet(
       layer  = cms.int32(layer),
       ladder = cms.int32(ladder),
       slope  = cms.double(slope_),
       offset = cms.double(offset_),
     ))
-print ">>> %8s %8s %8s %10s %10s %10s"%('side','disk','ring','slope','offset','corr')
+print(">>> %8s %8s %8s %10s %10s %10s"%('side','disk','ring','slope','offset','corr'))
 for side in sides:
   for disk in disks:
     for ring in rings:
       corr     = corrs_fpix[ring]
       slope_   = slope*corr
       offset_  = offset
-      print ">>> %8d %8d %8d %10.4f %10.3f %10.4f"%(side,disk,ring,slope_,offset_,corr)
+      print(">>> %8d %8d %8d %10.4f %10.3f %10.4f"%(side,disk,ring,slope_,offset_,corr))
       fpixpars.append(cms.PSet(
         side   = cms.int32(side),
         disk   = cms.int32(disk),

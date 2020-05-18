@@ -1,15 +1,15 @@
 #! /usr/bin/env cmsRun
 # Author: Izaak Neutelings (March 2020)
-#from __future__ import print_function
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
 
 # SETTINGS
 run       = 313000
 era       = eras.Run2_2017
-verbose   = True and False
+verbose   = False #or True
 threshold = 'INFO' if verbose else 'WARNING'
-print ">>> run = %s"%run
+print(">>> run = %s"%run)
 
 # LOAD PROCESS
 process = cms.Process("SiPixelVCalReader",era)
@@ -46,11 +46,11 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 # In case you of conditions missing, or if you want to test a specific GT
 #process.GlobalTag.globaltag = 'PRE_DES72_V6'
 process.GlobalTag = GlobalTag(process.GlobalTag,'auto:run2_data','')
-print ">>> globaltag = '%s'"%(process.GlobalTag.globaltag)
+print(">>> globaltag = '%s'"%(process.GlobalTag.globaltag))
 
 # EXTRA
 outfile = "siPixelVCal.root"
-print ">>> outfile = '%s'"%outfile
+print(">>> outfile = '%s'"%outfile)
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string(outfile)
 )
@@ -62,7 +62,7 @@ process.Timing = cms.Service("Timing")
 
 # READER
 sqlfile = "sqlite_file:siPixelVCal.db"
-print ">>> sqlfile = '%s'"%sqlfile
+print(">>> sqlfile = '%s'"%sqlfile)
 process.VCalReaderSource = cms.ESSource("PoolDBESSource",
     #BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
     DBParameters = cms.PSet(
