@@ -28,6 +28,7 @@
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Framework/interface/RecordDependencyRegister.h"
 #include "FWCore/Framework/interface/NoRecordException.h"
+#include "FWCore/Framework/interface/MakeDataException.h"
 #include "FWCore/Framework/interface/ValidityInterval.h"
 
 #include "FWCore/Framework/src/EventSetupsController.h"
@@ -840,7 +841,7 @@ void testEventsetup::getDataWithESGetTokenTest() {
                             static_cast<unsigned int>(edm::Transition::Event),
                             consumer.esGetTokenIndices(edm::Transition::Event),
                             true};
-      CPPUNIT_ASSERT_THROW(eventSetup.getData(consumer.m_token), edm::eventsetup::NoDataException<DummyData>);
+      CPPUNIT_ASSERT_THROW(eventSetup.getData(consumer.m_token), edm::eventsetup::MakeDataException);
     }
     {
       DummyDataConsumer consumer{edm::ESInputTag("", "setMayConsumeSucceed")};
