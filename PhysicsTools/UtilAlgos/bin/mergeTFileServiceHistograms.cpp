@@ -70,7 +70,7 @@ int main(int argc, char * argv[]) {
     return -1;
   }
 
-  if(fileNames.size()==0) {
+  if (fileNames.empty()) {
     cerr << "at least one file name must be specified with option -i" <<endl;
     return -1;
   }
@@ -129,8 +129,8 @@ int main(int argc, char * argv[]) {
       string className(key->GetClassName());
       string name(key->GetName());
       TObject * obj = file.Get(name.c_str());
-      if(obj == 0) {
-	cerr <<"error: key " << name << " not found in file " << fileName << endl;
+      if (obj == nullptr) {
+        cerr <<"error: key " << name << " not found in file " << fileName << endl;
 	return -1;
       }
       if(empty) make(out, obj);
@@ -153,7 +153,7 @@ void make(TDirectory & out, TObject * o) {
   TH2F * th2f;
   TH2D * th2d;
   out.cd();
-  if((dir = dynamic_cast<TDirectory*>(o)) != 0) {
+  if ((dir = dynamic_cast<TDirectory *>(o)) != nullptr) {
     TDirectory * outDir = out.mkdir(dir->GetName(), dir->GetTitle());
     TIter next(dir->GetListOfKeys());
     TKey *key;
@@ -161,28 +161,28 @@ void make(TDirectory & out, TObject * o) {
       string className(key->GetClassName());
       string name(key->GetName());
       TObject * obj = dir->Get(name.c_str());
-      if(obj == 0) {
-	cerr <<"error: key " << name << " not found in directory " << dir->GetName() << endl;
+      if (obj == nullptr) {
+        cerr <<"error: key " << name << " not found in directory " << dir->GetName() << endl;
 	exit(-1);
       }
       make(*outDir, obj);
     }
-  } else if((th1f = dynamic_cast<TH1F*>(o)) != 0) {
+  } else if ((th1f = dynamic_cast<TH1F *>(o)) != nullptr) {
     TH1F *h = (TH1F*) th1f->Clone();
     h->Reset();
     h->Sumw2();
     h->SetDirectory(&out);
-  } else if((th1d = dynamic_cast<TH1D*>(o)) != 0) {
+  } else if ((th1d = dynamic_cast<TH1D *>(o)) != nullptr) {
     TH1D *h = (TH1D*) th1d->Clone();
     h->Reset();
     h->Sumw2();
     h->SetDirectory(&out);
-  } else if((th2f = dynamic_cast<TH2F*>(o)) != 0) {
+  } else if ((th2f = dynamic_cast<TH2F *>(o)) != nullptr) {
     TH2F *h = (TH2F*) th2f->Clone();
     h->Reset();   
     h->Sumw2();
     h->SetDirectory(&out);
-  } else if((th2d = dynamic_cast<TH2D*>(o)) != 0) {
+  } else if ((th2d = dynamic_cast<TH2D *>(o)) != nullptr) {
     TH2D *h = (TH2D*) th2d->Clone();
     h->Reset();   
     h->Sumw2();
@@ -196,10 +196,10 @@ void fill(TDirectory & out, TObject * o, double w) {
   TH1D * th1d;
   TH2F * th2f;
   TH2D * th2d;
-  if((dir  = dynamic_cast<TDirectory*>(o)) != 0) {
+  if ((dir = dynamic_cast<TDirectory *>(o)) != nullptr) {
     const char * name = dir->GetName();
     TDirectory * outDir = dynamic_cast<TDirectory*>(out.Get(name));
-    if(outDir == 0) {
+    if (outDir == nullptr) {
       cerr << "can't find directory " << name << " in output file" << endl;
       exit(-1);
     }
@@ -209,42 +209,42 @@ void fill(TDirectory & out, TObject * o, double w) {
       string className(key->GetClassName());
       string name(key->GetName());
       TObject * obj = dir->Get(name.c_str());
-      if(obj == 0) {
-	cerr <<"error: key " << name << " not found in directory " << dir->GetName() << endl;
+      if (obj == nullptr) {
+        cerr <<"error: key " << name << " not found in directory " << dir->GetName() << endl;
 	exit(-1);
       }
       fill(*outDir, obj, w);
     }
-  } else if((th1f = dynamic_cast<TH1F*>(o)) != 0) {
+  } else if ((th1f = dynamic_cast<TH1F *>(o)) != nullptr) {
     const char * name = th1f->GetName();
     TH1F * outTh1f = dynamic_cast<TH1F*>(out.Get(name));
-    if(outTh1f == 0) {
+    if (outTh1f == nullptr) {
       cerr <<"error: histogram TH1F" << name << " not found in directory " << out.GetName() << endl;
-      exit(-1);	
+      exit(-1);
     }
     outTh1f->Add(th1f, w);
-  } else if((th1d = dynamic_cast<TH1D*>(o)) != 0) {
+  } else if ((th1d = dynamic_cast<TH1D *>(o)) != nullptr) {
     const char * name = th1d->GetName();
     TH1D * outTh1d = dynamic_cast<TH1D*>(out.Get(name));
-    if(outTh1d == 0) {
+    if (outTh1d == nullptr) {
       cerr <<"error: histogram TH1D" << name << " not found in directory " << out.GetName() << endl;
-      exit(-1);	
-    } 
+      exit(-1);
+    }
     outTh1d->Add(th1d, w);
-  } else if((th2f = dynamic_cast<TH2F*>(o)) != 0) {
+  } else if ((th2f = dynamic_cast<TH2F *>(o)) != nullptr) {
     const char * name = th2f->GetName();
     TH2F * outTh2f = dynamic_cast<TH2F*>(out.Get(name));
-    if(outTh2f == 0) {
+    if (outTh2f == nullptr) {
       cerr <<"error: histogram TH2F" << name << " not found in directory " << out.GetName() << endl;
-      exit(-1);	
+      exit(-1);
     }
     outTh2f->Add(th2f, w);
-  } else if((th2d = dynamic_cast<TH2D*>(o)) != 0) {
+  } else if ((th2d = dynamic_cast<TH2D *>(o)) != nullptr) {
     const char * name = th2d->GetName();
     TH2D * outTh2d = dynamic_cast<TH2D*>(out.Get(name));
-    if(outTh2d == 0) {
+    if (outTh2d == nullptr) {
       cerr <<"error: histogram TH2D" << name << " not found in directory " << out.GetName() << endl;
-      exit(-1);	
+      exit(-1);
     }
     outTh2d->Add(th2d, w);
   }
