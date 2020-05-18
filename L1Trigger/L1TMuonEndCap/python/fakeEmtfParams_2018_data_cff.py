@@ -27,7 +27,7 @@ emtfForestsDB = cms.ESSource(
             ## https://cms-conddb.cern.ch/cmsDbBrowser/search/Prod/L1TMuonEndCapForest
             record = cms.string("L1TMuonEndCapForestRcd"),
             ## v7 EMTF pT LUTs from June 8, 2017
-            tag = cms.string("L1TMuonEndCapForest_static_Sq_20170613_v7_mc")
+            tag = cms.string("L1TMuonEndCapForest_Stage2v1_2018_HI_mc")
             )
         )
     )

@@ -177,15 +177,22 @@ namespace l1t {
                              RPC_.Word(),
                              RPC_.Link());
 
+        // Rotate by 20 deg to match RPC convention in CMSSW
+        int _sector_rpc = (_subsector < 5) ? _sector : (_sector % 6) + 1;
+        // Rotate by 2 to match RPC convention in CMSSW (RPCDetId.h)
+        int _subsector_rpc = ((_subsector + 1) % 6) + 1;
+        // Define chamber number
+        int _chamber = (_sector_rpc - 1) * 6 + _subsector_rpc;
+        // Define CSC-like subsector
+        int _subsector_csc = (_station != 1) ? 0 : ((_chamber % 6 > 2) ? 1 : 2);
+
         Hit_.set_station(_station);
         Hit_.set_ring(_ring);
         Hit_.set_sector(_sector);
-        Hit_.set_subsector(_subsector);
-        Hit_.set_sector_RPC(_subsector < 5 ? _sector
-                                           : (_sector % 6) + 1);  // Rotate by 20 deg to match RPC convention in CMSSW
-        Hit_.set_subsector_RPC(((_subsector + 1) % 6) +
-                               1);  // Rotate by 2 to match RPC convention in CMSSW (RPCDetId.h)
-        Hit_.set_chamber((Hit_.Sector_RPC() - 1) * 6 + Hit_.Subsector_RPC());
+        Hit_.set_subsector(_subsector_csc);
+        Hit_.set_sector_RPC(_sector_rpc);
+        Hit_.set_subsector_RPC(_subsector_rpc);
+        Hit_.set_chamber(_chamber);
         Hit_.set_neighbor(_neighbor);
         Hit_.set_pc_segment(_segment);
         Hit_.set_fs_segment(_segment);
