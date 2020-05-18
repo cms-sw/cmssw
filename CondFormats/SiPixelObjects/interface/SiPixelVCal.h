@@ -17,7 +17,7 @@ public:
     COND_SERIALIZABLE;
   };
 
-  inline void putSlopeAndOffset(std::map<unsigned int, VCal>& offset) { m_vcal = m_vcal; }
+  inline void putSlopeAndOffset(std::map<unsigned int, VCal>& vcal) { m_vcal = vcal; }
   inline const std::map<unsigned int, VCal>& getSlopeAndOffset() const { return m_vcal; }
   bool putSlopeAndOffset(const uint32_t&, float&, float&);
   VCal getSlopeAndOffset(const uint32_t&) const;
