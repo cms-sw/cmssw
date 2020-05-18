@@ -5,7 +5,6 @@
 <use name="DataFormats/EcalDetId"/>
 <use name="DataFormats/Provenance"/>
 <use name="FWCore/MessageLogger"/>
-<use name="Geometry/EcalMapping"/>
 <use name="boost"/>
 <use name="tbb"/>
 <export>

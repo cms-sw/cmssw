@@ -2,10 +2,7 @@
 <use name="DataFormats/EcalDetId"/>
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/EcalObjects"/>
-<use name="SimCalorimetry/EcalSimAlgos"/>
 <use name="FWCore/Framework"/>
-<use name="FWCore/Utilities"/>
-<use name="CondCore/DBOutputService"/>
 <use name="Geometry/Records"/>
 <use name="Geometry/CaloTopology"/>
 <use name="Geometry/EcalMapping"/>

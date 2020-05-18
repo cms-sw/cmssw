@@ -20,14 +20,11 @@
 <use name="FWCore/Utilities"/>
 <use name="Geometry/Records"/>
 <use name="JetMETCorrections/Objects"/>
-<use name="JetMETCorrections/Type1MET"/>
-<use name="CondTools/Hcal"/>
 <use name="HLTrigger/HLTcore"/>
 <use name="Calibration/IsolatedParticles"/>
 <use name="rootphysics"/>
 <use name="boost"/>
 <use name="root"/>
-<use name="DataFormats/CaloRecHit"/>
 <use name="SimDataFormats/GeneratorProducts"/>
 <use name="clhep"/>
 <use name="hepmc"/>
