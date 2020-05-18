@@ -25,7 +25,7 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronAlgo.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronTools.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionFinder.h"
-#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+#include "CommonTools/Egamma/interface/ConversionTools.h"
 
 #include <Math/Point3D.h>
 #include <sstream>

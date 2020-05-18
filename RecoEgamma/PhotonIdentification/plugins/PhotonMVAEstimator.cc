@@ -5,7 +5,7 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "RecoEgamma/EgammaTools/interface/AnyMVAEstimatorRun2Base.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "CommonTools/Utils/interface/EffectiveAreas.h"
+#include "CommonTools/Egamma/interface/EffectiveAreas.h"
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
 #include "RecoEgamma/EgammaTools/interface/MVAVariableHelper.h"
 #include "RecoEgamma/EgammaTools/interface/MVAVariableManager.h"

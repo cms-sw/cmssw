@@ -22,7 +22,7 @@
 
 #include "PhysicsTools/SelectorUtils/interface/CutApplicatorBase.h"
 
-#include "CommonTools/Utils/interface/EffectiveAreas.h"
+#include "CommonTools/Egamma/interface/EffectiveAreas.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 enum EleIDCutNames {
