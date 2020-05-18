@@ -282,8 +282,7 @@ class SetupAlignment(object):
             tmpFile = re.sub(collection_regex,
                              'setupCollection = \"'+dataset["collection"]+'\"',
                              tmpFile)
-            if dataset["collection"] in ("ALCARECOTkAlCosmicsCTF0T",
-                                         "ALCARECOTkAlCosmicsInCollisions"):
+            if "ALCARECOTkAlCosmics" in dataset["collection"]:
                 if dataset['cosmicsZeroTesla']:
                     tmpFile = re.sub(czt_regex,
                                      'setupCosmicsZeroTesla = True',
@@ -351,8 +350,7 @@ class SetupAlignment(object):
             print("-"*75)
             print("Baseconfig:        ", dataset["configTemplate"])
             print("Collection:        ", dataset["collection"])
-            if dataset["collection"] in ("ALCARECOTkAlCosmicsCTF0T",
-                                         "ALCARECOTkAlCosmicsInCollisions"):
+            if "ALCARECOTkAlCosmics" in dataset["collection"]:
                 print("cosmicsDecoMode:   ", dataset["cosmicsDecoMode"])
                 print("cosmicsZeroTesla:  ", dataset["cosmicsZeroTesla"])
             print("Globaltag:         ", dataset["globaltag"])
@@ -789,8 +787,7 @@ class SetupAlignment(object):
                                     sys.exit(1)
 
                     # extract non-essential options
-                    if self._datasets[name]["collection"] in ("ALCARECOTkAlCosmicsCTF0T",
-                                         "ALCARECOTkAlCosmicsInCollisions"):
+                    if "ALCARECOTkAlCosmics" in self._datasets[name]["collection"]:
                         try:
                             self._datasets[name]["cosmicsZeroTesla"] \
                                 = config["config"].getboolean(section,"cosmicsZeroTesla")
