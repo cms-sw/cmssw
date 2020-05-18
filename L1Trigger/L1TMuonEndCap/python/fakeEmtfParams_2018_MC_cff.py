@@ -12,7 +12,10 @@ emtfParamsSource = cms.ESSource(
     toGet   = cms.VPSet(
         cms.PSet(
             record = cms.string("L1TMuonEndCapParamsRcd"),
-            tag    = cms.string("L1TMuonEndCapParams_Stage2v3_hlt")
+            ## This payload contains
+            ## PtAssignVersion=7, firmwareVersion=1539271335, PhiMatchWindowSt1=1
+            ## Note: "L1TMuonEndCapParams_Stage2v1_2018_mc" is wrong
+            tag    = cms.string("L1TMuonEndCapParams_Stage2v3_2018_HI_mc")
             )
         )
     )
@@ -27,7 +30,7 @@ emtfForestsDB = cms.ESSource(
             ## https://cms-conddb.cern.ch/cmsDbBrowser/search/Prod/L1TMuonEndCapForest
             record = cms.string("L1TMuonEndCapForestRcd"),
             ## v7 EMTF pT LUTs from June 8, 2017
-            tag = cms.string("L1TMuonEndCapForest_static_Sq_20170613_v7_mc")
+            tag = cms.string("L1TMuonEndCapForest_Stage2v1_2018_HI_mc")
             )
         )
     )

@@ -1,12 +1,9 @@
 #ifndef L1TMuonEndCap_PtAssignmentEngineAux2016_h
 #define L1TMuonEndCap_PtAssignmentEngineAux2016_h
 
-#include <cstdint>
-#include <cstdlib>
-#include <cmath>
-#include <vector>
+#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngineAux.h"
 
-class PtAssignmentEngineAux2016 {
+class PtAssignmentEngineAux2016 : public PtAssignmentEngineAux {
 public:
   // Functions for pT assignment
   const int (*getModeVariables() const)[6];
