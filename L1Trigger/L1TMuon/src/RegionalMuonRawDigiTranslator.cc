@@ -31,7 +31,6 @@ void l1t::RegionalMuonRawDigiTranslator::fillRegionalMuonCand(
   // set track address with subaddresses
   int rawTrackAddress = (raw_data_32_63 >> trackAddressShift_) & trackAddressMask_;
   if (tf == bmtf) {
-    //int segSel = (rawTrackAddress >> bmtfTrAddrSegSelShift_) & bmtfTrAddrSegSelMask_;
     int detSide = (rawTrackAddress >> bmtfTrAddrDetSideShift_) & 0x1;
     int wheelNum = (rawTrackAddress >> bmtfTrAddrWheelShift_) & bmtfTrAddrWheelMask_;
     int statAddr1 = ((rawTrackAddress >> bmtfTrAddrStat1Shift_) & bmtfTrAddrStat1Mask_);
@@ -99,7 +98,8 @@ void l1t::RegionalMuonRawDigiTranslator::fillRegionalMuonCand(
 
 void l1t::RegionalMuonRawDigiTranslator::generatePackedDataWords(const RegionalMuonCand& mu,
                                                                  uint32_t& raw_data_00_31,
-                                                                 uint32_t& raw_data_32_63) {
+                                                                 uint32_t& raw_data_32_63,
+                                                                 const bool isKalman) {
   int abs_eta = mu.hwEta();
   if (abs_eta < 0) {
     abs_eta += (1 << (etaSignShift_ - absEtaShift_));
@@ -114,21 +114,25 @@ void l1t::RegionalMuonRawDigiTranslator::generatePackedDataWords(const RegionalM
                    (mu.hwPhi() < 0) << phiSignShift_;
 
   // generate the raw track address from the subaddresses
-  int rawTrkAddr = generateRawTrkAddress(mu);
+  int rawTrkAddr = generateRawTrkAddress(mu, isKalman);
 
   raw_data_32_63 = mu.hwSign() << signShift_ | mu.hwSignValid() << signValidShift_ |
                    (rawTrkAddr & trackAddressMask_) << trackAddressShift_;
+  if (isKalman) {
+    raw_data_32_63 |= (mu.hwPtUnconstrained() & ptUnconstrainedMask_) << ptUnconstrainedShift_ | (mu.hwDXY() & dxyMask_)
+                                                                                                     << dxyShift_;
+  }
 }
 
-uint64_t l1t::RegionalMuonRawDigiTranslator::generate64bitDataWord(const RegionalMuonCand& mu) {
+uint64_t l1t::RegionalMuonRawDigiTranslator::generate64bitDataWord(const RegionalMuonCand& mu, const bool isKalman) {
   uint32_t lsw;
   uint32_t msw;
 
-  generatePackedDataWords(mu, lsw, msw);
+  generatePackedDataWords(mu, lsw, msw, isKalman);
   return (((uint64_t)msw) << 32) + lsw;
 }
 
-int l1t::RegionalMuonRawDigiTranslator::generateRawTrkAddress(const RegionalMuonCand& mu) {
+int l1t::RegionalMuonRawDigiTranslator::generateRawTrkAddress(const RegionalMuonCand& mu, const bool isKalman) {
   int tf = mu.trackFinderType();
   int rawTrkAddr = 0;
   if (tf == bmtf) {
@@ -140,14 +144,14 @@ int l1t::RegionalMuonRawDigiTranslator::generateRawTrkAddress(const RegionalMuon
       int stat2 = mu.trackSubAddress(RegionalMuonCand::kStat2);
       int stat3 = mu.trackSubAddress(RegionalMuonCand::kStat3);
       int stat4 = mu.trackSubAddress(RegionalMuonCand::kStat4);
+      if (isKalman) {
+        stat1 = mu.trackSubAddress(RegionalMuonCand::kStat4);
+        stat2 = mu.trackSubAddress(RegionalMuonCand::kStat3);
+        stat3 = mu.trackSubAddress(RegionalMuonCand::kStat2);
+        stat4 = mu.trackSubAddress(RegionalMuonCand::kStat1);
+      }
 
-      int segSel = mu.trackSubAddress(RegionalMuonCand::kSegSelStat1) |
-                   (mu.trackSubAddress(RegionalMuonCand::kSegSelStat2)) >> 1 |
-                   (mu.trackSubAddress(RegionalMuonCand::kSegSelStat3)) >> 2 |
-                   (mu.trackSubAddress(RegionalMuonCand::kSegSelStat4)) >> 3;
-
-      rawTrkAddr = (segSel & bmtfTrAddrSegSelMask_) << bmtfTrAddrSegSelShift_ |
-                   (detSide & 0x1) << bmtfTrAddrDetSideShift_ |
+      rawTrkAddr = (detSide & 0x1) << bmtfTrAddrDetSideShift_ |
                    (wheelNum & bmtfTrAddrWheelMask_) << bmtfTrAddrWheelShift_ |
                    (stat1 & bmtfTrAddrStat1Mask_) << bmtfTrAddrStat1Shift_ |
                    (stat2 & bmtfTrAddrStat2Mask_) << bmtfTrAddrStat2Shift_ |
