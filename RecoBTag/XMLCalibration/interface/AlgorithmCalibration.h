@@ -72,7 +72,7 @@ protected:
 
 protected:
   DOMElement *dom() {
-    if (m_xml == 0) {
+    if (m_xml == nullptr) {
       m_xml = new CalibrationXML();
       m_xml->openFile(m_filename);
     }
@@ -85,7 +85,7 @@ private:
 };
 
 template <class T, class CO>
-AlgorithmCalibration<T, CO>::AlgorithmCalibration(const std::string &filename) : m_filename(filename), m_xml(0) {
+AlgorithmCalibration<T, CO>::AlgorithmCalibration(const std::string &filename) : m_filename(filename), m_xml(nullptr) {
   readCategories();
   if (m_xml) {
     m_xml->closeFile();
@@ -100,7 +100,7 @@ AlgorithmCalibration<T, CO>::~AlgorithmCalibration() {
 
 template <class T, class CO>
 bool AlgorithmCalibration<T, CO>::readCategories() {
-  if (dom() == 0)
+  if (dom() == nullptr)
     return false;
 
   DOMNode *n1 = dom()->getFirstChild();
@@ -129,8 +129,8 @@ CO *AlgorithmCalibration<T, CO>::readObject(DOMNode *dom) {
     n1 = n1->getNextSibling();
   }
 
-  if (n1 == 0)
-    return 0;  //Cannot find any calibrated objects
+  if (n1 == nullptr)
+    return nullptr;  //Cannot find any calibrated objects
 
   CO *co = new CO();
   co->read((DOMElement *)n1);
