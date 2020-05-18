@@ -12,7 +12,7 @@ ETLElectronicsSim::ETLElectronicsSim(const edm::ParameterSet& pset)
       integratedLum_(pset.getParameter<double>("IntegratedLuminosity")),
       fluence_(pset.getParameter<std::string>("FluenceVsRadius")),
       lgadGain_(pset.getParameter<std::string>("LGADGainVsFluence")),
-      tResConst_(pset.getParameter<double>("TimeResConstant")),
+      timeRes2_(pset.getParameter<std::string>("TimeResolution2")),
       adcNbits_(pset.getParameter<uint32_t>("adcNbits")),
       tdcNbits_(pset.getParameter<uint32_t>("tdcNbits")),
       adcSaturation_fC_(pset.getParameter<double>("adcSaturation_fC")),
@@ -36,6 +36,7 @@ void ETLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
   std::vector<double> emptyV;
   std::vector<double> radius(1);
   std::vector<double> fluence(1);
+  std::vector<double> gain(1);
 
   for (MTDSimHitDataAccumulator::const_iterator it = input.begin(); it != input.end(); it++) {
     chargeColl.fill(0.f);
@@ -62,12 +63,12 @@ void ETLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
       // calculate the LGAD gain as a function of the fluence at R = radius
       radius[0] = global_point.perp();
       fluence[0] = integratedLum_ * fluence_.evaluate(radius, emptyV);
-      double lgad_gain = lgadGain_.evaluate(fluence, emptyV);
-      if (lgad_gain <= 0.)
+      gain[0] = lgadGain_.evaluate(fluence, emptyV);
+      if (gain[0] <= 0.)
         throw cms::Exception("EtlElectronicsSim") << "Null or negative LGAD gain!" << std::endl;
 
       // Gaussian smearing of the time of arrival
-      double sigmaToA = tResConst_ / sqrt(lgad_gain);
+      double sigmaToA = sqrt(timeRes2_.evaluate(gain, emptyV));
 
       if (sigmaToA > 0.)
         finalToA += CLHEP::RandGaussQ::shoot(hre, 0., sigmaToA);
