@@ -107,12 +107,12 @@ public:
         outFile.exceptions(std::ofstream::failbit | std::ofstream::badbit);
         outFile.open(args.output);
         std::shared_ptr<std::ofstream> mapFile;
-        if(args.map_output.size()) {
-            mapFile = std::make_shared<std::ofstream>();
-            mapFile->exceptions(std::ofstream::failbit | std::ofstream::badbit);
-            mapFile->open(args.map_output);
+        if (!args.map_output.empty()) {
+          mapFile = std::make_shared<std::ofstream>();
+          mapFile->exceptions(std::ofstream::failbit | std::ofstream::badbit);
+          mapFile->open(args.map_output);
         }
-        
+
         for(size_t is = 0; is < subName.size(); ++is) {
             for(int ix =  0; ix <= args.exMax; ++ix) {
                 std::cout << " " << subName.at(is) << " dx= " << ix << " ";
