@@ -12,7 +12,6 @@
 <use name="TrackingTools/MaterialEffects"/>
 <use name="TrackingTools/PatternTools"/>
 <use name="TrackingTools/TrajectoryState"/>
-<use name="TrackingTools/TrackFitters"/>
 <use name="TrackingTools/TransientTrackingRecHit"/>
 <use name="RecoTracker/TransientTrackingRecHit"/>
 <use name="TrackPropagation/RungeKutta"/>
