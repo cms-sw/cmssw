@@ -23,7 +23,7 @@
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
-#include "RecoTauTag/RecoTau/interface/PositionAtECalEntrance.h"
+#include "RecoTauTag/RecoTau/interface/PositionAtECalEntranceComputer.h"
 
 #include "TMVA/Tools.h"
 #include "TMVA/Reader.h"
@@ -167,7 +167,7 @@ private:
 
   std::vector<TFile*> inputFilesToDelete_;
 
-  PositionAtECalEntrance positionAtECalEntrance_;
+  PositionAtECalEntranceComputer positionAtECalEntrance_;
 
   int verbosity_;
 };

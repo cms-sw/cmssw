@@ -21,11 +21,16 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "RecoTauTag/RecoTau/interface/PositionAtECalEntrance.h"
+#include "RecoTauTag/RecoTau/interface/PositionAtECalEntranceComputer.h"
 
 #include <vector>
 #include <string>
+
+class EcalChannelStatusRcd;
+class CaloGeometryRecord;
+class IdealGeometryRecord;
 
 class AntiElectronDeadECAL {
 public:
@@ -37,17 +42,17 @@ public:
   bool operator()(const reco::Candidate* tau) const;
 
 private:
-  unsigned minStatus_;
-  double dR_;
-  int verbosity_;
-  bool extrapolateToECalEntrance_;
+  const unsigned minStatus_;
+  const double dR2_;
+  const bool extrapolateToECalEntrance_;
+  const int verbosity_;
 
-  PositionAtECalEntrance positionAtECalEntrance_;
+  PositionAtECalEntranceComputer positionAtECalEntrance_;
 
   void updateBadTowers(const edm::EventSetup&);
 
-  struct towerInfo {
-    towerInfo(uint32_t id, unsigned nBad, unsigned maxStatus, double eta, double phi)
+  struct TowerInfo {
+    TowerInfo(uint32_t id, unsigned nBad, unsigned maxStatus, double eta, double phi)
         : id_(id), nBad_(nBad), maxStatus_(maxStatus), eta_(eta), phi_(phi) {}
     uint32_t id_;
     unsigned nBad_;
@@ -55,14 +60,14 @@ private:
     double eta_;
     double phi_;
   };
-  typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> > PolarLorentzVector;
 
-  std::vector<towerInfo> badTowers_;
+  std::vector<TowerInfo> badTowers_;
   static const uint16_t statusMask_ = 0x1F;
 
-  uint32_t channelStatusId_cache_;
-  uint32_t caloGeometryId_cache_;
-  uint32_t idealGeometryId_cache_;
+  edm::ESWatcher<EcalChannelStatusRcd> channelStatusWatcher_;
+  edm::ESWatcher<CaloGeometryRecord> caloGeometryWatcher_;
+  edm::ESWatcher<IdealGeometryRecord> idealGeometryWatcher_;
+
   bool isFirstEvent_;
 };
 

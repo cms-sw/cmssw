@@ -1,4 +1,4 @@
-#include "RecoTauTag/RecoTau/interface/PositionAtECalEntrance.h"
+#include "RecoTauTag/RecoTau/interface/PositionAtECalEntranceComputer.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -7,20 +7,20 @@
 
 #include <cassert>
 
-PositionAtECalEntrance::PositionAtECalEntrance() : bField_z_(-1.) {}
+PositionAtECalEntranceComputer::PositionAtECalEntranceComputer() : bField_z_(-1.) {}
 
-PositionAtECalEntrance::~PositionAtECalEntrance() {}
+PositionAtECalEntranceComputer::~PositionAtECalEntranceComputer() {}
 
-void PositionAtECalEntrance::beginEvent(const edm::EventSetup& es) {
+void PositionAtECalEntranceComputer::beginEvent(const edm::EventSetup& es) {
   edm::ESHandle<MagneticField> bField;
   es.get<IdealMagneticFieldRecord>().get(bField);
   bField_z_ = bField->inTesla(GlobalPoint(0., 0., 0.)).z();
 }
 
-reco::Candidate::Point PositionAtECalEntrance::operator()(const reco::Candidate* particle, bool& success) const {
+reco::Candidate::Point PositionAtECalEntranceComputer::operator()(const reco::Candidate* particle, bool& success) const {
   assert(bField_z_ != -1.);
   BaseParticlePropagator propagator = BaseParticlePropagator(
-      RawParticle(math::XYZTLorentzVector(particle->px(), particle->py(), particle->pz(), particle->energy()),
+      RawParticle(particle->p4(),
                   math::XYZTLorentzVector(particle->vertex().x(), particle->vertex().y(), particle->vertex().z(), 0.)),
       0.,
       0.,
@@ -29,8 +29,7 @@ reco::Candidate::Point PositionAtECalEntrance::operator()(const reco::Candidate*
   propagator.propagateToEcalEntrance(false);
   reco::Candidate::Point position;
   if (propagator.getSuccess() != 0) {
-    position = reco::Candidate::Point(
-        propagator.vertex().x(), propagator.vertex().y(), propagator.vertex().z());
+    position = propagator.vertex().Vect();
     success = true;
   } else {
     success = false;
