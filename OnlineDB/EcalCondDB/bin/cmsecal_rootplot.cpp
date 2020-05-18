@@ -26,7 +26,7 @@ public:
 
   RootPlot(string type, string format, string file, float hmin=0., float hmax=0.) 
   {
-    m_isInit = 0;
+    m_isInit = false;
     m_type = type;
     m_outputFormat = format;
     m_outputFile = file+"."+format;
@@ -57,7 +57,7 @@ public:
     gROOT->SetStyle("Plain");
     gStyle->SetOptStat(111111);
     gStyle->SetOptFit();
-    gStyle->SetPalette(1,0);
+    gStyle->SetPalette(1, nullptr);
 
     int pCol[2] = { 2, 3 };
     if((m_type == "Map" || m_type == "EBEEMap") && (TString(m_title).Contains("status")) ) {
@@ -105,7 +105,7 @@ public:
   {
     if (!m_isInit) {
       this->init();
-      m_isInit = 1;
+      m_isInit = true;
     }
 
     if (str[0] == '#') {
@@ -191,7 +191,7 @@ public:
       this->drawEBEEMap();
     }
 
-    m_isInit = 0;
+    m_isInit = false;
   };
 
   void drawTH1F()
