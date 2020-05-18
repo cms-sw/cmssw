@@ -22,13 +22,11 @@ public:
   //constructor
   SonicEDProducer(edm::ParameterSet const& cfg) : client_(cfg.getParameter<edm::ParameterSet>("Client")) {}
   //destructor
-  virtual ~SonicEDProducer() = default;
+  ~SonicEDProducer() override = default;
 
   //derived classes use a dedicated acquire() interface that incorporates client_.input()
   //(no need to interact with callback holder)
-  void acquire(edm::Event const& iEvent,
-               edm::EventSetup const& iSetup,
-               edm::WaitingTaskWithArenaHolder holder) override final {
+  void acquire(edm::Event const& iEvent, edm::EventSetup const& iSetup, edm::WaitingTaskWithArenaHolder holder) final {
     auto t0 = std::chrono::high_resolution_clock::now();
     acquire(iEvent, iSetup, client_.input());
     auto t1 = std::chrono::high_resolution_clock::now();
@@ -39,7 +37,7 @@ public:
   }
   virtual void acquire(edm::Event const& iEvent, edm::EventSetup const& iSetup, Input& iInput) = 0;
   //derived classes use a dedicated produce() interface that incorporates client_.output()
-  void produce(edm::Event& iEvent, edm::EventSetup const& iSetup) override final {
+  void produce(edm::Event& iEvent, edm::EventSetup const& iSetup) final {
     //todo: measure time between acquire and produce
     produce(iEvent, iSetup, client_.output());
   }

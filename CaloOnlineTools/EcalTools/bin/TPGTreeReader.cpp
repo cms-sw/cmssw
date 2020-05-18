@@ -234,7 +234,8 @@ int main (int argc, char** argv)
 
     // trigger selection if any
     bool keep(false) ;
-    if (!algobits.size()) keep = true ; // keep all events when no trigger selection
+    if (algobits.empty())
+      keep = true;  // keep all events when no trigger selection
     for (unsigned int algo = 0 ; algo<algobits.size() ; algo++)
       for (unsigned int ntrig = 0 ; ntrig < treeVars.nbOfActiveTriggers ; ntrig++)
 	if (algobits[algo] == treeVars.activeTriggers[ntrig]) keep = true ;
