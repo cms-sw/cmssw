@@ -29,6 +29,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/DataProxy.h"
+#include "FWCore/Framework/interface/EventSetupRecordDetails.h"
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
 #include "FWCore/Concurrency/interface/SerialTaskQueue.h"
 
@@ -50,7 +51,7 @@ namespace edm::eventsetup {
     }
     void invalidateTransientCache() override {}
 
-    virtual void prefetch(edm::eventsetup::DataKey const& iKey) = 0;
+    virtual void prefetch(edm::eventsetup::DataKey const& iKey, EventSetupRecordDetails) = 0;
 
   private:
     void prefetchAsyncImpl(edm::WaitingTask* iTask,
