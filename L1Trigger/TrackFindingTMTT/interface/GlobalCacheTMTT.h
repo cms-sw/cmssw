@@ -20,13 +20,13 @@ namespace tmtt {
 
   namespace {
     std::mutex myMutex;
-  }  
+  }
 
   class GlobalCacheTMTT {
   public:
     GlobalCacheTMTT(const edm::ParameterSet& iConfig)
         : settings_(iConfig),              // Python configuration params
-          htRphiErrMon_(),    // rphi HT error monitoring
+          htRphiErrMon_(),                 // rphi HT error monitoring
           stubWindowSuggest_(&settings_),  // Recommend FE stub window sizes.
           hists_(&settings_)               // Histograms
     {
@@ -46,7 +46,7 @@ namespace tmtt {
       std::lock_guard<std::mutex> myGuard(myMutex);
 
       // Only need one copy of tracker geometry for histogramming.
-      if (listTrackerModule_.size() == 0)
+      if (listTrackerModule_.empty())
         listTrackerModule_ = list;
     }
 

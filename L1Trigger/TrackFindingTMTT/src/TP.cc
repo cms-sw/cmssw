@@ -5,6 +5,8 @@
 #include "L1Trigger/TrackFindingTMTT/interface/Utility.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
+#include <array>
+
 using namespace std;
 
 namespace tmtt {
@@ -63,11 +65,11 @@ namespace tmtt {
     // Keep only those TP that have a chance (allowing for finite track resolution) of being reconstructed as L1 tracks. L1 tracks not matching these TP will be defined as fake.
 
     // Include all possible particle types here, as if some are left out, L1 tracks matching one of missing types will be declared fake.
-    static const vector<int> genPdgIdsAllUnsigned = {11, 13, 211, 321, 2212};
+    constexpr std::array<int, 5> genPdgIdsAllUnsigned = {{11, 13, 211, 321, 2212}};
     vector<int> genPdgIdsAll;
-    for (unsigned int i = 0; i < genPdgIdsAllUnsigned.size(); i++) {
-      genPdgIdsAll.push_back(genPdgIdsAllUnsigned[i]);
-      genPdgIdsAll.push_back(-genPdgIdsAllUnsigned[i]);
+    for (const int& iPdg : genPdgIdsAllUnsigned) {
+      genPdgIdsAll.push_back(iPdg);
+      genPdgIdsAll.push_back(-iPdg);
     }
 
     // Range big enough to include all TP needed to measure tracking efficiency

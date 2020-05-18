@@ -62,12 +62,6 @@ namespace tmtt {
     else if (shape_ == HTshape::diamond)
       binSizePhiTrkAxis_ = 2. * maxAbsPhiTrkAxis_ / (nBinsPhiTrkAxis_ - 1. / 2.);
 
-    // Note max. |gradient| that the line corresponding to any stub in any of the r-phi HT arrays could have.
-    // Firmware assumes this should not exceed 1.0;
-    if (errMon_ != nullptr) {
-      errMon_->maxLineGradient = max(errMon_->maxLineGradient.load(), this->calcMaxLineGradArray());
-    }
-
     // Optionally merge 2x2 neighbouring cells into a single cell at low Pt, to reduce efficiency loss due to
     // scattering. (Do this if either of options EnableMerge2x2 or MiniHTstage are enabled.
     // N.B These two options are never both enabled).
@@ -310,6 +304,11 @@ namespace tmtt {
               HTbase::htArray_(i, binMax.second)->store(stub, inEtaSubSecs);
           }
         }
+      }
+      // Note max. |gradient| that the line corresponding to any stub in any of the r-phi HT arrays could have.
+      // Firmware assumes this should not exceed 1.0;
+      if (errMon_ != nullptr) {
+        errMon_->maxLineGradient = max(errMon_->maxLineGradient.load(), this->calcLineGradArray(stub->r()));
       }
     }
   }
@@ -602,22 +601,19 @@ namespace tmtt {
     return merge;
   }
 
-  //=== Calculate maximum |gradient| that any stub's line across this HT array could have, so can check it doesn't exceed 1.
+  //=== Calculate line |gradient| of stubs in HT array, so can check it doesn't exceed 1.
 
-  float HTrphi::calcMaxLineGradArray() const {
-    // Get max. |gradient| possible in this HT array.
-    float gradOuter = std::abs(invPtToDphi_ * (settings_->trackerOuterRadius() - chosenRofPhi_));
-    float gradInner = std::abs(invPtToDphi_ * (settings_->trackerInnerRadius() - chosenRofPhi_));
-    float maxGrad = max(gradOuter, gradInner);
+  float HTrphi::calcLineGradArray(float r) const {
+    float grad = std::abs(invPtToDphi_ * (r - chosenRofPhi_));
     // Convert it to units of bin width.
-    maxGrad *= binSizeQoverPtAxis_ / binSizePhiTrkAxis_;
+    grad *= binSizeQoverPtAxis_ / binSizePhiTrkAxis_;
     if (shape_ == HTshape::hexagon)
-      maxGrad *= 3.;
+      grad *= 3.;
     else if (shape_ == HTshape::diamond)
-      maxGrad *= 2.;
+      grad *= 2.;
     else if (shape_ == HTshape::brick)
-      maxGrad *= 4.;
-    return maxGrad;
+      grad *= 4.;
+    return grad;
   }
 
   //=== If requested, kill those tracks in this sector that can't be read out during the time-multiplexed period, because

@@ -14,7 +14,6 @@
 #include "L1Trigger/TrackFindingTMTT/interface/DigitalStub.h"
 #include "L1Trigger/TrackFindingTMTT/interface/DegradeBend.h"
 #include "L1Trigger/TrackFindingTMTT/interface/TrackerModule.h"
-#include "L1Trigger/TrackFindingTMTT/interface/StubKiller.h"
 
 #include <vector>
 #include <set>
@@ -28,6 +27,8 @@ class TrackerTopology;
 namespace tmtt {
 
   class TP;
+  class DegradeBend;
+  class StubKiller;
 
   typedef edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_> > TTStubDetSetVec;
   typedef edmNew::DetSet<TTStub<Ref_Phase2TrackerDigi_> > TTStubDetSet;
@@ -43,28 +44,29 @@ namespace tmtt {
   public:
     // Hybrid L1 tracking: stub constructor.
     Stub(const Settings* settings,
-             unsigned int idStub,
-	     double phi,
-             double r,
-             double z,
-             double bend,
-             unsigned int iphi,
-             double alpha,
-             unsigned int layerId,
-             unsigned int iPhiSec,
-             bool psModule,
-    	     bool barrel,
-    	     bool tiltedBarrel,
-	     float stripPitch,
-	     float stripLength,
-	     unsigned int nStrips);
- 
+         unsigned int idStub,
+         double phi,
+         double r,
+         double z,
+         double bend,
+         unsigned int iphi,
+         double alpha,
+         unsigned int layerId,
+         unsigned int iPhiSec,
+         bool psModule,
+         bool barrel,
+         bool tiltedBarrel,
+         float stripPitch,
+         float stripLength,
+         unsigned int nStrips);
+
     // TMTT L1 tracking: stub constructor.
     Stub(const TTStubRef& ttStubRef,
          unsigned int index_in_vStubs,
          const Settings* settings,
          const TrackerTopology* trackerTopology,
          const TrackerModule* trackerModule,
+         const DegradeBend* degradeBend,
          const StubKiller* stubKiller);
 
     ~Stub() {}
@@ -164,7 +166,7 @@ namespace tmtt {
     const std::set<const TP*>& assocTPs() const {
       return assocTPs_;
     }  // Return TPs associated to this stub. (Whether only TPs contributing to both clusters are returned is determined by "StubMatchStrict" config param.)
-    bool genuine() const { return (assocTPs_.size() > 0); }  // Did stub match at least one TP?
+    bool genuine() const { return (not assocTPs_.empty()); }  // Did stub match at least one TP?
     const TP* assocTP() const {
       return assocTP_;
     }  // If only one TP contributed to both clusters, this tells you which TP it is. Returns nullptr if none.
@@ -186,9 +188,9 @@ namespace tmtt {
     float sigmaR() const { return (barrel() ? 0. : sigmaPar()); }
     float sigmaZ() const { return (barrel() ? sigmaPar() : 0.); }
     // Hit resolution perpendicular to strip. Measures phi.
-    float sigmaPerp() const {return invRoot12 * stripPitch_;}
+    float sigmaPerp() const { return invRoot12 * stripPitch_; }
     // Hit resolution parallel to strip. Measures r or z.
-    float sigmaPar() const {return invRoot12 * stripLength_;}
+    float sigmaPar() const { return invRoot12 * stripLength_; }
 
     //--- These module variables could be taken directly from trackerModule_, were it not for need
     //--- to support Hybrid.
@@ -274,7 +276,7 @@ namespace tmtt {
     const TrackerModule* trackerModule_;
 
     // Used to degrade stub bend information.
-    DegradeBend degradeBend_;
+    const DegradeBend* degradeBend_;
 
     // These module variables are needed only to support the Hybrid stub constructor.
     // (Otherwise, they could be taken from trackerModule_).
@@ -290,7 +292,7 @@ namespace tmtt {
 
     const float rejectedStubBend_ = 99999.;  // Bend set to this if stub rejected.
 
-    const float invRoot12 = sqrt(1./12.);
+    const float invRoot12 = sqrt(1. / 12.);
   };
 
 }  // namespace tmtt

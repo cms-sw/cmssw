@@ -51,8 +51,8 @@ namespace tmtt {
     chosenRofZ_ = settings->chosenRofZ();
     trackFitters_ = settings->trackFitters();
     useRZfilter_ = settings->useRZfilter();
-    ranRZfilter_ = (useRZfilter_.size() > 0);  // Was any r-z track filter run?
-    resPlotOpt_ = settings->resPlotOpt();      // Only use signal events for helix resolution plots?
+    ranRZfilter_ = (not useRZfilter_.empty());  // Was any r-z track filter run?
+    resPlotOpt_ = settings->resPlotOpt();       // Only use signal events for helix resolution plots?
   }
 
   //=== Book all histograms
@@ -197,7 +197,7 @@ namespace tmtt {
     // Study efficiency for good stubs of tightened front end-electronics cuts.
     for (const TP& tp : vTPs) {
       if (tp.useForAlgEff()) {  // Only bother for stubs that are on TP that we have a chance of reconstructing.
-        const vector<const Stub*> stubs = tp.assocStubs();
+        const vector<const Stub*>& stubs = tp.assocStubs();
         for (const Stub* s : stubs) {
           hisStubIneffiVsInvPt_->Fill(1. / tp.pt(), (!s->frontendPass()));
           hisStubIneffiVsEta_->Fill(std::abs(tp.eta()), (!s->frontendPass()));

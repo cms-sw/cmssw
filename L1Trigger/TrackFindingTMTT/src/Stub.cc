@@ -7,6 +7,7 @@
 
 #include "L1Trigger/TrackFindingTMTT/interface/Stub.h"
 #include "L1Trigger/TrackFindingTMTT/interface/TP.h"
+#include "L1Trigger/TrackFindingTMTT/interface/StubKiller.h"
 #include "L1Trigger/TrackFindingTMTT/interface/PrintL1trk.h"
 
 #include <iostream>
@@ -18,8 +19,8 @@ namespace tmtt {
   //=== Hybrid L1 tracking: stub constructor.
 
   Stub::Stub(const Settings* settings,
-	     unsigned int idStub,
-	     double phi,
+             unsigned int idStub,
+             double phi,
              double r,
              double z,
              double bend,
@@ -29,11 +30,11 @@ namespace tmtt {
              unsigned int iPhiSec,
              bool psModule,
              bool barrel,
-	     bool tiltedBarrel,
-	     float stripPitch,
-	     float stripLength,
-	     unsigned int nStrips)
-    :   index_in_vStubs_(idStub),  // A unique ID to label the stub.
+             bool tiltedBarrel,
+             float stripPitch,
+             float stripLength,
+             unsigned int nStrips)
+      : index_in_vStubs_(idStub),  // A unique ID to label the stub.
         phi_(phi),
         r_(r),
         z_(z),
@@ -48,8 +49,7 @@ namespace tmtt {
         tiltedBarrel_(tiltedBarrel),
         stripPitch_(stripPitch),
         stripLength_(stripLength),
-        nStrips_(nStrips)
-{}
+        nStrips_(nStrips) {}
 
   //=== TMTT L1 tracking: stub constructor.
 
@@ -58,6 +58,7 @@ namespace tmtt {
              const Settings* settings,
              const TrackerTopology* trackerTopology,
              const TrackerModule* trackerModule,
+             const DegradeBend* degradeBend,
              const StubKiller* stubKiller)
       : ttStubRef_(ttStubRef),
         settings_(settings),
@@ -66,8 +67,8 @@ namespace tmtt {
         digitizeWarningsOn_(true),
         lastDigiStep_(Stub::DigiStage::NONE),
         trackerModule_(trackerModule),  // Info about tracker module containing stub
-        degradeBend_(trackerTopology),  // Used to degrade stub bend information.
-                                        // Module related variables (need to be stored for Hybrid)
+        degradeBend_(degradeBend),      // Used to degrade stub bend information.
+        // Module related variables (need to be stored for Hybrid)
         psModule_(trackerModule->psModule()),
         layerId_(trackerModule->layerId()),
         layerIdReduced_(trackerModule->layerIdReduced()),
@@ -89,13 +90,6 @@ namespace tmtt {
     phi_ = pos.phi();
     r_ = pos.perp();
     z_ = pos.z();
-
-    if (r_ < settings_->trackerInnerRadius() || r_ > settings_->trackerOuterRadius() ||
-        std::abs(z_) > settings_->trackerHalfLength()) {
-      throw cms::Exception("BadConfig") << "Stub: Stub found outside assumed tracker volume. Please update tracker "
-                                           "dimensions specified in Settings.h!"
-                                        << " r=" << r_ << " z=" << z_ << " id=" << trackerModule_->detId().subdetId();
-    }
 
     // Get the coordinates of the two clusters that make up this stub, measured in units of strip pitch, and measured
     // in the local frame of the sensor. They have a granularity  of 0.5*pitch.
@@ -264,7 +258,7 @@ namespace tmtt {
       windowFE = rejectedStubBend_;  // TMTT is not tightening windows.
     }
 
-    degradeBend_.degrade(bend, psModule(), trackerModule_->detId(), windowFE, degradedBend, num);
+    degradeBend_->degrade(bend, psModule(), trackerModule_->detId(), windowFE, degradedBend, num);
   }
 
   //=== Set flag indicating if stub will be output by front-end readout electronics
@@ -286,8 +280,8 @@ namespace tmtt {
 
     if (frontendPass_ && this->bend() == rejectedStubBend_) {
       throw cms::Exception(
-          "LogicError: Window sizes assumed in DegradeBend are tighter than those used for TTStub production. Please "
-          "fix them");
+          "BadConfig: FE stub bend window sizes provided in cfg ES source are tighter than those to make the stubs. "
+          "Please fix them");
     }
 
     if (settings_->killLowPtStubs()) {

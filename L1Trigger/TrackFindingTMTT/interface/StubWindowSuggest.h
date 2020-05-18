@@ -2,6 +2,7 @@
 #define L1Trigger_TrackFindingTMTT_StubWindowsSuggest_h
 
 #include "L1Trigger/TrackFindingTMTT/interface/Settings.h"
+#include "L1Trigger/TrackFindingTMTT/interface/StubFEWindows.h"
 
 #include <vector>
 
@@ -25,10 +26,16 @@ namespace tmtt {
 
   class StubWindowSuggest {
   public:
-    // Initialize (for use with TMTT).
+    // Configure
     StubWindowSuggest(const Settings* settings) : settings_(settings), ptMin_(settings->houghMinPt()) {}
 
     ~StubWindowSuggest() {}
+
+    // Get FE window size arrays (via copy) used with stub producer, but set to zero.
+    void setFEWindows(const StubFEWindows* sw) {
+      sw_ = *sw;
+      sw_.setZero();
+    }
 
     // Analyse stub window required for this stub.
     void process(const TrackerTopology* trackerTopo, const Stub* stub);
@@ -46,10 +53,7 @@ namespace tmtt {
     const float ptMin_;
 
     // Stub window sizes as encoded in L1Trigger/TrackTrigger/interface/TTStubAlgorithm_official.h
-    std::vector<double> barrelCut_;
-    std::vector<std::vector<double> > ringCut_;
-    std::vector<std::vector<double> > tiltedCut_;
-    std::vector<double> barrelNTilt_;
+    StubFEWindows sw_;
   };
 
 }  // namespace tmtt

@@ -74,7 +74,7 @@ namespace tmtt {
 
     L1track3D() : L1trackBase(){};  // Creates track object, but doesn't std::set any variables.
 
-    ~L1track3D() {}
+    ~L1track3D() override {}
 
     //--- Set/get optional info for tracklet tracks.
 
@@ -93,14 +93,14 @@ namespace tmtt {
     //--- Get information about the reconstructed track.
 
     // Get stubs on track candidate.
-    const std::vector<const Stub*>& stubsConst() const { return stubsConst_; }
-    const std::vector<Stub*>& stubs() const { return stubs_; }
+    const std::vector<const Stub*>& stubsConst() const override { return stubsConst_; }
+    const std::vector<Stub*>& stubs() const override { return stubs_; }
     // Get number of stubs on track candidate.
-    unsigned int numStubs() const { return stubs_.size(); }
+    unsigned int numStubs() const override { return stubs_.size(); }
     // Get number of tracker layers these stubs are in.
-    unsigned int numLayers() const { return nLayers_; }
+    unsigned int numLayers() const override { return nLayers_; }
     // Get cell location of track candidate in r-phi Hough Transform array in units of bin number.
-    std::pair<unsigned int, unsigned int> cellLocationHT() const { return cellLocationHT_; }
+    std::pair<unsigned int, unsigned int> cellLocationHT() const override { return cellLocationHT_; }
     // The two conventionally agreed track helix parameters relevant in r-phi plane. i.e. (q/Pt, phi0)
     std::pair<float, float> helixRphi() const { return helixRphi_; }
     // The two conventionally agreed track helix parameters relevant in r-z plane. i.e. (z0, tan_lambda)
@@ -148,7 +148,7 @@ namespace tmtt {
 
     //--- User-friendlier access to the helix parameters.
 
-    float qOverPt() const { return helixRphi_.first; }
+    float qOverPt() const override { return helixRphi_.first; }
     float charge() const { return (this->qOverPt() > 0 ? 1 : -1); }
     float invPt() const { return std::abs(this->qOverPt()); }
     // Protect pt against 1/pt = 0.
@@ -157,7 +157,7 @@ namespace tmtt {
       return 1. / (small + this->invPt());
     }
     float d0() const { return helixD0_; }  // Hough transform assumes d0 = 0.
-    float phi0() const { return helixRphi_.second; }
+    float phi0() const override { return helixRphi_.second; }
     float z0() const { return helixRz_.first; }
     float tanLambda() const { return helixRz_.second; }
     float theta() const { return atan2(1., this->tanLambda()); }  // Use atan2 to ensure 0 < theta < pi.
@@ -173,11 +173,11 @@ namespace tmtt {
     }  // neglects transverse impact parameter & track curvature.
 
     //--- Get phi sector and eta region used by track finding code that this track is in.
-    unsigned int iPhiSec() const { return iPhiSec_; }
-    unsigned int iEtaReg() const { return iEtaReg_; }
+    unsigned int iPhiSec() const override { return iPhiSec_; }
+    unsigned int iEtaReg() const override { return iEtaReg_; }
 
     //--- Opto-link ID used to send this track from HT to Track Fitter
-    unsigned int optoLinkID() const { return optoLinkID_; }
+    unsigned int optoLinkID() const override { return optoLinkID_; }
 
     //--- Was this track produced from a marged HT cell (e.g. 2x2)?
     bool mergedHTcell() const { return mergedHTcell_; }
@@ -185,13 +185,13 @@ namespace tmtt {
     //--- Get information about its association (if any) to a truth Tracking Particle.
 
     // Get best matching tracking particle (=nullptr if none).
-    const TP* matchedTP() const { return matchedTP_; }
+    const TP* matchedTP() const override { return matchedTP_; }
     // Get the matched stubs with this Tracking Particle
-    const std::vector<const Stub*>& matchedStubs() const { return matchedStubs_; }
+    const std::vector<const Stub*>& matchedStubs() const override { return matchedStubs_; }
     // Get number of matched stubs with this Tracking Particle
-    unsigned int numMatchedStubs() const { return matchedStubs_.size(); }
+    unsigned int numMatchedStubs() const override { return matchedStubs_.size(); }
     // Get number of tracker layers with matched stubs with this Tracking Particle
-    unsigned int numMatchedLayers() const { return nMatchedLayers_; }
+    unsigned int numMatchedLayers() const override { return nMatchedLayers_; }
     // Get purity of stubs on track candidate (i.e. fraction matching best Tracking Particle)
     float purity() const { return numMatchedStubs() / float(numStubs()); }
 

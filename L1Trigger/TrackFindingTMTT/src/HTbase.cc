@@ -189,7 +189,7 @@ namespace tmtt {
     // Check if the hardware processes rows of the HT array in a specific order when outputting track candidates.
     // Currently this is by decreasing Pt for r-phi HT and unordered for r-z HT.
     const vector<unsigned int> iOrder = this->rowOrder(nBinsX_);
-    bool wantOrdering = (iOrder.size() > 0);
+    bool wantOrdering = (not iOrder.empty());
 
     // Loop over cells in HT array.
     for (unsigned int i = 0; i < nBinsX_; i++) {

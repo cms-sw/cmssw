@@ -9,7 +9,7 @@ namespace tmtt {
   MiniHTstage::MiniHTstage(const Settings* settings)
       : settings_(settings),
         miniHTstage_(settings_->miniHTstage()),
-        muxOutputsHT_(settings_->muxOutputsHT()),
+        muxOutputsHT_(static_cast<MuxHToutputs::MuxAlgoName>(settings_->muxOutputsHT())),
         houghNbinsPt_(settings_->houghNbinsPt()),
         houghNbinsPhi_(settings_->houghNbinsPhi()),
         miniHoughLoadBalance_(settings_->miniHoughLoadBalance()),
@@ -34,7 +34,7 @@ namespace tmtt {
     nMiniHTcells_ = miniHoughNbinsPt_ * miniHoughNbinsPhi_;
 
     if (miniHoughLoadBalance_ != 0) {
-      if (muxOutputsHT_ == 1) {  // Multiplexer at output of HT enabled.
+      if (muxOutputsHT_ == MuxHToutputs::MuxAlgoName::mBinPerLink) {  // Multiplexer at output of HT enabled.
         nHTlinksPerNonant_ = busySectorMbinRanges_.size() - 1;
       } else {
         throw cms::Exception("BadConfig") << "MiniHTstage: Unknown MuxOutputsHT configuration option!";
@@ -44,11 +44,12 @@ namespace tmtt {
 
   void MiniHTstage::exec(matrix<unique_ptr<HTrphi>>& mHtRphis) {
     for (unsigned int iPhiNon = 0; iPhiNon < numPhiNonants_; iPhiNon++) {
-      map<pair<unsigned int, unsigned int>, unsigned int>
-          numStubsPerLinkStage1;  // Indices are ([link ID, MHT cell], #stubs).
-      map<pair<unsigned int, unsigned int>, unsigned int>
-          numStubsPerLinkStage2;                        // Indices are ([link ID, MHT cell], #stubs).
-      map<unsigned int, unsigned int> numStubsPerLink;  // Indices are ([link ID, MHT cell], #stubs).
+      // Indices are ([link ID, MHT cell], #stubs).
+      map<pair<unsigned int, unsigned int>, unsigned int> numStubsPerLinkStage1;
+      // Indices are ([link ID, MHT cell], #stubs).
+      map<pair<unsigned int, unsigned int>, unsigned int> numStubsPerLinkStage2;
+      // Indices are (link ID, #stubs).
+      map<unsigned int, unsigned int> numStubsPerLink;
       for (unsigned int iSecInNon = 0; iSecInNon < numPhiSecPerNon_; iSecInNon++) {
         unsigned int iPhiSec = iPhiNon * numPhiSecPerNon_ + iSecInNon;
         for (unsigned int iEtaReg = 0; iEtaReg < numEtaRegions_; iEtaReg++) {
@@ -184,7 +185,9 @@ namespace tmtt {
       unsigned int mBin,
       unsigned int cBin,
       unsigned int numStubs,
+      // Indices are ([link ID, MHT cell], #stubs).
       map<pair<unsigned int, unsigned int>, unsigned int>& numStubsPerLinkStage1,
+      // Indices are ([link ID, MHT cell], #stubs).
       map<pair<unsigned int, unsigned int>, unsigned int>& numStubsPerLinkStage2,
       bool test) const {
     unsigned int mhtCell = miniHoughNbinsPhi_ * mBin + cBin;  // Send each mini-cell to a different output link

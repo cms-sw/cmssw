@@ -46,7 +46,7 @@ namespace tmtt {
            float phiCentreSector,
            ErrorMonitor* errMon = nullptr);
 
-    ~HTrphi() {}
+    ~HTrphi() override {}
 
     // Add stub to HT array.
     // If eta subsectors are being used within each sector, specify which ones the stub is compatible with.
@@ -64,21 +64,21 @@ namespace tmtt {
     // Get the values of the track helix params corresponding to middle of a specified HT cell (i,j).
     // The helix parameters returned will be those corresponding to the two axes of the HT array.
     // So they might be (q/pt, phi0) or (q/pt, phi65) etc. depending on the configuration.
-    std::pair<float, float> helix2Dhough(unsigned int i, unsigned int j) const;
+    std::pair<float, float> helix2Dhough(unsigned int i, unsigned int j) const override;
 
     // Get the values of the track helix params corresponding to middle of a specified HT cell (i,j).
     // The helix parameters returned will be always be (q/pt, phi0), irrespective of how the axes
     // of the HT array are defined.
-    std::pair<float, float> helix2Dconventional(unsigned int i, unsigned int j) const;
+    std::pair<float, float> helix2Dconventional(unsigned int i, unsigned int j) const override;
 
     // Which cell in HT array should this TP be in, based on its true trajectory?
     // (If TP is outside HT array, it it put in the closest bin inside it).
-    std::pair<unsigned int, unsigned int> trueCell(const TP* tp) const;
+    std::pair<unsigned int, unsigned int> trueCell(const TP* tp) const override;
 
     // Which cell in HT array should this fitted track be in, based on its fitted trajectory?
     // Always uses beam-spot constrained trajectory if available.
     // (If fitted track is outside HT array, it it put in the closest bin inside it).
-    std::pair<unsigned int, unsigned int> cell(const L1fittedTrack* fitTrk) const;
+    std::pair<unsigned int, unsigned int> cell(const L1fittedTrack* fitTrk) const override;
 
     // Check if specified cell has been merged with its 2x2 neighbours into a single cell,
     // as it is in low Pt region.
@@ -104,17 +104,17 @@ namespace tmtt {
                              unsigned int jPhiTrkBinMinLast,
                              unsigned int jPhiTrkBinMaxLast);
 
-    // Calculate maximum |gradient| that any stub's line across this HT array could have, so can check it doesn't exceed 1.
-    float calcMaxLineGradArray() const;
+    // Calculate line |gradient| of stubs in HT array, so can check it doesn't exceed 1.
+    float calcLineGradArray(float r) const;
 
     // If requested, kill those tracks in this sector that can't be read out during the time-multiplexed period, because
     // the HT has associated too many stubs to tracks.
-    std::list<L1track2D> killTracksBusySec(const std::list<L1track2D>& tracks) const;
+    std::list<L1track2D> killTracksBusySec(const std::list<L1track2D>& tracks) const override;
 
     // Define the order in which the hardware processes rows of the HT array when it outputs track candidates.
     // Currently corresponds to highest Pt tracks first.
     // If two tracks have the same Pt, the -ve charge one is output before the +ve charge one.
-    std::vector<unsigned int> rowOrder(unsigned int numRows) const;
+    std::vector<unsigned int> rowOrder(unsigned int numRows) const override;
 
   private:
     float invPtToDphi_;  // conversion constant.

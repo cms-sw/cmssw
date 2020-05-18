@@ -28,6 +28,8 @@ namespace tmtt {
 
   class MuxHToutputs {
   public:
+    enum class MuxAlgoName { None = 0, mBinPerLink = 1 };
+
     // Initialize constants from configuration parameters.
     MuxHToutputs(const Settings* settings);
 
@@ -61,7 +63,7 @@ namespace tmtt {
     const Settings* settings_;  // Configuration parameters
 
     // Configuration parameters
-    unsigned int muxOutputsHT_;
+    MuxAlgoName muxOutputsHT_;
     unsigned int numPhiNonants_;
     unsigned int numPhiSectors_;
     unsigned int numPhiSecPerNon_;

@@ -2,6 +2,7 @@
 #define L1Trigger_TrackFindingTMTT_MiniHTstage_h
 
 #include "L1Trigger/TrackFindingTMTT/interface/HTrphi.h"
+#include "L1Trigger/TrackFindingTMTT/interface/MuxHToutputs.h"
 
 using boost::numeric::ublas::matrix;
 #include <memory>
@@ -32,7 +33,7 @@ namespace tmtt {
   private:
     const Settings* settings_;  // Configuration parameters
     bool miniHTstage_;
-    unsigned int muxOutputsHT_;
+    MuxHToutputs::MuxAlgoName muxOutputsHT_;
     unsigned int houghNbinsPt_;
     unsigned int houghNbinsPhi_;
     unsigned int miniHoughLoadBalance_;

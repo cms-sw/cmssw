@@ -11,12 +11,12 @@ namespace tmtt {
   //=== Make available cfg parameters & specify which algorithm is to be used for duplicate track removal.
 
   DupFitTrkKiller::DupFitTrkKiller(const Settings* settings)
-      : settings_(settings), dupTrkAlg_(settings->dupTrkAlgFit()) {}
+      : settings_(settings), dupTrkAlg_(static_cast<DupAlgoName>(settings->dupTrkAlgFit())) {}
 
   //=== Eliminate duplicate tracks from the input collection, and so return a reduced list of tracks.
 
   list<const L1fittedTrack*> DupFitTrkKiller::filter(const list<L1fittedTrack>& vecTracks) const {
-    if (dupTrkAlg_ == 0) {
+    if (dupTrkAlg_ == DupAlgoName::None) {
       // We are not running duplicate removal, so return original fitted track collection.
       list<const L1fittedTrack*> copyTracks;
       for (const L1fittedTrack& trk : vecTracks) {
@@ -28,10 +28,10 @@ namespace tmtt {
       // Choose which algorithm to run, based on parameter dupTrkAlg_.
       switch (dupTrkAlg_) {
         // Run filters that only work on fitted tracks.
-        case 1:
+        case DupAlgoName::Algo1:
           return filterAlg1(vecTracks);
           break;
-        case 2:
+        case DupAlgoName::Algo2:
           return filterAlg2(vecTracks);
           break;
         default:
@@ -58,7 +58,7 @@ namespace tmtt {
     constexpr bool goOutsideArray = true;  // Also store in memory stubs outside the HT array during 2nd pass.
     constexpr bool limitDiff = true;       // Limit allowed diff. between HT & Fit cell to <= 1.
 
-    if (debug && tracks.size() > 0)
+    if (debug && not tracks.empty())
       PrintL1trk() << "Start DupFitTrkKiller" << tracks.size();
 
     list<const L1fittedTrack*> tracksFiltered;
@@ -211,7 +211,7 @@ namespace tmtt {
     // Hard-wired options to play with.
     const bool debug = false;
 
-    if (debug && tracks.size() > 0)
+    if (debug && not tracks.empty())
       PrintL1trk() << "START " << tracks.size();
 
     list<const L1fittedTrack*> tracksFiltered;
@@ -268,7 +268,7 @@ namespace tmtt {
         }
       }
     }
-    if (tracks.size() > 0)
+    if (not tracks.empty())
       PrintL1trk() << "FOUND " << tracks.size();
   }
 

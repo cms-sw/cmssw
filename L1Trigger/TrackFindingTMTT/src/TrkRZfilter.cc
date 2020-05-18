@@ -184,6 +184,7 @@ namespace tmtt {
 
               // Estimate a value of z at the beam spot using the two seeding stubs
               double z0 = s1->z() + (-s1->z() + s0->z()) * s1->r() / (s1->r() - s0->r());
+              // COMMENTED OUT CODE GIVES OPTION OF ALLOWING FOR UNCERTAINTY. NOT WORTH IT?
               //double z0err = s1->sigmaZ() + ( s1->sigmaZ() + s0->sigmaZ() )*s1->r()/std::abs(s1->r()-s0->r()) + std::abs(-s1->z()+s0->z())*(s1->sigmaR()*std::abs(s1->r()-s0->r()) + s1->r()*(s1->sigmaR() + s0->sigmaR()) )/((s1->r()-s0->r())*(s1->r()-s0->r()));
               // Estimate a value of z at a chosen Radius using the two seeding stubs
               float zTrk = s1->z() + (-s1->z() + s0->z()) * (s1->r() - chosenRofZ_) / (s1->r() - s0->r());

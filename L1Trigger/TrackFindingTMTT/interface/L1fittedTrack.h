@@ -108,7 +108,7 @@ namespace tmtt {
     // Creates track rejected by fitter.
     L1fittedTrack() : L1fittedTrack(nullptr, nullptr, noStubs_, 0, 0., 0., 0., 0., 0., 0., 0., 0, false) {}
 
-    ~L1fittedTrack() {}
+    ~L1fittedTrack() override {}
 
     //--- Optionally std::set track helix params & chi2 if beam-spot constraint is used (for 5-parameter fit).
     void setBeamConstr(float qOverPt_bcon, float phi0_bcon, float chi2rphi_bcon) {
@@ -124,10 +124,6 @@ namespace tmtt {
     void setInfoKF(unsigned int nSkippedLayers, unsigned int numUpdateCalls) {
       nSkippedLayers_ = nSkippedLayers;
       numUpdateCalls_ = numUpdateCalls;
-    }
-    void setInfoKF(unsigned int nSkippedLayers, unsigned int numUpdateCalls, bool consistentHLS) {
-      this->setInfoKF(nSkippedLayers_, numUpdateCalls_);
-      // consistentCell_ = consistentHLS; // KF HLS code no longer calculates HT cell consistency.
     }
     void setInfoLR(int numIterations, std::string lostMatchingState, std::unordered_map<std::string, int> stateCalls) {
       numIterations_ = numIterations;
@@ -176,12 +172,12 @@ namespace tmtt {
     const L1track3D* l1track3D() const { return l1track3D_; }
 
     // Get stubs on fitted track (can differ from those on HT track if track fit kicked out stubs with bad residuals)
-    const std::vector<const Stub*>& stubsConst() const { return stubsConst_; }
-    const std::vector<Stub*>& stubs() const { return stubs_; }
+    const std::vector<const Stub*>& stubsConst() const override { return stubsConst_; }
+    const std::vector<Stub*>& stubs() const override { return stubs_; }
     // Get number of stubs on fitted track.
-    unsigned int numStubs() const { return stubs_.size(); }
+    unsigned int numStubs() const override { return stubs_.size(); }
     // Get number of tracker layers these stubs are in.
-    unsigned int numLayers() const { return nLayers_; }
+    unsigned int numLayers() const override { return nLayers_; }
     // Get number of stubs deleted from track candidate by fitter (because they had large residuals)
     unsigned int numKilledStubs() const { return l1track3D_->numStubs() - this->numStubs(); }
     // Get bit-encoded hit pattern (where layer number assigned by increasing distance from origin, according to layers track expected to cross).
@@ -192,19 +188,19 @@ namespace tmtt {
     // (If fitted track is outside HT array, it it put in the closest bin inside it).
     std::pair<unsigned int, unsigned int> cellLocationFit() const { return htRphiTmp_->cell(this); }
     // Also get HT cell determined by Hough transform.
-    std::pair<unsigned int, unsigned int> cellLocationHT() const { return l1track3D_->cellLocationHT(); }
+    std::pair<unsigned int, unsigned int> cellLocationHT() const override { return l1track3D_->cellLocationHT(); }
 
     //--- Get information about its association (if any) to a truth Tracking Particle.
     //--- Can differ from that of corresponding HT track, if track fit kicked out stubs with bad residuals.
 
     // Get best matching tracking particle (=nullptr if none).
-    const TP* matchedTP() const { return matchedTP_; }
+    const TP* matchedTP() const override { return matchedTP_; }
     // Get the matched stubs with this Tracking Particle
-    const std::vector<const Stub*>& matchedStubs() const { return matchedStubs_; }
+    const std::vector<const Stub*>& matchedStubs() const override { return matchedStubs_; }
     // Get number of matched stubs with this Tracking Particle
-    unsigned int numMatchedStubs() const { return matchedStubs_.size(); }
+    unsigned int numMatchedStubs() const override { return matchedStubs_.size(); }
     // Get number of tracker layers with matched stubs with this Tracking Particle
-    unsigned int numMatchedLayers() const { return nMatchedLayers_; }
+    unsigned int numMatchedLayers() const override { return nMatchedLayers_; }
     // Get purity of stubs on track (i.e. fraction matching best Tracking Particle)
     float purity() const { return numMatchedStubs() / float(numStubs()); }
     // Get number of stubs matched to correct TP that were deleted from track candidate by fitter.
@@ -223,7 +219,7 @@ namespace tmtt {
 
     //--- Get the fitted track helix parameters.
 
-    float qOverPt() const { return qOverPt_; }
+    float qOverPt() const override { return qOverPt_; }
     float charge() const { return (qOverPt_ > 0 ? 1 : -1); }
     float invPt() const { return std::abs(qOverPt_); }
     // Protect pt against 1/pt = 0.
@@ -232,7 +228,7 @@ namespace tmtt {
       return 1. / (small + this->invPt());
     }
     float d0() const { return d0_; }
-    float phi0() const { return phi0_; }
+    float phi0() const override { return phi0_; }
     float z0() const { return z0_; }
     float tanLambda() const { return tanLambda_; }
     float theta() const { return atan2(1., tanLambda_); }  // Use atan2 to ensure 0 < theta < pi.
@@ -290,11 +286,11 @@ namespace tmtt {
     float chi2dof_bcon() const { return (this->chi2_bcon()) / this->numDOF_bcon(); }
 
     //--- Get phi sector and eta region used by track finding code that this track is in.
-    unsigned int iPhiSec() const { return iPhiSec_; }
-    unsigned int iEtaReg() const { return iEtaReg_; }
+    unsigned int iPhiSec() const override { return iPhiSec_; }
+    unsigned int iEtaReg() const override { return iEtaReg_; }
 
     //--- Opto-link ID used to send this track from HT to Track Fitter
-    unsigned int optoLinkID() const { return optoLinkID_; }
+    unsigned int optoLinkID() const override { return optoLinkID_; }
 
     //--- Get whether the track has been rejected or accepted by the fit
 

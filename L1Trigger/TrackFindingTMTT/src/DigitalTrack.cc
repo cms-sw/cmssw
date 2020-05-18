@@ -86,8 +86,8 @@ namespace tmtt {
     tp_phi0_ = tpOK ? tp->phi0() : 0;
     tp_z0_ = tpOK ? tp->z0() : 0;
     tp_index_ = tpOK ? tp->index() : -1;
-    tp_useForAlgEff_ = tpOK ? tp->useForAlgEff() : 0;
-    tp_useForEff_ = tpOK ? tp->useForEff() : 0;
+    tp_useForAlgEff_ = tpOK ? tp->useForAlgEff() : false;
+    tp_useForEff_ = tpOK ? tp->useForEff() : false;
     tp_pdgId_ = tpOK ? tp->pdgId() : 0;
 
     // Digitize track.

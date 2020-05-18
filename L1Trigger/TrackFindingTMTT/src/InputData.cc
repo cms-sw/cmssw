@@ -16,6 +16,7 @@
 #include "L1Trigger/TrackFindingTMTT/interface/Settings.h"
 #include "L1Trigger/TrackFindingTMTT/interface/StubKiller.h"
 #include "L1Trigger/TrackFindingTMTT/interface/StubWindowSuggest.h"
+#include "L1Trigger/TrackFindingTMTT/interface/DegradeBend.h"
 
 #include <map>
 #include <memory>
@@ -28,6 +29,7 @@ namespace tmtt {
                        const edm::EventSetup& iSetup,
                        const Settings* settings,
                        StubWindowSuggest* stubWindowSuggest,
+                       const DegradeBend* degradeBend,
                        const TrackerGeometry* trackerGeometry,
                        const TrackerTopology* trackerTopology,
                        const list<TrackerModule>& listTrackerModule,
@@ -106,7 +108,8 @@ namespace tmtt {
           const unsigned int stubIndex = vAllStubs_.size();
 
           // Store the Stub info, using class Stub to provide easy access to the most useful info.
-          vAllStubs_.emplace_back(ttStubRef, stubIndex, settings, trackerTopology, &trackerModule, stubKiller.get());
+          vAllStubs_.emplace_back(
+              ttStubRef, stubIndex, settings, trackerTopology, &trackerModule, degradeBend, stubKiller.get());
 
           // Also fill truth associating stubs to tracking particles.
           if (enableMCtruth_) {

@@ -9,6 +9,16 @@ import FWCore.ParameterSet.Config as cms
 # It represents the tracking as planned for 2026. It is a good basis for L1 trigger studies etc.
 #---------------------------------------------------------------------------------------------------------
 
+#=== TMTT tracking needs to get FE stub window sizes from this.
+
+from L1Trigger.TrackTrigger.TTStubAlgorithmRegister_cfi import *
+
+#=== Random number generator for Stub Killer (dead module emulation)
+
+RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
+    TMTrackProducer = cms.PSet(initialSeed = cms.untracked.uint32(12345))
+)
+
 #=== Import default values for all parameters & define EDProducer.
 
 from L1Trigger.TrackFindingTMTT.TMTrackProducer_Defaults_cfi import TMTrackProducer_params

@@ -28,7 +28,7 @@ namespace tmtt {
         phiCentreSector_(phiCentreSector),  // Centre of phi sector
 
         // Note if any fitters require an r-z track filter to be run.
-        runRZfilter_(settings->useRZfilter().size() > 0) {
+        runRZfilter_(not settings->useRZfilter().empty()) {
     // Initialize any track filters (e.g. r-z) run after the r-phi Hough transform.
     if (runRZfilter_)
       rzFilter_ =

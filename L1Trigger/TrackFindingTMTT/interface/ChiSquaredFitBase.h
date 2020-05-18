@@ -25,7 +25,7 @@ namespace tmtt {
   public:
     ChiSquaredFitBase(const Settings* settings, const uint nPar);
 
-    L1fittedTrack fit(const L1track3D& l1track3D);
+    L1fittedTrack fit(const L1track3D& l1track3D) override;
 
   protected:
     /* Methods */

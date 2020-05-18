@@ -91,13 +91,6 @@ process.source = cms.Source ("PoolSource",
 
 process.Timing = cms.Service("Timing", summaryOnly = cms.untracked.bool(True))
 
-# Random number generator for Stub Killer (dead module emulation)
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    TMTrackProducer = cms.PSet(
-        initialSeed = cms.untracked.uint32(12345)
-    )
-)
-
 #--- Load code that produces our L1 tracks and makes corresponding histograms.
 #process.load('L1Trigger.TrackFindingTMTT.TMTrackProducer_cff')
 
@@ -158,7 +151,7 @@ if options.makeStubs == 1:
 
         else:
           # S.Viret's July 2017 stub windows (tight) from commented out part of
-         # L1Trigger/TrackTrigger/python/TTStubAlgorithmRegister_cfi.py in CMSSW 9.3.2
+          # L1Trigger/TrackTrigger/python/TTStubAlgorithmRegister_cfi.py in CMSSW 9.3.2
 
           process.TTStubAlgorithm_official_Phase2TrackerDigi_ = cms.ESProducer("TTStubAlgorithm_official_Phase2TrackerDigi_",
           zMatchingPS  = cms.bool(True),

@@ -5,6 +5,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/ESInputTag.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "CLHEP/Units/PhysicalConstants.h"
 #include <vector>
 #include <iostream>
 #include <atomic>
@@ -27,6 +28,8 @@ namespace tmtt {
     edm::ESInputTag magneticFieldInputTag() const { return magneticFieldInputTag_; }
     edm::ESInputTag trackerGeometryInputTag() const { return trackerGeometryInputTag_; }
     edm::ESInputTag trackerTopologyInputTag() const { return trackerTopologyInputTag_; }
+    edm::ESInputTag ttStubAlgoInputTag() const { return ttStubAlgoInputTag_; }
+
     edm::InputTag stubInputTag() const { return stubInputTag_; }
     edm::InputTag tpInputTag() const { return tpInputTag_; }
     edm::InputTag stubTruthInputTag() const { return stubTruthInputTag_; }
@@ -307,6 +310,14 @@ namespace tmtt {
     unsigned int kalmanMaxSkipLayersEasy() const { return kalmanMaxSkipLayersEasy_; }
     // Max #stubs an input track can have to be defined "easy".
     unsigned int kalmanMaxStubsEasy() const { return kalmanMaxStubsEasy_; }
+    // Cuts applied to KF states as a function of the last KF tracker layer they had a stub in.
+    // (If "4" or "5" in name, cut only applies to 4 or 5 param helix fit).
+    const std::vector<double>& kfLayerVsPtToler() const { return kfLayerVsPtToler_; }
+    const std::vector<double>& kfLayerVsD0Cut5() const { return kfLayerVsD0Cut5_; }
+    const std::vector<double>& kfLayerVsZ0Cut5() const { return kfLayerVsZ0Cut5_; }
+    const std::vector<double>& kfLayerVsZ0Cut4() const { return kfLayerVsZ0Cut4_; }
+    const std::vector<double>& kfLayerVsChiSq5() const { return kfLayerVsChiSq5_; }
+    const std::vector<double>& kfLayerVsChiSq4() const { return kfLayerVsChiSq4_; }
     // KF will consider only this no. of stubs per layer.
     unsigned int kalmanMaxStubsPerLayer() const { return kalmanMaxStubsPerLayer_; }
     // Multiple scattering term - inflate hit phi errors by this divided by Pt
@@ -379,17 +390,11 @@ namespace tmtt {
 
     //=== Hard-wired constants
 
-    double cSpeed() const { return 2.99792458e10; }  // Speed of light (cm/s)
-    double invPtToInvR() const {
-      return (this->magneticField()) * (this->cSpeed()) / 1.0E13;
-    }  // B*c/1E11 - converts q/Pt to 1/radius_of_curvature
-    double invPtToDphi() const {
-      return (this->magneticField()) * (this->cSpeed()) / 2.0E13;
-    }  // B*c/2E11 - converts q/Pt to track angle at some radius from beamline.
-    double trackerOuterRadius() const { return 112.7; }  // max. occuring stub radius.
-    double trackerInnerRadius() const { return 21.8; }   // min. occuring stub radius.
-    double trackerHalfLength() const { return 270.; }    // half-length of tracker.
-
+    double cSpeed() const { return 1.0e8 * CLHEP::c_light; }  // Speed of light, with (mm/ns) to (cm/s)
+    // B*c/1E11 - converts q/Pt to 1/radius_of_curvature
+    double invPtToInvR() const { return (this->magneticField()) * (this->cSpeed()) / 1.0E13; }
+    // B*c/2E11 - converts q/Pt to track angle at some radius from beamline.
+    double invPtToDphi() const { return (this->magneticField()) * (this->cSpeed()) / 2.0E13; }
     //=== Set and get B-field value (mutable) in Tesla.
     // N.B. This must bet std::set for each run, and can't be initialized at the beginning of the job.
     void setMagneticField(float magneticField) const { magneticField_ = magneticField; }
@@ -408,6 +413,8 @@ namespace tmtt {
     const edm::ESInputTag magneticFieldInputTag_;
     const edm::ESInputTag trackerGeometryInputTag_;
     const edm::ESInputTag trackerTopologyInputTag_;
+    const edm::ESInputTag ttStubAlgoInputTag_;
+
     const edm::InputTag stubInputTag_;
     const edm::InputTag tpInputTag_;
     const edm::InputTag stubTruthInputTag_;
@@ -588,6 +595,14 @@ namespace tmtt {
     unsigned int kalmanMaxSkipLayersHard_;
     unsigned int kalmanMaxSkipLayersEasy_;
     unsigned int kalmanMaxStubsEasy_;
+
+    std::vector<double> kfLayerVsPtToler_;
+    std::vector<double> kfLayerVsD0Cut5_;
+    std::vector<double> kfLayerVsZ0Cut5_;
+    std::vector<double> kfLayerVsZ0Cut4_;
+    std::vector<double> kfLayerVsChiSq5_;
+    std::vector<double> kfLayerVsChiSq4_;
+
     unsigned int kalmanMaxStubsPerLayer_;
     double kalmanMultiScattTerm_;
     unsigned int kalmanChi2RphiScale_;

@@ -36,9 +36,9 @@ namespace tmtt {
 
   public:
     // Initialize configuration
-    KFbase(const Settings *settings, const uint nPar, const std::string &fitterName = "", const uint nMeas = 2);
+    KFbase(const Settings *settings, const uint nHelixPar, const std::string &fitterName = "", const uint nMeas = 2);
 
-    virtual ~KFbase() { this->resetStates(); }
+    ~KFbase() override { this->resetStates(); }
 
     KFbase(const KFbase &kf) = delete;  // Disable copy & move of this class.
     KFbase(KFbase &&kf) = delete;
@@ -46,7 +46,7 @@ namespace tmtt {
     KFbase &operator=(KFbase &&kf) = delete;
 
     // Do KF fit
-    L1fittedTrack fit(const L1track3D &l1track3D);
+    L1fittedTrack fit(const L1track3D &l1track3D) override;
 
   protected:
     // Do KF fit (internal)
@@ -84,7 +84,7 @@ namespace tmtt {
     // Derivate of helix intercept point w.r.t. helix params.
     virtual TMatrixD matrixH(const Stub *stub) const = 0;
     // Kalman helix ref point extrapolation matrix
-    virtual TMatrixD matrixF(const Stub *stub = 0, const KalmanState *state = 0) const = 0;
+    virtual TMatrixD matrixF(const Stub *stub = nullptr, const KalmanState *state = nullptr) const = 0;
     // Product of H*C*H(transpose) (where C = helix covariance matrix)
     TMatrixD matrixHCHt(const TMatrixD &h, const TMatrixD &c) const;
     // Get inverted Kalman R matrix: inverse(V + HCHt)
@@ -150,7 +150,7 @@ namespace tmtt {
     void printStubs(const std::vector<Stub *> &stubs) const;
 
   protected:
-    unsigned nPar_;
+    unsigned nHelixPar_;
     unsigned nMeas_;
     unsigned numEtaRegions_;
 

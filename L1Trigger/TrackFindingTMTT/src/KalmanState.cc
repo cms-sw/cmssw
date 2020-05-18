@@ -135,7 +135,7 @@ namespace tmtt {
         return state;
       state = state->last_state();
     }
-    return 0;
+    return nullptr;
   }
 
   std::vector<Stub *> KalmanState::stubs() const {

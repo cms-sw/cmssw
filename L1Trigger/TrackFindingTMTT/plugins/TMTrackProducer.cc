@@ -38,11 +38,11 @@ namespace tmtt {
   }
 
   TMTrackProducer::TMTrackProducer(const edm::ParameterSet& iConfig, GlobalCacheTMTT const* globalCacheTMTT)
-      : debug_(true),                                             // Debug printout
-        settings_(iConfig),                                       // Set configuration parameters
-        hists_(globalCacheTMTT->hists()),                         // Initialize histograms
-        htRphiErrMon_(globalCacheTMTT->htRphiErrMon()),           // rphi HT error monitoring
-        stubWindowSuggest_(globalCacheTMTT->stubWindowSuggest())  // For tuning FE stub window sizes
+      : debug_(true),                                              // Debug printout
+        settings_(iConfig),                                        // Set configuration parameters
+        stubWindowSuggest_(globalCacheTMTT->stubWindowSuggest()),  // For tuning FE stub window sizes
+        hists_(globalCacheTMTT->hists()),                          // Initialize histograms
+        htRphiErrMon_(globalCacheTMTT->htRphiErrMon())             // rphi HT error monitoring
   {
     using namespace edm;
 
@@ -53,6 +53,8 @@ namespace tmtt {
         settings_.trackerGeometryInputTag());
     trackerTopologyToken_ =
         esConsumes<TrackerTopology, TrackerTopologyRcd, Transition::BeginRun>(settings_.trackerTopologyInputTag());
+    ttStubAlgoToken_ =
+        esConsumes<StubAlgorithm, TTStubAlgorithmRecord, Transition::BeginRun>(settings_.ttStubAlgoInputTag());
 
     // Get tokens for ED data access.
     stubToken_ = consumes<TTStubDetSetVec>(settings_.stubInputTag());
@@ -92,6 +94,8 @@ namespace tmtt {
     }
   }
 
+  //=== Run every run
+
   void TMTrackProducer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
     // Get the B-field and store its value in the Settings class.
     const MagneticField* theMagneticField = &(iSetup.getData(magneticFieldToken_));
@@ -110,7 +114,7 @@ namespace tmtt {
     trackerGeometry_ = &(iSetup.getData(trackerGeometryToken_));
     trackerTopology_ = &(iSetup.getData(trackerTopologyToken_));
 
-    // Loop over tracker modules to get module info & stubs.
+    // Loop over tracker modules to get module info.
 
     // Identifies tracker module type for firmware.
     TrackerModule::ModuleTypeCfg moduleTypeCfg;
@@ -134,7 +138,19 @@ namespace tmtt {
 
     // Takes one copy of this to GlobalCacheTMTT for later histogramming.
     globalCache()->setListTrackerModule(listTrackerModule_);
+
+    // Get TTStubProducerAlgorithm algorithm, to adjust stub bend FE encoding.
+    stubAlgo_ = dynamic_cast<const StubAlgorithmOfficial*>(&iSetup.getData(ttStubAlgoToken_));
+    // Get FE stub window size from TTStub producer configuration
+    const edm::ESHandle<StubAlgorithm> stubAlgoHandle = iSetup.getHandle(ttStubAlgoToken_);
+    const edm::ParameterSet& pSetStubAlgo = getParameterSet(stubAlgoHandle.description()->pid_);
+    stubFEWindows_ = std::make_unique<StubFEWindows>(pSetStubAlgo);
+    // Initialize utilities needing FE window size.
+    stubWindowSuggest_.setFEWindows(stubFEWindows_.get());
+    degradeBend_ = std::make_unique<DegradeBend>(trackerTopology_, stubFEWindows_.get(), stubAlgo_);
   }
+
+  //=== Run every event
 
   void TMTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     // Note useful info about MC truth particles and about reconstructed stubs .
@@ -142,6 +158,7 @@ namespace tmtt {
                         iSetup,
                         &settings_,
                         &stubWindowSuggest_,
+                        degradeBend_.get(),
                         trackerGeometry_,
                         trackerTopology_,
                         listTrackerModule_,

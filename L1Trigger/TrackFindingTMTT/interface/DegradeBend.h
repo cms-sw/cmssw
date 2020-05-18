@@ -1,6 +1,9 @@
 #ifndef L1Trigger_TrackFindingTMTT_DegradeBend_h
 #define L1Trigger_TrackFindingTMTT_DegradeBend_h
 
+#include "L1Trigger/TrackFindingTMTT/interface/StubFEWindows.h"
+
+#include "L1Trigger/TrackTrigger/interface/TTStubAlgorithm_official.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include <vector>
@@ -15,9 +18,8 @@ namespace tmtt {
    * Implements reduced bits to encode stub bend information: 3 bits for PS, 4 bits for 2S, since the Tracker
    * doesn't have the bandwidth to output the unreduced data from the FE electronics.
    *
-   * This obtains the stub window sizes from a hard-wired copy of L1Trigger/TrackTrigger/python/TTStubAlgorithmRegister_cfi.py .
-   * Whenever these window sizes are so large that not all bend values allowed within them with the available bits,
-   * then it automatically encodes the bend values within these windows.
+   * This obtains the stub window sizes from L1Trigger/TrackTrigger/python/TTStubAlgorithmRegister_cfi.py ,
+   * which must be loaded into the cfg file (with the same params used originally to make the stubs).
    * 
    * The TMTT L1 tracking code can optionally tighten these windows further (cfg option "KillLowPtStubs").  
    * This gives slightly more granular encoding with Pt > 3 GeV.
@@ -27,9 +29,10 @@ namespace tmtt {
    */
 
   public:
-    DegradeBend(const TrackerTopology* trackerTopo) : theTrackerTopo_(trackerTopo) {}
+    typedef TTStubAlgorithm_official<Ref_Phase2TrackerDigi_> StubAlgorithmOfficial;
 
-    DegradeBend() {}
+    DegradeBend(const TrackerTopology* trackerTopo, const StubFEWindows* sw, const StubAlgorithmOfficial* stubAlgo)
+        : theTrackerTopo_(trackerTopo), sw_(sw), stubAlgo_(stubAlgo) {}
 
     // Given the original bend, flag indicating if this is a PS or 2S module, & detector identifier,
     // this return the degraded stub bend, a boolean indicatng if stub bend was outside the assumed window
@@ -60,15 +63,11 @@ namespace tmtt {
   private:
     const TrackerTopology* theTrackerTopo_;
 
-    // Number of bits used to encoded bend output by FE electronics.
-    const unsigned int bitsPS_ = 3;
-    const unsigned int bits2S_ = 4;
-
     // Stub window sizes as encoded in L1Trigger/TrackTrigger/interface/TTStubAlgorithm_official.h
-    static const std::vector<double> barrelCut_;
-    static const std::vector<std::vector<double> > ringCut_;
-    static const std::vector<std::vector<double> > tiltedCut_;
-    static const std::vector<double> barrelNTilt_;
+    const StubFEWindows* sw_;
+
+    // TTStub produce algo used to make stubs.
+    const StubAlgorithmOfficial* stubAlgo_;
   };
 
 }  // namespace tmtt

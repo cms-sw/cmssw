@@ -10,54 +10,59 @@ namespace tmtt {
   ///=== Hybrid Tracking
   ///=== Set config params for HYBRID TRACKING via hard-wired consts to allow use outside CMSSW.
 
-Settings::Settings():
-    //--------------------------------------------------------------------------------------------------
-    // TMTT related configuration parameters, including Kalman Filter.
-    // Meaning of these parameters explained in TrackFindingTMTT/python/TMTrackProducer_Defaults_cfi.py
-    //--------------------------------------------------------------------------------------------------
+  Settings::Settings()
+      :  //--------------------------------------------------------------------------------------------------
+        // TMTT related configuration parameters, including Kalman Filter.
+        // Meaning of these parameters explained in TrackFindingTMTT/python/TMTrackProducer_Defaults_cfi.py
+        //--------------------------------------------------------------------------------------------------
 
-    // General cfg params
-    enableDigitize_(false),
-    useApproxB_(true),
-    bApprox_gradient_(0.886454),
-    bApprox_intercept_(0.504148),
-    numPhiNonants_(9),
-    numPhiSectors_(9),    
-    chosenRofPhi_(55.), // Hourglass radius in r-phi (tracklet)
-etaRegions_({-2.4,-2.08,-1.68,-1.26,-0.90,-0.62,-0.41,-0.20,0.0,0.20,0.41,0.62,0.90,1.26,1.68,2.08,2.4}),  
-    chosenRofZ_(50.0), // Hourglass radius in r-z (this must be tmtt)
-    houghMinPt_(2.0), // L1 track pt cut
-    minStubLayers_(4),
-    minPtToReduceLayers_(99999.),
-    reduceLayerID_(true),
-    minFracMatchStubsOnReco_(-99),
-    minFracMatchStubsOnTP_(-99),
-    minNumMatchLayers_(4),
-    minNumMatchPSLayers_(0),
-    stubMatchStrict_(false),
+        // General cfg params
+        enableDigitize_(false),
+        useApproxB_(true),
+        bApprox_gradient_(0.886454),
+        bApprox_intercept_(0.504148),
+        numPhiNonants_(9),
+        numPhiSectors_(9),
+        chosenRofPhi_(55.),  // Hourglass radius in r-phi (tracklet)
+        etaRegions_(
+            {-2.4, -2.08, -1.68, -1.26, -0.90, -0.62, -0.41, -0.20, 0.0, 0.20, 0.41, 0.62, 0.90, 1.26, 1.68, 2.08, 2.4}),
+        chosenRofZ_(50.0),  // Hourglass radius in r-z (this must be tmtt)
+        houghMinPt_(2.0),   // L1 track pt cut
+        minStubLayers_(4),
+        minPtToReduceLayers_(99999.),
+        reduceLayerID_(true),
+        minFracMatchStubsOnReco_(-99),
+        minFracMatchStubsOnTP_(-99),
+        minNumMatchLayers_(4),
+        minNumMatchPSLayers_(0),
+        stubMatchStrict_(false),
 
-    // Kalman filter track fit cfg
-    kalmanDebugLevel_(0),
-    //kalmanDebugLevel_(2), // Good for debugging
-    kalmanMinNumStubs_(4),
-    kalmanMaxNumStubs_(6),
-    kalmanRemove2PScut_(true),
-    kalmanMaxSkipLayersHard_(1),  // On "hard" input tracks
-    kalmanMaxSkipLayersEasy_(2),  // On "easy" input tracks
-    kalmanMaxStubsEasy_(10),      // Max. #stubs an input track can have to be defined "easy"
-    kalmanMaxStubsPerLayer_(4),   // To save resources, consider at most this many stubs per layer per track.
-    kalmanMultiScattTerm_(0.00075),
-    kalmanChi2RphiScale_(8),
-    kalmanHOtilted_(true),
-    kalmanHOhelixExp_(true),
-    kalmanHOalpha_(1),
-    kalmanHOprojZcorr_(1),
-    kalmanHOfw_(false)    
-      {
-
+        // Kalman filter track fit cfg
+        kalmanDebugLevel_(0),
+        //kalmanDebugLevel_(2), // Good for debugging
+        kalmanMinNumStubs_(4),
+        kalmanMaxNumStubs_(6),
+        kalmanRemove2PScut_(true),
+        kalmanMaxSkipLayersHard_(1),  // On "hard" input tracks
+        kalmanMaxSkipLayersEasy_(2),  // On "easy" input tracks
+        kalmanMaxStubsEasy_(10),      // Max. #stubs an input track can have to be defined "easy"
+        kfLayerVsPtToler_({999., 999., 0.1, 0.1, 0.05, 0.05, 0.05}),
+        kfLayerVsD0Cut5_({999., 999., 999., 10., 10., 10., 10.}),
+        kfLayerVsZ0Cut5_({999., 999., 25.5, 25.5, 25.5, 25.5, 25.5}),
+        kfLayerVsZ0Cut4_({999., 999., 15., 15., 15., 15., 15.}),
+        kfLayerVsChiSq5_({999., 999., 10., 30., 80., 120., 160.}),
+        kfLayerVsChiSq4_({999., 999., 10., 30., 80., 120., 160.}),
+        kalmanMaxStubsPerLayer_(4),  // To save resources, consider at most this many stubs per layer per track.
+        kalmanMultiScattTerm_(0.00075),
+        kalmanChi2RphiScale_(8),
+        kalmanHOtilted_(true),
+        kalmanHOhelixExp_(true),
+        kalmanHOalpha_(1),
+        kalmanHOprojZcorr_(1),
+        kalmanHOfw_(false) {
     hybrid_ = true;
-    magneticField_ = 0.; // Value set later
-    killScenario_ = 0; // Emulation of dead modules
+    magneticField_ = 0.;  // Value set later
+    killScenario_ = 0;    // Emulation of dead modules
 
     if (hybrid_) {
       if (not useApproxB_) {
@@ -79,6 +84,8 @@ etaRegions_({-2.4,-2.08,-1.68,-1.26,-0.90,-0.62,-0.41,-0.20,0.0,0.20,0.41,0.62,0
         magneticFieldInputTag_(iConfig.getParameter<edm::ESInputTag>("magneticFieldInputTag")),
         trackerGeometryInputTag_(iConfig.getParameter<edm::ESInputTag>("trackerGeometryInputTag")),
         trackerTopologyInputTag_(iConfig.getParameter<edm::ESInputTag>("trackerTopologyInputTag")),
+        ttStubAlgoInputTag_(iConfig.getParameter<edm::ESInputTag>("ttStubAlgoInputTag")),
+
         stubInputTag_(iConfig.getParameter<edm::InputTag>("stubInputTag")),
         tpInputTag_(iConfig.getParameter<edm::InputTag>("tpInputTag")),
         stubTruthInputTag_(iConfig.getParameter<edm::InputTag>("stubTruthInputTag")),
@@ -266,6 +273,14 @@ etaRegions_({-2.4,-2.08,-1.68,-1.26,-0.90,-0.62,-0.41,-0.20,0.0,0.20,0.41,0.62,0
         kalmanMaxSkipLayersHard_(trackFitSettings_.getParameter<unsigned>("KalmanMaxSkipLayersHard")),
         kalmanMaxSkipLayersEasy_(trackFitSettings_.getParameter<unsigned>("KalmanMaxSkipLayersEasy")),
         kalmanMaxStubsEasy_(trackFitSettings_.getParameter<unsigned>("KalmanMaxStubsEasy")),
+
+        kfLayerVsPtToler_(trackFitSettings_.getParameter<vector<double>>("KFLayerVsPtToler")),
+        kfLayerVsD0Cut5_(trackFitSettings_.getParameter<vector<double>>("KFLayerVsD0Cut5")),
+        kfLayerVsZ0Cut5_(trackFitSettings_.getParameter<vector<double>>("KFLayerVsZ0Cut5")),
+        kfLayerVsZ0Cut4_(trackFitSettings_.getParameter<vector<double>>("KFLayerVsZ0Cut4")),
+        kfLayerVsChiSq5_(trackFitSettings_.getParameter<vector<double>>("KFLayerVsChiSq5")),
+        kfLayerVsChiSq4_(trackFitSettings_.getParameter<vector<double>>("KFLayerVsChiSq4")),
+
         kalmanMaxStubsPerLayer_(trackFitSettings_.getParameter<unsigned>("KalmanMaxStubsPerLayer")),
         kalmanMultiScattTerm_(trackFitSettings_.getParameter<double>("KalmanMultiScattTerm")),
         kalmanChi2RphiScale_(trackFitSettings_.getParameter<unsigned>("KalmanChi2RphiScale")),
@@ -325,8 +340,7 @@ etaRegions_({-2.4,-2.08,-1.68,-1.26,-0.90,-0.62,-0.41,-0.20,0.0,0.20,0.41,0.62,0
         magneticField_(0.),
 
         // Hybrid tracking
-        hybrid_(iConfig.getParameter<bool>("Hybrid"))
-  {
+        hybrid_(iConfig.getParameter<bool>("Hybrid")) {
     // If user didn't specify any PDG codes, use e,mu,pi,K,p, to avoid picking up unstable particles like Xi-.
     vector<unsigned int> genPdgIdsUnsigned(genCuts_.getParameter<vector<unsigned int>>("GenPdgIds"));
     if (genPdgIdsUnsigned.empty()) {
@@ -373,7 +387,7 @@ etaRegions_({-2.4,-2.08,-1.68,-1.26,-0.90,-0.62,-0.41,-0.20,0.0,0.20,0.41,0.62,0
           << "Settings: Invalid cfg parameters - You are setting the minimum number of layers incorrectly : type C.";
 
     // If reducing number of required layers for high Pt tracks, then above checks must be redone.
-    bool doReduceLayers = (minPtToReduceLayers_ < 10000. || etaSecsReduceLayers_.size() > 0);
+    bool doReduceLayers = (minPtToReduceLayers_ < 10000. || not etaSecsReduceLayers_.empty());
     if (doReduceLayers && minStubLayers_ > 4) {
       if (minNumMatchLayers_ > minStubLayers_ - 1)
         throw cms::Exception("BadConfig")

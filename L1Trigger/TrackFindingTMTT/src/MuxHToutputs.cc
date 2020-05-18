@@ -22,7 +22,7 @@ namespace tmtt {
 
   MuxHToutputs::MuxHToutputs(const Settings* settings)
       : settings_(settings),
-        muxOutputsHT_(settings_->muxOutputsHT()),
+        muxOutputsHT_(static_cast<MuxAlgoName>(settings_->muxOutputsHT())),
         numPhiNonants_(settings_->numPhiNonants()),
         numPhiSectors_(settings_->numPhiSectors()),
         numPhiSecPerNon_(numPhiSectors_ / numPhiNonants_),
@@ -31,7 +31,7 @@ namespace tmtt {
         busySectorNumStubs_(settings_->busySectorNumStubs()),  // Max. num. of stubs that can be sent within TM period
         busySectorMbinRanges_(
             settings_->busySectorMbinRanges()),  // Individual m bin (=q/Pt) ranges to be output to opto-links.
-        busySectorUseMbinRanges_(busySectorMbinRanges_.size() > 0)  // m bin ranges option disabled if vector empty.
+        busySectorUseMbinRanges_(not busySectorMbinRanges_.empty())  // m bin ranges option disabled if vector empty.
   {
     // Implemented MUX algorithm relies on same number of sectors per nonant.
     if (numPhiSectors_ % numPhiNonants_ != 0)
@@ -104,7 +104,7 @@ namespace tmtt {
   //=== Define the number of (eta,phi) sectors that each output opto-link takes tracks from. (Depends on MUX scheme).
 
   unsigned int MuxHToutputs::muxFactor() const {
-    if (muxOutputsHT_ == 1) {
+    if (muxOutputsHT_ == MuxAlgoName::mBinPerLink) {
       return numEtaRegions_ * numPhiSecPerNon_;
     } else {
       throw cms::Exception("BadConfig") << "MuxHToutputs: Unknown MuxOutputsHT configuration option!";
@@ -117,7 +117,7 @@ namespace tmtt {
   unsigned int MuxHToutputs::linkID(unsigned int iSecInNon, unsigned int iEtaReg, unsigned int mBinRange) const {
     unsigned int link;
 
-    if (muxOutputsHT_ == 1) {
+    if (muxOutputsHT_ == MuxAlgoName::mBinPerLink) {
       //--- This is the Sept. 2019 Mux for the transverse HT readout organised by m-bin. (Each m bin in entire nonant goes to a different link).
 
       link = 0;

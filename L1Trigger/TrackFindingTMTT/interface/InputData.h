@@ -13,6 +13,7 @@ namespace tmtt {
 
   class Settings;
   class StubWindowSuggest;
+  class DegradeBend;
 
   //=== Unpacks stub & tracking particle (truth) data into user-friendlier format in Stub & TP classes.
   //=== Also makes B-field available to Settings class.
@@ -23,6 +24,7 @@ namespace tmtt {
               const edm::EventSetup& iSetup,
               const Settings* settings,
               StubWindowSuggest* stubWindowSuggest,
+              const DegradeBend* degradeBend,
               const TrackerGeometry* trackerGeometry,
               const TrackerTopology* trackerTopology,
               const std::list<TrackerModule>& listTrackerModule,
@@ -63,6 +65,8 @@ namespace tmtt {
 
     // Recommends optimal FE stub window sizes.
     StubWindowSuggest* stubWindowSuggest_;
+    // Degrades bend to allow for FE stub bend encoding.
+    const DegradeBend* degradeBend_;
   };
 
 }  // namespace tmtt

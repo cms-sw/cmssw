@@ -39,17 +39,12 @@ namespace tmtt {
   void StubWindowSuggest::updateStoredWindow(const TrackerTopology* trackerTopo,
                                              const Stub* stub,
                                              double bendHalfWind) {
-    // Values set according to L1Trigger/TrackTrigger/python/TTStubAlgorithmRegister_cfi.py
-    // parameter NTiltedRings for whichever tracker geometry (T3, T4, T5 ...) is used..
-    const vector<double> barrelNTilt_init = {0., 12., 12., 12., 0., 0., 0.};
-    barrelNTilt_ = barrelNTilt_init;
-
-    // This code should be kept almost identical to that in
-    // L1Trigger/TrackTrigger/src/TTStubAlgorithm_official.cc
-    // The only exceptions are lines marked "Modified by TMTT group"
+    // Code accessing geometry inspired by L1Trigger/TrackTrigger/src/TTStubAlgorithm_official.cc
 
     DetId stDetId(stub->trackerModule()->detId());
 
+    double* storedHalfWindow = sw_.storedWindowSize(trackerTopo, stDetId);
+    /*
     if (stDetId.subdetId() == StripSubdetector::TOB) {
       unsigned int layer = trackerTopo->layer(stDetId);
       unsigned int ladder = trackerTopo->tobRod(stDetId);
@@ -58,39 +53,29 @@ namespace tmtt {
 
       if (type != TrackerModule::BarrelModuleType::flat)  // Only for tilted modules
       {
-        corr = (barrelNTilt_.at(layer) + 1) / 2.;
-        ladder =
-            corr - (corr - ladder) * type;  // Corrected ring number, bet 0 and barrelNTilt.at(layer), in ascending |z|
-        // Modified by TMTT group, to expland arrays if necessary, divide by 2, & update the stored window sizes.
-        if (tiltedCut_.size() < (layer + 1))
-          tiltedCut_.resize(layer + 1);
-        if (tiltedCut_.at(layer).size() < (ladder + 1))
-          tiltedCut_.at(layer).resize(ladder + 1, 0.);
-        double& storedHalfWindow = (tiltedCut_.at(layer)).at(ladder);
+        corr = (sw_.numTiltedLayerRings().at(layer) + 1) / 2.;
+	// Corrected ring number, between 0 and barrelNTilt.at(layer), in ascending |z|
+        ladder = corr - (corr - ladder) * type;  
+        double& storedHalfWindow = (sw_.windowSizeTiltedLayersRings().at(layer)).at(ladder);
         if (storedHalfWindow < bendHalfWind)
           storedHalfWindow = bendHalfWind;
       } else  // Classic barrel window otherwise
       {
-        // Modified by TMTT group, to expand arrays if necessary, divide by 2, & update the stored window sizes.
-        if (barrelCut_.size() < (layer + 1))
-          barrelCut_.resize(layer + 1, 0.);
-        double& storedHalfWindow = barrelCut_.at(layer);
+        double& storedHalfWindow = sw_.windowSizeBarrelLayers().at(layer);
         if (storedHalfWindow < bendHalfWind)
           storedHalfWindow = bendHalfWind;
       }
 
     } else if (stDetId.subdetId() == StripSubdetector::TID) {
-      // Modified by TMTT group, to expland arrays if necessary, divide by 2, & update the stored window sizes
       unsigned int wheel = trackerTopo->tidWheel(stDetId);
       unsigned int ring = trackerTopo->tidRing(stDetId);
-      if (ringCut_.size() < (wheel + 1))
-        ringCut_.resize(wheel + 1);
-      if (ringCut_.at(wheel).size() < (ring + 1))
-        ringCut_.at(wheel).resize(ring + 1, 0.);
-      double& storedHalfWindow = ringCut_.at(wheel).at(ring);
+      double& storedHalfWindow = sw_.windowSizeEndcapDisksRings().at(wheel).at(ring);
       if (storedHalfWindow < bendHalfWind)
         storedHalfWindow = bendHalfWind;
     }
+*/
+    if (*storedHalfWindow < bendHalfWind)
+      *storedHalfWindow = bendHalfWind;
   }
 
   //=== Print results (should be done in endJob();
@@ -108,7 +93,7 @@ namespace tmtt {
 
     text << "BarrelCut = cms.vdouble( ";
     div = "";
-    for (const auto& cut : barrelCut_) {
+    for (const auto& cut : sw_.windowSizeBarrelLayers()) {
       text << div << cut;
       div = ", ";
     }
@@ -116,7 +101,7 @@ namespace tmtt {
     PrintL1trk(1) << text.str();
 
     PrintL1trk(1) << "TiltedBarrelCutSet = cms.VPSET( ";
-    for (const auto& cutVec : tiltedCut_) {
+    for (const auto& cutVec : sw_.windowSizeTiltedLayersRings()) {
       text.str("");
       text << "     cms.PSet( TiltedCut = cms.vdouble(";
       if (cutVec.empty())
@@ -132,7 +117,7 @@ namespace tmtt {
     PrintL1trk(1) << "),";
 
     PrintL1trk(1) << "EndcapCutSet = cms.VPSET( ";
-    for (const auto& cutVec : ringCut_) {
+    for (const auto& cutVec : sw_.windowSizeEndcapDisksRings()) {
       text.str("");
       text << "     cms.PSet( EndcapCut = cms.vdouble(";
       if (cutVec.empty())

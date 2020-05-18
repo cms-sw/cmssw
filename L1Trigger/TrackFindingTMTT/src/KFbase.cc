@@ -26,9 +26,9 @@ namespace tmtt {
 
   /* Initialize cfg parameters */
 
-  KFbase::KFbase(const Settings *settings, const uint nPar, const string &fitterName, const uint nMeas)
+  KFbase::KFbase(const Settings *settings, const uint nHelixPar, const string &fitterName, const uint nMeas)
       : TrackFitGeneric(settings, fitterName) {
-    nPar_ = nPar;
+    nHelixPar_ = nHelixPar;
     nMeas_ = nMeas;
     numEtaRegions_ = settings->numEtaRegions();
   }
@@ -47,7 +47,7 @@ namespace tmtt {
     sort(stubs.begin(), stubs.end(), orderByLayer);  // Makes debug printout pretty.
 
     //TP
-    const TP *tpa(0);
+    const TP *tpa(nullptr);
     if (l1track3D.matchedTP()) {
       tpa = l1track3D.matchedTP();
     }
@@ -78,7 +78,7 @@ namespace tmtt {
     if (cand != nullptr) {
       // Get track helix params.
       TVectorD trackPars = trackParams(cand);
-      double d0 = (nPar_ == 5) ? trackPars[D0] : 0.;
+      double d0 = (nHelixPar_ == 5) ? trackPars[D0] : 0.;
 
       L1fittedTrack fitTrk(settings_,
                            &l1track3D,
@@ -91,32 +91,15 @@ namespace tmtt {
                            trackPars[T],
                            cand->chi2rphi(),
                            cand->chi2rz(),
-                           nPar_);
-
-      bool consistentHLS = false;  // No longer used
-      //    if (this->isHLS()) {
-      //      unsigned int mBinHelixHLS, cBinHelixHLS;
-      //      cand->getHLSselect(mBinHelixHLS, cBinHelixHLS, consistentHLS);
-      //      if( settings_->kalmanDebugLevel() >= 3 ){
-      //        // Check if (m,c) corresponding to helix params are correctly calculated by HLS code.
-      //        bool HLS_OK = ((mBinHelixHLS == fitTrk.cellLocationFit().first) && (cBinHelixHLS == fitTrk.cellLocationFit().second));
-      //        if (not HLS_OK) PrintL1trk()<<"WARNING HLS mBinHelix disagrees with C++:"
-      //                                 <<" (HLS,C++) m=("<<mBinHelixHLS<<","<<fitTrk.cellLocationFit().first <<")"
-      //                                 <<" c=("<<cBinHelixHLS<<","<<fitTrk.cellLocationFit().second<<")";
-      //      }
-      //    }
+                           nHelixPar_);
 
       // Store supplementary info, specific to KF fitter.
-      if (this->isHLS() && nPar_ == 4) {
-        fitTrk.setInfoKF(cand->nSkippedLayers(), numUpdateCalls_, consistentHLS);
-      } else {
-        fitTrk.setInfoKF(cand->nSkippedLayers(), numUpdateCalls_);
-      }
+      fitTrk.setInfoKF(cand->nSkippedLayers(), numUpdateCalls_);
 
       // If doing 5 parameter fit, optionally also calculate helix params & chi2 with beam-spot constraint applied,
       // and store inside L1fittedTrack object.
       if (settings_->kalmanAddBeamConstr()) {
-        if (nPar_ == 5) {
+        if (nHelixPar_ == 5) {
           double chi2rphi_bcon = 0.;
           TVectorD trackPars_bcon = trackParams_BeamConstr(cand, chi2rphi_bcon);
           fitTrk.setBeamConstr(trackPars_bcon[QOVERPT], trackPars_bcon[PHI0], chi2rphi_bcon);
@@ -158,7 +141,7 @@ namespace tmtt {
             for (const TP *tp_i : stub->assocTPs())
               text << " " << tp_i->index();
             PrintL1trk() << text.str();
-            if (stub->assocTPs().size() == 0)
+            if (stub->assocTPs().empty())
               PrintL1trk() << " none";
           }
           PrintL1trk() << "=====================";
@@ -189,7 +172,7 @@ namespace tmtt {
     // seed helix params & their covariance.
     TVectorD x0 = seedX(l1track3D);
     TMatrixD pxx0 = seedC(l1track3D);
-    TMatrixD K(nPar_, 2);
+    TMatrixD K(nHelixPar_, 2);
     TMatrixD dcov(2, 2);
 
     const KalmanState *state0 = mkState(l1track3D, 0, -1, nullptr, x0, pxx0, K, dcov, nullptr, 0, 0);
@@ -211,7 +194,8 @@ namespace tmtt {
       // Get Kalman encoded layer ID for this stub.
       int kalmanLay = this->kalmanLayer(etaReg, stub->layerIdReduced(), stub->barrel(), stub->r(), stub->z());
 
-      if (kalmanLay != 7) {
+      constexpr unsigned int invalidKFlayer = 7;
+      if (kalmanLay != invalidKFlayer) {
         if (layerStubs[kalmanLay].size() < settings_->kalmanMaxStubsPerLayer()) {
           layerStubs[kalmanLay].push_back(stub);
         } else {
@@ -222,7 +206,9 @@ namespace tmtt {
     }
 
     // iterate using state->nextLayer() to determine next Kalman layer(s) to add stubs from
-    const unsigned int maxIterations = 6;  // Increase if you want to allow 7 stubs per fitted track.
+    constexpr unsigned int nTypicalLayers = 6;  // Number of tracker layers a typical track can pass through.
+    // If user asked to add up to 7 layers to track, increase number of iterations by 1.
+    const unsigned int maxIterations = std::max(nTypicalLayers, settings_->kalmanMaxNumStubs());
     for (unsigned iteration = 0; iteration < maxIterations; iteration++) {
       int combinations_per_iteration = 0;
 
@@ -244,11 +230,11 @@ namespace tmtt {
         // Continue to skip until you reach a functioning layer (or a layer with stubs)
         unsigned nSkippedDeadLayers = 0;
         unsigned nSkippedAmbiguousLayers = 0;
-        while (kfDeadLayers.find(layer) != kfDeadLayers.end() && layerStubs[layer].size() == 0) {
+        while (kfDeadLayers.find(layer) != kfDeadLayers.end() && layerStubs[layer].empty()) {
           layer += 1;
           ++nSkippedDeadLayers;
         }
-        while (this->kalmanAmbiguousLayer(etaReg, layer) && layerStubs[layer].size() == 0) {
+        while (this->kalmanAmbiguousLayer(etaReg, layer) && layerStubs[layer].empty()) {
           layer += 1;
           ++nSkippedAmbiguousLayers;
         }
@@ -270,10 +256,10 @@ namespace tmtt {
         unsigned nSkippedDeadLayers_nextStubs = 0;
         unsigned nSkippedAmbiguousLayers_nextStubs = 0;
         if (nSkipped < kalmanMaxSkipLayers) {
-          if (kfDeadLayers.find(layer + 1) != kfDeadLayers.end() && layerStubs[layer + 1].size() == 0) {
+          if (kfDeadLayers.find(layer + 1) != kfDeadLayers.end() && layerStubs[layer + 1].empty()) {
             nextlay_stubs = layerStubs[layer + 2];
             nSkippedDeadLayers_nextStubs++;
-          } else if (this->kalmanAmbiguousLayer(etaReg, layer) && layerStubs[layer + 1].size() == 0) {
+          } else if (this->kalmanAmbiguousLayer(etaReg, layer) && layerStubs[layer + 1].empty()) {
             nextlay_stubs = layerStubs[layer + 2];
             nSkippedAmbiguousLayers_nextStubs++;
           } else {
@@ -283,8 +269,8 @@ namespace tmtt {
 
         // If track was not rejected by isGoodState() is previous iteration, failure here usually means the tracker ran out of layers to explore.
         // (Due to "kalmanLay" not having unique ID for each layer within a given eta sector).
-        if (settings_->kalmanDebugLevel() >= 2 && best_state_by_nstubs.size() == 0 && thislay_stubs.size() == 0 &&
-            nextlay_stubs.size() == 0)
+        if (settings_->kalmanDebugLevel() >= 2 && best_state_by_nstubs.empty() && thislay_stubs.empty() &&
+            nextlay_stubs.empty())
           PrintL1trk() << "State is lost by start of iteration " << iteration
                        << " : #thislay_stubs=" << thislay_stubs.size() << " #nextlay_stubs=" << nextlay_stubs.size()
                        << " layer=" << layer << " eta=" << l1track3D.iEtaReg();
@@ -374,7 +360,7 @@ namespace tmtt {
 
       unsigned int nStubs = iteration + 1;
       // Success. We have at least one state that passes all cuts. Save best state found with this number of stubs.
-      if (nStubs >= settings_->kalmanMinNumStubs() && new_states.size() > 0)
+      if (nStubs >= settings_->kalmanMinNumStubs() && not new_states.empty())
         best_state_by_nstubs[nStubs] = new_states[0];
 
       if (nStubs == settings_->kalmanMaxNumStubs()) {
@@ -389,7 +375,7 @@ namespace tmtt {
       }
     }
 
-    if (best_state_by_nstubs.size()) {
+    if (not best_state_by_nstubs.empty()) {
       // Select state with largest number of stubs.
       finished_state = best_state_by_nstubs.begin()->second;  // First element has largest number of stubs.
       if (settings_->kalmanDebugLevel() >= 1) {
@@ -401,7 +387,7 @@ namespace tmtt {
              << l1track3D.cellLocationHT().first << "," << l1track3D.cellLocationHT().second << ")";
         TVectorD y = trackParams(finished_state);
         text << " q/pt=" << y[QOVERPT] << " tanL=" << y[T] << " z0=" << y[Z0] << " phi0=" << y[PHI0];
-        if (nPar_ == 5)
+        if (nHelixPar_ == 5)
           text << " d0=" << y[D0];
         text << " chosen from states:";
         for (const auto &p : best_state_by_nstubs)
@@ -459,7 +445,7 @@ namespace tmtt {
     TVectorD vecXref = matF * vecX;
     if (settings_->kalmanDebugLevel() >= 4) {
       PrintL1trk() << "vecFref = [";
-      for (unsigned i = 0; i < nPar_; i++)
+      for (unsigned i = 0; i < nHelixPar_; i++)
         PrintL1trk() << vecXref[i] << ", ";
       PrintL1trk() << "]";
     }
@@ -482,7 +468,7 @@ namespace tmtt {
       matC.Print();
     }
     // Get scattering contribution to helix parameter covariance (currently zero).
-    TMatrixD matScat(nPar_, nPar_);
+    TMatrixD matScat(nHelixPar_, nHelixPar_);
 
     // Get covariance on helix parameters at new reference point including scattering..
     TMatrixD matCref = matF * matC * matFtrans + matScat;
@@ -511,8 +497,8 @@ namespace tmtt {
     }
 
     // Update helix state & its covariance matrix with new stub.
-    TVectorD new_vecX(nPar_);
-    TMatrixD new_matC(nPar_, nPar_);
+    TVectorD new_vecX(nHelixPar_);
+    TMatrixD new_matC(nHelixPar_, nHelixPar_);
     adjustState(matK, matCref, vecXref, matH, delta, new_vecX, new_matC);
 
     // Update track fit chi2 with new stub.
@@ -520,10 +506,10 @@ namespace tmtt {
     this->adjustChi2(state, matRinv, delta, new_chi2rphi, new_chi2rz);
 
     if (settings_->kalmanDebugLevel() >= 4) {
-      if (nPar_ == 4)
+      if (nHelixPar_ == 4)
         PrintL1trk() << "adjusted x = " << new_vecX[0] << ", " << new_vecX[1] << ", " << new_vecX[2] << ", "
                      << new_vecX[3];
-      else if (nPar_ == 5)
+      else if (nHelixPar_ == 5)
         PrintL1trk() << "adjusted x = " << new_vecX[0] << ", " << new_vecX[1] << ", " << new_vecX[2] << ", "
                      << new_vecX[3] << ", " << new_vecX[4];
       PrintL1trk() << "adjusted C ";
@@ -575,7 +561,7 @@ namespace tmtt {
       matRinv = TMatrixD(TMatrixD::kInverted, matR);
     } else {
       // Protection against rare maths instability.
-      const TMatrixD unitMatrix(TMatrixD::kUnit, TMatrixD(nPar_, nPar_));
+      const TMatrixD unitMatrix(TMatrixD::kUnit, TMatrixD(nHelixPar_, nHelixPar_));
       const double big = 9.9e9;
       matRinv = big * unitMatrix;
     }
@@ -663,7 +649,7 @@ namespace tmtt {
                            TVectorD &new_vecX,
                            TMatrixD &new_matC) const {
     new_vecX = vecXref + matK * delta;
-    const TMatrixD unitMatrix(TMatrixD::kUnit, TMatrixD(nPar_, nPar_));
+    const TMatrixD unitMatrix(TMatrixD::kUnit, TMatrixD(nHelixPar_, nHelixPar_));
     TMatrixD tmp = unitMatrix - matK * matH;
     new_matC = tmp * matCref;
   }
@@ -742,19 +728,21 @@ namespace tmtt {
     if (not barrel) {
       switch (kfEtaReg) {
         case 4:  // B1 B2 B3 B4 B5/D1 B6/D2 D3
-          if (layerIDreduced == 3)
+          if (layerIDreduced == 3) {
             kalmanLay = 4;
-          if (layerIDreduced == 4)
+          } else if (layerIDreduced == 4) {
             kalmanLay = 5;
-          if (layerIDreduced == 5)
+          } else if (layerIDreduced == 5) {
             kalmanLay = 6;
+          }
           break;
           //case 5:  // B1 B2 B3+B4 D1 D2 D3 D4/D5
         case 5:  // B1 B2 B3 D1+B4 D2 D3 D4/D5
-          if (layerIDreduced == 5)
+          if (layerIDreduced == 5) {
             kalmanLay = 5;
-          if (layerIDreduced == 7)
+          } else if (layerIDreduced == 7) {
             kalmanLay = 6;
+          }
           break;
         default:
           break;
@@ -763,7 +751,7 @@ namespace tmtt {
 
     /*
   // Fix cases where a barrel layer only partially crosses the eta sector.
-  // (Logically should work, but actually reduces efficiency).
+  // (Logically should work, but actually reduces efficiency -- INVESTIGATE).
 
   const float barrelHalfLength = 120.;
   const float barrel4Radius = 68.8;
@@ -801,6 +789,7 @@ namespace tmtt {
 
   bool KFbase::kalmanAmbiguousLayer(unsigned int iEtaReg, unsigned int kfLayer) {
     // Only helps in extreme forward sector, and there not significantly.
+    // UNDERSTAND IF CAN BE USED ELSEWHERE.
 
     /*
   const unsigned int nEta = 16;
@@ -841,44 +830,40 @@ namespace tmtt {
     // Should TMTT tracking be modified to reduce efficiency loss due to dead modules?
     const bool killRecover = settings_->killRecover();
 
-    set<pair<unsigned, bool>> deadLayers;  // GP layer ID & boolean indicating if in barrel.
+    set<pair<unsigned, bool>> deadGPlayers;  // GP layer ID & boolean indicating if in barrel.
 
+    // Range of sectors chosen to cover dead regions from StubKiller.
     if (killRecover) {
       if (killScenario == StubKiller::KillOptions::layer5) {  // barrel layer 5
-        deadLayers.insert(pair<unsigned, bool>(4, true));
-        if (iEtaReg_ < 5 || iEtaReg_ > 8 || iPhiSec_ < 8 || iPhiSec_ > 11) {
-          deadLayers.clear();
+        if (iEtaReg_ >= 3 && iEtaReg_ <= 7 && iPhiSec_ >= 1 && iPhiSec_ <= 5) {
+          deadGPlayers.insert(pair<unsigned, bool>(4, true));
         }
-
       } else if (killScenario == StubKiller::KillOptions::layer1) {  // barrel layer 1
-        deadLayers.insert(pair<unsigned, bool>(1, true));
-        if (iEtaReg_ > 8 || iPhiSec_ < 8 || iPhiSec_ > 11) {
-          deadLayers.clear();
+        if (iEtaReg_ <= 7 && iPhiSec_ >= 1 && iPhiSec_ <= 5) {
+          deadGPlayers.insert(pair<unsigned, bool>(1, true));
         }
         remove2PSCut = true;
       } else if (killScenario == StubKiller::KillOptions::layer1layer2) {  // barrel layers 1 & 2
-        deadLayers.insert(pair<unsigned, bool>(1, true));
-        deadLayers.insert(pair<unsigned, bool>(2, true));
-        if (iEtaReg_ > 8 || iPhiSec_ < 8 || iPhiSec_ > 11) {
-          deadLayers.clear();
-        } else if (iEtaReg_ < 1) {
-          deadLayers.insert(pair<unsigned, bool>(0, true));  // What is this doing?
+        if (iEtaReg_ <= 7 && iPhiSec_ >= 1 && iPhiSec_ <= 5) {
+          deadGPlayers.insert(pair<unsigned, bool>(1, true));
+        }
+        if (iEtaReg_ >= 1 && iEtaReg_ <= 7 && iPhiSec_ >= 1 && iPhiSec_ <= 5) {
+          deadGPlayers.insert(pair<unsigned, bool>(2, true));
         }
         remove2PSCut = true;
       } else if (killScenario == StubKiller::KillOptions::layer1disk1) {  // barrel layer 1 & disk 1
-        deadLayers.insert(pair<unsigned, bool>(1, true));
-        deadLayers.insert(pair<unsigned, bool>(3, false));
-        if (iEtaReg_ > 8 || iPhiSec_ < 8 || iPhiSec_ > 11) {
-          deadLayers.clear();
-        } else if (iEtaReg_ > 3) {
-          deadLayers.insert(pair<unsigned, bool>(0, true));
+        if (iEtaReg_ <= 7 && iPhiSec_ >= 1 && iPhiSec_ <= 5) {
+          deadGPlayers.insert(pair<unsigned, bool>(1, true));
+        }
+        if (iEtaReg_ <= 3 && iPhiSec_ >= 1 && iPhiSec_ <= 5) {
+          deadGPlayers.insert(pair<unsigned, bool>(3, false));
         }
         remove2PSCut = true;
       }
     }
 
     set<unsigned> kfDeadLayers;
-    for (const auto &p : deadLayers) {
+    for (const auto &p : deadGPlayers) {
       unsigned int layer = p.first;
       bool barrel = p.second;
       float r = 0.;  // This fails for r-dependent parts of kalmanLayer(). FIX
@@ -929,7 +914,7 @@ namespace tmtt {
   void KFbase::printStubLayers(const vector<Stub *> &stubs, unsigned int iEtaReg) const {
     std::stringstream text;
     text << std::fixed << std::setprecision(4);
-    if (stubs.size() == 0)
+    if (stubs.empty())
       text << "stub layers = []\n";
     else {
       text << "stub layers = [ ";

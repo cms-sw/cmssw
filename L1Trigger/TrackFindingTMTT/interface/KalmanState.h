@@ -81,10 +81,6 @@ namespace tmtt {
       chi2rz_ = chi2rz;
     }
 
-    // If using HLS, note/get additional output produced by HLS core.
-    //void setHLSselect(unsigned int mBinHelix, unsigned int cBinHelix, bool consistent) { mBinHelixHLS_ = mBinHelix; cBinHelixHLS_ = cBinHelix; consistentHLS_ = consistent;}
-    //void getHLSselect(unsigned int& mBinHelix, unsigned int& cBinHelix, bool& consistent) const { mBinHelix = mBinHelixHLS_; cBinHelix = cBinHelixHLS_; consistent = consistentHLS_;}
-
   private:
     const Settings *settings_;
     int kLayer_;
@@ -104,11 +100,6 @@ namespace tmtt {
     unsigned nSkipped_;
     L1track3D l1track3D_;
     unsigned int hitPattern_;
-
-    // Additional output from HLS if using it.
-    unsigned int mBinHelixHLS_;
-    unsigned int cBinHelixHLS_;
-    bool consistentHLS_;
   };
 
 }  // namespace tmtt

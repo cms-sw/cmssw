@@ -10,10 +10,10 @@ namespace tmtt {
     ChiSquaredFit4(const Settings* settings, const uint nPar);
 
   protected:
-    TVectorD seed(const L1track3D& l1track3D);
-    TVectorD residuals(const TVectorD& x);
-    TMatrixD D(const TVectorD& x);
-    TMatrixD Vinv();
+    TVectorD seed(const L1track3D& l1track3D) override;
+    TVectorD residuals(const TVectorD& x) override;
+    TMatrixD D(const TVectorD& x) override;
+    TMatrixD Vinv() override;
   };
 
 }  // namespace tmtt

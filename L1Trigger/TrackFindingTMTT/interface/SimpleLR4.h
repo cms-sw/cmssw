@@ -21,9 +21,9 @@ namespace tmtt {
   public:
     SimpleLR4(const Settings* settings);
 
-    virtual ~SimpleLR4(){};
+    ~SimpleLR4() override{};
 
-    L1fittedTrack fit(const L1track3D& l1track3D);
+    L1fittedTrack fit(const L1track3D& l1track3D) override;
 
   protected:
     bool debug_;
