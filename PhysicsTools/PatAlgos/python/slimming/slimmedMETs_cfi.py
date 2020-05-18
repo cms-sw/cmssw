@@ -19,6 +19,9 @@ slimmedMETs = cms.EDProducer("PATMETSlimmer",
    #adding CHS and Track MET for the Jet/MET studies
    chsMET = cms.InputTag("patCHSMet"),
    trkMET = cms.InputTag("patTrkMet"),
+
+   #adding DeepMET variants
+   addDeepMETs = cms.bool(False),
    deepMETResolutionTune = cms.InputTag("deepMETsResolutionTune"),
    deepMETResponseTune = cms.InputTag("deepMETsResponseTune"),
 
