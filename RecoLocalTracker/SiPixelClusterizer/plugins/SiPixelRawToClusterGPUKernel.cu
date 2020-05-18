@@ -25,9 +25,6 @@
 #include <thrust/sort.h>
 #include <thrust/unique.h>
 
-// cub includes
-#include <cub/cub.cuh>
-
 // CMSSW includes
 #include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
