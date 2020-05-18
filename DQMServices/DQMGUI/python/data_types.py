@@ -43,13 +43,16 @@ class RenderingInfo:
 
 
 class RenderingOptions:
-    """Contains options that will be passed down to the out of process renderer"""
+    """
+    Contains options that will be passed down to the out of process renderer.
+    If json is set to True, renderer will return JSON representation of the histogram.
+    """
 
     def __init__(
         self, width=266, height=200, stats=True, normalize=True, error_bars=False,
         xtype=None, ytype=None, ztype=None,
         xmin=None, xmax=None, ymin=None, ymax=None, zmin=None, zmax=None,
-        draw_opts=None, efficiency=False
+        draw_opts=None, efficiency=False, json=False
     ):
         self.width = width
         self.height = height
@@ -64,6 +67,7 @@ class RenderingOptions:
         self.zmax = zmax
         self.draw_opts = draw_opts
         self.efficiency = efficiency
+        self.json = json
 
         self.xtype = None
         self.ytype = None
@@ -169,6 +173,8 @@ class RenderingOptions:
             spec += f'zmin={self.zmin};'
         if self.zmax:
             spec += f'zmax={self.zmax};'
+        if self.json:
+            spec += 'json=True;'
         if self.draw_opts:
             # TODO: sanitize draw_opts properly
             sanitized_draw_opts = self.draw_opts.replace(';', '')
@@ -178,8 +184,3 @@ class RenderingOptions:
             spec = spec[:-1]
 
         return spec
-
-
-
-
-

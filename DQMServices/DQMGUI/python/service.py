@@ -3,6 +3,7 @@ This service provides the logic of the API endpoints. It relies on other service
 """
 
 import time
+import json
 import struct
 from collections import defaultdict
 
@@ -11,7 +12,7 @@ from async_lru import alru_cache
 from rendering import GUIRenderer
 from storage import GUIDataStore
 from importing import GUIImporter
-from helpers import PathUtil
+from helpers import PathUtil, get_api_error
 from data_types import Sample, RootDir, RootObj, RootDirContent, RenderingInfo
 
 from layouts.layout_manager import LayoutManager
@@ -131,9 +132,29 @@ class GUIService:
             rendering_infos.append(RenderingInfo(filename=filename, path=me.path, me_info=me_info))
 
         if not rendering_infos: # No MEs were found
-            return await cls.renderer.render_string('ME not found', width=width, height=height)
+            if options.json:
+                return None
+            else:
+                return await cls.renderer.render_string('ME not found', width=options.width, height=options.height)
 
         return await cls.renderer.render(rendering_infos, options)
+
+
+    @classmethod
+    async def get_rendered_json(cls, me_descriptions, options):
+        """
+        Uses out of process renderer to get JSON representation of a ROOT object.
+        Adds additional property to the resulting JSON called dqmProperties
+        """
+
+        data = await cls.get_rendered_image(me_descriptions, options)
+        if data:
+            data = data.decode('utf-8')
+            obj = json.loads(data)
+            obj['dqmProperties'] = { 'efficiency': options.efficiency }
+            return obj
+        else:
+            return get_api_error(message='ME not found')
 
 
     @classmethod
@@ -154,5 +175,17 @@ class GUIService:
     @classmethod
     @alru_cache(maxsize=10)
     async def __get_filename_melist_offsets(cls, run, dataset):
-        filename, me_list, me_infos = await cls.store.get_blobs_and_filename(run, dataset)
-        return (filename, me_list, me_infos)
+        blobs_and_filename = await cls.store.get_blobs_and_filename(run, dataset)
+
+        if blobs_and_filename == None:
+            # Import and retry
+            success = await cls.importer.import_blobs(run, dataset)
+            if success:
+                # Retry
+                blobs_and_filename = await cls.store.get_blobs_and_filename(run, dataset)
+
+        if blobs_and_filename:
+            filename, me_list, me_infos = blobs_and_filename
+            return (filename, me_list, me_infos)
+        else:
+            return None

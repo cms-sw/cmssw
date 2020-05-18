@@ -36,3 +36,9 @@ class PathUtil:
                 return self.PathSegment(names[0], is_file=False)
         else:
             return None
+
+
+def get_api_error(message):
+    """Returns an object that is returned by the API to signify an error."""
+    return { 'message': message }
+

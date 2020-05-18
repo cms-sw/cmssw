@@ -8,7 +8,7 @@ import tempfile
 import subprocess
 
 from DQMServices.DQMGUI import nanoroot
-from data_types import RenderingInfo, EfficiencyFlag, ScalarValue, QTest
+from data_types import RenderingInfo, EfficiencyFlag, ScalarValue, QTest, RenderingOptions
 
 
 class GUIRenderer:
@@ -37,6 +37,7 @@ class GUIRenderer:
     @classmethod
     async def destroy(cls):
         """Destroys all rendering contexts."""
+        
         for context in cls.__rendering_contexts:
             await context.destroy()
 
@@ -44,11 +45,13 @@ class GUIRenderer:
     @classmethod
     async def render_string(cls, string, width=600, height=400):
         """Renders a single string."""
-        rendering_info = RenderingInfo('', '', '', ScalarValue(b'', string, b''))
-        message = cls.pack_message_for_renderer([rendering_info], width, height)
-        png, error = await cls.__render(message)
 
-        return png
+        options = RenderingOptions(width=width, height=height)
+        rendering_info = RenderingInfo('', '', '', ScalarValue(b'', string, b''))
+        message = cls.pack_message_for_renderer([rendering_info], options)
+        data, error = await cls.__render(message)
+
+        return data
     
 
     @classmethod
@@ -87,12 +90,12 @@ class GUIRenderer:
 
         # Pack the message for rendering context
         message = cls.pack_message_for_renderer(rendering_infos, options, False)
-        png, error = await cls.__render(message)
+        data, error = await cls.__render(message)
         if error == 1: # Missing streamer file - provide it
             message = cls.pack_message_for_renderer(rendering_infos, options, True)
-            png, error = await cls.__render(message)
+            data, error = await cls.__render(message)
 
-        return png
+        return data
 
     
     @classmethod

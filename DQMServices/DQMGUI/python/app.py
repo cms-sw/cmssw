@@ -211,6 +211,48 @@ async def render_overlay_v1(request):
     return web.Response(body=data, content_type='image/png')
 
 
+async def jsroot_legacy(request):
+    """Returns a JSON representation of a ROOT histogram for provided run/dataset/path combination"""
+
+    run = request.match_info['run']
+    full_path = request.match_info['path']
+
+    # This is caused by a double slash in the url
+    if full_path[0] == '/':
+        full_path = full_path[1:]
+
+    # Separate dataset and a path within the root file
+    parts = full_path.split('/')
+    dataset = '/' + '/'.join(parts[0:3])
+    path = '/'.join(parts[3:])
+
+    me_description = MEDescription(run, dataset, path)
+    options = RenderingOptions(json=True)
+
+    data = await service.get_rendered_json([me_description], options)
+    return web.json_response(data)
+
+
+async def jsroot_overlay(request):
+    """Returns a list of JSON representations of ROOT histograms for provided run/dataset/path combinations"""
+
+    me_descriptions = []
+    for obj in request.rel_url.query.getall('obj', []):
+        parts = obj.split('/')
+        run = int(parts[1])
+        dataset = '/' + '/'.join(parts[2:5])
+        path = '/'.join(parts[5:])
+
+        me_description = MEDescription(run, dataset, path)
+        me_descriptions.append(me_description)
+
+    options = RenderingOptions(json=True)
+
+    data = await service.get_rendered_json(me_descriptions, options)
+
+    return web.json_response(data)
+
+
 # ###################################################################################################### #
 # ==================== Server configuration, initialization/destruction of services ==================== #
 # ###################################################################################################### #
@@ -252,14 +294,17 @@ def config_and_start_webserver():
     app.add_routes([web.get('/data/json/samples', samples_legacy),
                     web.get(r'/data/json/archive/{run}/{path:.+}', archive_legacy),
                     web.get(r'/plotfairy/archive/{run}/{path:.+}', render_legacy),
-                    web.get(r'/plotfairy/overlay', render_overlay_legacy)])
+                    web.get(r'/plotfairy/overlay', render_overlay_legacy),
+                    web.get(r'/jsrootfairy/archive/{run}/{path:.+}', jsroot_legacy),])
 
     # Version 1 API routes
     app.add_routes([web.get('/api/v1/samples', samples_v1),
                     web.get('/api/v1/layouts', layouts_v1),
                     web.get(r'/api/v1/archive/{run}/{path:.+}', archive_v1),
                     web.get(r'/api/v1/render/{run}/{path:.+}', render_v1),
-                    web.get(r'/api/v1/render_overlay', render_overlay_v1)])
+                    web.get(r'/api/v1/render_overlay', render_overlay_v1),
+                    web.get(r'/api/v1/json/{run}/{path:.+}', jsroot_legacy),
+                    web.get(r'/api/v1/json_overlay', jsroot_overlay)])
 
     # Routes for HTML files
     app.add_routes([web.get('/', index), web.static('/', '../data/', show_index=True)])

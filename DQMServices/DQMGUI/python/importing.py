@@ -119,7 +119,7 @@ class GUIImporter:
         """Imports all samples from given location of ROOT files."""
 
         # TODO: for quicker testing. Remove this!
-        root_file_location='/eos/cms/store/group/comm_dqm/DQMGUI_data/Run2017/Cosmics/R0002946xx/*.root'
+        # root_file_location='/eos/cms/store/group/comm_dqm/DQMGUI_data/Run2017/Cosmics/R0002946xx/*.root'
 
         print('Listing files for importing, this might take a few minutes...')
         files = glob.glob(root_file_location)

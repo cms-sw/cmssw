@@ -117,6 +117,10 @@ class GUIDataStore:
         row = await cursor.fetchone()
         await cursor.close()
 
+        if not row:
+            # Blobs don't exist, we should probably try to import
+            return None
+
         filename = row[0]
         me_list = await cls.__me_list_from_blob(row[1])
         me_infos = await cls.__me_infos_from_blob(row[2])

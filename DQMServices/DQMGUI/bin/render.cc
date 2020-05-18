@@ -33,6 +33,7 @@
 #include "TROOT.h"
 #include "TStyle.h"
 #include "TText.h"
+#include "TBufferJSON.h"
 #include "boost/algorithm/string.hpp"
 #include <algorithm>
 #include <cassert>
@@ -316,7 +317,7 @@ static bool parseImageSpec(VisDQMImgInfo &i, const std::string &spec, const char
         !parseAxisType(p, "ztype=", 6, i.zaxis.type) && !parseOption(p, "drawopts=", 9, i.drawOptions) &&
         !parseOption(p, "norm=", 5, i.refnorm) && !parseOption(p, "reflabel1=", 10, i.reflabel1) &&
         !parseOption(p, "reflabel2=", 10, i.reflabel2) && !parseOption(p, "reflabel3=", 10, i.reflabel3) &&
-        !parseOption(p, "reflabel4=", 10, i.reflabel4))
+        !parseOption(p, "reflabel4=", 10, i.reflabel4) && !parseOption(p, "json=", 5, i.json))
       return false;
 
     if (*p && *p != ';') {
@@ -604,16 +605,33 @@ protected:
       return false;
 
     // Now render and build response.
-    DataBlob imgdata;
     bool blacklisted = false;
-    blacklisted = doRender(info, &objs[0], numobjs, imgdata);
-    uint32_t returncode = ::getReturnCode();
-    uint32_t imgsize = imgdata.size();
-    msg->data.reserve(imgsize + sizeof(returncode) + sizeof(imgsize));
-    copydata(msg, &returncode, sizeof(returncode));
-    copydata(msg, &imgsize, sizeof(imgsize));
-    if (imgsize)
-      copydata(msg, &imgdata[0], imgdata.size());
+
+    if (info.json == "True") {
+      // Produce a JSON representation of an object
+      TString json;
+      blacklisted = doRenderJson(info, &objs[0], numobjs, json);
+      uint32_t returncode = ::getReturnCode();
+      uint32_t jsonsize = strlen(json.Data());
+      msg->data.reserve(jsonsize + sizeof(returncode) + sizeof(jsonsize));
+      copydata(msg, &returncode, sizeof(returncode));
+      copydata(msg, &jsonsize, sizeof(jsonsize));
+      if (jsonsize) {
+        copydata(msg, json.Data(), jsonsize);
+      }
+    }
+    else {
+      // Render a PNG
+      DataBlob imgdata;
+      blacklisted = doRender(info, &objs[0], numobjs, imgdata);
+      uint32_t returncode = ::getReturnCode();
+      uint32_t imgsize = imgdata.size();
+      msg->data.reserve(imgsize + sizeof(returncode) + sizeof(imgsize));
+      copydata(msg, &returncode, sizeof(returncode));
+      copydata(msg, &imgsize, sizeof(imgsize));
+      if (imgsize)
+        copydata(msg, &imgdata[0], imgdata.size());
+    }
 
     // Release the objects.
     bool hadref = objs[0].reference;
@@ -1386,6 +1404,30 @@ private:
 
     // Indicate whether it was blacklisted.
     return ri.blacklisted;
+  }
+
+  // Render ROOT object(s) to JSON.
+  bool doRenderJson(VisDQMImgInfo &i, VisDQMObject *objs, size_t numobjs, TString &json) {
+    if (numobjs > 1) {
+      // If there are multiple objects, we will return a JSON array of ROOT objects
+      json += "{ \"objects\": [";
+    }
+
+    for (size_t n = 0; n < numobjs; ++n) {
+      if (objs[n].object) {
+        json += TBufferJSON::ToJSON(objs[n].object);
+
+        if (n != numobjs - 1) {
+          json += ",";
+        }
+      }
+    }
+
+    if (numobjs > 1) {
+      json += "]}";
+    }
+
+    return false;
   }
 };
 

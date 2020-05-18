@@ -78,6 +78,7 @@ struct VisDQMImgInfo {
   VisDQMAxisInfo yaxis;
   VisDQMAxisInfo zaxis;
   std::string refnorm;
+  std::string json;
 };
 
 struct VisDQMObject {
