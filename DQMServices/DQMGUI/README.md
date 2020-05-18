@@ -49,9 +49,14 @@ There is a simple web server in `server.py`. It simply maps the classic DQMGUI A
 
 The server is _threaded_, which allows it to do some of the IO waiting in parallel. But Python threading is not very efficient, so it limits at around 100 requests/s, which is less than the renderers could handle.
 
+Please install python dependencies before running the code:
+```
+pip3 install -r DQMServices/DQMGUI/python/requirements.txt --user
+```
+
 The server is started like this:
 ```
-python3 DQMServices/DQMGUI/python/server.py
+python3 DQMServices/DQMGUI/python/app.py
 ```
 
 It will listen on `http://localhost:8889` (and you can't just change that, see below), and It will automatically create a DB file in `DQMServices/DQMGUI/data/` and populate it using data from EOS. 
