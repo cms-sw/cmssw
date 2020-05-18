@@ -1,8 +1,7 @@
-<use name="boost"/>
 <use name="root"/>
 <use name="CondCore/DBOutputService"/>
+<use name="CondFormats/Common"/>
 <use name="CondFormats/GeometryObjects"/>
-<use name="CondFormats/DataRecord"/>
 <use name="DataFormats/CTPPSDetId"/>
 <use name="DetectorDescription/Core"/>
 <use name="FWCore/Framework"/>
@@ -24,7 +23,6 @@
 <use name="Geometry/GEMGeometry"/>
 <use name="Geometry/GEMGeometryBuilder"/>
 <use name="Geometry/MuonNumbering"/>
-<use name="CondFormats/Alignment"/>
 <use name="Geometry/HGCalGeometry"/>
 <use name="Geometry/VeryForwardGeometryBuilder"/>
 <library file="*.cc" name="CondToolsGeometryPlugins">
