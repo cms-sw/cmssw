@@ -962,6 +962,7 @@ namespace edm {
     // WARNING - ModuleDescription is not in fixed place.  See note M above.
     AR_WATCH_USING_METHOD_1(watchPostSourceConstruction)
 
+    //DEPRECATED
     typedef signalslot::Signal<void(
         eventsetup::ComponentDescription const*, eventsetup::EventSetupRecordKey const&, eventsetup::DataKey const&)>
         PreLockEventSetupGet;
@@ -972,6 +973,7 @@ namespace edm {
     }
     AR_WATCH_USING_METHOD_3(watchPreLockEventSetupGet)
 
+    //DEPRECATED
     typedef signalslot::Signal<void(
         eventsetup::ComponentDescription const*, eventsetup::EventSetupRecordKey const&, eventsetup::DataKey const&)>
         PostLockEventSetupGet;
@@ -982,6 +984,7 @@ namespace edm {
     }
     AR_WATCH_USING_METHOD_3(watchPostLockEventSetupGet)
 
+    //DEPRECATED
     typedef signalslot::Signal<void(
         eventsetup::ComponentDescription const*, eventsetup::EventSetupRecordKey const&, eventsetup::DataKey const&)>
         PostEventSetupGet;
