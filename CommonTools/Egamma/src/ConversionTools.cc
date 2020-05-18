@@ -1,11 +1,12 @@
-#include <TMath.h>
-#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+#include "CommonTools/Egamma/interface/ConversionTools.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Math/interface/deltaR.h"
+
+#include <TMath.h>
 
 using namespace edm;
 using namespace reco;

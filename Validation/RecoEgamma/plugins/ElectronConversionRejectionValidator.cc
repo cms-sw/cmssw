@@ -15,7 +15,7 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
-#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+#include "CommonTools/Egamma/interface/ConversionTools.h"
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 
 #include "TFile.h"

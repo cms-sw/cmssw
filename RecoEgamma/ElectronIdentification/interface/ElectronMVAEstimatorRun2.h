@@ -9,7 +9,7 @@
 #include "CommonTools/Utils/interface/ThreadSafeFunctor.h"
 
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
-#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+#include "CommonTools/Egamma/interface/ConversionTools.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
 class ElectronMVAEstimatorRun2 : public AnyMVAEstimatorRun2Base {

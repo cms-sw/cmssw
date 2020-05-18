@@ -1,6 +1,6 @@
 #include "PhysicsTools/SelectorUtils/interface/CutApplicatorWithEventContentBase.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "CommonTools/Utils/interface/EffectiveAreas.h"
+#include "CommonTools/Egamma/interface/EffectiveAreas.h"
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 #include "CommonTools/Utils/interface/ThreadSafeFunctor.h"
 #include "RecoEgamma/EgammaTools/interface/EBEECutValues.h"

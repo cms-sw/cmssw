@@ -12,7 +12,7 @@
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+#include "CommonTools/Egamma/interface/ConversionTools.h"
 
 #include "DQMOffline/Lumi/interface/TTrigger.h"
 #include "DQMOffline/Lumi/interface/TriggerTools.h"

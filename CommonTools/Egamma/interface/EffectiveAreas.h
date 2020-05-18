@@ -1,5 +1,5 @@
-#ifndef CommonTools_Utils_EffectiveAreas_H
-#define CommonTools_Utils_EffectiveAreas_H
+#ifndef CommonTools_Egamma_EffectiveAreas_h
+#define CommonTools_Egamma_EffectiveAreas_h
 
 #include <vector>
 #include <string>
