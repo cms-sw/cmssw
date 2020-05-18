@@ -329,8 +329,7 @@ void makeTKTrend(const char* inFileName, const char* outFileName, std::string su
   }
   oss.str("");
   histoTitle = "Bad modules in " + subDetName;
-  if(partName!="")
-  {
+  if (!partName.empty()) {
     histoTitle += " " + partName;
   }
   if(partNumber!=0)
@@ -349,8 +348,7 @@ void makeTKTrend(const char* inFileName, const char* outFileName, std::string su
   }
   oss.str("");
   histoTitle = "Bad fibers in " + subDetName;
-  if(partName!="")
-  {
+  if (!partName.empty()) {
     histoTitle += " " + partName;
   }
   if(partNumber!=0)
@@ -369,8 +367,7 @@ void makeTKTrend(const char* inFileName, const char* outFileName, std::string su
   }
   oss.str("");
   histoTitle = "Bad APVs in " + subDetName;
-  if(partName!="")
-  {
+  if (!partName.empty()) {
     histoTitle += " " + partName;
   }
   if(partNumber!=0)
@@ -389,8 +386,7 @@ void makeTKTrend(const char* inFileName, const char* outFileName, std::string su
   }
   oss.str("");
   histoTitle = "Bad strips in " + subDetName;
-  if(partName!="")
-  {
+  if (!partName.empty()) {
     histoTitle += " " + partName;
   }
   if(partNumber!=0)
@@ -409,8 +405,7 @@ void makeTKTrend(const char* inFileName, const char* outFileName, std::string su
   }
   oss.str("");
   histoTitle = "Bad strips from APVs in " + subDetName;
-  if(partName!="")
-  {
+  if (!partName.empty()) {
     histoTitle += " " + partName;
   }
   if(partNumber!=0)
@@ -429,8 +424,7 @@ void makeTKTrend(const char* inFileName, const char* outFileName, std::string su
   }
   oss.str("");
   histoTitle = "All bad strips in " + subDetName;
-  if(partName!="")
-  {
+  if (!partName.empty()) {
     histoTitle += " " + partName;
   }
   if(partNumber!=0)
