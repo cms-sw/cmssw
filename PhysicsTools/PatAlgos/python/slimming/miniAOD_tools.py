@@ -504,26 +504,25 @@ def miniAOD_customizeCommon(process):
 
     process.load('RecoMET.METPUSubtraction.deepMETProducer_cfi')
 
-
-    addToProcessAndTask('slimmedMETsDeep', process.deepMETProducer.clone(), process, task)
-    addToProcessAndTask('slimmedMETsDeepResp', process.deepMETProducer.clone(), process, task)
-    process.slimmedMETsDeepResp.graph_path = 'RecoMET/METPUSubtraction/data/deepmet/deepmet_resp_v1_2018.pb'
+    addToProcessAndTask('deepMETsResolutionTune', process.deepMETProducer.clone(), process, task)
+    addToProcessAndTask('deepMETsResponseTune', process.deepMETProducer.clone(), process, task)
+    process.deepMETsResponseTune.graph_path = 'RecoMET/METPUSubtraction/data/deepmet/deepmet_resp_v1_2018.pb'
 
     from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
     phase2_common.toModify(
-        process.slimmedMETsDeep,
+        process.deepMETsResolutionTune,
         max_n_pf=12500,
         graph_path="RecoMET/METPUSubtraction/data/deepmet/deepmet_v1_phase2.pb"
     )
     phase2_common.toModify(
-        process.slimmedMETsDeepResp,
+        process.deepMETsResponseTune,
         max_n_pf=12500,
         graph_path="RecoMET/METPUSubtraction/data/deepmet/deepmet_resp_v1_phase2.pb"
     )
 
     from Configuration.Eras.Modifier_run2_jme_2016_cff import run2_jme_2016
     run2_jme_2016.toModify(
-        process.slimmedMETsDeepResp,
+        process.deepMETsResponseTune,
         graph_path="RecoMET/METPUSubtraction/data/deepmet/deepmet_resp_v1_2016.pb"
     )
     # add DetIdAssociatorRecords to EventSetup (for isolatedTracks)

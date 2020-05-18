@@ -19,6 +19,8 @@ slimmedMETs = cms.EDProducer("PATMETSlimmer",
    #adding CHS and Track MET for the Jet/MET studies
    chsMET = cms.InputTag("patCHSMet"),
    trkMET = cms.InputTag("patTrkMet"),
+   deepMETResolutionTune = cms.InputTag("deepMETsResolutionTune"),
+   deepMETResponseTune = cms.InputTag("deepMETsResponseTune"),
 
    #switch to read the type0 correction from the existing slimmedMET
    #when running on top of miniAOD (type0 cannot be redone at the miniAOD level
