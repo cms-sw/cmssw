@@ -50,7 +50,7 @@ private:
   const float integratedLum_;
   const reco::FormulaEvaluator fluence_;
   const reco::FormulaEvaluator lgadGain_;
-  const float tResConst_;
+  const reco::FormulaEvaluator timeRes2_;
 
   // adc/tdc bitwidths
   const uint32_t adcNbits_, tdcNbits_;
