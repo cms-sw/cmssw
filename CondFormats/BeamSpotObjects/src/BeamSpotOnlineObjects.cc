@@ -51,12 +51,20 @@ int BeamSpotOnlineObjects::GetNumTracks() const {
 
 int BeamSpotOnlineObjects::GetNumPVs() const { return BeamSpotOnlineObjectsImpl::getOneParam(intParams_, NUM_PVS); }
 
+cond::Time_t BeamSpotOnlineObjects::GetCreationTime() const {
+  return BeamSpotOnlineObjectsImpl::getOneParam(timeParams_, CREATE_TIME);
+}
+
 // setters
 void BeamSpotOnlineObjects::SetNumTracks(int nTracks) {
   BeamSpotOnlineObjectsImpl::setOneParam(intParams_, NUM_TRACKS, nTracks);
 }
 
 void BeamSpotOnlineObjects::SetNumPVs(int nPVs) { BeamSpotOnlineObjectsImpl::setOneParam(intParams_, NUM_PVS, nPVs); }
+
+void BeamSpotOnlineObjects::SetCreationTime(cond::Time_t createTime) {
+  BeamSpotOnlineObjectsImpl::setOneParam(timeParams_, CREATE_TIME, createTime);
+}
 
 // printers
 void BeamSpotOnlineObjects::print(std::stringstream& ss) const {
