@@ -75,7 +75,7 @@ namespace dqmstorepb {
                                Message /* @@protoc_insertion_point(class_definition:dqmstorepb.ROOTFilePB.Histo) */ {
   public:
     ROOTFilePB_Histo();
-    virtual ~ROOTFilePB_Histo();
+    ~ROOTFilePB_Histo() override;
 
     ROOTFilePB_Histo(const ROOTFilePB_Histo& from);
     ROOTFilePB_Histo(ROOTFilePB_Histo&& from) noexcept : ROOTFilePB_Histo() { *this = ::std::move(from); }
@@ -272,7 +272,7 @@ namespace dqmstorepb {
       : public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:dqmstorepb.ROOTFilePB) */ {
   public:
     ROOTFilePB();
-    virtual ~ROOTFilePB();
+    ~ROOTFilePB() override;
 
     ROOTFilePB(const ROOTFilePB& from);
     ROOTFilePB(ROOTFilePB&& from) noexcept : ROOTFilePB() { *this = ::std::move(from); }
