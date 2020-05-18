@@ -372,9 +372,15 @@ namespace edm {
       return cached_exception_;
     }
 
-    void prefetchAsync(WaitingTask*, ServiceToken const&, ParentContext const& parentContext, Principal const&);
+    void prefetchAsync(WaitingTask*,
+                       ServiceToken const&,
+                       ParentContext const& parentContext,
+                       Principal const&,
+                       EventSetupImpl const& iEventSetup,
+                       edm::Transition);
 
     void esPrefetch(EventSetupImpl const&, Transition);
+    void esPrefetchAsync(WaitingTask* iHolder, EventSetupImpl const&, Transition);
 
     void emitPostModuleEventPrefetchingSignal() {
       actReg_->postModuleEventPrefetchingSignal_.emit(*moduleCallingContext_.getStreamContext(), moduleCallingContext_);
@@ -886,9 +892,9 @@ namespace edm {
         auto ownRunTask = std::make_shared<DestroyTask>(runTask);
         auto selectionTask =
             make_waiting_task(tbb::task::allocate_root(),
-                              [ownRunTask, parentContext, &ep, token, this](std::exception_ptr const*) mutable {
+                              [ownRunTask, parentContext, &ep, &es, token, this](std::exception_ptr const*) mutable {
                                 ServiceRegistry::Operate guard(token);
-                                prefetchAsync(ownRunTask->release(), token, parentContext, ep);
+                                prefetchAsync(ownRunTask->release(), token, parentContext, ep, es, T::transition_);
                               });
         prePrefetchSelectionAsync(selectionTask, token, streamID, &ep);
       } else {
@@ -902,7 +908,7 @@ namespace edm {
                 AcquireTask<T>(this, ep, es, token, parentContext, std::move(runTaskHolder));
           }
         }
-        prefetchAsync(moduleTask, token, parentContext, ep);
+        prefetchAsync(moduleTask, token, parentContext, ep, es, T::transition_);
       }
     }
   }
@@ -1054,7 +1060,8 @@ namespace edm {
         //set count to 2 since wait_for_all requires value to not go to 0
         waitTask->set_ref_count(2);
 
-        prefetchAsync(waitTask.get(), ServiceRegistry::instance().presentToken(), parentContext, ep);
+        prefetchAsync(
+            waitTask.get(), ServiceRegistry::instance().presentToken(), parentContext, ep, es, T::transition_);
         waitTask->decrement_ref_count();
         waitTask->wait_for_all();
       }

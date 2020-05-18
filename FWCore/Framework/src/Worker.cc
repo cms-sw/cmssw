@@ -201,7 +201,9 @@ namespace edm {
   void Worker::prefetchAsync(WaitingTask* iTask,
                              ServiceToken const& token,
                              ParentContext const& parentContext,
-                             Principal const& iPrincipal) {
+                             Principal const& iPrincipal,
+                             EventSetupImpl const& iEventSetup,
+                             edm::Transition iTransition) {
     // Prefetch products the module declares it consumes (not including the products it maybe consumes)
     std::vector<ProductResolverIndexAndSkipBit> const& items = itemsToGetFrom(iPrincipal.branchType());
 
@@ -213,6 +215,8 @@ namespace edm {
 
     //Need to be sure the ref count isn't set to 0 immediately
     iTask->increment_ref_count();
+
+    esPrefetchAsync(iTask, iEventSetup, iTransition);
     for (auto const& item : items) {
       ProductResolverIndex productResolverIndex = item.productResolverIndex();
       bool skipCurrentProcess = item.skipCurrentProcess();
@@ -287,6 +291,38 @@ namespace edm {
         }
       }
     }
+  }
+
+  void Worker::esPrefetchAsync(WaitingTask* iTask, EventSetupImpl const& iImpl, Transition iTrans) {
+    auto const& recs = esRecordsToGetFrom(iTrans);
+    auto const& items = esItemsToGetFrom(iTrans);
+
+    assert(items.size() == recs.size());
+    if (items.empty()) {
+      return;
+    }
+
+    auto task = make_waiting_task(
+        tbb::task::allocate_root(),
+        [this, holder = WaitingTaskWithArenaHolder{iTask}](std::exception_ptr const* iExcept) mutable {
+          if (iExcept) {
+            holder.doneWaiting(*iExcept);
+          } else {
+            holder.doneWaiting(std::exception_ptr{});
+          }
+        });
+
+    WaitingTaskHolder tempH(task);
+    esTaskArena().execute([&]() {
+      for (size_t i = 0; i != items.size(); ++i) {
+        if (recs[i] != ESRecordIndex{}) {
+          auto rec = iImpl.findImpl(recs[i]);
+          if (rec) {
+            rec->prefetchAsync(task, items[i], &iImpl);
+          }
+        }
+      }
+    });
   }
 
   void Worker::setEarlyDeleteHelper(EarlyDeleteHelper* iHelper) { earlyDeleteHelper_ = iHelper; }
