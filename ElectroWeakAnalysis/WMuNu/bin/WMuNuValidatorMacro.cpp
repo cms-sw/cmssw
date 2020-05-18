@@ -56,7 +56,7 @@ int main(int argc, char** argv){
 
   if (ntrueargs!=3) return printUsage();
 
-  TRint* app = new TRint("CMS Root Application", 0, 0);
+  TRint* app = new TRint("CMS Root Application", nullptr, nullptr);
 
   TString cmssw_version = gSystem->Getenv("CMSSW_VERSION");
   TString chsample = "WMuNu";
