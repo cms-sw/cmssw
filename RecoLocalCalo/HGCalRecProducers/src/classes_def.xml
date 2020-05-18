@@ -1,5 +1,0 @@
-<lcgdict>
-  <class name="std::map<DetId,const HGCRecHit*>" persistent="false"/>
-  <class name="edm::Wrapper<std::map<DetId,const HGCRecHit*>>" persistent="false"/>
-  <class name="std::pair<const DetId,const HGCRecHit*>" />
-</lcgdict>
