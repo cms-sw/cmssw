@@ -1,4 +1,3 @@
-<use name="CondFormats/Common"/>
 <use name="CondFormats/Serialization"/>
 <use name="FWCore/Utilities"/>
 <use name="CLHEP"/>
