@@ -131,7 +131,7 @@ BoostedDoubleSVProducer::BoostedDoubleSVProducer(const edm::ParameterSet& iConfi
       trackPairV0Filter(iConfig.getParameter<edm::ParameterSet>("trackPairV0Filter")),
       trackSelector(iConfig.getParameter<edm::ParameterSet>("trackSelection")) {
   edm::InputTag srcWeights = iConfig.getParameter<edm::InputTag>("weights");
-  if (srcWeights.label() != "")
+  if (!srcWeights.label().empty())
     weightsToken_ = consumes<edm::ValueMap<float>>(srcWeights);
   produces<std::vector<reco::BoostedDoubleSVTagInfo>>();
 }
