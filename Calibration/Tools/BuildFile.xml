@@ -5,18 +5,14 @@
 <use name="DataFormats/EcalRecHit"/>
 <use name="DataFormats/EgammaCandidates"/>
 <use name="DataFormats/EgammaReco"/>
-<use name="DataFormats/HcalDetId"/>
 <use name="DataFormats/GeometrySurface"/>
 <use name="rootcore"/>
 <use name="rootminuit"/>
 <use name="rootgraphics"/>
 <use name="Geometry/CaloGeometry"/>
-<use name="Geometry/CommonDetUnit"/>
 <use name="Geometry/HcalTowerAlgo"/>
 <use name="Geometry/Records"/>
-<use name="Geometry/TrackerGeometryBuilder"/>
 <use name="TrackingTools/GeomPropagators"/>
-<use name="MagneticField/Engine"/>
 <use name="MagneticField/Records"/>
 <use name="TrackPropagation/SteppingHelixPropagator"/>
 <export>
