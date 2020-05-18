@@ -368,8 +368,7 @@ def customise_gpu_ecal(process):
         outOfTimeThresholdGain61pEE = cms.double(1000.0),
         kernelMinimizeThreads = cms.vuint32(32, 1, 1),
         maxNumberHits = cms.uint32(20000),
-        shouldRunTimingComputation = cms.bool(False),
-        shouldTransferToHost = cms.bool(True)
+        shouldRunTimingComputation = cms.bool(False)
     )
 
     process.hltEcalUncalibRecHitSoA = cms.EDProducer("EcalCPUUncalibRecHitProducer",
