@@ -41,3 +41,6 @@ EVENTSETUP_RECORD_REG(SiStripConfObjectRcd);
 EVENTSETUP_RECORD_REG(SiStripApvSimulationParametersRcd);
 
 EVENTSETUP_RECORD_REG(Phase2TrackerCablingRcd);
+
+EVENTSETUP_RECORD_REG(SiPhase2OuterTrackerLorentzAngleRcd);
+EVENTSETUP_RECORD_REG(SiPhase2OuterTrackerLorentzAngleSimRcd);
