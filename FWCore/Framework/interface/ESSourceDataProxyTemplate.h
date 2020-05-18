@@ -45,7 +45,7 @@ namespace edm::eventsetup {
     // ---------- member functions ---------------------------
   protected:
     /** Inheriting classes must also override 
-   void prefetch(edm::eventsetup::DataKey const& iKey) override;
+   void prefetch(edm::eventsetup::DataKey const& iKey, EventSetupRecordDetails) override;
    */
 
     /** returns the data obtained in the call to prefetch */

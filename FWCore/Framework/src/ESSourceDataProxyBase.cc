@@ -21,18 +21,18 @@
 //
 
 void edm::eventsetup::ESSourceDataProxyBase::prefetchAsyncImpl(edm::WaitingTask* iTask,
-                                                               edm::eventsetup::EventSetupRecordImpl const&,
+                                                               edm::eventsetup::EventSetupRecordImpl const& iRecord,
                                                                edm::eventsetup::DataKey const& iKey,
                                                                edm::EventSetupImpl const*) {
   bool expected = false;
   auto doPrefetch = m_prefetching.compare_exchange_strong(expected, true);
   m_waitingList.add(iTask);
   if (doPrefetch) {
-    m_queue->push([this, iKey]() {
+    m_queue->push([this, iKey, &iRecord]() {
       try {
         {
           std::lock_guard<std::mutex> guard(*m_mutex);
-          prefetch(iKey);
+          prefetch(iKey, EventSetupRecordDetails(&iRecord));
         }
         m_waitingList.doneWaiting(std::exception_ptr{});
       } catch (...) {
