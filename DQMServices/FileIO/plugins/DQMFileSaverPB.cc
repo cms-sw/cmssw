@@ -207,7 +207,6 @@ void DQMFileSaverPB::savePB(DQMStore* store, std::string const& filename, int ru
 
   dqmstorepb::ROOTFilePB dqmstore_message;
 
-  // TODO: while we still have enableMultiThread, maybe this does the wrong thing.
   // We save all histograms, indifferent of the lumi flag: even tough we save per lumi, this is a *snapshot*.
   auto mes = store->getAllContents("");
   for (auto const me : mes) {

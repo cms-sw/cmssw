@@ -25,7 +25,6 @@ process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
 # DQM Services
 process.DQMStore = cms.Service("DQMStore",
-    referenceFileName = cms.untracked.string(''),
     verbose = cms.untracked.int32(0)
 )
 

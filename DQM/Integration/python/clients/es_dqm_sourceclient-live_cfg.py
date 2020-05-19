@@ -51,7 +51,6 @@ from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'EcalPreshower'
 process.dqmSaver.tag = 'EcalPreshower'
-process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/es_reference.root'
 # for local test
 #process.dqmSaver.path = '.'
 

@@ -25,8 +25,6 @@ else:
 #### DQM Environment
 #----------------------------
 process.load("DQM.Integration.config.environment_cfi")
-process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/dt_reference.root'
-#process.DQMStore.referenceFileName = "DT_reference.root"
 
 #----------------------------
 #### DQM Live Environment
@@ -90,7 +88,7 @@ print("Running with run type = ", process.runType.getRunType())
 #----------------------------
 
 if (process.runType.getRunType() == process.runType.pp_run):
-    process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/dt_reference_pp.root'
+    pass
 
 
 #----------------------------
@@ -98,7 +96,7 @@ if (process.runType.getRunType() == process.runType.pp_run):
 #----------------------------
 
 if (process.runType.getRunType() == process.runType.cosmic_run):
-    process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/dt_reference_cosmic.root'
+    pass
 
 
 #----------------------------
@@ -113,7 +111,6 @@ if (process.runType.getRunType() == process.runType.hi_run):
     
     process.dtDigiMonitor.ResetCycle = cms.untracked.int32(9999)
 
-    process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/dt_reference_hi.root'
 
 
 ### process customizations included here

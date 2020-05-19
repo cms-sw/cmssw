@@ -29,7 +29,6 @@ process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring()
 )
 
-process.DQMStore.collateHistograms = False
 
 process.dqmSaver.convention = 'Offline'
 #Settings equivalent to 'RelVal' convention:
