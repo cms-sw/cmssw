@@ -2,6 +2,7 @@
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="RecoLocalTracker/ClusterParameterEstimator"/>
 <use name="DataFormats/Phase2TrackerCluster"/>
+<use name="CondFormats/SiPhase2TrackerObjects"/>
 <export>
   <lib name="1"/>
 </export>
