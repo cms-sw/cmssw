@@ -192,11 +192,10 @@ namespace reco {
       if (((mvaOpt == kOldDMwoLT || mvaOpt == kOldDMwLT || mvaOpt == kDBoldDMwLT || mvaOpt == kPWoldDMwLT ||
             mvaOpt == kDBoldDMwLTwGJ) &&
            (tauDecayMode == 0 || tauDecayMode == 1 || tauDecayMode == 2 || tauDecayMode == 10)) ||
-          ((mvaOpt==kPhase2 || mvaOpt == kNewDMwoLT || mvaOpt == kNewDMwLT || mvaOpt == kDBnewDMwLT || mvaOpt == kPWnewDMwLT ||
+          ((mvaOpt==kDBnewDMwLTwGJPhase2 || mvaOpt == kNewDMwoLT || mvaOpt == kNewDMwLT || mvaOpt == kDBnewDMwLT || mvaOpt == kPWnewDMwLT ||
             mvaOpt == kDBnewDMwLTwGJ) &&
            (tauDecayMode == 0 || tauDecayMode == 1 || tauDecayMode == 2 || tauDecayMode == 5 || tauDecayMode == 6 ||
             tauDecayMode == 10 || tauDecayMode == 11))) {
-
         float chargedIsoPtSum = tau.tauID(nameCharged);
         float neutralIsoPtSum = tau.tauID(nameNeutral);
         float puCorrPtSum = tau.tauID(namePu);
@@ -236,7 +235,7 @@ namespace reco {
           }
         }
 
-      if (mvaOpt == kPhase2) {
+      if (mvaOpt == kDBnewDMwLTwGJPhase2) {
          mvaInput[0] = tau.pt();
          mvaInput[1] = abs(tau.eta());
          mvaInput[2] = chargedIsoPtSum; //tauID("chargedIsoPtSum");

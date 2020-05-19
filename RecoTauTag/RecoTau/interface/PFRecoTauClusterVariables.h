@@ -66,7 +66,7 @@ namespace reco {
       kPWnewDMwLT,
       kDBoldDMwLTwGJ,
       kDBnewDMwLTwGJ,
-      kPhase2
+      kDBnewDMwLTwGJPhase2
     };
     bool fillIsoMVARun2Inputs(float* mvaInput,
                               const pat::Tau& tau,
