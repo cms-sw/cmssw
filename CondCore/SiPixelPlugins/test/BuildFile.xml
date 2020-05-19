@@ -4,5 +4,7 @@
 <use name="FWCore/PluginManager"/>
 <use name="FWCore/Utilities"/>
 <use name="CalibTracker/StandaloneTrackerTopology"/>
+<use name="CondFormats/SiPixelTransient"/>
+<use name="CalibTracker/SiPixelESProducers"/>
 <bin file="testSiPixelPayloadInspector.cpp" name="testPixelPayloadInspector">
 </bin>
