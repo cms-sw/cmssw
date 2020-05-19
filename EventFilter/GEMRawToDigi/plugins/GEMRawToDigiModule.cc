@@ -83,7 +83,6 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
 
     // Read AMC data
     for (auto amcData : *(amc13Event->getAMCpayloads())) {
-      uint16_t amcBx = amcData.bx();
       uint8_t amcNum = amcData.amcNum();
 
       // Read GEB data
@@ -121,9 +120,7 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
 
           vfatData.setPhi(vfat_dc.localPhi);
           GEMDetId gemId = vfat_dc.detId;
-          uint16_t bc = vfatData.bc();
-          // strip bx = vfat bx - amc bx
-          int bx = bc - amcBx;
+          int bx(vfatData.bc());
 
           for (int chan = 0; chan < VFATdata::nChannels; ++chan) {
             uint8_t chan0xf = 0;
