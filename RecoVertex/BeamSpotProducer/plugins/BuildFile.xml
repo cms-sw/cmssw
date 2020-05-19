@@ -35,4 +35,7 @@
 <library   file="OnlineBeamSpotESProducer.cc" name="OnlineBeamSpotESProducer">
   <flags   EDM_PLUGIN="1"/>
 </library>
+<library   file="OfflineToTransientBeamSpotESProducer.cc" name="OfflineToTransientBeamSpotESProducer">
+  <flags   EDM_PLUGIN="1"/>
+</library>
 

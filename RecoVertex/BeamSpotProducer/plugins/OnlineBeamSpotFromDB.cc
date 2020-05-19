@@ -32,15 +32,19 @@ OnlineBeamSpotFromDB::OnlineBeamSpotFromDB(const edm::ParameterSet& iConfig) {}
 OnlineBeamSpotFromDB::~OnlineBeamSpotFromDB() {}
 
 void OnlineBeamSpotFromDB::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  //edm::ESHandle<BeamSpotOnlineObjects> beamhandle;
+  edm::ESHandle<BeamSpotObjects> beamGThandle;
   edm::ESHandle<BeamSpotObjects> beamhandle;
   iSetup.get<BeamSpotTransientObjectsRcd>().get(beamhandle);
   const BeamSpotObjects* mybeamspot = beamhandle.product();
+  iSetup.get<BeamSpotObjectsRcd>().get(beamGThandle);
+  const BeamSpotObjects* myGTbeamspot = beamGThandle.product();
+
 
   std::cout << " for runs: " << iEvent.id().run() << " - " << iEvent.id().run() << std::endl;
   //std::cout << iEvent.getRun().beginTime().value() << std::endl;
   //std::cout << iEvent.time().value() << std::endl;
   std::cout << *mybeamspot << std::endl;
+  std::cout<<*myGTbeamspot<<std::endl;
 }
 
 void OnlineBeamSpotFromDB::beginJob() {}

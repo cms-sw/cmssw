@@ -15,7 +15,7 @@ OnlineBeamSpotESProducer::OnlineBeamSpotESProducer(const edm::ParameterSet& p){
 
 auto cc = setWhatProduced(this);
 
-transientBS_ = new BeamSpotOnlineObjects;
+transientBS_ = new BeamSpotObjects;
 theHLTBS_ = new BeamSpotOnlineObjects;
 theLegacyBS_ = new BeamSpotOnlineObjects;
 fakeBS_ = new BeamSpotOnlineObjects;

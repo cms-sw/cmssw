@@ -7,7 +7,7 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
 
-
+""" 
 process.BeamSpotDBSource = cms.ESSource("PoolDBESSource",
                                         process.CondDBSetup,
                                         toGet = cms.VPSet(
@@ -31,13 +31,15 @@ cms.PSet(
                                         #connect = cms.string('frontier://PromptProd/CMS_COND_31X_BEAMSPOT')
                                         )
 
-
-process.BeamSpotESProducer = cms.ESProducer("OnlineBeamSpotESProducer")
-
+"""
+from Configuration.AlCa.GlobalTag import GlobalTag as customiseGlobalTag
+process.GlobalTag = customiseGlobalTag(globaltag = "auto:run3_hlt_GRun")
+#process.BeamSpotESProducer = cms.ESProducer("OnlineBeamSpotESProducer")
+process.BeamSpotESProducer = cms.ESProducer("OfflineToTransientBeamSpotESProducer")
 
 process.source = cms.Source("EmptySource")
-process.source.numberEventsInRun=cms.untracked.uint32(6)
-process.source.firstRun = cms.untracked.uint32(1)
+process.source.numberEventsInRun=cms.untracked.uint32(1)
+process.source.firstRun = cms.untracked.uint32(123741)
 process.source.firstLuminosityBlock = cms.untracked.uint32(1)
 process.source.numberEventsInLuminosityBlock = cms.untracked.uint32(2)
 process.maxEvents = cms.untracked.PSet(
