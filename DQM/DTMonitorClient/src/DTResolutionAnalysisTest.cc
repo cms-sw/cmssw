@@ -83,19 +83,25 @@ void DTResolutionAnalysisTest::bookHistos(DQMStore::IBooker& ibooker) {
          stringstream station;
          station << st;
          for(int sl=1; sl<=3; sl++){
-             stringstream SL;
-             SL << sl;
              if(sl==2 && st ==4) continue;
              ibooker.setCurrentFolder(topHistoFolder + "/00-MeanRes/Wheel" + wheel.str());
              string histoLabel = "MeanDistr";
-             string histoName = histoLabel  + "_W" + wheel.str() + "_MB" + station.str() + "_SL" + SL.str();
-             string histoType = histoLabel + "_SL" + SL.str();
+             string histoName = histoLabel  + "_W" + wheel.str() + "_MB" + station.str() + "_Phi";
+             string histoType = histoLabel + "_Phi";
+             if (sl ==2){
+                 histoName = histoLabel  + "_W" + wheel.str() + "_MB" + station.str() + "_Theta";
+                 histoType = histoLabel + "_Theta";
+             }
              (wheelRingHistos[wh][st])[histoType] = ibooker.book1D(histoName, histoLabel, 100, -0.1, 0.1);
 
-             ibooker.setCurrentFolder(topHistoFolder + "/01-SigmaRes/WHeel" + wheel.str());
+             ibooker.setCurrentFolder(topHistoFolder + "/01-SigmaRes/Wheel" + wheel.str());
              histoLabel = "SigmaDistr";
-             histoName = histoLabel  + "_W" + wheel.str() + "_MB" + station.str() + "_SL" + SL.str();
-             histoType = histoLabel + "_SL" + SL.str();
+             histoName = histoLabel  + "_W" + wheel.str() + "_MB" + station.str() + "_Phi";
+             histoType = histoLabel + "_Phi" ;
+             if (sl ==2){
+                 histoName = histoLabel  + "_W" + wheel.str() + "_MB" + station.str() + "_Theta";
+                 histoType = histoLabel + "_Theta";
+             }
             (wheelRingHistos[wh][st])[histoType] = ibooker.book1D(histoName, histoLabel, 50, 0.0, 0.2);
          }
       }
@@ -215,12 +221,12 @@ void DTResolutionAnalysisTest::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::I
               sigmaDistr[-1]->Fill(sigma);
             }
 
-            stringstream SL;
-            SL << slID.superlayer();
-            string histoType = "MeanDistr_SL" + SL.str();
+            string histoType = "MeanDistr_Phi";
+            if(slID.superlayer() == 2) histoType = "MeanDistr_Theta";
             (wheelRingHistos[slID.wheel()][slID.station()])[histoType]->Fill(mean);
 
-            histoType = "SigmaDistr_SL" + SL.str();
+            histoType = "SigmaDistr_Phi" ;
+            if(slID.superlayer() == 2) histoType = "SigmaDistr_Theta";
             (wheelRingHistos[slID.wheel()][slID.station()])[histoType]->Fill(sigma);
 
             // sector summaries
