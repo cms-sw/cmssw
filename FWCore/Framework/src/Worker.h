@@ -379,7 +379,7 @@ namespace edm {
                        EventSetupImpl const& iEventSetup,
                        edm::Transition);
 
-    void esPrefetch(EventSetupImpl const&, Transition);
+    bool needsESPrefetching(Transition iTrans) const noexcept { return not esItemsToGetFrom(iTrans).empty(); }
     void esPrefetchAsync(WaitingTask* iHolder, EventSetupImpl const&, Transition);
 
     void emitPostModuleEventPrefetchingSignal() {
@@ -972,11 +972,29 @@ namespace edm {
         }
         this->waitingTasks_.doneWaiting(exceptionPtr);
       };
-      if (auto queue = this->serializeRunModule()) {
-        queue.push(toDo);
+
+      if (needsESPrefetching(T::transition_)) {
+        auto afterPrefetch = edm::make_waiting_task(
+            tbb::task::allocate_root(), [toDo = std::move(toDo), this](std::exception_ptr const* iExcept) {
+              if (iExcept) {
+                this->waitingTasks_.doneWaiting(*iExcept);
+              } else {
+                if (auto queue = this->serializeRunModule()) {
+                  queue.push(toDo);
+                } else {
+                  auto taskToDo = make_functor_task(tbb::task::allocate_root(), toDo);
+                  tbb::task::spawn(*taskToDo);
+                }
+              }
+            });
+        esPrefetchAsync(afterPrefetch, es, T::transition_);
       } else {
-        auto taskToDo = make_functor_task(tbb::task::allocate_root(), toDo);
-        tbb::task::spawn(*taskToDo);
+        if (auto queue = this->serializeRunModule()) {
+          queue.push(toDo);
+        } else {
+          auto taskToDo = make_functor_task(tbb::task::allocate_root(), toDo);
+          tbb::task::spawn(*taskToDo);
+        }
       }
     }
   }
@@ -1122,8 +1140,6 @@ namespace edm {
     bool rc = true;
     try {
       convertException::wrap([&]() {
-        esPrefetch(es, T::transition_);
-
         rc = workerhelper::CallImpl<T>::call(this, streamID, ep, es, actReg_.get(), &moduleCallingContext_, context);
 
         if (rc) {

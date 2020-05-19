@@ -278,21 +278,6 @@ namespace edm {
     choiceHolder.doneWaiting(std::exception_ptr{});
   }
 
-  void Worker::esPrefetch(EventSetupImpl const& iImpl, Transition iTrans) {
-    auto const& recs = esRecordsToGetFrom(iTrans);
-    auto const& items = esItemsToGetFrom(iTrans);
-
-    assert(items.size() == recs.size());
-    for (size_t i = 0; i != items.size(); ++i) {
-      if (recs[i] != ESRecordIndex{}) {
-        auto rec = iImpl.findImpl(recs[i]);
-        if (rec) {
-          esTaskArena().execute([&]() { rec->doGet(items[i], &iImpl, true); });
-        }
-      }
-    }
-  }
-
   void Worker::esPrefetchAsync(WaitingTask* iTask, EventSetupImpl const& iImpl, Transition iTrans) {
     auto const& recs = esRecordsToGetFrom(iTrans);
     auto const& items = esItemsToGetFrom(iTrans);
