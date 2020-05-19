@@ -67,10 +67,12 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
   std::vector<std::unique_ptr<AMC13Event>> amc13Events;
   amc13Events.reserve(FEDNumbering::MAXGEMFEDID - FEDNumbering::MINGEMFEDID + 1);
 
+  uint32_t amc13EvtLength = 0;
   for (unsigned int fedId = FEDNumbering::MINGEMFEDID; fedId <= FEDNumbering::MAXGEMFEDID; ++fedId) {
     std::unique_ptr<AMC13Event> amc13Event = std::make_unique<AMC13Event>();
 
     for (uint8_t amcNum = 0; amcNum < GEMeMap::maxAMCs_; ++amcNum) {
+      uint32_t amcSize = 0;
       std::unique_ptr<AMCdata> amcData = std::make_unique<AMCdata>();
 
       for (uint8_t gebId = 0; gebId < GEMeMap::maxGEBs_; ++gebId) {
@@ -123,6 +125,7 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
             if (!hasDigi)
               continue;
             // only make vfat with hits
+            amcSize+=3;
             auto vfatData = std::make_unique<VFATdata>(geb_dc.vfatVer, bc, 0, vfatId, lsData, msData);
             gebData->addVFAT(*vfatData);
           }
@@ -130,6 +133,7 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
         }  // end of vfats in GEB
 
         if (!gebData->vFATs()->empty()) {
+          amcSize+=2;
           gebData->setChamberHeader(gebData->vFATs()->size() * 3, gebId);
           gebData->setChamberTrailer(0, 0, gebData->vFATs()->size() * 3);
           amcData->addGEB(*gebData);
@@ -138,10 +142,17 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
       }  // end of GEB loop
 
       if (!amcData->gebs()->empty()) {
-        amcData->setAMCheader1(0, GEMeMap::amcBX_, 0, amcNum);
+        amcSize+=5;
+        amcData->setAMCheader1(amcSize, GEMeMap::amcBX_, 0, amcNum);
         amcData->setAMCheader2(amcNum, 0, 1);
         amcData->setGEMeventHeader(amcData->gebs()->size(), 0);
         amc13Event->addAMCpayload(*amcData);
+        // AMC header in AMC13Event
+        uint8_t Blk_No = 0;
+        uint8_t AMC_No = 0;
+        uint16_t BoardID = 0;
+        amc13Event->addAMCheader(amcSize, Blk_No, AMC_No, BoardID);
+        amc13EvtLength += amcSize+1; // AMC data size + AMC header size
       }
 
     }  // end of AMC loop
@@ -158,21 +169,13 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
       uint32_t OrN = 2;
       amc13Event->setAMC13Header(CalTyp, nAMC, OrN);
 
-      for (unsigned short i = 0; i < amc13Event->nAMC(); ++i) {
-        uint32_t AMC_size = 0;
-        uint8_t Blk_No = 0;
-        uint8_t AMC_No = 0;
-        uint16_t BoardID = 0;
-        amc13Event->addAMCheader(AMC_size, Blk_No, AMC_No, BoardID);
-      }
-
       //AMC13 trailer
       uint8_t Blk_NoT = 0;
       uint8_t LV1_idT = 0;
       uint16_t BX_idT = BX_id;
       amc13Event->setAMC13Trailer(Blk_NoT, LV1_idT, BX_idT);
       //CDF trailer
-      uint32_t EvtLength = 0;
+      uint32_t EvtLength = amc13EvtLength + 4; // 2 header and 2 trailer
       amc13Event->setCDFTrailer(EvtLength);
       amc13Events.emplace_back(std::move(amc13Event));
     }  // finished making amc13Event data
