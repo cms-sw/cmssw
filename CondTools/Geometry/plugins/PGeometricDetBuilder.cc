@@ -10,7 +10,6 @@
 #include "CondFormats/GeometryObjects/interface/PGeometricDet.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

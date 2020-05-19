@@ -5,7 +5,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerParametersFromDD.h"

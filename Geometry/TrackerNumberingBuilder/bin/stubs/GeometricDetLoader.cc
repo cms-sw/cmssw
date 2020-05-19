@@ -10,7 +10,7 @@
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
-#include <DetectorDescription/Core/interface/DDCompactView.h>
+//#include <DetectorDescription/Core/interface/DDCompactView.h>
 #include <DetectorDescription/DDCMS/interface/DDCompactView.h>
 #include <DetectorDescription/Core/interface/DDExpandedView.h>
 
