@@ -4,7 +4,7 @@ import random
 import math
 
 from Configuration.StandardSequences.Eras import eras
-process = cms.Process('SIM',eras.Run2_2017)
+process = cms.Process('SIM',eras.run3_common,eras.ctpps_2021)
 
 # import of standard configurations
 process.load("CondCore.CondDB.CondDB_cfi")
@@ -14,14 +14,13 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
-process.load('IOMC.EventVertexGenerators.VtxSmearedRealistic25ns13TeVEarly2017Collision_cfi')
+process.load('IOMC.EventVertexGenerators.VtxSmearedHLLHC14TeV_cfi')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-process.load('Configuration.StandardSequences.GeometrySimDB_cff')
-process.load('Configuration.Geometry.GeometryExtended2017_CTPPS_cff')
+process.load('Configuration.Geometry.GeometryExtended2021_CTPPS_cff')
 
 process.RandomNumberGeneratorService.generator.initialSeed = cms.untracked.uint32(random.randint(0,900000000))
 
@@ -30,44 +29,10 @@ process.maxEvents = cms.untracked.PSet(
         input = cms.untracked.int32(nEvent_)
         )
 
-process.source = cms.Source("EmptySource",
-                firstRun = cms.untracked.uint32(297180)
-)
-
-process.options = cms.untracked.PSet()
-
-
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_realistic', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic', '')
+#process.GlobalTag = GlobalTag(process.GlobalTag, "106X_dataRun2_v26")
 
-# Optical functions
-#process.load('CalibPPS.ESProducers.ctppsInterpolatedOpticalFunctionsESSource_cfi')
-#process.ctppsInterpolatedOpticalFunctionsESSource.lhcInfoLabel = ""
-
-#process.load('CalibPPS.ESProducers.ctppsOpticalFunctionsESSource_cfi')
-#print process.ctppsOpticalFunctionsESSource.label
-
-#process.load('CalibPPS.ESProducers.ctppsBeamParametersESSource_cfi')
-#from SimTransport.PPSProtonTransport.PPSTransportESSources_cfi import *
-"""
-process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-    process.CondDB,
-    timetype = cms.untracked.string('runnumber'),
-    DumpStat=cms.untracked.bool(True),
-    toGet = cms.VPSet(
-                cms.PSet(
-                    record = cms.string('LHCInfoRcd'),
-                    tag = cms.string("LHCInfoEndFill_prompt_v2"),  #  FrontierProd
-                    connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
-                ),
-                cms.PSet(
-                    record = cms.string('CTPPSOpticsRcd'),
-                    tag = cms.string("PPSOpticalFunctions_offline_v6"),
-                    connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS"),
-                )
-            )
-)
-"""
 # generator
 
 phi_min = -math.pi
@@ -96,17 +61,21 @@ process.generator = cms.EDProducer("RandomtXiGunProducer",
         firstRun = cms.untracked.uint32(1),
         )
 
+process.source = cms.Source("EmptySource",
+)
 
 process.ProductionFilterSequence = cms.Sequence(process.generator)
 
 ############
 process.o1 = cms.OutputModule("PoolOutputModule",
         outputCommands = cms.untracked.vstring('keep *'),
-        fileName = cms.untracked.string('step1_SIM2017.root')
+        fileName = cms.untracked.string('step1_SIM2021.root')
         )
 
 process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)
+
+
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
 process.outpath = cms.EndPath(process.o1)
 process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulation_step,process.outpath)

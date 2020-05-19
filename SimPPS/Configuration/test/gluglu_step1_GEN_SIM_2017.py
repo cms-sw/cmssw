@@ -10,12 +10,11 @@ from Configuration.StandardSequences.Eras import eras
 process = cms.Process('SIM',eras.Run2_2017)
 
 # import of standard configurations
+process.load("CondCore.CondDB.CondDB_cfi")
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
-#process.load('Configuration.StandardSequences.GeometryRecoDB_cff')   # This line must be commented out while the pps sim geometry is not in the DB
-#process.load('Configuration.StandardSequences.GeometrySimDB_cff')   # This line must be commented out while the pps sim geometry is not in the DB
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedRealistic25ns13TeVEarly2017Collision_cfi')
@@ -24,34 +23,52 @@ process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-process.load('Configuration.Geometry.GeometryExtended2017_CTPPS_cff')   # This line must be added to simulate PPS while its sim geometry is not in the DB
+#process.load('Configuration.Geometry.GeometryExtended2017_CTPPS_cff')   # This line must be added to simulate PPS while its sim geometry is not in the DB
+process.load('Configuration.StandardSequences.GeometryDB_cff')
+process.GlobalTag.toGet = cms.VPSet(
+    cms.PSet(record = cms.string("GeometryFileRcd"),
+             tag = cms.string("XMLFILE_Geometry_110YV3_Extended2017CTPPS_mc"),
+             connect = cms.string("sqlite_file:PPS_geometry_DB.db")
+    )
+)
+process.XMLFromDBSource.label=''
 
 process.RandomNumberGeneratorService.generator.initialSeed = cms.untracked.uint32(random.randint(0,900000000))
 
+nEvent_ = 100
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(nEvent_)
 )
 
 # Input source
 process.source = cms.Source("EmptySource")
 
-process.options = cms.untracked.PSet(
-)
-
-# Production Info
-process.configurationMetadata = cms.untracked.PSet(
-    annotation = cms.untracked.string('GluGluTo2Jets_M_100_7TeV_exhume_cff.py nevts:1'),
-    name = cms.untracked.string('Applications'),
-    version = cms.untracked.string('$Revision: 1.19 $')
-)
-
-# Additional output definition
-
-# Other statements
-process.genstepfilter.triggerConditions=cms.vstring("generation_step")
+process.options = cms.untracked.PSet()
 
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_realistic', '')
+
+# beam optics
+process.CondDB.connect = 'frontier://FrontierProd/CMS_CONDITIONS'
+process.PoolDBESSource = cms.ESSource("PoolDBESSource",
+    process.CondDB
+ #   timetype = cms.untracked.string('runnumber'),
+  #  DumpStat=cms.untracked.bool(True),
+    #toGet = cms.VPSet(
+                #cms.PSet(
+                #    record = cms.string('LHCInfoRcd'),
+                #    tag = cms.string("LHCInfoEndFill_prompt_v2")  #  FrontierProd
+                #),
+                #cms.PSet(
+                    #record = cms.string('CTPPSOpticsRcd'),
+                    #tag = cms.string("PPSOpticalFunctions_offline_v5")
+                #),
+                #cms.PSet(
+                #    record = cms.string("CTPPSBeamParametersRcd"),
+                #    tag = cms.string("CTPPSBeamParameters_v1")
+                #)
+            #)
+)
 
 
 process.generator = cms.EDFilter("ExhumeGeneratorFilter",
@@ -88,6 +105,16 @@ process.generator = cms.EDFilter("ExhumeGeneratorFilter",
     pythiaHepMCVerbosity = cms.untracked.bool(False),
     pythiaPylistVerbosity = cms.untracked.int32(1)
 )
+
+# Production Info
+process.configurationMetadata = cms.untracked.PSet(
+    annotation = cms.untracked.string('GluGluTo2Jets_M_100_7TeV_exhume_cff.py nevts:1'),
+    name = cms.untracked.string('Applications'),
+    version = cms.untracked.string('$Revision: 1.19 $')
+)
+
+# Other statements
+process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 
 process.ProductionFilterSequence = cms.Sequence(process.generator)
 

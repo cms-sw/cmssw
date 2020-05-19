@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
-from SimPPS.Configuration.PPSTransport_cff import *
+from SimTransport.PPSProtonTransport.PPSTransport_cff import LHCTransport
+
 
 PPSTransportTask = cms.Task()
 
@@ -13,3 +14,6 @@ ctpps_2017.toReplaceWith(PPSTransportTask, cms.Task(LHCTransport))
 
 from Configuration.Eras.Modifier_ctpps_2018_cff import ctpps_2018
 ctpps_2018.toReplaceWith(PPSTransportTask, cms.Task(LHCTransport))
+
+from Configuration.Eras.Modifier_ctpps_2021_cff import ctpps_2021
+ctpps_2021.toReplaceWith(PPSTransportTask, cms.Task(LHCTransport))

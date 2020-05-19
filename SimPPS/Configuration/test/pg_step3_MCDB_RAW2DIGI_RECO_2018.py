@@ -4,7 +4,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Eras import eras
-process = cms.Process('RECO',eras.Run2_2017)
+process = cms.Process('RECO',eras.Run2_2018)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -14,15 +14,9 @@ process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.StandardSequences.GeometryDB_cff')
-process.load("Geometry.VeryForwardGeometry.geometryRPFromDB_cfi")                       # totem frame
-#process.load("Geometry.VeryForwardGeometry.geometryPPS_CMSxz_fromDD_2017_cfi")           # CMS frame
-process.GlobalTag.toGet = cms.VPSet(
-    cms.PSet(record = cms.string("GeometryFileRcd"),
-             tag = cms.string("XMLFILE_Geometry_110YV3_Extended2017CTPPS_mc"),
-             connect = cms.string("sqlite_file:PPS_geometry_DB.db")
-    )
-)
-process.XMLFromDBSource.label=''
+process.load("Geometry.VeryForwardGeometry.geometryRPFromDB_cfi")
+#process.load("Geometry.VeryForwardGeometry.geometryPPS_CMSxz_fromDD_2018_cfi")           # CMS frame
+
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
@@ -37,7 +31,7 @@ process.source = cms.Source("EmptyIOVSource",
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:step2_DIGI_DIGI2RAW2017.root'),
+    fileNames = cms.untracked.vstring('file:step2_DIGI_DIGI2RAW2018.root'),
     secondaryFileNames = cms.untracked.vstring()
 )
 
@@ -51,7 +45,7 @@ process.options = cms.untracked.PSet(
 # Output definition
 
 process.output = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('step3_RAW2DIGI_RECO2017.root'),
+    fileName = cms.untracked.string('step3_RAW2DIGI_RECO2018.root'),
     outputCommands = cms.untracked.vstring("drop *","keep PSimHits*_*_*_*","keep CTPPS*_*_*_*","keep *_*RP*_*_*",'keep *_LHCTransport_*_*')
 )
 
@@ -59,39 +53,27 @@ process.output = cms.OutputModule("PoolOutputModule",
 # Additional output definition
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_realistic', '')
-
-"""
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2018_realistic', '')
 process.GlobalTag.toGet = cms.VPSet(
     cms.PSet(
         record = cms.string('CTPPSPixelGainCalibrationsRcd'),
-        tag = cms.string("CTPPSPixelGainCalibrations_mc"),
+        #tag = cms.string("CTPPSPixelGainCalibrations_mc"),
+        tag = cms.string("CTPPSPixelGainCalibrations_v1_mc"),
         connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
         ),
     cms.PSet(
         record = cms.string('CTPPSPixelAnalysisMaskRcd'),
-        tag = cms.string("CTPPSPixelAnalysisMask_mc"),
+        tag = cms.string("CTPPSPixelAnalysisMask_v1_mc"),
         label = cms.untracked.string(""),
         connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
         ),
     cms.PSet(
         record = cms.string('CTPPSPixelDAQMappingRcd'),
-        tag = cms.string("CTPPSPixelDAQMapping_mc"),
+        tag = cms.string("CTPPSPixelDAQMapping_v1_mc"),
         connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
         )
 )
-"""
-# modify Totem 2017 mapping
-process.load('CalibPPS.ESProducers.totemDAQMappingESSourceXML_cfi')
-process.totemDAQMappingESSourceXML.configuration = cms.VPSet(
-    cms.PSet(
-      validityRange = cms.EventRange("1:min - 999999999:max"),
-      mappingFileNames = cms.vstring("CondFormats/PPSObjects/xml/mapping_tracking_strip_2017.xml"),
-      maskFileNames = cms.vstring()
-    )   
-)
-
-# modify CTPPS 2017 raw-to-digi modules
+# modify CTPPS 2018 raw-to-digi modules ONLY FOR PARTICLE GUN, TO AVOID RUN THIS FOR THE WHOLE CMS
 process.load('Configuration.StandardSequences.RawToDigi_cff')
              
 # do not make testID for simulation - keeping the frame

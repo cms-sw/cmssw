@@ -7,7 +7,7 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('RECO',eras.Run2_2017,eras.ctpps_2017)
+process = cms.Process('RECO',eras.Run2_2017)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -15,14 +15,15 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.RawToDigi_cff')
 process.load('Configuration.StandardSequences.L1Reco_cff')
 process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('CommonTools.ParticleFlow.EITopPAG_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.load("Geometry.VeryForwardGeometry.geometryPPS_CMSxz_fromDD_2017_cfi") # This line must be added while PPS sim geometry is not yet in the DB
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+process.load("Geometry.VeryForwardGeometry.geometryRPFromDB_cfi")
+
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)

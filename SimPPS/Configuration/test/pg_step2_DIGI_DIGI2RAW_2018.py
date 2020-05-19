@@ -5,7 +5,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Eras import eras
-process = cms.Process('DIGI2RAW',eras.Run2_2017)
+process = cms.Process('DIGI2RAW',eras.Run2_2018)
 
 # import of standard configurations
 process.load("CondCore.CondDB.CondDB_cfi")
@@ -20,19 +20,37 @@ process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('Configuration.StandardSequences.DigiToRaw_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.load('Configuration.StandardSequences.SimIdeal_cff')
-process.load('Configuration.StandardSequences.GeometryDB_cff')
-#process.load("Geometry.VeryForwardGeometry.geometryPPS_CMSxz_fromDD_2017_cfi")
+
+# Since the PPS simulation geometry is not yet in the database, the line below is needed
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+#process.load("Geometry.VeryForwardGeometry.geometryPPS_CMSxz_fromDD_2018_cfi")
 process.load("Geometry.VeryForwardGeometry.geometryRPFromDB_cfi")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(1000)
 )
-
+process.GlobalTag.toGet = cms.VPSet(
+    cms.PSet(
+        record = cms.string('CTPPSPixelGainCalibrationsRcd'),
+        tag = cms.string("CTPPSPixelGainCalibrations_v1_mc"),
+        connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
+        ),
+    cms.PSet(
+        record = cms.string('CTPPSPixelAnalysisMaskRcd'),
+        tag = cms.string("CTPPSPixelAnalysisMask_v1_mc"),
+        label = cms.untracked.string(""),
+        connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
+        ),
+    cms.PSet(
+        record = cms.string('CTPPSPixelDAQMappingRcd'),
+        tag = cms.string("CTPPSPixelDAQMapping_v1_mc"),
+        connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
+        )
+)
 # Input source
 process.source = cms.Source("PoolSource",
     dropDescendantsOfDroppedBranches = cms.untracked.bool(False),
-    fileNames = cms.untracked.vstring('file:step1_SIM2017.root'),
+    fileNames = cms.untracked.vstring('file:step1_SIM2018.root'),
     inputCommands = cms.untracked.vstring('keep *', 
         'drop *_genParticles_*_*', 
         'drop *_genParticlesForJets_*_*', 
@@ -54,7 +72,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.options = cms.untracked.PSet(
-    #SkipEvent = cms.untracked.vstring('ProductNotFound')
+    SkipEvent = cms.untracked.vstring('ProductNotFound')
 )
 
 # Production Info
@@ -71,7 +89,7 @@ process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
         filterName = cms.untracked.string('')
     ),
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-    fileName = cms.untracked.string('step2_DIGI_DIGI2RAW2017.root'),
+    fileName = cms.untracked.string('step2_DIGI_DIGI2RAW2018.root'),
     outputCommands = process.FEVTDEBUGEventContent.outputCommands + ['keep *_CTPPS*_*_*',"keep *_*RP*_*_*",'keep *_LHCTransport_*_*'],
     splitLevel = cms.untracked.int32(0)
 )
@@ -80,17 +98,9 @@ process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_realistic', '')
+#process.GlobalTag = GlobalTag(process.GlobalTag, '110X_upgrade2018_realistic_v5')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2018_realistic', '')
 
-# modify Totem 2017 mapping
-process.load('CalibPPS.ESProducers.totemDAQMappingESSourceXML_cfi')
-process.totemDAQMappingESSourceXML.configuration = cms.VPSet(
-    cms.PSet(
-      validityRange = cms.EventRange("1:min - 999999999:max"),
-      mappingFileNames = cms.vstring("CondFormats/PPSObjects/xml/mapping_tracking_strip_2017.xml"),
-      maskFileNames = cms.vstring()
-    )   
-)
 
 # Path and EndPath definitions
 process.digitisation_step = cms.Path(process.pdigi)
@@ -101,6 +111,7 @@ process.FEVTDEBUGoutput_step = cms.EndPath(process.FEVTDEBUGoutput)
 # Schedule definition
 process.schedule = cms.Schedule(process.digitisation_step,process.L1simulation_step,process.digi2raw_step)
 process.schedule.extend([process.endjob_step,process.FEVTDEBUGoutput_step])
+
 from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
 associatePatAlgosToolsTask(process)
 
