@@ -1,45 +1,48 @@
 #include "CondCore/ESSources/interface/registration_macros.h"
 
-#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
-#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationOffline.h"
-#include "CondFormats/DataRecord/interface/SiPixelGainCalibrationOfflineRcd.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationForHLT.h"
-#include "CondFormats/DataRecord/interface/SiPixelGainCalibrationForHLTRcd.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibration.h"
-#include "CondFormats/DataRecord/interface/SiPixelGainCalibrationRcd.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelDynamicInefficiency.h"
-#include "CondFormats/DataRecord/interface/SiPixelLorentzAngleRcd.h"
-#include "CondFormats/DataRecord/interface/SiPixelDynamicInefficiencyRcd.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
+#include "CondFormats/DataRecord/interface/SiPixelCPEGenericErrorParmRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelCalibConfigurationRcd.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelPerformanceSummary.h"
+#include "CondFormats/DataRecord/interface/SiPixelDynamicInefficiencyRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelGainCalibrationForHLTRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelGainCalibrationOfflineRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelGainCalibrationRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelLorentzAngleRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelPerformanceSummaryRcd.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
 #include "CondFormats/DataRecord/interface/SiPixelQualityFromDbRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelFEDChannelContainer.h"
-#include "CondFormats/DataRecord/interface/SiPixelStatusScenariosRcd.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelQualityProbabilities.h"
 #include "CondFormats/DataRecord/interface/SiPixelStatusScenarioProbabilityRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelStatusScenariosRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelVCalRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelCPEGenericErrorParm.h"
-#include "CondFormats/DataRecord/interface/SiPixelCPEGenericErrorParmRcd.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelDynamicInefficiency.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFEDChannelContainer.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibration.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationForHLT.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationOffline.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelPerformanceSummary.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelQualityProbabilities.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelVCal.h"
 
-#include "CondFormats/SiPixelObjects/interface/SiPixelTemplateDBObject.h"
 #include "CondFormats/DataRecord/interface/SiPixelTemplateDBObjectRcd.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelTemplateDBObject.h"
 
-#include "CondFormats/SiPixelObjects/interface/SiPixel2DTemplateDBObject.h"
 #include "CondFormats/DataRecord/interface/SiPixel2DTemplateDBObjectRcd.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixel2DTemplateDBObject.h"
 
-#include "CondFormats/SiPixelObjects/interface/SiPixelGenErrorDBObject.h"
+#include "CondFormats/DataRecord/interface/PixelDCSRcds.h"
 #include "CondFormats/DataRecord/interface/SiPixelGenErrorDBObjectRcd.h"
 #include "CondFormats/SiPixelObjects/interface/PixelDCSObject.h"
-#include "CondFormats/DataRecord/interface/PixelDCSRcds.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelGenErrorDBObject.h"
 
-#include "CondFormats/DataRecord/interface/SiPixelGainCalibrationOfflineSimRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelGainCalibrationForHLTSimRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelGainCalibrationOfflineSimRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelLorentzAngleSimRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelVCalSimRcd.h"
 
 namespace {
   struct InitRocs {
@@ -67,6 +70,8 @@ REGISTER_PLUGIN_INIT(SiPixelGainCalibrationOfflineSimRcd,
                      InitGains<SiPixelGainCalibrationOffline>);
 REGISTER_PLUGIN(SiPixelLorentzAngleRcd, SiPixelLorentzAngle);
 REGISTER_PLUGIN(SiPixelLorentzAngleSimRcd, SiPixelLorentzAngle);
+REGISTER_PLUGIN(SiPixelVCalRcd, SiPixelVCal);
+REGISTER_PLUGIN(SiPixelVCalSimRcd, SiPixelVCal);
 REGISTER_PLUGIN(SiPixelDynamicInefficiencyRcd, SiPixelDynamicInefficiency);
 REGISTER_PLUGIN(SiPixelCalibConfigurationRcd, SiPixelCalibConfiguration);
 REGISTER_PLUGIN(SiPixelPerformanceSummaryRcd, SiPixelPerformanceSummary);
