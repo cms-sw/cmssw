@@ -8,13 +8,14 @@ def customizeRecoMaterial(process):
     
     if hasattr(process,'XMLIdealGeometryESSource') and hasattr(process.XMLIdealGeometryESSource,'geomXMLFiles'):
         
-        print("customizing Tracker Reco Material")
-        process.XMLIdealGeometryESSource.geomXMLFiles.remove(
-            'Geometry/TrackerRecoData/data/PhaseII/TiltedTracker613_MB_2019_04/trackerRecoMaterial.xml'
-        )
+
+        if 'Geometry/TrackerRecoData/data/PhaseII/TiltedTracker613_MB_2019_04/trackerRecoMaterial.xml' in process.XMLIdealGeometryESSource.geomXMLFiles :
+            process.XMLIdealGeometryESSource.geomXMLFiles.remove(
+                'Geometry/TrackerRecoData/data/PhaseII/TiltedTracker613_MB_2019_04/trackerRecoMaterial.xml'
+            )
         
-        process.XMLIdealGeometryESSource.geomXMLFiles.append(
-            'Geometry/TrackerRecoData/data/PhaseII/TiltedTracker613_MB_2019_04/v2_ITonly/trackerRecoMaterial.xml'
-        )
+            process.XMLIdealGeometryESSource.geomXMLFiles.append(
+                'Geometry/TrackerRecoData/data/PhaseII/TiltedTracker613_MB_2019_04/v2_ITonly/trackerRecoMaterial.xml'
+            )
         
     return process
