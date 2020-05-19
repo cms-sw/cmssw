@@ -24,7 +24,6 @@ else:
 #)
 
 process.load("DQM.Integration.config.environment_cfi")
-process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/hlt_reference.root"
 
 process.dqmEnv.subSystemFolder = 'HLT'
 process.dqmSaver.tag = 'HLT'

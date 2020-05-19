@@ -26,7 +26,6 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 process.load('DQMServices.Core.DQMStore_cfi')
-process.DQMStore.referenceFileName = cms.string('/afs/cern.ch/user/d/dutta/work/public/BadChannel/DQM_V0001_R000260576__ZeroBias__Run2015D-PromptReco-v4__DQMIO.root')
 
 process.siStripQualityESProducer.ListOfRecordToMerge = cms.VPSet(
        cms.PSet(record = cms.string('SiStripBadFiberRcd'), tag = cms.string('')),

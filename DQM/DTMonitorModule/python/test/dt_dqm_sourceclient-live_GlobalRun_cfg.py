@@ -16,7 +16,6 @@ process.source.sourceURL = cms.string('http://dqm-c2d07-30:22100/urn:xdaq-applic
 #### DQM Environment
 #----------------------------
 process.load("DQMServices.Core.DQM_cfg")
-process.DQMStore.referenceFileName = "/dtdata/dqmdata/global/dt_reference.root"
 
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 
