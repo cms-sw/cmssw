@@ -38,7 +38,7 @@ public:
 
   // ---------- member functions ---------------------------
 protected:
-  void prefetch(edm::eventsetup::DataKey const& iKey) final {
+  void prefetch(edm::eventsetup::DataKey const& iKey, edm::EventSetupRecordDetails) final {
     m_data->make();
     m_initializer(const_cast<DataT&>((*m_data)()));
   }
