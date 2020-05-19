@@ -440,11 +440,16 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
                        [n_towers_halfPhi];  // 36 L1 cards send each 4 links with 17 towers
   int iPhi_tower_L1Card[n_links_card][n_towers_cardEta]
                        [n_towers_halfPhi];  // 36 L1 cards send each 4 links with 17 towers
-  float energy_cluster_L1Card[n_links_card][n_clusters_link][n_towers_halfPhi];     // 36 L1 cards send each 4 links with 3 clusters
-  int brem_cluster_L1Card[n_links_card][n_clusters_link][n_towers_halfPhi];         // 36 L1 cards send each 4 links with 3 clusters
-  int towerID_cluster_L1Card[n_links_card][n_clusters_link][n_towers_halfPhi];      // 36 L1 cards send each 4 links with 3 clusters
-  int crystalID_cluster_L1Card[n_links_card][n_clusters_link][n_towers_halfPhi];    // 36 L1 cards send each 4 links with 3 clusters
-  int showerShape_cluster_L1Card[n_links_card][n_clusters_link][n_towers_halfPhi];  // 36 L1 cards send each 4 links with 3 clusters
+  float energy_cluster_L1Card[n_links_card][n_clusters_link]
+                             [n_towers_halfPhi];  // 36 L1 cards send each 4 links with 3 clusters
+  int brem_cluster_L1Card[n_links_card][n_clusters_link]
+                         [n_towers_halfPhi];  // 36 L1 cards send each 4 links with 3 clusters
+  int towerID_cluster_L1Card[n_links_card][n_clusters_link]
+                            [n_towers_halfPhi];  // 36 L1 cards send each 4 links with 3 clusters
+  int crystalID_cluster_L1Card[n_links_card][n_clusters_link]
+                              [n_towers_halfPhi];  // 36 L1 cards send each 4 links with 3 clusters
+  int showerShape_cluster_L1Card[n_links_card][n_clusters_link]
+                                [n_towers_halfPhi];  // 36 L1 cards send each 4 links with 3 clusters
   int showerShapeLooseTk_cluster_L1Card[n_links_card][n_clusters_link]
                                        [n_towers_halfPhi];  // 36 L1 cards send each 4 links with 3 clusters
   int photonShowerShape_cluster_L1Card[n_links_card][n_clusters_link]
@@ -492,8 +497,8 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
               getCrystal_etaID(hit.position.eta()) <= getEtaMax_card(cc) &&
               getCrystal_etaID(hit.position.eta()) >= getEtaMin_card(cc)) {  // Check that the hit is in the good card
             if (getCrystal_etaID(hit.position.eta()) < getEtaMin_card(cc) + n_crystals_3towers * (nregion + 1) &&
-                getCrystal_etaID(hit.position.eta()) >= getEtaMin_card(cc) + n_crystals_3towers * nregion && !hit.used &&
-                hit.pt() >= 1.0 && hit.pt() > centerhit.pt())  // 3 towers x 5 crystals
+                getCrystal_etaID(hit.position.eta()) >= getEtaMin_card(cc) + n_crystals_3towers * nregion &&
+                !hit.used && hit.pt() >= 1.0 && hit.pt() > centerhit.pt())  // 3 towers x 5 crystals
             {  // Highest hit in good region with pt>1 and not used in any other cluster
               centerhit = hit;
               build_cluster = true;
@@ -593,7 +598,8 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
                   getCrystal_etaID(hit.position.eta()) <= getEtaMax_card(cc) &&
                   getCrystal_etaID(hit.position.eta()) >= getEtaMin_card(cc) && hit.pt() > 0 &&
                   getCrystal_etaID(hit.position.eta()) < getEtaMin_card(cc) + n_crystals_3towers * (nregion + 1) &&
-                  getCrystal_etaID(hit.position.eta()) >= getEtaMin_card(cc) + n_crystals_3towers * nregion && !hit.used) {
+                  getCrystal_etaID(hit.position.eta()) >= getEtaMin_card(cc) + n_crystals_3towers * nregion &&
+                  !hit.used) {
                 if (rightlobe > 0.10 * mc1.cpt && (leftlobe < 0.10 * mc1.cpt or rightlobe > leftlobe) &&
                     abs(hit.dieta(centerhit)) <= 1 && hit.diphi(centerhit) > 2 && hit.diphi(centerhit) <= 7) {
                   mc1.cpt += hit.pt();
@@ -824,11 +830,13 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
                      crystalID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] % 5) < 2) {
               if (energy_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] >
                   energy_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right]) {
-                energy_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] += energy_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right];
+                energy_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] +=
+                    energy_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right];
                 energy_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] = 0;
               }  // The least energetic cluster is merged to the most energetic one
               else {
-                energy_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] += energy_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left];
+                energy_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] +=
+                    energy_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left];
                 energy_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] = 0;
               }
             }
@@ -853,13 +861,17 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
                   0) {  // if the tower is at the edge there might be brem corrections, whatever the crystal ID
             for (int ll = 0; ll < n_clusters_4link; ++ll) {  // We check the 12 clusters in the card on the right
               if (towerID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] < n_towers_cardEta &&
-                  fabs(5 * (towerID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right]) % n_towers_cardEta +
+                  fabs(5 * (towerID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right]) %
+                           n_towers_cardEta +
                        crystalID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] % 5 -
-                       5 * (towerID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left]) % n_towers_cardEta -
-                       crystalID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] % 5) <= 1) {  //Distance of 1 max in eta
+                       5 * (towerID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left]) %
+                           n_towers_cardEta -
+                       crystalID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] % 5) <=
+                      1) {  //Distance of 1 max in eta
                 if (towerID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] < n_towers_cardEta &&
                     fabs(5 + crystalID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] / 5 -
-                         (crystalID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] / 5)) <= 5) {  //Distance of 5 max in phi
+                         (crystalID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] / 5)) <=
+                        5) {  //Distance of 5 max in phi
                   if (energy_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_left] >
                           energy_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] &&
                       energy_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_right] >
@@ -895,7 +907,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
       if (towerID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_bottom] % n_towers_cardEta == 16 &&
           crystalID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_bottom] % 5 == n_links_card &&
           energy_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_bottom] >
-              0) {                         // If there is one cluster on the right side of the first card
+              0) {                                       // If there is one cluster on the right side of the first card
         for (int ll = 0; ll < n_clusters_4link; ++ll) {  // We check the card on the right
           if (fabs(5 * (towerID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_bottom] / n_towers_cardEta) +
                    crystalID_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_bottom] / 5 -
@@ -903,10 +915,12 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
                    crystalID_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_top] / 5) < 2) {
             if (energy_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_bottom] >
                 energy_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_bottom]) {
-              energy_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_bottom] += energy_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_top];
+              energy_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_bottom] +=
+                  energy_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_top];
               energy_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_top] = 0;
             } else {
-              energy_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_top] += energy_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_bottom];
+              energy_cluster_L1Card[ll % n_links_card][ll / n_links_card][card_top] +=
+                  energy_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_bottom];
               energy_cluster_L1Card[kk % n_links_card][kk / n_links_card][card_bottom] = 0;
             }
           }
@@ -1024,17 +1038,24 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
   //Second let's fill the clusters
   for (int ii = 0; ii < n_towers_halfPhi; ++ii) {  // The cluster list is still in the L1 like geometry
     for (unsigned int jj = 0; jj < unsigned(cluster_list_L2[ii].size()) && jj < n_clusters_4link; ++jj) {
-      crystalID_cluster_L2Card[n_links_card * (ii % n_clusters_4link) + jj % n_links_card][jj / n_links_card][ii / n_clusters_4link] = cluster_list_L2[ii][jj].ccrystalid;
-      towerID_cluster_L2Card[n_links_card * (ii % n_clusters_4link) + jj % n_links_card][jj / n_links_card][ii / n_clusters_4link] = cluster_list_L2[ii][jj].ctowerid;
-      energy_cluster_L2Card[n_links_card * (ii % n_clusters_4link) + jj % n_links_card][jj / n_links_card][ii / n_clusters_4link] = cluster_list_L2[ii][jj].cpt;
-      brem_cluster_L2Card[n_links_card * (ii % n_clusters_4link) + jj % n_links_card][jj / n_links_card][ii / n_clusters_4link] = cluster_list_L2[ii][jj].cbrem;
-      isolation_cluster_L2Card[n_links_card * (ii % n_clusters_4link) + jj % n_links_card][jj / n_links_card][ii / n_clusters_4link] = cluster_list_L2[ii][jj].ciso;
-      HE_cluster_L2Card[n_links_card * (ii % n_clusters_4link) + jj % n_links_card][jj / n_links_card][ii / n_clusters_4link] = cluster_list_L2[ii][jj].chovere;
-      showerShape_cluster_L2Card[n_links_card * (ii % n_clusters_4link) + jj % n_links_card][jj / n_links_card][ii / n_clusters_4link] = cluster_list_L2[ii][jj].cshowershape;
-      showerShapeLooseTk_cluster_L2Card[n_links_card * (ii % n_clusters_4link) + jj % n_links_card][jj / n_links_card][ii / n_clusters_4link] =
-          cluster_list_L2[ii][jj].cshowershapeloosetk;
-      photonShowerShape_cluster_L2Card[n_links_card * (ii % n_clusters_4link) + jj % n_links_card][jj / n_links_card][ii / n_clusters_4link] =
-          cluster_list_L2[ii][jj].cphotonshowershape;
+      crystalID_cluster_L2Card[n_links_card * (ii % n_clusters_4link) + jj % n_links_card][jj / n_links_card]
+                              [ii / n_clusters_4link] = cluster_list_L2[ii][jj].ccrystalid;
+      towerID_cluster_L2Card[n_links_card * (ii % n_clusters_4link) + jj % n_links_card][jj / n_links_card]
+                            [ii / n_clusters_4link] = cluster_list_L2[ii][jj].ctowerid;
+      energy_cluster_L2Card[n_links_card * (ii % n_clusters_4link) + jj % n_links_card][jj / n_links_card]
+                           [ii / n_clusters_4link] = cluster_list_L2[ii][jj].cpt;
+      brem_cluster_L2Card[n_links_card * (ii % n_clusters_4link) + jj % n_links_card][jj / n_links_card]
+                         [ii / n_clusters_4link] = cluster_list_L2[ii][jj].cbrem;
+      isolation_cluster_L2Card[n_links_card * (ii % n_clusters_4link) + jj % n_links_card][jj / n_links_card]
+                              [ii / n_clusters_4link] = cluster_list_L2[ii][jj].ciso;
+      HE_cluster_L2Card[n_links_card * (ii % n_clusters_4link) + jj % n_links_card][jj / n_links_card]
+                       [ii / n_clusters_4link] = cluster_list_L2[ii][jj].chovere;
+      showerShape_cluster_L2Card[n_links_card * (ii % n_clusters_4link) + jj % n_links_card][jj / n_links_card]
+                                [ii / n_clusters_4link] = cluster_list_L2[ii][jj].cshowershape;
+      showerShapeLooseTk_cluster_L2Card[n_links_card * (ii % n_clusters_4link) + jj % n_links_card][jj / n_links_card]
+                                       [ii / n_clusters_4link] = cluster_list_L2[ii][jj].cshowershapeloosetk;
+      photonShowerShape_cluster_L2Card[n_links_card * (ii % n_clusters_4link) + jj % n_links_card][jj / n_links_card]
+                                      [ii / n_clusters_4link] = cluster_list_L2[ii][jj].cphotonshowershape;
     }
   }
 
