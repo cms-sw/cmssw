@@ -86,13 +86,13 @@ void DTResolutionAnalysisTest::bookHistos(DQMStore::IBooker& ibooker) {
              stringstream SL;
              SL << sl;
              if(sl==2 && st ==4) continue;
-             ibooker.setCurrentFolder(topHistoFolder + "/00-MeanRes");
+             ibooker.setCurrentFolder(topHistoFolder + "/00-MeanRes/Wheel" + wheel.str());
              string histoLabel = "MeanDistr";
              string histoName = histoLabel  + "_W" + wheel.str() + "_MB" + station.str() + "_SL" + SL.str();
              string histoType = histoLabel + "_SL" + SL.str();
              (wheelRingHistos[wh][st])[histoType] = ibooker.book1D(histoName, histoLabel, 100, -0.1, 0.1);
 
-             ibooker.setCurrentFolder(topHistoFolder + "/01-SigmaRes");
+             ibooker.setCurrentFolder(topHistoFolder + "/01-SigmaRes/WHeel" + wheel.str());
              histoLabel = "SigmaDistr";
              histoName = histoLabel  + "_W" + wheel.str() + "_MB" + station.str() + "_SL" + SL.str();
              histoType = histoLabel + "_SL" + SL.str();
