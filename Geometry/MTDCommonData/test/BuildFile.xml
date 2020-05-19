@@ -22,3 +22,8 @@
   <use name="rootcling"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<bin file="dummyMain.cpp" name="GeometryMTDCommonDataTestDriver">
+  <use name="FWCore/Utilities"/>
+  <flags TEST_RUNNER_ARGS="/bin/bash Geometry/MTDCommonData/test runTest.sh"/>
+</bin>
