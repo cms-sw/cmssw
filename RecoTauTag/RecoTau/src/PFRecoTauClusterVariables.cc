@@ -196,7 +196,7 @@ namespace reco {
             mvaOpt == kDBnewDMwLTwGJ) &&
            (tauDecayMode == 0 || tauDecayMode == 1 || tauDecayMode == 2 || tauDecayMode == 5 || tauDecayMode == 6 ||
             tauDecayMode == 10 || tauDecayMode == 11))) {
-        
+
         float chargedIsoPtSum = tau.tauID(nameCharged);
         float neutralIsoPtSum = tau.tauID(nameNeutral);
         float puCorrPtSum = tau.tauID(namePu);
