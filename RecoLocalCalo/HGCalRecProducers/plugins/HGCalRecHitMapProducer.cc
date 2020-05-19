@@ -44,7 +44,9 @@ void HGCalRecHitMapProducer::fillDescriptions(edm::ConfigurationDescriptions& de
 }
 
 void HGCalRecHitMapProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetup& es) const {
-  std::unique_ptr<std::map<DetId, const HGCRecHit*>> hitMap(new std::map<DetId, const HGCRecHit*>);
+  //std::unique_ptr<std::map<DetId, const HGCRecHit*>> hitMap(new std::map<DetId, const HGCRecHit*>);
+
+  auto hitMap = std::make_unique<std::map<DetId, const HGCRecHit*>>();
   const auto& ee_hits = evt.get(hits_ee_token_);
   const auto& fh_hits = evt.get(hits_fh_token_);
   const auto& bh_hits = evt.get(hits_bh_token_);
