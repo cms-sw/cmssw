@@ -282,14 +282,25 @@ class SetupAlignment(object):
             tmpFile = re.sub(collection_regex,
                              'setupCollection = \"'+dataset["collection"]+'\"',
                              tmpFile)
-            if dataset['cosmicsZeroTesla']:
-                tmpFile = re.sub(czt_regex,
-                                 'setupCosmicsZeroTesla = True',
-                                 tmpFile)
-            if dataset['cosmicsDecoMode']:
-                tmpFile = re.sub(cdm_regex,
-                                 'setupCosmicsDecoMode = True',
-                                 tmpFile)
+            if "ALCARECOTkAlCosmics" in dataset["collection"]:
+                if dataset['cosmicsZeroTesla']:
+                    tmpFile = re.sub(czt_regex,
+                                     'setupCosmicsZeroTesla = True',
+                                     tmpFile)
+                else :
+                    tmpFile = re.sub(czt_regex,
+                                    'setupCosmicsZeroTesla = False',
+                                     tmpFile)
+
+                if dataset['cosmicsDecoMode']:
+                     tmpFile = re.sub(cdm_regex,
+                                     'setupCosmicsDecoMode = True',
+                                     tmpFile)
+                else:
+                    tmpFile = re.sub(cdm_regex,
+                                     'setupCosmicsDecoMode = False',
+                                     tmpFile)
+
             if dataset['primaryWidth'] > 0.0:
                 tmpFile = re.sub(pw_regex,
                                  'setupPrimaryWidth = '+str(dataset["primaryWidth"]),
@@ -339,8 +350,7 @@ class SetupAlignment(object):
             print("-"*75)
             print("Baseconfig:        ", dataset["configTemplate"])
             print("Collection:        ", dataset["collection"])
-            if dataset["collection"] in ("ALCARECOTkAlCosmicsCTF0T",
-                                         "ALCARECOTkAlCosmicsInCollisions"):
+            if "ALCARECOTkAlCosmics" in dataset["collection"]:
                 print("cosmicsDecoMode:   ", dataset["cosmicsDecoMode"])
                 print("cosmicsZeroTesla:  ", dataset["cosmicsZeroTesla"])
             print("Globaltag:         ", dataset["globaltag"])
@@ -777,15 +787,19 @@ class SetupAlignment(object):
                                     sys.exit(1)
 
                     # extract non-essential options
-                    self._datasets[name]["cosmicsZeroTesla"] = False
-                    if config["config"].has_option(section,"cosmicsZeroTesla"):
-                        self._datasets[name]["cosmicsZeroTesla"] \
-                            = config["config"].getboolean(section,"cosmicsZeroTesla")
-
-                    self._datasets[name]["cosmicsDecoMode"] = False
-                    if config["config"].has_option(section,"cosmicsDecoMode"):
-                        self._datasets[name]["cosmicsDecoMode"] \
-                            = config["config"].getboolean(section,"cosmicsDecoMode")
+                    if "ALCARECOTkAlCosmics" in self._datasets[name]["collection"]:
+                        try:
+                            self._datasets[name]["cosmicsZeroTesla"] \
+                                = config["config"].getboolean(section,"cosmicsZeroTesla")
+                        except ConfigParser.NoOptionError:
+                            print("No option cosmicsZeroTesla found in", section,"even though it is required for dataset type", self._datasets[name]["collection"], ". Please check ini-file.")
+                            sys.exit(1)
+                        try:
+                            self._datasets[name]["cosmicsDecoMode"] \
+                                = config["config"].getboolean(section,"cosmicsDecoMode")
+                        except ConfigParser.NoOptionError:
+                            print("No option cosmicsDecoMode found in", section,"even though it is required for dataset type", self._datasets[name]["collection"], ".Please check ini-file.")
+                            sys.exit(1)
 
                     self._datasets[name]["primaryWidth"] = -1.0
                     if config["config"].has_option(section,"primaryWidth"):
