@@ -11,7 +11,6 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 #process.Tracer = cms.Service("Tracer")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
-
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10000)
 )
@@ -72,8 +71,8 @@ process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2 = patDiscriminationByI
 )
 
 process.rerunMvaIsolation2Seq_Phase2 = cms.Sequence(
-   process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2raw
-   *process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2
+    process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2raw
+    * process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2
 )
 
 # embed new id's into tau
