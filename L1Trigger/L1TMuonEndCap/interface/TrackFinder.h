@@ -37,7 +37,6 @@ private:
   const edm::EDGetToken tokenCSC_;
   const edm::EDGetToken tokenCSCComparator_;
   const edm::EDGetToken tokenRPC_;
-  const edm::EDGetToken tokenRPCRecHit_;
   const edm::EDGetToken tokenCPPF_;
   const edm::EDGetToken tokenGEM_;
   const edm::EDGetToken tokenME0_;
