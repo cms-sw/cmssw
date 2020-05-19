@@ -2,14 +2,15 @@
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-Phase2StripCPE::Phase2StripCPE(edm::ParameterSet& conf, const MagneticField& magf, const TrackerGeometry& geom)
-    : magfield_(magf), geom_(geom), tanLorentzAnglePerTesla_(conf.getParameter<double>("TanLorentzAnglePerTesla")) {
+Phase2StripCPE::Phase2StripCPE(edm::ParameterSet& conf,
+                               const MagneticField& magf,
+                               const TrackerGeometry& geom,
+                               const SiPhase2OuterTrackerLorentzAngle& LorentzAngle)
+    : magfield_(magf),
+      geom_(geom),
+      LorentzAngleMap_(LorentzAngle),
+      tanLorentzAnglePerTesla_(conf.getParameter<double>("TanLorentzAnglePerTesla")) {
   use_LorentzAngle_DB_ = conf.getParameter<bool>("LorentzAngle_DB");
-  if (use_LorentzAngle_DB_) {
-    throw cms::Exception("Lorentz Angle from DB not implemented yet");
-    tanLorentzAnglePerTesla_ = 0;
-    // old code: LorentzAngleMap_.getLorentzAngle(det->geographicalId().rawId());
-  }
   fillParam();
 }
 
@@ -28,8 +29,15 @@ Phase2StripCPE::LocalValues Phase2StripCPE::localParameters(const Phase2TrackerC
 LocalVector Phase2StripCPE::driftDirection(const Phase2TrackerGeomDetUnit& det) const {
   LocalVector lbfield = (det.surface()).toLocal(magfield_.inTesla(det.surface().position()));
 
-  float dir_x = -tanLorentzAnglePerTesla_ * lbfield.y();
-  float dir_y = tanLorentzAnglePerTesla_ * lbfield.x();
+  float langle = 0.;
+  if (use_LorentzAngle_DB_) {
+    langle = LorentzAngleMap_.getLorentzAngle(det.geographicalId().rawId());
+  } else {
+    langle = tanLorentzAnglePerTesla_;
+  }
+
+  float dir_x = -langle * lbfield.y();
+  float dir_y = langle * lbfield.x();
   float dir_z = 1.f;  // E field always in z direction
 
   return LocalVector(dir_x, dir_y, dir_z);

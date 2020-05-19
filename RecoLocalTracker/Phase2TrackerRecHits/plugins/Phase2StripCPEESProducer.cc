@@ -7,6 +7,7 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "CondFormats/DataRecord/interface/SiPhase2OuterTrackerLorentzAngleRcd.h"
 
 #include "RecoLocalTracker/Records/interface/TkStripCPERecord.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/ClusterParameterEstimator.h"
@@ -28,6 +29,7 @@ private:
 
   edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magfieldToken_;
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> pDDToken_;
+  edm::ESGetToken<SiPhase2OuterTrackerLorentzAngle, SiPhase2OuterTrackerLorentzAngleRcd> lorentzAngleToken_;
   CPE_t cpeNum_;
   edm::ParameterSet pset_;
 };
@@ -47,6 +49,7 @@ Phase2StripCPEESProducer::Phase2StripCPEESProducer(const edm::ParameterSet& p) {
   if (cpeNum_ != GEOMETRIC) {
     c.setConsumes(magfieldToken_);
     c.setConsumes(pDDToken_);
+    c.setConsumes(lorentzAngleToken_);
   }
 }
 
@@ -55,7 +58,8 @@ std::unique_ptr<ClusterParameterEstimator<Phase2TrackerCluster1D> > Phase2StripC
   std::unique_ptr<ClusterParameterEstimator<Phase2TrackerCluster1D> > cpe_;
   switch (cpeNum_) {
     case DEFAULT:
-      cpe_ = std::make_unique<Phase2StripCPE>(pset_, iRecord.get(magfieldToken_), iRecord.get(pDDToken_));
+      cpe_ = std::make_unique<Phase2StripCPE>(
+          pset_, iRecord.get(magfieldToken_), iRecord.get(pDDToken_), iRecord.get(lorentzAngleToken_));
       break;
 
     case GEOMETRIC:
