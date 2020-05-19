@@ -54,8 +54,8 @@ CandPtrProjector::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup con
     if (vetoedPtrs.find(c)==vetoedPtrs.cend()) {
       bool addcand = true;
       if (useDeltaRforFootprint_)
-        for( const auto& it : vetoedPtrs)
-          if ((it.isNonnull()) && (it.isAvailable()) && (reco::deltaR2(it->p4(), c->p4()) < 0.00000025)) {
+        for (const auto& it : vetoedPtrs)
+          if (it.isNonnull() && it.isAvailable() && reco::deltaR2(*it, *c) < 0.00000025) {
             addcand = false;
             break;
           }
