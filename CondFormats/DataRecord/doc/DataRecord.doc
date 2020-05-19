@@ -277,6 +277,8 @@
 - SiPixelTemplateDBObjectRcd
 - SiPixel2DTemplateDBObjectRcd
 - SiPixelGenErrorDBObjectRcd
+- SiPixelVCalRcd
+- SiPixelVCalSimRcd
 - SiStripApvGainRcd
 - SiStripBadChannelRcd
 - SiStripBadFiberRcd
