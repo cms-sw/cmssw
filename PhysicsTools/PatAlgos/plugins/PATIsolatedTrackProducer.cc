@@ -300,7 +300,8 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
 
     // isolation cut
     if (polarP4.pt() < pT_cut_noIso_ && prescaled <= 1 &&
-        !(isolationDR03.chargedHadronIso() < absIso_cut_ || isolationDR03.chargedHadronIso() / polarP4.pt() < relIso_cut_ ||
+        !(isolationDR03.chargedHadronIso() < absIso_cut_ ||
+          isolationDR03.chargedHadronIso() / polarP4.pt() < relIso_cut_ ||
           miniIso.chargedHadronIso() / polarP4.pt() < miniRelIso_cut_))
       continue;
 
@@ -459,9 +460,9 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
     getIsolation(polarP4, pc, ipc, isolationDR03, miniIso);
 
     // isolation cut
-    if (polarP4.pt() < pT_cut_noIso_ &&
-        !(isolationDR03.chargedHadronIso() < absIso_cut_ || isolationDR03.chargedHadronIso() / polarP4.pt() < relIso_cut_ ||
-          miniIso.chargedHadronIso() / polarP4.pt() < miniRelIso_cut_))
+    if (polarP4.pt() < pT_cut_noIso_ && !(isolationDR03.chargedHadronIso() < absIso_cut_ ||
+                                          isolationDR03.chargedHadronIso() / polarP4.pt() < relIso_cut_ ||
+                                          miniIso.chargedHadronIso() / polarP4.pt() < miniRelIso_cut_))
       continue;
 
     pdgId = pfCand.pdgId();

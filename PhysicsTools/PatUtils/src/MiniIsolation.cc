@@ -31,25 +31,25 @@ namespace pat {
     float drcut = miniIsoDr(p4, mindr, maxdr, kt_scale);
     for (auto const &pc : *pfcands) {
       float dr2 = deltaR2(p4, pc);
-      if (dr2 > drcut*drcut)
+      if (dr2 > drcut * drcut)
         continue;
       float pt = pc.p4().pt();
       int id = pc.pdgId();
       if (std::abs(id) == 211) {
         bool fromPV = (pc.fromPV() > 1 || fabs(pc.dz()) < dZ_cut);
-        if (fromPV && dr2 > deadcone_ch*deadcone_ch) {
+        if (fromPV && dr2 > deadcone_ch * deadcone_ch) {
           // if charged hadron and from primary vertex, add to charged hadron isolation
           chiso += pt;
-        } else if (!fromPV && pt > ptthresh && dr2 > deadcone_pu*deadcone_pu) {
+        } else if (!fromPV && pt > ptthresh && dr2 > deadcone_pu * deadcone_pu) {
           // if charged hadron and NOT from primary vertex, add to pileup isolation
           puiso += pt;
         }
       }
       // if neutral hadron, add to neutral hadron isolation
-      if (std::abs(id) == 130 && pt > ptthresh && dr2 > deadcone_nh*deadcone_nh)
+      if (std::abs(id) == 130 && pt > ptthresh && dr2 > deadcone_nh * deadcone_nh)
         nhiso += pt;
       // if photon, add to photon isolation
-      if (std::abs(id) == 22 && pt > ptthresh && dr2 > deadcone_ph*deadcone_ph)
+      if (std::abs(id) == 22 && pt > ptthresh && dr2 > deadcone_ph * deadcone_ph)
         phiso += pt;
     }
 
