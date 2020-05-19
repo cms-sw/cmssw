@@ -3,7 +3,7 @@
 #include "CondFormats/SiPhase2TrackerObjects/interface/SiPhase2OuterTrackerLorentzAngle.h"
 
 #include "CondFormats/DataRecord/interface/TrackerDetToDTCELinkCablingMapRcd.h"
-#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
+#include "CondFormats/DataRecord/interface/SiPhase2OuterTrackerCondDataRecords.h"
 
 REGISTER_PLUGIN(TrackerDetToDTCELinkCablingMapRcd, TrackerDetToDTCELinkCablingMap);
 REGISTER_PLUGIN(SiPhase2OuterTrackerLorentzAngleRcd, SiPhase2OuterTrackerLorentzAngle);

@@ -1,1 +1,1 @@
-#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h" 
+#include "CondFormats/DataRecord/interface/SiPhase2OuterTrackerCondDataRecords.h"
