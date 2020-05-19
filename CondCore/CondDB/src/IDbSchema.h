@@ -23,7 +23,6 @@ namespace cond {
                           std::string& objectType,
                           cond::SynchronizationType& synchronizationType,
                           cond::Time_t& endOfValidity,
-                          std::string& description,
                           cond::Time_t& lastValidatedTime) = 0;
       virtual bool getMetadata(const std::string& name,
                                std::string& description,
@@ -40,9 +39,11 @@ namespace cond {
       virtual void update(const std::string& name,
                           cond::SynchronizationType synchronizationType,
                           cond::Time_t& endOfValidity,
-                          const std::string& description,
                           cond::Time_t lastValidatedTime,
                           const boost::posix_time::ptime& updateTime) = 0;
+      virtual void updateMetadata(const std::string& name,
+                                  const std::string& description,
+                                  const boost::posix_time::ptime& updateTime) = 0;
       virtual void updateValidity(const std::string& name,
                                   cond::Time_t lastValidatedTime,
                                   const boost::posix_time::ptime& updateTime) = 0;
