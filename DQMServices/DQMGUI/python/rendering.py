@@ -165,6 +165,7 @@ class GUIRenderer:
         This method provides a thread safe access to the available out of process renderers. If none are available, 
         it waits asynchronously until one frees up.
         """
+
         await cls.__semaphore.acquire()
 
         try:

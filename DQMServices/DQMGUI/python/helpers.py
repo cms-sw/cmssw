@@ -1,4 +1,23 @@
 import os
+import time
+from inspect import getframeinfo, stack
+
+class Timed():
+    """A helper that will measure wall clock time between enter and exit methods."""
+
+    def __init__(self):
+        caller = getframeinfo(stack()[1][0])
+        self.filename = os.path.basename(caller.filename)
+        self.lineno = caller.lineno
+
+    def __enter__(self):
+        self.start_time = time.time()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        elapsed = time.time() - self.start_time
+        elapsed = elapsed * 1000
+        print('%s:%s - %s ms' % (self.filename, self.lineno, elapsed))
 
 
 class PathUtil:
@@ -56,3 +75,34 @@ def get_absolute_path(to=''):
     if base:
         return os.path.join(base, directory, to)
     return os.path.join(directory, to)
+
+
+def binary_search(array, target, key=None, decode=True):
+    """
+    Binary search implementation. Returns an index of an element if found, otherwise -1.
+    if key is passed, value will be taken by that key from every item in the array.
+    if decode is True, every item in the array is utf-8 decoded.
+    """
+
+    first = 0
+    last = len(array) - 1
+
+    while first <= last:
+        mid = (first + last)//2
+
+        if key:
+            current = array[mid][key]
+        else:
+            current = array[mid]
+
+        if decode:
+            current = current.decode('utf-8')
+
+        if current == target:
+            return mid
+        else:
+            if target < current:
+                last = mid - 1
+            else:
+                first = mid + 1
+    return -1

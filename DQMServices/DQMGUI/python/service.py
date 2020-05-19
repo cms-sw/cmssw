@@ -12,7 +12,7 @@ from async_lru import alru_cache
 from rendering import GUIRenderer
 from storage import GUIDataStore
 from importing import GUIImporter
-from helpers import PathUtil, get_api_error
+from helpers import PathUtil, get_api_error, binary_search
 from data_types import Sample, RootDir, RootObj, RootDirContent, RenderingInfo
 
 from layouts.layout_manager import LayoutManager
@@ -115,19 +115,17 @@ class GUIService:
 
             # Find the index of run/dataset/me in me list blob. 
             # The index in me list will correspond to the index in offsets list.
-            # TODO: use binary search or smth!!!
             me_info = None
-            for i in range(len(me_list)):
-                line = me_list[i].decode("utf-8")
-                if line == me.path:
-                    me_info = me_infos[i]
-                    break
-            else: # We will end up here if we finish the loop without breaking out
+            index = binary_search(array=me_list, target=me.path)
+            if index != -1:
+                me_info = me_infos[index]
+            else:
                 continue
             
             # If efficiency flag is set for at least one of the MEs, it will be set for an overlay
             if not options.efficiency:
-                options.efficiency = bytes('%s\0e=1' % me.path, 'utf-8') in me_list
+                efficiency_line = bytes('%s\0e=1' % me.path, 'utf-8')
+                options.efficiency = binary_search(array=me_list, target=efficiency_line, decode=False) != -1
 
             rendering_infos.append(RenderingInfo(filename=filename, path=me.path, me_info=me_info))
 
