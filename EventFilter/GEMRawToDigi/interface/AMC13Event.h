@@ -83,10 +83,11 @@ namespace gem {
     void setCDFTrailer(uint32_t EvtLength);
     uint64_t getCDFTrailer() const { return cdft_; }
 
-    uint16_t bxId() const { return CDFHeader{cdfh_}.bxId; }
+    int bxId() const { return (int8_t)CDFHeader{cdfh_}.bxId; }
     uint32_t lv1Id() const { return CDFHeader{cdfh_}.lv1Id; }
     uint16_t sourceId() const { return CDFHeader{cdfh_}.sourceId; }
 
+    int orbitNumber() const { return AMC13Header{amc13h_}.orbitN; }
     uint8_t nAMC() const { return AMC13Header{amc13h_}.nAMC; }
 
     const std::vector<uint64_t>* getAMCheaders() const { return &amcHeaders_; }
