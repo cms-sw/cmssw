@@ -48,8 +48,7 @@ void LayerClusterAssociatorByEnergyScoreProducer::produce(edm::StreamID,
 
   auto impl = std::make_unique<LayerClusterAssociatorByEnergyScoreImpl>(
       iEvent.productGetter(), hardScatterOnly_, rhtools_, hitMap);
-  std::unique_ptr<hgcal::LayerClusterToCaloParticleAssociator> toPut(
-      std::make_unique<hgcal::LayerClusterToCaloParticleAssociator>(std::move(impl)));
+  auto toPut = std::make_unique<hgcal::LayerClusterToCaloParticleAssociator>(std::move(impl));
   iEvent.put(std::move(toPut));
 }
 
