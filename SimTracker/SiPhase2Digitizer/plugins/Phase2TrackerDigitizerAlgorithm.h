@@ -41,6 +41,7 @@ class SiPixelFedCablingMap;
 class SiPixelGainCalibrationOfflineSimService;
 class SiPixelLorentzAngle;
 class SiPixelQuality;
+class SiPhase2OuterTrackerLorentzAngle;
 class TrackerGeometry;
 class TrackerTopology;
 
@@ -83,8 +84,11 @@ public:
   void loadAccumulator(uint32_t detId, const std::map<int, float>& accumulator);
 
 protected:
-  // Accessing Lorentz angle from DB:
+  // Accessing Inner Tracker Lorentz angle from DB:
   edm::ESHandle<SiPixelLorentzAngle> SiPixelLorentzAngle_;
+
+  // Accessing Outer Tracker Lorentz angle from DB:
+  edm::ESHandle<SiPhase2OuterTrackerLorentzAngle> SiPhase2OTLorentzAngle_;
 
   // Accessing Dead pixel modules from DB:
   edm::ESHandle<SiPixelQuality> SiPixelBadModule_;

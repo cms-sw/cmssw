@@ -6,6 +6,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CondFormats/DataRecord/interface/SiPhase2OuterTrackerLorentzAngleRcd.h"
 
 // Geometry
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -25,7 +26,15 @@ namespace {
            (nFactorial(N - i) * nFactorial(N + 2 - i) * nFactorial(i));
   }
 }  // namespace
-void SSDigitizerAlgorithm::init(const edm::EventSetup& es) { es.get<TrackerDigiGeometryRecord>().get(geom_); }
+
+void SSDigitizerAlgorithm::init(const edm::EventSetup& es) { 
+  if (use_LorentzAngle_DB_){  // Get Lorentz angle from DB record
+    es.get<SiPhase2OuterTrackerLorentzAngleSimRcd>().get(SiPhase2OTLorentzAngle_);
+  }  
+
+  es.get<TrackerDigiGeometryRecord>().get(geom_); 
+}
+
 SSDigitizerAlgorithm::SSDigitizerAlgorithm(const edm::ParameterSet& conf)
     : Phase2TrackerDigitizerAlgorithm(conf.getParameter<ParameterSet>("AlgorithmCommon"),
                                       conf.getParameter<ParameterSet>("SSDigitizerAlgorithm")),
