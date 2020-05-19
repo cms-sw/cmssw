@@ -39,7 +39,6 @@ process.csc2DRecHits.readBadChambers = cms.bool(False)
 process.load("DQMServices.Core.DQM_cfg")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 
-#process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/csc_reference.root'
 
 #----------------------------
 # DQM Playback Environment

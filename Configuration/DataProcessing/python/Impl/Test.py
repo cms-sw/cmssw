@@ -102,9 +102,6 @@ class Test(Scenario):
         if 'saveByLumiSection' in args and \
                 args.get('saveByLumiSection', ''):
             process.dqmSaver.saveByLumiSection = int(args['saveByLumiSection'])
-        if 'referenceFile' in args and args.get('referenceFile', ''):
-            process.DQMStore.referenceFileName = \
-                                cms.untracked.string(args['referenceFile'])
 
         return process
 

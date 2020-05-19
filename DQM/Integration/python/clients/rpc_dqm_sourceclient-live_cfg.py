@@ -53,7 +53,6 @@ process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'RPC'
 process.dqmSaver.tag = 'RPC'
 
-process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/rpc_reference.root'
 
 ############### Scaler Producer #################
 process.load("EventFilter.ScalersRawToDigi.ScalersRawToDigi_cfi")

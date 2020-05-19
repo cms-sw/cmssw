@@ -1,6 +1,5 @@
 #define __STDC_FORMAT_MACROS 1
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/src/DQMError.h"
 #include "TClass.h"
 #include "TMath.h"
 #include "TList.h"
@@ -10,32 +9,27 @@
 #include <cfloat>
 #include <cinttypes>
 
-#if !WITHOUT_CMS_FRAMEWORK
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#endif
 
 namespace dqm::impl {
 
   static TH1 *checkRootObject(const std::string &name, TObject *tobj, const char *func, int reqdim) {
     if (!tobj)
-      raiseDQMError("MonitorElement",
-                    "Method '%s' cannot be invoked on monitor"
-                    " element '%s' because it is not a ROOT object.",
-                    func,
-                    name.c_str());
+      throw cms::Exception("MonitorElementError") << "Method '" << func
+                                                  << "' cannot be invoked on monitor"
+                                                     " element '"
+                                                  << name << "' because it is not a ROOT object.";
 
     auto *h = static_cast<TH1 *>(tobj);
     int ndim = h->GetDimension();
     if (reqdim < 0 || reqdim > ndim)
-      raiseDQMError("MonitorElement",
-                    "Method '%s' cannot be invoked on monitor"
-                    " element '%s' because it requires %d dimensions; this"
-                    " object of type '%s' has %d dimensions",
-                    func,
-                    name.c_str(),
-                    reqdim,
-                    typeid(*h).name(),
-                    ndim);
+      throw cms::Exception("MonitorElementError") << "Method '" << func
+                                                  << "' cannot be invoked on monitor"
+                                                     " element '"
+                                                  << name << "' because it requires " << reqdim
+                                                  << " dimensions; this"
+                                                     " object of type '"
+                                                  << typeid(*h).name() << "' has " << ndim << " dimensions";
 
     return h;
   }
@@ -526,29 +520,26 @@ namespace dqm::impl {
   }
 
   void MonitorElement::incompatible(const char *func) const {
-    raiseDQMError("MonitorElement",
-                  "Method '%s' cannot be invoked on monitor"
-                  " element '%s'",
-                  func,
-                  data_.objname.c_str());
+    throw cms::Exception("MonitorElementError") << "Method '" << func
+                                                << "' cannot be invoked on monitor"
+                                                   " element '"
+                                                << data_.objname << "'";
   }
 
   TH1 const *MonitorElement::accessRootObject(Access const &access, const char *func, int reqdim) const {
     if (kind() < Kind::TH1F)
-      raiseDQMError("MonitorElement",
-                    "Method '%s' cannot be invoked on monitor"
-                    " element '%s' because it is not a root object",
-                    func,
-                    data_.objname.c_str());
+      throw cms::Exception("MonitorElement") << "Method '" << func
+                                             << "' cannot be invoked on monitor"
+                                                " element '"
+                                             << data_.objname << "' because it is not a root object";
     return access.value.object_.get();
   }
   TH1 *MonitorElement::accessRootObject(AccessMut const &access, const char *func, int reqdim) const {
     if (kind() < Kind::TH1F)
-      raiseDQMError("MonitorElement",
-                    "Method '%s' cannot be invoked on monitor"
-                    " element '%s' because it is not a root object",
-                    func,
-                    data_.objname.c_str());
+      throw cms::Exception("MonitorElement") << "Method '" << func
+                                             << "' cannot be invoked on monitor"
+                                                " element '"
+                                             << data_.objname << "' because it is not a root object";
     return checkRootObject(data_.objname, access.value.object_.get(), func, reqdim);
   }
 
@@ -840,12 +831,10 @@ namespace dqm::impl {
       a = h->GetZaxis();
 
     if (!a)
-      raiseDQMError("MonitorElement",
-                    "No such axis %d in monitor element"
-                    " '%s' of type '%s'",
-                    axis,
-                    data_.objname.c_str(),
-                    typeid(*h).name());
+      throw cms::Exception("MonitorElementError") << "No such axis " << axis
+                                                  << " in monitor element"
+                                                     " '"
+                                                  << data_.objname << "' of type '" << typeid(*h).name() << "'";
 
     return a;
   }
@@ -861,12 +850,10 @@ namespace dqm::impl {
       a = h->GetZaxis();
 
     if (!a)
-      raiseDQMError("MonitorElement",
-                    "No such axis %d in monitor element"
-                    " '%s' of type '%s'",
-                    axis,
-                    data_.objname.c_str(),
-                    typeid(*h).name());
+      throw cms::Exception("MonitorElementError") << "No such axis " << axis
+                                                  << " in monitor element"
+                                                     " '"
+                                                  << data_.objname << "' of type '" << typeid(*h).name() << "'";
 
     return a;
   }

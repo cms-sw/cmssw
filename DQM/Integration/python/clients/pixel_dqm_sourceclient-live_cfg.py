@@ -58,13 +58,6 @@ process.dqmEnv.subSystemFolder = TAG
 process.dqmSaver.tag = TAG
 
 
-process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/pixel_reference_pp.root'
-#if (process.runType.getRunType() == process.runType.hi_run):
-#    process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/pixel_reference_hi.root'
-
-if (process.runType.getRunType() == process.runType.cosmic_run):
-    process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/pixel_reference_cosmic.root'
-
 #-----------------------------
 # Magnetic Field
 #-----------------------------

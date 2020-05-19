@@ -76,7 +76,6 @@ process.dqmSaver.workflow = Workflow
 #-----------------------------
 # Specify root file including reference histograms
 #-----------------------------
-process.DQMStore.referenceFileName = reference_histogram_file
 
 #-----------------------------
 # Locate a directory in DQMStore
