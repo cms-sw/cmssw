@@ -37,8 +37,10 @@ public:
   double discriminate(const TauRef& tau) const override {
     if (verbosity_) {
       edm::LogPrint(TauDiscriminationProducerBase<TauType, TauDiscriminator>::getTauTypeString() + "AgainstEleDeadECAL")
-	<< "<" + TauDiscriminationProducerBase<TauType, TauDiscriminator>::getTauTypeString() + "AgainstElectronDeadECAL::discriminate>:";
-      edm::LogPrint(TauDiscriminationProducerBase<TauType, TauDiscriminator>::getTauTypeString() + "AgainstEleDeadECAL") << " moduleLabel = " << moduleLabel_;
+          << "<" + TauDiscriminationProducerBase<TauType, TauDiscriminator>::getTauTypeString() +
+                 "AgainstElectronDeadECAL::discriminate>:";
+      edm::LogPrint(TauDiscriminationProducerBase<TauType, TauDiscriminator>::getTauTypeString() + "AgainstEleDeadECAL")
+          << " moduleLabel = " << moduleLabel_;
       edm::LogPrint(TauDiscriminationProducerBase<TauType, TauDiscriminator>::getTauTypeString() + "AgainstEleDeadECAL")
           << " tau: Pt = " << tau->pt() << ", eta = " << tau->eta() << ", phi = " << tau->phi();
     }
