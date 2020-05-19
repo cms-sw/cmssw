@@ -1,1 +1,0 @@
-Add a symbolic link from here to the MCsamples/ directory that can be found in https://github.com/cms-data/L1Trigger-TrackFindingTMTT , where .txt files listing available MC samples can be found.
