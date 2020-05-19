@@ -70,7 +70,7 @@ namespace {
     FWLiteProxy(const TypeID& iTypeID, const fwlite::Record* iRecord, edm::SerialTaskQueue* iQueue, std::mutex* iMutex)
         : edm::eventsetup::ESSourceDataProxyBase(iQueue, iMutex), m_type(iTypeID), m_record(iRecord), m_data{nullptr} {}
 
-    void prefetch(const edm::eventsetup::DataKey& iKey) final {
+    void prefetch(const edm::eventsetup::DataKey& iKey, edm::EventSetupRecordDetails) final {
       assert(iKey.type() == m_type);
 
       FWLiteESGenericHandle h(m_type);
