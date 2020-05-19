@@ -1,6 +1,7 @@
 import os
 import mmap
 import time
+import glob
 import socket
 import struct
 import asyncio
@@ -8,6 +9,7 @@ import tempfile
 import subprocess
 
 from DQMServices.DQMGUI import nanoroot
+from helpers import get_base_release_dir
 from data_types import RenderingInfo, EfficiencyFlag, ScalarValue, QTest, RenderingOptions
 
 
@@ -29,9 +31,24 @@ class GUIRenderer:
             return
         
         print('Initializing %s DQM rendering sub processes...' % workers)
+        
+        render_plugins_lib_path = cls.__get_render_plugins_lib_path()
 
-        cls.__rendering_contexts = [await GUIRenderingContext.create() for _ in range(workers)]
+        cls.__rendering_contexts = [await GUIRenderingContext.create(render_plugins_lib_path) for _ in range(workers)]
         cls.__semaphore = asyncio.Semaphore(workers)
+
+
+    @classmethod
+    def __get_render_plugins_lib_path(cls):
+        """Returns an absolute path to libDQMRenderPlugins.so"""
+
+        base = get_base_release_dir()
+        pattern = os.path.join(base, 'lib/*/libDQMRenderPlugins.so')
+        paths = glob.glob(pattern)
+
+        if paths:
+            return paths[0]
+        return None
 
 
     @classmethod
@@ -48,7 +65,7 @@ class GUIRenderer:
 
         options = RenderingOptions(width=width, height=height)
         rendering_info = RenderingInfo('', '', '', ScalarValue(b'', string, b''))
-        message = cls.pack_message_for_renderer([rendering_info], options)
+        message = cls.____pack_message_for_renderer([rendering_info], options)
         data, error = await cls.__render(message)
 
         return data
@@ -89,17 +106,17 @@ class GUIRenderer:
             raise Exception('Only ScalarValue and TH* can be rendered.')
 
         # Pack the message for rendering context
-        message = cls.pack_message_for_renderer(rendering_infos, options, False)
+        message = cls.__pack_message_for_renderer(rendering_infos, options, False)
         data, error = await cls.__render(message)
         if error == 1: # Missing streamer file - provide it
-            message = cls.pack_message_for_renderer(rendering_infos, options, True)
+            message = cls.__pack_message_for_renderer(rendering_infos, options, True)
             data, error = await cls.__render(message)
 
         return data
 
     
     @classmethod
-    def pack_message_for_renderer(cls, rendering_infos, options, use_streamerfile=False):
+    def __pack_message_for_renderer(cls, rendering_infos, options, use_streamerfile=False):
         """
         Packing is done using struct.pack() method. We essentially pack the bytes that describe what we want to get 
         rendered into a data structure that C++ code running in the out of process renderer can read.
@@ -182,9 +199,10 @@ class GUIRenderingContext:
     """
 
     @staticmethod
-    async def create():
+    async def create(render_plugins_lib_path=None):
         """In order to create an instance of GUIRenderingContext, this method should be called instead of an initializer."""
         self = GUIRenderingContext()
+        self.render_plugins_lib_path = render_plugins_lib_path
         await self.__start_rendering_process()
         await self.__open_socket_connection()
         return self
@@ -229,9 +247,12 @@ class GUIRenderingContext:
 
     async def __start_rendering_process(self):
         """Starts the rendering process."""
+
+        render_plugins = f'--load {self.render_plugins_lib_path}' if self.render_plugins_lib_path else ''
+
         self.working_dir = tempfile.mkdtemp()
         self.render_process = subprocess.Popen(
-                f"dqmRender --state-directory {self.working_dir}/ > {self.working_dir}/render.log 2>&1", 
+                f"dqmRender --state-directory {self.working_dir}/ {render_plugins} > {self.working_dir}/render.log 2>&1",
                 shell=True, stdout=subprocess.PIPE)
         
         # Wait for the socket to initialise and be ready to accept connections
