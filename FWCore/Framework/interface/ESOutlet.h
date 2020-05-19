@@ -38,7 +38,7 @@ namespace edm {
       Getter(const edm::EventSetup& iES, const std::string& iLabel = std::string()) : es_(&iES), label_(iLabel) {}
 
     private:
-      virtual const T* getImpl() const {
+      const T* getImpl() const override {
         ESHandle<T> data;
         es_->template get<TRec>().get(label_, data);
         return &(*data);
@@ -59,9 +59,9 @@ namespace edm {
     //virtual ~ESOutlet();
 
   private:
-    ESOutlet(const ESOutlet&);  // stop default
+    ESOutlet(const ESOutlet&) = delete;  // stop default
 
-    const ESOutlet& operator=(const ESOutlet&);  // stop default
+    const ESOutlet& operator=(const ESOutlet&) = delete;  // stop default
 
     // ---------- member data --------------------------------
     Getter getter_;
