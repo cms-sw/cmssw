@@ -98,12 +98,6 @@ namespace cond {
       //
       bool existsIov(const std::string& tag);
 
-      // retrieves an IOV range. Peforms a query at every call.
-      bool getIovRange(const std::string& tag,
-                       cond::Time_t begin,
-                       cond::Time_t end,
-                       std::vector<std::tuple<cond::Time_t, cond::Hash> >& range);
-
       // create a non-existing iov sequence with the specified tag.
       // the type is required for consistency with the referenced payloads.
       // fixme: add creation time - required for the migration
