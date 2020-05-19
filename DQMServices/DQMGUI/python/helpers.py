@@ -1,3 +1,5 @@
+import os
+
 
 class PathUtil:
     """This helper class provides methods to handle common ME path related operations."""
@@ -42,3 +44,15 @@ def get_api_error(message):
     """Returns an object that is returned by the API to signify an error."""
     return { 'message': message }
 
+
+def get_absolute_path(to=''):
+    """
+    Returns an absolute path to a specified directory/file. 
+    Specified directory must be a relative path starting at DQMServices/DQMGUI/python/
+    """
+
+    base = os.environ.get('CMSSW_BASE')
+    directory = 'src/DQMServices/DQMGUI/python/'
+    if base:
+        return os.path.join(base, directory, to)
+    return os.path.join(directory, to)

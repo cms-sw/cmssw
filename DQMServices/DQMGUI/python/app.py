@@ -21,12 +21,18 @@ from service import GUIService
 from storage import GUIDataStore
 from importing import GUIImporter
 from aiohttp import web, WSCloseCode
+from helpers import get_absolute_path
 
 from data_types import RenderingOptions, MEDescription
 
 from layouts.layout_manager import LayoutManager
 
+# Constants
+SERVER_PORT = 8889
+NUMBER_OF_RENDERERS = 2
 
+
+# Services
 service = GUIService()
 layout_manager = LayoutManager()
 
@@ -36,7 +42,7 @@ layout_manager = LayoutManager()
 # ###################################################################################################### #
 
 async def index(request):
-    return web.FileResponse('../data/index.html')
+    return web.FileResponse(get_absolute_path('../data/index.html'))
 
 
 async def samples_legacy(request):
@@ -260,7 +266,7 @@ async def jsroot_overlay(request):
 async def initialize_services():
     await GUIDataStore.initialize()
     await GUIImporter.initialize()
-    await GUIRenderer.initialize(workers=2)
+    await GUIRenderer.initialize(workers=NUMBER_OF_RENDERERS)
 
 
 async def destroy_services():
@@ -282,9 +288,10 @@ def config_and_start_webserver():
     def log_file_namer(filename):
         parts = filename.split('/')
         parts[-1] = f'access_{parts[-1][11:]}.log'
+        print('/'.join(parts))
         return '/'.join(parts)
     
-    handler = TimedRotatingFileHandler('logs/access.log', when='midnight', interval=1)
+    handler = TimedRotatingFileHandler(get_absolute_path('logs/access.log'), when='midnight', interval=1)
     handler.namer = log_file_namer
     logger = logging.getLogger('aiohttp.access')
     logger.setLevel(logging.INFO)
@@ -307,11 +314,11 @@ def config_and_start_webserver():
                     web.get(r'/api/v1/json_overlay', jsroot_overlay)])
 
     # Routes for HTML files
-    app.add_routes([web.get('/', index), web.static('/', '../data/', show_index=True)])
+    app.add_routes([web.get('/', index), web.static('/', get_absolute_path('../data/'), show_index=True)])
 
     app.on_shutdown.append(on_shutdown)
 
-    web.run_app(app, port='8889')
+    web.run_app(app, port=SERVER_PORT)
 
 
 if __name__ == '__main__':
