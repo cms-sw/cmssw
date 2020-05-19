@@ -1,5 +1,4 @@
 #include "CondFormats/Serialization/interface/Test.h"
-
 #include "CondFormats/SiPixelObjects/src/headers.h"
 
 int main() {
@@ -12,7 +11,7 @@ int main() {
   testSerialization<SiPixelCalibConfiguration>();
   testSerialization<SiPixelDbItem>();
   testSerialization<SiPixelDisabledModules>();
-  //testSerialization<SiPixelFedCabling>(); abstract
+  // testSerialization<SiPixelFedCabling>(); abstract
   testSerialization<SiPixelFedCablingMap>();
   testSerialization<SiPixelFedCablingMap::Key>();
   testSerialization<SiPixelGainCalibration>();
@@ -24,12 +23,14 @@ int main() {
   testSerialization<SiPixelGenErrorDBObject>();
   testSerialization<SiPixelLorentzAngle>();
   testSerialization<SiPixelPedestals>();
+  testSerialization<SiPixelVCal>();
+  testSerialization<SiPixelVCal::VCal>();
   testSerialization<SiPixelPerformanceSummary>();
   testSerialization<SiPixelPerformanceSummary::DetSummary>();
   testSerialization<SiPixelQuality>();
   testSerialization<SiPixelFEDChannelContainer>();
   testSerialization<SiPixelFEDChannelContainer::SiPixelFEDChannelCollection>();
-  //testSerialization<std::unordered_map<std::string,SiPixelFEDChannelCollection>();
+  // testSerialization<std::unordered_map<std::string,SiPixelFEDChannelCollection>();
   testSerialization<SiPixelQuality::disabledModuleType>();
   testSerialization<SiPixelQualityProbabilities>();
   testSerialization<SiPixelTemplateDBObject>();
@@ -45,6 +46,5 @@ int main() {
   testSerialization<std::vector<SiPixelGainCalibrationOffline::DetRegistry>>();
   testSerialization<std::vector<SiPixelPerformanceSummary::DetSummary>>();
   testSerialization<std::vector<SiPixelQuality::disabledModuleType>>();
-
   return 0;
 }
