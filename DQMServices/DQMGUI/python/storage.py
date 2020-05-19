@@ -9,6 +9,7 @@ import aiosqlite
 import subprocess
 
 from meinfo import MEInfo
+from helpers import get_absolute_path
 
 
 class GUIDataStore:
@@ -25,12 +26,14 @@ class GUIDataStore:
     """
 
     __db = None
+    __lock = asyncio.Lock()
+
 
     @classmethod
     async def initialize(cls, connection_string='../data/directory.sqlite'):
         """Creates DB from schema if it doesn't exists and open a connection to it."""
 
-        cls.__db = await aiosqlite.connect(connection_string)
+        cls.__db = await aiosqlite.connect(get_absolute_path(connection_string))
         await cls.__db.executescript(cls.__DBSCHEMA)
 
 
@@ -172,22 +175,32 @@ class GUIDataStore:
     async def add_blobs(cls, me_list_blob, offsets_blob, run, dataset, filename):
         """Adds me list blob and offsets blob to a DB in a single transaction."""
 
-        await cls.__db.execute('BEGIN;')
+        try:
+            await cls.__lock.acquire()
+            await cls.__db.execute('BEGIN;')
 
-        await cls.__db.execute('INSERT OR IGNORE INTO menames (menameblob) VALUES (?);', (me_list_blob,))
-        cursor = await cls.__db.execute('SELECT menamesid FROM menames WHERE menameblob = ?;', (me_list_blob,))
-        row = await cursor.fetchone()
-        me_list_blob_id = row[0]
+            await cls.__db.execute('INSERT OR IGNORE INTO menames (menameblob) VALUES (?);', (me_list_blob,))
+            cursor = await cls.__db.execute('SELECT menamesid FROM menames WHERE menameblob = ?;', (me_list_blob,))
+            row = await cursor.fetchone()
+            me_list_blob_id = row[0]
 
-        await cls.__db.execute('INSERT OR IGNORE INTO meoffsets (meoffsetsblob) VALUES (?);', (offsets_blob,))
-        cursor = await cls.__db.execute('SELECT meoffsetsid FROM meoffsets WHERE meoffsetsblob = ?;', (offsets_blob,))
-        row = await cursor.fetchone()
-        offsets_blob_id = row[0]
+            await cls.__db.execute('INSERT OR IGNORE INTO meoffsets (meoffsetsblob) VALUES (?);', (offsets_blob,))
+            cursor = await cls.__db.execute('SELECT meoffsetsid FROM meoffsets WHERE meoffsetsblob = ?;', (offsets_blob,))
+            row = await cursor.fetchone()
+            offsets_blob_id = row[0]
 
-        sql = 'UPDATE samples SET menamesid = ?, meoffsetsid = ? WHERE run = ? AND dataset = ? AND filename = ?;'
-        await cls.__db.execute(sql, (me_list_blob_id, offsets_blob_id, int(run), dataset, filename))
+            sql = 'UPDATE samples SET menamesid = ?, meoffsetsid = ? WHERE run = ? AND dataset = ? AND filename = ?;'
+            await cls.__db.execute(sql, (me_list_blob_id, offsets_blob_id, int(run), dataset, filename))
 
-        await cls.__db.execute('COMMIT;')
+            await cls.__db.execute('COMMIT;')
+        except Exception as e:
+            print(e)
+            try:
+                await cls.__db.execute('ROLLBACK;')
+            except:
+                pass
+        finally:
+            cls.__lock.release()
 
 
     @classmethod
