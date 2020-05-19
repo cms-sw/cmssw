@@ -27,6 +27,7 @@
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
 #include "CondFormats/SiPixelObjects/interface/LocalPixel.h"
 #include "CondFormats/SiPixelObjects/interface/CablingPathToDetUnit.h"
+#include "CondFormats/SiPhase2TrackerObjects/interface/SiPhase2OuterTrackerLorentzAngle.h"
 
 // Geometry
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -771,7 +772,10 @@ LocalVector Phase2TrackerDigitizerAlgorithm::DriftDirection(const Phase2TrackerG
 
   // Read Lorentz angle from DB:
   if (use_LorentzAngle_DB_) {
-    float lorentzAngle = SiPixelLorentzAngle_->getLorentzAngle(detId);
+    bool isPixel = (Sub_detid == PixelSubdetector::PixelBarrel || Sub_detid == PixelSubdetector::PixelEndcap);
+
+    float lorentzAngle =
+        isPixel ? SiPixelLorentzAngle_->getLorentzAngle(detId) : SiPhase2OTLorentzAngle_->getLorentzAngle(detId);
     float alpha2 = std::pow(lorentzAngle, 2);
 
     dir_x = -(lorentzAngle * Bfield.y() + alpha2 * Bfield.z() * Bfield.x());
