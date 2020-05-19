@@ -142,13 +142,11 @@ namespace cond {
 
       checkTransaction("IOVProxyNew::load");
 
-      std::string dummy;
       if (!m_session->iovSchema().tagTable().select(tagName,
                                                     m_data->tagInfo.timeType,
                                                     m_data->tagInfo.payloadType,
                                                     m_data->tagInfo.synchronizationType,
                                                     m_data->tagInfo.endOfValidity,
-                                                    dummy,
                                                     m_data->tagInfo.lastValidatedTime)) {
         throwException("Tag \"" + tagName + "\" has not been found in the database.", "IOVProxy::load");
       }
