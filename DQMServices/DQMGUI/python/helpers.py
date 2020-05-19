@@ -1,6 +1,8 @@
 import os
 import time
+from collections import namedtuple
 from inspect import getframeinfo, stack
+
 
 class Timed():
     """A helper that will measure wall clock time between enter and exit methods."""
@@ -23,14 +25,9 @@ class Timed():
 class PathUtil:
     """This helper class provides methods to handle common ME path related operations."""
 
-    class PathSegment:
-        """
-        Represents one segment of a path. For example dir2 is a segment of this path: dir1/dir2/file
-        If is_file is True, this segment represents a file, otherwise this segment represents a directory.
-        """
-        def __init__(self, name, is_file):
-            self.name = name
-            self.is_file = is_file
+    # Represents one segment of a path. For example dir2 is a segment of this path: dir1/dir2/file
+    # If is_file is True, this segment represents a file, otherwise this segment represents a directory.
+    PathSegment = namedtuple('PathSegment', ['name', 'is_file'])
 
 
     def __init__(self, path=None):
@@ -46,6 +43,7 @@ class PathUtil:
         Returns a closest segment of path inside subpath.
         If path is a/b/c/d/file and subpath is /a/b/c function will return (d, False).
         If path is a/b/c/d/file and subpath is /a/b/c/d function will return (file, True).
+        is_file is True if subsequent segment is the last item in the path - a file (not a directory).
         If subpath is not part of path, function will return None.
         """
 
@@ -77,7 +75,7 @@ def get_absolute_path(to=''):
     return os.path.join(directory, to)
 
 
-def binary_search(array, target, key=None, decode=True):
+def binary_search(array, target, key=None):
     """
     Binary search implementation. Returns an index of an element if found, otherwise -1.
     if key is passed, value will be taken by that key from every item in the array.
@@ -94,9 +92,6 @@ def binary_search(array, target, key=None, decode=True):
             current = array[mid][key]
         else:
             current = array[mid]
-
-        if decode:
-            current = current.decode('utf-8')
 
         if current == target:
             return mid

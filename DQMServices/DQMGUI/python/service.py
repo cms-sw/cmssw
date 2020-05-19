@@ -116,7 +116,7 @@ class GUIService:
             # Find the index of run/dataset/me in me list blob. 
             # The index in me list will correspond to the index in offsets list.
             me_info = None
-            index = binary_search(array=me_list, target=me.path)
+            index = binary_search(array=me_list, target=bytes(me.path, 'utf-8'))
             if index != -1:
                 me_info = me_infos[index]
             else:
@@ -125,7 +125,7 @@ class GUIService:
             # If efficiency flag is set for at least one of the MEs, it will be set for an overlay
             if not options.efficiency:
                 efficiency_line = bytes('%s\0e=1' % me.path, 'utf-8')
-                options.efficiency = binary_search(array=me_list, target=efficiency_line, decode=False) != -1
+                options.efficiency = binary_search(array=me_list, target=efficiency_line) != -1
 
             rendering_infos.append(RenderingInfo(filename=filename, path=me.path, me_info=me_info))
 
