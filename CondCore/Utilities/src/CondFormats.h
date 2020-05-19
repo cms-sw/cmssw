@@ -266,6 +266,7 @@
 #include "CondFormats/MFObjects/interface/MagFieldConfig.h"
 #include "CondFormats/PCLConfig/interface/AlignPCLThresholds.h"
 #include "CondFormats/SiPhase2TrackerObjects/interface/TrackerDetToDTCELinkCablingMap.h"
+#include "CondFormats/SiPhase2TrackerObjects/interface/SiPhase2OuterTrackerLorentzAngle.h"
 #include "CondFormats/SiPhase2TrackerObjects/interface/DTCELinkId.h"
 #include "CondFormats/Common/interface/BaseKeyed.h"
 
