@@ -1,10 +1,10 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "DataFormats/JetReco/interface/GenJet.h"
 
 #include "TH1D.h"
 #include "TH2D.h"
@@ -16,6 +16,8 @@ public:
 private:
    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
    virtual void endJob() override;
+
+   edm::EDGetTokenT<std::vector<pat::Tau>> tauToken_;
 
    TH1D *h_raw_bkg, *h_raw_sig;
  
@@ -33,7 +35,6 @@ private:
 
    bool haveGenJets;
    edm::EDGetTokenT<std::vector<reco::GenJet>> genJetToken_;   
-   edm::EDGetTokenT<std::vector<pat::Tau>> tauToken_;
 };
 
 rerunMVAIsolationOnMiniAOD_Phase2::rerunMVAIsolationOnMiniAOD_Phase2(const edm::ParameterSet& iConfig)
