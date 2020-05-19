@@ -357,10 +357,7 @@ def miniAOD_customizeCommon(process):
     tauIdEmbedder = tauIdConfig.TauIDEmbedder(
         process, debug = False,
         updatedTauName = _updatedTauName,
-        #toKeep = ['deepTau2017v2p1', 'newDMwLTwGJPhase2']
-        #toKeep = ['deepTau2017v2p1', 'newDM2016v1']
         toKeep = ['deepTau2017v2p1']
-        #toKeep = ['newDMwLTwGJPhase2']
     )
     tauIdEmbedder.runTauID()
     addToProcessAndTask(_noUpdatedTauName, process.slimmedTaus.clone(),process,task)
