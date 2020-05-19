@@ -71,18 +71,12 @@ protected:
   edm::EDGetTokenT<std::vector<CaloParticle>> label_cp_effic;
   edm::EDGetTokenT<std::vector<CaloParticle>> label_cp_fake;
   edm::EDGetTokenT<std::vector<SimVertex>> simVertices_;
-  edm::EDGetTokenT<HGCRecHitCollection> recHitsEE_;
-  edm::EDGetTokenT<HGCRecHitCollection> recHitsFH_;
-  edm::EDGetTokenT<HGCRecHitCollection> recHitsBH_;
+  edm::EDGetTokenT<std::map<DetId, const HGCRecHit *>> hitMapToken_;
   edm::EDGetTokenT<Density> density_;
   edm::EDGetTokenT<hgcal::LayerClusterToCaloParticleAssociator> LCAssocByEnergyScoreProducer_;
   std::unique_ptr<HGVHistoProducerAlgo> histoProducerAlgo_;
 
 private:
-  void fillHitMap(std::map<DetId, const HGCRecHit*>&,
-                  const HGCRecHitCollection&,
-                  const HGCRecHitCollection&,
-                  const HGCRecHitCollection&) const;
   CaloParticleSelector cpSelector;
   std::shared_ptr<hgcal::RecHitTools> tools_;
   std::map<double, double> cummatbudg;

@@ -23,9 +23,7 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
 
   simVertices_ = consumes<std::vector<SimVertex>>(pset.getParameter<edm::InputTag>("simVertices"));
 
-  recHitsEE_ = consumes<HGCRecHitCollection>(edm::InputTag("HGCalRecHit", "HGCEERecHits"));
-  recHitsFH_ = consumes<HGCRecHitCollection>(edm::InputTag("HGCalRecHit", "HGCHEFRecHits"));
-  recHitsBH_ = consumes<HGCRecHitCollection>(edm::InputTag("HGCalRecHit", "HGCHEBRecHits"));
+  hitMapToken_ = consumes<std::map<DetId, const HGCRecHit *>>(edm::InputTag("HGCRecHitMapProducer"));
 
   density_ = consumes<Density>(edm::InputTag("hgcalLayerClusters"));
 
@@ -182,18 +180,12 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   tools_->getEventSetup(setup);
   histoProducerAlgo_->setRecHitTools(tools_);
 
-  edm::Handle<HGCRecHitCollection> recHitHandleEE;
-  event.getByToken(recHitsEE_, recHitHandleEE);
-  edm::Handle<HGCRecHitCollection> recHitHandleFH;
-  event.getByToken(recHitsFH_, recHitHandleFH);
-  edm::Handle<HGCRecHitCollection> recHitHandleBH;
-  event.getByToken(recHitsBH_, recHitHandleBH);
-
   edm::Handle<hgcal::LayerClusterToCaloParticleAssociator> LCAssocByEnergyScoreHandle;
   event.getByToken(LCAssocByEnergyScoreProducer_, LCAssocByEnergyScoreHandle);
 
-  std::map<DetId, const HGCRecHit*> hitMap;
-  fillHitMap(hitMap, *recHitHandleEE, *recHitHandleFH, *recHitHandleBH);
+  edm::Handle<std::map<DetId, const HGCRecHit *>> hitMapHandle;
+  event.getByToken(hitMapToken_, hitMapHandle);
+  const std::map<DetId, const HGCRecHit *> *hitMap = &*hitMapHandle;
 
   //Some general info on layers etc.
   if (SaveGeneralInfo_) {
@@ -248,7 +240,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
                                                     caloParticles,
                                                     cPIndices,
                                                     selected_cPeff,
-                                                    hitMap,
+                                                    *hitMap,
                                                     cummatbudg,
                                                     totallayers_to_monitor_,
                                                     thicknesses_to_monitor_,
@@ -278,7 +270,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
                                                     caloParticles,
                                                     cPIndices,
                                                     selected_cPeff,
-                                                    hitMap,
+                                                    *hitMap,
                                                     totallayers_to_monitor_);
 
       //General Info on multiclusters
@@ -287,22 +279,4 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
                                  << multiClusters.size() << "\n";
     }
   }  //end of loop over multicluster input labels
-}
-
-void HGCalValidator::fillHitMap(std::map<DetId, const HGCRecHit*>& hitMap,
-                                const HGCRecHitCollection& rechitsEE,
-                                const HGCRecHitCollection& rechitsFH,
-                                const HGCRecHitCollection& rechitsBH) const {
-  hitMap.clear();
-  for (const auto& hit : rechitsEE) {
-    hitMap.emplace(hit.detid(), &hit);
-  }
-
-  for (const auto& hit : rechitsFH) {
-    hitMap.emplace(hit.detid(), &hit);
-  }
-
-  for (const auto& hit : rechitsBH) {
-    hitMap.emplace(hit.detid(), &hit);
-  }
 }
