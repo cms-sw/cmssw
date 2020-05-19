@@ -12,7 +12,7 @@ class TauIDEmbedder(object):
         "2017v1", "2017v2", "newDM2017v2", "dR0p32017v2", "2016v1", "newDM2016v1",
         "deepTau2017v1", "deepTau2017v2", "deepTau2017v2p1",
         "DPFTau_2016_v0", "DPFTau_2016_v1",
-        "againstEle2018"
+        "againstEle2018", "newDMwLTwGJPhase2"
     ]
 
     def __init__(self, process, debug = False,
@@ -863,6 +863,57 @@ class TauIDEmbedder(object):
             )
             tauIDSources =_tauIDSourcesWithAgainistEle.clone()
 
+        if "newDMwLTwGJPhase2" in self.toKeep:
+            def tauIDMVAinputs(module, wp):
+                return self.cms.PSet(inputTag = self.cms.InputTag(module), workingPointIndex = self.cms.int32(-1 if wp=="raw" else -2 if wp=="category" else getattr(self.process, module).workingPoints.index(wp)))
+            self.process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2raw = patDiscriminationByIsolationMVArun2v1raw.clone(
+                PATTauProducer = self.cms.InputTag('slimmedTaus'),
+                Prediscriminants = noPrediscriminants,
+                loadMVAfromDB = self.cms.bool(True),
+                mvaName = self.cms.string("RecoTauTag_tauIdMVAIsoPhase2"),
+                mvaOpt = self.cms.string("DBnewDMwLTwGJPhase2"),
+                verbosity = self.cms.int32(0)
+            )
+
+            self.process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2 = patDiscriminationByIsolationMVArun2v1.clone(
+                PATTauProducer = self.cms.InputTag('slimmedTaus'),
+                Prediscriminants = noPrediscriminants,
+                #toMultiplex = self.cms.InputTag('rerunDiscriminationByIsolationMVADBnewDMwLTPhase2'),
+                toMultiplex = self.cms.InputTag('rerunDiscriminationByIsolationMVADBnewDMwLTPhase2raw'),
+                loadMVAfromDB = self.cms.bool(True),
+                mvaOutput_normalization = self.cms.string("RecoTauTag_tauIdMVAIsoPhase2_mvaOutput_normalization"),
+                mapping = self.cms.VPSet(
+                    self.cms.PSet(
+                        category = self.cms.uint32(0),
+                        cut = self.cms.string("RecoTauTag_tauIdMVAIsoPhase2"),
+                        variable = self.cms.string("pt"),
+                    )
+                ),
+                workingPoints = self.cms.vstring(
+                    "_WPEff95",
+                    "_WPEff90",
+                    "_WPEff80",
+                    "_WPEff70",
+                    "_WPEff60",
+                    "_WPEff50",
+                    "_WPEff40"
+                )
+            )
+            self.rerunIsolationMVADBnewDMwLTPhase2Task = self.cms.Task(
+                self.process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2raw,
+                self.process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2
+            )
+            self.process.rerunMvaIsolationTask.add(self.rerunIsolationMVADBnewDMwLTPhase2Task)
+            self.process.rerunMvaIsolationSequence += self.cms.Sequence(self.rerunIsolationMVADBnewDMwLTPhase2Task)
+
+            tauIDSources.byIsolationMVADBnewDMwLTPhase2raw = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "raw")
+            tauIDSources.byVVLooseIsolationMVADBnewDMwLTPhase2 = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "_WPEff95")
+            tauIDSources.byVLooseIsolationMVADBnewDMwLTPhase2 = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "_WPEff90")
+            tauIDSources.byLooseIsolationMVADBnewDMwLTPhase2 = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "_WPEff80")
+            tauIDSources.byMediumIsolationMVADBnewDMwLTPhase2 = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "_WPEff70")
+            tauIDSources.byTightIsolationMVADBnewDMwLTPhase2 = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "_WPEff60")
+            tauIDSources.byVTightIsolationMVADBnewDMwLTPhase2 = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "_WPEff50")
+            tauIDSources.byVVTightIsolationMVADBnewDMwLTPhase2 = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2", "_WPEff40")
         ##
         if self.debug: print('Embedding new TauIDs into \"'+self.updatedTauName+'\"')
         if not hasattr(self.process, self.updatedTauName):
