@@ -13,7 +13,7 @@ namespace root {
   template <typename X, typename Expr>
   class RooFitFunction : public RooAbsReal {
   public:
-    RooFitFunction(const RooFitFunction<X, Expr>& other, const char* name = 0)
+    RooFitFunction(const RooFitFunction<X, Expr>& other, const char* name = nullptr)
         : RooAbsReal(other, name), e_(other.e_), x_(X::name(), this, other.x_) {
       std::cout << ">>> making new RooFitFunction" << std::endl;
       std::vector<std::pair<std::shared_ptr<double>, RooRealProxy> >::const_iterator i = other.pars_.begin(),
@@ -57,17 +57,17 @@ namespace root {
       pars_.push_back(std::make_pair(b.ptr(), RooRealProxy(b.name().c_str(), b.name().c_str(), this, rB)));
       pars_.push_back(std::make_pair(c.ptr(), RooRealProxy(c.name().c_str(), c.name().c_str(), this, rC)));
     }
-    virtual ~RooFitFunction() {}
+    ~RooFitFunction() override {}
     void add(RooAbsReal& rA, funct::Parameter& a) {
       pars_.push_back(std::make_pair(a.ptr(), RooRealProxy(a.name().c_str(), a.name().c_str(), this, rA)));
     }
-    virtual TObject* clone(const char* newName) const { return new RooFitFunction<X, Expr>(*this, newName); }
+    TObject* clone(const char* newName) const override { return new RooFitFunction<X, Expr>(*this, newName); }
 
   private:
     Expr e_;
     RooRealProxy x_;
     std::vector<std::pair<std::shared_ptr<double>, RooRealProxy> > pars_;
-    Double_t evaluate() const {
+    Double_t evaluate() const override {
       X::set(x_);
       std::vector<std::pair<std::shared_ptr<double>, RooRealProxy> >::const_iterator i = pars_.begin(),
                                                                                      end = pars_.end();
