@@ -12,8 +12,8 @@ _barrelAlgo = cms.PSet(
     timeCorr_p0 = cms.double( 2.21103),
     timeCorr_p1 = cms.double(-0.933552),
     timeCorr_p2 = cms.double( 0.),
-    c_LYSO = cms.double(138.46235),
-    bar_length = cms.double(57.0)
+    positionError = cms.double( 0.6),  #in unit cm
+    c_LYSO = cms.double(13.846235)     # in unit cm/ns
 )
 
 

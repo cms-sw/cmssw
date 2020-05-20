@@ -1,15 +1,15 @@
-#ifndef RecoLocalFastTime_FTLClusterizer_MTDCPEFromSiPMTime_H
-#define RecoLocalFastTime_FTLClusterizer_MTDCPEFromSiPMTime_H 1
+#ifndef RecoLocalFastTime_FTLClusterizer_MTDCPEFromSiPMTimeBTL_H
+#define RecoLocalFastTime_FTLClusterizer_MTDCPEFromSiPMTimeBTL_H 1
 
 //-----------------------------------------------------------------------------
-// \class        MTDCPEFromSiPMTime
+// \class        MTDCPEFromSiPMTimeBTL
 //-----------------------------------------------------------------------------
 
 #include "RecoLocalFastTime/FTLClusterizer/interface/MTDCPEBase.h"
 
-class MTDCPEFromSiPMTime : public MTDCPEBase {
+class MTDCPEFromSiPMTimeBTL : public MTDCPEBase {
 public:
-  MTDCPEFromSiPMTime(edm::ParameterSet const& conf, const MTDGeometry& geom);
+  MTDCPEFromSiPMTimeBTL(edm::ParameterSet const& conf, const MTDGeometry& geom);
 
 private:
   //--------------------------------------------------------------------------

@@ -1,6 +1,7 @@
 // Our own includes
 #include "RecoLocalFastTime/FTLClusterizer/interface/MTDArrayBuffer.h"
 #include "RecoLocalFastTime/FTLClusterizer/interface/MTDThresholdClusterizer.h"
+#include "RecoLocalFastTime/FTLClusterizer/interface/BTLRecHitsErrorEstimatorIM.h"
 
 #include "DataFormats/ForwardDetId/interface/BTLDetId.h"
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"
@@ -36,7 +37,6 @@ MTDThresholdClusterizer::MTDThresholdClusterizer(edm::ParameterSet const& conf)
       theClusterThreshold(conf.getParameter<double>("ClusterThreshold")),
       theTimeThreshold(conf.getParameter<double>("TimeThreshold")),
       thePositionThreshold(conf.getParameter<double>("PositionThreshold")),
-      BTLBarLength(conf.getParameter<double>("BTLBarLength")),
       theNumOfRows(0),
       theNumOfCols(0),
       theCurrentId(0),
@@ -51,8 +51,7 @@ void MTDThresholdClusterizer::fillDescriptions(edm::ParameterSetDescription& des
   desc.add<double>("SeedThreshold", 0.);
   desc.add<double>("ClusterThreshold", 0.);
   desc.add<double>("TimeThreshold", 10.);
-  desc.add<double>("PositionThreshold", 4.);
-  desc.add<double>("BTLBarLength", 57.0);  //length of bar in mm
+  desc.add<double>("PositionThreshold", 0.5);
 }
 
 //----------------------------------------------------------------------------
@@ -200,15 +199,16 @@ void MTDThresholdClusterizer::copy_to_buffer(RecHitIterator itr, const MTDGeomet
   MTDDetId mtdId = MTDDetId(itr->detid());
   int row = itr->row();
   int col = itr->column();
-  GeomDetEnumerators::Location SubDet = GeomDetEnumerators::invalidLoc;
+  GeomDetEnumerators::Location subDet = GeomDetEnumerators::invalidLoc;
   float energy = itr->energy();
   float time = itr->time();
   float timeError = itr->timeError();
-  float position = itr->position().second;
+  float position = itr->position();
+  //position is the longitudinal offset that should be added into local x for bars in phi geometry
   LocalError local_error(0, 0, 0);
   GlobalPoint global_point(0, 0, 0);
   if (mtdId.mtdSubDetector() == MTDDetId::BTL) {
-    SubDet = GeomDetEnumerators::barrel;
+    subDet = GeomDetEnumerators::barrel;
     BTLDetId id = itr->id();
     DetId geoId = id.geographicalId((BTLDetId::CrysLayout)topo->getMTDTopologyMode());
     const auto& det = geom->idToDet(geoId);
@@ -216,15 +216,14 @@ void MTDThresholdClusterizer::copy_to_buffer(RecHitIterator itr, const MTDGeomet
     const RectangularMTDTopology& topol = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
     MeasurementPoint mp(row, col);
     LocalPoint lp_ctr = topol.localPosition(mp);
-    float z_offset = ((BTLBarLength / 2.) - position) * 1._mm;
-    //need to add the offset as the distance from centre to edge (z direction in global and y direction in local)
-    LocalPoint lp(lp_ctr.x(), lp_ctr.y() + z_offset, lp_ctr.z());
+    LocalPoint lp(lp_ctr.x() + position + topol.pitch().first / 2.0, lp_ctr.y(), lp_ctr.z());
+    //local coordinates of BTL module locates RecHits on the left edge of the bar (-9.2, -3.067, 3.067)
+    //(position + topol.pitch().first/2.0) is the distance from the left edge to the Hit point
     global_point = det->toGlobal(lp);
-    BTLRecHitsErrorEstimatorIM I(det, lp);
-    LocalError err_modified = I.localError();
-    local_error = err_modified;
+    BTLRecHitsErrorEstimatorIM btlError(det, lp);
+    local_error = btlError.localError();
   } else if (mtdId.mtdSubDetector() == MTDDetId::ETL) {
-    SubDet = GeomDetEnumerators::endcap;
+    subDet = GeomDetEnumerators::endcap;
     ETLDetId id = itr->id();
     DetId geoId = id.geographicalId();
     const auto& det = geom->idToDet(geoId);
@@ -238,7 +237,7 @@ void MTDThresholdClusterizer::copy_to_buffer(RecHitIterator itr, const MTDGeomet
 
   DEBUG("ROW " << row << " COL " << col << " ENERGY " << energy << " TIME " << time);
   if (energy > theHitThreshold) {
-    theBuffer.set(row, col, SubDet, energy, time, timeError, local_error, global_point);
+    theBuffer.set(row, col, subDet, energy, time, timeError, local_error, global_point);
     if (energy > theSeedThreshold)
       theSeeds.push_back(FTLCluster::FTLHitPos(row, col));
     //sort seeds?
@@ -251,13 +250,11 @@ void MTDThresholdClusterizer::copy_to_buffer(RecHitIterator itr, const MTDGeomet
 FTLCluster MTDThresholdClusterizer::make_cluster(const FTLCluster::FTLHitPos& hit) {
   //First we acquire the seeds for the clusters
 
-  GeomDetEnumerators::Location seed_subdet = theBuffer.SubDet(hit.row(), hit.col());
+  GeomDetEnumerators::Location seed_subdet = theBuffer.subDet(hit.row(), hit.col());
   float seed_energy = theBuffer.energy(hit.row(), hit.col());
   float seed_time = theBuffer.time(hit.row(), hit.col());
   float seed_time_error = theBuffer.time_error(hit.row(), hit.col());
-  double seed_z = theBuffer.global_point(hit.row(), hit.col()).z();
-  double seed_x = theBuffer.global_point(hit.row(), hit.col()).x();
-  double seed_y = theBuffer.global_point(hit.row(), hit.col()).y();
+  auto const seedPoint = theBuffer.global_point(hit.row(), hit.col());
   double seed_error_xx = theBuffer.local_error(hit.row(), hit.col()).xx();
   double seed_error_yy = theBuffer.local_error(hit.row(), hit.col()).yy();
   theBuffer.clear(hit);
@@ -282,15 +279,14 @@ FTLCluster MTDThresholdClusterizer::make_cluster(const FTLCluster::FTLHitPos& hi
               theTimeThreshold *
                   sqrt(theBuffer.time_error(r, c) * theBuffer.time_error(r, c) + seed_time_error * seed_time_error))
             continue;
-          if ((seed_subdet == GeomDetEnumerators::barrel) && (theBuffer.SubDet(r, c) == GeomDetEnumerators::barrel)) {
-            double x_hit = theBuffer.global_point(r, c).x();
-            double y_hit = theBuffer.global_point(r, c).y();
-            double z_hit = theBuffer.global_point(r, c).z();
+          if ((seed_subdet == GeomDetEnumerators::barrel) && (theBuffer.subDet(r, c) == GeomDetEnumerators::barrel)) {
             double hit_error_xx = theBuffer.local_error(r, c).xx();
             double hit_error_yy = theBuffer.local_error(r, c).yy();
+            std::cout << "thePositionThreshold: " << thePositionThreshold << std::endl;
             if (thePositionThreshold > 0) {
-              if (sqrt(pow((x_hit - seed_x), 2) + pow((y_hit - seed_y), 2) + pow((z_hit - seed_z), 2)) >
-                  thePositionThreshold * sqrt(hit_error_xx + seed_error_xx + hit_error_yy + seed_error_yy))
+              if (((theBuffer.global_point(r, c) - seedPoint).mag2()) >
+                  thePositionThreshold * thePositionThreshold *
+                      (hit_error_xx + seed_error_xx + hit_error_yy + seed_error_yy))
                 continue;
             }
           }

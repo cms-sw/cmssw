@@ -9,8 +9,7 @@ public:
   MTDRecHitAlgo(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
       : MTDRecHitAlgoBase(conf, sumes),
         thresholdToKeep_(conf.getParameter<double>("thresholdToKeep")),
-        calibration_(conf.getParameter<double>("calibrationConstant")),
-        posError_(conf.getParameter<double>("posError")) {}
+        calibration_(conf.getParameter<double>("calibrationConstant")) {}
 
   /// Destructor
   ~MTDRecHitAlgo() override {}
@@ -23,7 +22,7 @@ public:
   FTLRecHit makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32_t& flags) const final;
 
 private:
-  double thresholdToKeep_, calibration_, posError_;
+  double thresholdToKeep_, calibration_;
   const MTDTimeCalib* time_calib_;
 };
 
@@ -40,7 +39,8 @@ FTLRecHit MTDRecHitAlgo::makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32
   float energy = 0.;
   float time = 0.;
 
-  std::pair<float, float> position(-1.f, -1.f);  //position in unit mm
+  // position and positionError in unit cm
+  float position = -1.f;
   float positionError = -1.f;
 
   switch (flagsWord) {
@@ -56,9 +56,8 @@ FTLRecHit MTDRecHitAlgo::makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32
       energy = 0.5 * (uRecHit.amplitude().first + uRecHit.amplitude().second);
       time = 0.5 * (uRecHit.time().first + uRecHit.time().second);
 
-      position.first = uRecHit.position().first;
-      position.second = uRecHit.position().second;
-      positionError = posError_;
+      position = uRecHit.position();
+      positionError = uRecHit.positionError();
 
       break;
     }

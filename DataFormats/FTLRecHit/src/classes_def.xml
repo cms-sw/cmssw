@@ -1,6 +1,6 @@
 <lcgdict>
   <class name="FTLUncalibratedRecHit" ClassVersion="5">
-    <version ClassVersion="5" checksum="2243916026"/>
+    <version ClassVersion="5" checksum="170707344"/>
     <version ClassVersion="4" checksum="508372968"/>
     <version ClassVersion="3" checksum="1325548734"/>
   </class>
@@ -12,7 +12,7 @@
   <class name="edm::RefProd<FTLUncalibratedRecHitCollection>"/>
 
   <class name="FTLRecHit" ClassVersion="5">
-    <version ClassVersion="5" checksum="2730607388"/>
+    <version ClassVersion="5" checksum="943006844"/>
     <version ClassVersion="4" checksum="2916210238"/>
     <version ClassVersion="3" checksum="259405474"/>
   </class>
