@@ -290,6 +290,7 @@ void DTRunConditionVarClient::bookWheelHistos(DQMStore::IBooker& ibooker,
   string histoLabel;
 
   if(makeRings){
+      ibooker.setCurrentFolder(folder + "/Wheel" + wheel.str());
       for (int st = 1; st <= 4; st++){
          stringstream station;
          station << st;
@@ -307,13 +308,15 @@ void DTRunConditionVarClient::bookWheelHistos(DQMStore::IBooker& ibooker,
       (wheelHistos[wh])[histoType] = ibooker.book1D(histoName, histoLabel, nbins, min, max);
   }
 
-  if (isVDCorr) {
+ ibooker.setCurrentFolder(folder);
+
+ if (isVDCorr) {
     histoLabel = "Summary of corrections to VDrift DB values";
     histoName = "CorrTo" + histoType + "Summary_W" + wheel.str();
   } else {
     histoLabel = histoType + "Summary";
     histoName = histoType + "Summary_W" + wheel.str();
-  }
+ }
 
   MonitorElement* me = ibooker.book2D(histoName, histoLabel, 12, 1, 13, 4, 1, 5);
 
