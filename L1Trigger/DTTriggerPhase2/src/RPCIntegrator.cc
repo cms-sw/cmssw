@@ -57,7 +57,6 @@ void RPCIntegrator::prepareMetaPrimitives(edm::Handle<RPCRecHitCollection> rpcRe
                          rpcIt->BunchX() + 20,
                          rpcIt->time() + 20 * 25));  // set everyone to rpc single hit not matched to DT flag for now
                                                      // if dt bx centered at zero again
-    //RPCMetaprimitives_.push_back(RPCMetaprimitive(rpcDetId, &*rpcIt, global_position, 3)); // set everyone to rpc single hit not matched to DT flag for now
   }
 }
 void RPCIntegrator::matchWithDTAndUseRPCTime(std::vector<metaPrimitive>& dt_metaprimitives) {
@@ -83,7 +82,6 @@ void RPCIntegrator::makeRPCOnlySegments() {
     GlobalPoint rpc_gp_l1 = rpc_mp_it_layer1->global_position;
     if (rpc_id_l1.station() > 2 || rpc_id_l1.layer() != 1 || (rpc_mp_it_layer1->rpcFlag == 5 && !m_storeAllRPCHits_))
       continue;  // only one RPC layer in station three and four && avoid duplicating pairs && avoid building RPC only segment if DT segment was already there
-    //if (rpc_id_l1.station() > 2 || rpc_id_l1.layer() != 1 || (rpc_mp_it_layer1->rpcFlag == 5 && !m_storeAllRPCHits) || rpc_mp_it_layer1->rpcFlag == 6) continue; // only one RPC layer in station three and four && avoid duplicating pairs && avoid building RPC only segment if DT segment was already there && allow a cluster to be used in one segment only
     int min_dPhi = std::numeric_limits<int>::max();
     RPCMetaprimitive* bestMatch_rpc_mp_layer2 = NULL;
     for (auto rpc_mp_it_layer2 = RPCMetaprimitives_.begin(); rpc_mp_it_layer2 != RPCMetaprimitives_.end();
@@ -109,12 +107,8 @@ void RPCIntegrator::makeRPCOnlySegments() {
           6;  // need a new flag (will be removed later) to differentiate between "has been matched to DT" and "Has been used in an RPC only segment"
       bestMatch_rpc_mp_layer2->rpcFlag = 6;
       double phiB = phiBending(&*rpc_mp_it_layer1, &*bestMatch_rpc_mp_layer2);
-      //double global_phi = (rpc_mp_it_layer1->global_position.phi() + bestMatch_rpc_mp_layer2->global_position.phi()) / 2.0; // does not work...
-      // FIXME define the phi of the segment at the middle of it?
       double global_phi = rpc_mp_it_layer1->global_position.phi();  // Arbitrarily choose the phi from layer 1
-      //double t0 = (rpc_mp_it_layer1->rpc_cluster->time() + bestMatch_rpc_mp_layer2->rpc_cluster->time()) / 2;
       double t0 = (rpc_mp_it_layer1->rpc_t0 + bestMatch_rpc_mp_layer2->rpc_t0) / 2;
-      //L1Phase2MuDTPhDigi rpc_only_segment  = createL1Phase2MuDTPhDigi(rpc_id_l1, rpc_mp_it_layer1->rpc_cluster->BunchX(), t0, global_phi, phiB, 2); // RPC only segment have rpcFlag==2
       L1Phase2MuDTPhDigi rpc_only_segment = createL1Phase2MuDTPhDigi(
           rpc_id_l1, rpc_mp_it_layer1->rpc_bx, t0, global_phi, phiB, 2);  // RPC only segment have rpcFlag==2
       rpc_only_segments.push_back(rpc_only_segment);
@@ -125,13 +119,11 @@ void RPCIntegrator::makeRPCOnlySegments() {
 
 void RPCIntegrator::storeRPCSingleHits() {
   for (auto rpc_mp_it = RPCMetaprimitives_.begin(); rpc_mp_it != RPCMetaprimitives_.end(); rpc_mp_it++) {
-    //const RPCRecHit* rpc_hit = rpc_mp_it->rpc_cluster;
     RPCDetId rpcDetId = rpc_mp_it->rpc_id;
     if (rpc_mp_it->rpcFlag == 6)
       rpc_mp_it->rpcFlag = 5;
     L1Phase2MuDTPhDigi rpc_out = createL1Phase2MuDTPhDigi(
         rpcDetId, rpc_mp_it->rpc_bx, rpc_mp_it->rpc_t0, rpc_mp_it->global_position.phi(), -10000, rpc_mp_it->rpcFlag);
-    //L1Phase2MuDTPhDigi rpc_out = createL1Phase2MuDTPhDigi(rpcDetId, rpc_hit->BunchX(), rpc_hit->time(), rpc_mp_it->global_position.phi(), -10000, rpc_mp_it->rpcFlag);
     rpcRecHits_translated_.push_back(rpc_out);
   }
 }
@@ -166,18 +158,14 @@ RPCMetaprimitive* RPCIntegrator::matchDTwithRPC(metaPrimitive* dt_metaprimitive)
   float min_dPhi = std::numeric_limits<float>::max();
   for (auto rpc_mp_it = RPCMetaprimitives_.begin(); rpc_mp_it != RPCMetaprimitives_.end(); rpc_mp_it++) {
     RPCDetId rpc_det_id = rpc_mp_it->rpc_id;
-    //const RPCRecHit* rpc_cluster_toBeMatched = rpc_mp_it->rpc_cluster;
     if (rpc_det_id.ring() == dt_chId.wheel()  // ring() in barrel RPC corresponds to the wheel
         && rpc_det_id.station() == dt_chId.station() && rpc_det_id.sector() == dt_sector &&
         std::abs(rpc_mp_it->rpc_bx - dt_bx) <= m_bx_window_) {
-      //FIXME improve DT/RPC matching e.g. use 2D position instead of phi, use segment direction to extrapolate, etc.
       // Select the RPC hit closest in phi to the DT meta primitive
 
-      //int rpc_phi_dtConv = getPhi_DT_MP_conv(rpc_mp_it->global_position.phi(), rpc_det_id.sector(), false);
       int delta_phi = (int)round(
           (phi_DT_MP_conv(rpc_mp_it->global_position.phi(), rpc_det_id.sector()) - dt_metaprimitive->phi) *
           m_dt_phiB_granularity_);  // just a trick to apply the phi window cut on what could be accessed to fine tune it
-      //if (std::abs(rpc_phi_dtConv - dt_metaprimitive->phi) < min_dPhi && delta_phi < m_phi_window){
       if (std::abs(delta_phi) < min_dPhi && std::abs(delta_phi) < m_phi_window_) {
         min_dPhi = std::abs(delta_phi);
         bestMatch_rpcRecHit = &*rpc_mp_it;

@@ -41,27 +41,6 @@ void InitialGrouping::run(Event &iEvent,
                           std::vector<MuonPath *> *mpaths) {
   if (debug)
     cout << "InitialGrouping: run" << endl;
-  //     // GROUPING BEGIN...
-  //     DTDigiMap digiMap;
-  //     DTDigiCollection::DigiRangeIterator detUnitIt;
-  //     for (detUnitIt = dtdigis->begin(); detUnitIt != dtdigis->end(); ++detUnitIt) {
-  //       const DTLayerId&               layId   = (*detUnitIt).first;
-  //       const DTChamberId              chambId = layId.superlayerId().chamberId();
-  //       const DTDigiCollection::Range& range   = (*detUnitIt).second;
-  //       digiMap[chambId].put(range, layId);
-  //     }
-  //
-  //     // generate a list muon paths for each event!!!
-  //     std::vector<MuonPath*> muonpaths;
-  //     for (std::vector<const DTChamber*>::const_iterator ich = dtGeo->chambers().begin(); ich != dtGeo->chambers().end(); ich++) {
-  //       const DTChamber*   chamb = (*ich);
-  //       DTChamberId        chid  = chamb->id();
-  //       DTDigiMap_iterator dmit  = digiMap.find(chid);
-  //       if (dmit !=digiMap.end()) buildMuonPathCandidates((*dmit).second, &muonpaths);
-  //     }
-  //
-  //     digiMap.clear();
-  //     //GROUPING ENDs
 
   //   This function returns the analyzable mpath collection back to the the main function
   //   so it can be fitted. This is in fact doing the so-called grouping.
@@ -96,12 +75,10 @@ void InitialGrouping::setInChannels(const DTDigiCollection *digis, int sl) {
   //   before setting channels we need to clear
   for (int lay = 0; lay < NUM_LAYERS; lay++) {
     for (int ch = 0; ch < NUM_CH_PER_LAYER; ch++) {
-      //       if (debug) cout << "DTp2::setInChannels --> emptying L" << lay << " Ch" << ch  << " with content " << channelIn[lay][ch].size() << endl;
       channelIn[lay][ch].clear();
     }
   }
 
-  //  if (debug) cout << "DTp2::setInChannels --> initialised with empty vectors" << endl;
   // now fill with those primitives that makes sense:
   DTDigiCollection::DigiRangeIterator dtLayerId_It;
   for (dtLayerId_It = digis->begin(); dtLayerId_It != digis->end(); ++dtLayerId_It) {
@@ -117,7 +94,6 @@ void InitialGrouping::setInChannels(const DTDigiCollection *digis, int sl) {
       int digiTIME = (*digiIt).time();
       int digiTIMEPhase2 = digiTIME;
 
-      // if (debug) cout << "DTp2::setInChannels --> reading digis in L"<<layer << " Ch" << wire << endl;
 
       DTPrimitive dtpAux = DTPrimitive();
       dtpAux.setTDCTimeStamp(digiTIMEPhase2);
@@ -278,10 +254,8 @@ void InitialGrouping::mixChannels(int supLayer, int pathId, std::vector<MuonPath
       maxPrimsToBeRetrieved = 1;
 
     for (unsigned int items = 0; items < maxPrimsToBeRetrieved; items++) {
-      //RMPTR DTPrimitive *dtpAux = new DTPrimitive();
       DTPrimitive dtpAux = DTPrimitive();
       if (muxInChannels[canal].size() != 0) {
-        //RMPTR dtpAux = (DTPrimitive*) &(muxInChannels[canal].at(items));
         dtpAux = DTPrimitive(&(muxInChannels[canal].at(items)));
       }
       //      if (debug) cout << "DTp2::mixChannels --> DTPrimitive: " << dtpAux->tdcTimeStamp() << ", " << dtpAux->superLayerId() <<endl;
@@ -293,7 +267,6 @@ void InitialGrouping::mixChannels(int supLayer, int pathId, std::vector<MuonPath
         DTPrim (even invalid) on the outgoing array. This is mandatory to cope
         with the idea explained in the previous comment block
       */
-      //RMPRT if (dtpAux->tdcTimeStamp() < 0 && items > 0) break;
       if (dtpAux.tdcTimeStamp() < 0 && items > 0)
         break;
 
@@ -374,13 +347,6 @@ void InitialGrouping::mixChannels(int supLayer, int pathId, std::vector<MuonPath
     }
   }
   for (int layer = 0; layer <= 3; layer++) {
-    //uncomenting this causes a seg fault
-    //RMPTR      int numData = data[layer].size();
-    //RMPTR      for (int i = 0; i < numData; i++) {
-    //RMPTR	data[layer][i] = (DTPrimitive*) (NULL);
-    //RMPTR	delete data[layer][i];
-    //RMPTR      }
     data[layer].clear();
-    //      data[layer].erase(data[layer].begin(),data[layer].end());
   }
 }
