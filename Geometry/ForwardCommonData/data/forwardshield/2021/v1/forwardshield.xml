@@ -50,8 +50,8 @@
   <Constant name="FixShldZ8" value="13.726*m"/>
   <Constant name="FixShldZ9" value="13.750*m"/>
   <Constant name="FixShldZ10" value="18.050*m"/>
-  <Constant name="FixShldZ11" value="[cms:ForwdBeamZ10]"/>
-  <Constant name="FixShldZ12" value="[cms:ForwdBeamZ11]"/>
+  <Constant name="FixShldZ11" value="[cms:ForwdBeamZ11]"/>
+  <Constant name="FixShldZ12" value="[cms:ForwdBeamZ12]"/>
   <Constant name="FixShldZ13" value="21.900*m"/>
   <Constant name="FixShldZ14" value="22.500*m"/>
   <Constant name="FixShldZ15" value="22.550*m"/>
@@ -161,10 +161,14 @@
     <ZSection z="[cms:ForwdBeamZ10]" rMin="[cms:ForwdBeamR8]" rMax="[ForwdRmax]"/>
     <ZSection z="[cms:ForwdBeamZ10]" rMin="[cms:ForwdBeamR9]" rMax="[ForwdRmax]"/>
     <ZSection z="[cms:ForwdBeamZ11]" rMin="[cms:ForwdBeamR9]" rMax="[ForwdRmax]"/>
-    <ZSection z="[cms:ForwdBeamZ11]" rMin="[cms:ForwdBeamR8]" rMax="[ForwdRmax]"/>
-    <ZSection z="[cms:CMSZ2]" rMin="[cms:ForwdBeamR8]" rMax="[ForwdRmax]"/>
-    <ZSection z="[cms:CMSZ2]" rMin="[cms:ForwdBeamR8]" rMax="[cms:CMSR2]"/>
-    <ZSection z="[cms:HallZ]" rMin="[cms:ForwdBeamR8]" rMax="[cms:CMSR2]"/>
+    <ZSection z="[cms:ForwdBeamZ11]" rMin="[cms:ForwdBeamR10]" rMax="[ForwdRmax]"/>
+    <ZSection z="[cms:ForwdBeamZ12]" rMin="[cms:ForwdBeamR10]" rMax="[ForwdRmax]"/>
+    <ZSection z="[cms:ForwdBeamZ12]" rMin="[cms:ForwdBeamR12]" rMax="[ForwdRmax]"/>
+    <ZSection z="[cms:ForwdBeamZ14]" rMin="[cms:ForwdBeamR12]" rMax="[ForwdRmax]"/>
+    <ZSection z="[cms:ForwdBeamZ14]" rMin="[cms:ForwdBeamR13]" rMax="[ForwdRmax]"/>
+    <ZSection z="[cms:CMSZ2]" rMin="[cms:ForwdBeamR13]" rMax="[ForwdRmax]"/>
+    <ZSection z="[cms:CMSZ2]" rMin="[cms:ForwdBeamR13]" rMax="[cms:CMSR2]"/>
+    <ZSection z="[cms:HallZ]" rMin="[cms:ForwdBeamR13]" rMax="[cms:CMSR2]"/>
   </Polycone>
   <Cone name="VcalFibreBundleContainer" dz="([CalShldZ1]-[cms:ForwdVcalZ2])/2" rMin1="[cms:ForwdBeamR1]" rMax1="[VcalEleR2]" rMin2="[VcalEleR1]" rMax2="[VcalEleR2]" startPhi="0*deg" deltaPhi="360*deg"/>
   <Cone name="VcalFibreBundleSector" dz="([CalShldZ1]-[cms:ForwdVcalZ2])/2" rMin1="[cms:ForwdBeamR1]" rMax1="[VcalEleR2]" rMin2="[VcalEleR1]" rMax2="[VcalEleR2]" startPhi="-10*deg" deltaPhi="20*deg"/>
