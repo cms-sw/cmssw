@@ -9,6 +9,7 @@ PAYLOAD_2XML_MODULE(pluginUtilities_payload2xml) {
   PAYLOAD_2XML_CLASS(AlignmentSurfaceDeformations);
   PAYLOAD_2XML_CLASS(Alignments);
   PAYLOAD_2XML_CLASS(BeamSpotObjects);
+  PAYLOAD_2XML_CLASS(BeamSpotOnlineObjects);
   PAYLOAD_2XML_CLASS(CSCBadChambers);
   PAYLOAD_2XML_CLASS(CSCBadStrips);
   PAYLOAD_2XML_CLASS(CSCBadWires);
