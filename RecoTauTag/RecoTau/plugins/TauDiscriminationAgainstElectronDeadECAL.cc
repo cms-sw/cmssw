@@ -36,10 +36,12 @@ public:
 
   double discriminate(const TauRef& tau) const override {
     if (verbosity_) {
-      edm::LogPrint(TauDiscriminationProducerBase<TauType, TauDiscriminator>::getTauTypeString() + "AgainstEleDeadECAL")
-	<< "<" + TauDiscriminationProducerBase<TauType, TauDiscriminator>::getTauTypeString() + "AgainstElectronDeadECAL::discriminate>:";
-      edm::LogPrint(TauDiscriminationProducerBase<TauType, TauDiscriminator>::getTauTypeString() + "AgainstEleDeadECAL") << " moduleLabel = " << moduleLabel_;
-      edm::LogPrint(TauDiscriminationProducerBase<TauType, TauDiscriminator>::getTauTypeString() + "AgainstEleDeadECAL")
+      edm::LogPrint(this->getTauTypeString() + "AgainstEleDeadECAL")
+          << "<" + this->getTauTypeString() +
+                 "AgainstElectronDeadECAL::discriminate>:";
+      edm::LogPrint(this->getTauTypeString() + "AgainstEleDeadECAL")
+          << " moduleLabel = " << moduleLabel_;
+      edm::LogPrint(this->getTauTypeString() + "AgainstEleDeadECAL")
           << " tau: Pt = " << tau->pt() << ", eta = " << tau->eta() << ", phi = " << tau->phi();
     }
     double discriminator = 1.;
@@ -47,7 +49,7 @@ public:
       discriminator = 0.;
     }
     if (verbosity_) {
-      edm::LogPrint(TauDiscriminationProducerBase<TauType, TauDiscriminator>::getTauTypeString() + "AgainstEleDeadECAL")
+      edm::LogPrint(this->getTauTypeString() + "AgainstEleDeadECAL")
           << "--> discriminator = " << discriminator;
     }
     return discriminator;
