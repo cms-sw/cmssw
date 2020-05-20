@@ -9,6 +9,8 @@
 #include <TCanvas.h>
 #include <TFrame.h>
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DetectorDescription/DDCMS/interface/Filter.h"
@@ -41,7 +43,9 @@ DD4hep_MaterialAccountingGroup::DD4hep_MaterialAccountingGroup(const std::string
           cms::Translation trans = fv.translation(path);
           GlobalPoint gp = GlobalPoint(trans.x(), trans.y(), trans.z());
           m_elements.push_back(gp);
-          std::cout << "Adding element at (r,z) " << gp.perp() << "," << gp.z() << std::endl;
+          edm::LogVerbatim("TrackerMaterialAnalysis")
+              << "MaterialAccountingGroup:\t"
+              << "Adding element at (r,z) " << gp.perp() << "," << gp.z() << std::endl;
         }
       }
     }
@@ -53,10 +57,10 @@ DD4hep_MaterialAccountingGroup::DD4hep_MaterialAccountingGroup(const std::string
 
   m_boundingbox.grow(s_tolerance);
 
-  std::cout << "Final BBox r_range: " << m_boundingbox.range_r().first << ", " << m_boundingbox.range_r().second
-            << std::endl
-            << "Final BBox z_range: " << m_boundingbox.range_z().first << ", " << m_boundingbox.range_z().second
-            << std::endl;
+  edm::LogVerbatim("TrackerMaterialAnalysis")
+      << "MaterialAccountingGroup:\t"
+      << "Final BBox r_range: " << m_boundingbox.range_r().first << ", " << m_boundingbox.range_r().second << std::endl
+      << "Final BBox z_range: " << m_boundingbox.range_z().first << ", " << m_boundingbox.range_z().second << std::endl;
 
   // initialize the histograms
   m_dedx_spectrum =
