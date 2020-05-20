@@ -85,7 +85,7 @@ Example: two algorithms each creating only one objects
 #include "FWCore/Framework/interface/eventsetup_dependsOn.h"
 #include "FWCore/Framework/interface/es_Label.h"
 
-#include "FWCore/Concurrency/interface/SerialTaskQueue.h"
+#include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 
 // forward declarations
 namespace edm {
@@ -149,9 +149,12 @@ namespace edm {
       return ret;
     }
 
-    SerialTaskQueue& queue() { return queue_; }
+    SerialTaskQueueChain& queue() { return acquirer_.serialQueueChain(); }
 
   protected:
+    /** Specify the names of the shared resources used by this ESProducer */
+    void usesResources(std::vector<std::string> const&);
+
     /** \param iThis the 'this' pointer to an inheriting class instance
         The method determines the Record argument and return value of the 'produce'
         method in order to do the registration with the EventSetup
@@ -260,7 +263,7 @@ namespace edm {
     // order to make prefetching work
     std::vector<std::vector<ESRecordIndex>> recordsUsedDuringGet_;
 
-    SerialTaskQueue queue_;
+    SharedResourcesAcquirer acquirer_;
     bool hasMayConsumes_ = false;
   };
 }  // namespace edm
