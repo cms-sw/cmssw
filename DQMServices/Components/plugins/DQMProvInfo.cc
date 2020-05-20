@@ -367,7 +367,16 @@ void DQMProvInfo::fillDcsBitsFromDcsStatusCollection(const edm::Handle<DcsStatus
                                                      bool* dcsBits) {
   // Loop over the DCSStatus entries in the DcsStatusCollection
   // (Typically there is only one)
+  bool first = true;
   for (auto const& dcsStatusItr : *dcsStatusCollection) {
+    // By default all the bits are false. We put all the bits on true only
+    // for the first DCSStatus that we encounter:
+    if (first) {
+      for (int vbin = 1; vbin <= MAX_DCS_VBINS; vbin++) {
+        dcsBits[vbin] = true;
+      }
+      first = false;
+    }
     dcsBits[VBIN_CSC_P] &= dcsStatusItr.ready(DcsStatus::CSCp);
     dcsBits[VBIN_CSC_M] &= dcsStatusItr.ready(DcsStatus::CSCm);
     dcsBits[VBIN_DT_0] &= dcsStatusItr.ready(DcsStatus::DT0);
