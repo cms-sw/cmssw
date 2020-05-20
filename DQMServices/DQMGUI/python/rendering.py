@@ -242,7 +242,7 @@ class GUIRenderingContext:
             # Looks like our renderer died.
             print(e)
             await self.__restart_renderer()
-            return b'', -1
+            return b'crashed', -1
 
 
     async def __start_rendering_process(self):
