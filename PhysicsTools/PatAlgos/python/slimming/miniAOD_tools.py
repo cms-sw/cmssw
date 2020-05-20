@@ -349,6 +349,7 @@ def miniAOD_customizeCommon(process):
     (run2_miniAOD_94XFall17 | run2_miniAOD_UL).toReplaceWith(
         process.makePatTausTask, _makePatTausTaskWithRetrainedMVATauID
         )
+
     #-- Adding DeepTauID
     # deepTau v2p1
     _updatedTauName = 'slimmedTausDeepIDsv2p1'
