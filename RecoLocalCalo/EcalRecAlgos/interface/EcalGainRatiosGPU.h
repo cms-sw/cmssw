@@ -4,7 +4,7 @@
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
 
 #ifndef __CUDACC__
-#include "HeterogeneousCore/CUDAUtilities/interface/CUDAHostAllocator.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
 #include "HeterogeneousCore/CUDACore/interface/ESProduct.h"
 #endif
 
@@ -32,8 +32,8 @@ public:
 private:
   // in the future, we need to arrange so to avoid this copy on the host
   // store eb first then ee
-  std::vector<float, CUDAHostAllocator<float>> gain12Over6_;
-  std::vector<float, CUDAHostAllocator<float>> gain6Over1_;
+  std::vector<float, cms::cuda::HostAllocator<float>> gain12Over6_;
+  std::vector<float, cms::cuda::HostAllocator<float>> gain6Over1_;
 
   cms::cuda::ESProduct<Product> product_;
 

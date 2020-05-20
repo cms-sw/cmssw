@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "HeterogeneousCore/CUDAUtilities/interface/CUDAHostAllocator.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
 #include "EventFilter/EcalRawToDigi/interface/DCCRawDataDefinitions.h"
@@ -18,9 +18,9 @@ namespace ecal {
     constexpr uint32_t nbytes_per_fed_max = 10 * 1024;
 
     struct InputDataCPU {
-      std::vector<unsigned char, CUDAHostAllocator<unsigned char>> data;
-      std::vector<uint32_t, CUDAHostAllocator<uint32_t>> offsets;
-      std::vector<int, CUDAHostAllocator<int>> feds;
+      std::vector<unsigned char, cms::cuda::HostAllocator<unsigned char>> data;
+      std::vector<uint32_t, cms::cuda::HostAllocator<uint32_t>> offsets;
+      std::vector<int, cms::cuda::HostAllocator<int>> feds;
 
       void allocate() {
         // 2KB per FED resize
@@ -36,7 +36,7 @@ namespace ecal {
 
     struct OutputDataCPU {
       // [0] - eb, [1] - ee
-      std::vector<uint32_t, CUDAHostAllocator<uint32_t>> nchannels;
+      std::vector<uint32_t, cms::cuda::HostAllocator<uint32_t>> nchannels;
 
       void allocate() { nchannels.resize(2); }
     };

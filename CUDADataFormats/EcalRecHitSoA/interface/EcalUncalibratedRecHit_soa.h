@@ -7,7 +7,7 @@
 #include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
 
 #include "CUDADataFormats/EcalRecHitSoA/interface/RecoTypes.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/CUDAHostAllocator.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
 
 namespace ecal {
 
@@ -34,7 +34,7 @@ namespace ecal {
 
   template <typename T, typename L = Tag::soa>
   struct type_wrapper {
-    using type = std::vector<T, CUDAHostAllocator<T>>;
+    using type = std::vector<T, cms::cuda::HostAllocator<T>>;
   };
 
   template <typename T>

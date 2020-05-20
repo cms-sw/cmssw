@@ -4,7 +4,7 @@
 #include "CondFormats/EcalObjects/interface/EcalMappingElectronics.h"
 
 #ifndef __CUDACC__
-#include "HeterogeneousCore/CUDAUtilities/interface/CUDAHostAllocator.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
 #include "HeterogeneousCore/CUDACore/interface/ESProduct.h"
 #endif
 
@@ -35,7 +35,7 @@ namespace ecal {
     private:
       // in the future, we need to arrange so to avoid this copy on the host
       // store eb first then ee
-      std::vector<uint32_t, CUDAHostAllocator<uint32_t>> eid2did_;
+      std::vector<uint32_t, cms::cuda::HostAllocator<uint32_t>> eid2did_;
 
       cms::cuda::ESProduct<Product> product_;
 #endif

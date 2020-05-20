@@ -2,7 +2,7 @@
 #define RecoLocalTracker_SiPixelClusterizer_SiPixelFedCablingMapGPUWrapper_h
 
 #include "HeterogeneousCore/CUDACore/interface/ESProduct.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/CUDAHostAllocator.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelFedCablingMapGPU.h"
 
@@ -34,7 +34,7 @@ public:
 
 private:
   const SiPixelFedCablingMap *cablingMap_;
-  std::vector<unsigned char, CUDAHostAllocator<unsigned char>> modToUnpDefault;
+  std::vector<unsigned char, cms::cuda::HostAllocator<unsigned char>> modToUnpDefault;
   unsigned int size;
   bool hasQuality_;
 
