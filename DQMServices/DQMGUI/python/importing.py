@@ -19,12 +19,15 @@ class GUIImporter:
     store = GUIDataStore()
 
     @classmethod
-    async def initialize(cls, root_file_location=__EOSPATH):
-        """Imports all samples from given location of ROOT files no samples are present in the DB."""
+    async def initialize(cls, root_files=__EOSPATH):
+        """Imports all samples from given ROOT files if no samples are present in the DB."""
+
+        if root_files == None:
+            root_files = cls.__EOSPATH
 
         count = await cls.store.get_samples_count()
         if count == 0:
-            await cls.__import_samples(root_file_location)
+            await cls.__import_samples(root_files)
     
 
     @classmethod
@@ -115,14 +118,19 @@ class GUIImporter:
 
 
     @classmethod
-    async def __import_samples(cls, root_file_location=__EOSPATH):
-        """Imports all samples from given location of ROOT files."""
+    async def __import_samples(cls, root_files):
+        """
+        Imports all samples from given ROOT files.
+        If root_files is a string, it is globed to get the list of files.
+        If root_files is a list, all these files gets imported.
+        """
 
-        # TODO: for quicker testing. Remove this!
-        # root_file_location='/eos/cms/store/group/comm_dqm/DQMGUI_data/Run2017/Cosmics/R0002946xx/*.root'
-
-        print('Listing files for importing, this might take a few minutes...')
-        files = glob.glob(root_file_location)
+        if isinstance(root_files, str):
+            print('Listing files for importing, this might take a few minutes...')
+            files = glob.glob(root_files)
+        else:
+            files = root_files
+        
         print(f'Found {len(files)} files, importing...')
 
         # TODO: we might want to remove old versions of files here

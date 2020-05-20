@@ -30,10 +30,18 @@ class GUIDataStore:
 
 
     @classmethod
-    async def initialize(cls, connection_string='../data/directory.sqlite'):
-        """Creates DB from schema if it doesn't exists and open a connection to it."""
+    async def initialize(cls, connection_string='../data/directory.sqlite', in_memory=False):
+        """
+        Creates DB from schema if it doesn't exists and open a connection to it.
+        If in_memory is set to Trye, an in memory DB will be used.
+        """
 
-        cls.__db = await aiosqlite.connect(get_absolute_path(connection_string))
+        if in_memory:
+            connection_string = ':memory:'
+        else:
+            connection_string = get_absolute_path(connection_string)
+
+        cls.__db = await aiosqlite.connect(connection_string)
         await cls.__db.executescript(cls.__DBSCHEMA)
 
 
