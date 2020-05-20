@@ -36,9 +36,9 @@
 
 //----------------------------------------------------------------------------------------------------
 
-class CTPPSProtonReconstructionEfficiencyEstimator : public edm::one::EDAnalyzer<> {
+class CTPPSProtonReconstructionEfficiencyEstimatorMC : public edm::one::EDAnalyzer<> {
 public:
-  explicit CTPPSProtonReconstructionEfficiencyEstimator(const edm::ParameterSet &);
+  explicit CTPPSProtonReconstructionEfficiencyEstimatorMC(const edm::ParameterSet &);
 
 private:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
@@ -61,6 +61,8 @@ private:
   std::map<unsigned int, unsigned int> rpDecId_near_, rpDecId_far_;
 
   std::string outputFile_;
+
+  unsigned int verbosity_;
 
   struct PlotGroup {
     std::unique_ptr<TProfile> p_eff_vs_xi;
@@ -90,7 +92,7 @@ using namespace HepMC;
 
 //----------------------------------------------------------------------------------------------------
 
-CTPPSProtonReconstructionEfficiencyEstimator::CTPPSProtonReconstructionEfficiencyEstimator(
+CTPPSProtonReconstructionEfficiencyEstimatorMC::CTPPSProtonReconstructionEfficiencyEstimatorMC(
     const edm::ParameterSet &iConfig)
     : tokenHepMCAfterSmearing_(
           consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("tagHepMCAfterSmearing"))),
@@ -108,7 +110,9 @@ CTPPSProtonReconstructionEfficiencyEstimator::CTPPSProtonReconstructionEfficienc
       rpId_56_N_(iConfig.getParameter<unsigned int>("rpId_56_N")),
       rpId_56_F_(iConfig.getParameter<unsigned int>("rpId_56_F")),
 
-      outputFile_(iConfig.getParameter<string>("outputFile")) {
+      outputFile_(iConfig.getParameter<string>("outputFile")),
+
+      verbosity_(iConfig.getUntrackedParameter<unsigned int>("verbosity", 0)) {
   rpDecId_near_[0] = rpId_45_N_;
   rpDecId_far_[0] = rpId_45_F_;
 
@@ -124,17 +128,8 @@ CTPPSProtonReconstructionEfficiencyEstimator::CTPPSProtonReconstructionEfficienc
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSProtonReconstructionEfficiencyEstimator::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
-  bool verbosity = false;
-
-  const auto eid = iEvent.id().event();
-  //if (eid == 46 || eid == 741 || eid == 1649 || eid == 4223 || eid == 4279)
-  //  verbosity = true;
-
-  if (verbosity) {
-    printf("--------------------------------------------------\n");
-    printf("event %llu\n", eid);
-  }
+void CTPPSProtonReconstructionEfficiencyEstimatorMC::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
+  std::ostringstream os;
 
   // get conditions
   edm::ESHandle<LHCInfo> hLHCInfo;
@@ -220,8 +215,8 @@ void CTPPSProtonReconstructionEfficiencyEstimator::analyze(const edm::Event &iEv
   std::map<unsigned int, bool> isStripRPNear, isStripRPFar;
 
   for (auto &pp : particleInfo) {
-    if (verbosity)
-      printf("* barcode=%i, arm=%u, xi=%.3f\n", pp.first, pp.second.arm, pp.second.xi);
+    if (verbosity_)
+      os << "* barcode=" << pp.first << ", arm=" << pp.second.arm << ", xi=" << pp.second.xi << std::endl;
 
     for (const auto &rpp : pp.second.recHitsPerRP) {
       CTPPSDetId rpId(rpp.first);
@@ -247,18 +242,15 @@ void CTPPSProtonReconstructionEfficiencyEstimator::analyze(const edm::Event &iEv
           pp.second.inAcceptanceFar = true;
       }
 
-      if (verbosity)
-        printf("    RP %u: %u hits\n", rpDecId, rpp.second);
+      if (verbosity_)
+        os << "    RP " << rpDecId << ": " << rpp.second << " hits" << std::endl;
     }
 
     pp.second.inAcceptance = pp.second.inAcceptanceNear && pp.second.inAcceptanceFar;
 
-    if (verbosity) {
-      printf("    inAcceptance: near=%u, far=%u, global=%u\n",
-             pp.second.inAcceptanceNear,
-             pp.second.inAcceptanceFar,
-             pp.second.inAcceptance);
-    }
+    if (verbosity_)
+      os << "    inAcceptance: near=" << pp.second.inAcceptanceNear << ", far=" << pp.second.inAcceptanceFar
+         << ", global=" << pp.second.inAcceptance << std::endl;
   }
 
   // count particles in acceptance
@@ -308,16 +300,10 @@ void CTPPSProtonReconstructionEfficiencyEstimator::analyze(const edm::Event &iEv
     const auto &npa = nParticlesInAcceptance[arm];
     const auto &nrt = nReconstructedTracks[arm];
 
-    if (verbosity) {
-      printf("* arm %u: nRecoProtons=%u (tracks near=%u, far=%u), nAcc=%u (near=%u, far=%u)\n",
-             arm,
-             nReconstructedProtons[arm],
-             nReconstructedTracks[arm].near,
-             nReconstructedTracks[arm].far,
-             npa.global,
-             npa.near,
-             npa.far);
-    }
+    if (verbosity_)
+      os << "* arm " << arm << ": nRecoProtons=" << nReconstructedProtons[arm]
+         << " (tracks near=" << nReconstructedTracks[arm].near << ", far=" << nReconstructedTracks[arm].far
+         << "), nAcc=" << npa.global << " (near=" << npa.near << ", far=" << npa.far << ")" << std::endl;
 
     // skip event if no track in global acceptance
     if (npa.global < 1)
@@ -334,8 +320,8 @@ void CTPPSProtonReconstructionEfficiencyEstimator::analyze(const edm::Event &iEv
 
     const double eff = double(nReconstructedProtons[arm]) / npa.global;
 
-    if (verbosity)
-      printf("    eff=%.3f\n", eff);
+    if (verbosity_)
+      os << "    eff=" << eff << std::endl;
 
     for (auto &pp : particleInfo) {
       if (pp.second.arm != arm || !pp.second.inAcceptance)
@@ -344,11 +330,14 @@ void CTPPSProtonReconstructionEfficiencyEstimator::analyze(const edm::Event &iEv
       p.p_eff_vs_xi->Fill(pp.second.xi, eff);
     }
   }
+
+  if (verbosity_)
+    edm::LogInfo("CTPPSProtonReconstructionEfficiencyEstimatorMC") << os.str();
 }
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSProtonReconstructionEfficiencyEstimator::endJob() {
+void CTPPSProtonReconstructionEfficiencyEstimatorMC::endJob() {
   auto f_out = std::make_unique<TFile>(outputFile_.c_str(), "recreate");
 
   for (const auto &ait : plots_) {
@@ -368,4 +357,4 @@ void CTPPSProtonReconstructionEfficiencyEstimator::endJob() {
 
 //----------------------------------------------------------------------------------------------------
 
-DEFINE_FWK_MODULE(CTPPSProtonReconstructionEfficiencyEstimator);
+DEFINE_FWK_MODULE(CTPPSProtonReconstructionEfficiencyEstimatorMC);
