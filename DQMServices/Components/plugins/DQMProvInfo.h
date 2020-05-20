@@ -45,7 +45,8 @@ private:
   bool isPhysicsDeclared(bool* dcsBits);
 
   void blankAllLumiSections();
-  void setupLumiSection(const int ls);
+  void fillSummaryMapBin(int ls, int bin, double value);
+  void setupLumiSection(int ls);
 
   // To max amount of lumisections we foresee for the plots
   // DQM GUI renderplugins provide scaling to actual amount

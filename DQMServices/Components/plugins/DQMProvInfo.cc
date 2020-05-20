@@ -139,17 +139,14 @@ void DQMProvInfo::bookHistogramsEventInfo(DQMStore::IBooker& iBooker) {
   reportSummary_ = iBooker.bookFloat("reportSummary");
 
   // Element: reportSummaryMap   (this is the famous HV plot)
-  reportSummaryMap_ = iBooker.bookProfile2D("reportSummaryMap",
-                                            "DCS HV Status and Beam Status per Lumisection",
-                                            MAX_LUMIS,
-                                            0,
-                                            MAX_LUMIS,
-                                            MAX_VBINS,
-                                            0.,
-                                            MAX_VBINS,
-                                            1.,  // Z range -- does not really matter
-                                            0.,
-                                            1.);
+  reportSummaryMap_ = iBooker.book2D("reportSummaryMap",
+                                     "DCS HV Status and Beam Status per Lumisection",
+                                     MAX_LUMIS,
+                                     0,
+                                     MAX_LUMIS,
+                                     MAX_VBINS,
+                                     0.,
+                                     MAX_VBINS);
   reportSummaryMap_->setAxisTitle("Luminosity Section");
 
   reportSummaryMap_->setBinLabel(VBIN_CSC_P, "CSC+", 2);
@@ -254,19 +251,19 @@ void DQMProvInfo::analyzeLhcInfo(const edm::Event& event) {
     // Part3: Using LHC status info, fill in VBIN_MOMENTUM and VBIN_STABLE_BEAM
     // Fill 13 TeV bit in y bin VBIN_MOMENTUM
     if (momentum >= MAX_MOMENTUM - MOMENTUM_OFFSET) {
-      reportSummaryMap_->Fill(currentLSNumber, VBIN_MOMENTUM, 1.);
+      fillSummaryMapBin(currentLSNumber, VBIN_MOMENTUM, 1.);
     } else {
-      reportSummaryMap_->Fill(currentLSNumber, VBIN_MOMENTUM, 0.);
+      fillSummaryMapBin(currentLSNumber, VBIN_MOMENTUM, 0.);
     }
 
     // Fill stable beams bit in y bin VBIN_STABLE_BEAM
     if (beamMode_ == 11) {
       hIsCollisionsRun_->Fill(1);
       reportSummary_->Fill(1.);
-      reportSummaryMap_->Fill(currentLSNumber, VBIN_STABLE_BEAM, 1.);
+      fillSummaryMapBin(currentLSNumber, VBIN_STABLE_BEAM, 1.);
     } else {
       reportSummary_->Fill(0.);
-      reportSummaryMap_->Fill(currentLSNumber, VBIN_STABLE_BEAM, 0.);
+      fillSummaryMapBin(currentLSNumber, VBIN_STABLE_BEAM, 0.);
     }
   } else {
     edm::LogWarning("DQMProvInfo") << "TCDS Data inaccessible.";
@@ -306,17 +303,17 @@ void DQMProvInfo::analyzeEventInfo(const edm::Event& event) {
   // Part 1: Physics declared bit in y bin VBIN_PHYSICS_DECLARED
   // This also is used as the global value of the summary.
   if (physicsDeclared) {
-    reportSummaryMap_->Fill(currentLSNumber, VBIN_PHYSICS_DECLARED, 1.);
+    fillSummaryMapBin(currentLSNumber, VBIN_PHYSICS_DECLARED, 1.);
   } else {
-    reportSummaryMap_->Fill(currentLSNumber, VBIN_PHYSICS_DECLARED, 0.);
+    fillSummaryMapBin(currentLSNumber, VBIN_PHYSICS_DECLARED, 0.);
   }
 
   // Part2: DCS bits in y bins 1 to MAX_DCS_VBINS
   for (int vbin = 1; vbin <= MAX_DCS_VBINS; vbin++) {
     if (dcsBits[vbin]) {
-      reportSummaryMap_->Fill(currentLSNumber, vbin, 1.);
+      fillSummaryMapBin(currentLSNumber, vbin, 1.);
     } else {
-      reportSummaryMap_->Fill(currentLSNumber, vbin, 0.);
+      fillSummaryMapBin(currentLSNumber, vbin, 0.);
     }
   }
 }
@@ -428,15 +425,21 @@ void DQMProvInfo::blankAllLumiSections() {
   }
 }
 
-void DQMProvInfo::setupLumiSection(int currentLSNumber) {
-  // All lumis are initialized as -1 (white). Before we can start filling,
-  // we need to make them 0 (or 1, for the "valid" bit).
-  // Color all the bins red (0)
+void DQMProvInfo::fillSummaryMapBin(int ls, int bin, double value) {
+  // All lumis are initialized as -1 (white).
+  // We'll set them to red (0) whenever we see a 0 -- else, the value should be
+  // green (1).
   // This need to be atomic, DQMOneEDAnalyzer for this reason.
+  double current = reportSummaryMap_->getBinContent(ls, bin);
+  if (current == -1) {
+    reportSummaryMap_->setBinContent(ls, bin, value);
+  } else if (value < current) {
+    reportSummaryMap_->setBinContent(ls, bin, value);
+  }  // else: ignore, keep min value.
+}
+
+void DQMProvInfo::setupLumiSection(int currentLSNumber) {
   if (reportSummaryMap_->getBinContent(currentLSNumber, VBIN_VALID) < 1.) {
-    for (int vBin = 1; vBin <= MAX_VBINS; vBin++) {
-      reportSummaryMap_->setBinContent(currentLSNumber, vBin, 0.);
-    }
     reportSummaryMap_->setBinContent(currentLSNumber, VBIN_VALID, 1.);
 
     // Mark all lower LS as invalid, if they are not set valid yet.
