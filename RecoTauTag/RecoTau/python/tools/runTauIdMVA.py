@@ -864,6 +864,7 @@ class TauIDEmbedder(object):
             tauIDSources =_tauIDSourcesWithAgainistEle.clone()
 
         if "newDMwLTwGJPhase2" in self.toKeep:
+            if self.debug: print ("Adding newDMwLTwGJPhase2 ID")
             def tauIDMVAinputs(module, wp):
                 return self.cms.PSet(inputTag = self.cms.InputTag(module), workingPointIndex = self.cms.int32(-1 if wp=="raw" else -2 if wp=="category" else getattr(self.process, module).workingPoints.index(wp)))
             self.process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2raw = patDiscriminationByIsolationMVArun2v1raw.clone(
