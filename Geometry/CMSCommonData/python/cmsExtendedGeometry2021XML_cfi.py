@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 
 XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
     geomXMLFiles = cms.vstring(
-        'Geometry/CMSCommonData/data/materials.xml',
+        'Geometry/CMSCommonData/data/materials/2021/v1/materials.xml',
         'Geometry/CMSCommonData/data/rotations.xml',
         'Geometry/CMSCommonData/data/extend/v2/cmsextent.xml',
         'Geometry/CMSCommonData/data/cavernData/2021/v1/cavernData.xml',
