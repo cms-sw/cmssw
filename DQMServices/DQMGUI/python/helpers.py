@@ -63,8 +63,17 @@ def get_api_error(message):
 
 
 def get_base_release_dir():
-    """Returns an absolute path to a base CMSSW directory."""
-    return os.environ.get('CMSSW_BASE')
+    """
+    Returns an absolute path to a CMSSW directory.
+    If DQMServices/DQMGUI package is checked out, returns a path to user checkout.
+    If DQMServices/DQMGUI package is not checked out, return a path to base CMSSW release.
+    """
+
+    user_path = os.environ.get('CMSSW_BASE')
+    if user_path:
+        if os.path.isdir(os.path.join(user_path, 'src/DQMServices/DQMGUI')):
+            return user_path
+    return os.environ.get('CMSSW_RELEASE_BASE')
 
 
 def get_absolute_path(to=''):
