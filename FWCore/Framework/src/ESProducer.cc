@@ -15,7 +15,7 @@
 // user include files
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
-
+#include "FWCore/Framework/src/SharedResourcesRegistry.h"
 //
 // constants, enums and typedefs
 //
@@ -27,7 +27,7 @@ namespace edm {
   //
   // constructors and destructor
   //
-  ESProducer::ESProducer() : consumesInfos_{} {}
+  ESProducer::ESProducer() : consumesInfos_{}, acquirer_{{{std::make_shared<SerialTaskQueue>()}}} {}
 
   // ESProducer::ESProducer(const ESProducer& rhs)
   // {
@@ -103,6 +103,14 @@ namespace edm {
         }
       }
     }
+  }
+
+  void ESProducer::usesResources(std::vector<std::string> const& iResourceNames) {
+    auto instance = SharedResourcesRegistry::instance();
+    for (auto const& r : iResourceNames) {
+      instance->registerSharedResource(r);
+    }
+    acquirer_ = instance->createAcquirer(iResourceNames);
   }
 
   //
