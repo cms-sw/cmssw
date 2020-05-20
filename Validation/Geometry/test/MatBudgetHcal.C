@@ -45,60 +45,70 @@ int colorLayer[25] = {  2,   7,   9,  30,  34,  38,  14,  40,  41,  42,
 
 void etaPhiPlot(TString fileName="matbdg_HCAL.root", TString plot="IntLen", 
 		int ifirst=0, int ilast=21, int drawLeg=1, bool ifEta=true,
-		double maxEta=-1, bool debug=true);
+		double maxEta=-1, std::string tag="Run", bool debug=false);
 void etaPhiPlotHO(TString fileName="matbdg_HCAL.root", TString plot="IntLen", 
-		  int drawLeg=1, bool ifEta=true, double maxEta=-1);
+		  int drawLeg=1, bool ifEta=true, double maxEta=-1,
+		  std::string tag="Run");
 void etaPhiPlotEC(TString fileName="matbdg_HCAL.root", TString plot="IntLen", 
-		  int drawLeg=1, bool ifEta=true, double maxEta=-1);
+		  int drawLeg=1, bool ifEta=true, double maxEta=-1,
+		  std::string tag="Run");
 void etaPhiPlotHC(TString fileName="matbdg_HCAL.root", TString plot="IntLen", 
-		  int drawLeg=1, bool ifEta=true, double maxEta=-1);
+		  int drawLeg=1, bool ifEta=true, double maxEta=-1,
+		  std::string tag="Run");
 void etaPhi2DPlot(TString fileName="matbdg_HCAL.root", TString plot="IntLen", 
-		  int ifirst=0, int ilast=19, int drawLeg=1);
+		  int ifirst=0, int ilast=19, int drawLeg=1,
+		  std::string tag="Run");
 void etaPhi2DPlot(int nslice, int kslice, TString fileName="matbdg_HCAL.root",
 		  TString plot="IntLen", int ifirst=0, int ilast=21, 
-		  int drawLeg=1);
+		  int drawLeg=1, std::string tag="Run");
 void printTable (TString fileName="matbdg_HCAL.root", 
 		 TString outputFileName="hcal.txt",
 		 TString inputFileName="None");
-void plotDiff (TString fileName="matbdg_HCAL.root", TString plot="IntLen");
+void plotDiff (TString fileName="matbdg_HCAL.root", TString plot="IntLen",
+	       std::string tag="Run");
 void getDiff (TString fileName="matbdg_HCAL.root", TString plot="IntLen");
-void plotHE(int flag=0, int logy=0, int save=0);
+void plotHE(int flag=0, int logy=0, std::string tag="Run", int save=0);
 void etaPhiCastorPlot(TString fileName="matbdg_Castor.root", 
 		      TString plot="IntLen", TString type="All",
 		      bool etaPlus=true, int drawLeg=1, bool ifEta=true,
-		      bool debug=true);
+		      std::string tag="Run", bool debug=false);
 void efficiencyPlot(TString fileName="matbdg_HCAL.root", TString type="All",
-		    bool ifEtaPhi=true, double maxEta=-1, bool debug=false);
+		    bool ifEtaPhi=true, double maxEta=-1, std::string tag="Run",
+		    bool debug=false);
 void etaPhiFwdPlot(TString fileName="matbdg_Fwd.root", TString plot="IntLen", 
-		   int first=0, int last=9, int drawLeg=1, bool debug=false);
+		   int first=0, int last=9, int drawLeg=1, std::string tag="Run"
+		   , bool debug=false);
 void setStyle ();
 
-void standardPlot (TString fileName="matbdg_HCAL.root", 
+void standardPlot (TString fileName="matbdgHCAL_run3.root", 
+		   std::string tag="Run3", int maxEta=4.8,
 		   TString outputFileName="hcal.txt") {
 
-  etaPhiPlot  (fileName, "IntLen", 0, 21, 1, true,  4.8);
-  etaPhiPlot  (fileName, "IntLen", 0, 20, 1, false, -1.);
-  etaPhiPlot  (fileName, "RadLen", 0, 21, 1, true,  4.8);
-  etaPhiPlot  (fileName, "RadLen", 0, 20, 1, false, -1);
-  etaPhiPlot  (fileName, "StepLen",0, 21, 1, true,  -1);
-  etaPhiPlot  (fileName, "StepLen",0, 20, 1, false, -1);
-  etaPhiPlotHO(fileName, "IntLen", 1, true, 2.5);
-  etaPhiPlotEC(fileName, "IntLen", 1, true, 2.5);
-  plotDiff    (fileName, "IntLen");
-  plotDiff    (fileName, "RadLen");
+  etaPhiPlot  (fileName, "IntLen", 0, 21, 1, true,  maxEta, tag);
+  etaPhiPlot  (fileName, "IntLen", 0, 20, 1, false, -1.0, tag);
+  etaPhiPlot  (fileName, "RadLen", 0, 21, 1, true,  maxEta, tag);
+  etaPhiPlot  (fileName, "RadLen", 0, 20, 1, false, -1.0, tag);
+  etaPhiPlot  (fileName, "StepLen",0, 21, 1, true,  -1.0, tag);
+  etaPhiPlot  (fileName, "StepLen",0, 20, 1, false, -1.0, tag);
+  etaPhiPlotHO(fileName, "IntLen", 1, true, 2.5, tag);
+  etaPhiPlotEC(fileName, "IntLen", 1, true, 2.5, tag);
+  plotDiff    (fileName, "IntLen", tag);
+  plotDiff    (fileName, "RadLen", tag);
   printTable  (fileName, outputFileName);
-  etaPhi2DPlot(fileName, "IntLen", 0, 21, 1);
-  etaPhi2DPlot(fileName, "RadLen", 0, 21, 1);
+  etaPhi2DPlot(fileName, "IntLen", 0, 21, 1, tag);
+  etaPhi2DPlot(fileName, "RadLen", 0, 21, 1, tag);
 }
 
 void etaPhiPlot(TString fileName, TString plot, int ifirst, int ilast, 
-		int drawLeg, bool ifEta, double maxEta, bool debug) {
+		int drawLeg, bool ifEta, double maxEta, std::string tag,
+		bool debug) {
 
   TFile* hcalFile = new TFile(fileName);
   hcalFile->cd("g4SimHits");
   setStyle();
 
   TString xtit = TString("#eta");
+  TString ztit = TString("eta");
   TString ytit = "none";
   int ymin = 0, ymax = 20, istart = 200;
   double xh = 0.90;
@@ -115,6 +125,7 @@ void etaPhiPlot(TString fileName, TString plot, int ifirst, int ilast,
   if (!ifEta) {
     istart += 400;
     xtit    = TString("#phi"); 
+    ztit    = TString("phi");
   }
   
   TLegend *leg = new TLegend(xh-0.13, 0.60, xh, 0.90);
@@ -136,6 +147,8 @@ void etaPhiPlot(TString fileName, TString plot, int ifirst, int ilast,
       prof[nplots]->GetXaxis()->SetRangeUser(-maxEta,maxEta);
     if (xh < 0.8) 
       prof[nplots]->GetYaxis()->SetTitleOffset(1.7);
+    else
+      prof[nplots]->GetYaxis()->SetTitleOffset(1.0);
     int lay = ii - 1;
     if (lay > 0 && lay < 20) {
       sprintf(title, "Layer %d", lay);
@@ -163,7 +176,7 @@ void etaPhiPlot(TString fileName, TString plot, int ifirst, int ilast,
     }
   }
 
-  TString cname = "c_" + plot + xtit;
+  TString cname = "c_" + plot + ztit + tag;
   TCanvas *cc1 = new TCanvas(cname, cname, 700, 600);
   if (xh < 0.8) {
     cc1->SetLeftMargin(0.15); cc1->SetRightMargin(0.05);
@@ -176,7 +189,7 @@ void etaPhiPlot(TString fileName, TString plot, int ifirst, int ilast,
 }
 
 void etaPhiPlotHO(TString fileName, TString plot, int drawLeg, bool ifEta, 
-		  double maxEta) {
+		  double maxEta, std::string tag) {
 
   TFile* hcalFile = new TFile(fileName);
   hcalFile->cd("g4SimHits");
@@ -184,6 +197,7 @@ void etaPhiPlotHO(TString fileName, TString plot, int drawLeg, bool ifEta,
 
   int ihid[3] = {2, 18, 20};
   TString xtit = TString("#eta");
+  TString ztit = TString("eta");
   TString ytit = "none";
   int ymin = 0, ymax = 20, istart = 200;
   double xh = 0.90;
@@ -200,6 +214,7 @@ void etaPhiPlotHO(TString fileName, TString plot, int drawLeg, bool ifEta,
   if (!ifEta) {
     istart += 400;
     xtit    = TString("#phi"); 
+    ztit    = TString("phi"); 
   }
   
   TLegend *leg = new TLegend(xh-0.25, 0.60, xh, 0.90);
@@ -252,7 +267,7 @@ void etaPhiPlotHO(TString fileName, TString plot, int drawLeg, bool ifEta,
     }
   }
 
-  TString cname = "c_HO" + plot + xtit;
+  TString cname = "c_HO" + plot + ztit + tag;
   new TCanvas(cname, cname, 700, 400);
 
   prof[0]->Draw("h");
@@ -262,7 +277,7 @@ void etaPhiPlotHO(TString fileName, TString plot, int drawLeg, bool ifEta,
 }
 
 void etaPhiPlotEC(TString fileName, TString plot, int drawLeg, bool ifEta,
-		  double maxEta) {
+		  double maxEta, std::string tag) {
 
   TFile* hcalFile = new TFile(fileName);
   hcalFile->cd("g4SimHits");
@@ -270,6 +285,7 @@ void etaPhiPlotEC(TString fileName, TString plot, int drawLeg, bool ifEta,
 
   int ihid[3] = {0, 1, 2};
   TString xtit = TString("#eta");
+  TString ztit = TString("eta");
   TString ytit = "none";
   int ymin = 0, ymax = 7, istart = 200, ymax1 = 5;
   double xh = 0.90, xh1 = 0.90;
@@ -286,6 +302,7 @@ void etaPhiPlotEC(TString fileName, TString plot, int drawLeg, bool ifEta,
   if (!ifEta) {
     istart += 400;
     xtit    = TString("#phi"); 
+    ztit    = TString("phi"); 
   }
   
   TLegend *leg = new TLegend(xh-0.25, 0.60, xh, 0.90);
@@ -323,7 +340,7 @@ void etaPhiPlotEC(TString fileName, TString plot, int drawLeg, bool ifEta,
     nplots++;
   }
 
-  TString cname = "c_EC1" + plot + xtit;
+  TString cname = "c_EC1" + plot + ztit + tag;
   new TCanvas(cname, cname, 700, 400);
 
   prof[0]->Draw("h");
@@ -365,14 +382,14 @@ void etaPhiPlotEC(TString fileName, TString plot, int drawLeg, bool ifEta,
   mlg->SetBorderSize(1); mlg->SetFillColor(10); mlg->SetMargin(0.30);
   mlg->SetTextSize(0.04); mlg->AddEntry(prof1, title, "lf");
 
-  cname        = "c_EC2" + plot + xtit;
+  cname        = "c_EC2" + plot + ztit + tag;
   new TCanvas(cname, cname, 700, 400);
   prof1->Draw();
   if (drawLeg > 0) mlg->Draw("sames");
 }
 
 void etaPhiPlotHC(TString fileName, TString plot, int drawLeg, bool ifEta, 
-		  double maxEta) {
+		  double maxEta, std::string tag) {
 
   TFile* hcalFile = new TFile(fileName);
   hcalFile->cd("g4SimHits");
@@ -380,6 +397,7 @@ void etaPhiPlotHC(TString fileName, TString plot, int drawLeg, bool ifEta,
 
   int ihid[20] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21};
   TString xtit = TString("#eta");
+  TString ztit = TString("eta");
   TString ytit = "none";
   int ymin = 0, ymax = 20, istart = 200;
   double xh = 0.90;
@@ -396,6 +414,7 @@ void etaPhiPlotHC(TString fileName, TString plot, int drawLeg, bool ifEta,
   if (!ifEta) {
     istart += 400;
     xtit    = TString("#phi"); 
+    ztit    = TString("phi"); 
   }
   
   TLegend *leg = new TLegend(xh-0.25, 0.70, xh, 0.90);
@@ -438,7 +457,7 @@ void etaPhiPlotHC(TString fileName, TString plot, int drawLeg, bool ifEta,
     nplots++;
   }
 
-  TString cname = "c_HC" + plot + xtit;
+  TString cname = "c_HC" + plot + ztit + tag;
   new TCanvas(cname, cname, 700, 400);
 
   prof[0]->Draw("h");
@@ -448,7 +467,7 @@ void etaPhiPlotHC(TString fileName, TString plot, int drawLeg, bool ifEta,
 }
  
 void etaPhi2DPlot(TString fileName, TString plot, int ifirst, int ilast, 
-		  int drawLeg) {
+		  int drawLeg, std::string tag) {
 
   TFile* hcalFile = new TFile(fileName);
   hcalFile->cd("g4SimHits");
@@ -456,6 +475,7 @@ void etaPhi2DPlot(TString fileName, TString plot, int ifirst, int ilast,
 
   TString xtit = TString("#eta");
   TString ytit = TString("#phi");
+  TString xytit= TString("etaphi");
   TString ztit = TString("HCal Material Budget (#lambda)");
   int ymin = 0, ymax = 20, istart = 1000;
   double xh=0.95, yh=0.95;
@@ -498,7 +518,7 @@ void etaPhi2DPlot(TString fileName, TString plot, int ifirst, int ilast,
     nplots++;
   }
 
-  TString cname = "c_" + plot + xtit + ytit;
+  TString cname = "c_" + plot + xytit + tag;
   TCanvas *cc1 = new TCanvas(cname, cname, 700, 600);
   cc1->SetLeftMargin(0.15); cc1->SetRightMargin(0.05);
 
@@ -509,7 +529,7 @@ void etaPhi2DPlot(TString fileName, TString plot, int ifirst, int ilast,
 }
 
 void etaPhi2DPlot(int nslice, int kslice, TString fileName, TString plot,
-		  int ifirst, int ilast, int drawLeg) {
+		  int ifirst, int ilast, int drawLeg, std::string tag) {
 
   char hname[200], title[50];
 
@@ -617,7 +637,7 @@ void etaPhi2DPlot(int nslice, int kslice, TString fileName, TString plot,
     ismax = ismin+1;
   }
   for (int is=ismin; is<ismax; is++) {
-    sprintf (hname, "c_%s%i", type, is);
+    sprintf (hname, "c_%s%i%s", type, is, tag.c_str());
     cc1[is] = new TCanvas(hname, hname, 700, 400);
     cc1[is]->SetLeftMargin(0.15); cc1[is]->SetRightMargin(0.05);
     hist[0][is]->Draw();
@@ -733,7 +753,7 @@ void printTable (TString fileName, TString outputFileName,
        << nbadR << " discrepancies for X0\n";
 }
 
-void plotDiff (TString fileName, TString plot) {
+void plotDiff (TString fileName, TString plot, std::string tag) {
 
   setStyle();
   gStyle->SetTitleOffset(1.0,"Y");
@@ -807,7 +827,7 @@ void plotDiff (TString fileName, TString plot) {
   mg->Add(gr_eta25, "pc");
   leg_mg->AddEntry(gr_eta25,"HE #eta = 26");
 
-  TString cname = "c_diff_" + plot;
+  TString cname = "c_diff_" + plot + tag;
   new TCanvas(cname, cname, 700, 400);
   mg->Draw("a");
   mg->GetXaxis()->SetTitle(xtit);
@@ -917,7 +937,7 @@ void getDiff (TString fileName, TString plot) {
   */
 }
 
-void plotHE(int flag, int logy, int save) { 
+void plotHE(int flag, int logy, std::string tag, int save) { 
 
   double angle[31] = {-2.5,-2.25,-2.00,-1.75,-1.50,-1.25,-1.00,-0.75,-0.50,
 		      -0.25,-0.20,-0.15,-0.10,-0.05,-0.025,0,0.025,0.05,0.10,
@@ -1054,7 +1074,8 @@ void plotHE(int flag, int logy, int save) {
     gr[i]->GetXaxis()->SetRangeUser(-3.0,+3.0);
   }
 
-  TCanvas *c1 = new TCanvas("c1", name, 800, 500);
+  TString cname = "c1" + tag;
+  TCanvas *c1 = new TCanvas(cname, name, 800, 500);
   if (logy != 0) gPad->SetLogy(1); 
   gr[kfirst]->Draw("alp");
   for (int i=0; i<4; i++) {
@@ -1079,11 +1100,11 @@ void plotHE(int flag, int logy, int save) {
     c1->SaveAs(fname);
   }
 
-
 }
 
 void etaPhiCastorPlot(TString fileName, TString plot, TString type,
-		      bool etaPlus, int drawLeg, bool ifEta, bool debug) {
+		      bool etaPlus, int drawLeg, bool ifEta, std::string tag,
+		      bool debug) {
 
   TFile* hcalFile = new TFile(fileName);
   hcalFile->cd("g4SimHits");
@@ -1091,6 +1112,7 @@ void etaPhiCastorPlot(TString fileName, TString plot, TString type,
   if (debug) std::cout << fileName << " is opened at " << hcalFile << std::endl;
 
   TString xtit = TString("#eta");
+  TString ztit = TString("eta");
   char ytit[80], ytpart[10];
   int ymin = 0, ymax = 20, istart = 200, ifirst=0;
   double xh = 0.90;
@@ -1120,6 +1142,7 @@ void etaPhiCastorPlot(TString fileName, TString plot, TString type,
   if (!ifEta) {
     istart += 400;
     xtit    = TString("#phi"); 
+    ztit    = TString("phi"); 
   }
   if (debug) std::cout << "Title (x) " << xtit << " (y) " << ytit << " First " << ifirst << ":" << istart << std::endl;
   
@@ -1151,7 +1174,7 @@ void etaPhiCastorPlot(TString fileName, TString plot, TString type,
     nplots++;
   }
 
-  TString cname = "c_" + plot + xtit;
+  TString cname = "c_" + plot + ztit + tag;
   TCanvas *cc1 = new TCanvas(cname, cname, 700, 600);
   if (xh < 0.8) {
     cc1->SetLeftMargin(0.15); cc1->SetRightMargin(0.05);
@@ -1164,7 +1187,7 @@ void etaPhiCastorPlot(TString fileName, TString plot, TString type,
 }
 
 void efficiencyPlot(TString fileName, TString type, bool ifEtaPhi, 
-		    double maxEta, bool debug) {
+		    double maxEta, std::string tag, bool debug) {
 
   TFile* hcalFile = new TFile(fileName);
   hcalFile->cd("g4SimHits");
@@ -1173,15 +1196,15 @@ void efficiencyPlot(TString fileName, TString type, bool ifEtaPhi,
   int id0=1300, idpl1=8, idpl2=0;
   char hname[100], title[100];
   if      (type.CompareTo("HB") == 0) {
-    idpl1 = 1; idpl2 =2; sprintf (title, "Efficiency for HB");
+    idpl1 = 1; idpl2 = 2; sprintf (title, "Efficiency for HB (%s)", tag.c_str());
   } else if (type.CompareTo("HE") == 0) {
-    idpl1 = 3; idpl2 = 4; sprintf (title, "Efficiency for HE");
+    idpl1 = 3; idpl2 = 4; sprintf (title, "Efficiency for HE (%s)", tag.c_str());
   } else if (type.CompareTo("HO") == 0) {
-    idpl1 = 5; idpl2 = 6; sprintf (title, "Efficiency for HO");
+    idpl1 = 5; idpl2 = 6; sprintf (title, "Efficiency for HO (%s)", tag.c_str());
   } else if (type.CompareTo("HF") == 0) {
-    idpl1 = 7; sprintf (title, "Efficiency for HF");
+    idpl1 = 7; sprintf (title, "Efficiency for HF (%s)", tag.c_str());
   } else {
-    sprintf (title, "Efficiency for HCAL");
+    sprintf (title, "Efficiency for HCAL (%s)", tag.c_str());
   }
   TLegend *leg = new TLegend(0.70, 0.82, 0.90, 0.90);
   leg->SetBorderSize(1); leg->SetFillColor(10); leg->SetMargin(0.25);
@@ -1296,13 +1319,14 @@ void efficiencyPlot(TString fileName, TString type, bool ifEtaPhi,
 }  
 
 void etaPhiFwdPlot(TString fileName, TString plot, int first, int last, 
-		   int drawLeg, bool debug) {
+		   int drawLeg, std::string tag, bool debug) {
 
   TFile* hcalFile = new TFile(fileName);
   hcalFile->cd("g4SimHits");
   setStyle();
 
   TString xtit = TString("#eta");
+  TString ztit = TString("eta");
   TString ytit = "none";
   int ymin = 0, ymax = 20, istart = 200;
   double xh = 0.90, xl=0.1;
@@ -1358,7 +1382,7 @@ void etaPhiFwdPlot(TString fileName, TString plot, int first, int last,
     nplots++;
   }
 
-  TString cname = "c_" + plot + xtit;
+  TString cname = "c_" + plot + ztit + tag;
   TCanvas *cc1 = new TCanvas(cname, cname, 700, 600);
   if (xh < 0.8) {
     cc1->SetLeftMargin(0.15); cc1->SetRightMargin(0.05);
