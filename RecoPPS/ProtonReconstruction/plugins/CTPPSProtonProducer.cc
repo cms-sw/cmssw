@@ -44,6 +44,8 @@ private:
 
   edm::EDGetTokenT<CTPPSLocalTrackLiteCollection> tracksToken_;
 
+  bool pixelDiscardBXShiftedTracks_;
+
   std::string lhcInfoLabel_;
   std::string opticsLabel_;
 
@@ -59,25 +61,32 @@ private:
 
   struct AssociationCuts {
     bool x_cut_apply;
-    double x_cut_value;
+    double x_cut_mean, x_cut_value;
     bool y_cut_apply;
-    double y_cut_value;
+    double y_cut_mean, y_cut_value;
     bool xi_cut_apply;
-    double xi_cut_value;
+    double xi_cut_mean, xi_cut_value;
     bool th_y_cut_apply;
-    double th_y_cut_value;
+    double th_y_cut_mean, th_y_cut_value;
 
     double ti_tr_min;
     double ti_tr_max;
 
     void load(const edm::ParameterSet &ps) {
       x_cut_apply = ps.getParameter<bool>("x_cut_apply");
+      x_cut_mean = ps.getParameter<double>("x_cut_mean");
       x_cut_value = ps.getParameter<double>("x_cut_value");
+
       y_cut_apply = ps.getParameter<bool>("y_cut_apply");
+      y_cut_mean = ps.getParameter<double>("y_cut_mean");
       y_cut_value = ps.getParameter<double>("y_cut_value");
+
       xi_cut_apply = ps.getParameter<bool>("xi_cut_apply");
+      xi_cut_mean = ps.getParameter<double>("xi_cut_mean");
       xi_cut_value = ps.getParameter<double>("xi_cut_value");
+
       th_y_cut_apply = ps.getParameter<bool>("th_y_cut_apply");
+      th_y_cut_mean = ps.getParameter<double>("th_y_cut_mean");
       th_y_cut_value = ps.getParameter<double>("th_y_cut_value");
 
       ti_tr_min = ps.getParameter<double>("ti_tr_min");
@@ -88,12 +97,19 @@ private:
       edm::ParameterSetDescription desc;
 
       desc.add<bool>("x_cut_apply", false)->setComment("whether to apply track-association cut in x");
+      desc.add<double>("x_cut_mean", 0E-6)->setComment("mean of track-association cut in x, mm");
       desc.add<double>("x_cut_value", 800E-6)->setComment("threshold of track-association cut in x, mm");
+
       desc.add<bool>("y_cut_apply", false)->setComment("whether to apply track-association cut in y");
+      desc.add<double>("y_cut_mean", 0E-6)->setComment("mean of track-association cut in y, mm");
       desc.add<double>("y_cut_value", 600E-6)->setComment("threshold of track-association cut in y, mm");
+
       desc.add<bool>("xi_cut_apply", true)->setComment("whether to apply track-association cut in xi");
+      desc.add<double>("xi_cut_mean", 0.)->setComment("mean of track-association cut in xi");
       desc.add<double>("xi_cut_value", 0.013)->setComment("threshold of track-association cut in xi");
+
       desc.add<bool>("th_y_cut_apply", true)->setComment("whether to apply track-association cut in th_y");
+      desc.add<double>("th_y_cut_mean", 0E-6)->setComment("mean of track-association cut in th_y, rad");
       desc.add<double>("th_y_cut_value", 20E-6)->setComment("threshold of track-association cut in th_y, rad");
 
       desc.add<double>("ti_tr_min", -1.)->setComment("minimum value for timing-tracking association cut");
@@ -106,6 +122,7 @@ private:
   std::map<unsigned int, AssociationCuts> association_cuts_;  // map: arm -> AssociationCuts
 
   unsigned int max_n_timing_tracks_;
+  double default_time_;
 
   ProtonReconstructionAlgorithm algorithm_;
 
@@ -117,6 +134,9 @@ private:
 
 CTPPSProtonProducer::CTPPSProtonProducer(const edm::ParameterSet &iConfig)
     : tracksToken_(consumes<CTPPSLocalTrackLiteCollection>(iConfig.getParameter<edm::InputTag>("tagLocalTrackLite"))),
+
+      pixelDiscardBXShiftedTracks_(iConfig.getParameter<bool>("pixelDiscardBXShiftedTracks")),
+
       lhcInfoLabel_(iConfig.getParameter<std::string>("lhcInfoLabel")),
       opticsLabel_(iConfig.getParameter<std::string>("opticsLabel")),
       verbosity_(iConfig.getUntrackedParameter<unsigned int>("verbosity", 0)),
@@ -131,6 +151,7 @@ CTPPSProtonProducer::CTPPSProtonProducer(const edm::ParameterSet &iConfig)
       localAngleYMax_(iConfig.getParameter<double>("localAngleYMax")),
 
       max_n_timing_tracks_(iConfig.getParameter<unsigned int>("max_n_timing_tracks")),
+      default_time_(iConfig.getParameter<double>("default_time")),
 
       algorithm_(iConfig.getParameter<bool>("fitVtxY"),
                  iConfig.getParameter<bool>("useImprovedInitialEstimate"),
@@ -156,6 +177,9 @@ void CTPPSProtonProducer::fillDescriptions(edm::ConfigurationDescriptions &descr
 
   desc.add<edm::InputTag>("tagLocalTrackLite", edm::InputTag("ctppsLocalTrackLiteProducer"))
       ->setComment("specification of the input lite-track collection");
+
+  desc.add<bool>("pixelDiscardBXShiftedTracks", false)
+      ->setComment("whether to discard pixel tracks built from BX-shifted planes");
 
   desc.add<std::string>("lhcInfoLabel", "")->setComment("label of the LHCInfo record");
   desc.add<std::string>("opticsLabel", "")->setComment("label of the optics record");
@@ -186,6 +210,8 @@ void CTPPSProtonProducer::fillDescriptions(edm::ConfigurationDescriptions &descr
   std::vector<edm::ParameterSet> config;
 
   desc.add<unsigned int>("max_n_timing_tracks", 5)->setComment("maximum number of timing tracks per RP");
+
+  desc.add<double>("default_time", 0.)->setComment("proton time to be used when no timing information available");
 
   desc.add<bool>("fitVtxY", true)
       ->setComment("for multi-RP reconstruction, flag whether y* should be free fit parameter");
@@ -253,6 +279,12 @@ void CTPPSProtonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
             tr.ty() > localAngleYMax_)
           continue;
 
+        if (pixelDiscardBXShiftedTracks_) {
+          if (tr.pixelTrackRecoInfo() == CTPPSpixelLocalTrackReconstructionInfo::allShiftedPlanes ||
+              tr.pixelTrackRecoInfo() == CTPPSpixelLocalTrackReconstructionInfo::mixedPlanes)
+            continue;
+        }
+
         const CTPPSDetId rpId(tr.rpId());
 
         if (verbosity_)
@@ -298,16 +330,16 @@ void CTPPSProtonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
 
         // do multi-RP reco if chosen
         if (doMultiRPReconstruction_ && rpIds.size() == 2) {
-          // find matching track pairs from different tracking RPs
+          // find matching track pairs from different tracking RPs, ordered: i=near, j=far RP
           std::vector<std::pair<unsigned int, unsigned int>> idx_pairs;
           std::map<unsigned int, unsigned int> idx_pair_multiplicity;
           for (const auto &i : indices) {
             for (const auto &j : indices) {
-              if (j <= i)
-                continue;
-
               const auto &tr_i = hTracks->at(i);
               const auto &tr_j = hTracks->at(j);
+
+              const double z_i = hGeometry->rpTranslation(tr_i.rpId()).z();
+              const double z_j = hGeometry->rpTranslation(tr_j.rpId()).z();
 
               const auto &pr_i = singleRPResultsIndexed[i];
               const auto &pr_j = singleRPResultsIndexed[j];
@@ -315,15 +347,19 @@ void CTPPSProtonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
               if (tr_i.rpId() == tr_j.rpId())
                 continue;
 
+              if (std::abs(z_i) >= std::abs(z_j))
+                continue;
+
               bool matching = true;
 
-              if (ac.x_cut_apply && std::abs(tr_i.x() - tr_j.x()) > ac.x_cut_value)
+              if (ac.x_cut_apply && std::abs(tr_i.x() - tr_j.x() - ac.x_cut_mean) > ac.x_cut_value)
                 matching = false;
-              if (ac.y_cut_apply && std::abs(tr_i.y() - tr_j.y()) > ac.y_cut_value)
+              else if (ac.y_cut_apply && std::abs(tr_i.y() - tr_j.y() - ac.y_cut_mean) > ac.y_cut_value)
                 matching = false;
-              if (ac.xi_cut_apply && std::abs(pr_i.xi() - pr_j.xi()) > ac.xi_cut_value)
+              else if (ac.xi_cut_apply && std::abs(pr_i.xi() - pr_j.xi() - ac.xi_cut_mean) > ac.xi_cut_value)
                 matching = false;
-              if (ac.th_y_cut_apply && std::abs(pr_i.thetaY() - pr_j.thetaY()) > ac.th_y_cut_value)
+              else if (ac.th_y_cut_apply &&
+                       std::abs(pr_i.thetaY() - pr_j.thetaY() - ac.th_y_cut_mean) > ac.th_y_cut_value)
                 matching = false;
 
               if (!matching)
@@ -432,7 +468,7 @@ void CTPPSProtonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
               swt += w * tr.time();
             }
 
-            float time = 0., time_unc = 0.;
+            float time = default_time_, time_unc = 0.;
             if (sw > 0.) {
               time = swt / sw;
               time_unc = 1. / sqrt(sw);
