@@ -107,8 +107,8 @@ void DTResolutionAnalysisTest::bookHistos(DQMStore::IBooker& ibooker) {
       }
   }
 
+  ibooker.setCurrentFolder(topHistoFolder + "/00-MeanRes");
   string histoTitle = "# of SLs with good mean of residuals";
-
   wheelMeanHistos[3] = ibooker.book2D("MeanResGlbSummary", histoTitle.c_str(), 12, 1, 13, 5, -2, 3);
   wheelMeanHistos[3]->setAxisTitle("Sector", 1);
   wheelMeanHistos[3]->setAxisTitle("Wheel", 2);
