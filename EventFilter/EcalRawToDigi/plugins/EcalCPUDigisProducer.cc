@@ -15,6 +15,7 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
 class EcalCPUDigisProducer : public edm::stream::EDProducer<edm::ExternalWork> {
@@ -58,8 +59,8 @@ private:
   edm::EDPutTokenT<EcalElectronicsIdCollection> integrityBlockSizeErrorsToken_;
 
   // FIXME better way to pass pointers from acquire to produce?
-  std::vector<uint32_t, CUDAHostAllocator<uint32_t>> idsebtmp, idseetmp;
-  std::vector<uint16_t, CUDAHostAllocator<uint16_t>> dataebtmp, dataeetmp;
+  std::vector<uint32_t, cms::cuda::HostAllocator<uint32_t>> idsebtmp, idseetmp;
+  std::vector<uint16_t, cms::cuda::HostAllocator<uint16_t>> dataebtmp, dataeetmp;
 };
 
 void EcalCPUDigisProducer::fillDescriptions(edm::ConfigurationDescriptions& confDesc) {

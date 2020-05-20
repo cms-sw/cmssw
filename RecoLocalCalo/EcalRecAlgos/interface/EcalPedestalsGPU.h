@@ -4,7 +4,7 @@
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 
 #ifndef __CUDACC__
-#include "HeterogeneousCore/CUDAUtilities/interface/CUDAHostAllocator.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
 #include "HeterogeneousCore/CUDACore/interface/ESProduct.h"
 #endif
 
@@ -33,12 +33,12 @@ public:
 private:
   // in the future, we need to arrange so to avoid this copy on the host
   // store eb first then ee
-  std::vector<float, CUDAHostAllocator<float>> mean_x12_;
-  std::vector<float, CUDAHostAllocator<float>> rms_x12_;
-  std::vector<float, CUDAHostAllocator<float>> mean_x6_;
-  std::vector<float, CUDAHostAllocator<float>> rms_x6_;
-  std::vector<float, CUDAHostAllocator<float>> mean_x1_;
-  std::vector<float, CUDAHostAllocator<float>> rms_x1_;
+  std::vector<float, cms::cuda::HostAllocator<float>> mean_x12_;
+  std::vector<float, cms::cuda::HostAllocator<float>> rms_x12_;
+  std::vector<float, cms::cuda::HostAllocator<float>> mean_x6_;
+  std::vector<float, cms::cuda::HostAllocator<float>> rms_x6_;
+  std::vector<float, cms::cuda::HostAllocator<float>> mean_x1_;
+  std::vector<float, cms::cuda::HostAllocator<float>> rms_x1_;
 
   cms::cuda::ESProduct<Product> product_;
 #endif
