@@ -2,8 +2,6 @@
 #include "Geometry/MTDGeometryBuilder/interface/RectangularMTDTopology.h"
 #include "Geometry/MTDGeometryBuilder/interface/ProxyMTDTopology.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
-
 #include "RecoLocalFastTime/FTLClusterizer/interface/MTDCPEBase.h"
 
 // MessageLogger

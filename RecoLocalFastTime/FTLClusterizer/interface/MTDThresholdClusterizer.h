@@ -48,12 +48,6 @@
 
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
 
-#include "RecoLocalFastTime/FTLClusterizer/interface/BTLRecHitsErrorEstimatorIM.h"
-
-#include "DataFormats/Math/interface/CMSUnits.h"
-
-using cms_units::operators::operator""_mm;
-
 class MTDThresholdClusterizer : public MTDClusterizerBase {
 public:
   MTDThresholdClusterizer(edm::ParameterSet const& conf);
@@ -72,12 +66,11 @@ private:
   std::vector<FTLCluster> theClusters;          // resulting clusters
 
   //! Clustering-related quantities:
-  float theHitThreshold;       // Hit threshold
-  float theSeedThreshold;      // MTD cluster seed
-  float theClusterThreshold;   // Cluster threshold
-  float theTimeThreshold;      // Time compatibility between new hit and seed
-  float thePositionThreshold;  // Position threshold between new hit and seed
-  float BTLBarLength;          //length of crystal bar in BTL
+  const float theHitThreshold;       // Hit threshold
+  const float theSeedThreshold;      // MTD cluster seed
+  const float theClusterThreshold;   // Cluster threshold
+  const float theTimeThreshold;      // Time compatibility between new hit and seed
+  const float thePositionThreshold;  // Position threshold between new hit and seed
 
   //! Geometry-related information
   int theNumOfRows;

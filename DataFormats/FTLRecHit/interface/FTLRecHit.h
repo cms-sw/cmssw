@@ -36,26 +36,21 @@ public:
 
   FTLRecHit();
   // by default a recHit is greated with no flag
-  FTLRecHit(const DetId& id, float energy, float time, float timeError, uint32_t flagBits = 0);
-
-  FTLRecHit(
-      const DetId& id, uint8_t row, uint8_t column, float energy, float time, float timeError, uint32_t flagBits = 0);
-
-  FTLRecHit(const DetId& id,
-            float energy,
-            float time,
-            float timeError,
-            std::pair<float, float> position,
-            float positionError,
-            uint32_t flagBits = 0);
-
   FTLRecHit(const DetId& id,
             uint8_t row,
             uint8_t column,
             float energy,
             float time,
             float timeError,
-            std::pair<float, float> position,
+            float position,
+            float positionError,
+            uint32_t flagBits = 0);
+
+  FTLRecHit(const DetId& id,
+            float energy,
+            float time,
+            float timeError,
+            float position,
             float positionError,
             uint32_t flagBits = 0);
 
@@ -75,8 +70,8 @@ public:
   float time() const { return time_; }
   void setTime(float time) { time_ = time; }
 
-  std::pair<float, float> position() const { return position_; }
-  void setPosition(std::pair<float, float> position) { position_ = position; }
+  float position() const { return position_; }
+  void setPosition(float position) { position_ = position; }
 
   bool isTimeValid() const;
   bool isTimeErrorValid() const;
@@ -99,9 +94,8 @@ public:
 
 private:
   DetId id_;
-  float energy_, time_, timeError_;
-  std::pair<float, float> position_;
-  float positionError_;
+  float energy_, time_, timeError_, position_, positionError_;
+  //position is the distance from the center of the bar to hit
   uint8_t row_, column_;
 
   /// store rechit condition (see Flags enum) in a bit-wise way

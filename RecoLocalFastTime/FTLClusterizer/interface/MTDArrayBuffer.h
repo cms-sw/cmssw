@@ -26,9 +26,9 @@ public:
 
   inline void setSize(uint rows, uint cols);
 
-  //use SubDet to identify whether the Hit is in BTL or ETL
-  inline GeomDetEnumerators::Location SubDet(uint row, uint col) const;
-  inline GeomDetEnumerators::Location SubDet(const FTLCluster::FTLHitPos&) const;
+  //use subDet to identify whether the Hit is in BTL or ETL
+  inline GeomDetEnumerators::Location subDet(uint row, uint col) const;
+  inline GeomDetEnumerators::Location subDet(const FTLCluster::FTLHitPos&) const;
   inline float energy(uint row, uint col) const;
   inline float energy(const FTLCluster::FTLHitPos&) const;
   inline float time(uint row, uint col) const;
@@ -49,7 +49,7 @@ public:
   inline void clear(uint row, uint col) {
     LocalError le_n(0, 0, 0);
     GlobalPoint gp_n(0, 0, 0);
-    set_SubDet(row, col, GeomDetEnumerators::invalidLoc);
+    set_subDet(row, col, GeomDetEnumerators::invalidLoc);
     set_energy(row, col, 0.);
     set_time(row, col, 0.);
     set_time_error(row, col, 0.);
@@ -58,26 +58,24 @@ public:
   }
   inline void clear(const FTLCluster::FTLHitPos& pos) { clear(pos.row(), pos.col()); }
 
-  inline void set(uint row, uint col, float energy, float time, float time_error);
-  inline void set(const FTLCluster::FTLHitPos&, float energy, float time, float time_error);
   inline void set(uint row,
                   uint col,
-                  GeomDetEnumerators::Location SubDet,
+                  GeomDetEnumerators::Location subDet,
                   float energy,
                   float time,
                   float time_error,
                   const LocalError& local_error,
                   const GlobalPoint& global_point);
   inline void set(const FTLCluster::FTLHitPos&,
-                  GeomDetEnumerators::Location SubDet,
+                  GeomDetEnumerators::Location subDet,
                   float energy,
                   float time,
                   float time_error,
                   const LocalError& local_error,
                   const GlobalPoint& global_point);
 
-  inline void set_SubDet(uint row, uint col, GeomDetEnumerators::Location SubDet);
-  inline void set_SubDet(const FTLCluster::FTLHitPos&, GeomDetEnumerators::Location SubDet);
+  inline void set_subDet(uint row, uint col, GeomDetEnumerators::Location subDet);
+  inline void set_subDet(const FTLCluster::FTLHitPos&, GeomDetEnumerators::Location subDet);
 
   inline void set_energy(uint row, uint col, float energy);
   inline void set_energy(const FTLCluster::FTLHitPos&, float energy);
@@ -135,8 +133,8 @@ void MTDArrayBuffer::setSize(uint rows, uint cols) {
 
 bool MTDArrayBuffer::inside(uint row, uint col) const { return (row < nrows && col < ncols); }
 
-GeomDetEnumerators::Location MTDArrayBuffer::SubDet(uint row, uint col) const { return hitSubDet_vec[index(row, col)]; }
-GeomDetEnumerators::Location MTDArrayBuffer::SubDet(const FTLCluster::FTLHitPos& pix) const {
+GeomDetEnumerators::Location MTDArrayBuffer::subDet(uint row, uint col) const { return hitSubDet_vec[index(row, col)]; }
+GeomDetEnumerators::Location MTDArrayBuffer::subDet(const FTLCluster::FTLHitPos& pix) const {
   return hitSubDet_vec[index(pix)];
 }
 
@@ -155,24 +153,15 @@ LocalError MTDArrayBuffer::local_error(const FTLCluster::FTLHitPos& pix) const {
 GlobalPoint MTDArrayBuffer::global_point(uint row, uint col) const { return hitGP_vec[index(row, col)]; }
 GlobalPoint MTDArrayBuffer::global_point(const FTLCluster::FTLHitPos& pix) const { return hitGP_vec[index(pix)]; }
 
-void MTDArrayBuffer::set(uint row, uint col, float energy, float time, float time_error) {
-  hitEnergy_vec[index(row, col)] = energy;
-  hitTime_vec[index(row, col)] = time;
-  hitTimeError_vec[index(row, col)] = time_error;
-}
-void MTDArrayBuffer::set(const FTLCluster::FTLHitPos& pix, float energy, float time, float time_error) {
-  set(pix.row(), pix.col(), energy, time, time_error);
-}
-
 void MTDArrayBuffer::set(uint row,
                          uint col,
-                         GeomDetEnumerators::Location SubDet,
+                         GeomDetEnumerators::Location subDet,
                          float energy,
                          float time,
                          float time_error,
                          const LocalError& local_error,
                          const GlobalPoint& global_point) {
-  hitSubDet_vec[index(row, col)] = SubDet;
+  hitSubDet_vec[index(row, col)] = subDet;
   hitEnergy_vec[index(row, col)] = energy;
   hitTime_vec[index(row, col)] = time;
   hitTimeError_vec[index(row, col)] = time_error;
@@ -180,20 +169,20 @@ void MTDArrayBuffer::set(uint row,
   hitLE_vec[index(row, col)] = local_error;
 }
 void MTDArrayBuffer::set(const FTLCluster::FTLHitPos& pix,
-                         GeomDetEnumerators::Location SubDet,
+                         GeomDetEnumerators::Location subDet,
                          float energy,
                          float time,
                          float time_error,
                          const LocalError& local_error,
                          const GlobalPoint& global_point) {
-  set(pix.row(), pix.col(), SubDet, energy, time, time_error, local_error, global_point);
+  set(pix.row(), pix.col(), subDet, energy, time, time_error, local_error, global_point);
 }
 
-void MTDArrayBuffer::set_SubDet(uint row, uint col, GeomDetEnumerators::Location SubDet) {
-  hitSubDet_vec[index(row, col)] = SubDet;
+void MTDArrayBuffer::set_subDet(uint row, uint col, GeomDetEnumerators::Location subDet) {
+  hitSubDet_vec[index(row, col)] = subDet;
 }
-void MTDArrayBuffer::set_SubDet(const FTLCluster::FTLHitPos& pix, GeomDetEnumerators::Location SubDet) {
-  hitSubDet_vec[index(pix)] = SubDet;
+void MTDArrayBuffer::set_subDet(const FTLCluster::FTLHitPos& pix, GeomDetEnumerators::Location subDet) {
+  hitSubDet_vec[index(pix)] = subDet;
 }
 
 void MTDArrayBuffer::set_energy(uint row, uint col, float energy) { hitEnergy_vec[index(row, col)] = energy; }

@@ -16,22 +16,27 @@
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 class BTLRecHitsErrorEstimatorIM {
 public:
-  BTLRecHitsErrorEstimatorIM(const MTDGeomDet* det, const LocalPoint& lp) : det_(det), lp_(lp) {}
-  LocalError localError() const {
-    if (GeomDetEnumerators::isEndcap(det_->type().subDetector())) {
+  BTLRecHitsErrorEstimatorIM(const MTDGeomDet* det, const LocalPoint& lp) : det_(det), lp_(lp) {
+    if (GeomDetEnumerators::isEndcap(det->type().subDetector())) {
       throw cms::Exception("BTLRecHitsErrorEstimatorIM")
           << "This is an object from Endcap. Only use it for the Barrel!" << std::endl;
-      return LocalError(0, 0, 0);
     }
+  }
+  LocalError localError() const {
+    const float positionError = 0.6;
+    //position error, refer to:
+    //https://indico.cern.ch/event/825902/contributions/3455359/attachments/1858923/3054344/residual_calculation_0607.pdf
     const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(det_->topology());
     const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
     MeasurementPoint mp = topo.measurementPosition(lp_);
     MeasurementError simpleRect(1. / 12., 0, 1. / 12.);
     LocalError error_before = topo.localError(mp, simpleRect);
-    LocalError error_modified(error_before.xx(), error_before.xy(), 0.36);
+    LocalError error_modified(positionError * positionError, error_before.xy(), error_before.yy());
     return error_modified;
   }
 
