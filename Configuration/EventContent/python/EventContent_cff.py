@@ -100,8 +100,6 @@ from DQMOffline.Configuration.DQMOffline_EventContent_cff import *
 #
 #
 from PhysicsTools.NanoAOD.NanoAODEDMEventContent_cff import *
-
-
 #
 #
 # FastSim
@@ -114,7 +112,6 @@ fastSim.toModify(RecoLocalTrackerRECO, outputCommands = fastSimEC.RecoLocalTrack
 fastSim.toModify(RecoLocalTrackerFEVT, outputCommands = fastSimEC.RecoLocalTracker.outputCommands)
 fastSim.toReplaceWith(SimG4CoreRAW, fastSimEC.SimRAW)
 fastSim.toReplaceWith(SimG4CoreRECO, fastSimEC.SimRECO)
-
 #
 #
 # Top level additional keep statements
@@ -123,7 +120,6 @@ fastSim.toReplaceWith(SimG4CoreRECO, fastSimEC.SimRECO)
 CommonEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_logErrorHarvester_*_*')
 )
-
 #
 #
 # LHE Data Tier definition
@@ -133,6 +129,7 @@ LHEEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
     splitLevel = cms.untracked.int32(0),
 )
+LHEEventContent.outputCommands.extend(GeneratorInterfaceLHE.outputCommands)
 #
 #
 # RAW Data Tier definition
@@ -146,6 +143,8 @@ RAWEventContent = cms.PSet(
     compressionAlgorithm=cms.untracked.string("LZMA"),
     compressionLevel=cms.untracked.int32(4)
 )
+RAWEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
+RAWEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
 #
 #
 # RECO Data Tier definition
@@ -155,286 +154,6 @@ RECOEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
     splitLevel = cms.untracked.int32(0),
 )
-#
-#
-# RAWRECO Data Tier definition
-#
-#
-RAWRECOEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *'),
-    splitLevel = cms.untracked.int32(0),
-    )
-#
-#
-# AOD Data Tier definition
-#
-#
-AODEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *'),
-    eventAutoFlushCompressedSize=cms.untracked.int32(30*1024*1024),
-    compressionAlgorithm=cms.untracked.string("LZMA"),
-    compressionLevel=cms.untracked.int32(4)
-)
-#
-#
-# RAWAOD Data Tier definition
-#
-#
-RAWAODEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *'),
-    eventAutoFlushCompressedSize=cms.untracked.int32(30*1024*1024),
-    compressionAlgorithm=cms.untracked.string("LZMA"),
-    compressionLevel=cms.untracked.int32(4)
-)
-#
-#
-# RAWSIM Data Tier definition
-# ===========================
-#
-# Here, we sacrifice memory and CPU time to decrease the on-disk size as
-# much as possible.  Given the current per-event GEN-SIM and DIGI-RECO times,
-# the extra CPU time for LZMA compression works out to be ~1%.  The GEN-SIM
-# use case of reading a minbias event for `classic pileup` has a similar CPU
-# impact.
-# The memory increase appears to be closer to 50MB - but that should be
-# acceptable as the introduction of multithreaded processing has bought us some
-# breathing room.
-#
-RAWSIMEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *'),
-    splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize=cms.untracked.int32(20*1024*1024),
-    compressionAlgorithm=cms.untracked.string("LZMA"),
-    compressionLevel=cms.untracked.int32(1)
-)
-#
-#
-# RAWSIMHLT Data Tier definition
-#
-#
-RAWSIMHLTEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *'),
-    splitLevel = cms.untracked.int32(0),
-)
-#
-#
-# RAWRECOSIMHLT Data Tier definition
-#
-#
-RAWRECOSIMHLTEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *'),
-    splitLevel = cms.untracked.int32(0),
-)
-#
-#
-# RAWRECODEBUGHLT Data Tier definition
-#
-#
-RAWRECODEBUGHLTEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *'),
-    splitLevel = cms.untracked.int32(0),
-)
-#
-#
-# RECOSIM Data Tier definition
-#
-#
-RECOSIMEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *'),
-    splitLevel = cms.untracked.int32(0),
-)
-#
-#
-# GENRAW Data Tier definition
-#
-#
-GENRAWEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *'),
-    splitLevel = cms.untracked.int32(0),
-)
-#
-#
-# AODSIM Data Tier definition
-#
-#
-AODSIMEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *'),
-    eventAutoFlushCompressedSize=cms.untracked.int32(30*1024*1024),
-    compressionAlgorithm=cms.untracked.string("LZMA"),
-    compressionLevel=cms.untracked.int32(4),
-)
-#
-#
-# FEVT Data Tier definition
-#
-#
-FEVTEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *'),
-    splitLevel = cms.untracked.int32(0),
-)
-FEVTHLTALLEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *'),
-    splitLevel = cms.untracked.int32(0),
-)
-
-#
-#
-# FEVTSIM Data Tier definition
-#
-#
-FEVTSIMEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *'),
-    splitLevel = cms.untracked.int32(0),
-)
-#
-#
-# RAWDEBUG Data Tier definition
-#
-#
-RAWDEBUGEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *'),
-    splitLevel = cms.untracked.int32(0),
-)
-#
-#
-# RAWDEBUGHLT Data Tier definition
-#
-#
-RAWDEBUGHLTEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *'),
-    splitLevel = cms.untracked.int32(0),
-)
-#
-#
-# FEVTDEBUG Data Tier definition
-#
-#
-FEVTDEBUGEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *'),
-    splitLevel = cms.untracked.int32(0),
-)
-
-
-#
-#
-# FEVTDEBUGHLT Data Tier definition
-#
-#
-FEVTDEBUGHLTEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *'),
-    splitLevel = cms.untracked.int32(0),
-)
-
-#
-#
-# RECOSIMDEBUG Data Tier definition
-#
-#
-RECODEBUGEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *'),
-    splitLevel = cms.untracked.int32(0),
-)
-
-
-#
-## HLTDEBUG tier definition
-#
-HLTDEBUGEventContent = cms.PSet(
-    #outputCommands = cms.untracked.vstring('drop *',
-    #        'keep *_hlt*_*_*')
-    outputCommands = cms.untracked.vstring('drop *',
-        'keep *_logErrorHarvester_*_*'),
-    splitLevel = cms.untracked.int32(0),
-)
-
-#
-#
-## DQM event content
-#
-#
-DQMEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *',
-                                           'keep *_MEtoEDMConverter_*_*'),
-    splitLevel = cms.untracked.int32(0)
-    )
-
-#Special Event Content for MixingModule and DataMixer
-DATAMIXEREventContent = cms.PSet(
-        outputCommands = cms.untracked.vstring('drop *',
-                                               'keep CSCDetIdCSCALCTDigiMuonDigiCollection_muonCSCDigis_MuonCSCALCTDigi_*',
-                                               'keep CSCDetIdCSCCLCTDigiMuonDigiCollection_muonCSCDigis_MuonCSCCLCTDigi_*',
-                                               'keep CSCDetIdCSCComparatorDigiMuonDigiCollection_muonCSCDigis_MuonCSCComparatorDigi_*',
-                                               'keep CSCDetIdCSCCorrelatedLCTDigiMuonDigiCollection_csctfDigis_*_*',
-                                               'keep CSCDetIdCSCCorrelatedLCTDigiMuonDigiCollection_muonCSCDigis_MuonCSCCorrelatedLCTDigi_*',
-                                               'keep CSCDetIdCSCRPCDigiMuonDigiCollection_muonCSCDigis_MuonCSCRPCDigi_*',
-                                               'keep CSCDetIdCSCStripDigiMuonDigiCollection_muonCSCDigis_MuonCSCStripDigi_*',
-                                               'keep CSCDetIdCSCWireDigiMuonDigiCollection_muonCSCDigis_MuonCSCWireDigi_*',
-                                               'keep DTLayerIdDTDigiMuonDigiCollection_muonDTDigis_*_*',
-                                               'keep PixelDigiedmDetSetVector_siPixelDigis_*_*',
-                                               'keep SiStripDigiedmDetSetVector_siStripDigis_*_*',
-                                               'keep RPCDetIdRPCDigiMuonDigiCollection_muonRPCDigis_*_*',
-                                               'keep HBHEDataFramesSorted_hcalDigis_*_*',
-                                               'keep HFDataFramesSorted_hcalDigis_*_*',
-                                               'keep HODataFramesSorted_hcalDigis_*_*',
-                                               'keep QIE10DataFrameHcalDataFrameContainer_hcalDigis_*_*',
-                                               'keep QIE11DataFrameHcalDataFrameContainer_hcalDigis_*_*',
-                                               'keep ZDCDataFramesSorted_hcalDigis_*_*',
-                                               'keep CastorDataFramesSorted_castorDigis_*_*',
-                                               'keep EBDigiCollection_ecalDigis_*_*',
-                                               'keep EEDigiCollection_ecalDigis_*_*',
-                                               'keep ESDigiCollection_ecalPreshowerDigis_*_*'),
-        splitLevel = cms.untracked.int32(0),
-        )
-
-PREMIXEventContent = cms.PSet(
-        outputCommands = cms.untracked.vstring('drop *'),
-        splitLevel = cms.untracked.int32(0),
-        )
-
-MIXINGMODULEEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *',
-                                           'keep *_cfWriter_*_*'),
-    splitLevel = cms.untracked.int32(0),
-    )
-
-# PREMIXRAW Data Tier definition
-#
-#
-PREMIXRAWEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *'),
-    splitLevel = cms.untracked.int32(0),
-)
-
-#
-#
-## RAW repacked event content definition
-#
-#
-REPACKRAWEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring(
-      'drop *',
-      'drop FEDRawDataCollection_*_*_*',
-      'keep FEDRawDataCollection_rawDataRepacker_*_*',
-      'keep FEDRawDataCollection_virginRawDataRepacker_*_*',
-      'keep FEDRawDataCollection_rawDataReducedFormat_*_*'),
-    splitLevel = cms.untracked.int32(0),
-    )
-REPACKRAWSIMEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring(),
-    splitLevel = cms.untracked.int32(0),
-)
-
-LHEEventContent.outputCommands.extend(GeneratorInterfaceLHE.outputCommands)
-
-HLTDEBUGEventContent.outputCommands.extend(HLTDebugFEVT.outputCommands)
-
-RAWEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
-RAWEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
-
-REPACKRAWEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
-REPACKRAWEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
-
-
 RECOEventContent.outputCommands.extend(RecoLocalTrackerRECO.outputCommands)
 RECOEventContent.outputCommands.extend(RecoLocalMuonRECO.outputCommands)
 RECOEventContent.outputCommands.extend(RecoLocalCaloRECO.outputCommands)
@@ -462,18 +181,36 @@ RECOEventContent.outputCommands.extend(CommonEventContent.outputCommands)
 RECOEventContent.outputCommands.extend(EITopPAGEventContent.outputCommands)
 
 from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
-ctpps_2016.toModify(RECOEventContent, outputCommands = RECOEventContent.outputCommands + RecoCTPPSRECO.outputCommands)
-
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+ctpps_2016.toModify(RECOEventContent, 
+    outputCommands = RECOEventContent.outputCommands + RecoCTPPSRECO.outputCommands)
 phase2_hgcal.toModify(RECOEventContent,
     outputCommands = RECOEventContent.outputCommands + TICL_RECO.outputCommands)
-
+#
+#
+# RAWRECO Data Tier definition
+#
+#
+RAWRECOEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *'),
+    splitLevel = cms.untracked.int32(0),
+)
 RAWRECOEventContent.outputCommands.extend(RECOEventContent.outputCommands)
 RAWRECOEventContent.outputCommands.extend(cms.untracked.vstring(
-    'keep FEDRawDataCollection_rawDataCollector_*_*',
-    'keep FEDRawDataCollection_source_*_*'
-))
-
+	'keep FEDRawDataCollection_rawDataCollector_*_*',
+	'keep FEDRawDataCollection_source_*_*')
+)
+#
+#
+# AOD Data Tier definition
+#
+#
+AODEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *'),
+    eventAutoFlushCompressedSize=cms.untracked.int32(30*1024*1024),
+    compressionAlgorithm=cms.untracked.string("LZMA"),
+    compressionLevel=cms.untracked.int32(4)
+)
 AODEventContent.outputCommands.extend(RecoLocalTrackerAOD.outputCommands)
 AODEventContent.outputCommands.extend(RecoLocalMuonAOD.outputCommands)
 AODEventContent.outputCommands.extend(RecoLocalCaloAOD.outputCommands)
@@ -497,16 +234,48 @@ AODEventContent.outputCommands.extend(EvtScalersAOD.outputCommands)
 AODEventContent.outputCommands.extend(OnlineMetaDataContent.outputCommands)
 AODEventContent.outputCommands.extend(TcdsEventContent.outputCommands)
 AODEventContent.outputCommands.extend(CommonEventContent.outputCommands)
-ctpps_2016.toModify(AODEventContent, outputCommands = AODEventContent.outputCommands + RecoCTPPSAOD.outputCommands)
+
+ctpps_2016.toModify(AODEventContent, 
+    outputCommands = AODEventContent.outputCommands + RecoCTPPSAOD.outputCommands)
 phase2_hgcal.toModify(AODEventContent,
     outputCommands = AODEventContent.outputCommands + TICL_AOD.outputCommands)
-
+#
+#
+# RAWAOD Data Tier definition
+#
+#
+RAWAODEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *'),
+    eventAutoFlushCompressedSize=cms.untracked.int32(30*1024*1024),
+    compressionAlgorithm=cms.untracked.string("LZMA"),
+    compressionLevel=cms.untracked.int32(4)
+)
 RAWAODEventContent.outputCommands.extend(AODEventContent.outputCommands)
 RAWAODEventContent.outputCommands.extend(cms.untracked.vstring(
-    'keep FEDRawDataCollection_rawDataCollector_*_*',
-    'keep FEDRawDataCollection_source_*_*'
-))
-
+	'keep FEDRawDataCollection_rawDataCollector_*_*',
+	'keep FEDRawDataCollection_source_*_*')
+)
+#
+#
+# RAWSIM Data Tier definition
+# ===========================
+#
+# Here, we sacrifice memory and CPU time to decrease the on-disk size as
+# much as possible.  Given the current per-event GEN-SIM and DIGI-RECO times,
+# the extra CPU time for LZMA compression works out to be ~1%.  The GEN-SIM
+# use case of reading a minbias event for `classic pileup` has a similar CPU
+# impact.
+# The memory increase appears to be closer to 50MB - but that should be
+# acceptable as the introduction of multithreaded processing has bought us some
+# breathing room.
+#
+RAWSIMEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *'),
+    splitLevel = cms.untracked.int32(0),
+    eventAutoFlushCompressedSize=cms.untracked.int32(20*1024*1024),
+    compressionAlgorithm=cms.untracked.string("LZMA"),
+    compressionLevel=cms.untracked.int32(1)
+)
 RAWSIMEventContent.outputCommands.extend(RAWEventContent.outputCommands)
 RAWSIMEventContent.outputCommands.extend(SimG4CoreRAW.outputCommands)
 RAWSIMEventContent.outputCommands.extend(SimTrackerRAW.outputCommands)
@@ -521,10 +290,79 @@ RAWSIMEventContent.outputCommands.extend(DigiToRawFEVT.outputCommands)
 RAWSIMEventContent.outputCommands.extend(MEtoEDMConverterFEVT.outputCommands)
 RAWSIMEventContent.outputCommands.extend(IOMCRAW.outputCommands)
 RAWSIMEventContent.outputCommands.extend(CommonEventContent.outputCommands)
-
+#
+#
+# RAWSIMHLT Data Tier definition
+#
+#
+RAWSIMHLTEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *'),
+    splitLevel = cms.untracked.int32(0),
+)
 RAWSIMHLTEventContent.outputCommands.extend(RAWSIMEventContent.outputCommands)
 RAWSIMHLTEventContent.outputCommands.extend(HLTDebugRAW.outputCommands)
-
+#
+#
+# RAWRECOSIMHLT Data Tier definition
+#
+#
+RAWRECOSIMHLTEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *'),
+    splitLevel = cms.untracked.int32(0),
+)
+RAWRECOSIMHLTEventContent.outputCommands.extend(RAWRECOEventContent.outputCommands)
+RAWRECOSIMHLTEventContent.outputCommands.extend(GeneratorInterfaceRECO.outputCommands)
+RAWRECOSIMHLTEventContent.outputCommands.extend(RecoGenMETRECO.outputCommands)
+RAWRECOSIMHLTEventContent.outputCommands.extend(RecoGenJetsRECO.outputCommands)
+RAWRECOSIMHLTEventContent.outputCommands.extend(SimG4CoreRECO.outputCommands)
+RAWRECOSIMHLTEventContent.outputCommands.extend(SimTrackerRECO.outputCommands)
+RAWRECOSIMHLTEventContent.outputCommands.extend(SimMuonRECO.outputCommands)
+RAWRECOSIMHLTEventContent.outputCommands.extend(SimCalorimetryRECO.outputCommands)
+RAWRECOSIMHLTEventContent.outputCommands.extend(SimFastTimingRECO.outputCommands)
+RAWRECOSIMHLTEventContent.outputCommands.extend(SimGeneralRECO.outputCommands)
+RAWRECOSIMHLTEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
+RAWRECOSIMHLTEventContent.outputCommands.extend(HLTDebugRAW.outputCommands)
+#
+#
+# RAWRECODEBUGHLT Data Tier definition
+#
+#
+RAWRECODEBUGHLTEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *'),
+    splitLevel = cms.untracked.int32(0),
+)
+RAWRECODEBUGHLTEventContent.outputCommands.extend(RAWRECOSIMHLTEventContent.outputCommands)
+RAWRECODEBUGHLTEventContent.outputCommands.extend(SimGeneralFEVTDEBUG.outputCommands)
+RAWRECODEBUGHLTEventContent.outputCommands.extend(SimTrackerDEBUG.outputCommands)
+#
+#
+# RECOSIM Data Tier definition
+#
+#
+RECOSIMEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *'),
+    splitLevel = cms.untracked.int32(0),
+)
+RECOSIMEventContent.outputCommands.extend(RECOEventContent.outputCommands)
+RECOSIMEventContent.outputCommands.extend(GeneratorInterfaceRECO.outputCommands)
+RECOSIMEventContent.outputCommands.extend(RecoGenMETRECO.outputCommands)
+RECOSIMEventContent.outputCommands.extend(RecoGenJetsRECO.outputCommands)
+RECOSIMEventContent.outputCommands.extend(SimG4CoreRECO.outputCommands)
+RECOSIMEventContent.outputCommands.extend(SimTrackerRECO.outputCommands)
+RECOSIMEventContent.outputCommands.extend(SimMuonRECO.outputCommands)
+RECOSIMEventContent.outputCommands.extend(SimCalorimetryRECO.outputCommands)
+RECOSIMEventContent.outputCommands.extend(SimFastTimingRECO.outputCommands)
+RECOSIMEventContent.outputCommands.extend(SimGeneralRECO.outputCommands)
+RECOSIMEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
+#
+#
+# GENRAW Data Tier definition
+#
+#
+GENRAWEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *'),
+    splitLevel = cms.untracked.int32(0),
+)
 GENRAWEventContent.outputCommands.extend(RAWEventContent.outputCommands)
 GENRAWEventContent.outputCommands.extend(GeneratorInterfaceRECO.outputCommands)
 GENRAWEventContent.outputCommands.extend(SimG4CoreRECO.outputCommands)
@@ -539,56 +377,17 @@ GENRAWEventContent.outputCommands.extend(MEtoEDMConverterFEVT.outputCommands)
 GENRAWEventContent.outputCommands.extend(IOMCRAW.outputCommands)
 GENRAWEventContent.outputCommands.extend(DigiToRawFEVT.outputCommands)
 GENRAWEventContent.outputCommands.extend(CommonEventContent.outputCommands)
-
-PREMIXEventContent.outputCommands.extend(SimGeneralRAW.outputCommands)
-PREMIXEventContent.outputCommands.extend(IOMCRAW.outputCommands)
-PREMIXEventContent.outputCommands.extend(CommonEventContent.outputCommands)
-PREMIXEventContent.outputCommands.extend(SimTrackerPREMIX.outputCommands)
-PREMIXEventContent.outputCommands.extend(SimCalorimetryPREMIX.outputCommands)
-PREMIXEventContent.outputCommands.extend(SimFastTimingPREMIX.outputCommands)
-PREMIXEventContent.outputCommands.extend(SimMuonPREMIX.outputCommands)
-PREMIXEventContent.outputCommands.extend(SimGeneralPREMIX.outputCommands)
-fastSim.toModify(PREMIXEventContent, outputCommands = PREMIXEventContent.outputCommands+fastSimEC.extraPremixContent)
-
-PREMIXRAWEventContent.outputCommands.extend(RAWSIMEventContent.outputCommands)
-PREMIXRAWEventContent.outputCommands.append('keep CrossingFramePlaybackInfoNew_*_*_*')
-PREMIXRAWEventContent.outputCommands.append('drop CrossingFramePlaybackInfoNew_mix_*_*')
-PREMIXRAWEventContent.outputCommands.append('keep *_*_MergedTrackTruth_*')
-PREMIXRAWEventContent.outputCommands.append('keep *_*_StripDigiSimLink_*')
-PREMIXRAWEventContent.outputCommands.append('keep *_*_PixelDigiSimLink_*')
-PREMIXRAWEventContent.outputCommands.append('keep *_*_MuonCSCStripDigiSimLinks_*')
-PREMIXRAWEventContent.outputCommands.append('keep *_*_MuonCSCWireDigiSimLinks_*')
-PREMIXRAWEventContent.outputCommands.append('keep *_*_RPCDigiSimLink_*')
-PREMIXRAWEventContent.outputCommands.append('keep DTLayerIdDTDigiSimLinkMuonDigiCollection_*_*_*')
-fastSim.toModify(PREMIXEventContent, outputCommands = PREMIXEventContent.outputCommands+fastSimEC.extraPremixContent)
-
-REPACKRAWSIMEventContent.outputCommands.extend(REPACKRAWEventContent.outputCommands)
-REPACKRAWSIMEventContent.outputCommands.extend(SimG4CoreRAW.outputCommands)
-REPACKRAWSIMEventContent.outputCommands.extend(SimTrackerRAW.outputCommands)
-REPACKRAWSIMEventContent.outputCommands.extend(SimMuonRAW.outputCommands)
-REPACKRAWSIMEventContent.outputCommands.extend(SimCalorimetryRAW.outputCommands)
-REPACKRAWSIMEventContent.outputCommands.extend(SimFastTimingRAW.outputCommands)
-REPACKRAWSIMEventContent.outputCommands.extend(SimGeneralRAW.outputCommands)
-REPACKRAWSIMEventContent.outputCommands.extend(GeneratorInterfaceRAW.outputCommands)
-REPACKRAWSIMEventContent.outputCommands.extend(RecoGenJetsFEVT.outputCommands)
-REPACKRAWSIMEventContent.outputCommands.extend(RecoGenMETFEVT.outputCommands)
-REPACKRAWSIMEventContent.outputCommands.extend(DigiToRawFEVT.outputCommands)
-REPACKRAWSIMEventContent.outputCommands.extend(MEtoEDMConverterFEVT.outputCommands)
-REPACKRAWSIMEventContent.outputCommands.extend(IOMCRAW.outputCommands)
-REPACKRAWSIMEventContent.outputCommands.extend(CommonEventContent.outputCommands)
-
-RECOSIMEventContent.outputCommands.extend(RECOEventContent.outputCommands)
-RECOSIMEventContent.outputCommands.extend(GeneratorInterfaceRECO.outputCommands)
-RECOSIMEventContent.outputCommands.extend(RecoGenMETRECO.outputCommands)
-RECOSIMEventContent.outputCommands.extend(RecoGenJetsRECO.outputCommands)
-RECOSIMEventContent.outputCommands.extend(SimG4CoreRECO.outputCommands)
-RECOSIMEventContent.outputCommands.extend(SimTrackerRECO.outputCommands)
-RECOSIMEventContent.outputCommands.extend(SimMuonRECO.outputCommands)
-RECOSIMEventContent.outputCommands.extend(SimCalorimetryRECO.outputCommands)
-RECOSIMEventContent.outputCommands.extend(SimFastTimingRECO.outputCommands)
-RECOSIMEventContent.outputCommands.extend(SimGeneralRECO.outputCommands)
-RECOSIMEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
-
+#
+#
+# AODSIM Data Tier definition
+#
+#
+AODSIMEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *'),
+    eventAutoFlushCompressedSize=cms.untracked.int32(30*1024*1024),
+    compressionAlgorithm=cms.untracked.string("LZMA"),
+    compressionLevel=cms.untracked.int32(4),
+)
 AODSIMEventContent.outputCommands.extend(AODEventContent.outputCommands)
 AODSIMEventContent.outputCommands.extend(GeneratorInterfaceAOD.outputCommands)
 AODSIMEventContent.outputCommands.extend(SimG4CoreAOD.outputCommands)
@@ -600,24 +399,15 @@ AODSIMEventContent.outputCommands.extend(RecoGenJetsAOD.outputCommands)
 AODSIMEventContent.outputCommands.extend(RecoGenMETAOD.outputCommands)
 AODSIMEventContent.outputCommands.extend(SimGeneralAOD.outputCommands)
 AODSIMEventContent.outputCommands.extend(MEtoEDMConverterAOD.outputCommands)
-
-RAWRECOSIMHLTEventContent.outputCommands.extend(RAWRECOEventContent.outputCommands)
-RAWRECOSIMHLTEventContent.outputCommands.extend(GeneratorInterfaceRECO.outputCommands)
-RAWRECOSIMHLTEventContent.outputCommands.extend(RecoGenMETRECO.outputCommands)
-RAWRECOSIMHLTEventContent.outputCommands.extend(RecoGenJetsRECO.outputCommands)
-RAWRECOSIMHLTEventContent.outputCommands.extend(SimG4CoreRECO.outputCommands)
-RAWRECOSIMHLTEventContent.outputCommands.extend(SimTrackerRECO.outputCommands)
-RAWRECOSIMHLTEventContent.outputCommands.extend(SimMuonRECO.outputCommands)
-RAWRECOSIMHLTEventContent.outputCommands.extend(SimCalorimetryRECO.outputCommands)
-RAWRECOSIMHLTEventContent.outputCommands.extend(SimFastTimingRECO.outputCommands)
-RAWRECOSIMHLTEventContent.outputCommands.extend(SimGeneralRECO.outputCommands)
-RAWRECOSIMHLTEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
-RAWRECOSIMHLTEventContent.outputCommands.extend(HLTDebugRAW.outputCommands)
-
-RAWRECODEBUGHLTEventContent.outputCommands.extend(RAWRECOSIMHLTEventContent.outputCommands)
-RAWRECODEBUGHLTEventContent.outputCommands.extend(SimGeneralFEVTDEBUG.outputCommands)
-RAWRECODEBUGHLTEventContent.outputCommands.extend(SimTrackerDEBUG.outputCommands)
-
+#
+#
+# FEVT Data Tier definition
+#
+#
+FEVTEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *'),
+    splitLevel = cms.untracked.int32(0),
+)
 FEVTEventContent.outputCommands.extend(RAWEventContent.outputCommands)
 FEVTEventContent.outputCommands.extend(RecoLocalTrackerRECO.outputCommands)
 FEVTEventContent.outputCommands.extend(RecoLocalMuonRECO.outputCommands)
@@ -644,14 +434,27 @@ FEVTEventContent.outputCommands.extend(OnlineMetaDataContent.outputCommands)
 FEVTEventContent.outputCommands.extend(TcdsEventContent.outputCommands)
 FEVTEventContent.outputCommands.extend(CommonEventContent.outputCommands)
 FEVTEventContent.outputCommands.extend(EITopPAGEventContent.outputCommands)
-ctpps_2016.toModify(FEVTEventContent, outputCommands = FEVTEventContent.outputCommands + RecoCTPPSFEVT.outputCommands)
+
+ctpps_2016.toModify(FEVTEventContent, 
+    outputCommands = FEVTEventContent.outputCommands + RecoCTPPSFEVT.outputCommands)
 phase2_hgcal.toModify(FEVTEventContent,
     outputCommands = FEVTEventContent.outputCommands + TICL_FEVT.outputCommands)
 
+FEVTHLTALLEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *'),
+    splitLevel = cms.untracked.int32(0),
+)
 FEVTHLTALLEventContent.outputCommands.extend(FEVTEventContent.outputCommands)
 FEVTHLTALLEventContent.outputCommands.append('keep *_*_*_HLT')
-
-
+#
+#
+# FEVTSIM Data Tier definition
+#
+#
+FEVTSIMEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *'),
+    splitLevel = cms.untracked.int32(0),
+)
 FEVTSIMEventContent.outputCommands.extend(RAWEventContent.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(SimG4CoreRAW.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(SimTrackerRAW.outputCommands)
@@ -700,14 +503,42 @@ FEVTSIMEventContent.outputCommands.extend(CommonEventContent.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(EITopPAGEventContent.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(OnlineMetaDataContent.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(TcdsEventContent.outputCommands)
+
 phase2_hgcal.toModify(FEVTSIMEventContent,
     outputCommands = FEVTSIMEventContent.outputCommands + TICL_FEVT.outputCommands)
+#
+#
+# RAWDEBUG Data Tier definition
+#
+#
+RAWDEBUGEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *'),
+    splitLevel = cms.untracked.int32(0),
+)
 RAWDEBUGEventContent.outputCommands.extend(RAWSIMEventContent.outputCommands)
 RAWDEBUGEventContent.outputCommands.extend(SimTrackerDEBUG.outputCommands)
 RAWDEBUGEventContent.outputCommands.extend(SimGeneralFEVTDEBUG.outputCommands)
 RAWDEBUGEventContent.outputCommands.extend(L1TriggerRAWDEBUG.outputCommands)
+#
+#
+# RAWDEBUGHLT Data Tier definition
+#
+#
+RAWDEBUGHLTEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *'),
+    splitLevel = cms.untracked.int32(0),
+)
 RAWDEBUGHLTEventContent.outputCommands.extend(RAWDEBUGEventContent.outputCommands)
 RAWDEBUGHLTEventContent.outputCommands.extend(HLTDebugRAW.outputCommands)
+#
+#
+# FEVTDEBUG Data Tier definition
+#
+#
+FEVTDEBUGEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *'),
+    splitLevel = cms.untracked.int32(0),
+)
 FEVTDEBUGEventContent.outputCommands.extend(FEVTSIMEventContent.outputCommands)
 FEVTDEBUGEventContent.outputCommands.extend(L1TriggerFEVTDEBUG.outputCommands)
 FEVTDEBUGEventContent.outputCommands.extend(SimGeneralFEVTDEBUG.outputCommands)
@@ -715,89 +546,218 @@ FEVTDEBUGEventContent.outputCommands.extend(SimTrackerFEVTDEBUG.outputCommands)
 FEVTDEBUGEventContent.outputCommands.extend(SimMuonFEVTDEBUG.outputCommands)
 FEVTDEBUGEventContent.outputCommands.extend(SimCalorimetryFEVTDEBUG.outputCommands)
 FEVTDEBUGEventContent.outputCommands.extend(SimFastTimingFEVTDEBUG.outputCommands)
+#
+#
+# FEVTDEBUGHLT Data Tier definition
+#
+#
+FEVTDEBUGHLTEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *'),
+    splitLevel = cms.untracked.int32(0),
+)
 FEVTDEBUGHLTEventContent.outputCommands.extend(FEVTDEBUGEventContent.outputCommands)
 FEVTDEBUGHLTEventContent.outputCommands.extend(HLTDebugFEVT.outputCommands)
 FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_MergedTrackTruth_*')
 FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_StripDigiSimLink_*')
 FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_PixelDigiSimLink_*')
-RECODEBUGEventContent.outputCommands.extend(RECOSIMEventContent.outputCommands)
-RECODEBUGEventContent.outputCommands.extend(SimGeneralFEVTDEBUG.outputCommands)
-RECODEBUGEventContent.outputCommands.extend(SimTrackerDEBUG.outputCommands)
 
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-(premix_stage2 & phase2_tracker).toModify(FEVTDEBUGHLTEventContent, outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
-    'keep *_*_Phase2OTDigiSimLink_*'
-])
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
-(premix_stage2 & phase2_muon).toModify(FEVTDEBUGHLTEventContent, outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
-    'keep *_*_GEMDigiSimLink_*',
-    'keep *_*_GEMStripDigiSimLink_*',
-    'keep *_*_ME0DigiSimLink_*',
-    'keep *_*_ME0StripDigiSimLink_*',
-])
 
-REPACKRAWSIMEventContent.outputCommands.extend(['drop FEDRawDataCollection_source_*_*',
-                                                'drop FEDRawDataCollection_rawDataCollector_*_*'])
-REPACKRAWEventContent.outputCommands.extend(['drop FEDRawDataCollection_source_*_*',
-                                                'drop FEDRawDataCollection_rawDataCollector_*_*'])
+(premix_stage2 & phase2_tracker).toModify(FEVTDEBUGHLTEventContent, 
+    outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
+        'keep *_*_Phase2OTDigiSimLink_*'])
+(premix_stage2 & phase2_muon).toModify(FEVTDEBUGHLTEventContent, 
+    outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
+        'keep *_*_GEMDigiSimLink_*',
+        'keep *_*_GEMStripDigiSimLink_*',
+        'keep *_*_ME0DigiSimLink_*',
+        'keep *_*_ME0StripDigiSimLink_*'])
+#
+#
+# RECOSIMDEBUG Data Tier definition
+#
+#
+RECODEBUGEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *'),
+    splitLevel = cms.untracked.int32(0),
+)
+RECODEBUGEventContent.outputCommands.extend(RECOSIMEventContent.outputCommands)
+RECODEBUGEventContent.outputCommands.extend(SimGeneralFEVTDEBUG.outputCommands)
+RECODEBUGEventContent.outputCommands.extend(SimTrackerDEBUG.outputCommands)
+#
+## HLTDEBUG tier definition
+#
+HLTDEBUGEventContent = cms.PSet(
+    #outputCommands = cms.untracked.vstring('drop *',
+    #        'keep *_hlt*_*_*')
+    outputCommands = cms.untracked.vstring('drop *',
+        'keep *_logErrorHarvester_*_*'),
+    splitLevel = cms.untracked.int32(0),
+)
+HLTDEBUGEventContent.outputCommands.extend(HLTDebugFEVT.outputCommands)
+#
+#
+## DQM event content
+#
+#
+DQMEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *',
+        'keep *_MEtoEDMConverter_*_*'),
+    splitLevel = cms.untracked.int32(0)
+)
 
+#Special Event Content for MixingModule and DataMixer
+DATAMIXEREventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *',
+        'keep CSCDetIdCSCALCTDigiMuonDigiCollection_muonCSCDigis_MuonCSCALCTDigi_*',
+        'keep CSCDetIdCSCCLCTDigiMuonDigiCollection_muonCSCDigis_MuonCSCCLCTDigi_*',
+        'keep CSCDetIdCSCComparatorDigiMuonDigiCollection_muonCSCDigis_MuonCSCComparatorDigi_*',
+        'keep CSCDetIdCSCCorrelatedLCTDigiMuonDigiCollection_csctfDigis_*_*',
+        'keep CSCDetIdCSCCorrelatedLCTDigiMuonDigiCollection_muonCSCDigis_MuonCSCCorrelatedLCTDigi_*',
+        'keep CSCDetIdCSCRPCDigiMuonDigiCollection_muonCSCDigis_MuonCSCRPCDigi_*',
+        'keep CSCDetIdCSCStripDigiMuonDigiCollection_muonCSCDigis_MuonCSCStripDigi_*',
+        'keep CSCDetIdCSCWireDigiMuonDigiCollection_muonCSCDigis_MuonCSCWireDigi_*',
+        'keep DTLayerIdDTDigiMuonDigiCollection_muonDTDigis_*_*',
+        'keep PixelDigiedmDetSetVector_siPixelDigis_*_*',
+        'keep SiStripDigiedmDetSetVector_siStripDigis_*_*',
+        'keep RPCDetIdRPCDigiMuonDigiCollection_muonRPCDigis_*_*',
+        'keep HBHEDataFramesSorted_hcalDigis_*_*',
+        'keep HFDataFramesSorted_hcalDigis_*_*',
+        'keep HODataFramesSorted_hcalDigis_*_*',
+        'keep QIE10DataFrameHcalDataFrameContainer_hcalDigis_*_*',
+        'keep QIE11DataFrameHcalDataFrameContainer_hcalDigis_*_*',
+        'keep ZDCDataFramesSorted_hcalDigis_*_*',
+        'keep CastorDataFramesSorted_castorDigis_*_*',
+        'keep EBDigiCollection_ecalDigis_*_*',
+        'keep EEDigiCollection_ecalDigis_*_*',
+        'keep ESDigiCollection_ecalPreshowerDigis_*_*'),
+    splitLevel = cms.untracked.int32(0),
+)
 
+PREMIXEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *'),
+    splitLevel = cms.untracked.int32(0),
+)
+PREMIXEventContent.outputCommands.extend(SimGeneralRAW.outputCommands)
+PREMIXEventContent.outputCommands.extend(IOMCRAW.outputCommands)
+PREMIXEventContent.outputCommands.extend(CommonEventContent.outputCommands)
+PREMIXEventContent.outputCommands.extend(SimTrackerPREMIX.outputCommands)
+PREMIXEventContent.outputCommands.extend(SimCalorimetryPREMIX.outputCommands)
+PREMIXEventContent.outputCommands.extend(SimFastTimingPREMIX.outputCommands)
+PREMIXEventContent.outputCommands.extend(SimMuonPREMIX.outputCommands)
+PREMIXEventContent.outputCommands.extend(SimGeneralPREMIX.outputCommands)
+fastSim.toModify(PREMIXEventContent,
+    outputCommands = PREMIXEventContent.outputCommands+fastSimEC.extraPremixContent)
+
+MIXINGMODULEEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *',
+        'keep *_cfWriter_*_*'),
+    splitLevel = cms.untracked.int32(0),
+)
+
+# PREMIXRAW Data Tier definition
+#
+#
+PREMIXRAWEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *'),
+    splitLevel = cms.untracked.int32(0),
+)
+PREMIXRAWEventContent.outputCommands.extend(RAWSIMEventContent.outputCommands)
+PREMIXRAWEventContent.outputCommands.append('keep CrossingFramePlaybackInfoNew_*_*_*')
+PREMIXRAWEventContent.outputCommands.append('drop CrossingFramePlaybackInfoNew_mix_*_*')
+PREMIXRAWEventContent.outputCommands.append('keep *_*_MergedTrackTruth_*')
+PREMIXRAWEventContent.outputCommands.append('keep *_*_StripDigiSimLink_*')
+PREMIXRAWEventContent.outputCommands.append('keep *_*_PixelDigiSimLink_*')
+PREMIXRAWEventContent.outputCommands.append('keep *_*_MuonCSCStripDigiSimLinks_*')
+PREMIXRAWEventContent.outputCommands.append('keep *_*_MuonCSCWireDigiSimLinks_*')
+PREMIXRAWEventContent.outputCommands.append('keep *_*_RPCDigiSimLink_*')
+PREMIXRAWEventContent.outputCommands.append('keep DTLayerIdDTDigiSimLinkMuonDigiCollection_*_*_*')
+#
+#
+## RAW repacked event content definition
+#
+#
+REPACKRAWEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *',
+        'drop FEDRawDataCollection_*_*_*',
+        'keep FEDRawDataCollection_rawDataRepacker_*_*',
+        'keep FEDRawDataCollection_virginRawDataRepacker_*_*',
+        'keep FEDRawDataCollection_rawDataReducedFormat_*_*'),
+    splitLevel = cms.untracked.int32(0),
+)
+REPACKRAWEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
+REPACKRAWEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
+
+REPACKRAWSIMEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring(),
+    splitLevel = cms.untracked.int32(0),
+)
+REPACKRAWSIMEventContent.outputCommands.extend(REPACKRAWEventContent.outputCommands)
+REPACKRAWSIMEventContent.outputCommands.extend(SimG4CoreRAW.outputCommands)
+REPACKRAWSIMEventContent.outputCommands.extend(SimTrackerRAW.outputCommands)
+REPACKRAWSIMEventContent.outputCommands.extend(SimMuonRAW.outputCommands)
+REPACKRAWSIMEventContent.outputCommands.extend(SimCalorimetryRAW.outputCommands)
+REPACKRAWSIMEventContent.outputCommands.extend(SimFastTimingRAW.outputCommands)
+REPACKRAWSIMEventContent.outputCommands.extend(SimGeneralRAW.outputCommands)
+REPACKRAWSIMEventContent.outputCommands.extend(GeneratorInterfaceRAW.outputCommands)
+REPACKRAWSIMEventContent.outputCommands.extend(RecoGenJetsFEVT.outputCommands)
+REPACKRAWSIMEventContent.outputCommands.extend(RecoGenMETFEVT.outputCommands)
+REPACKRAWSIMEventContent.outputCommands.extend(DigiToRawFEVT.outputCommands)
+REPACKRAWSIMEventContent.outputCommands.extend(MEtoEDMConverterFEVT.outputCommands)
+REPACKRAWSIMEventContent.outputCommands.extend(IOMCRAW.outputCommands)
+REPACKRAWSIMEventContent.outputCommands.extend(CommonEventContent.outputCommands)
+REPACKRAWSIMEventContent.outputCommands.extend([
+	'drop FEDRawDataCollection_source_*_*',
+        'drop FEDRawDataCollection_rawDataCollector_*_*'])
+REPACKRAWEventContent.outputCommands.extend([
+	'drop FEDRawDataCollection_source_*_*',
+        'drop FEDRawDataCollection_rawDataCollector_*_*'])
 
 #from modules in Configuration.StandardSequence.Generator_cff fixGenInfo
 REGENEventContent = cms.PSet(
     inputCommands=cms.untracked.vstring(
-      'keep *',
-      'drop *_genParticles_*_*',
-      'drop *_genParticlesForJets_*_*',
-      'drop *_kt4GenJets_*_*',
-      'drop *_kt6GenJets_*_*',
-      'drop *_iterativeCone5GenJets_*_*',
-      'drop *_ak4GenJets_*_*',
-      'drop *_ak7GenJets_*_*',
-      'drop *_ak8GenJets_*_*',
-      'drop *_ak4GenJetsNoNu_*_*',
-      'drop *_ak8GenJetsNoNu_*_*',
-      'drop *_genCandidatesForMET_*_*',
-      'drop *_genParticlesForMETAllVisible_*_*',
-      'drop *_genMetCalo_*_*',
-      'drop *_genMetCaloAndNonPrompt_*_*',
-      'drop *_genMetTrue_*_*',
-      'drop *_genMetIC5GenJs_*_*'
-      )
+        'keep *',
+        'drop *_genParticles_*_*',
+        'drop *_genParticlesForJets_*_*',
+        'drop *_kt4GenJets_*_*',
+        'drop *_kt6GenJets_*_*',
+        'drop *_iterativeCone5GenJets_*_*',
+        'drop *_ak4GenJets_*_*',
+        'drop *_ak7GenJets_*_*',
+        'drop *_ak8GenJets_*_*',
+        'drop *_ak4GenJetsNoNu_*_*',
+        'drop *_ak8GenJetsNoNu_*_*',
+        'drop *_genCandidatesForMET_*_*',
+        'drop *_genParticlesForMETAllVisible_*_*',
+        'drop *_genMetCalo_*_*',
+        'drop *_genMetCaloAndNonPrompt_*_*',
+        'drop *_genMetTrue_*_*',
+        'drop *_genMetIC5GenJs_*_*')
 )
-
-def SwapKeepAndDrop(l):
-    r=[]
-    for item in l:
-        if 'keep ' in item:
-            r.append(item.replace('keep ','drop '))
-        elif 'drop ' in item:
-            r.append(item.replace('drop ','keep '))
-    return r
 
 RESIMEventContent = cms.PSet(
     inputCommands=cms.untracked.vstring('drop *')
-    )
+)
 RESIMEventContent.inputCommands.extend(IOMCRAW.outputCommands)
 RESIMEventContent.inputCommands.extend(GeneratorInterfaceRAW.outputCommands)
-#RESIMEventContent.inputCommands.extend(SwapKeepAndDrop(SimG4CoreRAW.outputCommands))
-#RESIMEventContent.inputCommands.extend(SwapKeepAndDrop(GeneratorInterfaceRAW.outputCommands))
+
 
 REDIGIEventContent = cms.PSet(
     inputCommands=cms.untracked.vstring('drop *')
-    )
+)
 REDIGIEventContent.inputCommands.extend(SimG4CoreRAW.outputCommands)
 REDIGIEventContent.inputCommands.extend(IOMCRAW.outputCommands)
 REDIGIEventContent.inputCommands.extend(GeneratorInterfaceRAW.outputCommands)
 REDIGIEventContent.inputCommands.append('drop *_randomEngineStateProducer_*_*')
-
 
 ########### and mini AOD
 #
 # MiniAOD is a bit special: the files tend to be so small that letting
 # ROOT automatically determine when to flush is a surprisingly big overhead.
 #
+from PhysicsTools.PatAlgos.slimming.slimming_cff import MicroEventContent,MicroEventContentMC,MicroEventContentGEN
 
 MINIAODEventContent= cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
@@ -805,6 +765,7 @@ MINIAODEventContent= cms.PSet(
     compressionAlgorithm=cms.untracked.string("LZMA"),
     compressionLevel=cms.untracked.int32(4)
 )
+MINIAODEventContent.outputCommands.extend(MicroEventContent.outputCommands)
 
 MINIAODSIMEventContent= cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
@@ -812,6 +773,7 @@ MINIAODSIMEventContent= cms.PSet(
     compressionAlgorithm=cms.untracked.string("LZMA"),
     compressionLevel=cms.untracked.int32(4)
 )
+MINIAODSIMEventContent.outputCommands.extend(MicroEventContentMC.outputCommands)
 
 MINIGENEventContent= cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
@@ -819,11 +781,6 @@ MINIGENEventContent= cms.PSet(
     compressionAlgorithm=cms.untracked.string("LZMA"),
     compressionLevel=cms.untracked.int32(4)
 )
-
-from PhysicsTools.PatAlgos.slimming.slimming_cff import MicroEventContent,MicroEventContentMC,MicroEventContentGEN
-
-MINIAODEventContent.outputCommands.extend(MicroEventContent.outputCommands)
-MINIAODSIMEventContent.outputCommands.extend(MicroEventContentMC.outputCommands)
 MINIGENEventContent.outputCommands.extend(MicroEventContentGEN.outputCommands)
 
 #### RAW+miniAOD
@@ -834,6 +791,12 @@ RAWMINIAODEventContent= cms.PSet(
     compressionAlgorithm=cms.untracked.string("LZMA"),
     compressionLevel=cms.untracked.int32(4)
 )
+RAWMINIAODEventContent.outputCommands.extend(MicroEventContent.outputCommands)
+RAWMINIAODEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
+RAWMINIAODEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
+RAWMINIAODEventContent.outputCommands.extend(cms.untracked.vstring(
+	'keep FEDRawDataCollection_rawDataCollector_*_*',
+	'keep FEDRawDataCollection_source_*_*'))
 
 RAWMINIAODSIMEventContent= cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
@@ -841,25 +804,13 @@ RAWMINIAODSIMEventContent= cms.PSet(
     compressionAlgorithm=cms.untracked.string("LZMA"),
     compressionLevel=cms.untracked.int32(4)
 )
-
-RAWMINIAODEventContent.outputCommands.extend(MicroEventContent.outputCommands)
-RAWMINIAODEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
-RAWMINIAODEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
 RAWMINIAODSIMEventContent.outputCommands.extend(MicroEventContentMC.outputCommands)
 RAWMINIAODSIMEventContent.outputCommands.extend(SimG4CoreHLTAODSIM.outputCommands)
-
 RAWMINIAODSIMEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
 RAWMINIAODSIMEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
-RAWMINIAODEventContent.outputCommands.extend(cms.untracked.vstring(
-    'keep FEDRawDataCollection_rawDataCollector_*_*',
-    'keep FEDRawDataCollection_source_*_*'
-))
 RAWMINIAODSIMEventContent.outputCommands.extend(cms.untracked.vstring(
-    'keep FEDRawDataCollection_rawDataCollector_*_*',
-    'keep FEDRawDataCollection_source_*_*'
-))
-
-
+	'keep FEDRawDataCollection_rawDataCollector_*_*',
+	'keep FEDRawDataCollection_source_*_*'))
 #
 #
 # RAWSIM Data Tier definition
@@ -872,7 +823,6 @@ RAWAODSIMEventContent = cms.PSet(
     compressionAlgorithm=cms.untracked.string("LZMA"),
     compressionLevel=cms.untracked.int32(4)
 )
-
 RAWAODSIMEventContent.outputCommands.extend(AODSIMEventContent.outputCommands)
 RAWAODSIMEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
 RAWAODSIMEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
@@ -885,39 +835,31 @@ for _entry in [FEVTDEBUGHLTEventContent,FEVTDEBUGEventContent,RECOSIMEventConten
 for _entry in [MINIAODEventContent, MINIAODSIMEventContent]:
     fastSim.toModify(_entry, outputCommands = _entry.outputCommands + fastSimEC.dropPatTrigger)
 
+from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+from RecoLocalFastTime.Configuration.RecoLocalFastTime_EventContent_cff import RecoLocalFastTimeFEVT, RecoLocalFastTimeRECO, RecoLocalFastTimeAOD
+from RecoMTD.Configuration.RecoMTD_EventContent_cff import RecoMTDFEVT, RecoMTDRECO, RecoMTDAOD
 
 for _entry in [FEVTDEBUGEventContent,FEVTDEBUGHLTEventContent,FEVTEventContent]:
     phase2_tracker.toModify(_entry, outputCommands = _entry.outputCommands + [
         'keep Phase2TrackerDigiedmDetSetVector_mix_*_*',
         'keep *_TTClustersFromPhase2TrackerDigis_*_*',
         'keep *_TTStubsFromPhase2TrackerDigis_*_*',
-        'keep *_TrackerDTC_*_*'
-    ])
-
-from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
-from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
-from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-for _entry in [FEVTDEBUGEventContent,FEVTDEBUGHLTEventContent,FEVTEventContent]:
+        'keep *_TrackerDTC_*_*'])
+    phase2_muon.toModify(_entry, outputCommands = _entry.outputCommands + ['keep *_muonGEMDigis_*_*'])
     run2_GEM_2017.toModify(_entry, outputCommands = _entry.outputCommands + ['keep *_muonGEMDigis_*_*'])
     run3_GEM.toModify(_entry, outputCommands = _entry.outputCommands + ['keep *_muonGEMDigis_*_*'])
-    phase2_muon.toModify(_entry, outputCommands = _entry.outputCommands + ['keep *_muonGEMDigis_*_*'])
     pp_on_AA_2018.toModify(_entry, outputCommands = _entry.outputCommands + ['keep FEDRawDataCollection_rawDataRepacker_*_*'])
+    phase2_timing_layer.toModify(_entry, outputCommands = _entry.outputCommands + RecoLocalFastTimeFEVT.outputCommands)
+    phase2_timing_layer.toModify(_entry, outputCommands = _entry.outputCommands + RecoMTDFEVT.outputCommands)
 
-from RecoLocalFastTime.Configuration.RecoLocalFastTime_EventContent_cff import RecoLocalFastTimeFEVT, RecoLocalFastTimeRECO, RecoLocalFastTimeAOD
-from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
-def _addOutputCommands(mod, newCommands):
-    phase2_timing_layer.toModify(mod, outputCommands = mod.outputCommands + newCommands.outputCommands)
-
-_addOutputCommands(FEVTDEBUGEventContent,RecoLocalFastTimeFEVT)
-_addOutputCommands(FEVTDEBUGHLTEventContent,RecoLocalFastTimeFEVT)
-_addOutputCommands(FEVTEventContent,RecoLocalFastTimeFEVT)
-_addOutputCommands(RECOSIMEventContent,RecoLocalFastTimeRECO)
-_addOutputCommands(AODSIMEventContent,RecoLocalFastTimeAOD)
-
-from RecoMTD.Configuration.RecoMTD_EventContent_cff import RecoMTDFEVT, RecoMTDRECO, RecoMTDAOD
-_addOutputCommands(FEVTDEBUGEventContent,RecoMTDFEVT)
-_addOutputCommands(FEVTDEBUGHLTEventContent,RecoMTDFEVT)
-_addOutputCommands(FEVTEventContent,RecoMTDFEVT)
-_addOutputCommands(RECOSIMEventContent,RecoMTDRECO)
-_addOutputCommands(AODSIMEventContent,RecoMTDAOD)
+phase2_timing_layer.toModify(RECOSIMEventContent, 
+    outputCommands = RECOSIMEventContent.outputCommands + RecoLocalFastTimeRECO.outputCommands)
+phase2_timing_layer.toModify(RECOSIMEventContent, 
+    outputCommands = RECOSIMEventContent.outputCommands + RecoMTDRECO.outputCommands)
+phase2_timing_layer.toModify(AODSIMEventContent, 
+    outputCommands = AODSIMEventContent.outputCommands + RecoLocalFastTimeAOD.outputCommands)
+phase2_timing_layer.toModify(AODSIMEventContent, 
+    outputCommands = AODSIMEventContent.outputCommands + RecoMTDAOD.outputCommands)
