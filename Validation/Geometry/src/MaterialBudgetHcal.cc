@@ -22,7 +22,8 @@ MaterialBudgetHcal::MaterialBudgetHcal(const edm::ParameterSet& p) : theHistoHca
   rMax = m_p.getUntrackedParameter<double>("RMax", 4.5) * CLHEP::m;
   zMax = m_p.getUntrackedParameter<double>("ZMax", 13.0) * CLHEP::m;
   bool doHcal = m_p.getUntrackedParameter<bool>("DoHCAL", true);
-  edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcal initialized with rMax " << rMax << " mm and zMax " << zMax << " mm doHcal is set to " << doHcal;
+  edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcal initialized with rMax " << rMax << " mm and zMax " << zMax
+                                     << " mm doHcal is set to " << doHcal;
   if (doHcal)
     theHistoHcal = new MaterialBudgetHcalHistos(m_p);
   else
