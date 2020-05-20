@@ -2,7 +2,7 @@
 This service provides the logic of the API endpoints. It relies on other services to perform certain tasks.
 """
 
-import time
+import re
 import json
 import struct
 from collections import defaultdict
@@ -53,41 +53,47 @@ class GUIService:
         # Get a list of all MEs
         lines = await cls.__get_melist(run, dataset)
 
-        regex = re.compile(search) if search else None
-
         # dir is a dict where key is subdir name and value is a count of 
         # how many MEs are inside that subdir (in all deeper levels)
         dirs = defaultdict(int)
         objs = set()
 
-        path_util = PathUtil()
+        # Prepare binary string in order not to decode every in linear scan
+        path_binary = bytes(path, 'utf-8')
+        regex = re.compile(bytes(search, 'utf-8')) if search else None
 
-        # TODO: This is now a linear search over a sorted list: optimize this!!!
         for x in range(len(lines)):
-            line = lines[x].decode("utf-8")
-            path_util.set_path(line)
-            subsequent_segment = path_util.subsequent_segment_of(path)
-            if subsequent_segment:
-                if regex and not regex.match(line.split('/')[-1]):
+            # Check if line starts with requested path
+            if lines[x][:len(path_binary)] == path_binary:
+                names = lines[x][len(path_binary):].split(b'/')
+                segment = names[0]
+                is_file = len(names) == 1 # Last item in a path is file
+                
+                if regex and not regex.match(names[-1]):
                     continue # Regex is provided and ME name doesn't match it
 
-                if '\0' in line:
+                if b'\0' in lines[x]:
                     continue # This is a secondary item, not a main ME name
 
-                if subsequent_segment.is_file:
-                    objs.add(RootObj(name=subsequent_segment.name, path=path + subsequent_segment.name, layout=None))
+                segment = segment.decode('utf-8')
+
+                if is_file:
+                    objs.add(RootObj(name=segment, path=path + segment, layout=None))
                 else:
-                    dirs[subsequent_segment.name] += 1
+                    dirs[segment] += 1
+
 
         # Add MEs from layouts
         # Layouts will be filtered against the search regex on their destination name.
         # Non existant sources will still be attempted to be displayed resulting in 
         # 'ME not found' string to be rendered.
+        # TODO: inline path_util operations just like above
+        path_util = PathUtil()
         for layout in cls.layouts_manager.get_layouts():
             path_util.set_path(layout.destination)
             subsequent_segment = path_util.subsequent_segment_of(path)
             if subsequent_segment:
-                if regex and not regex.match(layout.destination.split('/')[-1]):
+                if regex and not regex.match(bytes(layout.destination.split('/')[-1], 'utf-8')):
                     continue # Regex is provided and destination ME name doesn't match it
 
                 if subsequent_segment.is_file:

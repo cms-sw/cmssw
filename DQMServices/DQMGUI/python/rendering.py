@@ -65,7 +65,7 @@ class GUIRenderer:
 
         options = RenderingOptions(width=width, height=height)
         rendering_info = RenderingInfo('', '', '', ScalarValue(b'', string, b''))
-        message = cls.____pack_message_for_renderer([rendering_info], options)
+        message = cls.__pack_message_for_renderer([rendering_info], options)
         data, error = await cls.__render(message)
 
         return data
