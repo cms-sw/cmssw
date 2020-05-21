@@ -85,8 +85,7 @@ void ParametrizedSubtractor::setupGeometryMap(edm::Event& iEvent,const edm::Even
 	    }
 	 }
       }
-    }
-  }
+   }
 
   for (int i = ietamin_; i < ietamax_ + 1; i++) {
     emean_[i] = 0.;

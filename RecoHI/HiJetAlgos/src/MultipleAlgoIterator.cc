@@ -17,8 +17,6 @@ MultipleAlgoIterator::MultipleAlgoIterator(const edm::ParameterSet& iConfig, edm
   LogDebug("PileUpSubtractor")<<"LIMITING THE MINIMUM TOWERS FRACTION TO : "<<minimumTowersFraction_<<endl;
 }
 
-}
-
 void MultipleAlgoIterator::rescaleRMS(double s) {
   for (std::map<int, double>::iterator iter = esigma_.begin(); iter != esigma_.end(); ++iter) {
     iter->second = s * (iter->second);
