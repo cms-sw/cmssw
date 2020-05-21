@@ -11,12 +11,10 @@
 ///
 
 // Framework
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "FWCore/Framework/interface/ModuleFactory.h"
-#include "FWCore/Framework/interface/ESProducts.h"
-#include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -27,26 +25,24 @@
 // Alignment
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Alignment/MuonAlignment/interface/MuonScenarioBuilder.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Geometry/CommonTopologies/interface/GeometryAligner.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "Geometry/DTGeometryBuilder/src/DTGeometryBuilderFromDDD.h"
-#include "Geometry/CSCGeometryBuilder/src/CSCGeometryBuilderFromDDD.h"
 
 #include <memory>
 
-class MisalignedMuonESProducer : public edm::ESProducer {
+class MuonMisalignedProducer : public edm::one::EDAnalyzer<> {
 public:
   /// Constructor
-  MisalignedMuonESProducer(const edm::ParameterSet& p);
+  MuonMisalignedProducer(const edm::ParameterSet&);
 
   /// Destructor
-  ~MisalignedMuonESProducer() override;
+  ~MuonMisalignedProducer() override;
 
-  /// Produce the misaligned Muon geometry and store it
-  edm::ESProducts<std::unique_ptr<DTGeometry>, std::unique_ptr<CSCGeometry> > produce(const MuonGeometryRecord&);
-
+  /// Produce the misaligned Muon geometry and store iti
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   /// Save alignemnts and error to database
   void saveToDB();
 
@@ -56,6 +52,7 @@ private:
 
   std::string theDTAlignRecordName, theDTErrorRecordName;
   std::string theCSCAlignRecordName, theCSCErrorRecordName;
+  std::string theIdealGeometryLabel;  
 
   Alignments* dt_Alignments;
   AlignmentErrorsExtended* dt_AlignmentErrorsExtended;
@@ -64,42 +61,27 @@ private:
 };
 
 //__________________________________________________________________________________________________
-//__________________________________________________________________________________________________
-//__________________________________________________________________________________________________
-
-//__________________________________________________________________________________________________
-MisalignedMuonESProducer::MisalignedMuonESProducer(const edm::ParameterSet& p)
+MuonMisalignedProducer::MuonMisalignedProducer(const edm::ParameterSet& p)
     : theSaveToDB(p.getUntrackedParameter<bool>("saveToDbase")),
       theScenario(p.getParameter<edm::ParameterSet>("scenario")),
       theDTAlignRecordName("DTAlignmentRcd"),
       theDTErrorRecordName("DTAlignmentErrorExtendedRcd"),
       theCSCAlignRecordName("CSCAlignmentRcd"),
-      theCSCErrorRecordName("CSCAlignmentErrorExtendedRcd") {
-  setWhatProduced(this);
+      theCSCErrorRecordName("CSCAlignmentErrorExtendedRcd"),
+      theIdealGeometryLabel("idealForMuonMisalignedProducer") {
 }
 
 //__________________________________________________________________________________________________
-MisalignedMuonESProducer::~MisalignedMuonESProducer() {}
+MuonMisalignedProducer::~MuonMisalignedProducer() {}
 
 //__________________________________________________________________________________________________
-edm::ESProducts<std::unique_ptr<DTGeometry>, std::unique_ptr<CSCGeometry> > MisalignedMuonESProducer::produce(
-    const MuonGeometryRecord& iRecord) {
+void MuonMisalignedProducer::analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {
   edm::LogInfo("MisalignedMuon") << "Producer called";
-
   // Create the Muon geometry from ideal geometry
-  edm::ESTransientHandle<DDCompactView> cpv;
-  iRecord.getRecord<IdealGeometryRecord>().get(cpv);
-
-  edm::ESHandle<MuonGeometryConstants> mdc;
-  iRecord.getRecord<IdealGeometryRecord>().get(mdc);
-
-  DTGeometryBuilderFromDDD DTGeometryBuilder;
-  CSCGeometryBuilderFromDDD CSCGeometryBuilder;
-
-  auto theDTGeometry = std::make_unique<DTGeometry>();
-  DTGeometryBuilder.build(*theDTGeometry, &(*cpv), *mdc);
-  auto theCSCGeometry = std::make_unique<CSCGeometry>();
-  CSCGeometryBuilder.build(*theCSCGeometry, &(*cpv), *mdc);
+  edm::ESHandle<DTGeometry> theDTGeometry;
+  edm::ESHandle<CSCGeometry> theCSCGeometry;
+  eventSetup.get<MuonGeometryRecord>().get(theIdealGeometryLabel, theDTGeometry);
+  eventSetup.get<MuonGeometryRecord>().get(theIdealGeometryLabel, theCSCGeometry);
 
   // Create the alignable hierarchy
   AlignableMuon* theAlignableMuon = new AlignableMuon(&(*theDTGeometry), &(*theCSCGeometry));
@@ -126,12 +108,10 @@ edm::ESProducts<std::unique_ptr<DTGeometry>, std::unique_ptr<CSCGeometry> > Misa
     this->saveToDB();
 
   edm::LogInfo("MisalignedMuon") << "Producer done";
-
-  return edm::es::products(std::move(theDTGeometry), std::move(theCSCGeometry));
 }
 
 //__________________________________________________________________________________________________
-void MisalignedMuonESProducer::saveToDB(void) {
+void MuonMisalignedProducer::saveToDB(void) {
   // Call service
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (!poolDbService.isAvailable())  // Die if not available
@@ -147,6 +127,5 @@ void MisalignedMuonESProducer::saveToDB(void) {
   poolDbService->writeOne<AlignmentErrorsExtended>(
       &(*csc_AlignmentErrorsExtended), poolDbService->beginOfTime(), theCSCErrorRecordName);
 }
-//__________________________________________________________________________________________________
-
-DEFINE_FWK_EVENTSETUP_MODULE(MisalignedMuonESProducer);
+//____________________________________________________________________________________________
+DEFINE_FWK_MODULE(MuonMisalignedProducer);

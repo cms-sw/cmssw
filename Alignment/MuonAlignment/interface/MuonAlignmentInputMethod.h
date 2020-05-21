@@ -34,6 +34,7 @@
 class MuonAlignmentInputMethod {
 public:
   MuonAlignmentInputMethod();
+  MuonAlignmentInputMethod(std::string idealLabel);
   virtual ~MuonAlignmentInputMethod();
 
   // ---------- const member functions ---------------------
@@ -44,16 +45,13 @@ public:
 
   virtual AlignableMuon *newAlignableMuon(const edm::EventSetup &iSetup) const;
 
-protected:
-  std::shared_ptr<DTGeometry> idealDTGeometry(const edm::EventSetup &iSetup) const;
-  std::shared_ptr<CSCGeometry> idealCSCGeometry(const edm::EventSetup &iSetup) const;
-
 private:
   MuonAlignmentInputMethod(const MuonAlignmentInputMethod &) = delete;  // stop default
 
   const MuonAlignmentInputMethod &operator=(const MuonAlignmentInputMethod &) = delete;  // stop default
-
+  
   // ---------- member data --------------------------------
+  std::string idealGeometryLabel;
 };
 
 #endif

@@ -39,11 +39,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
-#include "Geometry/Records/interface/MuonNumberingRecord.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
-#include "Geometry/DTGeometryBuilder/src/DTGeometryBuilderFromDDD.h"
-#include "Geometry/CSCGeometryBuilder/src/CSCGeometryBuilderFromDDD.h"
 #include "Geometry/CommonTopologies/interface/GeometryAligner.h"
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
 #include "Geometry/Records/interface/PTrackerParametersRcd.h"
@@ -85,7 +81,7 @@ private:
   std::unique_ptr<AlignmentParameterStore> m_alignmentParameterStore;
 
   std::vector<std::unique_ptr<AlignmentMonitorBase>> m_monitors;
-
+  std::string idealGeometryLabel;
   bool m_firstEvent;
 };
 
@@ -102,7 +98,8 @@ private:
 //
 AlignmentMonitorAsAnalyzer::AlignmentMonitorAsAnalyzer(const edm::ParameterSet& iConfig)
     : m_tjTag(iConfig.getParameter<edm::InputTag>("tjTkAssociationMapTag")),
-      m_aliParamStoreCfg(iConfig.getParameter<edm::ParameterSet>("ParameterStore")) {
+      m_aliParamStoreCfg(iConfig.getParameter<edm::ParameterSet>("ParameterStore")),
+      idealGeometryLabel("idealForAlignmentMonitorAsAnalyzer") {
   std::vector<std::string> monitors = iConfig.getUntrackedParameter<std::vector<std::string>>("monitors");
 
   for (auto const& mon : monitors) {
@@ -134,8 +131,8 @@ void AlignmentMonitorAsAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 
     edm::ESHandle<DTGeometry> theMuonDT;
     edm::ESHandle<CSCGeometry> theMuonCSC;
-    iSetup.get<MuonGeometryRecord>().get(theMuonDT);
-    iSetup.get<MuonGeometryRecord>().get(theMuonCSC);
+    iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, theMuonDT);
+    iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, theMuonCSC);
 
     edm::ESHandle<Alignments> globalPositionRcd;
     iSetup.get<GlobalPositionRcd>().get(globalPositionRcd);

@@ -23,11 +23,7 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "Geometry/CSCGeometryBuilder/src/CSCGeometryBuilderFromDDD.h"
-#include "Geometry/DTGeometryBuilder/src/DTGeometryBuilderFromDDD.h"
-#include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
-#include "Geometry/Records/interface/MuonNumberingRecord.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 //------------------------------------------------------------------------------
@@ -52,7 +48,8 @@ AlignmentProducerBase::AlignmentProducerBase(const edm::ParameterSet& config)
       saveApeToDB_{config.getParameter<bool>("saveApeToDB")},
       saveDeformationsToDB_{config.getParameter<bool>("saveDeformationsToDB")},
       useSurvey_{config.getParameter<bool>("useSurvey")},
-      enableAlignableUpdates_{config.getParameter<bool>("enableAlignableUpdates")} {
+      enableAlignableUpdates_{config.getParameter<bool>("enableAlignableUpdates")},
+      idealGeometryLabel("idealForAlignmentProducerBase") {
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducerBase::AlignmentProducerBase";
 
   const auto& algoConfig = config_.getParameterSet("algoConfig");
@@ -426,8 +423,8 @@ void AlignmentProducerBase::createGeometries(const edm::EventSetup& iSetup, cons
   }
 
   if (doMuon_) {
-    iSetup.get<MuonGeometryRecord>().get(muonDTGeometry_);
-    iSetup.get<MuonGeometryRecord>().get(muonCSCGeometry_);
+    iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, muonDTGeometry_);
+    iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, muonCSCGeometry_);
   }
 }
 

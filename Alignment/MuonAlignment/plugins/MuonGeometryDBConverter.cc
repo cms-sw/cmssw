@@ -61,6 +61,7 @@ private:
 
   edm::ParameterSet m_misalignmentScenario;
   edm::ParameterSet m_outputXML;
+  std::string idealGeometryLabelForInputMethod, idealGeometryLabelForInputDB, idealGeometryLabelForInputXML, idealGeometryLabelForInputSurveyDB;
 };
 
 //
@@ -80,7 +81,11 @@ MuonGeometryDBConverter::MuonGeometryDBConverter(const edm::ParameterSet &iConfi
       m_output(iConfig.getParameter<std::string>("output")),
       m_shiftErr(0.),
       m_angleErr(0.),
-      m_getAPEs(false) {
+      m_getAPEs(false),
+      idealGeometryLabelForInputMethod("idealForInputMethod"),
+      idealGeometryLabelForInputDB("idealForInputDB"),
+      idealGeometryLabelForInputXML("idealForInputXML"),
+      idealGeometryLabelForInputSurveyDB("idealForInputSurveyDB") {
   ////////////////////////////////////////////////////////////////////
   // Version V02-03-02 and earlier of this module had support for   //
   // "cfg" as an input/output format.  It turns out that reading    //
@@ -153,7 +158,7 @@ void MuonGeometryDBConverter::analyze(const edm::Event &iEvent, const edm::Event
     }
 
     else if (m_input == std::string("db")) {
-      MuonAlignmentInputDB inputMethod(m_dtLabel, m_cscLabel, m_getAPEs);
+      MuonAlignmentInputDB inputMethod(m_dtLabel, m_cscLabel, idealGeometryLabelForInputDB, m_getAPEs);
       muonAlignment = new MuonAlignment(iSetup, inputMethod);
       if (m_getAPEs) {
         muonAlignment->copyAlignmentToSurvey(m_shiftErr, m_angleErr);
@@ -161,7 +166,7 @@ void MuonGeometryDBConverter::analyze(const edm::Event &iEvent, const edm::Event
     }
 
     else if (m_input == std::string("surveydb")) {
-      MuonAlignmentInputSurveyDB inputMethod(m_dtLabel, m_cscLabel);
+      MuonAlignmentInputSurveyDB inputMethod(m_dtLabel, m_cscLabel,idealGeometryLabelForInputSurveyDB);
       muonAlignment = new MuonAlignment(iSetup, inputMethod);
       muonAlignment->copySurveyToAlignment();
     }
@@ -176,7 +181,7 @@ void MuonGeometryDBConverter::analyze(const edm::Event &iEvent, const edm::Event
     }
 
     else if (m_input == std::string("xml")) {
-      MuonAlignmentInputXML inputMethod(m_fileName);
+      MuonAlignmentInputXML inputMethod(m_fileName, idealGeometryLabelForInputXML);
       muonAlignment = new MuonAlignment(iSetup, inputMethod);
       muonAlignment->fillGapsInSurvey(m_shiftErr, m_angleErr);
     }

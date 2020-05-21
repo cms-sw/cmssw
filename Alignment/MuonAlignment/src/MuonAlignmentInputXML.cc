@@ -32,6 +32,7 @@ XERCES_CPP_NAMESPACE_USE
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 //
 // constants, enums and typedefs
@@ -44,7 +45,7 @@ XERCES_CPP_NAMESPACE_USE
 //
 // constructors and destructor
 //
-MuonAlignmentInputXML::MuonAlignmentInputXML(const std::string &fileName) : m_fileName(fileName) {
+MuonAlignmentInputXML::MuonAlignmentInputXML(const std::string &fileName, std::string idealLabel) : m_fileName(fileName), idealGeometryLabel(idealLabel) {
   cms::concurrency::xercesInitialize();
   str_operation = XMLString::transcode("operation");
   str_collection = XMLString::transcode("collection");
@@ -252,8 +253,10 @@ void MuonAlignmentInputXML::fillAliToIdeal(std::map<Alignable *, Alignable *> &a
 }
 
 AlignableMuon *MuonAlignmentInputXML::newAlignableMuon(const edm::EventSetup &iSetup) const {
-  std::shared_ptr<DTGeometry> dtGeometry = idealDTGeometry(iSetup);
-  std::shared_ptr<CSCGeometry> cscGeometry = idealCSCGeometry(iSetup);
+  edm::ESHandle<DTGeometry> dtGeometry;
+  edm::ESHandle<CSCGeometry> cscGeometry;
+  iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, dtGeometry);
+  iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, cscGeometry);
 
   AlignableMuon *alignableMuon = new AlignableMuon(&(*dtGeometry), &(*cscGeometry));
   std::map<unsigned int, Alignable *> alignableNavigator;  // real AlignableNavigators don't have const methods
